@@ -2,6 +2,9 @@
 #include <sys/types.h>
 #include <cstring>
 
+#ifndef __linux__
+  #include <direct.h>
+#endif
 
 #include "Markov_Console/MkdirCommand.h"
 #include "Markov_Console/Markov_CommandManager.h"

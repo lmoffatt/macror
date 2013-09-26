@@ -28,17 +28,21 @@ DEPENDPATH= Include \
 
 SVNVERPATH = $${OUT_PWD}/versionNumber
 
+unix {
+
 message( svn path $$SVNVERPATH)
 
 # updates the repository to warrant the right version number
-system(svn update)
+system(git rev-parsesvn update)
 
+last_commit=$(git rev-parse HEAD)
 
 # stores the revision number since the last update with the repository in the address SVN_VER_PATH
 system(grep dir ../.svn/entries  -A1 -m1 | grep dir -v >$${SVNVERPATH})
 
 DEFINES+='SVN_VER_PATH="$${SVNVERPATH}"'
 
+}
 
 CONFIG(debug, debug|release) {
 
@@ -49,7 +53,9 @@ CONFIG(debug, debug|release) {
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
 
+unix:!macx {
 QMAKE_CXX = g++-4.8
+}
 
 QMAKE_CXXFLAGS_RELEASE += -fopenmp
 QMAKE_LFLAGS_RELEASE += -fopenmp
