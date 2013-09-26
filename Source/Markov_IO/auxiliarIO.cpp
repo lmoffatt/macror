@@ -215,6 +215,16 @@ namespace Markov_IO
     return str;
   }
   template <>
+  std::string ToString(const ABC_Put& x)
+  {
+    std::stringstream ss;
+      x.put(ss);
+    std::string str=ss.str();
+    return str;
+  }
+
+
+  template <>
   std::string ToString(const ABC_Object& x)
   {
     std::stringstream ss;
