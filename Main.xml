@@ -1,0 +1,9 @@
+<m1>
+	<Q_Markov_Model>
+		<agonist_vector>0  1  2  3  3  3  &#x0A;&#x0A;</agonist_vector>
+		<conductance_vector>0  &#x0A;0  &#x0A;0  &#x0A;0  &#x0A;0  &#x0A;1  &#x0A;&#x0A;</conductance_vector>
+		<name>Moffatt_2007</name>
+		<Q_matrix>0  16  0  0  0  0  &#x0A;2  0  16  0  0  0  &#x0A;0  380  0  10  0  0  &#x0A;0  0  6800  0  3700  0  &#x0A;0  0  0  43  0  1100  &#x0A;0  0  0  0  540  0  &#x0A;&#x0A;</Q_matrix>
+		<unitary_conductance>1</unitary_conductance>
+	</Q_Markov_Model>
+</m1>

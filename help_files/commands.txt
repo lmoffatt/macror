@@ -1,0 +1,7 @@
+>>help commands
+
+list of valid commands
+help, simulate, likelihood, model, experiment, save, export, load, dir, cd,
+optimize, option likelihood, option simulate, option optimize
+
+>>

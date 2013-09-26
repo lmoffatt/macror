@@ -1,0 +1,10 @@
+>>help experiment
+
+experiment [experiment-alias]
+    Interactive creation of an experiment. It ask first for the experimen type
+    from a list, and thereafter for each one of the parameters defining the
+    experiment.
+
+>>
+
+

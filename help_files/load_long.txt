@@ -1,0 +1,15 @@
+>>help load long
+load
+      +Loads all the variables stored in the file macror.xml
+
+load file-name.txt
+      +Loads all the variables stored in the file test.xml present in the current
+      working directory.
+      -If the file is not there, it returns the legend:
+	   "file C:\data\myWorkingDirectory\test.xml  not found"
+
+load test mymodel model2
+      +Loads the default model mymodel and model2 from the file test.xml of the
+      current working directory
+      -If one of them are not there it returns the legend
+	   "model2 not found in C:\data\myWorkingDirectory\test.xml"

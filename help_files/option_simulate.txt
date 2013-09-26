@@ -1,0 +1,18 @@
+>>help option simulate
+
+option simulate
+      Interactive creation of a variable holding values for the different
+      options on parameters of the simulation.
+      Specifically, the fields are the
+      followings:
+
+"num_steps"
+      [count]
+      Minimum number of subdivitions warrantied that are used for finding the
+      average current during each simulated measurment.
+
+"time_step"
+      [real]
+      Maximal duration of each sub-interval of time warrantied to be used for
+      finding the average current during each simulated measuremnt.
+

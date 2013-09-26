@@ -1,0 +1,44 @@
+>>help introduction
+
+
+
+MacroRConsole is composed by the following
+
+- A WorkingSpace where it looks for variables aliases.
+
+- A ScriptsDirectory where it looks for scripts, .
+
+- A ModelsDirectory where it looks and saves models.
+
+- An ExperimentDirectory where it looks and saves experiments.
+
+-
+
+- A Build-in Command library where it looks for commands.
+
+- A Set of reserved words
+direUser defined Names for particular instances of MacroR variables (Models,
+Experiments and others).
+Enter help variables for details
+
+- Build-in Commands that performs operations usually on the user defined
+variables (Load, Edit, Save, Simulate, Optimize etc).
+Enter help commands for details
+
+- Keywords that control programm flow (if, else, for etc).
+Enter help keywords for details
+
+- Operators  (+, -, etc).
+Enter help operators for details.
+
+- Special characters ( =, %, etc).
+Enter help special for details.
+
+
+Help on help
+- Details on command or keyword
+Enter help <name of the command or keyword> for details.
+
+
+>>
+

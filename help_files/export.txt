@@ -1,0 +1,10 @@
+>>help export
+Command export saves variables one per file.
+
+export
+    Each one of the variables of the workspace will be saved in a different text
+    file.
+
+>>
+
+

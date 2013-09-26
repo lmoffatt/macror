@@ -1,0 +1,22 @@
+>>help model patch
+
+Command model starts the interactive creation of a patch
+
+model patch [model-alias]
+    Creates a model referred by an alias. It succesively ask for a name, the
+    channel model, the number of channels and the noise of the preparation.
+
+    Try help model channel for description of the channel model.
+
+    Although the noise is considered white and gaussian, and therefore
+    described with a single parameter, for convenience it ask for two
+    parameters so the standard deviation and the frequency at which this
+    standard deviation holds.
+
+    The number of channels can be a fractional number, because it represents
+    not the actual number but our best guess of it, and therefore it might be
+    between two numbers.
+    When the number of channels is used for simulations, it is rounded to the
+    nearest integer.
+
+>>

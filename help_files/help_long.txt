@@ -1,0 +1,20 @@
+>>help long
+
+usage :
+
+help <subject>             Displays a brief help on a given subject
+
+help <subject> long        Displays a long help on a given subject
+
+help <subject> example     Displays an example of long help on a given subject
+
+
+help commands              Displays the list of valid commands
+
+help topics                Displays the list of topics where help is available
+
+help <topic>               Displays some help about the specific topic
+
+help <command>             Displays information related to the specific command
+
+>>

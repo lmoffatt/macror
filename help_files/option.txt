@@ -1,0 +1,10 @@
+>>help option
+
+enter
+help option simulate
+or
+help option likelihood
+or
+help option optimize
+
+>>

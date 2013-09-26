@@ -1,0 +1,19 @@
+
+###############################################################################
+
+			      MacroRConsole 0.01
+
+	       Statistically Sound Molecular Kinetics in a Console
+
+			       july 5th 2011 r204
+
+
+###############################################################################
+
+updates in http://code.google.com/macror
+
+enter help for help
+
+
+>>
+

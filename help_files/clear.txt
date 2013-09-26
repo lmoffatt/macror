@@ -1,0 +1,8 @@
+>>help clear
+clear all
+      Remove all the variables from memory
+
+clear object-alias
+      Remove the specified object (i.e, experiment, model, etc) from memory
+
+>>
