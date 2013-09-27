@@ -17,8 +17,6 @@ CONFIG -= app_bundle
 CONFIG -=uic
 
 
-message ($$CONFIG)
-#3error
 INCLUDEPATH = Include \
             Include/Borrowed
 
@@ -34,9 +32,9 @@ GITVERPATH = $${OUT_PWD}/versionNumber.txt
 GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
 system(call $$GITCALL rev-parse --short HEAD >> $$GITVERPATH)
 } else {
-GITVERPATH = $${OUT_PWD}/versionNumber
+GITVERPATH = $${OUT_PWD}\versionNumber
 
-hash=$$system(git rev-parse --short HEAD > $$GITVERPATH)
+system(git rev-parse --short HEAD > $$GITVERPATH)
 
 }
 message(GITVERPATH $$GITVERPATH)
