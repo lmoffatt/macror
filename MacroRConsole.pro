@@ -42,7 +42,7 @@ win32{
 # if you installed git in the safe way this is the suggested directory
 GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
 HASH = $$system(call $$GITCALL rev-parse --short HEAD)
-UNCOMITED=$$system(call $$GITCALL status --porcelain)
+UNCOMMITED=$$system(call $$GITCALL status --porcelain)
 HASH_DATE=$$HASH  $$DATE
 
 write_file($$path,HASH_DATE)

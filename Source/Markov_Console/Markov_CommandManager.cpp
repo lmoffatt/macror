@@ -108,7 +108,7 @@ namespace Markov_Console
       }
     std::string result=lineHash+"  ["+lineDate+"]";
     if (!lineUncommited.empty())
-      result+="\nWarning: uncommited files: \n"+lineUncommited;
+      result+="\nWarning: wrong hash number: some files remain uncommited: \n"+lineUncommited;
     return result;
   }
 
