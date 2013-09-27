@@ -94,6 +94,7 @@ namespace Markov_Console
        std::fstream f(path.c_str());
       std::string line;
       Markov_IO::safeGetline(f,line);
+
       return line;
     }
 
