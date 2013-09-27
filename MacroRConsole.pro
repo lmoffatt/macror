@@ -29,14 +29,19 @@ DEPENDPATH= Include \
 
 # updates the repository to warrant the right version number
 win32{
-GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
-hash=$$system(call $$GITCALL rev-parse --short HEAD)
-} else {
-hash=$$system(git rev-parse --short HEAD)
-}
-message(hash $$hash)
+GITVERPATH = $${OUT_PWD}/versionNumber.txt
 
-DEFINES+='GIT_HASH=$${hash}'
+GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
+system(call $$GITCALL rev-parse --short HEAD >> $$GITVERPATH)
+} else {
+GITVERPATH = $${OUT_PWD}/versionNumber
+
+hash=$$system(git rev-parse --short HEAD > $$GITVERPATH)
+
+}
+message(GITVERPATH $$GITVERPATH)
+
+DEFINES+='GIT_VER_PATH=$${GITVERPATH}'
 
 CONFIG(debug, debug|release) {
 
