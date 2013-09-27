@@ -26,18 +26,17 @@ DEPENDPATH= Include \
             Include/Borrowed
 
 
-SVNVERPATH = $${OUT_PWD}/versionNumber
-
-unix {
-
 
 # updates the repository to warrant the right version number
-
+win32{
+GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
+hash=$$system(call $$GITCALL rev-parse --short HEAD)
+} else {
 hash=$$system(git rev-parse --short HEAD)
+}
+message(hash $$hash)
 
 DEFINES+='GIT_HASH=$${hash}'
-
-}
 
 CONFIG(debug, debug|release) {
 
