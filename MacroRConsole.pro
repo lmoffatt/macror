@@ -372,8 +372,8 @@ SOURCES += Source/Markov_Console_Demo1.cpp \
     Source/Markov_Console/CommandHistory.cpp \
     Source/Markov_IO/ABC_Unit.cpp
 win32{
-LIBS += -L$$PWD/bin -lcygblas \
-        -L$$PWD/bin -lcyglapack
+LIBS += -L$$PWD/lib -lcygblas \
+        -L$$PWD/lib -lcyglapack
 } else {
 LIBS +=  -lblas  -llapack
 #-lgfortran
