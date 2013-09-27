@@ -47,7 +47,8 @@ system(git rev-parse --short HEAD > $$GITVERPATH)
 message (path $$GITVERPATH)
 }
 
-# defines a Macro containing the path to the versionNumber file
+# defines a Macro containing the name of the versionNumber file
+
 DEFINES+='GIT_VER_PATH=$${GITVERFILENAME}'
 
 CONFIG(debug, debug|release) {
