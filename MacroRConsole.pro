@@ -25,21 +25,30 @@ DEPENDPATH= Include \
 
 
 
-# updates the repository to warrant the right version number
-win32{
-GITVERPATH = $${OUT_PWD}/versionNumber.txt
+GITVERFILENAME = versionNumber
 
+
+# stores the hash number in the versionNumber filei
+win32{
+
+GITVERPATH = $${OUT_PWD}/$$GITVERFILENAME
+
+# if you installed git in the safe way this is the suggested directory
 GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
+
 system(call $$GITCALL rev-parse --short HEAD >> $$GITVERPATH)
+
 } else {
-GITVERPATH = $${OUT_PWD}\versionNumber
+
+GITVERPATH = $${OUT_PWD}/$$GITVERFILENAME
 
 system(git rev-parse --short HEAD > $$GITVERPATH)
 
+message (path $$GITVERPATH)
 }
-message(GITVERPATH $$GITVERPATH)
 
-DEFINES+='GIT_VER_PATH=$${GITVERPATH}'
+# defines a Macro containing the path to the versionNumber file
+DEFINES+='GIT_VER_PATH=$${GITVERFILENAME}'
 
 CONFIG(debug, debug|release) {
 
