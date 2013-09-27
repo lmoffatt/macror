@@ -30,31 +30,43 @@ DEPENDPATH= Include \
 
 
 GITVERFILENAME = versionNumber
+UNCOMMITEDFILENAME=uncommited
 
 GITVERPATH = $${OUT_PWD}/$$GITVERFILENAME
+UNCOMMITEDPATH = $${OUT_PWD}/$$UNCOMMITEDFILENAME
 path=$$system_path($$GITVERPATH)
-
+uncommitedpath=$$system_path($$UNCOMMITEDPATH)
 # stores the hash number in the versionNumber filei
 win32{
 
 # if you installed git in the safe way this is the suggested directory
 GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
-system(erase $$path)
 HASH = $$system(call $$GITCALL rev-parse --short HEAD)
-write_file($$path, HASH )
+UNCOMITED=$$system(call $$GITCALL status --porcelain)
+HASH_DATE=$$HASH  $$DATE
+
+write_file($$path,HASH_DATE)
+write_file($$uncommitedpath,UNCOMMITED)
 
 
 } else {
 
 HASH=$$system(git rev-parse --short HEAD)
-write_file($$path,HASH)
+DATE=$$system(git show -s --format="%ci" HEAD)
+UNCOMMITED=$$system(git status --porcelain)
 
+HASH_DATE=$$HASH  $$DATE
+
+write_file($$path,HASH_DATE)
+write_file($$uncommitedpath,UNCOMMITED)
 
 }
 
 # defines a Macro containing the name of the versionNumber file
 
 DEFINES+='GIT_VER_PATH=$${GITVERFILENAME}'
+DEFINES+='UNCOMMITED_PATH=$${UNCOMMITEDFILENAME}'
+
 
 CONFIG(debug, debug|release) {
 
@@ -426,8 +438,32 @@ OTHER_FILES += \
     help_files/simulate.txt \
     help_files/optimize.txt \
     help_files/likelihood.txt
+
+
+win32{
+for (f, OTHER_FILES){
+FS=$$system_path($$f)
+FT = $${OUT_PWD}/$$f
+DN=$$dirname(FT)
+!exists($$DN):system(mkdir $$system_path($$DN))
+system(cp $$FS  $$FT)
+}
+
+} else{
+
+for (f, OTHER_FILES){
+FS=$$system_path($$f)
+FT = $${OUT_PWD}/$$f
+DN=$$dirname(FT)
+!exists($$DN):system(mkdir $$system_path($$DN))
+system(cp $$FS  $$FT)
+}
+}
+
 message ("MacroRConsole end here")
 
 }
+
+
 
 

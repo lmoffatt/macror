@@ -51,13 +51,7 @@ option [command] [new-alias]
       Opens an interactive dialog to create a
 
 object-alias
-      Displays the contents of the specified object (i.e, a model, experiment
-      etc..
+      Displays the contents of the specified object (i.e, a model, experiment etc..
 
 script-filename
-      Looks for a the file "script-filename.macror.txt" in current directory
-      and executes all the commands found on it.
-
->>
-
-
+      Looks for a the file "script-filename.macror.txt" in current directory and executes all the commands found on it.

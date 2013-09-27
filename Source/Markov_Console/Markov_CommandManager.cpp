@@ -90,13 +90,27 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::ver()const
   {
-      std::string path=STRINGIZE(GIT_VER_PATH);
-       std::fstream f(path.c_str());
-      std::string line;
-      Markov_IO::safeGetline(f,line);
-
-      return line;
-    }
+    std::string path=STRINGIZE(GIT_VER_PATH);
+    std::string path2=STRINGIZE(UNCOMMITED_PATH);
+    std::fstream f(path.c_str());
+    std::fstream f2(path2.c_str());
+    std::string lineHash;
+    Markov_IO::safeGetline(f,lineHash);
+    std::string lineDate;
+    Markov_IO::safeGetline(f,lineDate);
+    std::string lineUncommited0;
+    std::string lineUncommited;
+    while ( Markov_IO::safeGetline(f2,lineUncommited0))
+      {
+        lineUncommited+=lineUncommited0;
+        Markov_IO::safeGetline(f2,lineUncommited0);
+        lineUncommited+=" "+lineUncommited0+"\n";
+      }
+    std::string result=lineHash+"  ["+lineDate+"]";
+    if (!lineUncommited.empty())
+      result+="\nWarning: uncommited files: \n"+lineUncommited;
+    return result;
+  }
 
   std::string Markov_CommandManager::version()const
   {
