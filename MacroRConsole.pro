@@ -7,6 +7,10 @@
 # other graphic libraries (i.e, no Markov_Plot)
 
 
+!macroRConsole{
+
+CONFIG +=macroRConsole
+
 message ("MacroRConsole here")
 
 TARGET = MacroRConsole
@@ -33,21 +37,19 @@ path=$$system_path($$GITVERPATH)
 # stores the hash number in the versionNumber filei
 win32{
 
-
 # if you installed git in the safe way this is the suggested directory
 GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
-
 system(erase $$path)
-system(call $$GITCALL rev-parse --short HEAD >> $$path)
+HASH = $$system(call $$GITCALL rev-parse --short HEAD)
+write_file($$path, HASH )
+
 
 } else {
 
-GITVERPATH = $${OUT_PWD}/$$GITVERFILENAME
+HASH=$$system(git rev-parse --short HEAD)
+write_file($$path,HASH)
 
-system(rm $$path)
-system(git rev-parse --short HEAD > $$path)
 
-message (path $$GITVERPATH)
 }
 
 # defines a Macro containing the name of the versionNumber file
@@ -424,7 +426,8 @@ OTHER_FILES += \
     help_files/simulate.txt \
     help_files/optimize.txt \
     help_files/likelihood.txt
+message ("MacroRConsole end here")
 
-
+}
 
 

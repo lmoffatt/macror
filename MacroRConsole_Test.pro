@@ -6,6 +6,10 @@
 # No GUI, only Console with their TESTS, no dependency on Qt, nor on
 # other graphic libraries (i.e, no Markov_Plot)
 
+!macroRconsole_Test{
+
+CONFIG +=macroRconsole_Test
+
 message (" MacroRConsole_Test here")
 
 !include( MacroRConsole.pro ) {
@@ -119,24 +123,6 @@ HEADERS = $$unique(HEADERS)
 
 SOURCES =  $$unique(SOURCES)
 
+message (" MacroRConsole_Test here")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}

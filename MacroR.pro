@@ -5,8 +5,9 @@
 #-------------------------------------------------
 #  Include  the GUI interfase of MarkovLib
 
-
-
+!macroR_Test {
+CONFIG+=macroR_Test
+message(MacroR.pro here)
  !include( MacroRConsole.pro ){
        message( "MacroRConsole.pro not found" )
 }
@@ -93,56 +94,10 @@ HEADERS = $$unique(HEADERS)
 
 SOURCES =  $$unique(SOURCES)
 
-message($$CONFIG)
-message($$TEMPLATE)
-message($$QT)
+#message($$CONFIG)
+#message($$TEMPLATE)
+#message($$QT)
 
 message ("MacroR ends here")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}

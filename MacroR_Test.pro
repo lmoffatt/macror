@@ -28,7 +28,7 @@ DEFINES = $$unique(DEFINES)
 
 TARGET = MacroR_Test
 
-message($$SOURCES)
+#message($$SOURCES)
 
 
 
