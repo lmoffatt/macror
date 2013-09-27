@@ -27,22 +27,25 @@ DEPENDPATH= Include \
 
 GITVERFILENAME = versionNumber
 
+GITVERPATH = $${OUT_PWD}/$$GITVERFILENAME
+path=$$system_path($$GITVERPATH)
 
 # stores the hash number in the versionNumber filei
 win32{
 
-GITVERPATH = $${OUT_PWD}/$$GITVERFILENAME
 
 # if you installed git in the safe way this is the suggested directory
 GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
 
-system(call $$GITCALL rev-parse --short HEAD >> $$GITVERPATH)
+system(erase $$path)
+system(call $$GITCALL rev-parse --short HEAD >> $$path)
 
 } else {
 
 GITVERPATH = $${OUT_PWD}/$$GITVERFILENAME
 
-system(git rev-parse --short HEAD > $$GITVERPATH)
+system(rm $$path)
+system(git rev-parse --short HEAD > $$path)
 
 message (path $$GITVERPATH)
 }
