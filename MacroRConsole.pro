@@ -44,6 +44,8 @@ GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
 HASH = $$system(call $$GITCALL rev-parse --short HEAD)
 UNCOMITED=$$system(call $$GITCALL status --porcelain)
 HASH_DATE=$$HASH  $$DATE
+message(hash date $$HASH_DATE)
+message(uncommited $$UNCOMMITED)
 
 write_file($$path,HASH_DATE)
 write_file($$uncommitedpath,UNCOMMITED)
@@ -446,7 +448,7 @@ FS=$$system_path($$f)
 FT = $${OUT_PWD}/$$f
 DN=$$dirname(FT)
 !exists($$DN):system(mkdir $$system_path($$DN))
-system(cp $$FS  $$FT)
+system(copy $$FS  $$FT)
 }
 
 } else{
