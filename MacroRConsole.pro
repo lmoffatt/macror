@@ -30,17 +30,12 @@ SVNVERPATH = $${OUT_PWD}/versionNumber
 
 unix {
 
-message( svn path $$SVNVERPATH)
 
 # updates the repository to warrant the right version number
-system(git rev-parsesvn update)
 
-last_commit=$(git rev-parse HEAD)
+hash=$$system(git rev-parse --short HEAD)
 
-# stores the revision number since the last update with the repository in the address SVN_VER_PATH
-system(grep dir ../.svn/entries  -A1 -m1 | grep dir -v >$${SVNVERPATH})
-
-DEFINES+='SVN_VER_PATH="$${SVNVERPATH}"'
+DEFINES+='GIT_HASH=$${hash}'
 
 }
 

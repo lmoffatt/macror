@@ -90,11 +90,8 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::ver()const
   {
-    std::string path=STRINGIZE(SVN_VER_PATH);
-    std::fstream f(path.c_str());
-    std::string line;
-    Markov_IO::safeGetline(f,line);
-    return line;
+    std::string s(STRINGIZE(GIT_HASH));
+    return s;
   }
 
   std::string Markov_CommandManager::version()const
