@@ -7,12 +7,12 @@
 
 istest = 1
 
- !include( MacroRConsole_Test.pro ){
-       message( "MacroRConsole_Test.pro not found" )
-}
 
  !include( MacroR.pro ){
        message( "MacroR.pro not found" )
+}
+ !include( MacroRConsole_Test.pro ){
+       message( "MacroRConsole_Test.pro not found" )
 }
 
 SOURCES += Source/main_MacroR_Test.cpp

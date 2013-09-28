@@ -6,11 +6,14 @@
 # No GUI, only Console with their TESTS, no dependency on Qt, nor on
 # other graphic libraries (i.e, no Markov_Plot)
 
-!macroRconsole_Test{
 
-CONFIG +=macroRconsole_Test
+#message(ENTER MACROCONSOLETEST CONFIG ES $$CONFIG)
 
-message (" MacroRConsole_Test here")
+!macroRConsole_Test{
+
+CONFIG +=macroRConsole_Test
+
+message (" macroRConsole_Test here")
 
 !include( MacroRConsole.pro ) {
      message( "MacroRConsole.pro not found" )

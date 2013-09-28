@@ -5,8 +5,10 @@
 #-------------------------------------------------
 #  Include  the GUI interfase of MarkovLib
 
-!macroR_Test {
-CONFIG+=macroR_Test
+#message(ENTER MACROR CONFIG ES $$CONFIG)
+
+!macroR{
+CONFIG+=macroR
 message(MacroR.pro here)
  !include( MacroRConsole.pro ){
        message( "MacroRConsole.pro not found" )

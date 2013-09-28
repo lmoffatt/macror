@@ -6,13 +6,11 @@
 # No GUI, only Console, no dependency on Qt, nor on
 # other graphic libraries (i.e, no Markov_Plot)
 
+#message(ENTER MACROCONSOLE CONFIG ES $$CONFIG)
 
 !macroRConsole{
-
 CONFIG +=macroRConsole
-
-message ("MacroRConsole here")
-
+#message ("MacroRConsole here")
 TARGET = MacroRConsole
 TEMPLATE = app
 # CONFIG   += console
@@ -39,28 +37,26 @@ uncommitedpath=$$system_path($$UNCOMMITEDPATH)
 # stores the hash number in the versionNumber filei
 win32{
 
-# if you installed git in the safe way this is the suggested directory
-GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
-HASH = $$system(call $$GITCALL rev-parse --short HEAD)
-UNCOMMITED=$$system(call $$GITCALL status --porcelain)
-HASH_DATE=$$HASH  $$DATE
-message(hash date $$HASH_DATE)
-message(uncommited $$UNCOMMITED)
-
-write_file($$path,HASH_DATE)
-write_file($$uncommitedpath,UNCOMMITED)
+    # if you installed git in th e safe way this is the suggested directory
+    GITCALL='"\Program Files (x86)\Git\bin\git.exe"'
+    HASH = $$system(call $$GITCALL rev-parse --short HEAD)
+    DATE=$$system(call $$GITCALL show -s --format="%ci" HEAD)
+    UNCOMMITED=$$system(call $$GITCALL status --porcelain)
+    HASH_DATE=$$HASH  $$DATE
+    write_file($$path,HASH_DATE)
+    write_file($$uncommitedpath,UNCOMMITED)
 
 
 } else {
 
-HASH=$$system(git rev-parse --short HEAD)
-DATE=$$system(git show -s --format="%ci" HEAD)
-UNCOMMITED=$$system(git status --porcelain)
+    HASH=$$system(git rev-parse --short HEAD)
+    DATE=$$system(git show -s --format="%ci" HEAD)
+    UNCOMMITED=$$system(git status --porcelain)
 
-HASH_DATE=$$HASH  $$DATE
+    HASH_DATE=$$HASH  $$DATE
 
-write_file($$path,HASH_DATE)
-write_file($$uncommitedpath,UNCOMMITED)
+    write_file($$path,HASH_DATE)
+    write_file($$uncommitedpath,UNCOMMITED)
 
 }
 
@@ -398,15 +394,14 @@ SOURCES += Source/Markov_Console_Demo1.cpp \
     Source/Markov_Console/CommandHistory.cpp \
     Source/Markov_IO/ABC_Unit.cpp
 win32{
-LIBS += -L$$PWD/lib -lcygblas \
-        -L$$PWD/lib -lcyglapack
+    LIBS += -L$$PWD/lib -lcygblas \
+            -L$$PWD/lib -lcyglapack
 } else {
-LIBS +=  -lblas  -llapack
+    LIBS +=  -lblas  -llapack
 #-lgfortran
 }
 
 HEADERS = $$unique(HEADERS)
-
 SOURCES =  $$unique(SOURCES)
 
 OTHER_FILES += \
@@ -443,23 +438,21 @@ OTHER_FILES += \
 
 
 win32{
-for (f, OTHER_FILES){
-FS=$$system_path($$f)
-FT = $${OUT_PWD}/$$f
-DN=$$dirname(FT)
-!exists($$DN):system(mkdir $$system_path($$DN))
-system(copy $$FS  $$FT)
-}
-
+    for (f, OTHER_FILES){
+        FS=$$system_path($$f)
+        FT = $$system_path($${OUT_PWD}/$$f)
+        DN=$$dirname(FT)
+        !exists($$DN):system(mkdir $$system_path($$DN))
+        system(copy $$FS  $$FT)
+    }
 } else{
-
-for (f, OTHER_FILES){
-FS=$$system_path($$f)
-FT = $${OUT_PWD}/$$f
-DN=$$dirname(FT)
-!exists($$DN):system(mkdir $$system_path($$DN))
-system(cp $$FS  $$FT)
-}
+    for (f, OTHER_FILES){
+        FS=$$system_path($$f)
+        FT = $${OUT_PWD}/$$f
+        DN=$$dirname(FT)
+        !exists($$DN):system(mkdir $$system_path($$DN))
+        system(cp $$FS  $$FT)
+    }
 }
 
 message ("MacroRConsole end here")
