@@ -103,8 +103,8 @@ namespace Markov_Console
     while ( Markov_IO::safeGetline(f2,lineUncommited0))
       {
         lineUncommited+=lineUncommited0;
-        Markov_IO::safeGetline(f2,lineUncommited0);
-        lineUncommited+=" "+lineUncommited0+"\n";
+        if (Markov_IO::safeGetline(f2,lineUncommited0))
+             lineUncommited+=" "+lineUncommited0+"\n";
       }
     std::string result=lineHash+"  ["+lineDate+"]";
     if (!lineUncommited.empty())
