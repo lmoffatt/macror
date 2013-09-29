@@ -115,7 +115,6 @@ HEADERS += Include/runDemosConsole.h \
     Include/Markov_IO/FileDir.h \
     Include/Markov_IO/ExperimentAverage.h \
     Include/Markov_IO/experiment2.h \
-    Include/Markov_IO/experiment1.h \
     Include/Markov_IO/ClassDescription.h \
     Include/Markov_IO/auxiliarIO.h \
     Include/Markov_IO/ABC_Trace.h \
@@ -125,7 +124,6 @@ HEADERS += Include/runDemosConsole.h \
     Include/Markov_IO/ABC_O_Descriptible.h \
     Include/Markov_IO/ABC_MeasureStep.h \
     Include/Markov_IO/ABC_MeasurePoint.h \
-    Include/Markov_IO/ABC_Get.h \
     Include/Markov_IO/ABC_Experiment.h \
     Include/Markov_LA/ToleranceComparison.h \
     Include/Markov_LA/matrixSum.h \
@@ -296,7 +294,6 @@ SOURCES += Source/Markov_Console_Demo1.cpp \
     Source/Markov_IO/ABC_O_Descriptible.cpp \
     Source/Markov_IO/ABC_MeasureStep.cpp \
     Source/Markov_IO/ABC_MeasurePoint.cpp \
-    Source/Markov_IO/ABC_Get.cpp \
     Source/Markov_IO/ABC_Experiment.cpp \
     Source/Markov_LA/ToleranceComparison.cpp \
     Source/Markov_LA/matrixSum.cpp \

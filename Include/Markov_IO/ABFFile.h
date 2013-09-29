@@ -16,7 +16,7 @@ namespace Markov_IO
     ABFFile(const std::string& path);
 
 
-static    bool isValid(const std::string path);
+    static    bool isValid(const std::string path);
 
     double version()const;
     std::string protocol()const;
@@ -98,7 +98,7 @@ static    bool isValid(const std::string path);
 
 
 
-   // ABF <2.0
+    // ABF <2.0
 
     ABFFileHeader* H1_;
 

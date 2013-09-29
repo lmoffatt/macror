@@ -1,4 +1,5 @@
 #include <string>
+#include <algorithm>
 
 #include "Markov_Console/Markov_CommandManager.h"
 #include "Markov_Console/Help_File.h"
@@ -91,13 +92,27 @@ namespace Markov_Console
   std::string Markov_CommandManager::ver()const
   {
     std::string path=STRINGIZE(GIT_VER_PATH);
-    std::string path2=STRINGIZE(UNCOMMITED_PATH);
     std::fstream f(path.c_str());
-    std::fstream f2(path2.c_str());
     std::string lineHash;
     Markov_IO::safeGetline(f,lineHash);
+    return lineHash;
+  }
+
+  std::string Markov_CommandManager::verDate()const
+  {
+    std::string path=STRINGIZE(GIT_VER_PATH);
+    std::fstream f(path.c_str());
+    std::string line;
+    Markov_IO::safeGetline(f,line);
     std::string lineDate;
     Markov_IO::safeGetline(f,lineDate);
+    return lineDate;
+  }
+
+  std::string Markov_CommandManager::uncommitedFiles()const
+  {
+    std::string path2=STRINGIZE(UNCOMMITED_PATH);
+    std::fstream f2(path2.c_str());
     std::string lineUncommited0;
     std::string lineUncommited;
     while ( Markov_IO::safeGetline(f2,lineUncommited0))
@@ -106,16 +121,53 @@ namespace Markov_Console
         if (Markov_IO::safeGetline(f2,lineUncommited0))
              lineUncommited+=" "+lineUncommited0+"\n";
       }
-    std::string result=lineHash+"  ["+lineDate+"]";
-    if (!lineUncommited.empty())
-      result+="\nWarning: wrong hash number: some files remain uncommited: \n"+lineUncommited;
-    return result;
+    return lineUncommited;
   }
+
+ std::string Markov_CommandManager::wellcomeMessage(unsigned ncols)const
+ {
+   std::string wllc;
+   std::string decorating_line(ncols,'#');
+   std::string vers=version();
+   std::string motto="Statistically Sound Molecular Kinetics";
+   std::string date_build=verDate()+"    build:"+ver();
+   std::string updatesMss="updates in http://code.google.com/p/macror/";
+   std::string helpmss="enter help for help";
+
+   wllc+=decorating_line+"\n";
+
+   int pos0=(ncols-vers.size())/2;
+   pos0=std::max(pos0,0);
+   wllc+=std::string(pos0,' ')+vers+"\n";
+
+   pos0=(ncols-motto.size())/2;
+   pos0=std::max(pos0,0);
+   wllc+=std::string(pos0,' ')+motto+"\n";
+
+   pos0=(ncols-date_build.size())/2;
+   pos0=std::max(pos0,0);
+   wllc+=std::string(pos0,' ')+date_build+"\n";
+
+   wllc+=decorating_line+"\n";
+
+   std::string uncomf=uncommitedFiles();
+   if (!uncomf.empty())
+     {
+       std::string warnmg="Warning: there are uncommited files, build number refers to a previous build";
+       wllc+=warnmg+"\n";
+       wllc+=uncomf+"\n";
+     }
+
+   wllc+=updatesMss+"\n";
+   wllc+=helpmss+"\n";
+   return wllc;
+ }
+
 
   std::string Markov_CommandManager::version()const
   {
-    std::string version="MacroR.0.1.";
-    return version+ver();
+    std::string version="MacroR.0.1";
+    return version;
   }
 
   std::size_t Markov_CommandManager::getVersion(const std::string& line)const

@@ -53,7 +53,11 @@ public:
     ~Markov_CommandManager();
 
     virtual std::string ver()const;
-    std::string version()const;
+    virtual std::string verDate()const;
+    virtual std::string uncommitedFiles()const;
+
+    virtual std::string version()const;
+    virtual std::string wellcomeMessage(unsigned ncols=80)const;
 
     std::size_t getVersion(const std::string& line)const;
 

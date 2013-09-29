@@ -33,7 +33,8 @@ MacrorCommandWindow::MacrorCommandWindow(MacrorMainWindow *parent ,
     cm_->add_command(new MacrorEditCommand(cm_));
     cm_->add_command(new MacrorExitCommand(cm_,mw_));
     cm_->add_command(new MacrorCreateCommand(cm_));
-    appendPlainText(QString(cm_->version().c_str()));
+    unsigned windowWidth=35;
+    appendPlainText(QString(cm_->wellcomeMessage(windowWidth).c_str()));
 
     appendPlainText(">>");
     std::stringstream ss;

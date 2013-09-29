@@ -10,10 +10,9 @@
 
 ###############################################################################
 
-updates in http://code.google.com/macror
+updates in http://code.google.com/p/macror/
 
 enter help for help
-
 
 >>
 

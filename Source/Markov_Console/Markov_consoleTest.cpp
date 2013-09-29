@@ -19,7 +19,7 @@ Markov_ConsoleTest::Markov_ConsoleTest(const std::string& fileCommandName)
   std::cout<<"MacroRConsole_Test 0.1."<<cm.ver()<<"\n";
   if (fileCommandName.empty())
     {
-      std::cout <<HelpFile("wellcome.txt");
+      std::cout <<cm.wellcomeMessage();
       while(true)
         {
           std::cout<<">>";

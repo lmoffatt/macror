@@ -13,8 +13,8 @@ Markov_Console::Markov_Console()
 {
     std::string commandLine;
 
-    std::cout <<HelpFile("wellcome.txt");
-    std::cout<<"MacroRConsole ver 0.1."<<cm.ver()<<"\n";
+    std::cout <<cm.wellcomeMessage();
+    //std::cout<<cm.version()<<"  "<<cm.verDate()<<"   build  "<<cm.ver()<<"\n";
     while(true)
     {
         std::cout<<">>";
