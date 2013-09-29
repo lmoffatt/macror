@@ -121,7 +121,6 @@ HEADERS += Include/runDemosConsole.h \
     Include/Markov_IO/ABC_Saveable.h \
     Include/Markov_IO/ABC_Put.h \
     Include/Markov_IO/ABC_Parametrizable.h \
-    #Include/Markov_IO/ABC_O_Descriptible.h \
     Include/Markov_IO/ABC_MeasureStep.h \
     Include/Markov_IO/ABC_MeasurePoint.h \
     Include/Markov_IO/ABC_Experiment.h \
@@ -291,7 +290,6 @@ SOURCES += Source/Markov_Console_Demo1.cpp \
     Source/Markov_IO/ABC_Trace.cpp \
     Source/Markov_IO/ABC_Saveable.cpp \
     Source/Markov_IO/ABC_Put.cpp \
-    #Source/Markov_IO/ABC_O_Descriptible.cpp \
     Source/Markov_IO/ABC_MeasureStep.cpp \
     Source/Markov_IO/ABC_MeasurePoint.cpp \
     Source/Markov_IO/ABC_Experiment.cpp \
