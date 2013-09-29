@@ -27,7 +27,7 @@ namespace Markov_IO{
   std::vector<std::string> ABC_Object::childClasses()
  {
      std::vector<std::string> list;
-     list.push_back(ABC_O_Descriptible::ClassName());
+     //list.push_back(ABC_O_Descriptible::ClassName());
      list.push_back(Object<double>::ClassName());
      list.push_back(Object<std::string>::ClassName());
      list.push_back(Object<std::size_t>::ClassName());
@@ -40,7 +40,9 @@ namespace Markov_IO{
 
   bool  create(ABC_Object*& o,const std::string& childClass)
   {
-      ABC_O_Descriptible* adesc;
+     // ABC_O_Descriptible* adesc;
+      ABC_Saveable* adesc;
+
       if (create (adesc,childClass))
       {
           o=adesc;

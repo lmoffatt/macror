@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "Markov_IO/ABC_O_Descriptible.h"
+//#include "Markov_IO/ABC_O_Descriptible.h"
 #include "Markov_IO/ClassDescription.h"
 
 
@@ -12,7 +12,7 @@ namespace Markov_IO
 class ClassDescription;
 
 /// Abstract base class of objects that can be read from input stream
-class ABC_Saveable: public ABC_O_Descriptible
+class ABC_Saveable: public ABC_Object
 {
 public:
     ///virtual copy constructors
@@ -26,6 +26,11 @@ public:
 
     virtual ClassDescription GetDescription()const=0;
     virtual ClassDescription GetState()const;
+
+
+    std::ostream& put(std::ostream& s)const;
+
+
 
     virtual bool operator ==(const ABC_Saveable& other)const;
 
