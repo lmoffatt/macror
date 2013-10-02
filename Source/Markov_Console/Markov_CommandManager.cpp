@@ -136,16 +136,19 @@ namespace Markov_Console
 
    wllc+=decorating_line+"\n";
 
-   int pos0=(ncols-vers.size())/2;
-   pos0=std::max(pos0,0);
+   int pos0=0;
+   if (ncols>vers.size())
+       pos0=(ncols-vers.size())/2;
    wllc+=std::string(pos0,' ')+vers+"\n";
 
-   pos0=(ncols-motto.size())/2;
-   pos0=std::max(pos0,0);
+   pos0=0;
+   if (ncols>motto.size())
+       pos0=(ncols-motto.size())/2;
    wllc+=std::string(pos0,' ')+motto+"\n";
 
-   pos0=(ncols-date_build.size())/2;
-   pos0=std::max(pos0,0);
+   pos0=0;
+   if (ncols>date_build.size())
+       pos0=(ncols-date_build.size())/2;
    wllc+=std::string(pos0,' ')+date_build+"\n";
 
    wllc+=decorating_line+"\n";
