@@ -13,7 +13,7 @@
 #include "Markov_LA/matrixRounding.h"
 #include "Markov_LA/matrixOperators.h"
 
-#include "Markov_LA/auxiliarRelational.h"
+//#include "Markov_LA/auxiliarRelational.h"
 
 #include "Markov_IO/ClassDescription.h"
 #include "Markov_IO/auxiliarIO.h"

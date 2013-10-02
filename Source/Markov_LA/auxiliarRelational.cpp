@@ -12,8 +12,10 @@ Template generalization of relational operators for any Type with epsilon check
 #include "Markov_LA/auxiliarRelational.h"
 #include "Markov_LA/ToleranceComparison.h"
 
-namespace Markov_LA
-{
+namespace  Markov_LA {
+
+
+
 
 /**
 @name Relational operators between a container and a value
@@ -185,4 +187,4 @@ inline bool operator>=(const T& x,const T& y)
 
 
 
-};
+}

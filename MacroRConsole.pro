@@ -19,6 +19,10 @@ CONFIG -= app_bundle
 CONFIG -=uic
 
 
+QMAKE_CXXFLAGS_RELEASE += -std=c++11 #-lpthread
+QMAKE_CXXFLAGS_DEBUG += -std=c++11 #-lpthread
+
+
 INCLUDEPATH = Include \
             Include/Borrowed
 
@@ -453,6 +457,14 @@ win32{
 message ("MacroRConsole end here")
 
 }
+
+HEADERS += \
+    Include/Markov_Console/Autocomplete.h \
+    Include/Markov_Console/BayesianAutocomplete.h
+
+SOURCES += \
+    Source/Markov_Console/Autocomplete.cpp \
+    Source/Markov_Console/BayesianAutocomplete.cpp
 
 
 

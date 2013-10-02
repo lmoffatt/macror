@@ -2,6 +2,7 @@
 #define MULTIPLETESTS_H
 
 #include <vector>
+#include <string>
 #include "Tests/ABC_Test.h"
 
 namespace Markov_Test

@@ -3,6 +3,9 @@
 #include "Tests/Markov_Mol/Markov_Mol_Tests.h"
 #include "Tests/Markov_Bay/Markov_Bay_Test.h"
 #include "Tests/MersenneTwister_Test.h"
+#include "Include/Markov_Console/Autocomplete.h"
+#include "Include/Markov_Console/BayesianAutocomplete.h"
+
 
 namespace Markov_Console
 {
@@ -46,6 +49,18 @@ void Markov_CommandManagerTest::test(const std::string& testedEntity,
         testResult=MTT.AllTests();
 
     }
+    else if (testedEntity=="Autocomplete")
+      {
+        Markov_Test::Markov_MacroConsele_Test::Autocomplete_Test test;
+        testResult=test.classInvariant();
+
+      }
+    else if (testedEntity=="BayesAutocomplete")
+      {
+        Markov_Test::Markov_MacroConsele_Test::BayesAutocomplete_Test test;
+        testResult=test.classInvariant();
+
+      }
     if (mode=="verbose")
         testResult.VerboseLevel(true);
     else

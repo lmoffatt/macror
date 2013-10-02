@@ -2,6 +2,7 @@
 #define ABC_Put_H
 
 /// Abstract Base Class of Objects with copy and default constructors, destructors and formated output
+#include <string>
 
 #include <ostream>
 namespace Markov_IO

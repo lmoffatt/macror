@@ -3,7 +3,6 @@
 
 #include <string>
 
-//#include "Markov_IO/ABC_O_Descriptible.h"
 #include "Markov_IO/ClassDescription.h"
 
 

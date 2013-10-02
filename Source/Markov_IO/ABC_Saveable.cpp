@@ -93,7 +93,6 @@ bool ABC_Saveable::Load(const std::string& fileName)
   std::vector<std::string> ABC_Saveable::parentClasses()
  {
      std::vector<std::string> list;
-  //   list.push_back(ABC_O_Descriptible::ClassName());
      list.push_back(ABC_Object::ClassName());
      return list;
 

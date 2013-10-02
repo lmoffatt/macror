@@ -18,6 +18,7 @@ Markov_Console::Markov_Console()
     while(true)
     {
         std::cout<<">>";
+
         getline(std::cin,commandLine);
 	cm.add_tokens(commandLine);
         cm.next_instruction();
