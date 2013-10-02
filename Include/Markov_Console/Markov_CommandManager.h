@@ -23,6 +23,7 @@
 
 #include "Markov_Console/ABC_Command.h"
 #include "Markov_Console/CommandHistory.h"
+#include "Markov_Console/Autocomplete.h"
 
 #include "Markov_IO/FileDir.h"
 
@@ -64,6 +65,8 @@ public:
 
     virtual bool next_instruction();
     virtual void add_tokens(std::string commandLine);
+
+    virtual std::vector<std::string> complete(const std::string& hint);
 
 
     virtual std::string get_variables();
@@ -177,6 +180,8 @@ protected:
     Markov_IO::ABC_IO* io_;
     std::map<std::string, Markov_IO::ABC_Unit*> units;
     std::map<std::string, ABC_Command*> cmds;
+    Autocomplete cmdsl;
+
 
     std::map<std::string, Markov_IO::ABC_Saveable*> vars;
 

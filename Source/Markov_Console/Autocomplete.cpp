@@ -11,6 +11,7 @@ namespace  Markov_Console {
 
 
 
+
   /*!
    * \brief Autocomplete::push_back adds a new possible outcome
    * \param newMember the new instance
@@ -40,6 +41,9 @@ namespace  Markov_Console {
     return res;
 
   }
+
+
+
 
 }
 #ifdef MACRO_TEST

@@ -2,6 +2,7 @@
 #include "Markov_Console/Help_File.h"
 #include "Markov_IO/auxiliarIO.h"
 
+
 namespace Markov_Console
 {
 
@@ -12,9 +13,10 @@ namespace Markov_Console
 Markov_Console::Markov_Console()
 {
     std::string commandLine;
+    char ch(0);
 
+    int n;
     std::cout <<cm.wellcomeMessage();
-    //std::cout<<cm.version()<<"  "<<cm.verDate()<<"   build  "<<cm.ver()<<"\n";
     while(true)
     {
         std::cout<<">>";

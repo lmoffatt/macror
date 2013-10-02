@@ -62,6 +62,7 @@ namespace Markov_Console
     lastCmdRst(true)
   {
     Loadcommands();
+    cmdsl=Autocomplete(cmds);
     LoadTypes();
   }
 
@@ -494,6 +495,21 @@ namespace Markov_Console
     while (strstr>>t)
       tokens.push_back(t);
   }
+
+  /*!
+   * \brief Markov_CommandManager::complete list possible commands or options
+   * \param hint characters to be matched
+   * \return the list of matching commands or files or alias
+   */
+
+  std::vector<std::string> Markov_CommandManager::complete(const std::string& hint)
+  {
+    if (tokens.empty())
+      return cmdsl.complete(hint);
+;
+
+  }
+
 
   bool Markov_CommandManager::runLine(std::string commandLine)
   {

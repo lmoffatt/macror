@@ -22,6 +22,11 @@ class Autocomplete
 public:
 
   Autocomplete(std::vector<std::string> itemslist);
+  Autocomplete(){}
+
+  template<class T>
+  Autocomplete(std::map<std::string, T> itemsMap);
+
   std::vector<std::string> complete(std::string hint) const;
 
   void push_back(std::string newItem);
@@ -29,6 +34,17 @@ private:
   std::set<std::string> items;
 
 };
+
+template<class T>
+Autocomplete::Autocomplete(std::map<std::string, T> itemsMap)
+{
+  for (auto it=itemsMap.begin(); it!=itemsMap.end(); ++it)
+    {
+      items.insert((*it).first);
+    }
+}
+
+
 }
 #ifdef MACRO_TEST
 
