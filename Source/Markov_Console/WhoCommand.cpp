@@ -64,7 +64,7 @@ bool WhoCommand::run(std::deque<Token> & tokenList)
 bool WhoCommand::run(const std::string& className)
 {
     output_.clear();
-    std::deque<std::string> list;
+    std::vector<std::string> list;
     if (className.empty())
         list=cm_->getVarsList();
     else  if (cm_->has_var(className))

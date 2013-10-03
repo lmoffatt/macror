@@ -158,6 +158,8 @@ namespace Markov_Console
                   Markov_IO::ClassDescription des;
                   if (f>>des)
                     {
+                      Markov_IO::ABC_Saveable* s;
+
                       Markov_IO::ABC_Experiment* exp;
                       Markov_Mol::ABC_Markov_Model* mod;
                       Markov_Mol::ABC_noise* noise;

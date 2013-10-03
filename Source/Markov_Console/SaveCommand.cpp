@@ -117,13 +117,11 @@ bool SaveCommand::run(
      {
          f<<getCommandManager()->version()<<std::endl;
          std::size_t i=0;
-         for (std::map<std::string,Markov_IO::ABC_Saveable*>::const_iterator it
-              =cm_->getVars().begin();
-              it!=cm_->getVars().end();++it)
+         auto variablenames=cm_->getVarsList();
+         for (auto name : variablenames)
          {
-             f<<it->first<<std::endl;
-             f<<it->second->GetDescription();
-             ++i;
+             f<<name<<std::endl;
+             f<<cm_->getVar(name)->GetDescription();
          }
          f.close();
          output_=Markov_IO::ToString(i)+"  variables saved in file "+path;
@@ -143,10 +141,10 @@ bool SaveCommand::run(
              }
          }
          f<<getCommandManager()->version()<<std::endl;
-         for (std::size_t i=0; i<varnames.size(); i++)
+         for (auto name: varnames)
          {
-                f<<varnames[i]<<std::endl;
-                f<<cm_->getVars()[varnames[i]]->GetDescription();
+                f<<name<<std::endl;
+                f<<cm_->getVar(name)->GetDescription();
           }
           f.close();
           output_=Markov_IO::ToString(varnames.size())+"  variables saved in file "+path;

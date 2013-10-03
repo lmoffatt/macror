@@ -112,7 +112,7 @@ namespace Markov_Console
     if (varnames.empty())
       {
 
-        std::deque<std::string> varNamesDeque=cm_->getVarsList();
+        std::vector<std::string> varNamesDeque=cm_->getVarsList();
         for (std::size_t i=0;i<varNamesDeque.size(); ++i)
           {
             std::string path=dirname+"/"+varNamesDeque[i]+".txt";

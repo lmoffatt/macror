@@ -239,13 +239,13 @@ namespace Markov_Console
         return false;
       }
 
-    Markov_IO::ABC_Experiment* e=cm_->getExperiments()[experiment_in];
-    Markov_Mol::ABC_PatchModel* p=cm_->getPatchs()[patch_in];
+    Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(cm_->getVar(experiment_in));
+    Markov_Mol::ABC_PatchModel* p=dynamic_cast<Markov_Mol::ABC_PatchModel*>(cm_->getVar(patch_in));
     Markov_IO::ABC_Options* o;
     Markov_IO::Parameters* par;
 
     if (validOptions)
-      o=cm_->getOptions()[options_in];
+      o=dynamic_cast<Markov_IO::ABC_Options*>(cm_->getVar(options_in));
     else
       o=new Markov_Bay::SimpleOptimization::Options();
 
@@ -254,7 +254,8 @@ namespace Markov_Console
 
     if(validParameter)
       {
-        par=cm_->getParameters()[parameters_in];
+        par=dynamic_cast<Markov_IO::Parameters*>(cm_->getVar(parameters_in));
+
         p->apply_parameters(*par);
 
       }
@@ -279,8 +280,7 @@ namespace Markov_Console
 
 
         cm_->delete_var(results_out);
-        cm_->getVars()[results_out]=myresult;
-        cm_->getResults()[results_out]=myresult;
+        cm_->add_var(results_out,myresult);
         std::stringstream ss;
         ss<<*myresult;
         output_=ss.str();
@@ -308,8 +308,7 @@ namespace Markov_Console
 
             delete pa;
             cm_->delete_var(results_out);
-            cm_->getVars()[results_out]=myresult;
-            cm_->getResults()[results_out]=myresult;
+            cm_->add_var(results_out,myresult);
             std::stringstream ss;
             ss<<*myresult;
             output_=ss.str();
@@ -324,8 +323,7 @@ namespace Markov_Console
 
 
             cm_->delete_var(results_out);
-            cm_->getVars()[results_out]=myresult;
-            cm_->getResults()[results_out]=myresult;
+            cm_->add_var(results_out,myresult);
             std::stringstream ss;
             ss<<*myresult;
             output_=ss.str();

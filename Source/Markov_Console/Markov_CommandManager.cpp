@@ -718,10 +718,10 @@ namespace Markov_Console
   }
 
 
-  std::deque<std::string> Markov_CommandManager::getVarsList(Markov_IO::ABC_Saveable* varType) const
+  std::vector<std::string> Markov_CommandManager::getVarsList(Markov_IO::ABC_Saveable* varType) const
   {
 
-    std::deque<std::string> list;
+    std::vector<std::string> list;
     std::map<std::string,Markov_IO::ABC_Saveable*>::const_iterator it;
     for (it=vars.begin();it!=vars.end();++it)
       {
@@ -735,9 +735,9 @@ namespace Markov_Console
     return list;
   }
 
-  std::deque<std::string> Markov_CommandManager::getVarsList(std::string className)const
+  std::vector<std::string> Markov_CommandManager::getVarsList(std::string className)const
   {
-    std::deque<std::string> list;
+    std::vector<std::string> list;
     std::map<std::string,Markov_IO::ABC_Saveable*>::const_iterator it;
     for (it=vars.begin();it!=vars.end();++it)
       {
@@ -750,51 +750,10 @@ namespace Markov_Console
   }
 
 
-  Markov_Mol::ABC_Markov_Model* Markov_CommandManager::getModel(const std::string& varName) {
-    Markov_Mol::ABC_Markov_Model* v=0;
-    if (!has_model(varName))
-      return v;
-    return models[varName];
-  }
-  const Markov_Mol::ABC_Markov_Model* Markov_CommandManager::getModelsConst(const std::string& varName)
-  {
-    const Markov_Mol::ABC_Markov_Model* v=0;
-    if (!has_modelConst(varName))
-      return v;
-    return modelsConst[varName];}
-  Markov_Mol::ABC_PatchModel* Markov_CommandManager::getPatch(const std::string& varName) {
-    Markov_Mol::ABC_PatchModel* v=0;
-    if (!has_patch(varName))
-      return v;
-    return patchs[varName];}
-  Markov_IO::ABC_Experiment* Markov_CommandManager::getExperiment(const std::string& varName) {
-    Markov_IO::ABC_Experiment* v=0;
-    if (!has_experiment(varName))
-      return v;
-    return experiments[varName];}
-  Markov_IO::ABC_Options* Markov_CommandManager::getOption(const std::string& varName) {
-    Markov_IO::ABC_Options* v=0;
-    if (!has_option(varName))
-      return v;
-    return options[varName];}
 
-  Markov_Bay::ABC_Result* Markov_CommandManager::getResult(const std::string& varName) {
-    Markov_Bay::ABC_Result* v=0;
-    if (!has_var(varName))
-      return v;
-    return results[varName];}
-  Markov_IO::Parameters* Markov_CommandManager::getParameter(const std::string& varName)
+  std::vector<std::string> Markov_CommandManager::getVarsList()
   {
-    Markov_IO::Parameters* v=0;
-    if (!has_parameter(varName))
-      return v;
-    return parameters[varName];
-  }
-
-
-  std::deque<std::string> Markov_CommandManager::getVarsList()
-  {
-    std::deque<std::string> varList;
+    std::vector<std::string> varList;
     for (std::map<std::string,Markov_IO::ABC_Saveable*>::const_iterator it
          =vars.begin();
          it!=vars.end();++it)

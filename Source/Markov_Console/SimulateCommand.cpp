@@ -240,12 +240,12 @@ namespace Markov_Console
         return false;
       }
 
-    Markov_IO::ABC_Experiment* e=cm_->getExperiments()[experiment_in];
-    Markov_Mol::ABC_PatchModel* p=cm_->getPatchs()[patch_in];
+    Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(cm_->getVar(experiment_in));
+    Markov_Mol::ABC_PatchModel* p=dynamic_cast<Markov_Mol::ABC_PatchModel*>(cm_->getVar(patch_in));
     Markov_IO::ABC_Options* o;
 
     if (validOptions)
-      o=cm_->getOptions()[options_in];
+      o=dynamic_cast<Markov_IO::ABC_Options*>(cm_->getVar(options_in));
     else
       o=new Markov_Mol::SimulationOptions();
 
@@ -253,8 +253,7 @@ namespace Markov_Console
         Markov_IO::Experiment(p->run(*e,num_replicates,*o));
 
     cm_->delete_var(experiment_out);
-    cm_->getVars()[experiment_out]=sim;
-    cm_->getExperiments()[experiment_out]=sim;
+    cm_->add_var(experiment_out,sim);
 
     int64_t tend=Markov_IO::getTimeMs();
     std::size_t telap=tend-tini;

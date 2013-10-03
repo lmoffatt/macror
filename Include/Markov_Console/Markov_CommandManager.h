@@ -86,34 +86,13 @@ public:
 
     virtual bool getVarCopy(const std::string& varName,Markov_IO::ABC_Saveable*& varType)const;
 
-    virtual std::deque<std::string> getVarsList();
-    virtual std::deque<std::string> getVarsList(Markov_IO::ABC_Saveable* varType)const;
-    virtual std::deque<std::string> getVarsList(std::string className)const;
+    virtual std::vector<std::string> getVarsList();
+    virtual std::vector<std::string> getVarsList(Markov_IO::ABC_Saveable* varType)const;
+    virtual std::vector<std::string> getVarsList(std::string className)const;
 
 
 
-    virtual Markov_Mol::ABC_Markov_Model* getModel(const std::string& varName);
-    virtual const Markov_Mol::ABC_Markov_Model* getModelsConst(const std::string& varName);
-    virtual Markov_Mol::ABC_PatchModel* getPatch(const std::string& varName);
-    virtual Markov_IO::ABC_Experiment* getExperiment(const std::string& varName);
-    virtual Markov_IO::ABC_Options* getOption(const std::string& varName);
-
-    virtual Markov_Bay::ABC_Result* getResult(const std::string& varName);
-    virtual Markov_IO::Parameters* getParameter(const std::string& varName);
-
-
-    virtual std::map<std::string, Markov_IO::ABC_Saveable*>& getVars() {return vars;}
-    virtual std::map<std::string, Markov_Mol::ABC_Markov_Model*>& getModels() {return models;}
-    virtual std::map<std::string, const Markov_Mol::ABC_Markov_Model*>& getModelsConst() {return modelsConst;}
-    virtual std::map<std::string, Markov_Mol::ABC_PatchModel*>& getPatchs() {return patchs;}
-    virtual std::map<std::string, Markov_IO::ABC_Experiment*>& getExperiments() {return experiments;}
-    virtual std::map<std::string, Markov_IO::ABC_Options*>& getOptions() {return options;}
-
-    virtual std::map<std::string, Markov_Bay::ABC_Result*>& getResults() {return results;}
-    virtual std::map<std::string, Markov_IO::Parameters*>& getParameters(){return parameters;}
-
-
-    virtual Markov_IO::FileDir& getDir() {return dir_;}
+        virtual Markov_IO::FileDir& getDir() {return dir_;}
     virtual const Markov_IO::FileDir& getDir()const {return dir_;}
 
     virtual Markov_IO::ABC_IO* getIO(){return io_;}
@@ -124,8 +103,9 @@ public:
 
     virtual void add_unit(Markov_IO::ABC_Unit* u);
     virtual void add_command(ABC_Command* cmd);
-    virtual void add_var(std::string name, Markov_IO::ABC_Saveable* s);
     virtual void add_type(const std::string& name, const Markov_IO::ABC_Saveable *s);
+
+    virtual void add_var(std::string name, Markov_IO::ABC_Saveable* s);
 
     virtual void add_experiment(const std::string& name, Markov_IO::ABC_Experiment* e);
     virtual void add_channel(const std::string& name, Markov_Mol::ABC_Markov_Model* m);

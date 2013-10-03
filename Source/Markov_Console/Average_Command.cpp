@@ -4,157 +4,158 @@
 
 namespace Markov_Console
 {
-///  destructor
-AverageCommand::~AverageCommand(){}
+  ///  destructor
+  AverageCommand::~AverageCommand(){}
 
 
 
-AverageCommand::AverageCommand(Markov_CommandManager *cm)
-{
+  AverageCommand::AverageCommand(Markov_CommandManager *cm)
+  {
     cm_=cm;
-}
+  }
 
-/// hint about of the class nature
-std::string AverageCommand::Tip()const
-{
+  /// hint about of the class nature
+  std::string AverageCommand::Tip()const
+  {
     return "Averages an experiment to speed up calculations";
-}
+  }
 
-/// a short description of the class
-std::string AverageCommand::WhatThis()const
-{
+  /// a short description of the class
+  std::string AverageCommand::WhatThis()const
+  {
     return "average experiment-alias \n"
-            "      Averages  a patch on an experiment\n"
+        "      Averages  a patch on an experiment\n"
 
-      "simulate patch-alias experiment-alias [option-alias] [simulation-new-alias]\n"
-            "Simulates a patch for an experiment using the specified options. The"
-             "results are stored in the provided new alias.";
-}
-
-
+        "simulate patch-alias experiment-alias [option-alias] [simulation-new-alias]\n"
+        "Simulates a patch for an experiment using the specified options. The"
+        "results are stored in the provided new alias.";
+  }
 
 
-std::string AverageCommand::commandName()const
-{
+
+
+  std::string AverageCommand::commandName()const
+  {
     return "average";
-}
+  }
 
-/// runs the command on the command manager and returns true if succeeds
-bool AverageCommand::run(std::deque<Token>& tokenList)
-{
+  /// runs the command on the command manager and returns true if succeeds
+  bool AverageCommand::run(std::deque<Token>& tokenList)
+  {
     std::string experiment_in;
     std::string experiment_out;
     std::string options_in;
     std::string name;
     while (!tokenList.empty())
 
-   {
+      {
         switch(tokenList.front().get_token())
-        {
-        case Token::IDENTIFIER:
+          {
+          case Token::IDENTIFIER:
             name=tokenList.front().Name();
             tokenList.pop_front();
             if (cm_->checkVariable(name,Markov_IO::ABC_Experiment::ClassName()))
-            {
+              {
                 if (experiment_in.empty())
-                {
+                  {
                     experiment_in=name;
-                }
+                  }
                 else if (experiment_out.empty())
-                {
+                  {
                     experiment_out=name;
-                }
+                  }
                 else
-                {
+                  {
                     output_.clear();
                     errorMessage_=" found three experiments: "+experiment_in+
-                            " ," +experiment_out+" and "+name+ " expected at most 2";
+                        " ," +experiment_out+" and "+name+ " expected at most 2";
                     return false;
-                }
-            }
+                  }
+              }
             else if(cm_->checkVariable(name,Markov_IO::ABC_Options::ClassName()))
-            {
+              {
                 if (options_in.empty())
-                {
+                  {
                     options_in=name;
-                }
+                  }
                 else
-                {
+                  {
                     output_.clear();
                     errorMessage_="expected one options, found two: "+options_in+ " and "+name;
                     return false;
-                }
-            }
+                  }
+              }
             else
-                if (experiment_out.empty())
+              if (experiment_out.empty())
                 {
-                    experiment_out=name;
+                  experiment_out=name;
                 }
-                else
+              else
                 {
-                    output_.clear();
-                    errorMessage_=" found two new names: "+experiment_out+
-                            " and "+name+ " expected one for experiment out";
-                    return false;
+                  output_.clear();
+                  errorMessage_=" found two new names: "+experiment_out+
+                      " and "+name+ " expected one for experiment out";
+                  return false;
                 }
 
             break;
-        default:
+          default:
             std::string tokenString=tokenList.front().get_tokenString();
             output_.clear();
             errorMessage_="wrong token; expected NAME or NUMBER one number, found : "+
-                    tokenString;
+                tokenString;
             return false;
-        }
+          }
 
 
 
-        }
+      }
 
 
     if (experiment_out.empty())
-        experiment_out="myAverage";
+      experiment_out="myAverage";
     return run(experiment_in,experiment_out,options_in);
-   }
+  }
 
-bool AverageCommand::run( const std::string &experiment_in,
-                          const std::string &experiment_out,
-                          const std::string &options_in)
-{
-        bool validExperiment=cm_->checkVariable(experiment_in,
-                                           Markov_IO::ABC_Experiment::ClassName());
-        bool validOptions=cm_->checkVariable(options_in,
-                                        Markov_IO::ABC_Options::ClassName());
+  bool AverageCommand::run( const std::string &experiment_in,
+                            const std::string &experiment_out,
+                            const std::string &options_in)
+  {
+    bool validExperiment=cm_->checkVariable(experiment_in,
+                                            Markov_IO::ABC_Experiment::ClassName());
+    bool validOptions=cm_->checkVariable(options_in,
+                                         Markov_IO::ABC_Options::ClassName());
 
-        if (!validExperiment)
-        {
-            output_.clear();
-            errorMessage_=" failed to provide an experiment";
-            return false;
-        }
+    if (!validExperiment)
+      {
+        output_.clear();
+        errorMessage_=" failed to provide an experiment";
+        return false;
+      }
 
-        Markov_IO::ABC_Experiment* e=cm_->getExperiments()[experiment_in];
-        Markov_IO::ABC_Options* o;
+    Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>
+        (cm_->getVar(experiment_in));
+    Markov_IO::ABC_Options* o;
 
-        if (validOptions)
-            o=cm_->getOptions()[options_in];
-        else
-            o=new Markov_Mol::AverageExperiment::Options();
+    if (validOptions)
+      o=dynamic_cast<Markov_IO::ABC_Options*>(cm_->getVar(options_in));
+    else
+      o=new Markov_Mol::AverageExperiment::Options();
 
-        Markov_IO::AverageExperiment Avg("",*o);
+    Markov_IO::AverageExperiment Avg("",*o);
 
-        Markov_IO::Experiment* avg =new
-                Markov_IO::Experiment(Avg.run(*e));
+    Markov_IO::Experiment* avg =new
+        Markov_IO::Experiment(Avg.run(*e));
 
-        cm_->delete_var(experiment_out);
-        cm_->add_experiment(experiment_out,avg);
+    cm_->delete_var(experiment_out);
+    cm_->add_experiment(experiment_out,avg);
 
-        output_="average  "+experiment_out+ " created succesfully";
-        errorMessage_.clear();
-        return true;
+    output_="average  "+experiment_out+ " created succesfully";
+    errorMessage_.clear();
+    return true;
 
 
-    }
+  }
 
 
 
