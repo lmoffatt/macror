@@ -78,43 +78,52 @@ namespace Markov_Console
       {
         char ch,ch0;
         std::cout <<cm.wellcomeMessage();
-
-
         while(true)
           {
             std::cout<<">>";
-
+            commandWord.clear();
+            commandLine.clear();
+            ch=0;
             while (ch!='\n')
               {
                 ch=getUnbufChar();
                 if (ch=='\t')
                   {
-                    std::vector<std::string> res=cm.complete(commandWord);
-                    if (res.size()==1)
+                      std::vector<std::string> res=cm.complete(commandWord);
+                      if ((res.size()==1)&&(res.front()[0]!='<'))
                       {
                         std::string tail=res.at(0).substr(commandWord.size());
                         std::cout<<tail;
                         commandWord=res.at(0);
                       }
-                    else if(res.size()>1)
+                    else if(res.size()>0)
                       {
                         if (ch0=='\t')
 
-                          std::cout<<"\n"<<incolumns(res,ncols)<<">>"<<commandLine;
-                      }
+                          std::cout<<"\n"<<incolumns(res,ncols)<<">>"<<commandLine+commandWord;
+                     }
 
                   }
                 else if ((ch=='\b')||(ch==127))
                   {
-                    std::cout<<'\b';
-                    commandWord.pop_back();;
+                    if (!commandWord.empty())
+                      {
+                        commandWord.pop_back();
+                        std::cout<<'\b';
+                      }
+
 
                   }
                 else if (ch==' ')
                   {
                     std::cout<<ch;
-                    commandLine+=commandWord+ch;
-                    cm.add_single_token(commandWord);
+                    std::string err=cm.add_single_token(commandWord);
+                    if (!err.empty())
+                      {
+                        std::cout<<"\n"<<err<<">>"<<commandLine;
+                      }
+                    else
+                       commandLine+=commandWord+ch;
                     commandWord.clear();
 
                   }

@@ -40,6 +40,8 @@ namespace Markov_Console
     virtual bool run(std::deque<Token>& tokensList)=0;
 
 
+    virtual std::string check(const std::deque<Token>& tokensList)const {}
+
 
     virtual std::vector<std::string> complete(const std::string& hint,const std::deque<Token>& token)const{}
 

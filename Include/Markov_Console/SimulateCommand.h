@@ -26,7 +26,9 @@ public:
 
 
     virtual std::vector<std::string> complete(const std::string& hint,const std::deque<Token>& token)const;
-;
+
+    virtual std::string check(const std::deque<Token>& tokensList) const;
+
 
     virtual bool run(const std::string& patch_in,
                      const std::string& experiment_in,

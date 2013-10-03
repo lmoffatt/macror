@@ -67,7 +67,10 @@ public:
 
     virtual void add_tokens(std::string commandLine);
 
-    virtual void add_single_token(std::string command);
+    virtual std::string add_single_token(const std::string &command);
+
+    virtual std::string check_tokens()const;
+
 
     virtual std::vector<std::string> complete(const std::string& hint);
 
@@ -136,7 +139,7 @@ public:
     virtual  bool has_type(const std::string& name) const;
     virtual  bool has_superType(const std::string& name) const;
 
-    virtual  bool has_script(const std::string& fname);
+    virtual  bool has_script(const std::string& fname) const;
 
     virtual  void delete_var(const std::string& name);
 
@@ -165,6 +168,8 @@ protected:
     std::map<std::string, std::string > parent;
 
     std::map<std::string,Autocomplete> autoCmptBySuperClass;
+
+    std::map<std::string,Autocomplete> autoCmptByClass;
 
     /*
     std::map<std::string, Markov_Mol::ABC_PatchModel*> patchs;

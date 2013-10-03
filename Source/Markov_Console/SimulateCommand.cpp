@@ -161,46 +161,71 @@ namespace Markov_Console
   std::vector<std::string> SimulateCommand::
   complete(const std::string& hint,const std::deque<Token>& tokenList)const
   {
-    std::string patch_in;
-    std::string experiment_in;
-    std::size_t num_replicates=0;
-    std::string options_in;
-    std::string experiment_out;
-    std::string name;
-    std::size_t number;
 
+    std::deque<Token> tokenCopy(tokenList);
 
-    if (tokenList.empty())
-      return {"Bug:","\t absent command"};
-    else if (tokenList.front().Name()!=this->commandName())
-      return {"Bug:","\t erroneous command"};
-    else if (tokenList.size()==1)
-      return cm_->complete(hint,Markov_Mol::ABC_PatchModel::ClassName());
-    else
+    if (tokenCopy.size()>1)
+        tokenCopy.pop_back();
+    std::string err=check(tokenCopy);
+    if (!err.empty())
+      return {": ",err};
+
+    switch (tokenList.size())
       {
-        patch_in=tokenList[1].Name();
-        if (! (cm_->checkVariable(patch_in,Markov_Mol::ABC_PatchModel::ClassName())))
-          return {"Error: ","\t patch expected"};
-        else if (tokenList.size()==2)
-          return cm_->complete(hint,Markov_IO::ABC_Experiment::ClassName());
-        else
-          {
-            experiment_in=tokenList[2].Name();
-            if (! (cm_->checkVariable(experiment_in,Markov_Mol::ABC_Experiment::ClassName())))
-              return {"Error: ","\t experiment expected"};
-            else if (tokenList.size()==3)
-              {
-                return  cm_->complete(hint,Markov_Mol::SimulationOptions::ClassName());
-              }
-            else
-              {
-                return {"Mandatory fields filled ",
-                    "\t optional fields: number of replictes and alias for simulation"};
+      case 1:
+        return cm_->complete(hint,Markov_Mol::ABC_PatchModel::ClassName());
+      case  2:
+        return cm_->complete(hint,Markov_IO::ABC_Experiment::ClassName());
+      case 3:
+        return  cm_->complete(hint,Markov_Mol::SimulationOptions::ClassName());
+      default:
+        return {"Mandatory fields filled ",
+            "\t optional fields: number of replictes and alias for simulation"};
 
-              }
-          }
       }
   }
+
+
+
+
+  std::string SimulateCommand::check(const std::deque<Token> &tokenList)const
+  {
+    std::string patch_in,experiment_in, options_in;
+    switch (tokenList.size())
+      {
+      case 0:
+        return "Bug: absent command";
+      case 1:
+        if (tokenList.front().Name()!=this->commandName())
+          return "Bug: erroneous command";
+        else
+          return "";
+      case 2:
+        patch_in=tokenList[1].Name();
+        if (! (cm_->checkVariable(patch_in,Markov_Mol::ABC_PatchModel::ClassName())))
+          return "Error: "+patch_in+"is not a patch ";
+        else
+          return "";
+      case 3:
+        experiment_in=tokenList[2].Name();
+        if (! (cm_->checkVariable(experiment_in,Markov_Mol::ABC_Experiment::ClassName())))
+          return "Error: "+experiment_in+"is not an experiment";
+        else
+          return "";
+      case 4:
+        if (tokenList[3].get_token()==Token::NUMBER)
+          return "";
+        else if(tokenList[3].get_token()==Token::STRING)
+          return "";
+        else
+          return "Error: "+tokenList[3].Name()+ "is neither a number nor a name";
+      default:
+        return "";
+
+
+      }
+  }
+
 
 
 
