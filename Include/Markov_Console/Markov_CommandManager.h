@@ -73,8 +73,6 @@ public:
 
     virtual std::vector<std::string> complete(const std::string& hint,const std::string& category);
 
-    virtual std::string get_variables();
-
     virtual bool runLine(std::string commandLine);
 
     //virtual std::map<std::string, ABC_Command*>& getCommands() {return cmds;}
@@ -89,6 +87,10 @@ public:
     virtual std::vector<std::string> getVarsList();
     virtual std::vector<std::string> getVarsList(Markov_IO::ABC_Saveable* varType)const;
     virtual std::vector<std::string> getVarsList(std::string className)const;
+
+    virtual std::vector<std::string> getTypesList();
+
+
 
 
 
@@ -107,14 +109,6 @@ public:
 
     virtual void add_var(std::string name, Markov_IO::ABC_Saveable* s);
 
-    virtual void add_experiment(const std::string& name, Markov_IO::ABC_Experiment* e);
-    virtual void add_channel(const std::string& name, Markov_Mol::ABC_Markov_Model* m);
-    virtual void add_channel(const std::string& name, const Markov_Mol::ABC_Markov_Model* m);
-    virtual void add_patch(const std::string& name, Markov_Mol::ABC_PatchModel* p);
-    virtual void add_option(const std::string& name, Markov_IO::ABC_Options* o);
-
-    virtual void add_result(const std::string& name, Markov_Bay::ABC_Result* r);
-    virtual void add_parameter(const std::string& name, Markov_IO::Parameters* p);
 
 
 
@@ -122,13 +116,6 @@ public:
 
     virtual  bool edit(const std::string& varname);
     virtual  bool edit(Markov_IO::ClassDescription& varname);
-
-    virtual  void model_channel(const std::string& varname);
-    virtual  void model_patch(const std::string& varname);
-    virtual  void experiment(const std::string& varname);
-
-    virtual  void option(const std::string& command_name,
-                         std::string varname);
 
 
 
@@ -145,20 +132,9 @@ public:
     virtual  void unknown_command();
 
     virtual  bool has_command(const std::string& name)const;
-    virtual  bool has_parameter(const std::string& name) const;
     virtual  bool has_var(const std::string& name) const;
     virtual  bool has_type(const std::string& name) const;
     virtual  bool has_superType(const std::string& name) const;
-
-
-    virtual  bool has_model(const std::string& name);
-    virtual  bool has_experiment(const std::string& name);
-    virtual  bool has_modelConst(const std::string& name);
-
-    virtual  bool has_patch(const std::string& name);
-    virtual  bool has_option(const std::string& name);
-    virtual  bool has_result(const std::string& name);
-
 
     virtual  bool has_script(const std::string& fname);
 
@@ -177,19 +153,20 @@ protected:
 
     std::map<std::string, Markov_IO::ABC_Saveable*> vars;
 
+    std::map<std::string, std::map<std::string, Markov_IO::ABC_Saveable*> > varByType;
 
-    typedef
-    std::map<std::string, const Markov_IO::ABC_Saveable*> typeMap;
-    typeMap types;
-    typedef
-    std::map<std::string, std::vector<std::string> > childMap;
-    childMap childs;
+    Autocomplete varsl;
 
-    std::vector<std::string> emptyNameList;
+
+    std::map<std::string, const Markov_IO::ABC_Saveable*>  types;
+
+    std::map<std::string, std::vector<std::string> > childs;
+
     std::map<std::string, std::string > parent;
 
+    std::map<std::string,Autocomplete> autoCmptBySuperClass;
 
-
+    /*
     std::map<std::string, Markov_Mol::ABC_PatchModel*> patchs;
     Autocomplete patchsl;
     std::map<std::string, Markov_Mol::ABC_Markov_Model*> models;
@@ -207,7 +184,7 @@ protected:
 
     std::map<std::string, Markov_Bay::ABC_Result*> results;
 
-
+     */
 
 
     std::deque<Token> tokens;

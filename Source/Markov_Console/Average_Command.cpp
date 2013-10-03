@@ -148,7 +148,7 @@ namespace Markov_Console
         Markov_IO::Experiment(Avg.run(*e));
 
     cm_->delete_var(experiment_out);
-    cm_->add_experiment(experiment_out,avg);
+    cm_->add_var(experiment_out,avg);
 
     output_="average  "+experiment_out+ " created succesfully";
     errorMessage_.clear();

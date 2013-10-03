@@ -95,9 +95,10 @@ bool MacrorCommandWindow::graphCommandLine(const QString& line)
 
 bool MacrorCommandWindow::plot(const QString& line)
 {
-    if (MarkovCommand()->has_experiment(line.toStdString()))
+    if (MarkovCommand()->checkVariable(line.toStdString(),Markov_IO::ABC_Experiment::ClassName()))
     {
-        Markov_IO::ABC_Experiment* e=MarkovCommand()->getExperiments()[line.toStdString()];
+        Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
+            MarkovCommand()->getVar(line.toStdString()));
         Markov_Plot::GraphWindow* g=Markov_Plot::plot(0,*e);
         mw_->createGraph(g);
 
@@ -112,8 +113,7 @@ bool MacrorCommandWindow::modelChannel(const QString& varname)
 {
     Markov_Mol::Q_Markov_Model* p=new Markov_Mol::Q_Markov_Model();
     cm_->delete_var(varname.toStdString());
-    (cm_->getVars())[varname.toStdString()]=p;
-    (cm_->getModels())[varname.toStdString()]=p;
+    cm_->add_var(varname.toStdString(),p);
     edit(varname);
 }
 

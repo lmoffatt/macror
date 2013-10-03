@@ -51,13 +51,6 @@ namespace Markov_Console
     dir_(),
     io_(new Markov_IO::STD_IO),
     vars(),
-    patchs(),
-    models(),
-    experiments(),
-    parameters(),
-    simulations(),
-    options(),
-    results(),
     tokens(),
     lastCmdRst(true)
   {
@@ -79,14 +72,6 @@ namespace Markov_Console
          ++it)
       delete it->second;
 
-  }
-
-
-  void Markov_CommandManager::add_channel(const std::string& name, Markov_Mol::ABC_Markov_Model* m)
-  {
-    vars[name] = m;
-    models[name] = m;
-    modelsConst[name] = m;
   }
 
 
@@ -215,91 +200,16 @@ namespace Markov_Console
   void Markov_CommandManager::add_var(std::string name, Markov_IO::ABC_Saveable* s)
   {
     delete_var(name);
-    if (s->mySuperClass()==Markov_Mol::ABC_Markov_Model::ClassName())
-      {
-        vars[name]=s;
-        models[name]=dynamic_cast<Markov_Mol::ABC_Markov_Model*> (s);
-        modelsConst[name]=dynamic_cast<Markov_Mol::ABC_Markov_Model*> (s);
-
-      }
-    else if (s->mySuperClass()==Markov_IO::ABC_Experiment::ClassName())
-      {
-        vars[name]=s;
-        experiments[name]=dynamic_cast<Markov_IO::ABC_Experiment*> (s);
-
-      }
-    else if (s->mySuperClass()==Markov_Mol::ABC_PatchModel::ClassName())
-      {
-        vars[name]=s;
-        patchs[name]=dynamic_cast<Markov_Mol::ABC_PatchModel*> (s);
-        patchsl.push_back(name);
-
-      }
-    else if (s->mySuperClass()==Markov_IO::ABC_Options::ClassName())
-      {
-        vars[name]=s;
-        options[name]=dynamic_cast<Markov_IO::ABC_Options*> (s);
-
-      }
-    else if (s->mySuperClass()==Markov_Bay::ABC_Result::ClassName())
-      {
-        vars[name]=s;
-        results[name]=dynamic_cast<Markov_Bay::ABC_Result*> (s);
-
-
-      }
-    else if (s->myClass()==Markov_IO::Parameters::ClassName())
-      {
-        vars[name]=s;
-        parameters[name]=dynamic_cast<Markov_IO::Parameters*> (s);
-
-      }
-
+    vars[name]=s;
+    varsl.push_back(name);
+    autoCmptBySuperClass[s->mySuperClass()].push_back(name);
 
   }
 
 
 
 
-  void Markov_CommandManager::add_channel(const std::string& name, const Markov_Mol::ABC_Markov_Model* m)
-  {
-    modelsConst[name] = m;
-  }
 
-
-  void Markov_CommandManager::add_experiment(const std::string& name, Markov_IO::ABC_Experiment* e)
-  {
-    vars[name] = e;
-    experiments[name] = e;
-  }
-
-  void Markov_CommandManager::add_patch(const std::string& name, Markov_Mol::ABC_PatchModel* p)
-  {
-    vars[name] = p;
-    patchs[name] = p;
-    modelsConst[name+".model"]=&p->Model();
-    patchsl.push_back(name);
-  }
-
-  void Markov_CommandManager::add_option(const std::string &name, Markov_IO::ABC_Options *o)
-  {
-    vars[name] = o;
-    options[name] = o;
-    }
-
-   void Markov_CommandManager::add_result(const std::string& name, Markov_Bay::ABC_Result* r)
-  {
-     vars[name] = r;
-     results[name] = r;
-
-  }
-
-   void Markov_CommandManager::add_parameter(const std::string& name, Markov_IO::Parameters* p)
-   {
-     vars[name] = p;
-     parameters[name] = p;
-
-   }
 
 
   void Markov_CommandManager::erase_tokens(int n)
@@ -330,45 +240,8 @@ namespace Markov_Console
   }
 
 
-  bool Markov_CommandManager::has_parameter(const std::string& name)const {
-    return (parameters.find(name)!=parameters.end());
-  }
-
-  bool Markov_CommandManager::has_result(const std::string& name){
-    return (results.find(name)!=results.end());
-  }
-
   bool Markov_CommandManager::has_command(const std::string& name)const{
     return (cmds.find(name)!=cmds.end());
-  }
-
-  bool Markov_CommandManager::has_model(const std::string& name)
-  {
-    return (models.find(name)!=models.end());
-
-  }
-  bool Markov_CommandManager::has_experiment(const std::string& name)
-  {
-    return (experiments.find(name)!=experiments.end());
-
-  }
-
-
-  bool Markov_CommandManager::has_modelConst(const std::string& name)
-  {
-    return (modelsConst.find(name)!=modelsConst.end());
-
-  }
-  bool Markov_CommandManager::has_patch(const std::string& name)
-  {
-    return (patchs.find(name)!=patchs.end());
-
-  }
-
-  bool Markov_CommandManager::has_option(const std::string& name)
-  {
-    return (options.find(name)!=options.end());
-
   }
 
 
@@ -385,8 +258,6 @@ namespace Markov_Console
     std::cout << std::endl;
     std::cout << "Script completed." << std::endl;
   }
-
-
 
 
   void Markov_CommandManager::missing_parameter()
@@ -539,10 +410,10 @@ namespace Markov_Console
 
   std::vector<std::string> Markov_CommandManager::complete(const std::string& hint,const std::string& category)
   {
-    if (category==Markov_Mol::ABC_PatchModel::ClassName())
-      {
-        return patchsl.complete(hint);
-      }
+    if (has_superType(category))
+      return autoCmptBySuperClass[category].complete(hint);
+    else
+      return {"Error: ","\t wrong className"};
 
   }
 
@@ -590,47 +461,12 @@ namespace Markov_Console
   }
 
 
-  /**
-  Allow to know declared variables
-  @return a string with all the variables in memory
-  */
-  std::string Markov_CommandManager::get_variables()
-  {
-    std::size_t widthName=0;
-    std::size_t widthClass=0;
-    for (std::map<std::string, Markov_IO::ABC_Saveable*>::iterator it = vars.begin();
-         it != vars.end(); it++)
-      {
-        if (it->first.size()>widthName)
-          widthName=it->first.size();
-
-        if (it->second->myClass().size()>widthClass)
-          widthClass=it->second->myClass().size();
-      }
-    std::string ret="";
-    for (std::map<std::string, Markov_IO::ABC_Saveable*>::iterator it = vars.begin();
-         it != vars.end(); it++)
-      {
-        ret.append(it->first);
-        std::size_t n=widthName-it->first.size()+3;
-        ret.append(n,' ');
-        ret.append(it->second->myClass());
-        n=widthClass-it->second->myClass().size()+3;
-        ret.append(n,' ');
-        ret += it->second->mySuperClass();
-        ret += "\n";
-      }
-    return ret;
-  }
-
-
-
-  std::vector<std::string> Markov_CommandManager::getSiblings(std::string name)const
+ std::vector<std::string> Markov_CommandManager::getSiblings(std::string name)const
   {
     std::map<std::string, std::string>::const_iterator itp=parent.find(name);
     if (itp!=parent.end())
       {
-        childMap::const_iterator it=childs.find(itp->second);
+        auto it=childs.find(itp->second);
         if (it!=childs.end())
           return it->second;
 
@@ -649,6 +485,17 @@ namespace Markov_Console
     return std::vector<std::string>();
   }
 
+  std::vector<std::string> Markov_CommandManager::getTypesList()
+  {
+    std::vector<std::string> typelist(types.size());
+    std::size_t i=0;
+    for (auto it:types)
+      {
+        typelist[i]=it.first;
+        i++;
+      }
+    return typelist;
+  }
 
 
 
@@ -769,35 +616,10 @@ namespace Markov_Console
 
 
 
-  void Markov_CommandManager::model_patch(const std::string& varname)
-  {
-    Markov_Mol::PatchModel* p=new Markov_Mol::PatchModel();
-    vars[varname]=p;
-    patchs[varname]=p;
-    edit(varname);
-  }
-
-  void Markov_CommandManager::model_channel(const std::string& varname)
-  {
-    Markov_Mol::Q_Markov_Model* p=new Markov_Mol::Q_Markov_Model();
-    delete_var(varname);
-    vars[varname]=p;
-    models[varname]=p;
-    edit(varname);
-  }
   void Markov_CommandManager::delete_var(const std::string& name)
   {
     if (has_var(name))
       {
-        if (vars[name]->mySuperClass()==Markov_IO::ABC_Experiment::ClassName())
-          experiments.erase(name);
-        else if (vars[name]->mySuperClass()==Markov_Mol::ABC_Markov_Model::ClassName())
-          models.erase(name);
-        else if (vars[name]->mySuperClass()==Markov_Mol::ABC_PatchModel::ClassName())
-          {
-            patchs.erase(name);
-            modelsConst.erase(name+".model");
-          }
         delete vars[name];
         vars.erase(name);
       }
@@ -809,104 +631,10 @@ namespace Markov_Console
              ++it)
           delete it->second;
         vars.clear();
-        experiments.clear();
-
-        models.clear();
-        patchs.clear();
-        patchsl.clear();
-        options.clear();
-        results.clear();
-        modelsConst.clear();
       }
 
 
   }
-
-  void Markov_CommandManager::option(const std::string& command_name,
-                                     std::string varname)
-  {
-    if (command_name=="simulate")
-      {
-        Markov_Mol::SimulationOptions* o=new Markov_Mol::SimulationOptions();
-        if (varname.empty())
-          varname="mySimuleOption";
-        vars[varname]=o;
-        options[varname]=o;
-        edit(varname);
-      }
-    else if (command_name=="likelihood")
-      {
-        Markov_Bay::Markov_Likelihood::Options* o=
-            new Markov_Bay::Markov_Likelihood::Options();
-        if (varname.empty())
-          varname="myLikelihoodOption";
-        vars[varname]=o;
-        options[varname]=o;
-        edit(varname);
-      }
-    else if (command_name=="optimize")
-      {
-        Markov_Bay::SimpleOptimization::Options* o=
-            new Markov_Bay::SimpleOptimization::Options();
-        if (varname.empty())
-          varname="myOptimizationOption";
-        vars[varname]=o;
-        options[varname]=o;
-        edit(varname);
-      }
-    else
-      std::cout<<"unrecognized command\n";
-
-  }
-
-  // removed as a command
-  void Markov_CommandManager::experiment(const std::string& varname)
-  {
-    std::cout<<"Select the experiment type \n";
-    Markov_IO::ABC_Experiment* e;
-    std::vector<std::string> exptypes=Markov_IO::GetChilds(e);
-    for (std::size_t i=0; i<exptypes.size();i++)
-      {
-        std::cout<<i<<"="<<exptypes[i]<<std::endl ;
-      }
-
-    std::string eType;
-
-    getline(std::cin,eType);
-    std::size_t iType;
-    if ((Markov_IO::ToValue(eType,iType))&&(iType<exptypes.size()))
-      eType=exptypes[iType];
-    else
-      return;
-    Markov_IO::create(e,eType);
-    // if the variable is already there and is of the same class
-    // it buffered the previous value for the case edit fails
-    if (checkVariable(varname,Markov_IO::ABC_Experiment::ClassName()))
-      {
-        std::swap(e,experiments[varname]);
-        vars[varname]=experiments[varname];
-        if (edit(varname))
-          delete e;
-        else
-          {
-            experiments[varname]=e;
-            vars[varname]=experiments[varname];
-          }
-
-      }
-    else
-      {
-        // if the variable alias is of a different kind, we erase it
-        delete_var(varname);
-        experiments[varname]=e;
-        vars[varname]=experiments[varname];
-        if (!edit(varname))
-          delete_var(varname);
-      }
-
-
-  }
-
 
 
 

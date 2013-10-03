@@ -27,7 +27,8 @@ void Markov_CommandManagerTest::test(const std::string& testedEntity,
      }
     else if (testedEntity=="MarkovMol")
     {
-        Markov_Mol::ABC_PatchModel* p=patchs.begin()->second;
+        auto varnames =getVarsList(Markov_Mol::ABC_PatchModel::ClassName());
+        Markov_Mol::ABC_PatchModel* p=dynamic_cast<Markov_Mol::ABC_PatchModel*>(getVar(varnames.front()));
         if (p)
         {
             Markov_Test::Markov_Mol_Test::Markov_Mol_Test Moltest(p->Model());
@@ -36,7 +37,8 @@ void Markov_CommandManagerTest::test(const std::string& testedEntity,
     }
     else if (testedEntity=="MarkovBay")
     {
-        Markov_Mol::ABC_PatchModel* p=patchs.begin()->second;
+        auto varnames =getVarsList(Markov_Mol::ABC_PatchModel::ClassName());
+        Markov_Mol::ABC_PatchModel* p=dynamic_cast<Markov_Mol::ABC_PatchModel*>(getVar(varnames.front()));
         if (p)
         {
             Markov_Test::Markov_Bay_Test::Markov_Bay_Test Baytest(*p);

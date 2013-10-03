@@ -160,39 +160,20 @@ namespace Markov_Console
                     {
                       Markov_IO::ABC_Saveable* s;
 
-                      Markov_IO::ABC_Experiment* exp;
-                      Markov_Mol::ABC_Markov_Model* mod;
-                      Markov_Mol::ABC_noise* noise;
-                      Markov_Mol::ABC_PatchModel* p;
-                      Markov_IO::ABC_Options* o;
-                      Markov_Bay::ABC_Result* r;
 
                       numVar++;
-                      if (Markov_IO::LoadFromDescription(exp,des))
+                      bool isVar=false;
+                      for (auto tname:cm_->getTypesList())
                         {
-                          cm_->add_experiment(varname,exp);
+                          s=cm_->getType(tname)->create();
+                          if (s->LoadFromDescription(des))
+                            {
+                              cm_->add_var(varname,s);
+                              isVar=true;
+                              break;
+                            }
                         }
-                      else if (Markov_Mol::LoadFromDescription(mod,des))
-                        {
-                          cm_->add_channel(varname,mod);
-                        }
-                      else if (Markov_Mol::LoadFromDescription(noise,des))
-                        {
-                          cm_->add_var(varname,noise);
-                        }
-                      else if (Markov_Mol::LoadFromDescription(p,des))
-                        {
-                          cm_->add_patch(varname,p);
-                        }
-                      else if (LoadFromDescription(o,des))
-                        {
-                          cm_->add_option(varname,o);
-                        }
-                      else if (LoadFromDescription(r,des))
-                        {
-                          cm_->add_result(varname,r);
-                        }
-                      else
+                      if (!isVar)
                         {
                           std::stringstream ss;
                           ss<<"unrecognized variable: "<<des;
@@ -278,44 +259,28 @@ namespace Markov_Console
                           Markov_IO::ClassDescription des;
                           if (f>>des)
                             {
-                              Markov_IO::ABC_Experiment* exp;
-                              Markov_Mol::ABC_Markov_Model* mod;
-                              Markov_Mol::ABC_noise* noise;
-                              Markov_Mol::ABC_PatchModel* p;
-                              Markov_IO::ABC_Options* o;
-                              Markov_Bay::ABC_Result* r;
+                              Markov_IO::ABC_Saveable* s;
+
 
                               numVar++;
-                              if (Markov_IO::LoadFromDescription(exp,des))
+                              bool isVar=false;
+                              for (auto tname:cm_->getTypesList())
                                 {
-                                  cm_->add_experiment(varname,exp);
+                                  s=cm_->getType(tname)->create();
+                                  if (s->LoadFromDescription(des))
+                                    {
+                                      cm_->add_var(varname,s);
+                                      isVar=true;
+                                      break;
+                                    }
                                 }
-                              else if (Markov_Mol::LoadFromDescription(mod,des))
-                                {
-                                  cm_->add_channel(varname,mod);
-                                }
-                              else if (Markov_Mol::LoadFromDescription(noise,des))
-                                {
-                                  cm_->add_var(varname,noise);
-                                }
-                              else if (Markov_Mol::LoadFromDescription(p,des))
-                                {
-                                  cm_->add_patch(varname,p);
-                                }
-                              else if (LoadFromDescription(o,des))
-                                {
-                                  cm_->add_option(varname,o);
-                                }
-                              else if (LoadFromDescription(r,des))
-                                {
-                                  cm_->add_result(varname,r);
-                                }
-                              else
+                              if (!isVar)
                                 {
                                   std::stringstream ss;
                                   ss<<"unrecognized variable: "<<des;
                                   errorMessage_=ss.str();
                                   output_.clear();
+
                                   numVar--;
                                 }
 

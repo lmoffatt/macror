@@ -14,27 +14,27 @@ MacrorExperimentsWindow::MacrorExperimentsWindow(
 void MacrorExperimentsWindow::actualize()
 {
     clear();
-    for (std::map<std::string, Markov_Mol::ABC_Experiment*>::iterator it=
-         cm_->getExperiments().begin();
-         it!=cm_->getExperiments().end();
-         ++it)
-    {
+    auto names=cm_->getVarsList(Markov_IO::ABC_Experiment::ClassName());
 
-        std::string name=(*it).first;
+    for (auto name:names)
+      {
         add(QString(name.c_str()));
-    }
+      }
+
 }
 QList<QStandardItem*> MacrorExperimentsWindow::objectItems(const QString& modelName)
 {
     QList<QStandardItem*> list;
 
-    if (cm_->has_experiment(modelName.toStdString()))
+    if (cm_->checkVariable(modelName.toStdString(),Markov_IO::ABC_Experiment::ClassName()))
     {
         list.append(new QStandardItem(modelName));
-        Markov_IO::ABC_Experiment* m=cm_->getExperiments()[modelName.toStdString()];
+        const Markov_IO::ABC_Experiment* m=
+            dynamic_cast<const Markov_IO::ABC_Experiment*>(cm_->getVar(modelName.toStdString()));
         list.append(new QStandardItem(QString(m->myClass().c_str())));
         list.append(new QStandardItem(QString(m->myName().c_str())));
     }
+
     return list;
 }
 

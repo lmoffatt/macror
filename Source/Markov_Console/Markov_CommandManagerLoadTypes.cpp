@@ -103,10 +103,11 @@ void Markov_CommandManager::LoadTypes()
     types[Markov_IO::Parameters::ClassName()]=new Markov_Mol::Parameters;
 
 
-    for (typeMap::const_iterator it=types.begin(); it!=types.end(); ++it)
+    for (auto it=types.begin(); it!=types.end(); ++it)
     {
         parent[it->first]=it->second->mySuperClass();
         childs[it->second->mySuperClass()].push_back(it->first);
+        autoCmptBySuperClass[it->second->mySuperClass()]=Autocomplete();
 
     }
 
