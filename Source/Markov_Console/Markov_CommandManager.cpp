@@ -120,52 +120,52 @@ namespace Markov_Console
       {
         lineUncommited+=lineUncommited0;
         if (Markov_IO::safeGetline(f2,lineUncommited0))
-             lineUncommited+=" "+lineUncommited0+"\n";
+          lineUncommited+=" "+lineUncommited0+"\n";
       }
     return lineUncommited;
   }
 
- std::string Markov_CommandManager::wellcomeMessage(unsigned ncols)const
- {
-   std::string wllc;
-   std::string decorating_line(ncols,'#');
-   std::string vers=version();
-   std::string motto="Statistically Sound Molecular Kinetics";
-   std::string date_build=verDate()+"    build:"+ver();
-   std::string updatesMss="updates in http://code.google.com/p/macror/";
-   std::string helpmss="enter help for help";
+  std::string Markov_CommandManager::wellcomeMessage(unsigned ncols)const
+  {
+    std::string wllc;
+    std::string decorating_line(ncols,'#');
+    std::string vers=version();
+    std::string motto="Statistically Sound Molecular Kinetics";
+    std::string date_build=verDate()+"    build:"+ver();
+    std::string updatesMss="updates in http://code.google.com/p/macror/";
+    std::string helpmss="enter help for help";
 
-   wllc+=decorating_line+"\n";
+    wllc+=decorating_line+"\n";
 
-   int pos0=0;
-   if (ncols>vers.size())
-       pos0=(ncols-vers.size())/2;
-   wllc+=std::string(pos0,' ')+vers+"\n";
+    int pos0=0;
+    if (ncols>vers.size())
+      pos0=(ncols-vers.size())/2;
+    wllc+=std::string(pos0,' ')+vers+"\n";
 
-   pos0=0;
-   if (ncols>motto.size())
-       pos0=(ncols-motto.size())/2;
-   wllc+=std::string(pos0,' ')+motto+"\n";
+    pos0=0;
+    if (ncols>motto.size())
+      pos0=(ncols-motto.size())/2;
+    wllc+=std::string(pos0,' ')+motto+"\n";
 
-   pos0=0;
-   if (ncols>date_build.size())
-       pos0=(ncols-date_build.size())/2;
-   wllc+=std::string(pos0,' ')+date_build+"\n";
+    pos0=0;
+    if (ncols>date_build.size())
+      pos0=(ncols-date_build.size())/2;
+    wllc+=std::string(pos0,' ')+date_build+"\n";
 
-   wllc+=decorating_line+"\n";
+    wllc+=decorating_line+"\n";
 
-   std::string uncomf=uncommitedFiles();
-   if (!uncomf.empty())
-     {
-       std::string warnmg="Warning: there are uncommited files, build number refers to a previous build";
-       wllc+=warnmg+"\n";
-       wllc+=uncomf+"\n";
-     }
+    std::string uncomf=uncommitedFiles();
+    if (!uncomf.empty())
+      {
+        std::string warnmg="Warning: there are uncommited files, build number refers to a previous build";
+        wllc+=warnmg+"\n";
+        wllc+=uncomf+"\n";
+      }
 
-   wllc+=updatesMss+"\n";
-   wllc+=helpmss+"\n";
-   return wllc;
- }
+    wllc+=updatesMss+"\n";
+    wllc+=helpmss+"\n";
+    return wllc;
+  }
 
 
   std::string Markov_CommandManager::version()const
@@ -232,6 +232,7 @@ namespace Markov_Console
       {
         vars[name]=s;
         patchs[name]=dynamic_cast<Markov_Mol::ABC_PatchModel*> (s);
+        patchsl.push_back(name);
 
       }
     else if (s->mySuperClass()==Markov_IO::ABC_Options::ClassName())
@@ -276,7 +277,30 @@ namespace Markov_Console
   {
     vars[name] = p;
     patchs[name] = p;
+    modelsConst[name+".model"]=&p->Model();
+    patchsl.push_back(name);
   }
+
+  void Markov_CommandManager::add_option(const std::string &name, Markov_IO::ABC_Options *o)
+  {
+    vars[name] = o;
+    options[name] = o;
+    }
+
+   void Markov_CommandManager::add_result(const std::string& name, Markov_Bay::ABC_Result* r)
+  {
+     vars[name] = r;
+     results[name] = r;
+
+  }
+
+   void Markov_CommandManager::add_parameter(const std::string& name, Markov_IO::Parameters* p)
+   {
+     vars[name] = p;
+     parameters[name] = p;
+
+   }
+
 
   void Markov_CommandManager::erase_tokens(int n)
   {
@@ -497,6 +521,33 @@ namespace Markov_Console
   }
 
   /*!
+   * \brief Markov_CommandManager::add_single_token adds one token to the current command line
+   * \param command  the added token
+   */
+
+  void Markov_CommandManager::add_single_token(std::string command)
+  {
+    // construct a stream from the string
+    std::stringstream strstr(command);
+
+    Token t;
+    while (strstr>>t)
+      tokens.push_back(t);
+  }
+
+
+
+  std::vector<std::string> Markov_CommandManager::complete(const std::string& hint,const std::string& category)
+  {
+    if (category==Markov_Mol::ABC_PatchModel::ClassName())
+      {
+        return patchsl.complete(hint);
+      }
+
+  }
+
+
+  /*!
    * \brief Markov_CommandManager::complete list possible commands or options
    * \param hint characters to be matched
    * \return the list of matching commands or files or alias
@@ -506,8 +557,18 @@ namespace Markov_Console
   {
     if (tokens.empty())
       return cmdsl.complete(hint);
-;
+    else {
+        Token t=tokens[0];
+        if ( t.get_token()==Token::IDENTIFIER )
+          {
+            if (this->has_command(t.Name()))
+              {
+                ABC_Command* cmd=cmds[t.Name()];
+                return cmd->complete(hint,tokens);
+              }
+          }
 
+      }
   }
 
 
@@ -790,8 +851,10 @@ namespace Markov_Console
           delete it->second;
         vars.clear();
         experiments.clear();
+
         models.clear();
         patchs.clear();
+        patchsl.clear();
         options.clear();
         results.clear();
         modelsConst.clear();

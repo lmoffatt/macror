@@ -147,8 +147,7 @@ bool AverageCommand::run( const std::string &experiment_in,
                 Markov_IO::Experiment(Avg.run(*e));
 
         cm_->delete_var(experiment_out);
-        cm_->getVars()[experiment_out]=avg;
-        cm_->getExperiments()[experiment_out]=avg;
+        cm_->add_experiment(experiment_out,avg);
 
         output_="average  "+experiment_out+ " created succesfully";
         errorMessage_.clear();

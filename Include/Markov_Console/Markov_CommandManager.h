@@ -64,22 +64,28 @@ public:
 
 
     virtual bool next_instruction();
+
     virtual void add_tokens(std::string commandLine);
+
+    virtual void add_single_token(std::string command);
 
     virtual std::vector<std::string> complete(const std::string& hint);
 
+    virtual std::vector<std::string> complete(const std::string& hint,const std::string& category);
 
     virtual std::string get_variables();
 
     virtual bool runLine(std::string commandLine);
 
-    virtual std::map<std::string, ABC_Command*>& getCommands() {return cmds;}
-
+    //virtual std::map<std::string, ABC_Command*>& getCommands() {return cmds;}
 
     virtual Markov_IO::ABC_Saveable* getVar(const std::string& varName);
     virtual const Markov_IO::ABC_Saveable* getType(const std::string& varName)const;
+
     virtual bool getVar(const std::string& varName,Markov_IO::ABC_Saveable*& varType);
+
     virtual bool getVarCopy(const std::string& varName,Markov_IO::ABC_Saveable*& varType)const;
+
     virtual std::deque<std::string> getVarsList();
     virtual std::deque<std::string> getVarsList(Markov_IO::ABC_Saveable* varType)const;
     virtual std::deque<std::string> getVarsList(std::string className)const;
@@ -125,6 +131,12 @@ public:
     virtual void add_channel(const std::string& name, Markov_Mol::ABC_Markov_Model* m);
     virtual void add_channel(const std::string& name, const Markov_Mol::ABC_Markov_Model* m);
     virtual void add_patch(const std::string& name, Markov_Mol::ABC_PatchModel* p);
+    virtual void add_option(const std::string& name, Markov_IO::ABC_Options* o);
+
+    virtual void add_result(const std::string& name, Markov_Bay::ABC_Result* r);
+    virtual void add_parameter(const std::string& name, Markov_IO::Parameters* p);
+
+
 
     virtual void erase_tokens(int n);
 
@@ -199,14 +211,19 @@ protected:
 
 
     std::map<std::string, Markov_Mol::ABC_PatchModel*> patchs;
+    Autocomplete patchsl;
     std::map<std::string, Markov_Mol::ABC_Markov_Model*> models;
+    Autocomplete modelsl;
     std::map<std::string, const Markov_Mol::ABC_Markov_Model*> modelsConst;
     std::map<std::string, Markov_IO::ABC_Experiment*> experiments;
+    Autocomplete experimentsl;
     std::map<std::string, Markov_IO::Parameters*> parameters;
 
     std::map<std::string, Markov_Mol::Experiment_simulation*> simulations;
 
     std::map<std::string, Markov_IO::ABC_Options*> options;
+
+    Autocomplete simulationOptionsl;
 
     std::map<std::string, Markov_Bay::ABC_Result*> results;
 

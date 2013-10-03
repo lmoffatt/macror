@@ -70,6 +70,7 @@ namespace Markov_Console
   Markov_ConsoleTest::Markov_ConsoleTest(const std::string& fileCommandName)
   {
     std::string commandLine;
+    std::string commandWord;
     std::size_t ncols=80;
 
     std::cout<<"MacroRConsole_Test 0.1."<<cm.ver()<<"\n";
@@ -88,34 +89,46 @@ namespace Markov_Console
                 ch=getUnbufChar();
                 if (ch=='\t')
                   {
-                    std::vector<std::string> res=cm.complete(commandLine);
+                    std::vector<std::string> res=cm.complete(commandWord);
                     if (res.size()==1)
                       {
-                        std::string tail=res.at(0).substr(commandLine.size());
+                        std::string tail=res.at(0).substr(commandWord.size());
                         std::cout<<tail;
-                        commandLine=res.at(0);
+                        commandWord=res.at(0);
                       }
                     else if(res.size()>1)
                       {
                         if (ch0=='\t')
 
-                        std::cout<<"\n"<<incolumns(res,ncols)<<">>"<<commandLine;
+                          std::cout<<"\n"<<incolumns(res,ncols)<<">>"<<commandLine;
                       }
 
                   }
                 else if ((ch=='\b')||(ch==127))
                   {
                     std::cout<<'\b';
-                    commandLine.pop_back();;
+                    commandWord.pop_back();;
+
+                  }
+                else if (ch==' ')
+                  {
+                    std::cout<<ch;
+                    commandLine+=commandWord+ch;
+                    cm.add_single_token(commandWord);
+                    commandWord.clear();
 
                   }
                 else if (ch!='\n')
                   {
                     std::cout<<ch;
-                    commandLine+=ch;
+                    commandWord+=ch;
                   }
                 else
-                  std::cout<<ch;
+                  {
+                    std::cout<<ch;
+                    commandLine+=commandWord;
+                    commandWord.clear();
+                  }
                 ch0=ch;
               }
             ch=0;

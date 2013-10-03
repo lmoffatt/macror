@@ -44,6 +44,11 @@ namespace  Markov_Console {
 
 
 
+   void Autocomplete::clear()
+   {
+     items.clear();
+   }
+
 
 }
 #ifdef MACRO_TEST

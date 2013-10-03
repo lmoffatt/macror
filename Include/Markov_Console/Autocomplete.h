@@ -30,6 +30,7 @@ public:
   std::vector<std::string> complete(std::string hint) const;
 
   void push_back(std::string newItem);
+  void clear();
 private:
   std::set<std::string> items;
 

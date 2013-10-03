@@ -90,6 +90,8 @@ namespace Markov_Console
     return run(loadFileName,varnames);
 
   }
+
+
   /// runs the command for a list of parameters
   bool LoadCommand::run(const std::string& fname,
                         const std::vector<std::string>& varnames)
@@ -110,130 +112,123 @@ namespace Markov_Console
           path=cm_->getDir().DirName()+"/"+filename;
         else
           path=filename;
-          {
-            std::ifstream f(path.c_str());
-            if(!f)
-              {
-                //path+=".txt";
-                f.close();
-                f.open(path.c_str());
-                if (!f)
-                  {
-                    output_.clear();
-                    errorMessage_="invalid name "+path;
-                    return false;
-                  }
-              }
+        {
+          std::ifstream f(path.c_str());
+          if(!f)
+            {
+              //path+=".txt";
+              f.close();
+              f.open(path.c_str());
+              if (!f)
+                {
+                  output_.clear();
+                  errorMessage_="invalid name "+path;
+                  return false;
+                }
+            }
 
 
 
-            std::size_t numVar=0;
-            std::string varname;
-            //safeGetline allow loading windows files in linux
-            //TODO: check if it loads linux files in windows
+          std::size_t numVar=0;
+          std::string varname;
+          //safeGetline allow loading windows files in linux
+          //TODO: check if it loads linux files in windows
 
 
-            while (Markov_IO::safeGetline(f,varname))
-              {
+          while (Markov_IO::safeGetline(f,varname))
+            {
 
-                if (numVar==0)
-                  {
-                    MacroVersion_=getCommandManager()->getVersion(varname);
-                    if (MacroVersion_>0)
-                      {
-                        output_="Format of version "+varname+"\n";
-                        varname.clear();
-                      }
-                  }
+              if (numVar==0)
+                {
+                  MacroVersion_=getCommandManager()->getVersion(varname);
+                  if (MacroVersion_>0)
+                    {
+                      output_="Format of version "+varname+"\n";
+                      varname.clear();
+                    }
+                }
 
-                while (varname.empty())
-                  if (!Markov_IO::safeGetline(f,varname))
-                    break;
-                if (varnames.empty()||
-                    (std::find(varnames.begin(),varnames.end(),varname)!=
-                     varnames.end()))
-                  {
-                    Markov_IO::ClassDescription des;
-                    if (f>>des)
-                      {
-                        Markov_IO::ABC_Experiment* exp;
-                        Markov_Mol::ABC_Markov_Model* mod;
-                        Markov_Mol::ABC_noise* noise;
-                        Markov_Mol::ABC_PatchModel* p;
-                        Markov_IO::ABC_Options* o;
-                        Markov_Bay::ABC_Result* r;
+              while (varname.empty())
+                if (!Markov_IO::safeGetline(f,varname))
+                  break;
+              if (varnames.empty()||
+                  (std::find(varnames.begin(),varnames.end(),varname)!=
+                   varnames.end()))
+                {
+                  Markov_IO::ClassDescription des;
+                  if (f>>des)
+                    {
+                      Markov_IO::ABC_Experiment* exp;
+                      Markov_Mol::ABC_Markov_Model* mod;
+                      Markov_Mol::ABC_noise* noise;
+                      Markov_Mol::ABC_PatchModel* p;
+                      Markov_IO::ABC_Options* o;
+                      Markov_Bay::ABC_Result* r;
 
-                        numVar++;
-                        if (Markov_IO::LoadFromDescription(exp,des))
-                          {
-                            cm_->getVars()[varname]=exp;
-                            cm_->getExperiments()[varname]=exp;
-                          }
-                        else if (Markov_Mol::LoadFromDescription(mod,des))
-                          {
-                            cm_->getVars()[varname]=mod;
-                            cm_->getModels()[varname]=mod;
-                            cm_->getModelsConst()[varname]=mod;
-                          }
-                        else if (Markov_Mol::LoadFromDescription(noise,des))
-                          {
-                            cm_->getVars()[varname]=noise;
-                          }
-                        else if (Markov_Mol::LoadFromDescription(p,des))
-                          {
-                            cm_->getVars()[varname]=p;
-                            cm_->getPatchs()[varname]=p;
-                            cm_->getModelsConst()[varname+".model"]=&p->Model();
-                          }
-                        else if (LoadFromDescription(o,des))
-                          {
-                            cm_->getVars()[varname]=o;
-                            cm_->getOptions()[varname]=o;
-                          }
-                        else if (LoadFromDescription(r,des))
-                          {
-                            cm_->getVars()[varname]=r;
-                            cm_->getResults()[varname]=r;
-                          }
-                        else
-                          {
-                            std::stringstream ss;
-                            ss<<"unrecognized variable: "<<des;
-                            errorMessage_=ss.str();
-                            output_.clear();
+                      numVar++;
+                      if (Markov_IO::LoadFromDescription(exp,des))
+                        {
+                          cm_->add_experiment(varname,exp);
+                        }
+                      else if (Markov_Mol::LoadFromDescription(mod,des))
+                        {
+                          cm_->add_channel(varname,mod);
+                        }
+                      else if (Markov_Mol::LoadFromDescription(noise,des))
+                        {
+                          cm_->add_var(varname,noise);
+                        }
+                      else if (Markov_Mol::LoadFromDescription(p,des))
+                        {
+                          cm_->add_patch(varname,p);
+                        }
+                      else if (LoadFromDescription(o,des))
+                        {
+                          cm_->add_option(varname,o);
+                        }
+                      else if (LoadFromDescription(r,des))
+                        {
+                          cm_->add_result(varname,r);
+                        }
+                      else
+                        {
+                          std::stringstream ss;
+                          ss<<"unrecognized variable: "<<des;
+                          errorMessage_=ss.str();
+                          output_.clear();
 
-                            numVar--;
-                          }
+                          numVar--;
+                        }
 
-                      }
-                    else
-                      {
-                        if (!des.ClassName().empty())
-                          {
-                            std::stringstream ss;
-                            ss<<"unrecognized variable: "<<des;
-                            errorMessage_=ss.str();
-                            output_.clear();
-                          }
-                      }
-                  }
-              }
-            if (errorMessage_.empty())
-              {
-                output_+=Markov_IO::ToString(numVar)+" variables loaded from file "+
-                    path;
-                return true;
-              }
-            else
-              {
+                    }
+                  else
+                    {
+                      if (!des.ClassName().empty())
+                        {
+                          std::stringstream ss;
+                          ss<<"unrecognized variable: "<<des;
+                          errorMessage_=ss.str();
+                          output_.clear();
+                        }
+                    }
+                }
+            }
+          if (errorMessage_.empty())
+            {
+              output_+=Markov_IO::ToString(numVar)+" variables loaded from file "+
+                  path;
+              return true;
+            }
+          else
+            {
 
-                errorMessage_=Markov_IO::ToString(numVar)+" variables loaded from file "+
-                    path+"; \nbut the following variables were not recognized "+errorMessage_;
-                return false;
-              }
+              errorMessage_=Markov_IO::ToString(numVar)+" variables loaded from file "+
+                  path+"; \nbut the following variables were not recognized "+errorMessage_;
+              return false;
+            }
 
-            f.close();
-          }
+          f.close();
+        }
       }
 
     else
@@ -251,91 +246,84 @@ namespace Markov_Console
             std::string path=f.DirName()+"/"+fileName;
             if (Markov_IO::IsFile(path))
               {
-                  {
-                    std::ifstream f(path.c_str());
-                    if(!f)
-                      {
-                        //path+=".txt";
-                        f.close();
-                        f.open(path.c_str());
-                        if (!f)
-                          {
-                            output_.clear();
-                            errorMessage_="invalid name "+path;
-                          }
-                      }
+                {
+                  std::ifstream f(path.c_str());
+                  if(!f)
+                    {
+                      //path+=".txt";
+                      f.close();
+                      f.open(path.c_str());
+                      if (!f)
+                        {
+                          output_.clear();
+                          errorMessage_="invalid name "+path;
+                        }
+                    }
 
 
-                    std::string varname;
-                    //safeGetline allow loading windows files in linux
-                    //TODO: check if it loads linux files in windows
-                    while (Markov_IO::safeGetline(f,varname))
-                      {
-                        while (varname.empty())
-                          if (!Markov_IO::safeGetline(f,varname))
-                            break;
-                        if (varnames.empty()||
-                            (std::find(varnames.begin(),varnames.end(),varname)!=
-                             varnames.end()))
-                          {
-                            Markov_IO::ClassDescription des;
-                            if (f>>des)
-                              {
-                                Markov_IO::ABC_Experiment* exp;
-                                Markov_Mol::ABC_Markov_Model* mod;
-                                Markov_Mol::ABC_noise* noise;
-                                Markov_Mol::ABC_PatchModel* p;
-                                Markov_IO::ABC_Options* o;
-                                Markov_Bay::ABC_Result* r;
+                  std::string varname;
+                  //safeGetline allow loading windows files in linux
+                  //TODO: check if it loads linux files in windows
+                  while (Markov_IO::safeGetline(f,varname))
+                    {
+                      while (varname.empty())
+                        if (!Markov_IO::safeGetline(f,varname))
+                          break;
+                      if (varnames.empty()||
+                          (std::find(varnames.begin(),varnames.end(),varname)!=
+                           varnames.end()))
+                        {
+                          Markov_IO::ClassDescription des;
+                          if (f>>des)
+                            {
+                              Markov_IO::ABC_Experiment* exp;
+                              Markov_Mol::ABC_Markov_Model* mod;
+                              Markov_Mol::ABC_noise* noise;
+                              Markov_Mol::ABC_PatchModel* p;
+                              Markov_IO::ABC_Options* o;
+                              Markov_Bay::ABC_Result* r;
 
-                                numVar++;
-                                if (Markov_IO::LoadFromDescription(exp,des))
-                                  {
-                                    cm_->getVars()[varname]=exp;
-                                    cm_->getExperiments()[varname]=exp;
-                                  }
-                                else if (Markov_Mol::LoadFromDescription(mod,des))
-                                  {
-                                    cm_->getVars()[varname]=mod;
-                                    cm_->getModels()[varname]=mod;
-                                    cm_->getModelsConst()[varname]=mod;
-                                  }
-                                else if (Markov_Mol::LoadFromDescription(noise,des))
-                                  {
-                                    cm_->getVars()[varname]=noise;
-                                  }
-                                else if (Markov_Mol::LoadFromDescription(p,des))
-                                  {
-                                    cm_->getVars()[varname]=p;
-                                    cm_->getPatchs()[varname]=p;
-                                    cm_->getModelsConst()[varname+".model"]=&p->Model();
-                                  }
-                                else if (LoadFromDescription(o,des))
-                                  {
-                                    cm_->getVars()[varname]=o;
-                                    cm_->getOptions()[varname]=o;
-                                  }
-                                else if (LoadFromDescription(r,des))
-                                  {
-                                    cm_->getVars()[varname]=r;
-                                    cm_->getResults()[varname]=r;
-                                  }
-                                else
-                                  {
-                                    std::stringstream ss;
-                                    ss<<"unrecognized variable: "<<des;
-                                    errorMessage_=ss.str();
-                                    output_.clear();
-                                    numVar--;
-                                  }
+                              numVar++;
+                              if (Markov_IO::LoadFromDescription(exp,des))
+                                {
+                                  cm_->add_experiment(varname,exp);
+                                }
+                              else if (Markov_Mol::LoadFromDescription(mod,des))
+                                {
+                                  cm_->add_channel(varname,mod);
+                                }
+                              else if (Markov_Mol::LoadFromDescription(noise,des))
+                                {
+                                  cm_->add_var(varname,noise);
+                                }
+                              else if (Markov_Mol::LoadFromDescription(p,des))
+                                {
+                                  cm_->add_patch(varname,p);
+                                }
+                              else if (LoadFromDescription(o,des))
+                                {
+                                  cm_->add_option(varname,o);
+                                }
+                              else if (LoadFromDescription(r,des))
+                                {
+                                  cm_->add_result(varname,r);
+                                }
+                              else
+                                {
+                                  std::stringstream ss;
+                                  ss<<"unrecognized variable: "<<des;
+                                  errorMessage_=ss.str();
+                                  output_.clear();
+                                  numVar--;
+                                }
 
-                              }
+                            }
 
-                          }
-                      }
+                        }
+                    }
 
-                    f.close();
-                  }
+                  f.close();
+                }
 
               }
           }

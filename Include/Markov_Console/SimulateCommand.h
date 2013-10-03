@@ -24,6 +24,10 @@ public:
     /// runs the command on the command manager and returns true if succeeds
     virtual bool run(std::deque<Token>& tokenList);
 
+
+    virtual std::vector<std::string> complete(const std::string& hint,const std::deque<Token>& token)const;
+;
+
     virtual bool run(const std::string& patch_in,
                      const std::string& experiment_in,
                      const std::string& experiment_out,

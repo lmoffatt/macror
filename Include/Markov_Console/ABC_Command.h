@@ -2,6 +2,7 @@
 #define ABC_COMMAND_H
 
 #include <deque>
+#include <vector>
 #include <string>
 
 #include <Markov_Console/Token.h>
@@ -10,11 +11,11 @@
 
 namespace Markov_Console
 {
-class Markov_CommandManager;
+  class Markov_CommandManager;
 
-class ABC_Command
-{
-public:
+  class ABC_Command
+  {
+  public:
     virtual ~ABC_Command();
     /// virtual formated output
     virtual std::ostream& put(std::ostream& s) const;
@@ -40,6 +41,8 @@ public:
 
 
 
+    virtual std::vector<std::string> complete(const std::string& hint,const std::deque<Token>& token)const{}
+
 
     /// error message, empty string if succeeded
     virtual std::string errorMessage()const;
@@ -50,11 +53,11 @@ public:
     /// returns the Markov_CommandManager
     virtual Markov_CommandManager* getCommandManager();
 
-protected:
+  protected:
     std::string output_;
     std::string errorMessage_;
     Markov_CommandManager* cm_;
-};
+  };
 
 }
 
