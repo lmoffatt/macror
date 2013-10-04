@@ -2,6 +2,20 @@
 #include <stdlib.h>
 #include <cstdio>
 #include <unistd.h>
+
+
+
+#include <string>
+#include <climits>
+
+
+#include <unistd.h>
+
+
+
+
+
+
 namespace Markov_IO
 {
 /**
@@ -169,6 +183,30 @@ std::string getWorkingPath()
    char temp[FILENAME_MAX];
    return ( getcwd(temp, FILENAME_MAX) ? std::string( temp ) : std::string("") );
 }
+
+
+std::string getExecutablePath()
+{
+    char result[ PATH_MAX ];
+    ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+     return std::string( result, (count > 0) ? count : 0 );
+}
+
+std::string getExecutableDir()
+{
+  std::string path=getExecutablePath();
+  return getDirectory(path);
+}
+
+
+std::string getDirectory(std::string path)
+{
+  std::size_t pos=path.find_last_of("/ \\");
+  return path.substr(0,pos);
+}
+
+
+
 
 bool IsDir(const std::string& path)
 {

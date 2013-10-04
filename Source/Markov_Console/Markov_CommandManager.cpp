@@ -77,7 +77,7 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::ver()const
   {
-    std::string path=STRINGIZE(GIT_VER_PATH);
+    std::string path=Markov_IO::getExecutableDir()+"/"+STRINGIZE(GIT_VER_PATH);
     std::fstream f(path.c_str());
     std::string lineHash;
     Markov_IO::safeGetline(f,lineHash);
@@ -86,7 +86,7 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::verDate()const
   {
-    std::string path=STRINGIZE(GIT_VER_PATH);
+    std::string path=Markov_IO::getExecutableDir()+"/"+STRINGIZE(GIT_VER_PATH);
     std::fstream f(path.c_str());
     std::string line;
     Markov_IO::safeGetline(f,line);
@@ -97,7 +97,7 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::uncommitedFiles()const
   {
-    std::string path2=STRINGIZE(UNCOMMITED_PATH);
+    std::string path2=Markov_IO::getExecutableDir()+"/"+STRINGIZE(UNCOMMITED_PATH);
     std::fstream f2(path2.c_str());
     std::string lineUncommited0;
     std::string lineUncommited;
@@ -155,7 +155,7 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::version()const
   {
-    std::string version="MacroR.0.1";
+    std::string version="MacroConsole 0.1";
     return version;
   }
 

@@ -58,6 +58,11 @@ private:
 
 std::string getWorkingPath();
 
+std::string getExecutablePath();
+
+std::string getExecutableDir();
+
+std::string getDirectory(std::string path);
 
 
 bool IsDir(const std::string& path);

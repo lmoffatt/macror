@@ -15,6 +15,13 @@ Markov_CommandManagerTest::Markov_CommandManagerTest():
 {
  }
 
+std::string Markov_CommandManagerTest::version()
+{
+  return "MacroConsoleTest 0.1";
+
+}
+
+
 
 void Markov_CommandManagerTest::test(const std::string& testedEntity,
 				     const std::string& mode)

@@ -20,7 +20,7 @@ class Markov_Console
     Markov_CommandManager cm;
 
 public:
-    Markov_Console();
+    Markov_Console(const std::string& fileCommandName="");
 };
 
 }

@@ -12,10 +12,18 @@
 #include "Markov_Console/Markov_console.h"
 
 
+
 int main(int argc, char *argv[])
 {
-  Markov_Console::Markov_Console();
-  return 0;
+  if (argc>1)
+    {
+      Markov_Console::Markov_Console(std::string(argv[1]));
+    return 0;
+    }
+  else
+    {
+      Markov_Console::Markov_Console();
+    return 0;
 
-}
-
+    }
+ }

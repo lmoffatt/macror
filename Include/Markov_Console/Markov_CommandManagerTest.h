@@ -16,6 +16,7 @@ protected:
 public:
     Markov_CommandManagerTest();
     virtual bool next_instruction();
+    virtual std::string version();
 
 
 };

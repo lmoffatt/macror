@@ -96,7 +96,7 @@ QMAKE_CXXFLAGS_RELEASE -=-O2
 QMAKE_CXXFLAGS_RELEASE +=-O3
 
 
-HEADERS += Include/runDemosConsole.h \
+HEADERS += \
     Include/Markov_Bay/MarkovOptim.h \
     Include/Markov_Bay/MarkovLikelihood.h \
     Include/Markov_Bay/MacroRStep.h \
@@ -263,7 +263,7 @@ HEADERS += Include/runDemosConsole.h \
     Include/Markov_IO/ABC_Y_dt.h \
     Include/Markov_IO/ABC_Unit.h
 
-SOURCES += Source/Markov_Console_Demo1.cpp \
+SOURCES += \
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
     Source/Markov_IO/Object.cpp \
