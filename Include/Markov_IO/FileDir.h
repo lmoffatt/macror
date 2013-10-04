@@ -63,6 +63,7 @@ std::string getExecutablePath();
 std::string getExecutableDir();
 
 std::string getDirectory(std::string path);
+std::string getUpperDirectory(std::string path);
 
 
 bool IsDir(const std::string& path);

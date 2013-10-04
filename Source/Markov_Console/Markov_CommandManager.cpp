@@ -77,8 +77,17 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::ver()const
   {
-    std::string path=Markov_IO::getExecutableDir()+"/"+STRINGIZE(GIT_VER_PATH);
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(GIT_VER_PATH);
+    std::string path=d+fname;
     std::fstream f(path.c_str());
+    if (!(f))
+    {
+        f.close();
+        path=Markov_IO::getDirectory(d)+fname;
+        f.open(path.c_str());
+    }
+
     std::string lineHash;
     Markov_IO::safeGetline(f,lineHash);
     return lineHash;
@@ -86,8 +95,16 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::verDate()const
   {
-    std::string path=Markov_IO::getExecutableDir()+"/"+STRINGIZE(GIT_VER_PATH);
-    std::fstream f(path.c_str());
+      std::string d=Markov_IO::getExecutableDir();
+      std::string fname=STRINGIZE(GIT_VER_PATH);
+      std::string path=d+fname;
+      std::fstream f(path.c_str());
+      if (!(f))
+      {
+          f.close();
+          path=Markov_IO::getDirectory(d)+fname;
+          f.open(path.c_str());
+      }
     std::string line;
     Markov_IO::safeGetline(f,line);
     std::string lineDate;
@@ -97,14 +114,22 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::uncommitedFiles()const
   {
-    std::string path2=Markov_IO::getExecutableDir()+"/"+STRINGIZE(UNCOMMITED_PATH);
-    std::fstream f2(path2.c_str());
+      std::string d=Markov_IO::getExecutableDir();
+      std::string fname=STRINGIZE(UNCOMMITED_PATH);
+      std::string path=d+fname;
+      std::fstream f(path.c_str());
+      if (!(f))
+      {
+          f.close();
+          path=Markov_IO::getDirectory(d)+fname;
+          f.open(path.c_str());
+      }
     std::string lineUncommited0;
     std::string lineUncommited;
-    while ( Markov_IO::safeGetline(f2,lineUncommited0))
+    while ( Markov_IO::safeGetline(f,lineUncommited0))
       {
         lineUncommited+=lineUncommited0;
-        if (Markov_IO::safeGetline(f2,lineUncommited0))
+        if (Markov_IO::safeGetline(f,lineUncommited0))
           lineUncommited+=" "+lineUncommited0+"\n";
       }
     return lineUncommited;
