@@ -293,7 +293,7 @@ Pulses_trace::Pulses_trace(const std::string& name,
   ASSERT_LEQ(0.00,exchange_d);
   ASSERT_LESS(exchange_d*5,tracedur_d);
   ASSERT_LEQ(sub_step_time_d,dt_d);
-  ASSERT_EQ(sub_step_time_d,dt_d/max_n_sub_steps_u);
+//  ASSERT_EQ(sub_step_time_d*max_n_sub_steps_u,dt_d);
     (*this)[0];
 }
 

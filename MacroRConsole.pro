@@ -12,11 +12,12 @@
 CONFIG +=macroRConsole
 #message ("MacroRConsole here")
 TARGET = MacroRConsole
+
 TEMPLATE = app
-# CONFIG   += console
-CONFIG   -=qt
+CONFIG += console
 CONFIG -= app_bundle
-CONFIG -=uic
+CONFIG -= qt
+
 
 
 QMAKE_CXXFLAGS_RELEASE += -std=c++11 #-lpthread

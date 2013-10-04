@@ -6,7 +6,6 @@
 
 #ifdef  __linux__
 
-
 // for getUnbufChar
 #include <stdio.h>
 #include <unistd.h>
@@ -27,6 +26,17 @@ int getUnbufChar(void)
   return ch; /*return received char */
 }
 
+#endif
+
+
+#ifndef  __linux__
+#include <conio.h>
+int getUnbufChar(void)
+{
+    int ch;
+    ch=getch();
+    return ch;
+}
 #endif
 
 
@@ -84,7 +94,7 @@ namespace Markov_Console
           {
             std::cout<<">>";
 
-            while (ch!='\n')
+            while ((ch!='\n')&&(ch!='\r'))
               {
                 ch=getUnbufChar();
                 if (ch=='\t')
@@ -118,14 +128,14 @@ namespace Markov_Console
                     commandWord.clear();
 
                   }
-                else if (ch!='\n')
+                else if ((ch!='\n')&&(ch!='\r'))
                   {
                     std::cout<<ch;
                     commandWord+=ch;
                   }
                 else
                   {
-                    std::cout<<ch;
+                    std::cout<<'\n';
                     commandLine+=commandWord;
                     commandWord.clear();
                   }
