@@ -105,9 +105,13 @@ void Markov_CommandManager::LoadTypes()
 
     for (auto it=types.begin(); it!=types.end(); ++it)
     {
-        parent[it->first]=it->second->mySuperClass();
-        childs[it->second->mySuperClass()].push_back(it->first);
-        autoCmptBySuperClass[it->second->mySuperClass()]=Autocomplete();
+        auto sc=it->second->mySuperClass();
+        auto c=it->first;
+        parent[c]=sc;
+        childs[sc].push_back(c);
+        autoCmptBySuperClass[sc]=
+            Autocomplete({std::string("<")+sc+">"});
+        autoCmptByClass[it->second->myClass()]=Autocomplete({std::string("<")+c+">"});
 
     }
 

@@ -203,6 +203,7 @@ namespace Markov_Console
     vars[name]=s;
     varsl.push_back(name);
     autoCmptBySuperClass[s->mySuperClass()].push_back(name);
+    autoCmptByClass[s->myClass()].push_back(name);
 
   }
 
@@ -245,7 +246,7 @@ namespace Markov_Console
   }
 
 
-  bool Markov_CommandManager::has_script(const std::string& fname)
+  bool Markov_CommandManager::has_script(const std::string& fname)const
   {
     std::string fn=fname+".macror.txt";
     std::ifstream f(fn.c_str());
@@ -309,8 +310,12 @@ namespace Markov_Console
                 ABC_Command* cmd=cmds[tokens[0].Name()];
                 tokens.erase(tokens.begin());
                 lastCmdRst=cmd->run(tokens);
-                std::cout<<cmd->output();
-                std::cerr<<cmd->errorMessage();
+                auto out=cmd->output();
+                auto err=cmd->errorMessage();
+                if (!out.empty())
+                  std::cout<<cmd->output()<<"\n";
+                if (!err.empty())
+                  std::cerr<<cmd->errorMessage()<<"\n";
               }
             else if (has_script(tokens[0].Name()))
               {
@@ -396,7 +401,7 @@ namespace Markov_Console
    * \param command  the added token
    */
 
-  void Markov_CommandManager::add_single_token(std::string command)
+  std::string Markov_CommandManager::add_single_token(const std::string& command)
   {
     // construct a stream from the string
     std::stringstream strstr(command);
@@ -404,7 +409,35 @@ namespace Markov_Console
     Token t;
     while (strstr>>t)
       tokens.push_back(t);
+    std::string res= check_tokens();
+    if (!res.empty())
+      tokens.pop_back();
+    return res;
+
   }
+
+  std::string Markov_CommandManager::check_tokens() const
+  {
+    if (has_var(tokens[0].Name()))
+      {
+        return "";
+      }
+
+    if (has_command(tokens[0].Name()))
+      {
+        const ABC_Command* cmd=cmds.find(tokens[0].Name())->second;
+        return cmd->check(tokens);
+      }
+    else if (has_script(tokens[0].Name()))
+      {
+        return "";
+      }
+    else return "unknown command";
+
+
+
+  }
+
 
 
 
@@ -412,6 +445,8 @@ namespace Markov_Console
   {
     if (has_superType(category))
       return autoCmptBySuperClass[category].complete(hint);
+    else if (has_type(category))
+      return autoCmptByClass[category].complete(hint);
     else
       return {"Error: ","\t wrong className"};
 
@@ -461,7 +496,7 @@ namespace Markov_Console
   }
 
 
- std::vector<std::string> Markov_CommandManager::getSiblings(std::string name)const
+  std::vector<std::string> Markov_CommandManager::getSiblings(std::string name)const
   {
     std::map<std::string, std::string>::const_iterator itp=parent.find(name);
     if (itp!=parent.end())
