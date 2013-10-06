@@ -6,12 +6,12 @@ namespace Markov_Console
     /**
       Run all commands in a script file
 
-      @todo ¿Parse the file looking for errors?
+      @todo ï¿½Parse the file looking for errors?
 
       */
 
-    Markov_Script::Markov_Script(Markov_Console::Markov_CommandManager &cm,
-				 const std::string& file)
+    Markov_Script::Markov_Script(Markov_CommandManager *cm,
+                                 const std::string& file)
     {
         std::ifstream fin;
         fin.open(file.c_str());
@@ -20,8 +20,8 @@ namespace Markov_Console
           while (getline(fin,line))
             {
               std::cout<<line<<std::endl;
-              cm.add_tokens(line);
-              cm.next_instruction();
+              cm->add_tokens(line);
+              cm->next_instruction();
             }
         else
           {

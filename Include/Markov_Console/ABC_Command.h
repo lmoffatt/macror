@@ -20,7 +20,6 @@ namespace Markov_Console
     /// virtual formated output
     virtual std::ostream& put(std::ostream& s) const;
 
-
     virtual bool operator==(const ABC_Command& other)const;
 
     /// hint about of the class nature
@@ -29,36 +28,94 @@ namespace Markov_Console
     /// a short description of the class
     virtual std::string WhatThis()const;
 
-    /// checks if commandName ref   ers to the actual command
-    virtual bool IsCommand(const std::string& ACommandName)const;
+   // TODO: constructor based on vector of tuples
+
+    ABC_Command(Markov_CommandManager* cm,
+                const std::string& commandName,
+                const std::vector<std::string> &inputNames,
+                const std::vector<std::string> &inputTypes,
+                const std::vector<bool> &inputIsMandatory,
+                const std::vector<std::string> &outputNames,
+                const std::vector<std::string> &outputTypes,
+                const std::vector<bool> &outputIsMandatory);
 
 
-    virtual std::string commandName()const=0;
+    ABC_Command(){}
 
 
-    /// runs the command for a vector of Tokens
-    virtual bool run(std::deque<Token>& tokensList)=0;
+
+    virtual std::string commandName()const;
 
 
-    virtual std::string check(const std::deque<Token>& tokensList)const {}
+    //
+    /// returns the Markov_CommandManager
+    virtual Markov_CommandManager* getCommandManager();
 
 
-    virtual std::vector<std::string> complete(const std::string& hint,const std::deque<Token>& token)const{}
+    virtual const Markov_CommandManager* getCommandManager()const ;
 
-
-    /// error message, empty string if succeeded
-    virtual std::string errorMessage()const;
 
     /// printed output, empty string if command fails
     virtual std::string output()const;
 
-    /// returns the Markov_CommandManager
-    virtual Markov_CommandManager* getCommandManager();
+    virtual std::size_t numInputs()const;
+
+    virtual std::string InputType(std::size_t i)const;
+    virtual std::string InputName(std::size_t i)const;
+    virtual bool isMandatoryInput(std::size_t i)const;
+
+
+    virtual std::size_t numOutputs()const;
+    virtual std::string OutputType(std::size_t i)const;
+    virtual std::string OutputName(std::size_t i)const;
+    virtual bool isMandatoryOutput(std::size_t i)const;
+
+
+    // TODO: handle error messages through commandmanager or return a composite class with boolean and error message
+    /// error message, empty string if succeeded
+    virtual std::string errorMessage()const;
+
+
+    virtual std::vector<std::string> complete(const std::string& hint,const std::deque<Token>& tokenList);
+
+
+
+    virtual std::string check(const std::deque<Token>& tokenList)const;
+
+
+
+    /// runs the command on the command manager and returns true if succeeds
+    virtual bool run( std::deque<Token>& tokenList);
+
+   // virtual bool run( std::deque<Token>& tokenList){}
+
+    virtual bool run(const std::vector<std::string>& InputValue,
+                     const std::vector<std::string>& OutputValue){}
+
+
+
 
   protected:
+    virtual void errorMessage(const std::string& errmsg);
+
+
+    Markov_CommandManager* cm_;
+    std::string commandName_;
+    std::vector<std::string> inputNames_;
+    std::vector<std::string> inputTypes_;
+    std::vector<bool> inputMandatory_;
+
     std::string output_;
     std::string errorMessage_;
-    Markov_CommandManager* cm_;
+
+
+    std::vector<std::string> outputNames_;
+    std::vector<std::string> outputTypes_;
+    std::vector<bool> outputMandatory_;
+
+
+
+
   };
 
 }

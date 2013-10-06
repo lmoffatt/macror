@@ -288,8 +288,6 @@ SOURCES += \
     Source/Markov_IO/PulsesProgram.cpp \
     Source/Markov_IO/Pulse.cpp \
     Source/Markov_IO/Parameters.cpp \
-    Source/Markov_IO/Markov_IO.cpp \
-    Source/Markov_IO/Markov_ABC.cpp \
     Source/Markov_IO/FileDir.cpp \
     Source/Markov_IO/ExperimentAverage.cpp \
     Source/Markov_IO/ABC_Trace.cpp \
@@ -466,6 +464,8 @@ HEADERS += \
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
     Source/Markov_Console/BayesianAutocomplete.cpp
+
+OTHER_FILES +=
 
 
 

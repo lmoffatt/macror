@@ -69,7 +69,7 @@ public:
 
     std::istream& get(std::istream& stream);
 
-    const std::string& Name()const;
+    std::string Name()const;
 
     double Number()const;
 

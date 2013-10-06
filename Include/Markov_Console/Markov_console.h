@@ -17,10 +17,11 @@ namespace Markov_Console
   */
 class Markov_Console
 {
-    Markov_CommandManager cm;
+protected:
+    Markov_CommandManager* cm;
 
 public:
-    Markov_Console(const std::string& fileCommandName="");
+    Markov_Console(Markov_CommandManager* c,const std::string& fileCommandName="");
 };
 
 }

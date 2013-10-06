@@ -13,21 +13,12 @@ public:
 
     SimulateCommand(Markov_CommandManager* cm);
 
-        /// hint about of the class nature
-    virtual std::string Tip()const;
-
-    /// a short description of the class
-    virtual std::string WhatThis()const;
 
     virtual std::string commandName()const;
 
-    /// runs the command on the command manager and returns true if succeeds
-    virtual bool run(std::deque<Token>& tokenList);
 
-
-    virtual std::vector<std::string> complete(const std::string& hint,const std::deque<Token>& token)const;
-
-    virtual std::string check(const std::deque<Token>& tokensList) const;
+    virtual bool run(const std::vector<std::string>& InputValue,
+                     const std::vector<std::string>& OutputValue);
 
 
     virtual bool run(const std::string& patch_in,
@@ -35,9 +26,6 @@ public:
                      const std::string& experiment_out,
                      std::size_t num_replicates,
                      const std::string& options_in);
-
-private:
-
 
 };
 

@@ -29,6 +29,8 @@
 #include "Markov_Mol/ExperimentSimulation.h"
 #include "Markov_IO/RandomPulses.h"
 #include "Markov_IO/PulsesTrace.h"
+#include "Markov_IO/Object.h"
+#include "Markov_IO/auxiliarIO.h"
 
 #include "Markov_Mol/QMarkovModel.h"
 #include "Markov_Mol/PatchModel.h"
@@ -75,35 +77,35 @@ namespace Markov_Console
   }
 
 
-  std::string Markov_CommandManager::ver()const
+  std::string Markov_CommandManager::build()const
   {
     std::string d=Markov_IO::getExecutableDir();
     std::string fname=STRINGIZE(GIT_VER_PATH);
     std::string path=d+fname;
     std::fstream f(path.c_str());
     if (!(f))
-    {
+      {
         f.close();
         path=Markov_IO::getDirectory(d)+fname;
         f.open(path.c_str());
-    }
+      }
 
     std::string lineHash;
     Markov_IO::safeGetline(f,lineHash);
     return lineHash;
   }
 
-  std::string Markov_CommandManager::verDate()const
+  std::string Markov_CommandManager::buildDate()const
   {
-      std::string d=Markov_IO::getExecutableDir();
-      std::string fname=STRINGIZE(GIT_VER_PATH);
-      std::string path=d+fname;
-      std::fstream f(path.c_str());
-      if (!(f))
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(GIT_VER_PATH);
+    std::string path=d+fname;
+    std::fstream f(path.c_str());
+    if (!(f))
       {
-          f.close();
-          path=Markov_IO::getDirectory(d)+fname;
-          f.open(path.c_str());
+        f.close();
+        path=Markov_IO::getDirectory(d)+fname;
+        f.open(path.c_str());
       }
     std::string line;
     Markov_IO::safeGetline(f,line);
@@ -114,15 +116,15 @@ namespace Markov_Console
 
   std::string Markov_CommandManager::uncommitedFiles()const
   {
-      std::string d=Markov_IO::getExecutableDir();
-      std::string fname=STRINGIZE(UNCOMMITED_PATH);
-      std::string path=d+fname;
-      std::fstream f(path.c_str());
-      if (!(f))
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(UNCOMMITED_PATH);
+    std::string path=d+fname;
+    std::fstream f(path.c_str());
+    if (!(f))
       {
-          f.close();
-          path=Markov_IO::getDirectory(d)+fname;
-          f.open(path.c_str());
+        f.close();
+        path=Markov_IO::getDirectory(d)+fname;
+        f.open(path.c_str());
       }
     std::string lineUncommited0;
     std::string lineUncommited;
@@ -141,7 +143,7 @@ namespace Markov_Console
     std::string decorating_line(ncols,'#');
     std::string vers=version();
     std::string motto="Statistically Sound Molecular Kinetics";
-    std::string date_build=verDate()+"    build:"+ver();
+    std::string date_build=buildDate()+"    build:"+build();
     std::string updatesMss="updates in http://code.google.com/p/macror/";
     std::string helpmss="enter help for help";
 
@@ -243,13 +245,26 @@ namespace Markov_Console
     for (int i=0; i<n; i++) tokens.erase(tokens.begin());
   }
 
-  bool Markov_CommandManager::checkVariable(std::string var, std::string type)
+  bool Markov_CommandManager::checkVariable(std::string var, std::string type)const
   {
-    if (vars.find(var)!=vars.end())
+    auto itype=regulartypes.find(type);
+    if (itype!=regulartypes.end())
       {
-        return ((*vars[var]).mySuperClass()==type);
+        Markov_IO::ABC_Object* o=itype->second->create();
+        return Markov_IO::ToObject(var,o);
       }
-    else return false;
+    else
+      {
+        auto it=vars.find(var);
+        if (it!=vars.end())
+          {
+            return ((*it).second->mySuperClass()==type)||((*it).second->myClass()==type);
+          }
+        else
+          {
+            return false;
+          }
+      }
   }
   bool Markov_CommandManager::has_var(const std::string& name)const {
     return (vars.find(name)!=vars.end());
@@ -280,7 +295,7 @@ namespace Markov_Console
 
   void Markov_CommandManager::runScript( std::string file)
   {
-    Markov_Script(*this, file);
+    Markov_Script(this, file);
     std::cout << std::endl;
     std::cout << "Script completed." << std::endl;
   }
@@ -297,6 +312,12 @@ namespace Markov_Console
   }
 
 
+
+
+  void Markov_CommandManager::printErrorMessage(const std::string& errorMessage,ABC_Command* source)
+  {
+    std::cout<<errorMessage<<"\n";
+  }
 
 
 
@@ -441,7 +462,7 @@ namespace Markov_Console
 
   }
 
-  std::string Markov_CommandManager::check_tokens() const
+  std::string Markov_CommandManager::check_tokens()
   {
     if (has_var(tokens[0].Name()))
       {
@@ -450,7 +471,7 @@ namespace Markov_Console
 
     if (has_command(tokens[0].Name()))
       {
-        const ABC_Command* cmd=cmds.find(tokens[0].Name())->second;
+        ABC_Command* cmd=cmds.find(tokens[0].Name())->second;
         return cmd->check(tokens);
       }
     else if (has_script(tokens[0].Name()))
@@ -473,7 +494,7 @@ namespace Markov_Console
     else if (has_type(category))
       return autoCmptByClass[category].complete(hint);
     else
-      return {"Error: ","\t wrong className"};
+      return {};
 
   }
 

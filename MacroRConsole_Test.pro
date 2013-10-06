@@ -23,7 +23,7 @@ DEFINES+=MACRO_TEST
 
 TARGET = MacroConsole_Test
 
-HEADERS += Include/runTests.h \
+HEADERS += \
     Include/Tests/timeOfFunctor.h \
     Include/Tests/RelationalProperties_test.h \
     Include/Tests/RegularType_Test.h \
@@ -47,7 +47,6 @@ HEADERS += Include/runTests.h \
     Include/Tests/ElementaryTest.h \
     Include/Tests/MultipleTests.h\
     Include/Markov_Console/Markov_CommandManagerTest.h \
-    Include/Markov_Console/Markov_consoleTest.h \
     Include/Tests/Markov_IO/ABC_Parametrizable_Test.h \
     Include/Tests/Markov_IO/ABC_Put_Test.h \
     Include/Tests/Markov_IO/ClassDescription_Test.h \
@@ -84,7 +83,6 @@ SOURCES += \
     Source/Tests/ABC_Test.cpp\
     Source/Tests/MultipleTests.cpp \
     Source/Tests/ElementaryTest.cpp \
-    Source/Markov_Console/Markov_consoleTest.cpp \
     Source/Tests/Markov_IO/ABC_Parametrizable_Test.cpp \
     Source/Tests/Markov_IO/ABC_Put_Test.cpp \
     Source/Tests/Markov_IO/ClassDescription_Test.cpp \
@@ -129,3 +127,9 @@ SOURCES =  $$unique(SOURCES)
 message (" MacroRConsole_Test here")
 
 }
+
+HEADERS += \
+    Include/Markov_Console/TestCommand.h
+
+SOURCES += \
+    Source/Markov_Console/TestCommand.cpp

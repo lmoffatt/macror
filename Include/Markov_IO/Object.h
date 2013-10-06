@@ -16,6 +16,7 @@ public:
 
     virtual ~Object();
 
+
     static std::string ClassName();
     virtual std::string myClass()const;
 
@@ -38,6 +39,11 @@ public:
 private:
     T value_;
 };
+
+
+
+
+
 
 }
 

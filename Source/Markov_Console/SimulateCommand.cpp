@@ -6,6 +6,7 @@
 #include "Markov_Mol/SimulationOptions.h"
 #include "Markov_Mol/ABC_PatchModel.h"
 #include "Markov_IO/getTimems.h"
+#include "Markov_IO/Object.h"
 
 namespace Markov_Console
 {
@@ -14,27 +15,24 @@ namespace Markov_Console
 
 
 
-  SimulateCommand::SimulateCommand(Markov_CommandManager *cm)
-  {
-    cm_=cm;
-  }
-
-  /// hint about of the class nature
-  std::string SimulateCommand::Tip()const
-  {
-    return "Simulates a patch on an experiment";
-  }
-
-  /// a short description of the class
-  std::string SimulateCommand::WhatThis()const
-  {
-    return "simulate patch-alias experiment-alias \n"
-        "      Simulates a patch on an experiment\n"
-
-        "simulate patch-alias experiment-alias [option-alias] [simulation-new-alias]\n"
-        "Simulates a patch for an experiment using the specified options. The"
-        "results are stored in the provided new alias.";
-  }
+  SimulateCommand::SimulateCommand(Markov_CommandManager *cm):
+    ABC_Command(
+      cm,
+      "simulate",{
+      "patch_in",
+      "experiment_in",
+      "num_replicates",
+      "options_in"},{
+      Markov_Mol::ABC_PatchModel::ClassName(),
+      Markov_IO::ABC_Experiment::ClassName(),
+      Markov_IO::Object<std::size_t>::ClassName(),
+      Markov_IO::ABC_Options::ClassName()},  {
+      true,true,false,false},{
+      "experiment_out"},  {
+      Markov_IO::Object<std::string>::ClassName()},{
+      false}
+      )
+  {}
 
 
 
@@ -44,190 +42,26 @@ namespace Markov_Console
     return "simulate";
   }
 
-  /// runs the command on the command manager and returns true if succeeds
-  bool SimulateCommand::run(std::deque<Token>& tokenList)
+
+
+
+  bool SimulateCommand::run(const std::vector<std::string>& InputValue,
+                            const std::vector<std::string>& OutputValue)
   {
-    std::string patch_in;
-    std::string experiment_in;
-    std::string experiment_out;
-    std::size_t num_replicates=0;
-    std::string options_in;
-    std::string name;
-    std::size_t number;
-    while (!tokenList.empty())
-      {
-        switch(tokenList.front().get_token())
-          {
-          case Token::IDENTIFIER:
-            name=tokenList.front().Name();
-            tokenList.pop_front();
-            if (cm_->checkVariable(name,Markov_Mol::ABC_PatchModel::ClassName()))
-              {
-                //valid Patch
-
-                if (patch_in.empty())
-                  {
-                    patch_in=name;
-                  }
-                else
-                  {
-                    output_.clear();
-                    errorMessage_="expected one patch, found two: "+patch_in+ " and "+name;
-                    return false;
-                  }
-              }
-            else if (cm_->checkVariable(name,Markov_IO::ABC_Experiment::ClassName()))
-              {
-                if (experiment_in.empty())
-                  {
-                    experiment_in=name;
-                  }
-                else if (experiment_out.empty())
-                  {
-                    experiment_out=name;
-                  }
-                else
-                  {
-                    output_.clear();
-                    errorMessage_=" found three experiments: "+experiment_in+
-                        " ," +experiment_out+" and "+name+ " expected at most 2";
-                    return false;
-                  }
-              }
-            else if(cm_->checkVariable(name,Markov_IO::ABC_Options::ClassName()))
-              {
-                if (options_in.empty())
-                  {
-                    options_in=name;
-                  }
-                else
-                  {
-                    output_.clear();
-                    errorMessage_="expected one options, found two: "+options_in+ " and "+name;
-                    return false;
-                  }
-              }
-            else
-              if (experiment_out.empty())
-                {
-                  experiment_out=name;
-                }
-              else
-                {
-                  output_.clear();
-                  errorMessage_=" found two new names: "+experiment_out+
-                      " and "+name+ " expected one for experiment out";
-                  return false;
-                }
-
-            break;
-          case Token::NUMBER:
-            number=tokenList.front().Number();
-            tokenList.pop_front();
-            if (num_replicates==0)
-              {
-                num_replicates=number;
-              }
-            else
-              {
-                output_.clear();
-                errorMessage_="expected one number, found two: "+
-                    Markov_IO::ToString(num_replicates)+ " and "+
-                    Markov_IO::ToString(number);
-                return false;
-              }
-            break;
-          default:
-            std::string tokenString=tokenList.front().get_tokenString();
-            output_.clear();
-            errorMessage_="wrong token; expected NAME or NUMBER one number, found : "+
-                tokenString;
-            return false;
-          }
 
 
+    std::string patch_in=InputValue[0];
+    std::string experiment_in=InputValue[1];
+    std::string options_in=InputValue[2];
 
-      }
+    std::size_t num_replicates=1;
+    if (!InputValue[3].empty())
+      num_replicates=std::stoul(InputValue[3]);
 
+    std::string experiment_out=OutputValue[0];
 
-    if (experiment_out.empty())
-      experiment_out="mySimulation";
-    if (num_replicates==0)
-      num_replicates=1;
     return run(patch_in,experiment_in,experiment_out,num_replicates,options_in);
   }
-
-
-  std::vector<std::string> SimulateCommand::
-  complete(const std::string& hint,const std::deque<Token>& tokenList)const
-  {
-
-    std::deque<Token> tokenCopy(tokenList);
-
-    if (tokenCopy.size()>1)
-        tokenCopy.pop_back();
-    std::string err=check(tokenCopy);
-    if (!err.empty())
-      return {": ",err};
-
-    switch (tokenList.size())
-      {
-      case 1:
-        return cm_->complete(hint,Markov_Mol::ABC_PatchModel::ClassName());
-      case  2:
-        return cm_->complete(hint,Markov_IO::ABC_Experiment::ClassName());
-      case 3:
-        return  cm_->complete(hint,Markov_Mol::SimulationOptions::ClassName());
-      default:
-        return {"Mandatory fields filled ",
-            "\t optional fields: number of replictes and alias for simulation"};
-
-      }
-  }
-
-
-
-
-  std::string SimulateCommand::check(const std::deque<Token> &tokenList)const
-  {
-    std::string patch_in,experiment_in, options_in;
-    switch (tokenList.size())
-      {
-      case 0:
-        return "Bug: absent command";
-      case 1:
-        if (tokenList.front().Name()!=this->commandName())
-          return "Bug: erroneous command";
-        else
-          return "";
-      case 2:
-        patch_in=tokenList[1].Name();
-        if (! (cm_->checkVariable(patch_in,Markov_Mol::ABC_PatchModel::ClassName())))
-          return "Error: "+patch_in+"is not a patch ";
-        else
-          return "";
-      case 3:
-        experiment_in=tokenList[2].Name();
-        if (! (cm_->checkVariable(experiment_in,Markov_Mol::ABC_Experiment::ClassName())))
-          return "Error: "+experiment_in+"is not an experiment";
-        else
-          return "";
-      case 4:
-        if (tokenList[3].get_token()==Token::NUMBER)
-          return "";
-        else if(tokenList[3].get_token()==Token::STRING)
-          return "";
-        else
-          return "Error: "+tokenList[3].Name()+ "is neither a number nor a name";
-      default:
-        return "";
-
-
-      }
-  }
-
-
-
 
   bool SimulateCommand::run(const std::string &patch_in,
                             const std::string &experiment_in,
@@ -236,34 +70,10 @@ namespace Markov_Console
                             const std::string &options_in)
   {
     int64_t tini=Markov_IO::getTimeMs();
-    bool validExperiment=cm_->checkVariable(experiment_in,
-                                            Markov_IO::ABC_Experiment::ClassName());
-    bool validPatch=cm_->checkVariable(patch_in,
-                                       Markov_Mol::ABC_PatchModel::ClassName());
+
     bool validOptions=cm_->checkVariable(options_in,
                                          Markov_IO::ABC_Options::ClassName());
 
-    if (!validPatch )
-      {
-        output_.clear();
-        if (validExperiment)
-          {
-            errorMessage_=" failed to provide a patchmodel";
-            return false;
-          }
-        else
-          {
-            errorMessage_=" failed to provide a patchmodel and an experiment";
-            return false;
-
-          }
-      }
-    if (!validExperiment)
-      {
-        output_.clear();
-        errorMessage_=" failed to provide an experiment";
-        return false;
-      }
 
     Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(cm_->getVar(experiment_in));
     Markov_Mol::ABC_PatchModel* p=dynamic_cast<Markov_Mol::ABC_PatchModel*>(cm_->getVar(patch_in));
@@ -277,8 +87,8 @@ namespace Markov_Console
     Markov_IO::Experiment* sim =new
         Markov_IO::Experiment(p->run(*e,num_replicates,*o));
 
-    cm_->delete_var(experiment_out);
-    cm_->add_var(experiment_out,sim);
+    getCommandManager()->delete_var(experiment_out);
+    getCommandManager()->add_var(experiment_out,sim);
 
     int64_t tend=Markov_IO::getTimeMs();
     std::size_t telap=tend-tini;

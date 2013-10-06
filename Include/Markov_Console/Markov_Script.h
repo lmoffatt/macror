@@ -22,7 +22,7 @@ class Markov_CommandManager;
 class Markov_Script
 {
 public:
-    Markov_Script(Markov_CommandManager &cm, const std::string& file);
+    Markov_Script(Markov_CommandManager* cm, const std::string& file);
 };
 
 }

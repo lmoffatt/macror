@@ -53,8 +53,8 @@ public:
     Markov_CommandManager();
     ~Markov_CommandManager();
 
-    virtual std::string ver()const;
-    virtual std::string verDate()const;
+    virtual std::string build()const;
+    virtual std::string buildDate()const;
     virtual std::string uncommitedFiles()const;
 
     virtual std::string version()const;
@@ -69,7 +69,7 @@ public:
 
     virtual std::string add_single_token(const std::string &command);
 
-    virtual std::string check_tokens()const;
+    virtual std::string check_tokens();
 
 
     virtual std::vector<std::string> complete(const std::string& hint);
@@ -94,6 +94,8 @@ public:
     virtual std::vector<std::string> getTypesList();
 
 
+
+    virtual void printErrorMessage(const std::string& errorMessage,ABC_Command* source);
 
 
 
@@ -123,7 +125,7 @@ public:
 
 
 
-    virtual  bool checkVariable(std::string var, std::string superClass);
+    virtual  bool checkVariable(std::string var, std::string superClass) const;
 
     virtual std::vector<std::string> getSiblings(std::string name) const;
     virtual  std::vector<std::string> getChilds(std::string name)const;
@@ -162,6 +164,9 @@ protected:
 
 
     std::map<std::string, const Markov_IO::ABC_Saveable*>  types;
+
+    std::map<std::string, const Markov_IO::ABC_Object*>  regulartypes;
+
 
     std::map<std::string, std::vector<std::string> > childs;
 

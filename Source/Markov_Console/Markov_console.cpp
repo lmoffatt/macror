@@ -77,7 +77,8 @@ namespace Markov_Console
   in stdin
   */
 
-Markov_Console::Markov_Console(const std::string& fileCommandName)
+Markov_Console::Markov_Console(Markov_CommandManager *c, const std::string& fileCommandName):
+  cm(c)
 {
   std::string commandLine;
   std::string commandWord;
@@ -86,7 +87,7 @@ Markov_Console::Markov_Console(const std::string& fileCommandName)
   if (fileCommandName.empty())
     {
       char ch,ch0;
-      std::cout <<cm.wellcomeMessage();
+      std::cout <<cm->wellcomeMessage();
       while(true)
         {
           std::cout<<">>";
@@ -98,8 +99,8 @@ Markov_Console::Markov_Console(const std::string& fileCommandName)
               ch=getUnbufChar();
               if (ch=='\t')
                 {
-                    std::vector<std::string> res=cm.complete(commandWord);
-                    if ((res.size()==1)&&(res.front()[0]!='<'))
+                    std::vector<std::string> res=cm->complete(commandWord);
+                    if ((res.size()==1)&&(res.front()[0]!='<')&&(res.front()[0]!='['))
                     {
                       std::string tail=res.at(0).substr(commandWord.size());
                       std::cout<<tail;
@@ -126,7 +127,7 @@ Markov_Console::Markov_Console(const std::string& fileCommandName)
               else if (ch==' ')
                 {
                   std::cout<<ch;
-                  std::string err=cm.add_single_token(commandWord);
+                  std::string err=cm->add_single_token(commandWord);
                   if (!err.empty())
                     {
                       std::cout<<"\n"<<err<<">>"<<commandLine;
@@ -151,9 +152,9 @@ Markov_Console::Markov_Console(const std::string& fileCommandName)
             }
           ch=0;
           // getline(std::cin,commandLine);
-          cm.add_tokens(commandLine);
+          cm->add_tokens(commandLine);
           commandLine.clear();
-          cm.next_instruction();
+          cm->next_instruction();
         }
     }
 
@@ -161,8 +162,8 @@ Markov_Console::Markov_Console(const std::string& fileCommandName)
     {
       Markov_Script ms(cm,fileCommandName);
       commandLine="exit";
-      cm.add_tokens(commandLine);
-      cm.next_instruction();
+      cm->add_tokens(commandLine);
+      cm->next_instruction();
     }
 }
 

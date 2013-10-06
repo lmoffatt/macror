@@ -32,13 +32,15 @@ Token::Token():
     emptyString_(){}
 
 
-const std::string& Token::Name()const{
+std::string Token::Name()const{
     switch(get_token())
     {
     case IDENTIFIER:
         return identifier_value;
     case STRING:
         return path_value;
+      case NUMBER:
+          return std::to_string(Number());
     default:
         return emptyString_;
 
@@ -53,6 +55,8 @@ std::string Token::get_tokenString()const
         return identifier_value;
     case STRING:
         return path_value;
+    case NUMBER:
+        return std::to_string(Number());
     default:
         std::string result;
         result.push_back(get_token());

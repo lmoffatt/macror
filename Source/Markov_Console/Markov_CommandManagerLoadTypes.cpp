@@ -6,6 +6,8 @@
 #include <Markov_IO/SinglePulses.h>
 #include <Markov_IO/SinglePulses2.h>
 #include "Markov_IO/PulsesProgram.h"
+#include "Markov_IO/Object.h"
+
 
 #include "Markov_IO/Experiment.h"
 #include "Markov_IO/PulsesTrace.h"
@@ -102,6 +104,13 @@ void Markov_CommandManager::LoadTypes()
 
     types[Markov_IO::Parameters::ClassName()]=new Markov_Mol::Parameters;
 
+    regulartypes[Markov_IO::Object<std::size_t>::ClassName()]=new Markov_IO::Object<std::size_t>;
+    regulartypes[Markov_IO::Object<double>::ClassName()]=new Markov_IO::Object<double>;
+    regulartypes[Markov_IO::Object<std::string>::ClassName()]=new Markov_IO::Object<std::string>;
+    regulartypes[Markov_IO::Object<Markov_LA::M_Matrix<double>>::ClassName()]=new Markov_IO::Object<Markov_LA::M_Matrix<double>>;
+    regulartypes[Markov_IO::Object<Markov_LA::M_Matrix<std::size_t>>::ClassName()]=new Markov_IO::Object<Markov_LA::M_Matrix<std::size_t>>;
+
+
 
     for (auto it=types.begin(); it!=types.end(); ++it)
     {
@@ -109,9 +118,8 @@ void Markov_CommandManager::LoadTypes()
         auto c=it->first;
         parent[c]=sc;
         childs[sc].push_back(c);
-        autoCmptBySuperClass[sc]=
-            Autocomplete({std::string("<")+sc+">"});
-        autoCmptByClass[it->second->myClass()]=Autocomplete({std::string("<")+c+">"});
+        autoCmptBySuperClass[sc];
+        autoCmptByClass[it->second->myClass()];
 
     }
 

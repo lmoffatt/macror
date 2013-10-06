@@ -139,7 +139,7 @@ FileDir::operator bool()const
 {
     return NotError()&& NotEnd();
 }
-;
+
 bool FileDir::operator==(const FileDir& other)const
 {
     return dirName_==other.dirName_;
@@ -149,7 +149,7 @@ bool FileDir::operator==(const FileDir& other)const
 bool FileDir::operator<(const FileDir& other )const
 {
     return dirName_<other.dirName_;
-};
+}
 
 const FileDir& FileDir::begin()const
 {
