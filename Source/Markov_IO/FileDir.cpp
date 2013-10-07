@@ -127,7 +127,7 @@ namespace Markov_IO
 #ifdef __linux__
     return '/';
 #endif
-#ifdef __win32__
+#ifdef __WIN32__
     return '\\';
 #endif
 
