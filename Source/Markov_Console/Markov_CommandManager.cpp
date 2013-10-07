@@ -534,7 +534,7 @@ namespace Markov_Console
    * \return the list of matching commands or files or alias
    */
 
-  std::vector<std::string> Markov_CommandManager::complete(const std::string& hint)
+  std::vector<std::string> Markov_CommandManager::complete(const std::string &hint)
   {
     if (tokens.empty())
       return cmdsl.complete(hint);

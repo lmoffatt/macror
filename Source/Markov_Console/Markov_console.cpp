@@ -32,9 +32,9 @@ int getUnbufChar(void)
 #include <conio.h>
 int getUnbufChar(void)
 {
-    int ch;
-    ch=getch();
-    return ch;
+  int ch;
+  ch=getch();
+  return ch;
 }
 #endif
 
@@ -60,7 +60,7 @@ std::string incolumns(std::vector<std::string> list,std::size_t colwidth)
           result+=name+std::string(maxlength-name.size(),' ');
 
         }
-      result+='\n';
+      result+="\n";
     }
   return result;
 
@@ -72,100 +72,105 @@ std::string incolumns(std::vector<std::string> list,std::size_t colwidth)
 namespace Markov_Console
 {
 
-/**
+  /**
   Until user types exit execute the typed commands
   in stdin
   */
 
-Markov_Console::Markov_Console(Markov_CommandManager *c, const std::string& fileCommandName):
-  cm(c)
-{
-  std::string commandLine;
-  std::string commandWord;
-  std::size_t ncols=80;
+  Markov_Console::Markov_Console(Markov_CommandManager *c, const std::string& fileCommandName):
+    cm(c)
+  {
+    std::string commandLine;
+    std::string commandWord;
+    std::size_t ncols=80;
 
-  if (fileCommandName.empty())
-    {
-      char ch,ch0;
-      std::cout <<cm->wellcomeMessage();
-      while(true)
-        {
-          std::cout<<">>";
-          commandWord.clear();
-          commandLine.clear();
-          ch=0;
-          while ((ch!='\n')&&(ch!='\r'))
-            {
-              ch=getUnbufChar();
-              if (ch=='\t')
-                {
+    if (fileCommandName.empty())
+      {
+        char ch,ch0;
+        std::cout <<cm->wellcomeMessage();
+        while(true)
+          {
+            std::cout<<">>";
+            commandWord.clear();
+            commandLine.clear();
+            ch=0;
+            while ((ch!='\n')&&(ch!='\r'))
+              {
+                ch=getUnbufChar();
+                if (ch=='\t')
+                  {
                     std::vector<std::string> res=cm->complete(commandWord);
                     if ((res.size()==1)&&(res.front()[0]!='<')&&(res.front()[0]!='['))
-                    {
-                      std::string tail=res.at(0).substr(commandWord.size());
-                      std::cout<<tail;
-                      commandWord=res.at(0);
-                    }
-                  else if(res.size()>0)
-                    {
-                      if (ch0=='\t')
+                      {
+                        std::string tail=Autocomplete::suggestedCharacters(res,commandWord);
+                        std::cout<<tail;
+                        std::cout.flush();
+                        commandWord+=tail;
+                      }
+                    else if(res.size()>0)
+                      {
+                        if (ch0=='\t')
+                          {
 
-                        std::cout<<"\n"<<incolumns(res,ncols)<<">>"<<commandLine+commandWord;
-                   }
+                            std::string tail=Autocomplete::suggestedCharacters(res,commandWord);
+                            commandWord+=tail;
+                            std::cout<<"\n"<<incolumns(res,ncols)<<">>"<<commandLine+commandWord;
+                          }
+                      }
 
-                }
-              else if ((ch=='\b')||(ch==127))
-                {
-                  if (!commandWord.empty())
-                    {
-                      commandWord.pop_back();
-                      std::cout<<'\b';
-                    }
+                  }
+                else if ((ch=='\b')||(ch==127))
+                  {
+                    if (!commandWord.empty())
+                      {
+                        commandWord.pop_back();
+                        std::cout<<'\b';
+                      }
 
 
-                }
-              else if (ch==' ')
-                {
-                  std::cout<<ch;
-                  std::string err=cm->add_single_token(commandWord);
-                  if (!err.empty())
-                    {
-                      std::cout<<"\n"<<err<<">>"<<commandLine;
-                    }
-                  else
-                     commandLine+=commandWord+ch;
-                  commandWord.clear();
+                  }
+                else if (ch==' ')
+                  {
+                    std::cout<<ch;
+                    std::string err=cm->add_single_token(commandWord);
+                    if (!err.empty())
+                      {
+                        std::cout<<"\n"<<err<<">>"<<commandLine;
+                      }
+                    else
+                      commandLine+=commandWord+ch;
+                    commandWord.clear();
 
-                }
-              else if ((ch!='\n')&&(ch!='\r'))
-                {
-                  std::cout<<ch;
-                  commandWord+=ch;
-                }
-              else
-                {
-                  std::cout<<'\n';
-                  commandLine+=commandWord;
-                  commandWord.clear();
-                }
-              ch0=ch;
-            }
-          ch=0;
-          // getline(std::cin,commandLine);
-          cm->add_tokens(commandLine);
-          commandLine.clear();
-          cm->next_instruction();
-        }
-    }
+                  }
+                else if ((ch!='\n')&&(ch!='\r'))
+                  {
+                    std::cout<<ch;
+                    commandWord+=ch;
+                  }
+                else
+                  {
+                    std::cout<<'\n';
+                    commandLine+=commandWord;
+                    commandWord.clear();
+                  }
+                ch0=ch;
+              }
+            ch=0;
+            // getline(std::cin,commandLine);
+            cm->add_tokens(commandLine);
+            commandLine.clear();
+            cm->next_instruction();
+          }
+      }
 
-  else
-    {
-      Markov_Script ms(cm,fileCommandName);
-      commandLine="exit";
-      cm->add_tokens(commandLine);
-      cm->next_instruction();
-    }
-}
+    else
+      {
+        Markov_Script ms(cm,fileCommandName);
+        commandLine="exit";
+        cm->add_tokens(commandLine);
+        cm->next_instruction();
+      }
+  }
 
 
 

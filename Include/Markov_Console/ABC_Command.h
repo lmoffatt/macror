@@ -94,7 +94,7 @@ namespace Markov_Console
     virtual std::string errorMessage()const;
 
 
-    virtual std::vector<std::string> complete(const std::string& hint,const std::deque<Token>& tokenList);
+    virtual std::vector<std::string> complete(const std::string &hint, const std::deque<Token>& tokenList);
 
 
 

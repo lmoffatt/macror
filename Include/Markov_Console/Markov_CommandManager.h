@@ -74,7 +74,7 @@ public:
 
     virtual std::vector<std::string> complete(const std::string& hint);
 
-    virtual std::vector<std::string> complete(const std::string& hint,const std::string& category);
+    virtual std::vector<std::string> complete(const std::string &hint, const std::string& category);
 
     virtual bool runLine(std::string commandLine);
 

@@ -26,7 +26,7 @@ namespace  Markov_Console {
    * \param hint  a string containing the characters to be match
    * \return a lexicographically ordered vector of the matched items
    */
-  std::vector<std::string> Autocomplete::complete(std::string hint) const
+  std::vector<std::string> Autocomplete::complete(const std::string &hint) const
   {
 
     auto lo=items.lower_bound(hint);
@@ -37,10 +37,34 @@ namespace  Markov_Console {
       {lo=items.begin();
         up=items.end();}
 
+
+
     std::vector<std::string> res(lo,up);
+
     return res;
 
   }
+
+std::string Autocomplete::suggestedCharacters(const std::vector<std::string>& list, const std::string& hint)
+{
+  if (list.empty())
+    return "";
+  std::size_t i=0;
+  while ((i<list.size())&&((list[i][0]=='<')||(list[i][0]=='[')))
+    i++;
+
+
+  std::size_t n=0;
+
+
+  while((n<hint.size())&&(n<list.back().size())&&(list.back()[n]==hint[n]))
+    n++;
+  std:size_t m=n;
+  while((m<list[i].size())&&(m<list.back().size())&&(list[i][m]==list.back()[m]))
+    m++;
+  return list[i].substr(n,m-n);
+}
+
 
 
   bool Autocomplete::has(const std::string& item)const
@@ -83,18 +107,27 @@ namespace Markov_Test
 
       Autocomplete a(sample);
 
-      auto r=a.complete("m");
+      std::string hint="m";
+
+      auto r=a.complete(hint);
       results.push_back(ElementaryTest("complete()","should return the ordered subset",
                                        r==subsample));
 
 
-      a.push_back("experiment2");
-      auto r2=a.complete("e");
+      results.push_back(ElementaryTest("complete(hint)","should accomodate the matching characters in hint",
+                                       hint=="model"));
+
+
+      hint="experiment2";
+      a.push_back(hint);
+      std::string e="e";
+      auto r2=a.complete(e);
       std::vector<std::string> er2={"experiment","experiment2"};
       results.push_back(ElementaryTest("push_back() and complete()","acknowledges new item",
                                        r2==er2));
 
-      auto r3=a.complete("");
+      hint="";
+      auto r3=a.complete(hint);
 
       std::vector<std::string> sample2={"experiment","experiment2","model","model channel","model patch"};
 
