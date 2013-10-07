@@ -18,175 +18,213 @@
 
 namespace Markov_IO
 {
-/**
+  /**
   Constructor
   @param dirName Absolute or relative address  to the directory
   @warning if using windows convention use double"\" , ie. "C:\\temp\\"
 */
-FileDir::FileDir(const std::string& dirName):
+  FileDir::FileDir(const std::string& dirName):
     dirName_(dirName),DIR_(0),dirent_(0),error_(0)
-{
+  {
     init();
-}
+  }
 
-/**
+  /**
   Default Constructor
   @post It uses getWorkingPath()
   */
 
-FileDir::FileDir():
+  FileDir::FileDir():
     dirName_(getWorkingPath()),
     DIR_(0),dirent_(0),error_(0){
     init();
-}
+  }
 
-/**
+  /**
   Copy constructor
   */
-FileDir::FileDir(const FileDir& other):
+  FileDir::FileDir(const FileDir& other):
     dirName_(other.dirName_),DIR_(0),dirent_(0),error_(0)
-{
+  {
     init();
-}
+  }
 
 
-/**
+  /**
   Destructor
   @post It closes the directory
   */
-FileDir::~FileDir()
-{
+  FileDir::~FileDir()
+  {
     closedir(DIR_);
-}
+  }
 
-FileDir& FileDir::operator=(const FileDir& other)
-{
+  FileDir& FileDir::operator=(const FileDir& other)
+  {
     if (this!=&other)
-    {
+      {
         FileDir tmp(other);
         swap(*this,tmp);
-    }
+      }
     return *this;
-}
+  }
 
-void swap( FileDir& one, FileDir& other){
+  void swap( FileDir& one, FileDir& other){
 
     std::swap(one.dirName_,other.dirName_);
+    std::swap(one.DIR_,other.DIR_);
+    std::swap(one.dirent_,other.dirent_);
+    std::swap(one.buf_,other.buf_);
+    std::swap(one.error_,other.error_);
 
-    one.init();
-    other.init();
-}
+
+  }
 
 
-void FileDir::init()
-{
+
+  void FileDir::init()
+  {
     // remove possible "\" or "/" last character
 
-    if (dirName_[dirName_.size()]== '\\' )
-        dirName_.erase(dirName_.end()--);
-    if (dirName_[dirName_.size()]== '/' )
-        dirName_.erase(dirName_.end()--);
-
+    removeLastSlash(dirName_);
 
     DIR_=opendir(dirName_.c_str());
     error_=errno;
     if(DIR_)
-    {
+      {
         dirent_=readdir(DIR_);
         error_=errno;
-    }
-}
+      }
+  }
 
-bool FileDir::cd(const std::string &dirname)
-{
-
-    std::string tmp=this->DirName()+"/"+dirname;
+  bool FileDir::cd(const std::string &dirname)
+  {
+    std::string tmp;
+    if (dirname=="..")
+      tmp=getDirectory(DirName());
+    else tmp=DirName()+slash()+dirname;
     if (::Markov_IO::IsDir(tmp))
-    {
+      {
         FileDir d(tmp);
         swap(*this,d);
         return true;
-    }
+      }
     else
-        if (::Markov_IO::IsDir(dirname))
+      if (::Markov_IO::IsDir(dirname))
         {
-            FileDir tmp(dirname);
-            swap(*this,tmp);
-            return true;
+          FileDir tmp(dirname);
+          swap(*this,tmp);
+          return true;
         }
-        else
+      else
         {
-            return false;
+          return false;
         }
-}
+  }
+
+  char FileDir::slash()
+  {
+#ifdef __linux__
+    return '/';
+#endif
+#ifdef __win32__
+    return '\\';
+#endif
+
+  }
 
 
 
-std::string FileDir::DirName()const
-{
+  std::vector<std::string> getSubDirs(const std::string& dir)
+  {
+    FileDir d(dir);
+    std::vector<std::string> subdirs;
+    d.begin();
+    while(d.next())
+      {
+        if (d.IsDir())
+          subdirs.push_back(d.FileName());
+      }
+    return subdirs;
+
+  }
+
+
+
+
+  std::string FileDir::DirName()const
+  {
     return this->dirName_;
-}
+  }
 
-bool FileDir::NotError()const
-{
+  bool FileDir::NotError()const
+  {
     return bool(DIR_);
-}
-bool FileDir::NotEnd()const
-{
+  }
+  bool FileDir::NotEnd()const
+  {
     return bool(dirent_);
-}
-FileDir::operator bool()const
-{
+  }
+  FileDir::operator bool()const
+  {
     return NotError()&& NotEnd();
-}
+  }
 
-bool FileDir::operator==(const FileDir& other)const
-{
+  bool FileDir::operator==(const FileDir& other)const
+  {
     return dirName_==other.dirName_;
-}
+  }
 
-;
-bool FileDir::operator<(const FileDir& other )const
-{
+  ;
+  bool FileDir::operator<(const FileDir& other )const
+  {
     return dirName_<other.dirName_;
-}
+  }
 
-const FileDir& FileDir::begin()const
-{
+  FileDir& FileDir::begin()
+  {
     rewinddir(DIR_);
     dirent_=readdir(DIR_);
     error_=errno;
     return *this;
-};
-const FileDir& FileDir::next()const
-{
+  }
+
+  FileDir& FileDir::next()
+  {
     dirent_=readdir(DIR_);
     error_=errno;
     return *this;
-};
-std::string FileDir::FileName()const
-{
+  }
+
+  std::string FileDir::FileName()const
+  {
     return dirent_->d_name;
-}
+  }
 
-bool FileDir::IsDir()const
-{
+  bool FileDir::IsDir()
+  {
 
-    const std::string& fname=DirName()+"/"+FileName();
+    const std::string& fname=DirName()+slash()+FileName();
     stat( fname.c_str(), buf_);
     return S_ISDIR( buf_->st_mode);
-}
+  }
 
 
-std::string getWorkingPath()
-{
+  std::string getWorkingPath()
+  {
     char temp[FILENAME_MAX];
-    return ( getcwd(temp, FILENAME_MAX) ? std::string( temp ) : std::string("") );
-}
+    if (getcwd(temp, FILENAME_MAX))
+      {
+        std::string res=temp;
+        return res;
+      }
+    else
+      return "";
+  }
 
 
-std::string getExecutablePath()
-{
+  std::string getExecutablePath()
+  {
 #ifdef __linux__
 
     char result[ PATH_MAX ];
@@ -199,44 +237,53 @@ std::string getExecutablePath()
 
     return std::string( result);
 #endif
-}
+  }
 
-std::string getExecutableDir()
-{
+  std::string getExecutableDir()
+  {
     std::string path=getExecutablePath();
     return getDirectory(path);
-}
+  }
 
 
-std::string getDirectory(std::string path)
-{
+  std::string getDirectory(std::string path)
+  {
     std::size_t pos=path.find_last_of("/ \\",path.size()-2);
-    return path.substr(0,pos+1);
-}
+    return path.substr(0,pos);
+  }
 
 
 
 
 
-bool IsDir(const std::string& path)
-{
+  bool IsDir(const std::string& path)
+  {
     struct stat buf;
     if (stat( path.c_str(), &buf)==0)
-        return S_ISDIR( buf.st_mode);
+      return S_ISDIR( buf.st_mode);
     else
-        return false;
-}
+      return false;
+  }
 
-bool IsFile(const std::string& path)
-{
+  bool IsFile(const std::string& path)
+  {
     struct stat buf;
     if (stat( path.c_str(), &buf)==0)
-        return S_ISREG( buf.st_mode);
+      return S_ISREG( buf.st_mode);
     else
-        return false;
-}
+      return false;
+  }
 
 
+  std::string& removeLastSlash(std::string& dirname)
+  {
+    if (!dirname.empty())
+      {
+        if ((dirname.back()== '\\' )||(dirname.back()== '/' ))
+          dirname.pop_back();
+      }
+    return dirname;
+  }
 
 
 }

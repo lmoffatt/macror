@@ -43,6 +43,12 @@ namespace  Markov_Console {
   }
 
 
+  bool Autocomplete::has(const std::string& item)const
+  {
+    return items.find(item)!=items.end();
+  }
+
+
 
    void Autocomplete::clear()
    {

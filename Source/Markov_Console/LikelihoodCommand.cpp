@@ -3,7 +3,7 @@
 #include "Markov_Console/LikelihoodCommand.h"
 #include "Markov_Bay/MarkovLikelihood.h"
 #include "Markov_Console/Markov_CommandManager.h"
-
+#include "Markov_IO/Object.h"
 
 
 namespace Markov_Console
@@ -13,10 +13,17 @@ namespace Markov_Console
 
 
 
-  LikelihoodCommand::LikelihoodCommand(Markov_CommandManager *cm)
+  LikelihoodCommand::LikelihoodCommand(Markov_CommandManager *cm):
+    ABC_Command(cm,
+                "likelihood",{{
+                "patch_in",Markov_Mol::ABC_PatchModel::ClassName(),true},{
+                "experiment_in",Markov_IO::ABC_Experiment::ClassName(),true},{
+                "options_in",Markov_Bay::Markov_Likelihood::Options::ClassName(),false}},{{
+                "likelihood_out",Markov_IO::Object<std::string>::ClassName(),false}})
+
   {
-    cm_=cm;
   }
+
 
   /// hint about of the class nature
   std::string LikelihoodCommand::Tip()const
@@ -129,6 +136,11 @@ namespace Markov_Console
       likelihood_out="myLikelihood";
     return run(patch_in,experiment_in,options_in,likelihood_out);
   }
+
+
+
+
+
 
   bool LikelihoodCommand::run(const std::string& patch_in,
                               const std::string& experiment_in,

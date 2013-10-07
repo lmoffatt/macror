@@ -22,12 +22,36 @@ class Autocomplete
 public:
 
   Autocomplete(std::vector<std::string> itemslist);
-  Autocomplete(){}
+  Autocomplete():items{}{}
+  Autocomplete(const Autocomplete& other):items(other.items){}
+
+
+
+
+  Autocomplete& operator=(const Autocomplete& other)
+  {
+    if(this!=&other)
+      {
+        Autocomplete tmp(other);
+        swap(*this,tmp);
+      }
+    return *this;
+  }
+
+  friend void swap(Autocomplete& one, Autocomplete &other)
+  {
+    std::swap(one.items,other.items);
+  }
+
+  ~Autocomplete(){}
 
   template<class T>
-  Autocomplete(std::map<std::string, T> itemsMap);
+  Autocomplete(const std::map<std::string, T>& itemsMap);
 
   std::vector<std::string> complete(std::string hint) const;
+
+  bool has(const std::string& item) const;
+
 
   void push_back(std::string newItem);
   void clear();
@@ -37,7 +61,7 @@ private:
 };
 
 template<class T>
-Autocomplete::Autocomplete(std::map<std::string, T> itemsMap)
+Autocomplete::Autocomplete(const std::map<std::string, T>& itemsMap)
 {
   for (auto it=itemsMap.begin(); it!=itemsMap.end(); ++it)
     {
@@ -47,6 +71,7 @@ Autocomplete::Autocomplete(std::map<std::string, T> itemsMap)
 
 
 }
+
 #ifdef MACRO_TEST
 
 

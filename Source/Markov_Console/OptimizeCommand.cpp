@@ -7,6 +7,7 @@
 #include "Markov_Bay/SingleOptimizationResult.h"
 #include "Markov_Bay/OptimizationResult.h"
 #include "Markov_LA/matrixAritmetic.h"
+#include "Markov_IO/Object.h"
 
 
 
@@ -18,11 +19,18 @@ namespace Markov_Console
   OptimizeCommand::~OptimizeCommand(){}
 
 
-
-  OptimizeCommand::OptimizeCommand(Markov_CommandManager *cm)
-  {
-    cm_=cm;
-  }
+  OptimizeCommand::OptimizeCommand(Markov_CommandManager *cm):
+    ABC_Command(cm,
+                "optimize",{{
+                "patch_in",Markov_Mol::ABC_PatchModel::ClassName(),true},{
+                "experiment_in",Markov_IO::ABC_Experiment::ClassName(),true},{
+                "options_in",Markov_Bay::SimpleOptimization::Options::ClassName(),false},{
+                "zero-Iter",Markov_IO::Object<bool>::ClassName(),false},{
+                "randomRadius",Markov_IO::Object<double>::ClassName(),false},{
+                "numStarts",Markov_IO::Object<std::size_t>::ClassName(),false}},{{
+                "results_out",Markov_IO::Object<std::string>::ClassName(),false}}
+                )
+  {}
 
   /// hint about of the class nature
   std::string OptimizeCommand::Tip()const

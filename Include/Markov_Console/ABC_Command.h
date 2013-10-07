@@ -4,6 +4,7 @@
 #include <deque>
 #include <vector>
 #include <string>
+#include <tuple>
 
 #include <Markov_Console/Token.h>
 
@@ -16,6 +17,13 @@ namespace Markov_Console
   class ABC_Command
   {
   public:
+    struct variable
+    {
+      std::string name;
+      std::string type;
+      bool mandatory;
+    };
+
     virtual ~ABC_Command();
     /// virtual formated output
     virtual std::ostream& put(std::ostream& s) const;
@@ -28,6 +36,8 @@ namespace Markov_Console
     /// a short description of the class
     virtual std::string WhatThis()const;
 
+
+
    // TODO: constructor based on vector of tuples
 
     ABC_Command(Markov_CommandManager* cm,
@@ -38,6 +48,14 @@ namespace Markov_Console
                 const std::vector<std::string> &outputNames,
                 const std::vector<std::string> &outputTypes,
                 const std::vector<bool> &outputIsMandatory);
+
+
+    ABC_Command(Markov_CommandManager* cm,
+                const std::string& commandName,
+                const std::vector<variable > &inputs,
+                const std::vector<variable > &outputs);
+
+
 
 
     ABC_Command(){}
@@ -90,8 +108,10 @@ namespace Markov_Console
    // virtual bool run( std::deque<Token>& tokenList){}
 
     virtual bool run(const std::vector<std::string>& InputValue,
-                     const std::vector<std::string>& OutputValue){}
+                     const std::vector<std::string>& OutputValue){return InputValue==OutputValue;}
 
+
+    static std::string directory();
 
 
 

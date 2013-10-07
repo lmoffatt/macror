@@ -77,7 +77,8 @@ bool MkdirCommand::run(std::deque<Token> & tokenList)
 /// runs the command for a list of parameters
 bool MkdirCommand::run(const std::string& dirName)
 {
-    std::string path=cm_->getDir().DirName()+ "/"+dirName;
+  Markov_IO::FileDir d(getCommandManager()->getDir());
+    std::string path=d.DirName()+ "/"+dirName;
     output_.clear();
     errorMessage_.clear();
     if (dirName.empty())

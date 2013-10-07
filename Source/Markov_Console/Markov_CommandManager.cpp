@@ -49,13 +49,33 @@
 namespace Markov_Console
 {
 
+
+
+
+
+
   Markov_CommandManager::Markov_CommandManager():
-    dir_(),
+    dir_{Markov_IO::getWorkingPath()},
+    autoCmptDir{},
     io_(new Markov_IO::STD_IO),
-    vars(),
-    tokens(),
-    lastCmdRst(true)
+    units{},
+    cmds{},
+    cmdsl{},
+    vars{},
+    varByType{},
+    varsl{},
+    types{},
+    regulartypes{},
+    childs{},
+    parent{},
+    autoCmptBySuperClass{},
+    autoCmptByClass{},
+    tokens{},
+    lastCmdRst{}
+
   {
+    auto dirs=Markov_IO::getSubDirs(dir_);
+    autoCmptDir=Autocomplete(dirs);
     Loadcommands();
     cmdsl=Autocomplete(cmds);
     LoadTypes();
@@ -81,12 +101,12 @@ namespace Markov_Console
   {
     std::string d=Markov_IO::getExecutableDir();
     std::string fname=STRINGIZE(GIT_VER_PATH);
-    std::string path=d+fname;
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
     std::fstream f(path.c_str());
     if (!(f))
       {
         f.close();
-        path=Markov_IO::getDirectory(d)+fname;
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
         f.open(path.c_str());
       }
 
@@ -99,12 +119,12 @@ namespace Markov_Console
   {
     std::string d=Markov_IO::getExecutableDir();
     std::string fname=STRINGIZE(GIT_VER_PATH);
-    std::string path=d+fname;
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
     std::fstream f(path.c_str());
     if (!(f))
       {
         f.close();
-        path=Markov_IO::getDirectory(d)+fname;
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
         f.open(path.c_str());
       }
     std::string line;
@@ -118,12 +138,12 @@ namespace Markov_Console
   {
     std::string d=Markov_IO::getExecutableDir();
     std::string fname=STRINGIZE(UNCOMMITED_PATH);
-    std::string path=d+fname;
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
     std::fstream f(path.c_str());
     if (!(f))
       {
         f.close();
-        path=Markov_IO::getDirectory(d)+fname;
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
         f.open(path.c_str());
       }
     std::string lineUncommited0;
@@ -247,22 +267,29 @@ namespace Markov_Console
 
   bool Markov_CommandManager::checkVariable(std::string var, std::string type)const
   {
-    auto itype=regulartypes.find(type);
-    if (itype!=regulartypes.end())
+    if (type==ABC_Command::directory())
       {
-        Markov_IO::ABC_Object* o=itype->second->create();
-        return Markov_IO::ToObject(var,o);
+        return autoCmptDir.has(var);
       }
-    else
-      {
-        auto it=vars.find(var);
-        if (it!=vars.end())
+    else {
+
+        auto itype=regulartypes.find(type);
+        if (itype!=regulartypes.end())
           {
-            return ((*it).second->mySuperClass()==type)||((*it).second->myClass()==type);
+            Markov_IO::ABC_Object* o=itype->second->create();
+            return Markov_IO::ToObject(var,o);
           }
         else
           {
-            return false;
+            auto it=vars.find(var);
+            if (it!=vars.end())
+              {
+                return ((*it).second->mySuperClass()==type)||((*it).second->myClass()==type);
+              }
+            else
+              {
+                return false;
+              }
           }
       }
   }
@@ -334,7 +361,7 @@ namespace Markov_Console
 
     // check if it is an assigment or not
 
-    h.push_back(tokens);
+    //  h.push_back(tokens);
 
     bool isAssigment=(tokens.size()>2)&&(tokens[1].get_token()==Token::ASSIGN);
 
@@ -442,6 +469,7 @@ namespace Markov_Console
       tokens.push_back(t);
   }
 
+
   /*!
    * \brief Markov_CommandManager::add_single_token adds one token to the current command line
    * \param command  the added token
@@ -493,8 +521,9 @@ namespace Markov_Console
       return autoCmptBySuperClass[category].complete(hint);
     else if (has_type(category))
       return autoCmptByClass[category].complete(hint);
-    else
-      return {};
+    else if (category==ABC_Command::directory())
+      return autoCmptDir.complete(hint);
+
 
   }
 
@@ -805,6 +834,15 @@ namespace Markov_Console
         else if (resp=="exit")
           return false;
       }
+  }
+
+  bool Markov_CommandManager::setDir(const std::string& dir)
+  {
+    if (!Markov_IO::IsDir(dir))
+      return false;
+    dir_=dir;
+    autoCmptDir=Autocomplete(Markov_IO::getSubDirs(dir));
+    return true;
   }
 
 

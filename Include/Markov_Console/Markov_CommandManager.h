@@ -99,8 +99,8 @@ public:
 
 
 
-        virtual Markov_IO::FileDir& getDir() {return dir_;}
-    virtual const Markov_IO::FileDir& getDir()const {return dir_;}
+    virtual std::string  getDir()const {return dir_;}
+    virtual bool setDir(const std::string& dir);
 
     virtual Markov_IO::ABC_IO* getIO(){return io_;}
     virtual void setIO(Markov_IO::ABC_IO* io){io_=io;}
@@ -149,8 +149,12 @@ public:
 
 
 protected:
-    Markov_IO::FileDir dir_;
+    std::string dir_;
+
+    Autocomplete autoCmptDir;
+
     Markov_IO::ABC_IO* io_;
+
     std::map<std::string, Markov_IO::ABC_Unit*> units;
     std::map<std::string, ABC_Command*> cmds;
     Autocomplete cmdsl;
@@ -175,26 +179,6 @@ protected:
     std::map<std::string,Autocomplete> autoCmptBySuperClass;
 
     std::map<std::string,Autocomplete> autoCmptByClass;
-
-    /*
-    std::map<std::string, Markov_Mol::ABC_PatchModel*> patchs;
-    Autocomplete patchsl;
-    std::map<std::string, Markov_Mol::ABC_Markov_Model*> models;
-    Autocomplete modelsl;
-    std::map<std::string, const Markov_Mol::ABC_Markov_Model*> modelsConst;
-    std::map<std::string, Markov_IO::ABC_Experiment*> experiments;
-    Autocomplete experimentsl;
-    std::map<std::string, Markov_IO::Parameters*> parameters;
-
-    std::map<std::string, Markov_Mol::Experiment_simulation*> simulations;
-
-    std::map<std::string, Markov_IO::ABC_Options*> options;
-
-    Autocomplete simulationOptionsl;
-
-    std::map<std::string, Markov_Bay::ABC_Result*> results;
-
-     */
 
 
     std::deque<Token> tokens;

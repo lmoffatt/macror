@@ -1,9 +1,46 @@
 #include "Markov_Console/ABC_Command.h"
 #include "Markov_Console/Markov_CommandManager.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 namespace Markov_Console
 
 
 {
+
+  std::vector<std::string> slice0 (const std::vector<ABC_Command::variable > data)
+  {
+    std::vector<std::string> out;
+    for (auto t:data)
+      out.push_back(t.name);
+    return out;
+  }
+
+  std::vector<std::string> slice1 (const std::vector<ABC_Command::variable > data)
+  {
+    std::vector<std::string> out;
+    for (auto t:data)
+      out.push_back(t.type);
+    return out;
+  }
+  std::vector<bool> slice2 (const std::vector<ABC_Command::variable > data)
+  {
+    std::vector<bool> out;
+    for (auto t:data)
+      out.push_back(t.mandatory );
+    return out;
+  }
 
 
   ABC_Command::ABC_Command(Markov_CommandManager* cm,
@@ -23,6 +60,30 @@ namespace Markov_Console
     outputTypes_(outputTypes),
     outputMandatory_(outputIsMandatory)
   {}
+
+
+  ABC_Command::ABC_Command(Markov_CommandManager* cm,
+              const std::string& commandName,
+              const std::vector<variable> &inputs,
+              const std::vector<variable> &outputs)
+:  cm_(cm),
+    commandName_(commandName),
+    inputNames_(slice0(inputs)),
+    inputTypes_(slice1(inputs)),
+    inputMandatory_(slice2(inputs)),
+    outputNames_(slice0(outputs)),
+    outputTypes_(slice1(outputs)),
+    outputMandatory_(slice2(outputs))
+
+  {
+
+  }
+
+
+
+
+
+
 
 
   ABC_Command::~ABC_Command(){}
@@ -195,6 +256,8 @@ namespace Markov_Console
           }
       }
 
+
+
     std::vector<std::string> res;
     for (std::size_t jj=0; jj<numInputs(); jj++)
       if ((!hasInput[jj])&&isMandatoryInput(jj))
@@ -217,10 +280,27 @@ namespace Markov_Console
           return res;
         }
 
+    std::size_t numIOleft=0;
+    for (std::size_t jj=0; jj<numInputs(); jj++)
+      if ((!hasInput[jj]))
+        {
+          numIOleft++;
+        }
+
+    for (std::size_t kk=0; kk<numOutputs(); kk++)
+      if ((!hasOutput[kk]))
+        {
+          numIOleft++;
+        }
+
+
+
     for (std::size_t jj=0; jj<numInputs(); jj++)
       if ((!hasInput[jj]))
         {
           auto res2=getCommandManager()->complete(hint,InputType(jj));
+          if ((res2.size()==1) && (numIOleft==1))
+            return res2;
           res.insert(res.end(),"["+InputName(jj)+"]");
           res.insert(res.end(),res2.begin(),res2.end());
         }
@@ -229,6 +309,8 @@ namespace Markov_Console
       if ((!hasOutput[kk]))
         {
           auto res2= getCommandManager()->complete(hint,OutputType(kk));
+          if ((res2.size()==1) && (numIOleft==1))
+            return res2;
               res.insert(res.end(),"["+OutputName(kk)+"]");
               res.insert(res.end(),res2.begin(),res2.end());
 
@@ -392,6 +474,11 @@ namespace Markov_Console
 
   }
 
+
+   std::string ABC_Command::directory()
+  {
+    return "directory";
+  }
 
 
 

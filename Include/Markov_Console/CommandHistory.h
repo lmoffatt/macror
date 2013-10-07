@@ -9,6 +9,7 @@ namespace Markov_Console
 class CommandHistory
 {
 public:
+  //CommandHistory();
   void push_back(std::string commandLine);
   void push_back(const std::deque<Token>& tokens);
 

@@ -1,7 +1,7 @@
 #include "Markov_Console/Average_Command.h"
 #include "Markov_IO/AverageExperiment.h"
 #include "Markov_Console/Markov_CommandManager.h"
-
+#include "Markov_IO/Object.h"
 namespace Markov_Console
 {
   ///  destructor
@@ -9,9 +9,15 @@ namespace Markov_Console
 
 
 
+
+
   AverageCommand::AverageCommand(Markov_CommandManager *cm)
+    :ABC_Command(cm,
+                 "average",{{
+                 "experiment_in",Markov_IO::ABC_Experiment::ClassName(),true},{
+                 "options_in",Markov_Mol::AverageExperiment::Options::ClassName(),false}},{{
+                 "experiment_out",Markov_IO::Object<std::string>::ClassName(),false}})
   {
-    cm_=cm;
   }
 
   /// hint about of the class nature

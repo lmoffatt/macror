@@ -16,6 +16,10 @@ class Token
 {
 public:
     Token();
+    Token(const Token& other);
+    Token& operator=(const Token& other);
+    friend void swap(Token& one,Token& other);
+
 
     enum Value {
         IDENTIFIER,

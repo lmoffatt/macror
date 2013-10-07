@@ -155,7 +155,7 @@ bool MacrorCommandWindow::edit(const QString& varname)
 
   QString MacrorCommandWindow::getDir()const
  {
-     return QString(MarkovCommand()->getDir().DirName().c_str());
+     return QString(MarkovCommand()->getDir().c_str());
  }
 
 

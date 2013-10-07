@@ -108,8 +108,9 @@ namespace Markov_Console
             filename+=".txt";
           }
         std::string path;
+        Markov_IO::FileDir d(getCommandManager()->getDir());
         if (!Markov_IO::IsFile(filename))
-          path=cm_->getDir().DirName()+"/"+filename;
+          path=d.DirName()+"/"+filename;
         else
           path=filename;
         {

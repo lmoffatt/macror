@@ -11,8 +11,10 @@ CdCommand::~CdCommand(){}
 
 
 CdCommand::CdCommand(Markov_CommandManager* cm)
+  :ABC_Command(cm,
+               "cd",{{
+               "dir","directory",false}},{})
 {
-    cm_=cm;
 }
 
 
@@ -66,13 +68,15 @@ bool CdCommand::run(std::deque<Token> & tokenList)
 /// runs the command for a list of parameters
 bool CdCommand::run(const std::string& dirName)
 {
+  Markov_IO::FileDir d(getCommandManager()->getDir());
+
     if (dirName.empty())
     {
-        output_=cm_->getDir().DirName();
+        output_=d.DirName();
         errorMessage_.clear();
         return true;
     }
-    else  if (!cm_->getDir().cd(dirName))
+    else  if (!d.cd(dirName))
     {
         output_.clear();
         errorMessage_=dirName+" is not a directory";
@@ -80,7 +84,8 @@ bool CdCommand::run(const std::string& dirName)
     }
     else
     {
-        output_=cm_->getDir().DirName();
+        getCommandManager()->setDir(d.DirName());
+        output_=d.DirName();
         errorMessage_.clear();
         return true;
     }

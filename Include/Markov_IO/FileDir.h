@@ -33,27 +33,28 @@ public:
     bool operator==(const FileDir& other)const;
     bool operator<(const FileDir& other )const;
 
-    const FileDir& begin()const;
-    const FileDir& next()const;
+    FileDir& begin();
+    FileDir& next();
 
     bool cd(const std::string& dirname);
 
 
-
     std::string FileName()const;
 
-    bool IsDir()const;
+    bool IsDir();
+
+    static char slash();
 
 private:
     void init();
     std::string dirName_;
 
-    mutable DIR *DIR_;
-    mutable dirent*  dirent_;
+    DIR *DIR_;
+    dirent*  dirent_;
 
-    mutable struct stat* buf_;
+    struct stat buf_[1];
 
-    mutable int error_;
+    int error_;
 };
 
 std::string getWorkingPath();
@@ -64,6 +65,11 @@ std::string getExecutableDir();
 
 std::string getDirectory(std::string path);
 std::string getUpperDirectory(std::string path);
+
+
+std::vector<std::string> getSubDirs(const std::string &dir);
+
+std::string& removeLastSlash(std::string& dirname);
 
 
 bool IsDir(const std::string& path);

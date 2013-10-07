@@ -12,7 +12,7 @@ Markov_CommandManagerTest::Markov_CommandManagerTest():
   cmds[testcmd->commandName()]=testcmd;
 
 
- }
+  }
 
 std::string Markov_CommandManagerTest::version()
 {

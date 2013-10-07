@@ -102,7 +102,7 @@ bool SaveCommand::run(
 
     if (!ftest)
     {
-        path=cm_->getDir().DirName()+"/"+filename;
+        path=cm_->getDir()+Markov_IO::FileDir::slash()+filename;
     }
 
 
