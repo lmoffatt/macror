@@ -13,7 +13,7 @@ CdCommand::~CdCommand(){}
 CdCommand::CdCommand(Markov_CommandManager* cm)
   :ABC_Command(cm,
                "cd",{{
-               "dir","directory",false}},{})
+               "dir",ABC_Command::directory(),false}},{})
 {
 }
 

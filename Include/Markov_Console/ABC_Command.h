@@ -113,6 +113,13 @@ namespace Markov_Console
 
     static std::string directory();
 
+    static std::string varName();
+
+    static std::string typeName();
+
+    static std::string fileName();
+
+
 
 
   protected:

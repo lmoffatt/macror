@@ -1,20 +1,26 @@
 #include "Markov_Console/CreateCommand.h"
 #include "Markov_Console/Help_File.h"
 #include "Markov_IO/auxiliarIO.h"
+#include "Markov_IO/Object.h"
 #include "Markov_Console/Markov_CommandManager.h"
 
 #include <string>
 namespace Markov_Console
 {
+
+  //TODO incorporate create to the console and implement an interactive creation of objects that is satisfactory
+
+
 ///  destructor
 CreateCommand::~CreateCommand(){}
 
 
 
 CreateCommand::CreateCommand(Markov_CommandManager* cm)
-{
-    cm_=cm;
-}
+  :ABC_Command(cm,
+               "create",{{
+               "type",ABC_Command::typeName(),true}},{{
+               "varName",Markov_IO::Object<std::string>::ClassName(),false}}){}
 
 
 /// hint about of the class nature

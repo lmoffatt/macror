@@ -60,7 +60,6 @@ public:
     virtual std::string version()const;
     virtual std::string wellcomeMessage(unsigned ncols=80)const;
 
-    std::size_t getVersion(const std::string& line)const;
 
 
     virtual bool next_instruction();
@@ -147,6 +146,10 @@ public:
 
     virtual bool lastCommandResult()const;
 
+    static bool isMacroFile(const std::string& path);
+    static Autocomplete LoadFiles(const std::string& dir);
+  static std::size_t getVersion(const std::string& line);
+
 
 protected:
     std::string dir_;
@@ -168,6 +171,11 @@ protected:
 
 
     std::map<std::string, const Markov_IO::ABC_Saveable*>  types;
+    Autocomplete typesl;
+    Autocomplete supertypesl;
+    Autocomplete filesl;
+
+
 
     std::map<std::string, const Markov_IO::ABC_Object*>  regulartypes;
 

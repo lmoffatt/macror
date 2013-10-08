@@ -2,6 +2,9 @@
 #include "Markov_Console/Help_File.h"
 #include "Markov_IO/auxiliarIO.h"
 #include "Markov_Console/Markov_CommandManager.h"
+
+
+#include "Markov_IO/Object.h"
 namespace Markov_Console
 {
 ///  destructor
@@ -9,10 +12,11 @@ SaveCommand::~SaveCommand(){}
 
 
 
-SaveCommand::SaveCommand(Markov_CommandManager* cm)
-{
-    cm_=cm;
-}
+SaveCommand::SaveCommand(Markov_CommandManager* cm):
+  ABC_Command(cm,
+              "save",{{
+              "fileName",Markov_IO::Object<std::string>::ClassName(),false},{
+              "varname",ABC_Command::varName(),false}},{}){}
 
 
 /// hint about of the class nature

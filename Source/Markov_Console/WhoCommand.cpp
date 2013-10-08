@@ -10,10 +10,9 @@ WhoCommand::~WhoCommand(){}
 
 
 WhoCommand::WhoCommand(Markov_CommandManager* cm)
-    {
-    cm_=cm;
-}
-
+  :ABC_Command(cm,
+               "who",{{
+               "variable",ABC_Command::varName(),false}},{}){}
 
 /// hint about of the class nature
 std::string WhoCommand::Tip()const

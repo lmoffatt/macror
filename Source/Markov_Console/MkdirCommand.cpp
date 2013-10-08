@@ -9,7 +9,7 @@
 #include "Markov_Console/MkdirCommand.h"
 #include "Markov_Console/Markov_CommandManager.h"
 #include "Markov_IO/auxiliarIO.h"
-
+#include "Markov_IO/Object.h"
 
 namespace Markov_Console
 {
@@ -19,10 +19,9 @@ MkdirCommand::~MkdirCommand(){}
 
 
 MkdirCommand::MkdirCommand(Markov_CommandManager* cm)
-{
-    cm_=cm;
-}
-
+  :ABC_Command(cm,
+               "mkdir",{{
+               "dirName",Markov_IO::Object<std::string>::ClassName(),true}},{}){}
 
 /// hint about of the class nature
 std::string MkdirCommand::Tip()const

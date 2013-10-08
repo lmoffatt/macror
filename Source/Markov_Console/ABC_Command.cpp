@@ -475,12 +475,25 @@ namespace Markov_Console
   }
 
 
-   std::string ABC_Command::directory()
-  {
-    return "directory";
-  }
+  std::string ABC_Command::directory()
+ {
+   return "directory";
+ }
 
+  std::string ABC_Command::varName()
+ {
+   return "variable";
+ }
 
+  std::string ABC_Command::typeName()
+ {
+   return "typeName";
+ }
+
+  std::string ABC_Command::fileName()
+ {
+   return "fileName";
+ }
 
 
 

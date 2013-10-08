@@ -76,6 +76,7 @@ namespace Markov_Console
   {
     auto dirs=Markov_IO::getSubDirs(dir_);
     autoCmptDir=Autocomplete(dirs);
+    filesl=LoadFiles(getDir());
     Loadcommands();
     cmdsl=Autocomplete(cmds);
     LoadTypes();
@@ -206,7 +207,7 @@ namespace Markov_Console
     return version;
   }
 
-  std::size_t Markov_CommandManager::getVersion(const std::string& line)const
+  std::size_t Markov_CommandManager::getVersion(const std::string& line)
   {
     if (line.find("MacroR")==0)
       {
@@ -241,7 +242,7 @@ namespace Markov_Console
   void Markov_CommandManager::add_type(const std::string& name, const Markov_IO::ABC_Saveable* s)
   {
     types[name]=s;
-
+    typesl.push_back(name);
   }
 
   void Markov_CommandManager::add_var(std::string name, Markov_IO::ABC_Saveable* s)
@@ -271,8 +272,20 @@ namespace Markov_Console
       {
         return autoCmptDir.has(var);
       }
-    else {
-
+    else if (type==ABC_Command::varName())
+      {
+        return varsl.has(var);
+      }
+    else  if (type==ABC_Command::typeName())
+      {
+        return typesl.has(var);
+      }
+    else if (type==ABC_Command::fileName())
+    {
+      return filesl.has(var);
+    }
+  else
+      {
         auto itype=regulartypes.find(type);
         if (itype!=regulartypes.end())
           {
@@ -523,6 +536,14 @@ namespace Markov_Console
       return autoCmptByClass[category].complete(hint);
     else if (category==ABC_Command::directory())
       return autoCmptDir.complete(hint);
+    else if (category==ABC_Command::varName())
+      return varsl.complete(hint);
+    else if (category==ABC_Command::typeName())
+      return typesl.complete(hint);
+    else if (category==ABC_Command::fileName())
+      return filesl.complete(hint);
+    else
+      return {};
 
 
   }
@@ -842,6 +863,7 @@ namespace Markov_Console
       return false;
     dir_=dir;
     autoCmptDir=Autocomplete(Markov_IO::getSubDirs(dir));
+    filesl=LoadFiles(dir);
     return true;
   }
 
@@ -893,7 +915,37 @@ namespace Markov_Console
   }
 
 
+  bool Markov_CommandManager::isMacroFile(const std::string& path)
+  {
+    if (!Markov_IO::IsFile(path))
+      return false;
+    std::ifstream f(path);
+    if (!f)
+      return false;
+    std::string line;
+    Markov_IO::safeGetline(f,line);
+    auto vernumber=Markov_CommandManager::getVersion(line);
+    return vernumber>0;
 
+  }
+
+
+  Autocomplete Markov_CommandManager::LoadFiles(const std::string& dir)
+  {
+    Autocomplete res;
+    Markov_IO::FileDir d(dir);
+    d.begin();
+    while(d.next())
+      {
+        if (isMacroFile(d.FileName()))
+          res.push_back(d.FileName());
+
+      }
+
+    return res;
+
+
+  }
 
 
 

@@ -13,11 +13,6 @@ public:
     /// virtual destructor
     virtual ~ClearCommand();
 
-        /// hint about of the class nature
-    virtual std::string Tip()const;
-
-    /// a short description of the class
-    virtual std::string WhatThis()const;
 
     virtual std::string commandName()const;
 

@@ -10,9 +10,9 @@ namespace Markov_Console
 
 
   DirCommand::DirCommand(Markov_CommandManager* cm)
-  {
-    cm_=cm;
-  }
+    :ABC_Command(cm,
+                 "dir",{{
+                 "directory",ABC_Command::directory(),false}},{}){}
 
 
   /// hint about of the class nature

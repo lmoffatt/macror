@@ -10,10 +10,9 @@ ShowCommand::~ShowCommand(){}
 
 
 ShowCommand::ShowCommand(Markov_CommandManager* cm)
-{
-    cm_=cm;
-}
-
+  :ABC_Command(cm,
+               "show",{{
+               "variable",ABC_Command::varName(),true}},{}){}
 
 /// hint about of the class nature
 std::string ShowCommand::Tip()const

@@ -9,25 +9,11 @@ ClearCommand::~ClearCommand(){}
 
 
 
+
 ClearCommand::ClearCommand(Markov_CommandManager* cm)
-{
-    cm_=cm;
-}
-
-
-/// hint about of the class nature
-std::string ClearCommand::Tip()const
-{
-    return "Displays help on subject";
-}
-
-/// a short description of the class
-std::string ClearCommand::WhatThis()const
-{
-    return "Help command\n"
-            " returns help on subject\n"
-            " subject can be either a command";
-}
+  :ABC_Command(cm,
+               "clear",{{
+               "variables",ABC_Command::varName(),true}},{}){}
 
 
 
@@ -57,6 +43,10 @@ bool ClearCommand::run(std::deque<Token> & tokenList)
     return run(varnames);
 
     }
+
+
+//TODO add the possibility of clear mod*
+
 /// runs the command for a list of parameters
 bool ClearCommand::run(const std::vector<std::string>& varnames)
  {

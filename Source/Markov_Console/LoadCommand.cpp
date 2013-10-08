@@ -13,9 +13,9 @@ namespace Markov_Console
 
 
   LoadCommand::LoadCommand(Markov_CommandManager* cm)
-  {
-    cm_=cm;
-  }
+    :ABC_Command(cm,
+                 "load",{{
+                 "filename",ABC_Command::fileName(),false}},{}){}
 
 
   /// hint about of the class nature

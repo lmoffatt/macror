@@ -120,6 +120,7 @@ void Markov_CommandManager::LoadTypes()
         childs[sc].push_back(c);
         autoCmptBySuperClass[sc];
         autoCmptByClass[it->second->myClass()];
+        typesl.push_back(it->second->myClass());
 
     }
 
