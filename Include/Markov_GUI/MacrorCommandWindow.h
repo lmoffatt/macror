@@ -84,7 +84,8 @@ private:
     std::stringstream cout_string_;
     std::streambuf* cout_buff_backup;
     std::streambuf* cerr_buff_backup;
-    int commandPosition;
+    int cursorPosition;
+
 
 
 };

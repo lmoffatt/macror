@@ -172,23 +172,53 @@ bool MacrorCommandWindow::lastCommandResult()const
 
 void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
 {
-  QTextCursor c=textCursor();
-
-
-  moveCursor(QTextCursor::End);
+  if (textCursor().blockNumber()!=blockCount()-1)
+     moveCursor(QTextCursor::End);
 
   switch(e->key())
     {
     case Qt::Key_Home:
+      {
+        moveCursor(QTextCursor::StartOfBlock);
+        moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
+        moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
+ break;
+      }
     case Qt::Key_Left:
+      {
+        if(textCursor().positionInBlock()>2)
+        moveCursor(QTextCursor::Left,QTextCursor::MoveAnchor);
+
+      }
+      break;
+     case Qt::Key_Backspace:
+      {
+        if(textCursor().positionInBlock()>2)
+          QPlainTextEdit::keyPressEvent(e);
+
+      }
+      break;
+    case Qt::Key_Right:
+      {
+        moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
+
+      }
       break;
     case Qt::Key_Up:
       {
-        QString line(cm_->getH().up("").c_str());
-        moveCursor(QTextCursor::StartOfLine);
+
         QTextCursor c=textCursor();
-        c.select(QTextCursor::LineUnderCursor);
-        c.insertText(line.prepend(">>"));
+        auto p=c.position();
+        c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
+        c.removeSelectedText();
+        c.movePosition(QTextCursor::StartOfLine,QTextCursor::KeepAnchor);
+        c.movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,2);
+
+        QString line=c.selectedText();
+        QString tail(cm_->getH().up(line.toStdString()).c_str());
+        c.setPosition(p);
+        c.insertText(tail);
+        c.setPosition(p);
         setTextCursor(c);
       }
       break;
@@ -196,15 +226,28 @@ void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
       //    case Qt::Key_Right:
     case Qt::Key_Down:
       {
-        QString line(cm_->getH().down("").c_str());
-        moveCursor(QTextCursor::End);
-        moveCursor(QTextCursor::StartOfLine);
         QTextCursor c=textCursor();
-        c.select(QTextCursor::LineUnderCursor);
-        c.insertText(line.prepend(">>"));
+        auto p=c.position();
+        c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
+        c.removeSelectedText();
+        c.movePosition(QTextCursor::StartOfLine,QTextCursor::KeepAnchor);
+        c.movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,2);
+
+        QString line=c.selectedText();
+        QString tail(cm_->getH().down(line.toStdString()).c_str());
+        c.setPosition(p);
+        c.insertText(tail);
+        c.setPosition(p);
         setTextCursor(c);
       }
       break;
+
+    case Qt::Key_Tab:
+      {
+
+      }
+
+    break;
     case Qt::Key_PageUp:
     case Qt::Key_PageDown:
       break;
