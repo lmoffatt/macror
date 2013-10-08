@@ -1,4 +1,0 @@
-#ifndef QXDIALOGITEM_H
-#define QXDIALOGITEM_H
-
-#endif // QXDIALOGITEM_H

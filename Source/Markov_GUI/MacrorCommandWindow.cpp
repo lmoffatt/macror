@@ -18,185 +18,185 @@
 
 
 MacrorCommandWindow::MacrorCommandWindow(MacrorMainWindow *parent ,
-                                           Markov_Console::Markov_CommandManager* cm):
-    QPlainTextEdit(parent),
-    mw_(parent),
-    cm_(cm),
-    cout_buff_backup(std::cout.rdbuf()),
-    cerr_buff_backup(std::cerr.rdbuf())
+                                         Markov_Console::Markov_CommandManager* cm):
+  QPlainTextEdit(parent),
+  mw_(parent),
+  cm_(cm),
+  cout_buff_backup(std::cout.rdbuf()),
+  cerr_buff_backup(std::cerr.rdbuf())
 
 {
-    std::cout.rdbuf(this->cout_string_.rdbuf());
-    std::cerr.rdbuf(this->cout_string_.rdbuf());
-    cm_->setIO(this);
+  std::cout.rdbuf(this->cout_string_.rdbuf());
+  std::cerr.rdbuf(this->cout_string_.rdbuf());
+  cm_->setIO(this);
 
-    cm_->add_command(new MacrorEditCommand(cm_));
-    cm_->add_command(new MacrorExitCommand(cm_,mw_));
-    cm_->add_command(new MacrorCreateCommand(cm_));
-    unsigned windowWidth=35;
-    appendPlainText(QString(cm_->wellcomeMessage(windowWidth).c_str()));
+  cm_->add_command(new MacrorEditCommand(cm_));
+  cm_->add_command(new MacrorExitCommand(cm_,mw_));
+  cm_->add_command(new MacrorCreateCommand(cm_));
+  unsigned windowWidth=35;
+  appendPlainText(QString(cm_->wellcomeMessage(windowWidth).c_str()));
 
-    appendPlainText(">>");
-    std::stringstream ss;
+  appendPlainText(">>");
+  std::stringstream ss;
 
-    connect(this, SIGNAL(blockCountChanged(int)),
-            this, SLOT(next_instruction()));
+  connect(this, SIGNAL(blockCountChanged(int)),
+          this, SLOT(next_instruction()));
 
 
 }
 
 MacrorCommandWindow::~MacrorCommandWindow()
 {
-    std::cout.rdbuf(cout_buff_backup);
-    std::cerr.rdbuf(cout_buff_backup);
-    }
+  std::cout.rdbuf(cout_buff_backup);
+  std::cerr.rdbuf(cout_buff_backup);
+}
 
 void MacrorCommandWindow::commandLine(const QString& line)
 {
-    if (!graphCommandLine(line))
+  if (!graphCommandLine(line))
     {
-        MarkovCommand()->add_tokens(line.toStdString());
-        if (MarkovCommand()->next_instruction())
-            emit commandLineExecuted(line);
+      MarkovCommand()->add_tokens(line.toStdString());
+      if (MarkovCommand()->next_instruction())
+        emit commandLineExecuted(line);
     }
-    std::cout.flush();
-    appendPlainText(cout_string_.str().c_str());
-    cout_string_.str("");
+  std::cout.flush();
+  appendPlainText(cout_string_.str().c_str());
+  cout_string_.str("");
 }
 
- void MacrorCommandWindow::addCommandLine(const QString& line)
+void MacrorCommandWindow::addCommandLine(const QString& line)
 {
-    insertPlainText(line);
-    appendPlainText("");
-    this->update();
+  insertPlainText(line);
+  appendPlainText("");
+  this->update();
 
- }
+}
 
 
 
 bool MacrorCommandWindow::graphCommandLine(const QString& line)
 {
-    if (line.startsWith("plot "))
+  if (line.startsWith("plot "))
     {
-         if (plot(line.mid(5)))
-                 emit commandLineExecuted(line);
-         return true;
+      if (plot(line.mid(5)))
+        emit commandLineExecuted(line);
+      return true;
     }
-    else if (line.startsWith("edit "))
+  else if (line.startsWith("edit "))
     {
-        if (edit(line.mid(5)))
-                emit commandLineExecuted(line);
-        return true;
+      if (edit(line.mid(5)))
+        emit commandLineExecuted(line);
+      return true;
 
     }
-    return false;
+  return false;
 
 }
 
 bool MacrorCommandWindow::plot(const QString& line)
 {
-    if (MarkovCommand()->checkVariable(line.toStdString(),Markov_IO::ABC_Experiment::ClassName()))
+  if (MarkovCommand()->checkVariable(line.toStdString(),Markov_IO::ABC_Experiment::ClassName()))
     {
-        Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
+      Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
             MarkovCommand()->getVar(line.toStdString()));
-        Markov_Plot::GraphWindow* g=Markov_Plot::plot(0,*e);
-        mw_->createGraph(g);
+      Markov_Plot::GraphWindow* g=Markov_Plot::plot(0,*e);
+      mw_->createGraph(g);
 
 
-        return true;
+      return true;
 
     }
-    else return false;
+  else return false;
 }
 
 bool MacrorCommandWindow::modelChannel(const QString& varname)
 {
-    Markov_Mol::Q_Markov_Model* p=new Markov_Mol::Q_Markov_Model();
-    cm_->delete_var(varname.toStdString());
-    cm_->add_var(varname.toStdString(),p);
-    edit(varname);
+  Markov_Mol::Q_Markov_Model* p=new Markov_Mol::Q_Markov_Model();
+  cm_->delete_var(varname.toStdString());
+  cm_->add_var(varname.toStdString(),p);
+  edit(varname);
 }
 
 
 
 bool MacrorCommandWindow::edit(const QString& varname)
 {
-    MacrorEditWindow* eW=new MacrorEditWindow(varname,cm_);
-    eW->show();
+  MacrorEditWindow* eW=new MacrorEditWindow(varname,cm_);
+  eW->show();
 
 }
 
 
- void MacrorCommandWindow::next_instruction()
- {
+void MacrorCommandWindow::next_instruction()
+{
 
-     QString line=document()->lastBlock().previous().text();
-     line.remove(0,2);
-     disconnect(this, SIGNAL(blockCountChanged(int)),
+  QString line=document()->lastBlock().previous().text();
+  line.remove(0,2);
+  disconnect(this, SIGNAL(blockCountChanged(int)),
              this, SLOT(next_instruction()));
-     commandLine(line);
+  commandLine(line);
 
-     appendPlainText(">>");
-     connect(this, SIGNAL(blockCountChanged(int)),
-                  this, SLOT(next_instruction()));
-     connect(this, SIGNAL(outputGenerated(QString)),
-             this,SLOT(appendPlainText(QString)));
+  appendPlainText(">>");
+  connect(this, SIGNAL(blockCountChanged(int)),
+          this, SLOT(next_instruction()));
+  connect(this, SIGNAL(outputGenerated(QString)),
+          this,SLOT(appendPlainText(QString)));
 
-     connect(this, SIGNAL(blockCountChanged(int)),
-             this,SLOT(repaint()));
-
-
- }
-
- Markov_Console::Markov_CommandManager* MacrorCommandWindow::MarkovCommand()
- {
-     return cm_;
- }
-
-  QString MacrorCommandWindow::getDir()const
- {
-     return QString(MarkovCommand()->getDir().c_str());
- }
+  connect(this, SIGNAL(blockCountChanged(int)),
+          this,SLOT(repaint()));
 
 
- const Markov_Console::Markov_CommandManager*
- MacrorCommandWindow::MarkovCommand()const
- {
-     return cm_;
- }
+}
 
- bool MacrorCommandWindow::lastCommandResult()const
- {
-     return MarkovCommand()->lastCommandResult();
- }
+Markov_Console::Markov_CommandManager* MacrorCommandWindow::MarkovCommand()
+{
+  return cm_;
+}
 
-  void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
-  {
-    QTextCursor c=textCursor();
+QString MacrorCommandWindow::getDir()const
+{
+  return QString(MarkovCommand()->getDir().c_str());
+}
 
 
-    moveCursor(QTextCursor::End);
+const Markov_Console::Markov_CommandManager*
+MacrorCommandWindow::MarkovCommand()const
+{
+  return cm_;
+}
 
-    switch(e->key())
+bool MacrorCommandWindow::lastCommandResult()const
+{
+  return MarkovCommand()->lastCommandResult();
+}
+
+void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
+{
+  QTextCursor c=textCursor();
+
+
+  moveCursor(QTextCursor::End);
+
+  switch(e->key())
+    {
+    case Qt::Key_Home:
+    case Qt::Key_Left:
+      break;
+    case Qt::Key_Up:
       {
-      case Qt::Key_Home:
-      case Qt::Key_Left:
-        break;
-      case Qt::Key_Up:
-          {
-          QString line(cm_->getH().up().c_str());
-          moveCursor(QTextCursor::StartOfLine);
-          QTextCursor c=textCursor();
-          c.select(QTextCursor::LineUnderCursor);
-          c.insertText(line.prepend(">>"));
-          setTextCursor(c);
-        }
+        QString line(cm_->getH().up("").c_str());
+        moveCursor(QTextCursor::StartOfLine);
+        QTextCursor c=textCursor();
+        c.select(QTextCursor::LineUnderCursor);
+        c.insertText(line.prepend(">>"));
+        setTextCursor(c);
+      }
       break;
 
-          //    case Qt::Key_Right:
-      case Qt::Key_Down:
-        {
-        QString line(cm_->getH().down().c_str());
+      //    case Qt::Key_Right:
+    case Qt::Key_Down:
+      {
+        QString line(cm_->getH().down("").c_str());
         moveCursor(QTextCursor::End);
         moveCursor(QTextCursor::StartOfLine);
         QTextCursor c=textCursor();
@@ -204,32 +204,32 @@ bool MacrorCommandWindow::edit(const QString& varname)
         c.insertText(line.prepend(">>"));
         setTextCursor(c);
       }
-    break;
-      case Qt::Key_PageUp:
-      case Qt::Key_PageDown:
-       break;
-      default:
-          QPlainTextEdit::keyPressEvent(e);
-      }
-  }
+      break;
+    case Qt::Key_PageUp:
+    case Qt::Key_PageDown:
+      break;
+    default:
+      QPlainTextEdit::keyPressEvent(e);
+    }
+}
 
 
-  /// get a string from the input source
-   std::string MacrorCommandWindow::getline()
-  {
+/// get a string from the input source
+std::string MacrorCommandWindow::getline()
+{
 
-       QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
-                                                tr("User name:"));
+  QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
+                                       tr("User name:"));
 
-       return text.toStdString();
-   }
+  return text.toStdString();
+}
 
-  /// put a string to the output source
-   void MacrorCommandWindow::put(const std::string& s)
-   {
-       QString out=s.c_str();
-       emit outputGenerated(out);
-   }
+/// put a string to the output source
+void MacrorCommandWindow::put(const std::string& s)
+{
+  QString out=s.c_str();
+  emit outputGenerated(out);
+}
 
 
 

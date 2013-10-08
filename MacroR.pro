@@ -27,9 +27,7 @@ TEMPLATE = app
 
 HEADERS += \
     Include/Markov_Remote/Markov_Remote.h \
-    Include/Markov_GUI/Markov_GUI.h \
     Include/Markov_Plot/abc_plotable.h \
-    Include/Markov_Console/Markov_CommandManagerGui.h \
     Include/Markov_Plot/ABC_PlotData.h \
     Include/Markov_GUI/MacrorMainWindow.h \
     Include/Markov_GUI/MacrorCommandWindow.h \
@@ -55,7 +53,6 @@ HEADERS += \
     Include/Markov_GUI/EditWizardField.h \
     Include/Markov_GUI/CreateWizardPage.h \
     Include/Markov_Plot/GraphView.h \
-    Include/Markov_GUI/QxDialogItem.h \
     Include/Markov_GUI/CreateWizardField.h
 
 SOURCES -=Source/main_MacroConsole.cpp

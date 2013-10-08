@@ -9,12 +9,14 @@ namespace Markov_Console
 class CommandHistory
 {
 public:
-  //CommandHistory();
+  CommandHistory(const std::string& filename);
   void push_back(std::string commandLine);
   void push_back(const std::deque<Token>& tokens);
 
-  std::string up();
-  std::string down();
+
+  std::string up(const std::string& text);
+  std::string down(const std::string& text);
+
 
   void textToLook(const std::string& text);
 
@@ -23,9 +25,10 @@ public:
   void reset();
 
 private:
-  std::vector<std::string> lines;
-  std::string startText;
+  std::string filename_;
   std::size_t pos;
+
+  std::vector<std::string> lines;
 
 };
 

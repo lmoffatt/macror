@@ -71,7 +71,8 @@ namespace Markov_Console
     autoCmptBySuperClass{},
     autoCmptByClass{},
     tokens{},
-    lastCmdRst{}
+    lastCmdRst{},
+    h("")
 
   {
     auto dirs=Markov_IO::getSubDirs(dir_);

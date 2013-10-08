@@ -83,6 +83,7 @@ namespace Markov_Console
     std::string commandLine;
     std::string commandWord;
     std::size_t ncols=80;
+    std::string tail;
 
     if (fileCommandName.empty())
       {
@@ -129,6 +130,79 @@ namespace Markov_Console
 
 
                   }
+                else if (ch=='\033')
+                  {
+                    char ch2=getUnbufChar();
+                    char ch3=getUnbufChar();
+                    if ((ch2=='[')&&(ch3=='A'))
+                      {
+                        std::string tail0=tail;
+                        tail=cm->getH().up(commandWord);
+                        if (tail0.size()>tail.size())
+                          {
+                            std::cout<<tail<<std::string(tail0.size()-tail.size(),' ');
+                            std::cout.flush();
+                            for (std::size_t i=0; i<tail0.size(); ++i)
+                              std::cout<<'\033'<<'['<<'D';
+                            std::cout.flush();
+                          }
+                        else
+                          {
+                            std::cout<<tail;
+                            std::cout.flush();
+                            for (std::size_t i=0; i<tail.size(); ++i)
+                              std::cout<<'\033'<<'['<<'D';
+                            std::cout.flush();
+                          }
+                      }
+                    else  if ((ch2=='[')&&(ch3=='B')) // downkey
+                      {
+                        std::string tail0=tail;
+                        tail=cm->getH().down(commandWord);
+                        if (tail0.size()>tail.size())
+                          {
+                            std::cout<<tail<<std::string(tail0.size()-tail.size(),' ');
+                            std::cout.flush();
+                            for (std::size_t i=0; i<tail0.size(); ++i)
+                              std::cout<<'\033'<<'['<<'D';
+                            std::cout.flush();
+                          }
+                        else
+                          {
+                            std::cout<<tail;
+                            std::cout.flush();
+                            for (std::size_t i=0; i<tail.size(); ++i)
+                              std::cout<<'\033'<<'['<<'D';
+                            std::cout.flush();
+                          }
+                      }
+                    else  if ((ch2=='[')&&(ch3=='C')) // rightkey
+                      {
+                        if (!tail.empty())
+                          {
+                            std::cout<<'\033'<<'['<<'C';
+                            std::cout.flush();
+                            commandWord+=tail.front();
+                          tail=tail.substr(1);
+                          }
+
+                      }
+                    else  if ((ch2=='[')&&(ch3=='D')) // leftkey
+                      {
+                        if (!commandWord.empty())
+                          {
+                            std::cout<<'\033'<<'['<<'D';
+                              std::cout.flush();
+                              tail=commandWord.back()+tail;
+                              commandWord.pop_back();
+                          }
+
+
+                      }
+
+
+                  }
+
                 else if (ch==' ')
                   {
                     std::cout<<ch;
@@ -150,7 +224,7 @@ namespace Markov_Console
                 else
                   {
                     std::cout<<'\n';
-                    commandLine+=commandWord;
+                    commandLine+=commandWord+tail;
                     commandWord.clear();
                   }
                 ch0=ch;
@@ -158,8 +232,9 @@ namespace Markov_Console
             ch=0;
             // getline(std::cin,commandLine);
             cm->add_tokens(commandLine);
+            if (cm->next_instruction())
+              cm->getH().push_back(commandLine);
             commandLine.clear();
-            cm->next_instruction();
           }
       }
 
