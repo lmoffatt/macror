@@ -12,6 +12,7 @@
 
 #include "Markov_GUI/MacrorMainWindow.h"
 #include "Markov_GUI/DirComboBox.h"
+#include "Markov_Plot/PlotCommand.h"
 
 
 
@@ -32,6 +33,8 @@ MacrorMainWindow::MacrorMainWindow(QWidget *parent,
     createDockWindows();
 
     setWindowTitle(tr("Macro-R"));
+    Markov_Console::ABC_Command* plcmd=new Markov_Plot::PlotCommand(cm,this);
+    cm->add_command(plcmd);
 
 }
 

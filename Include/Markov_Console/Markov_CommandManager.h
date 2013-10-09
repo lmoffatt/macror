@@ -64,6 +64,8 @@ public:
 
     virtual bool next_instruction();
 
+    virtual void clear_tokens();
+
     virtual void add_tokens(std::string commandLine);
 
     virtual std::string add_single_token(const std::string &command);
@@ -152,11 +154,12 @@ public:
 
 
 protected:
+    Markov_IO::ABC_IO* io_;
+
     std::string dir_;
 
     Autocomplete autoCmptDir;
 
-    Markov_IO::ABC_IO* io_;
 
     std::map<std::string, Markov_IO::ABC_Unit*> units;
     std::map<std::string, ABC_Command*> cmds;

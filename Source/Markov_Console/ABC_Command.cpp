@@ -3,17 +3,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 namespace Markov_Console
 
 

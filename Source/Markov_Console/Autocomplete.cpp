@@ -53,6 +53,8 @@ std::string Autocomplete::suggestedCharacters(const std::vector<std::string>& li
   while ((i<list.size())&&((list[i][0]=='<')||(list[i][0]=='[')))
     i++;
 
+  if (i==list.size())
+    return "";
 
   std::size_t n=0;
 

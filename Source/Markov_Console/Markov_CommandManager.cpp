@@ -55,9 +55,9 @@ namespace Markov_Console
 
 
   Markov_CommandManager::Markov_CommandManager():
+    io_(nullptr),
     dir_{Markov_IO::getWorkingPath()},
     autoCmptDir{},
-    io_(new Markov_IO::STD_IO),
     units{},
     cmds{},
     cmdsl{},
@@ -329,7 +329,8 @@ namespace Markov_Console
 
   bool Markov_CommandManager::has_script(const std::string& fname)const
   {
-    std::string fn=fname+".macror.txt";
+    std::string fn=fname;
+    fn=+".macror.txt";
     std::ifstream f(fn.c_str());
     return(!!f);
   }
@@ -349,7 +350,7 @@ namespace Markov_Console
 
   void Markov_CommandManager::unknown_command()
   {
-    std::cout << "Unknown Command" << std::endl;
+    getIO()->putError("Unknown Command");
   }
 
 
@@ -400,9 +401,9 @@ namespace Markov_Console
                 auto out=cmd->output();
                 auto err=cmd->errorMessage();
                 if (!out.empty())
-                  std::cout<<cmd->output()<<"\n";
+                  getIO()->put(out+"\n");
                 if (!err.empty())
-                  std::cerr<<cmd->errorMessage()<<"\n";
+                  getIO()->putError(err+"\n");
               }
             else if (has_script(tokens[0].Name()))
               {
@@ -484,10 +485,22 @@ namespace Markov_Console
   }
 
 
+
+  void Markov_CommandManager::clear_tokens()
+  {
+    tokens.clear();
+  }
+
+
+
+
+
   /*!
    * \brief Markov_CommandManager::add_single_token adds one token to the current command line
    * \param command  the added token
    */
+
+
 
   std::string Markov_CommandManager::add_single_token(const std::string& command)
   {
@@ -498,7 +511,7 @@ namespace Markov_Console
     while (strstr>>t)
       tokens.push_back(t);
     std::string res= check_tokens();
-    if (!res.empty())
+    if (!res.empty()&&!tokens.empty())
       tokens.pop_back();
     return res;
 

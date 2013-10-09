@@ -100,3 +100,9 @@ SOURCES =  $$unique(SOURCES)
 message ("MacroR ends here")
 
 }
+
+HEADERS += \
+    Include/Markov_Plot/PlotCommand.h
+
+SOURCES += \
+    Source/Markov_Plot/PlotCommand.cpp

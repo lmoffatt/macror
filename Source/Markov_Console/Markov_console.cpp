@@ -72,10 +72,30 @@ std::string incolumns(std::vector<std::string> list,std::size_t colwidth)
 namespace Markov_Console
 {
 
+   bool Markov_Console::getline(std::string& s)
+  {
+   return std::getline(std::cin,s);
+  }
+
+   char Markov_Console::getchar()
+   {
+     return getUnbufChar();
+   }
+
+  /// put a string to the output source
+  void Markov_Console::put(const std::string& s)
+   {
+     std::cout<<s;
+   }
+
+
+
+
   /**
   Until user types exit execute the typed commands
   in stdin
   */
+
 
   Markov_Console::Markov_Console(Markov_CommandManager *c, const std::string& fileCommandName):
     cm(c)
@@ -234,6 +254,7 @@ namespace Markov_Console
             cm->add_tokens(commandLine);
             if (cm->next_instruction())
               cm->getH().push_back(commandLine);
+            cm->clear_tokens();
             commandLine.clear();
           }
       }

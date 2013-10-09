@@ -7,7 +7,7 @@
 #include <Markov_Console/Markov_CommandManager.h>
 
 
-
+class QLabel;
 
 
 class MacrorMainWindow;
@@ -41,6 +41,9 @@ public:
 
     /// put a string to the output source
     virtual void put(const std::string &s);
+
+virtual void putError(const std::string &);
+
 
     bool lastCommandResult()const;
 
@@ -81,11 +84,12 @@ private:
 
     MacrorMainWindow* mw_;
     Markov_Console::Markov_CommandManager* cm_;
-    std::stringstream cout_string_;
-    std::streambuf* cout_buff_backup;
-    std::streambuf* cerr_buff_backup;
     int cursorPosition;
-
+    int previous_key;
+    QString cmdLine;
+    QString cmdWord;
+    QString tail;
+    QLabel* message;
 
 
 };

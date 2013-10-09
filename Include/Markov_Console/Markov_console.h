@@ -15,13 +15,21 @@ namespace Markov_Console
     in stdin
 
   */
-class Markov_Console
+class Markov_Console :public Markov_IO::ABC_IO
 {
 protected:
     Markov_CommandManager* cm;
 
 public:
     Markov_Console(Markov_CommandManager* c,const std::string& fileCommandName="");
+    virtual bool getline(std::string& s);
+
+    virtual char getchar();
+
+    /// put a string to the output source
+    virtual void put(const std::string& s);
+
+
 };
 
 }

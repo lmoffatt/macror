@@ -66,7 +66,7 @@ private slots:
 
     void setCurrentFile(const QString& fileName);
 
-    void plot(const QString& variableName);
+
 
 private:
     void createActions();
