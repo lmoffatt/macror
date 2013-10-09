@@ -40,10 +40,7 @@ MacrorMainWindow::MacrorMainWindow(QWidget *parent,
 
 
 
-void MacrorMainWindow::plot(const QString& variableName)
-{
 
-}
 
 void MacrorMainWindow::setCurrentFile(const QString& fileName)
 {

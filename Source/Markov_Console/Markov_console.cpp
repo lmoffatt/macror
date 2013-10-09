@@ -72,9 +72,11 @@ std::string incolumns(std::vector<std::string> list,std::size_t colwidth)
 namespace Markov_Console
 {
 
-   bool Markov_Console::getline(std::string& s)
+   std::string Markov_Console::getline()
   {
-   return std::getline(std::cin,s);
+     std::string s;
+    std::getline(std::cin,s);
+    return s;
   }
 
    char Markov_Console::getchar()
@@ -88,7 +90,10 @@ namespace Markov_Console
      std::cout<<s;
    }
 
-
+ void Markov_Console::putError(const std::string &s)
+ {
+   std::cerr<<s;
+ }
 
 
   /**
@@ -100,6 +105,7 @@ namespace Markov_Console
   Markov_Console::Markov_Console(Markov_CommandManager *c, const std::string& fileCommandName):
     cm(c)
   {
+    cm->setIO(this);
     std::string commandLine;
     std::string commandWord;
     std::size_t ncols=80;

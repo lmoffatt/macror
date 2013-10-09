@@ -22,12 +22,14 @@ protected:
 
 public:
     Markov_Console(Markov_CommandManager* c,const std::string& fileCommandName="");
-    virtual bool getline(std::string& s);
+    virtual std::string getline();
 
     virtual char getchar();
 
     /// put a string to the output source
     virtual void put(const std::string& s);
+
+    void putError(const std::string &s);
 
 
 };
