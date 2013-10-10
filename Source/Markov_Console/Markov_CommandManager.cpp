@@ -350,7 +350,7 @@ namespace Markov_Console
 
   void Markov_CommandManager::unknown_command()
   {
-    getIO()->putError("Unknown Command");
+    getIO()->putError("Unknown Command\n");
   }
 
 

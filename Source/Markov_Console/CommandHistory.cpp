@@ -23,7 +23,7 @@ namespace Markov_Console
     std::string line;
     while (Markov_IO::safeGetline(fs,line))
       {
-        if (line.substr(0,3)!="%--")
+       // if (line.substr(0,3)!="%--")
           {
             lines.push_back(line);
             pos++;
@@ -36,8 +36,10 @@ namespace Markov_Console
   void CommandHistory::push_back(std::string commandLine)
   {
     lines.push_back(commandLine);
-    std::fstream fs(filename_);
-    fs.open(filename_,std::ios_base::app);
+    std::fstream fs(filename_,std::ios_base::app|std::ios_base::out);
+
+    if (!fs.is_open())
+    fs.open(filename_,std::ios_base::app|std::ios_base::out);
     fs<<commandLine<<std::endl;
     reset();
   }
@@ -58,6 +60,8 @@ namespace Markov_Console
     if (startText.empty())
       {
         if (pos>0) pos--;
+        else
+            return "";
         if (lines.empty())
           return "";
         else
@@ -68,8 +72,9 @@ namespace Markov_Console
       }
     else
       {
-
         std::size_t n=startText.size();
+        if (pos==0)
+            return "";
         while((pos>0)&&(startText.compare(lines.at(pos-1).substr(0,n))!=0))
           --pos;
         if (pos>0)
@@ -78,7 +83,7 @@ namespace Markov_Console
         if (startText.compare(lines.at(pos).substr(0,n))==0)
           return lines[pos].substr(n);
         else
-          return std::string();
+            return "";
       }
   }
   std::string CommandHistory::down(const std::string& startText)

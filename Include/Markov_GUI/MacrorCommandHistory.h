@@ -25,13 +25,7 @@ private:
     void addCommandNoFileWrite(const QString &line);
     QStandardItemModel* data_;
     QStandardItem *lastSession_;
-    QFile f_;
-    QTextStream fs_;
     Markov_Console::Markov_CommandManager* cm_;
-
-
-
-
 };
 
 
