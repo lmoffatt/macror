@@ -26,7 +26,8 @@
                                            Markov_Console::Markov_CommandManager* cm):
     QPlainTextEdit(parent),
     mw_(parent),
-    cm_(cm)
+    cm_(cm),
+    message(nullptr)
   {
     cm_->setIO(this);
 
@@ -349,6 +350,7 @@
               cmdLine.clear();
               cmdWord.clear();
               tail.clear();
+              cm_->getH().reset();
 
             }
           else

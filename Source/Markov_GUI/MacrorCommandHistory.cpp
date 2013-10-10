@@ -1,41 +1,44 @@
 #include "Markov_GUI/MacrorCommandHistory.h"
+
+
+
 #include <QDate>
 #include <QFile>
 
+
+#include "Markov_IO/auxiliarIO.h"
+
 MacrorCommandHistory::MacrorCommandHistory(
-    Markov_Console::Markov_CommandManager* cm,
-    QWidget* parent,const QString& fname):
+        Markov_Console::Markov_CommandManager* cm,
+        QWidget* parent,const QString& fname):
     QTreeView(parent),
     cm_(cm)
 {
     data_=new QStandardItemModel(this);
     setModel(data_);
-    f_.setFileName(fname);
-    if (fname.isEmpty()||!(f_.open(QIODevice::ReadWrite|QIODevice::Text)))
+    std::string previousHistory=cm_->getH().history();
+
+    std::stringstream ss(previousHistory);
+
+    std::string line;
+    Markov_IO::safeGetline(ss, line);
+
+    newSessionNoFileWrite(line.c_str());
+
+    while (Markov_IO::safeGetline(ss, line))
     {
-            f_.setFileName("commandHistory.txt");
-            f_.open(QIODevice::ReadWrite|QIODevice::Text);
+       if (line.substr(0,3)=="%-- ")
+        {
+            newSessionNoFileWrite(line.c_str());
+        }
+        else
+        {
+            addCommandNoFileWrite(line.c_str());
+        }
     }
-    fs_.setDevice(&f_);
 
-         while (!fs_.atEnd()) {
-             QString line = fs_.readLine();
-             if (line.startsWith("%-- "))
-             {
-                 newSessionNoFileWrite(line);
-             }
-             else
-             {
-                 addCommandNoFileWrite(line);
-             }
-         }
-
-         f_.close();
-         f_.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append);
-         fs_.setDevice(&f_);
-
-         newSession();
-         setHeaderHidden(true);
+        newSession();
+    setHeaderHidden(true);
 
 
 }
@@ -43,7 +46,6 @@ MacrorCommandHistory::MacrorCommandHistory(
 void MacrorCommandHistory::addCommandNoFileWrite(const QString &line)
 {
     lastSession_->appendRow(new QStandardItem(line));
-    cm_->getH().push_back(line.toStdString());
 
 
 
@@ -51,8 +53,9 @@ void MacrorCommandHistory::addCommandNoFileWrite(const QString &line)
 void MacrorCommandHistory::addCommand(const QString &line)
 {
     addCommandNoFileWrite(line);
-    fs_<<line<<"\n";
-    fs_.flush();
+    cm_->getH().push_back(line.toStdString());
+    //fs_<<line<<"\n";
+    //fs_.flush();
 
 }
 
@@ -71,8 +74,9 @@ void MacrorCommandHistory::newSessionNoFileWrite(const QString& title)
 void MacrorCommandHistory::newSession(const QString& title)
 {
     newSessionNoFileWrite(title);
-    fs_<<title<<"\n";
-    fs_.flush();
+    cm_->getH().push_back(title.toStdString());
+   // fs_<<title<<"\n";
+   // fs_.flush();
 
 }
 
