@@ -64,7 +64,7 @@ private slots:
 
     void changeDir(QString newDir);
 
-    void setCurrentFile(const QString& fileName);
+    void setCurrentFile(const QString& fileName) ;
 
 
 

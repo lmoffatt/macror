@@ -165,7 +165,7 @@ namespace Markov_Console
                         std::string tail0=tail;
                         tail=cm->getH().up(commandWord);
                         if (tail0.size()>tail.size())
-                          {
+                       {
                             std::cout<<tail<<std::string(tail0.size()-tail.size(),' ');
                             std::cout.flush();
                             for (std::size_t i=0; i<tail0.size(); ++i)
