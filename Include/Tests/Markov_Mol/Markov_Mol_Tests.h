@@ -10,13 +10,19 @@ namespace Markov_Test
 namespace Markov_Mol_Test
 {
 //using namespace Markov_Mol;
-class Markov_Mol_Test
+class Markov_Mol_Test:public All_Tests
 {
 
 public:
+  virtual std::string testedClass()const;
 
     Markov_Mol_Test(const ABC_Markov_Model& model);
-    MultipleTests All_Tests();
+    Markov_Mol_Test();
+
+    virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested);
+    static std::string TestName();
+    virtual std::string myTest()const;
+    ~Markov_Mol_Test(){}
 
 private:
  ABC_Markov_Model_Test modelTest;

@@ -197,12 +197,46 @@ bool ABC_Saveable::Load(const std::string& fileName)
 
 #include "Tests/ElementaryTest.h"
 #include "Tests/Markov_IO/ClassDescription_Test.h"
-
+#include "Markov_Console/Markov_CommandManager.h"
 
 namespace Markov_Test
 {
 namespace Markov_IO_Test
 {
+   MultipleTests ABC_Saveable_Test::AllTests(Markov_Console::Markov_CommandManager* cm,
+                                             const std::string varNameTested)
+   {
+     ABC_Saveable* s;
+     if (!cm->getVar(varNameTested,s))
+       return MultipleTests();
+     else
+       {
+         this->sample_=s;
+         this->saveable_=s;
+         return classInvariant();
+       }
+   }
+
+
+
+  std::string ABC_Saveable_Test::TestName()
+  {
+    return "Saveable_Test";
+  }
+
+   std::string ABC_Saveable_Test::myTest()const
+  {
+    return TestName();
+  }
+
+
+    std::string ABC_Saveable_Test::testedClass()const
+   {
+     return ABC_Saveable::ClassName();
+   }
+
+ABC_Saveable_Test::ABC_Saveable_Test(){}
+
 
 MultipleTests ABC_Saveable_Test::classInvariant()const
 {

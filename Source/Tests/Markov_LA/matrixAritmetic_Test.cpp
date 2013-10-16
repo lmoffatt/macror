@@ -27,7 +27,7 @@ those are:
 
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Aritmetic_Test()
+    MultipleTests Markov_LATest<T>::Aritmetic_Test()const
     {
 	MultipleTests result("matrixAritmetic.h",
 			     "test examples");
@@ -101,6 +101,6 @@ those are:
     }
 
 
-    template MultipleTests Markov_LA_Test<double>::Aritmetic_Test();
+    template MultipleTests Markov_LATest<double>::Aritmetic_Test()const;
 }
 }

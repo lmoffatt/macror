@@ -18,7 +18,7 @@ using namespace Markov_LA;
 using namespace Markov_IO;
 
 template<typename T>
-MultipleTests Markov_LA_Test<T>::AuxiliarMath_Test()
+MultipleTests Markov_LATest<T>::AuxiliarMath_Test() const
 {
     MultipleTests result("header auxiliarMath.h",
                          "header functions invariants");
@@ -331,7 +331,7 @@ MultipleTests Markov_LA_Test<T>::AuxiliarMath_Test()
 
 }
 
-template MultipleTests Markov_LA_Test<double>::AuxiliarMath_Test();
+template MultipleTests Markov_LATest<double>::AuxiliarMath_Test()const;
 
 }
 }

@@ -18,8 +18,32 @@ using namespace Markov_IO;
 using namespace Markov_LA;
 using namespace Markov_Bay;
 
-MultipleTests MersenneTwister_Test::AllTests()
-{
+   MultipleTests MersenneTwister_Test::AllTests(Markov_Console::Markov_CommandManager* cm,
+                                                const std::string varNameTested)
+   {
+     return AllTests();
+   }
+ // virtual MultipleTests AllTests()=0;
+   std::string MersenneTwister_Test::TestName()
+   {
+     return "MersenneTwister_Test";
+   }
+
+   std::string MersenneTwister_Test::myTest()const
+   {
+     return TestName();
+   }
+
+   std::string MersenneTwister_Test::testedClass()const
+   {
+     return "";
+   }
+
+
+
+  MultipleTests MersenneTwister_Test::AllTests()const
+  {
+
     MultipleTests result("MersenneTwister header",
                          " check random generators");
     const std::size_t NumSamples=1e4;
@@ -54,7 +78,7 @@ MultipleTests MersenneTwister_Test::AllTests()
 MultipleTests MersenneTwister_Test::rand_Test(std::size_t n,
                                               std::size_t NumBins,
                                               std::size_t NumLags,
-                                              double p_min)
+                                              double p_min)const
 {
     MultipleTests result("method rand()",
                          "check the randomness");
@@ -88,12 +112,12 @@ MersenneTwister_Test::MersenneTwister_Test(std::size_t seed):
 
 MersenneTwister_Test::~MersenneTwister_Test(){}
 
-MultipleTests MersenneTwister_Test::Binomial_Test(){}
+MultipleTests MersenneTwister_Test::Binomial_Test() const{}
 
 MultipleTests MersenneTwister_Test::Multinomial_Test(const M_Matrix<double>& P,
                                                      std::size_t N,
                                                      std::size_t NumSamples,
-                                                     double p_min)
+                                                     double p_min)const
 {
     std::size_t k=size(P);
 
@@ -187,7 +211,7 @@ MultipleTests MersenneTwister_Test::Multinomial_Test(const M_Matrix<double>& P,
 MultipleTests MersenneTwister_Test::Normal_Test(std::size_t n,
                                               std::size_t NumBins,
                                               std::size_t NumLags,
-                                              double p_min)
+                                              double p_min)const
 {
     MultipleTests result("method randNormal()",
                          "check the randomness");

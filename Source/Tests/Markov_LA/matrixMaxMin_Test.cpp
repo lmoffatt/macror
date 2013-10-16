@@ -13,7 +13,7 @@ namespace Markov_LA_Test
 {
     using namespace Markov_LA;
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::MaxMin_Test()
+    MultipleTests Markov_LATest<T>::MaxMin_Test() const
     {
 	MultipleTests result("matrixMaxMin.h",
 		      "comparison to known result");
@@ -35,6 +35,6 @@ namespace Markov_LA_Test
 
       }
 
-    template MultipleTests Markov_LA_Test<double>::MaxMin_Test();
+    template MultipleTests Markov_LATest<double>::MaxMin_Test()const;
 }
 }

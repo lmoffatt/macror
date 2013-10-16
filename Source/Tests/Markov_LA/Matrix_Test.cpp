@@ -17,7 +17,7 @@ namespace Markov_LA_Test
 
 
     template<typename T>
-    MultipleTests Matrix_Test<T>:: DefaultConstructor_Test()
+    MultipleTests Matrix_Test<T>:: DefaultConstructor_Test()const
     {
 	MultipleTests tests(
 		    "",
@@ -30,7 +30,7 @@ namespace Markov_LA_Test
      }
 
     template<typename T>
-    MultipleTests Matrix_Test<T>::EmptyShellConstructor_Test()
+    MultipleTests Matrix_Test<T>::EmptyShellConstructor_Test() const
     {
 
 	MultipleTests result("Empty-Shell Constructor",
@@ -74,7 +74,7 @@ namespace Markov_LA_Test
 
 
     template<typename T>
-    MultipleTests Matrix_Test<T>::RegularType_Test()
+    MultipleTests Matrix_Test<T>::RegularType_Test() const
     {
 
 	M_Matrix<T> B(2,3);
@@ -105,7 +105,7 @@ namespace Markov_LA_Test
     }
 
     template<typename T>
-    MultipleTests Matrix_Test<T>:: StringConstructor_Test()
+    MultipleTests Matrix_Test<T>:: StringConstructor_Test() const
     {
 	MultipleTests result("Test constructor based on string",
 			     "Valid matrix from string");
@@ -130,7 +130,7 @@ namespace Markov_LA_Test
 	return result;
     }
     template<typename T>
-    MultipleTests Matrix_Test<T>:: TypeCastConstructor_Test()
+    MultipleTests Matrix_Test<T>:: TypeCastConstructor_Test() const
     {
 	MultipleTests result("Test constructor based on typecast on std::size_t",
 			     "Should be equal");
@@ -144,7 +144,7 @@ namespace Markov_LA_Test
 
     }
     template<typename T>
-    MultipleTests Matrix_Test<T>:: ValueAssigment_Test()
+    MultipleTests Matrix_Test<T>:: ValueAssigment_Test() const
     {
 	MultipleTests result("Test assigment to a value",
 			     "All cell equal to the value");
@@ -159,7 +159,7 @@ namespace Markov_LA_Test
 
     }
     template<typename T>
-    MultipleTests Matrix_Test<T>:: VectorConstructor_Test()
+    MultipleTests Matrix_Test<T>:: VectorConstructor_Test() const
     {
 	MultipleTests result("Constructor based on vector",
 			     "rigth values");
@@ -189,7 +189,7 @@ namespace Markov_LA_Test
     }
 
     template<typename T>
-    MultipleTests Matrix_Test<T>:: RowCopy_Test()
+    MultipleTests Matrix_Test<T>:: RowCopy_Test() const
     {
 	MultipleTests result("Row copy being tested",
 		      "example test");
@@ -207,7 +207,7 @@ namespace Markov_LA_Test
     }
 
     template<typename T>
-    MultipleTests Matrix_Test<T>:: ColumnCopy_Test()
+    MultipleTests Matrix_Test<T>:: ColumnCopy_Test() const
     {
 	MultipleTests result("Column copy being tested",
 		      "Columns are copied right");
@@ -229,7 +229,7 @@ namespace Markov_LA_Test
     }
 
     template<typename T>
-    MultipleTests Matrix_Test<T>:: RowInsert_Test()
+    MultipleTests Matrix_Test<T>:: RowInsert_Test() const
     {
 	MultipleTests result("Row insert being tested",
 			     "rigth insertion in example");
@@ -251,7 +251,7 @@ namespace Markov_LA_Test
     }
 
     template<typename T>
-    MultipleTests Matrix_Test<T>:: ColumnInsert_Test()
+    MultipleTests Matrix_Test<T>:: ColumnInsert_Test() const
     {
 	MultipleTests result("Column insert",
 		      "Right insertion in example");
@@ -272,10 +272,38 @@ namespace Markov_LA_Test
 	return result;
     }
 
+    template<typename T>
+MultipleTests Matrix_Test<T>::AllTests(Markov_Console::Markov_CommandManager* cm,
+                                   const std::string varNameTested){
+
+  return AllTests();
+
+}
+   // virtual MultipleTests AllTests()=0;
+
+    template<typename T>
+     std::string Matrix_Test<T>::TestName()
+     {
+       return "Matrix_Test";
+     }
+
+    template<typename T>
+     std::string Matrix_Test<T>::myTest()const
+     {
+       return TestName();
+     }
+
+    template<typename T>
+     std::string Matrix_Test<T>::testedClass()const
+     {
+       return "";
+     }
+
+
 
 
     template<typename T>
-    MultipleTests Matrix_Test<T>::All_Tests()
+    MultipleTests Matrix_Test<T>::AllTests() const
     {
 	MultipleTests result("M_Matrix class",
 			     "All test are right");

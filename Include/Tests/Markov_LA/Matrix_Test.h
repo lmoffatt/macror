@@ -10,6 +10,7 @@
 
 #include "Tests/ElementaryTest.h"
 #include "Tests/MultipleTests.h"
+#include "Tests/All_Tests.h"
 namespace Markov_Test
 {
 
@@ -17,7 +18,7 @@ namespace Markov_LA_Test
 {
     using namespace Markov_LA;
     template<typename T>
-    class Matrix_Test//:public ::ABC_Test
+    class Matrix_Test:public All_Tests
     {
     public:
 
@@ -25,20 +26,33 @@ namespace Markov_LA_Test
 
 	Matrix_Test();
 
-	MultipleTests DefaultConstructor_Test();
+        virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm,
+                                       const std::string varNameTested);
+       // virtual MultipleTests AllTests()=0;
+        static std::string TestName();
 
-	MultipleTests EmptyShellConstructor_Test();
-	MultipleTests RegularType_Test();
-	MultipleTests StringConstructor_Test();
-	MultipleTests TypeCastConstructor_Test();
-	MultipleTests ValueAssigment_Test();
-	MultipleTests VectorConstructor_Test();
+        virtual std::string myTest()const;
 
-	MultipleTests RowCopy_Test();
-	MultipleTests ColumnCopy_Test();
-	MultipleTests RowInsert_Test();
-	MultipleTests ColumnInsert_Test();
-	MultipleTests All_Tests();
+        virtual std::string testedClass()const;
+
+
+
+
+	MultipleTests DefaultConstructor_Test()const;
+
+	MultipleTests EmptyShellConstructor_Test()const;
+	MultipleTests RegularType_Test()const;
+	MultipleTests StringConstructor_Test()const;
+	MultipleTests TypeCastConstructor_Test()const;
+	MultipleTests ValueAssigment_Test()const;
+	MultipleTests VectorConstructor_Test()const;
+
+	MultipleTests RowCopy_Test()const;
+	MultipleTests ColumnCopy_Test()const;
+	MultipleTests RowInsert_Test()const;
+	MultipleTests ColumnInsert_Test()const;
+	MultipleTests AllTests()const;
+
     };
 }
 }

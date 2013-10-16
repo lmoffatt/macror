@@ -16,7 +16,7 @@ namespace Markov_LA_Test
     using namespace Markov_LA;
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Rounding_Test()
+    MultipleTests Markov_LATest<T>::Rounding_Test() const
     {
 	MultipleTests result("matrixRounding.h",
 		      "test each function by an example");
@@ -72,7 +72,7 @@ namespace Markov_LA_Test
     return result;
 
       }
-    template MultipleTests Markov_LA_Test<double>::Rounding_Test();
+    template MultipleTests Markov_LATest<double>::Rounding_Test()const;
 
 }
 }

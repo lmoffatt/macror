@@ -131,6 +131,10 @@ public:
     ABC_Experiment_Test(const ABC_Experiment& experiment);
 
     virtual~ABC_Experiment_Test();
+    static std::string TestName();
+
+    virtual std::string myTest()const;
+
 
 protected:
     const ABC_Experiment* experiment_;

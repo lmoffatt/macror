@@ -19,6 +19,7 @@ class SimpleOptimization_Test:public Markov_IO_Test::ABC_Put_Test
 public:
 
     virtual MultipleTests classInvariant()const;
+  virtual std::string testedClass()const;
 
     virtual MultipleTests runInvariant(const Markov_IO::Parameters& beta);
 
@@ -29,6 +30,8 @@ public:
 
     virtual ~SimpleOptimization_Test();
 
+    static std::string TestName();
+    virtual std::string myTest()const;
 
 
 

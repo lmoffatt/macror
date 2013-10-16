@@ -28,6 +28,23 @@ namespace Markov_Test
 namespace Markov_IO_Test
 {
 
+   std::string ABC_measure_point_Test::testedClass()const
+  {
+    return "";
+  }
+
+
+  std::string ABC_measure_point_Test::TestName()
+  {
+    return "measure_point_Test";
+  }
+
+   std::string ABC_measure_point_Test::myTest()const
+  {
+    return TestName();
+  }
+
+
 MultipleTests ABC_measure_point_Test::classInvariant()const
 {
     MultipleTests results("ABC_measure_point ",

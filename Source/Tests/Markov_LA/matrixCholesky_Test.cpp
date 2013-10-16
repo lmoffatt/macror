@@ -14,7 +14,7 @@ using namespace Markov_LA;
 using namespace Markov_IO;
 
 template<typename T>
-MultipleTests Markov_LA_Test<T>::Cholesky_Test()
+MultipleTests Markov_LATest<T>::Cholesky_Test() const
 {
 
     MultipleTests result("matrixCholesky.h","test a given example");
@@ -53,7 +53,7 @@ MultipleTests Markov_LA_Test<T>::Cholesky_Test()
 
 }
 
-template MultipleTests Markov_LA_Test<double>::Cholesky_Test();
+template MultipleTests Markov_LATest<double>::Cholesky_Test()const;
 
 }
 }

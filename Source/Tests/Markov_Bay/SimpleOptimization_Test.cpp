@@ -24,6 +24,16 @@ namespace Markov_Test
 namespace Markov_Bay_Test
 {
 using namespace Markov_LA;
+  std::string SimpleOptimization_Test::TestName()
+  {
+    return "Markov_Transition_step_Test";
+  }
+
+ std::string SimpleOptimization_Test::myTest()const
+ {
+   return TestName();
+ }
+
 MultipleTests SimpleOptimization_Test::classInvariant()const
 {
     MultipleTests results("ClassDescription ",
@@ -35,6 +45,10 @@ MultipleTests SimpleOptimization_Test::classInvariant()const
 
 }
 
+ std::string SimpleOptimization_Test::testedClass()const
+{
+  return "";
+}
 
 
 SimpleOptimization_Test::

@@ -45,8 +45,11 @@ class ABC_measure_point_Test:public ABC_Put_Test
 public:
 
     virtual MultipleTests classInvariant()const;
+  virtual std::string testedClass()const;
 
     ABC_measure_point_Test(const ABC_measure_point& sample);
+    static std::string TestName();
+    virtual std::string myTest()const;
 
     virtual~ABC_measure_point_Test();
 

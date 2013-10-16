@@ -15,7 +15,7 @@ namespace Markov_LA_Test
 {
     using namespace Markov_LA;
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Operators_Test()
+    MultipleTests Markov_LATest<T>::Operators_Test()const
     {
 	M_Matrix<T> sample(2,3);
 	MultipleTests result("matrixOperators.h",
@@ -49,6 +49,6 @@ namespace Markov_LA_Test
 	  return result;
 
       }
-    template MultipleTests Markov_LA_Test<double>::Operators_Test();
+    template MultipleTests Markov_LATest<double>::Operators_Test()const;
 }
 }

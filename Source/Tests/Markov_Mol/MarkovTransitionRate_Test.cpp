@@ -15,7 +15,23 @@ namespace Markov_Test
 namespace Markov_Mol_Test
 {
 using namespace Markov_LA;
-MultipleTests Markov_Transition_rate_Test::classInvariant()const
+  std::string Markov_Transition_rate_Test::TestName()
+  {
+    return "Markov_Transition_rate_Test";
+  }
+
+ std::string Markov_Transition_rate_Test::myTest()const
+ {
+   return TestName();
+ }
+  std::string Markov_Transition_rate_Test::testedClass()const
+ {
+   return "";
+ }
+
+
+
+  MultipleTests Markov_Transition_rate_Test::classInvariant()const
 {
     MultipleTests results("ClassDescription ",
 			  "Class Invariant");

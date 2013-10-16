@@ -1,6 +1,7 @@
 #ifndef TESTCOMMAND_H
 #define TESTCOMMAND_H
 #include "Markov_Console/ABC_Command.h"
+#include "Markov_Console/Markov_CommandManagerTest.h"
 #include <vector>
 
 namespace Markov_Console
@@ -9,7 +10,7 @@ namespace Markov_Console
 class TestCommand:public ABC_Command
 {
 public:
-    TestCommand(Markov_CommandManager* cm);
+    TestCommand(Markov_CommandManagerTest* cm);
 
     /// virtual destructor
     virtual ~TestCommand();
@@ -22,13 +23,31 @@ public:
 
     virtual std::string commandName()const;
 
-    /// runs the command on the command manager and returns true if succeeds
-    virtual bool run(std::deque<Token>& tokenList);
+
+
+    virtual std::vector<std::string> complete(const std::string &hint, const std::deque<Token>& tokenList);
+
+
+
+    virtual std::string check(const std::deque<Token>& tokenList);
+
+
+    bool run(const std::vector<std::string>& InputValue,
+                         const std::vector<std::string>& OutputValue);
+
+
+
 
     /// runs the command for a list of parameters
-    virtual bool run(const std::string& testedEntity,
-                         const std::string& mode);
+    virtual bool run(const std::string& testKind,
+                     const std::string& testedvariable,
+                         const std::string& mode,
+                     const std::string& filenamOut);
 
+
+private:
+    Markov_CommandManagerTest* cmt_;
+    std::string testedVariableKind_;
 };
 
 

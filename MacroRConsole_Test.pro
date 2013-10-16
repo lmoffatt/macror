@@ -129,7 +129,10 @@ message (" MacroRConsole_Test here")
 }
 
 HEADERS += \
-    Include/Markov_Console/TestCommand.h
+    Include/Markov_Console/TestCommand.h \
+    Include/Tests/ABC_All_Tests.h \
+    Include/Tests/All_Tests.h
 
 SOURCES += \
-    Source/Markov_Console/TestCommand.cpp
+    Source/Markov_Console/TestCommand.cpp \
+    Source/Tests/All_Tests.cpp

@@ -78,6 +78,9 @@ namespace Markov_Console
     auto dirs=Markov_IO::getSubDirs(dir_);
     autoCmptDir=Autocomplete(dirs);
     filesl=LoadFiles(getDir());
+    autoCmptByKind[ABC_Command::directory()]=Autocomplete(dirs);
+    autoCmptByKind[ABC_Command::fileName()]=LoadFiles(getDir());
+
     Loadcommands();
     cmdsl=Autocomplete(cmds);
     LoadTypes();
@@ -238,21 +241,25 @@ namespace Markov_Console
   void Markov_CommandManager::add_command(ABC_Command* cmd)
   {
     cmds[cmd->commandName()]=cmd;
+    cmdsl.push_back(cmd->commandName());
   }
 
   void Markov_CommandManager::add_type(const std::string& name, const Markov_IO::ABC_Saveable* s)
   {
     types[name]=s;
     typesl.push_back(name);
+    autoCmptByKind[ABC_Command::typeName()].push_back(name);
   }
 
   void Markov_CommandManager::add_var(std::string name, Markov_IO::ABC_Saveable* s)
   {
     delete_var(name);
     vars[name]=s;
+    autoCmptByKind[ABC_Command::varName()].push_back(name);
     varsl.push_back(name);
     autoCmptBySuperClass[s->mySuperClass()].push_back(name);
     autoCmptByClass[s->myClass()].push_back(name);
+
 
   }
 
@@ -269,23 +276,13 @@ namespace Markov_Console
 
   bool Markov_CommandManager::checkVariable(std::string var, std::string type)const
   {
-    if (type==ABC_Command::directory())
+    auto itkind=autoCmptByKind.find(type);
+
+    if (itkind!=autoCmptByKind.end())
       {
-        return autoCmptDir.has(var);
+        return itkind->second.has(var);
       }
-    else if (type==ABC_Command::varName())
-      {
-        return varsl.has(var);
-      }
-    else  if (type==ABC_Command::typeName())
-      {
-        return typesl.has(var);
-      }
-    else if (type==ABC_Command::fileName())
-    {
-      return filesl.has(var);
-    }
-  else
+    else
       {
         auto itype=regulartypes.find(type);
         if (itype!=regulartypes.end())
@@ -542,21 +539,17 @@ namespace Markov_Console
 
 
 
-  std::vector<std::string> Markov_CommandManager::complete(const std::string& hint,const std::string& category)
+  std::vector<std::string> Markov_CommandManager::complete(const std::string& hint,
+                                                           const std::string& category)
   {
-    if (has_superType(category))
+    auto itkind=autoCmptByKind.find(category);
+     if (has_superType(category))
       return autoCmptBySuperClass[category].complete(hint);
     else if (has_type(category))
       return autoCmptByClass[category].complete(hint);
-    else if (category==ABC_Command::directory())
-      return autoCmptDir.complete(hint);
-    else if (category==ABC_Command::varName())
-      return varsl.complete(hint);
-    else if (category==ABC_Command::typeName())
-      return typesl.complete(hint);
-    else if (category==ABC_Command::fileName())
-      return filesl.complete(hint);
-    else
+     else   if (itkind!=autoCmptByKind.end())
+       return autoCmptByKind[category].complete(hint);
+     else
       return {};
 
 

@@ -1,4 +1,8 @@
 #include "Include/Markov_Console/TestCommand.h"
+#include "Markov_IO/Object.h"
+
+#include "Markov_IO/auxiliarIO.h"
+
 #include "Tests/Markov_LA/Markov_LA_Tests.h"
 #include "Tests/Markov_Mol/Markov_Mol_Tests.h"
 #include "Tests/Markov_Bay/Markov_Bay_Test.h"
@@ -15,10 +19,15 @@ namespace Markov_Console
 
 
 
-  TestCommand::TestCommand(Markov_CommandManager *cm)
-  {
-    cm_=cm;
-  }
+  TestCommand::TestCommand(Markov_CommandManagerTest *cm)
+    :ABC_Command(cm,
+                 "test",{{
+                 "test_kind",ABC_Command::testName(),true},{
+                 "tested_variable",ABC_Command::varName(),false},{
+                 "verbose_mode",Markov_IO::Object<bool>::ClassName(),false}},{{
+                 "filename_out",Markov_IO::Object<std::string>::ClassName(),false}}),
+      cmt_(cm)
+  {}
 
   /// hint about of the class nature
   std::string TestCommand::Tip()const
@@ -34,89 +43,94 @@ namespace Markov_Console
 
 
 
-
   std::string TestCommand::commandName()const
   {
     return "test";
   }
 
-  /// runs the command on the command manager and returns true if succeeds
-  bool TestCommand::run(std::deque<Token>& tokenList)
+
+
+
+  std::vector<std::string> TestCommand::complete(const std::string &hint, const std::deque<Token>& tokenList)
   {
-    if (tokenList.size()<2)
+          if (tokenList.size()>1)
       {
-        output_.clear();
-        errorMessage_="tested item is missing";
-        return false;
+        std::string testKind=tokenList[1].Name();
+        Markov_Test::All_Tests *t=cmt_->getTest(testKind);
+        if (t!=nullptr)
+          {
+          inputTypes_[1]=t->testedClass();
+          inputMandatory_[1]=true;
+          }
       }
-    else if (tokenList.size()<3)
-      run(tokenList[1].Name(),"");
-    else
-      run(tokenList[1].Name(),tokenList[2].Name());
+    return ABC_Command::complete(hint,tokenList);
+
+  }
+
+
+
+  std::string TestCommand::check(const std::deque<Token>& tokenList){
+    if (tokenList.size()>1)
+      {
+        std::string testKind=tokenList[1].Name();
+        Markov_Test::All_Tests *t=cmt_->getTest(testKind);
+        if (t!=nullptr)
+          {
+          inputTypes_[1]=t->testedClass();
+          inputMandatory_[1]=true;
+          }
+      }
+    return ABC_Command::check(tokenList);
+
   }
 
 
 
 
-
-  bool TestCommand::run(const std::string& testedEntity,
-                        const std::string& mode)
+  bool TestCommand::run(const std::vector<std::string>& InputValue,
+                       const std::vector<std::string>& OutputValue)
   {
-    Markov_Test::MultipleTests testResult;
-    if (testedEntity=="MarkovLA")
-      {
-        Markov_Test::Markov_LA_Test::Markov_LA_Test<double> LAtest;
-        testResult=LAtest.All_Tests();
-      }
-    else if (testedEntity=="MarkovMol")
-      {
-        auto varnames =cm_->getVarsList(Markov_Mol::ABC_PatchModel::ClassName());
-        Markov_Mol::ABC_PatchModel* p=dynamic_cast<Markov_Mol::ABC_PatchModel*>(cm_->getVar(varnames.front()));
-        if (p)
-          {
-            Markov_Test::Markov_Mol_Test::Markov_Mol_Test Moltest(p->Model());
-            testResult=Moltest.All_Tests();
-          }
-      }
-    else if (testedEntity=="MarkovBay")
-      {
-        auto varnames =cm_->getVarsList(Markov_Mol::ABC_PatchModel::ClassName());
-        Markov_Mol::ABC_PatchModel* p=dynamic_cast<Markov_Mol::ABC_PatchModel*>(cm_->getVar(varnames.front()));
-        if (p)
-          {
-            Markov_Test::Markov_Bay_Test::Markov_Bay_Test Baytest(*p);
-            testResult=Baytest.All_Tests();
-          }
-      }
-    else if (testedEntity=="Random")
-      {
-        Markov_Test::MersenneTwister_Test::MersenneTwister_Test MTT(0);
-        testResult=MTT.AllTests();
+    std::string testKind=InputValue[0];
+    std::string testedvariable="";
+    std::string mode="0";
+    std::string filenamOut=testKind+".txt";
+    if (InputValue.size()>1)
+      testedvariable=InputValue[1];
+    if (InputValue.size()>2)
+      mode=InputValue[2];
+    if (OutputValue.size()>0)
+      filenamOut=OutputValue[0];
+    return run(testKind,
+               testedvariable,
+               mode,
+               filenamOut);
 
-      }
-    else if (testedEntity=="Autocomplete")
-      {
-        Markov_Test::Markov_MacroConsele_Test::Autocomplete_Test test;
-        testResult=test.classInvariant();
 
-      }
-    else if (testedEntity=="BayesAutocomplete")
-      {
-        Markov_Test::Markov_MacroConsele_Test::BayesAutocomplete_Test test;
-        testResult=test.classInvariant();
 
-      }
-    if (mode=="verbose")
-      testResult.VerboseLevel(true);
-    else
-      testResult.VerboseLevel(0);
-    std::cerr<<testResult;
+  }
+
+
+  bool TestCommand::run(const std::string& testKind,
+                        const std::string& testedvariable,
+                        const std::string& mode,
+                        const std::string& filenamOut)
+
+  {
+    Markov_Test::All_Tests * testK=cmt_->getTest(testKind);
+    Markov_Test::MultipleTests testResult=testK->AllTests(cmt_,testedvariable);
+    bool verbose;
+    Markov_IO::ToValue(mode,verbose);
+    testResult.VerboseLevel(verbose);
+
+    std::stringstream ss;
+    ss<<testResult;
+
+    output_=ss.str();
 
     std::ofstream f;
-    f.open("test.txt");
+    f.open(filenamOut);
     f<<testResult;
-    f.close();
-
+    return true;
   }
 
 

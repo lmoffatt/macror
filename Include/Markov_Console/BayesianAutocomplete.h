@@ -54,11 +54,19 @@ namespace Markov_MacroConsele_Test
 
 using namespace Markov_Console;
 
-class BayesAutocomplete_Test
+
+
+class BayesAutocomplete_Test: public All_Tests
 {
 public:
+  virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested);
+  virtual std::string testedClass()const;
 
     virtual MultipleTests classInvariant()const;
+  virtual ~BayesAutocomplete_Test(){}
+  static std::string TestName();
+  virtual std::string myTest()const;
+
 };
 
 }

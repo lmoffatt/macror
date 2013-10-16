@@ -1,6 +1,7 @@
 #include "Tests/Markov_IO/ABC_Parametrizable_Test.h"
 #include "Tests/ElementaryTest.h"
 #include "Markov_IO/Parameters.h"
+#include "Markov_Console/Markov_CommandManagerTest.h"
 namespace Markov_Test
 {
 
@@ -9,6 +10,44 @@ namespace Markov_IO_Test
 
 using namespace Markov_IO;
 
+   std::string ABC_Parametrizable_Test::testedClass()const
+  {
+    return ABC_Saveable::ClassName();
+  }
+
+
+   ABC_Parametrizable_Test::ABC_Parametrizable_Test(){}
+
+
+  std::string ABC_Parametrizable_Test::TestName()
+  {
+    return "Parametrizable_Test";
+  }
+
+   std::string ABC_Parametrizable_Test::myTest()const
+  {
+    return TestName();
+  }
+
+   MultipleTests ABC_Parametrizable_Test::AllTests(Markov_Console::Markov_CommandManager* cm,
+                                                   const std::string varNameTested)
+   {
+     {
+       ABC_Saveable* p;
+       if (!cm->checkVariable(varNameTested,ABC_Parametrizable::ClassName()))
+         return MultipleTests();
+       else
+         {
+           p=cm->getVar(varNameTested);
+           this->sample_=p;
+           this->saveable_=p;
+           this->param_=dynamic_cast<ABC_Parametrizable*>(p);
+           return classInvariant();
+         }
+     }
+
+
+   }
 
 
 

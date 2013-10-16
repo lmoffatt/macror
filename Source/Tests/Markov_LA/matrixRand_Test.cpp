@@ -24,7 +24,7 @@ void wait ( int miliseconds )
 }
     using namespace Markov_LA;
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Rand_Test()
+    MultipleTests Markov_LATest<T>::Rand_Test() const
 
     {
 	MultipleTests result("matrixRand.h",
@@ -86,7 +86,7 @@ void wait ( int miliseconds )
       }
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::NumericRand_Test()
+    MultipleTests Markov_LATest<T>::NumericRand_Test() const
 
     {
         MultipleTests result("MersenneTwister.h",
@@ -149,6 +149,6 @@ void wait ( int miliseconds )
 
 
 
-    template MultipleTests Markov_LA_Test<double>::Rand_Test();
+    template MultipleTests Markov_LATest<double>::Rand_Test()const;
 }
 }

@@ -22,7 +22,16 @@ public:
       Test invariants of apply_parameters and get_parameters
 
       */
-    virtual MultipleTests AllTests();
+  virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm,
+                                 const std::string varNameTested);
+
+  static std::string TestName();
+
+  virtual std::string myTest()const;
+
+  virtual std::string testedClass()const;
+
+
 
     virtual MultipleTests classInvariant()const;
 
@@ -40,17 +49,17 @@ public:
     virtual MultipleTests runInvariant(const Markov_IO::ABC_measure_point& xdt,
 					Markov_state& markovState,
 					std::size_t n_steps,
-					Borrowed::MersenneTwister::MTRand& sto);
+					Borrowed::MersenneTwister::MTRand& sto)const;
 
 
     virtual MultipleTests Q_dtInvariant (const Markov_IO::ABC_measure_point& xdt,
 				bool is_averaging,
 				bool varyingx,
                                 bool two_anchor,
-                                std::size_t numSteps);
+                                std::size_t numSteps)const;
 
      virtual MultipleTests Q_xInvariant (double agonist_concentrarion,
-					bool isavergaing);
+                                        bool isavergaing)const;
 
 
 
@@ -63,7 +72,7 @@ public:
 
 
     virtual Markov_Transition_step Q_dtRun(const Markov_IO::ABC_measure_point& xdt,
-					   std::size_t numSteps);
+                                           std::size_t numSteps)const;
 
 
     virtual Markov_Transition_step Q_stepRun(const Markov_IO::ABC_measure_step& xdt,
@@ -72,6 +81,7 @@ public:
 
 
     ABC_Markov_Model_Test(const ABC_Markov_Model& model);
+    ABC_Markov_Model_Test();
 
     virtual ~ABC_Markov_Model_Test();
 

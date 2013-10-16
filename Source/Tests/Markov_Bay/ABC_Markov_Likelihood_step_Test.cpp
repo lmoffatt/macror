@@ -26,7 +26,18 @@ namespace Markov_Bay_Test
 {
 using namespace Markov_LA;
 using namespace Markov_IO;
-MultipleTests ABC_Markov_Likelihood_step_Test::classInvariant()const
+  std::string ABC_Markov_Likelihood_step_Test::TestName()
+  {
+    return "Markov_Likelihood_step_Test";
+  }
+
+   std::string ABC_Markov_Likelihood_step_Test::myTest()const
+  {
+    return TestName();
+  }
+
+
+  MultipleTests ABC_Markov_Likelihood_step_Test::classInvariant()const
 {
     MultipleTests results("ClassDescription ",
                           "Class Invariant");
@@ -259,9 +270,13 @@ ABC_Markov_Likelihood_step_Test::~ABC_Markov_Likelihood_step_Test()
      return results;
 
  }
+  std::string ABC_Markov_Likelihood_step_Test::testedClass()const
+ {
+    return "";
+ }
 
 
-  MultipleTests ABC_Markov_Likelihood_step_Test::AllTests()
+  MultipleTests ABC_Markov_Likelihood_step_Test::AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested)
  {
      MultipleTests result("class ABC_Markov_Likelihood_step on "+
                           S_->myClass(),

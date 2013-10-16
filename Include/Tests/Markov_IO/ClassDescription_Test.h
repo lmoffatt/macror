@@ -16,10 +16,16 @@ class ClassDescription_Test:public ABC_Put_Test
 public:
 
     virtual MultipleTests classInvariant()const;
+  virtual std::string testedClass()const;
 
     ClassDescription_Test(const ClassDescription& sample);
 
     virtual~ClassDescription_Test();
+
+    static std::string TestName();
+
+    virtual std::string myTest()const;
+
 
 private:
     const ClassDescription* classDes_;

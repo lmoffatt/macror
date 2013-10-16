@@ -18,10 +18,13 @@ class Markov_Transition_step_Test:public Markov_IO_Test::ABC_Put_Test
 public:
 
     virtual MultipleTests classInvariant()const;
+  virtual std::string testedClass()const;
 
     Markov_Transition_step_Test(const Markov_Transition_step& sample);
 
     virtual~Markov_Transition_step_Test();
+    static std::string TestName();
+    virtual std::string myTest()const;
 
 private:
     const Markov_Transition_step* Qstep_;

@@ -30,7 +30,7 @@ namespace Markov_LA_Test
 
     template <typename T>
     template<typename S>
-    MultipleTests Markov_LA_Test<T>::AssigmentOp_Test()    {
+     MultipleTests Markov_LATest<T>::AssigmentOp_Test()  const  {
 
 	MultipleTests result("matrixAssigmentOp.h",
 			     "test against known cases");
@@ -109,7 +109,7 @@ namespace Markov_LA_Test
 	return result;
     }
 
-    template MultipleTests Markov_LA_Test<double>::AssigmentOp_Test<std::size_t>();
+    template  MultipleTests Markov_LATest<double>::AssigmentOp_Test<std::size_t>()const;
  }
 
 }

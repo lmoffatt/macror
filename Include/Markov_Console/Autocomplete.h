@@ -17,59 +17,59 @@ namespace  Markov_Console {
    \invariant it offers the method complete to provide an ordered vector with strings whose
               first characters match the provided sample
  */
-class Autocomplete
-{
-public:
-
-  Autocomplete(std::vector<std::string> itemslist);
-  Autocomplete():items{}{}
-  Autocomplete(const Autocomplete& other):items(other.items){}
-
-
-
-
-  Autocomplete& operator=(const Autocomplete& other)
+  class Autocomplete
   {
-    if(this!=&other)
-      {
-        Autocomplete tmp(other);
-        swap(*this,tmp);
-      }
-    return *this;
-  }
+  public:
 
-  friend void swap(Autocomplete& one, Autocomplete &other)
-  {
-    std::swap(one.items,other.items);
-  }
+    Autocomplete(std::vector<std::string> itemslist);
+    Autocomplete():items{}{}
+    Autocomplete(const Autocomplete& other):items(other.items){}
 
-  ~Autocomplete(){}
+
+
+
+    Autocomplete& operator=(const Autocomplete& other)
+    {
+      if(this!=&other)
+        {
+          Autocomplete tmp(other);
+          swap(*this,tmp);
+        }
+      return *this;
+    }
+
+    friend void swap(Autocomplete& one, Autocomplete &other)
+    {
+      std::swap(one.items,other.items);
+    }
+
+    ~Autocomplete(){}
+
+    template<class T>
+    Autocomplete(const std::map<std::string, T>& itemsMap);
+
+    std::vector<std::string> complete(const std::string &hint) const;
+
+    bool has(const std::string& item) const;
+
+
+    void push_back(std::string newItem);
+    void clear();
+
+    static std::string suggestedCharacters(const std::vector<std::string>& autocompleteList, const std::string& hint);
+  private:
+    std::set<std::string> items;
+
+  };
 
   template<class T>
-  Autocomplete(const std::map<std::string, T>& itemsMap);
-
-  std::vector<std::string> complete(const std::string &hint) const;
-
-  bool has(const std::string& item) const;
-
-
-  void push_back(std::string newItem);
-  void clear();
-
-  static std::string suggestedCharacters(const std::vector<std::string>& autocompleteList, const std::string& hint);
-private:
-  std::set<std::string> items;
-
-};
-
-template<class T>
-Autocomplete::Autocomplete(const std::map<std::string, T>& itemsMap)
-{
-  for (auto it=itemsMap.begin(); it!=itemsMap.end(); ++it)
-    {
-      items.insert((*it).first);
-    }
-}
+  Autocomplete::Autocomplete(const std::map<std::string, T>& itemsMap)
+  {
+    for (auto it=itemsMap.begin(); it!=itemsMap.end(); ++it)
+      {
+        items.insert((*it).first);
+      }
+  }
 
 
 }
@@ -81,19 +81,28 @@ Autocomplete::Autocomplete(const std::map<std::string, T>& itemsMap)
 #include "Tests/Markov_IO/ABC_Put_Test.h"
 namespace Markov_Test
 {
-namespace Markov_MacroConsele_Test
-{
+  namespace Markov_MacroConsele_Test
+  {
 
-using namespace Markov_Console;
+    using namespace Markov_Console;
 
-class Autocomplete_Test
-{
-public:
 
-    virtual MultipleTests classInvariant()const;
-};
+    class Autocomplete_Test: public All_Tests
+    {
+    public:
+      virtual std::string testedClass()const;
 
-}
+      virtual MultipleTests classInvariant()const;
+      virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm,
+                                     const std::string varNameTested);
+      virtual ~Autocomplete_Test(){}
+      static std::string TestName();
+      virtual std::string myTest()const;
+
+
+    };
+
+  }
 }
 
 #endif //MACRO_TEST

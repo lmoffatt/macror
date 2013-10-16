@@ -121,6 +121,8 @@ void Markov_CommandManager::LoadTypes()
         autoCmptBySuperClass[sc];
         autoCmptByClass[it->second->myClass()];
         typesl.push_back(it->second->myClass());
+        autoCmptByKind[ABC_Command::typeName()].push_back(it->second->myClass());
+
 
     }
 

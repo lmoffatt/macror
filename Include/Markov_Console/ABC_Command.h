@@ -98,7 +98,7 @@ namespace Markov_Console
 
 
 
-    virtual std::string check(const std::deque<Token>& tokenList)const;
+    virtual std::string check(const std::deque<Token>& tokenList);
 
 
 
@@ -119,6 +119,7 @@ namespace Markov_Console
 
     static std::string fileName();
 
+    static std::string testName();
 
 
 

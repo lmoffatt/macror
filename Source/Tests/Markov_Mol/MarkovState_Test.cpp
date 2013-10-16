@@ -16,6 +16,22 @@ namespace Markov_Test
 namespace Markov_Mol_Test
 {
 using namespace Markov_LA;
+  std::string Markov_state_Test::TestName()
+  {
+    return "Markov_Transition_step_Test";
+  }
+
+ std::string Markov_state_Test::myTest()const
+ {
+   return TestName();
+ }
+
+  std::string Markov_state_Test::testedClass()const
+ {
+   return "";
+ }
+
+
 MultipleTests Markov_state_Test::classInvariant()const
 {
     MultipleTests results("ClassDescription ",

@@ -85,8 +85,18 @@ public:
     virtual MultipleTests classInvariant()const;
 
     ABC_Saveable_Test(const ABC_Saveable& sample);
+    ABC_Saveable_Test();
+
 
     virtual~ABC_Saveable_Test();
+
+    virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested);
+
+    virtual std::string testedClass()const;
+    static std::string TestName();
+
+    virtual std::string myTest()const;
+
 
 protected:
     const ABC_Saveable* saveable_;

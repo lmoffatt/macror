@@ -13,7 +13,7 @@ namespace Markov_LA_Test
     using namespace Markov_LA;
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Expm_Test()
+     MultipleTests Markov_LATest<T>::Expm_Test()const
     {
 	MultipleTests result("matrixExp.h",
 		       "comparison with an known example");
@@ -43,7 +43,7 @@ namespace Markov_LA_Test
 	  return result;
    }
 
-    template MultipleTests Markov_LA_Test<double>::Expm_Test();
+    template  MultipleTests Markov_LATest<double>::Expm_Test()const;
 }
 
 }

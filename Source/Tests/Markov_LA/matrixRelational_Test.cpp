@@ -14,7 +14,7 @@ namespace Markov_LA_Test
 {
     using namespace Markov_LA;
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Relational_Test()    {
+    MultipleTests Markov_LATest<T>::Relational_Test() const    {
 	MultipleTests result("matrixRelational.h",
 			     "Checks results at the boundaries ");
 	M_Matrix<T> sample(3,3);
@@ -86,6 +86,6 @@ namespace Markov_LA_Test
 	return result;
 
     }
-    template MultipleTests Markov_LA_Test<double>::Relational_Test();
+    template MultipleTests Markov_LATest<double>::Relational_Test()const;
 }
 }

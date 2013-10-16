@@ -17,7 +17,7 @@ namespace Markov_LA_Test
     using namespace Markov_LA;
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Inverse_Test()
+    MultipleTests Markov_LATest<T>::Inverse_Test() const
     {
 	MultipleTests result("matrixInverse.h","test a given example");
 	M_Matrix<T> sample(3,3);
@@ -50,6 +50,6 @@ namespace Markov_LA_Test
 
 
       }
-    template MultipleTests Markov_LA_Test<double>::Inverse_Test();
+    template MultipleTests Markov_LATest<double>::Inverse_Test()const;
 }
 }

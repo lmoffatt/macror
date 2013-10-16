@@ -40,8 +40,11 @@ class ABC_Y_dt_Test:public ABC_Put_Test
 public:
 
     virtual MultipleTests classInvariant()const;
+  virtual std::string testedClass()const;
 
     ABC_Y_dt_Test(const ABC_Y_dt& sample);
+    static std::string TestName();
+    virtual std::string myTest()const;
 
     virtual~ABC_Y_dt_Test();
 

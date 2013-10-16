@@ -95,6 +95,27 @@ namespace Markov_Test
   {
 
     using namespace Markov_Console;
+     std::string Autocomplete_Test::TestName()
+    {
+      return "Autocomplete_Test";
+    }
+
+     std::string Autocomplete_Test::myTest()const
+     {
+       return TestName();
+     }
+
+
+    MultipleTests Autocomplete_Test::AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested)
+
+    {
+      return classInvariant();
+    }
+
+     std::string Autocomplete_Test::testedClass()const
+    {
+      return "";
+    }
 
 
     MultipleTests Autocomplete_Test::classInvariant()const

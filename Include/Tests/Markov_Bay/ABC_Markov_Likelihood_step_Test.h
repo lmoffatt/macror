@@ -17,8 +17,9 @@ class ABC_Markov_Likelihood_step_Test:public Markov_IO_Test::ABC_Put_Test
 {
 public:
 
-    virtual MultipleTests AllTests();
+  virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested);
     virtual MultipleTests classInvariant()const;
+  virtual std::string testedClass()const;
 
     virtual MultipleTests startInvariant(double x);
     virtual MultipleTests runInvariant(const Markov_IO::ABC_measure_step& Y,
@@ -29,8 +30,8 @@ public:
 
     ABC_Markov_Likelihood_step_Test(const ABC_Markov_Likelihood_step& sample);
 
-
-
+    static std::string TestName();
+    virtual std::string myTest()const;
     virtual ~ABC_Markov_Likelihood_step_Test();
 
 private:

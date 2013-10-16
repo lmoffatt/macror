@@ -16,7 +16,7 @@ namespace Markov_LA_Test
     using namespace Markov_LA;
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Product_Test()
+    MultipleTests Markov_LATest<T>::Product_Test()const
 
     {
 	MultipleTests result("matrixProduct.h",
@@ -70,6 +70,6 @@ namespace Markov_LA_Test
 
 
       }
-    template MultipleTests Markov_LA_Test<double>::Product_Test();
+    template MultipleTests Markov_LATest<double>::Product_Test()const;
 }
 }

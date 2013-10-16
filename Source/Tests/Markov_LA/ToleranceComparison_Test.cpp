@@ -13,6 +13,28 @@ namespace Markov_LA_Test
 {
     using namespace Markov_LA;
 
+   MultipleTests ToleranceComparison_Test::AllTests(Markov_Console::Markov_CommandManager* cm,
+                                 const std::string varNameTested)
+   {
+     return AllTests();
+   }
+ // virtual MultipleTests AllTests()=0;
+   std::string ToleranceComparison_Test::TestName()
+   {
+     return "ToleranceComparison_Test";
+   }
+
+   std::string ToleranceComparison_Test::myTest()const
+   {
+     return TestName();
+   }
+
+   std::string ToleranceComparison_Test::testedClass()const
+   {
+     return "";
+   }
+
+
 
 /**
   Equality Operator Test
@@ -21,7 +43,9 @@ namespace Markov_LA_Test
  */
 
 
-MultipleTests ToleranceComparison_Test::isEqual_Test()
+
+
+MultipleTests ToleranceComparison_Test::isEqual_Test() const
 {
     double eps=std::numeric_limits<double>::epsilon();
 
@@ -266,7 +290,7 @@ MultipleTests ToleranceComparison_Test::isEqual_Test()
 }
 
 
-MultipleTests ToleranceComparison_Test::isLess_Test()
+MultipleTests ToleranceComparison_Test::isLess_Test() const
 {
     double eps=std::numeric_limits<double>::epsilon();
 
@@ -421,7 +445,7 @@ MultipleTests ToleranceComparison_Test::isLess_Test()
     }
 
 
-MultipleTests ToleranceComparison_Test::All_Tests()
+MultipleTests ToleranceComparison_Test::AllTests()const
 {
     MultipleTests result("ToleranceComparison",
 		  "all the tests");

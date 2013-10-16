@@ -45,10 +45,14 @@ class ABC_measure_step_Test:public ABC_measure_point_Test
 public:
 
     virtual MultipleTests classInvariant()const;
+    virtual std::string testedClass()const;
+
 
     ABC_measure_step_Test(const ABC_measure_step& sample);
 
     virtual~ABC_measure_step_Test();
+    static std::string TestName();
+    virtual std::string myTest()const;
 
 protected:
     const ABC_measure_step* step_;

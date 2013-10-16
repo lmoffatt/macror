@@ -15,7 +15,7 @@ namespace Markov_LA_Test
     using namespace Markov_LA;
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Math_Test()
+    MultipleTests Markov_LATest<T>::Math_Test() const
 
     {
 	MultipleTests result("MatrixMath.h",
@@ -95,6 +95,6 @@ namespace Markov_LA_Test
 					      log10(abs(sample)),expected));
 	     return result;
 	 }
-    template MultipleTests Markov_LA_Test<double>::Math_Test();
+    template MultipleTests Markov_LATest<double>::Math_Test()const;
 }
 }

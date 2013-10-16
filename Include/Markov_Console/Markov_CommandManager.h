@@ -168,6 +168,8 @@ protected:
 
     std::map<std::string, Markov_IO::ABC_Saveable*> vars;
 
+
+
     std::map<std::string, std::map<std::string, Markov_IO::ABC_Saveable*> > varByType;
 
     Autocomplete varsl;
@@ -190,6 +192,9 @@ protected:
     std::map<std::string,Autocomplete> autoCmptBySuperClass;
 
     std::map<std::string,Autocomplete> autoCmptByClass;
+
+
+    std::map<std::string,Autocomplete> autoCmptByKind;
 
 
     std::deque<Token> tokens;

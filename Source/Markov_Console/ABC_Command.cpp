@@ -247,7 +247,7 @@ namespace Markov_Console
 
 
 
-    std::vector<std::string> res;
+      std::vector<std::string> res;
     for (std::size_t jj=0; jj<numInputs(); jj++)
       if ((!hasInput[jj])&&isMandatoryInput(jj))
         {
@@ -314,7 +314,7 @@ namespace Markov_Console
 
 
 
-  std::string ABC_Command::check(const std::deque<Token>& tokenList)const
+  std::string ABC_Command::check(const std::deque<Token>& tokenList)
   {
     auto n=tokenList.size();
     std::vector<bool> hasInput(numInputs(),false);
@@ -478,6 +478,13 @@ namespace Markov_Console
  {
    return "typeName";
  }
+
+  std::string ABC_Command::testName()
+ {
+   return "testName";
+ }
+
+
 
   std::string ABC_Command::fileName()
  {

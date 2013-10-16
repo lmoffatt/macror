@@ -4,6 +4,9 @@ namespace Markov_Console {
 
 
 
+
+
+
 /*!
  * \brief BayesAutocomplete::complete returns the list of matches ordered by their likelihood
  * \param hint  a string containing the characters to be match
@@ -74,6 +77,25 @@ namespace Markov_MacroConsele_Test
 {
 
 using namespace Markov_Console;
+
+  MultipleTests BayesAutocomplete_Test::AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested)
+  {
+    return classInvariant();
+  }
+
+   std::string BayesAutocomplete_Test::testedClass()const
+  {
+    return "";
+  }
+   std::string BayesAutocomplete_Test::TestName()
+  {
+    return "BayesAutocomplete_Test";
+  }
+
+   std::string BayesAutocomplete_Test::myTest()const
+   {
+     return TestName();
+   }
 
 
      MultipleTests BayesAutocomplete_Test::classInvariant()const

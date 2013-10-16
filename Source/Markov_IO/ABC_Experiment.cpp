@@ -297,6 +297,16 @@ namespace Markov_Test
 {
 namespace Markov_IO_Test
 {
+  std::string ABC_Experiment_Test::TestName()
+  {
+    return "Experiment_Test";
+  }
+
+   std::string ABC_Experiment_Test::myTest()const
+  {
+    return TestName();
+  }
+
 
 MultipleTests ABC_Experiment_Test::classInvariant()const
 {

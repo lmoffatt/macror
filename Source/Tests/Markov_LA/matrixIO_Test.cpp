@@ -26,7 +26,7 @@ namespace Markov_LA_Test
 
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::IO_Test()
+     MultipleTests Markov_LATest<T>::IO_Test() const
     {
 	/**
 	  Test the Matrix Insert Operator
@@ -66,8 +66,8 @@ namespace Markov_LA_Test
 	return result;
     }
 
-    template MultipleTests Markov_LA_Test<double>::IO_Test();
-    template MultipleTests Markov_LA_Test<std::size_t>::IO_Test();
+   template MultipleTests Markov_LATest<double>::IO_Test()const;
+   template MultipleTests Markov_LATest<std::size_t>::IO_Test()const;
 
 }
 }

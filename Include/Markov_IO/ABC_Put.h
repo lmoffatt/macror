@@ -21,6 +21,8 @@ public:
     virtual std::ostream& put(std::ostream& s) const=0;
 
 
+
+
     virtual bool operator==(const ABC_Put& other)const;
 
     /// hint about of the class nature

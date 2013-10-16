@@ -16,7 +16,7 @@ namespace Markov_LA_Test
     using namespace Markov_LA;
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Sum_Test()
+    MultipleTests Markov_LATest<T>::Sum_Test() const
     {
 	MultipleTests result("matrixSum.h",
 			     "test by examples");
@@ -127,6 +127,6 @@ namespace Markov_LA_Test
 	return result;
 
     }
-    template MultipleTests Markov_LA_Test<double>::Sum_Test();
+    template MultipleTests Markov_LATest<double>::Sum_Test()const;
 }
 }

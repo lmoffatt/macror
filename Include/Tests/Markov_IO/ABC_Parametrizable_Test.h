@@ -16,6 +16,14 @@ class ABC_Parametrizable_Test: public ABC_Saveable_Test
 {
 public:
 
+  virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested);
+
+  virtual std::string testedClass()const;
+  static std::string TestName();
+
+  virtual std::string myTest()const;
+
+
 
 
     /**
@@ -26,9 +34,12 @@ public:
 
     ABC_Parametrizable_Test(const ABC_Parametrizable& parametrizable);
 
+    ABC_Parametrizable_Test();
+
+
     virtual ~ABC_Parametrizable_Test();
 
-private:
+protected:
     const ABC_Parametrizable* param_;
 
     };

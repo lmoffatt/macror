@@ -22,7 +22,7 @@ namespace Markov_LA_Test
 
 
     template<typename T>
-    MultipleTests Markov_LA_Test<T>::Init_Test()
+    MultipleTests Markov_LATest<T>::Init_Test()const
     {
 	MultipleTests result("matrixInit.h",
 			     "Test an example for each one");
@@ -60,6 +60,6 @@ namespace Markov_LA_Test
 
     }
 
-    template MultipleTests  Markov_LA_Test<double>::Init_Test();
+    template MultipleTests  Markov_LATest<double>::Init_Test()const;
 }
 }

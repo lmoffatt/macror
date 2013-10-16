@@ -9,6 +9,25 @@ namespace Markov_Test
 namespace Markov_IO_Test
 {
 
+
+   std::string ClassDescription_Test::TestName()
+   {
+     return "ClassDescription_Test";
+   }
+
+  std::string ClassDescription_Test::myTest()const
+  {
+    return TestName();
+  }
+
+
+   std::string ClassDescription_Test::testedClass()const
+  {
+     return "";
+  }
+
+
+
 MultipleTests ClassDescription_Test::classInvariant()const
 {
     MultipleTests results("ClassDescription ",
