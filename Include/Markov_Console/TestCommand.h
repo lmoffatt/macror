@@ -32,6 +32,9 @@ public:
     virtual std::string check(const std::deque<Token>& tokenList);
 
 
+    virtual bool run( std::deque<Token>& tokenList);
+
+
     bool run(const std::vector<std::string>& InputValue,
                          const std::vector<std::string>& OutputValue);
 
@@ -46,6 +49,8 @@ public:
 
 
 private:
+    void updateTestKind(const std::deque<Token> &tokenList);
+    void updateTestKindrun(const std::deque<Token> &tokenList);
     Markov_CommandManagerTest* cmt_;
     std::string testedVariableKind_;
 };

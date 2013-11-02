@@ -24,7 +24,7 @@ namespace Markov_Console
                  "test",{{
                  "test_kind",ABC_Command::testName(),true},{
                  "tested_variable",ABC_Command::varName(),false},{
-                 "verbose_mode",Markov_IO::Object<bool>::ClassName(),false}},{{
+                 "verbose_mode",Markov_IO::Object<std::string>::ClassName(),false}},{{
                  "filename_out",Markov_IO::Object<std::string>::ClassName(),false}}),
       cmt_(cm)
   {}
@@ -50,19 +50,42 @@ namespace Markov_Console
 
 
 
-
-  std::vector<std::string> TestCommand::complete(const std::string &hint, const std::deque<Token>& tokenList)
+  void TestCommand::updateTestKind(const std::deque<Token>& tokenList)
   {
-          if (tokenList.size()>1)
+    if (tokenList.size()>1)
       {
         std::string testKind=tokenList[1].Name();
         Markov_Test::All_Tests *t=cmt_->getTest(testKind);
         if (t!=nullptr)
           {
-          inputTypes_[1]=t->testedClass();
-          inputMandatory_[1]=true;
+            inputTypes_[1]=t->testedClass();
+            inputNames_[1]=t->testedClass();
+            inputMandatory_[1]=true;
           }
       }
+
+  }
+
+
+  void TestCommand::updateTestKindrun(const std::deque<Token>& tokenList)
+  {
+    if (tokenList.size()>0)
+      {
+        std::string testKind=tokenList[0].Name();
+        Markov_Test::All_Tests *t=cmt_->getTest(testKind);
+        if (t!=nullptr)
+          {
+            inputTypes_[1]=t->testedClass();
+            inputNames_[1]=t->testedClass();
+            inputMandatory_[1]=true;
+          }
+      }
+
+  }
+
+  std::vector<std::string> TestCommand::complete(const std::string &hint, const std::deque<Token>& tokenList)
+  {
+    updateTestKind(tokenList);
     return ABC_Command::complete(hint,tokenList);
 
   }
@@ -70,29 +93,25 @@ namespace Markov_Console
 
 
   std::string TestCommand::check(const std::deque<Token>& tokenList){
-    if (tokenList.size()>1)
-      {
-        std::string testKind=tokenList[1].Name();
-        Markov_Test::All_Tests *t=cmt_->getTest(testKind);
-        if (t!=nullptr)
-          {
-          inputTypes_[1]=t->testedClass();
-          inputMandatory_[1]=true;
-          }
-      }
+    updateTestKind(tokenList);
     return ABC_Command::check(tokenList);
+
+  }
+
+  bool TestCommand::run( std::deque<Token>& tokenList){
+  //  updateTestKindrun(tokenList);
+    return ABC_Command::run(tokenList);
 
   }
 
 
 
-
   bool TestCommand::run(const std::vector<std::string>& InputValue,
-                       const std::vector<std::string>& OutputValue)
+                        const std::vector<std::string>& OutputValue)
   {
     std::string testKind=InputValue[0];
     std::string testedvariable="";
-    std::string mode="0";
+    std::string mode="";
     std::string filenamOut=testKind+".txt";
     if (InputValue.size()>1)
       testedvariable=InputValue[1];
@@ -118,8 +137,7 @@ namespace Markov_Console
   {
     Markov_Test::All_Tests * testK=cmt_->getTest(testKind);
     Markov_Test::MultipleTests testResult=testK->AllTests(cmt_,testedvariable);
-    bool verbose;
-    Markov_IO::ToValue(mode,verbose);
+    bool verbose=mode=="verbose";
     testResult.VerboseLevel(verbose);
 
     std::stringstream ss;

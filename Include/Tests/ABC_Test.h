@@ -5,10 +5,6 @@
 namespace Markov_Test
 {
 
-
-
-
-
   class ABC_Test: public Markov_IO::ABC_Put
   {
   public:

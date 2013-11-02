@@ -32,6 +32,347 @@ namespace Markov_Test
     using namespace Markov_LA;
 
 
+      ElementaryTest testQdt(const std::string& testedfield,
+                             const Markov_Transition_step& Qdt,
+                             const Markov_Transition_step& QdtAprox,
+                             const Markov_Transition_step& QdtAprox2)
+      {
+        std::string rationale;
+        bool test;
+        if (testedfield=="gmean_i")
+          {
+            std::stringstream s;
+            s<<Qdt.gmean_i;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gmean_i;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gmean_i;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gmean_i-Qdt.gmean_i);
+            double dif1=norm(QdtAprox.gmean_i-QdtAprox2.gmean_i);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="gmean_ij")
+          {
+            std::stringstream s;
+            s<<Qdt.gmean_ij;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gmean_ij;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gmean_ij;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gmean_ij-Qdt.gmean_ij);
+            double dif1=norm(QdtAprox.gmean_ij-QdtAprox2.gmean_ij);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="gsqr_i")
+          {
+            std::stringstream s;
+            s<<Qdt.gsqr_i;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gsqr_i;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gsqr_i;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gsqr_i-Qdt.gsqr_i);
+            double dif1=norm(QdtAprox.gsqr_i-QdtAprox2.gsqr_i);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="gtotal_sqr_ij")
+          {
+            std::stringstream s;
+            s<<Qdt.gtotal_sqr_ij;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gtotal_sqr_ij;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gtotal_sqr_ij;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gtotal_sqr_ij-Qdt.gtotal_sqr_ij);
+            double dif1=norm(QdtAprox.gtotal_sqr_ij-QdtAprox2.gtotal_sqr_ij);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="gtotal_ij")
+          {
+            std::stringstream s;
+            s<<Qdt.gtotal_ij;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gtotal_ij;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gtotal_ij;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gtotal_ij-Qdt.gtotal_ij);
+            double dif1=norm(QdtAprox.gtotal_ij-QdtAprox2.gtotal_ij);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="gtotal_var_i")
+          {
+            std::stringstream s;
+            s<<Qdt.gtotal_var_i;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gtotal_var_i;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gtotal_ij;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gtotal_var_i-Qdt.gtotal_var_i);
+            double dif1=norm(QdtAprox.gtotal_var_i-QdtAprox2.gtotal_var_i);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="gtotal_var_ij")
+          {
+            std::stringstream s;
+            s<<Qdt.gtotal_var_ij;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gtotal_var_ij;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gtotal_var_ij;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gtotal_var_ij-Qdt.gtotal_var_ij);
+            double dif1=norm(QdtAprox.gtotal_var_ij-QdtAprox2.gtotal_var_ij);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="gvar_i")
+          {
+            std::stringstream s;
+            s<<Qdt.gvar_i;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gvar_i;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gvar_i;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gvar_i-Qdt.gvar_i);
+            double dif1=norm(QdtAprox.gvar_i-QdtAprox2.gvar_i);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="gvar_ij")
+          {
+            std::stringstream s;
+            s<<Qdt.gvar_ij;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.gvar_ij;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.gvar_ij;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.gvar_ij-Qdt.gvar_ij);
+            double dif1=norm(QdtAprox.gvar_ij-QdtAprox2.gvar_ij);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        else if (testedfield=="P")
+          {
+            std::stringstream s;
+            s<<Qdt.P;
+            std::string sx=s.str();
+            s.str("");
+            s<<QdtAprox.P;
+            std::string sA=s.str();
+            s.str("");
+            s<<QdtAprox2.P;
+            std::string sA2=s.str();
+
+            if (sx.find_first_of("\n")!=sx.npos)
+              sx.insert(0,"\n");
+            if (sA.find_first_of("\n")!=sA.npos)
+              sA.insert(0,"\n");
+
+            if (sA2.find_first_of("\n")!=sA.npos)
+              sA2.insert(0,"\n");
+
+            double dif0=norm(QdtAprox.P-Qdt.P);
+            double dif1=norm(QdtAprox.P-QdtAprox2.P);
+
+            rationale="close to approximation \n";
+            rationale+="calc=";
+            rationale+=sx+"approx 1="+sA+"approx 2="+sA2;
+            rationale+="norm(calc-apprx1)="+ToString(dif0)+"\n";
+            rationale+="norm(approx1-apprx2)="+ToString(dif1)+"\n";
+
+            test=dif0<1.2*dif1;
+
+          }
+
+        return ElementaryTest(testedfield,rationale,test);
+
+      }
+
     MultipleTests ABC_Markov_Model_Test::classInvariant()const
     {
       MultipleTests results("ABC_Markov_Model",
@@ -64,9 +405,9 @@ namespace Markov_Test
 
           pSizes.push_back(ElementaryTest(
                              "n_bound_agonists()",
-                             "1 x k",
-                             (ncols(model_->n_bound_agonists())==model_->k())&&
-                             (nrows(model_->n_bound_agonists())==1)));
+                             "k x 1",
+                             (nrows(model_->n_bound_agonists())==model_->k())&&
+                             (ncols(model_->n_bound_agonists())==1)));
 
           pModel.push_back(pSizes);
         };
@@ -380,7 +721,8 @@ namespace Markov_Test
                    bool is_averaging,
                    bool varyingx,
                    bool two_anchor,
-                   std::size_t nsteps) const
+                   const Markov_Transition_step& QdtAprox,
+                   const Markov_Transition_step& QdtAprox2) const
     {
       MultipleTests results("ABC_Markov_Model::Q_dt("
                             "const Markov_IO::ABC_measure_point&,"
@@ -427,91 +769,23 @@ namespace Markov_Test
                 pg=MultipleTests("Averaging, double achor",
                                  "Time averaging, varying x, double anchor");
             }
-          Markov_Transition_step QdtAprox=Q_dtRun(xdt,nsteps);
-          Markov_Transition_step QdtAprox2=Q_dtRun(xdt,nsteps/2);
 
-          pg.push_back(ElementaryTest("gmean_i",
-                                      "close to approximation "
-                                      " QdtAprox.gmean_i \n"+
-                                      Markov_IO::ToString(QdtAprox.gmean_i)+"\n"+
-                                      "Qdt.gmean_i\n"+
-                                      Markov_IO::ToString(Qdt.gmean_i)+"\n"+
-                                      "QdtAprox2.gmean_i \n"+
-                                      Markov_IO::ToString(QdtAprox2.gmean_i)+"\n"+
-
-                                      "norm(QdtAprox.gmean_i-Qdt.gmean_i)\n"+
-                                      Markov_IO::ToString(norm(QdtAprox.gmean_i-Qdt.gmean_i))+
-                                      "1.2*norm(QdtAprox.gmean_i-QdtAprox2.gmean_i) \n"+
-                                      Markov_IO::ToString(1.2*norm(QdtAprox.gmean_i-QdtAprox2.gmean_i)),
-
-                                      norm(QdtAprox.gmean_i-Qdt.gmean_i)
-                                      <1.2*norm(QdtAprox.gmean_i-QdtAprox2.gmean_i)));
-
-
-          pg.push_back(ElementaryTest("gsqr_i",
-                                      "close to approximation",
-                                      norm(QdtAprox.gsqr_i-Qdt.gsqr_i)
-                                      <1.2*norm(QdtAprox.gsqr_i-QdtAprox2.gsqr_i)));
-
-          pg.push_back(ElementaryTest("gvar_i",
-                                      "close to approximation \n"
-                                      "Qdt.gvar_i\n"+
-                                      Markov_IO::ToString(Qdt.gvar_i)+"\n"
-                                      "QdtAprox.gvar_i\n"+
-                                      Markov_IO::ToString(QdtAprox.gvar_i)+"\n"
-                                      "QdtAprox2.gvar_i\n"+
-                                      Markov_IO::ToString(QdtAprox2.gvar_i)+"\n"
-                                      "norm(Qdt,QdtApprox) \t"+
-                                      Markov_IO::ToString(norm(QdtAprox.gvar_i-Qdt.gvar_i))+
-                                      "\n norm(Qdt,QdtApprox) \t"+
-                                      Markov_IO::ToString(
-                                        norm(QdtAprox.gvar_i-QdtAprox2.gvar_i))+"\n",
-                                      norm(QdtAprox.gvar_i-Qdt.gvar_i)
-                                      <1.2*norm(QdtAprox.gvar_i-QdtAprox2.gvar_i)));
+          pg.push_back(testQdt("gmean_i",Qdt,QdtAprox,QdtAprox2));
+          pg.push_back(testQdt("gsqr_i",Qdt,QdtAprox,QdtAprox2));
+          pg.push_back(testQdt("gvar_i",Qdt,QdtAprox,QdtAprox2));
 
           if (varyingx)
             {
-              pg.push_back(ElementaryTest("gtotal_ij",
-                                          "close to approximation",
-                                          norm(QdtAprox.gtotal_ij-Qdt.gtotal_ij)
-                                          <1.2*norm(QdtAprox.gtotal_ij-QdtAprox2.gtotal_ij)));
+              pg.push_back(testQdt("gtotal_ij",Qdt,QdtAprox,QdtAprox2));
+
 
               if (two_anchor)
                 {
-                  pg.push_back(ElementaryTest("gtotal_sqr_ij",
-                                              "close to approximation",
-                                              norm(QdtAprox.gtotal_sqr_ij-Qdt.gtotal_sqr_ij)
-                                              <1.2*norm(QdtAprox.gtotal_sqr_ij-QdtAprox2.gtotal_sqr_ij)));
-
-                  pg.push_back(ElementaryTest(
-                                 "gtotal_var_ij",
-                                 "\nclose to approximation"
-                                 "\nQdt.gtotal_var_ij\n"+
-                                 Markov_IO::ToString(Qdt.gtotal_var_ij)+
-                                 "QdtAprox.gtotal_var_ij\n"+
-                                 Markov_IO::ToString(QdtAprox.gtotal_var_ij)+
-                                 "norm(QdtAprox.gtotal_var_ij-Qdt.gtotal_var_ij)\t"+
-                                 Markov_IO::ToString(
-                                   norm(QdtAprox.gtotal_var_ij-Qdt.gtotal_var_ij))+
-                                 "norm(QdtAprox.gtotal_var_ij-QdtAprox2.gtotal_var_ij)\t"+
-                                 Markov_IO::ToString(
-                                   norm(QdtAprox.gtotal_var_ij-QdtAprox2.gtotal_var_ij))+
-                                 "\n",
-                                 norm(QdtAprox.gtotal_var_ij-Qdt.gtotal_var_ij)
-                                 <1.2*norm(QdtAprox.gtotal_var_ij-QdtAprox2.gtotal_var_ij)));
-
-                  pg.push_back(ElementaryTest("gtotal_var_i",
-                                              "close to approximation",
-                                              norm(QdtAprox.gtotal_var_i-Qdt.gtotal_var_i)
-                                              <1.2*norm(QdtAprox.gtotal_var_i-QdtAprox2.gtotal_var_i)));
-                  pg.push_back(ElementaryTest("gvar_ij",
-                                              "close to approximation",
-                                              norm(QdtAprox.gvar_ij-Qdt.gvar_ij)
-                                              <1.2*norm(QdtAprox.gvar_ij-QdtAprox2.gvar_ij)));
-                  pg.push_back(ElementaryTest("gmean_ij",
-                                              "close to approximation",
-                                              norm(QdtAprox.gmean_ij-Qdt.gmean_ij)
-                                              <1.2*norm(QdtAprox.gmean_ij-QdtAprox2.gmean_ij)));
+                  pg.push_back(testQdt("gtotal_sqr_ij",Qdt,QdtAprox,QdtAprox2));
+                  pg.push_back(testQdt("gtotal_var_ij",Qdt,QdtAprox,QdtAprox2));
+                  pg.push_back(testQdt("gtotal_var_i",Qdt,QdtAprox,QdtAprox2));
+                  pg.push_back(testQdt("gvar_ij",Qdt,QdtAprox,QdtAprox2));
+                  pg.push_back(testQdt("gmean_ij",Qdt,QdtAprox,QdtAprox2));
 
                 }
             }
@@ -531,7 +805,8 @@ namespace Markov_Test
     Q_stepInvariant(const Markov_IO::ABC_measure_step& xstep,
                     bool is_averaging,
                     bool two_anchor,
-                    std::size_t nsteps)const
+                    const Markov_Transition_step& QstAprox,
+                    const Markov_Transition_step& QstAprox2)const
 
     {
       std::string name="Q_step(step,";
@@ -553,8 +828,6 @@ namespace Markov_Test
 
 
       MultipleTests pg;
-      Markov_Transition_step QstAprox=Q_stepRun(xstep,nsteps);
-      Markov_Transition_step QstAprox2=Q_stepRun(xstep,nsteps/2);
 
       if (!is_averaging)
         {
@@ -578,66 +851,21 @@ namespace Markov_Test
 
       if (is_averaging)
         {
-          pg.push_back(ElementaryTest("gmean_i",
-                                      "close to approximation",
-                                      norm(QstAprox.gmean_i-Qst.gmean_i)
-                                      <1.2*norm(QstAprox.gmean_i-QstAprox2.gmean_i)));
-          pg.push_back(ElementaryTest("gsqr_i",
-                                      "close to approximation",
-                                      norm(QstAprox.gsqr_i-Qst.gsqr_i)
-                                      <1.2*norm(QstAprox.gsqr_i-QstAprox2.gsqr_i)));
-
-          pg.push_back(ElementaryTest("gvar_i",
-                                      "close to approximation",
-                                      norm(QstAprox.gvar_i-Qst.gvar_i)
-                                      <1.2*norm(QstAprox.gvar_i-QstAprox2.gvar_i)));
+          pg.push_back(testQdt("gmean_i",Qst,QstAprox,QstAprox2));
+          pg.push_back(testQdt("gsqr_i",Qst,QstAprox,QstAprox2));
+          pg.push_back(testQdt("gvar_i",Qst,QstAprox,QstAprox2));
 
 
           if (two_anchor)
             {
-              pg.push_back(ElementaryTest("gtotal_ij",
-                                          "close to approximation",
-                                          norm(QstAprox.gtotal_ij-Qst.gtotal_ij)
-                                          <1.2*norm(QstAprox.gtotal_ij-QstAprox2.gtotal_ij)));
+              pg.push_back(testQdt("gtotal_ij",Qst,QstAprox,QstAprox2));
 
-              pg.push_back(ElementaryTest("gtotal_sqr_ij",
-                                          "close to approximation",
-                                          norm(QstAprox.gtotal_sqr_ij-Qst.gtotal_sqr_ij)
-                                          <1.2*norm(QstAprox.gtotal_sqr_ij-QstAprox2.gtotal_sqr_ij)));
+              pg.push_back(testQdt("gtotal_sqr_ij",Qst,QstAprox,QstAprox2));
+              pg.push_back(testQdt("gtotal_var_ij",Qst,QstAprox,QstAprox2));
+              pg.push_back(testQdt("gtotal_var_i",Qst,QstAprox,QstAprox2));
+              pg.push_back(testQdt("gvar_ij",Qst,QstAprox,QstAprox2));
+              pg.push_back(testQdt("gmean_ij",Qst,QstAprox,QstAprox2));
 
-              pg.push_back(ElementaryTest("gtotal_var_ij",
-                                          "close to approximation"
-                                          "\nQdt.gtotal_var_ij\n"+
-                                          Markov_IO::ToString(Qst.gtotal_var_ij)+
-                                          "QdtAprox.gtotal_var_ij\n"+
-                                          Markov_IO::ToString(QstAprox.gtotal_var_ij)+
-                                          "norm(QdtAprox.gtotal_var_ij-Qdt.gtotal_var_ij)\t"+
-                                          Markov_IO::ToString(
-                                            norm(QstAprox.gtotal_var_ij-Qst.gtotal_var_ij))+
-                                          "\nnorm(QdtAprox.gtotal_var_ij-QdtAprox2.gtotal_var_ij)\t"+
-                                          Markov_IO::ToString(
-                                            norm(QstAprox.gtotal_var_ij-QstAprox2.gtotal_var_ij))+
-                                          "\n",
-                                          norm(QstAprox.gtotal_var_ij-Qst.gtotal_var_ij)
-                                          <1.2*norm(QstAprox.gtotal_var_ij-QstAprox2.gtotal_var_ij)));
-
-
-
-
-
-
-              pg.push_back(ElementaryTest("gtotal_var_i",
-                                          "close to approximation",
-                                          norm(QstAprox.gtotal_var_i-Qst.gtotal_var_i)
-                                          <1.2*norm(QstAprox.gtotal_var_i-QstAprox2.gtotal_var_i)));
-              pg.push_back(ElementaryTest("gvar_ij",
-                                          "close to approximation",
-                                          norm(QstAprox.gvar_ij-Qst.gvar_ij)
-                                          <1.2*norm(QstAprox.gvar_ij-QstAprox2.gvar_ij)));
-              pg.push_back(ElementaryTest("gmean_ij",
-                                          "close to approximation",
-                                          norm(QstAprox.gmean_ij-Qst.gmean_ij)
-                                          <1.2*norm(QstAprox.gmean_ij-QstAprox2.gmean_ij)));
 
             }
 
@@ -756,7 +984,7 @@ namespace Markov_Test
       res.gvar_ij=M_Matrix<double>(model_->k(),model_->k());
       for (std::size_t i=0; i<model_->k(); i++)
         for (std::size_t j=0; j<model_->k(); j++)
-          if (res.P(i,j)>1e-9)
+          if (res.P(i,j)>1e-11)
             {
               res.gmean_ij(i,j)=res.gtotal_ij(i,j)/res.P(i,j);
               res.gvar_ij(i,j)=res.gtotal_sqr_ij(i,j)/res.P(i,j)-
@@ -806,17 +1034,17 @@ namespace Markov_Test
     }
 
 
-     std::string ABC_Markov_Model_Test::TestName()
+    std::string ABC_Markov_Model_Test::TestName()
     {
       return "ABC_Markov_Model_Test";
     }
 
-     std::string ABC_Markov_Model_Test::myTest()const
+    std::string ABC_Markov_Model_Test::myTest()const
     {
       return TestName();
     }
 
-     std::string ABC_Markov_Model_Test::testedClass()const
+    std::string ABC_Markov_Model_Test::testedClass()const
     {
       return ABC_Markov_Model::ClassName();
     }
@@ -859,7 +1087,7 @@ namespace Markov_Test
 
       double agonist_concentration=1;
       std::size_t Nchannels=100;
-      std::size_t numSteps=100000;
+      std::size_t numSteps=0x100000;
       Borrowed::MersenneTwister::MTRand sto(Borrowed::MersenneTwister::seedinit(0));
 
       result.push_back(startInvariant(agonist_concentration,
@@ -873,17 +1101,20 @@ namespace Markov_Test
       Markov_IO::x_dt xdt(dt,agonist_concentration);
 
       Markov_state markovState=model_->start(agonist_concentration,Nchannels,sto);
-      std::size_t n_steps=100;
+      std::size_t n_steps=0x100;
 
       result.push_back(runInvariant(xdt,markovState,n_steps,sto));
+      Markov_Transition_step QdtAprox=Q_dtRun(xdt,numSteps);
+      Markov_Transition_step QdtAprox2=Q_dtRun(xdt,numSteps/2);
 
-      result.push_back(Q_dtInvariant(xdt,false,false,false,numSteps));
 
-      result.push_back(Q_dtInvariant(xdt,true,false,false,numSteps));
+      result.push_back(Q_dtInvariant(xdt,false,false,false,QdtAprox,QdtAprox2));
 
-      result.push_back(Q_dtInvariant(xdt,true,true,false,numSteps));
+      result.push_back(Q_dtInvariant(xdt,true,false,false,QdtAprox,QdtAprox2));
 
-      result.push_back(Q_dtInvariant(xdt,true,true,true,numSteps));
+      result.push_back(Q_dtInvariant(xdt,true,true,false,QdtAprox,QdtAprox2));
+
+      result.push_back(Q_dtInvariant(xdt,true,true,true,QdtAprox,QdtAprox2));
 
       result.push_back(Q_xInvariant (agonist_concentration,false));
 
@@ -895,9 +1126,12 @@ namespace Markov_Test
         xst.push_back(dt/n,agonist_concentration*0,0.0).
             push_back(dt/n,agonist_concentration*(i),0.0);
 
-      result.push_back(Q_stepInvariant(xst ,false,false,numSteps));
-      result.push_back(Q_stepInvariant(xst ,true,false,numSteps));
-      result.push_back(Q_stepInvariant(xst ,true,true,numSteps));
+      Markov_Transition_step QstAprox=Q_stepRun(xst,numSteps);
+      Markov_Transition_step QstAprox2=Q_stepRun(xst,numSteps/4);
+
+      result.push_back(Q_stepInvariant(xst ,false,false,QstAprox,QstAprox2));
+      result.push_back(Q_stepInvariant(xst ,true,false,QstAprox,QstAprox2));
+      result.push_back(Q_stepInvariant(xst ,true,true,QstAprox,QstAprox2));
       return result;
 
 

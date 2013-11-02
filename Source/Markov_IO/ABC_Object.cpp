@@ -107,25 +107,25 @@ namespace Markov_IO{
  }
 
  template<>
- std::string ClassName(const double* x)
+ std::string ClassName(const double* )
  {
    return "double";
  }
 
  template<>
- std::string ClassName(const std::string* x)
+ std::string ClassName(const std::string* )
  {
      return "string";
  }
 
  template<>
- std::string ClassName(const std::size_t* x)
+ std::string ClassName(const std::size_t* )
  {
      return "size_t";
  }
 
  template<>
- std::string ClassName(const Markov_LA::M_Matrix<double>* x)
+ std::string ClassName(const Markov_LA::M_Matrix<double>* )
  {
      return "Matrix_of_double";
  }

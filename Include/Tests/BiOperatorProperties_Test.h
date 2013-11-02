@@ -65,7 +65,8 @@ private:
     MultiplicationOperator mult_;
     T& zero_;
     T& one_;
-}
+};
+
 
 }
 #endif // BIOPERATORPROPERTIES_TEST_H

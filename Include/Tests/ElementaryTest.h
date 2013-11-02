@@ -96,6 +96,28 @@ namespace Markov_Test
       return ElementaryTest(functionality,sx+"  should be equal to  " +sy,x==y);
   }
 
+
+  template<class T>
+  ElementaryTest MinorValue_Test(const std::string& functionality,T x, T y)
+  {
+      std::stringstream s;
+      s<<x;
+      std::string sx=s.str();
+      s.str("");
+      s<<y;
+      std::string sy=s.str();
+      if (sx.find_first_of("\n")!=sx.npos)
+          sx.insert(0,"\n");
+      if (sy.find_first_of("\n")!=sy.npos)
+          sy.insert(0,"\n");
+
+      return ElementaryTest(functionality,sx+"  should be minor than " +sy,x<y);
+  }
+
+
+
+
+
   template<class T>
   ElementaryTest UnEqualValue_Test(const std::string& functionality,T x, T y)
   {

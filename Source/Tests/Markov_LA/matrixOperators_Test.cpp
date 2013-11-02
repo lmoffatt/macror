@@ -32,7 +32,7 @@ namespace Markov_LA_Test
 	  result.push_back(EqualValue_Test("Transpose()",
 					   Transpose(sample),expected));
 
-	  expected=M_Matrix<T>(2,1);
+	  expected=M_Matrix<T>(1,2);
 	  expected(0,0)=3.4;  expected(0,1)=6;
 
 
@@ -43,7 +43,7 @@ namespace Markov_LA_Test
 	  expected(0,0)=3.4;  expected(0,1)=0;
 	  expected(1,0)=0;  expected(1,1)=6;
 
-	  result.push_back(EqualValue_Test("diga(diag()",
+	  result.push_back(EqualValue_Test("diag(diag()",
 					   diag(diag(sample)),expected));
 
 	  return result;

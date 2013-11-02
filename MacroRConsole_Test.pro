@@ -50,7 +50,6 @@ HEADERS += \
     Include/Tests/Markov_IO/ABC_Parametrizable_Test.h \
     Include/Tests/Markov_IO/ABC_Put_Test.h \
     Include/Tests/Markov_IO/ClassDescription_Test.h \
-    Include/Tests/Markov_Mol/QMarkovModel_Test.h \
     Include/Tests/Markov_Mol/ABC_Markov_Model_Test.h \
     Include/Tests/Markov_Mol/MarkovTransitionStep_Test.h \
     Include/Tests/Markov_Mol/MarkovState_Test.h \
