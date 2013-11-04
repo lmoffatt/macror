@@ -909,10 +909,6 @@ namespace Markov_IO
             H1_=new ABFFileHeader;
             f.seekg(0);
             extract(f,*H1_);
-
-
-
-
             ver_=round(H1_->fFileVersionNumber*1000)/1000;
             protocol_=H1_->sProtocolPath;
             int pos=path.find_last_of("/\\");
@@ -1065,7 +1061,7 @@ namespace Markov_IO
 
           }
 
-       }
+      }
     else
       // not an ABF file
       {

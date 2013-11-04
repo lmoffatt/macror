@@ -459,7 +459,8 @@ message ("MacroRConsole end here")
 
 HEADERS += \
     Include/Markov_Console/Autocomplete.h \
-    Include/Markov_Console/BayesianAutocomplete.h
+    Include/Markov_Console/BayesianAutocomplete.h \
+    Include/Markov_IO/ABFExperiment.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
