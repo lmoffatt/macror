@@ -264,6 +264,8 @@ HEADERS += \
     Include/Markov_IO/ABC_Unit.h
 
 SOURCES += \
+    Source/Markov_IO/Abstract_Object.cpp\
+    Source/Markov_IO/ABC_Unit.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
     Source/Markov_IO/Object.cpp \
@@ -389,8 +391,7 @@ SOURCES += \
     Source/Markov_IO/ExperimentalData.cpp \
     Source/Markov_IO/ABFFile.cpp \
     Source/Markov_IO/ABF1_Headers.cpp \
-    Source/Markov_Console/CommandHistory.cpp \
-    Source/Markov_IO/ABC_Unit.cpp
+    Source/Markov_Console/CommandHistory.cpp
 win32{
     LIBS += -L$$PWD/lib -lcygblas \
             -L$$PWD/lib -lcyglapack
@@ -460,7 +461,9 @@ message ("MacroRConsole end here")
 HEADERS += \
     Include/Markov_Console/Autocomplete.h \
     Include/Markov_Console/BayesianAutocomplete.h \
-    Include/Markov_IO/ABFExperiment.h
+    Include/Markov_IO/ABFExperiment.h \
+    Include/Markov_IO/A_Variable.h \
+    Include/Markov_IO/Abstract_Object.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \

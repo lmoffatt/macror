@@ -127,7 +127,7 @@ std::ostream& Object<T>::put(std::ostream &s) const
 {
     s<<this->value_;
     return s;
-};
+}
 
 template class Object<double>;
 template class Object<std::string>;

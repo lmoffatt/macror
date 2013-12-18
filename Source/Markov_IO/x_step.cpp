@@ -49,7 +49,7 @@ x_step*  x_step::clone() const
 
 x_step::x_step(const ABC_measure_step& xs):
 	num_steps_(0),
-	xdt_(xs),
+	xdt_(),
 	y_(xs.y()),
 	sub_step_()
 {
