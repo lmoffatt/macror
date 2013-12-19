@@ -335,9 +335,11 @@ namespace Markov_LA
   template<typename T>
   T&  M_Matrix<T>::operator() (std::size_t i,std::size_t j)
   {
-    ASSERT_LESS(i,_nrows);//number of rows
+    if (_nrows<=i)
+       ASSERT_LESS(i,_nrows);//number of rows
+    if (_ncols<=j)
     ASSERT_LESS(j,_ncols); //number of columns
-    return (*this)[i*_ncols+j];
+     return (*this)[i*_ncols+j];
   }
 
 

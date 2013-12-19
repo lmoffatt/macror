@@ -20,6 +20,12 @@ SimulationOptions::SimulationOptions(const std::string& myname,
 
 }
 
+
+SimulationOptions* SimulationOptions::create()const
+{
+  return new SimulationOptions();
+}
+
 std::string SimulationOptions::myClass()const
 {
     return ClassName();

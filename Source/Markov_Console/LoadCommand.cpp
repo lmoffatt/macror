@@ -147,6 +147,8 @@ namespace Markov_Console
                       output_="Format of version "+varname+"\n";
                       varname.clear();
                     }
+                  varname.clear();
+
                 }
 
               while (varname.empty())

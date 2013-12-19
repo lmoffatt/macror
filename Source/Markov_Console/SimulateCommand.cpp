@@ -52,12 +52,12 @@ namespace Markov_Console
 
     std::string patch_in=InputValue[0];
     std::string experiment_in=InputValue[1];
-    std::string options_in=InputValue[2];
 
     std::size_t num_replicates=1;
-    if (!InputValue[3].empty())
-      num_replicates=std::stoul(InputValue[3]);
+    if (!InputValue[2].empty())
+      num_replicates=std::stoul(InputValue[2]);
 
+    std::string options_in=InputValue[3];
     std::string experiment_out=OutputValue[0];
 
     return run(patch_in,experiment_in,experiment_out,num_replicates,options_in);

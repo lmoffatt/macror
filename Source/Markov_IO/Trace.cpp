@@ -399,7 +399,7 @@ void Trace::init()
         {
             i0x++;
         }
-        while (tol.isLess(tx_(i1x+1,0),ty_(i+1,0))&&i1x<Markov_LA::nrows(tx_))
+        while (i1x+1<Markov_LA::nrows(tx_)&& tol.isLess(tx_(i1x+1,0),ty_(i+1,0)))
         {
             i1x++;
         }

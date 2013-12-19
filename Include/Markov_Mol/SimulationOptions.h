@@ -8,6 +8,8 @@ namespace Markov_Mol
 class SimulationOptions:public Markov_IO::BaseOptions
 {
 public:
+    virtual SimulationOptions* create() const;
+
     SimulationOptions();
     SimulationOptions(const std::string& myname,
 		      const std::size_t numSteps,
