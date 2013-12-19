@@ -453,6 +453,14 @@ win32{
     }
 }
 
+
+# defines a Macro containing the name of the directory to find the help files
+HELPPATH = $${OUT_PWD}/help_files
+
+DEFINES+='HELP_PATH=$${HELPPATH}'
+
+
+
 message ("MacroRConsole end here")
 
 }

@@ -1,6 +1,7 @@
 #include "Markov_Console/HelpCommand.h"
 #include "Markov_Console/Help_File.h"
 #include "Markov_IO/auxiliarIO.h"
+#include "Markov_Console/Markov_CommandManager.h"
 
 namespace Markov_Console
 {
@@ -87,7 +88,8 @@ bool HelpCommand::run(std::deque<Token> & tokenList)
  bool HelpCommand::run(const std::string& helpFileName)
 {
         std::string helpFileContents;
-        helpFileContents=HelpFile(helpFileName);
+        std::string helpath=cm_->getHelpDir()+"/"+helpFileName;
+        helpFileContents=HelpFile(helpath);
         if (helpFileContents.empty())
         {
             output_.clear();

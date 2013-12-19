@@ -5,7 +5,7 @@
 namespace Markov_Console
 {
 
-std::string HelpFile(const std::string& filename);
+std::string HelpFile(const std::string& filepath);
 
 
 }

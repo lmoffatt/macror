@@ -90,14 +90,14 @@ bool ModelCommand::run(const std::string &typeName, const std::string& varname)
 {
     if (typeName=="channel")
     {
-        std::string t=Markov_Mol::Q_Markov_Model::ClassName();
-        std::string runline="create "+t +" "+varname;
+        std::string typestring=Markov_Mol::Q_Markov_Model::ClassName();
+        std::string runline="create "+typestring +" "+varname;
         return cm_->runLine(runline);
     }
     else if (typeName=="patch")
     {
-        std::string t=Markov_Mol::PatchModel::ClassName();
-        std::string runline="create "+t +" "+varname;
+        std::string typestring=Markov_Mol::PatchModel::ClassName();
+        std::string runline="create "+typestring +" "+varname;
         return cm_->runLine(runline);
 
     }

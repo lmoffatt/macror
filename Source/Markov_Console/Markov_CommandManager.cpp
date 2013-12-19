@@ -50,6 +50,10 @@ namespace Markov_Console
 {
 
 
+  std::string Markov_CommandManager::getHelpDir()
+  {
+    return STRINGIZE(HELP_PATH);
+  }
 
 
 

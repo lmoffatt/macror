@@ -152,6 +152,8 @@ public:
     static Autocomplete LoadFiles(const std::string& dir);
   static std::size_t getVersion(const std::string& line);
 
+    static std::string getHelpDir();
+
 
 protected:
     Markov_IO::ABC_IO* io_;

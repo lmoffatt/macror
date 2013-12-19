@@ -7,10 +7,9 @@
 namespace Markov_Console
 {
 
-std::string HelpFile(const std::string& filename)
+std::string HelpFile(const std::string& filepath)
 {
-    std::string helppath="help_files/"+filename;
-    std::fstream f(helppath.c_str());
+    std::fstream f(filepath.c_str());
     std::string hlptxt;
     std::string line;
     while (Markov_IO::safeGetline(f,line))
