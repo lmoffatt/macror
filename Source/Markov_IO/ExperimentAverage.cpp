@@ -120,34 +120,6 @@ std::string Experiment_Average::ClassName()
 }
 
 
-std::vector<std::string> Experiment_Average::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Experiment::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> Experiment_Average::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool Experiment_Average::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  Experiment_Average::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  Experiment_Average::myChildClasses()const
-{
-    return childClasses();
-}
 
 
 

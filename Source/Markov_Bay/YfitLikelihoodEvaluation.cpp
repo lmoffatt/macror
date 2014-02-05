@@ -155,34 +155,6 @@ YfitLikelihoodEvaluation* YfitLikelihoodEvaluation::clone() const
      }
 
 
-     std::vector<std::string> YfitLikelihoodEvaluation::parentClasses()
-     {
-         std::vector<std::string> v;
-         v.push_back(PartialLikelihoodEvaluation::ClassName());
-
-        return v;
-
-     }
-
-     std::vector<std::string> YfitLikelihoodEvaluation::childClasses()
-     {
-         std::vector<std::string> v;
-         return v;
-     }
-
-      bool YfitLikelihoodEvaluation::amIAbstract()const
-     {
-         return false;
-     }
-
-      std::vector<std::string>  YfitLikelihoodEvaluation::myParentClasses()const
-     {
-         return parentClasses();
-     }
-      std::vector<std::string>  YfitLikelihoodEvaluation::myChildClasses()const
-     {
-         return childClasses();
-     }
 
 
 

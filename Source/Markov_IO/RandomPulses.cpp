@@ -343,36 +343,6 @@ Random_Pulses* Random_Pulses::clone() const
  }
 
 
- std::vector<std::string> Random_Pulses::parentClasses()
- {
-     std::vector<std::string> v;
-     v.push_back(Markov_IO::ABC_Experiment::ClassName());
-
-    return v;
-
- }
-
- std::vector<std::string> Random_Pulses::childClasses()
- {
-     std::vector<std::string> v;
-     return v;
- }
-
-  bool Random_Pulses::amIAbstract()const
- {
-     return false;
- }
-
-  std::vector<std::string>  Random_Pulses::myParentClasses()const
- {
-     return parentClasses();
- }
-  std::vector<std::string>  Random_Pulses::myChildClasses()const
- {
-     return childClasses();
- }
-
-
 
 
 

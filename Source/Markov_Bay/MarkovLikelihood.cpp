@@ -551,35 +551,6 @@ namespace Markov_Bay
     return "Markov_Likelihood_Options";
   }
 
-  std::vector<std::string> Markov_Likelihood::Options::parentClasses()
-  {
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::BaseOptions::ClassName());
-
-    return v;
-
-  }
-
-  std::vector<std::string> Markov_Likelihood::Options::childClasses()
-  {
-    std::vector<std::string> v;
-    return v;
-  }
-
-  bool Markov_Likelihood::Options::amIAbstract()const
-  {
-    return false;
-  }
-
-  std::vector<std::string>  Markov_Likelihood::Options::myParentClasses()const
-  {
-    return parentClasses();
-  }
-  std::vector<std::string>  Markov_Likelihood::Options::myChildClasses()const
-  {
-    return childClasses();
-  }
-
 
 
 

@@ -25,11 +25,6 @@ public:
     //virtual bool operator==(const ABC_Experiment& other)const;
 
     static std::string ClassName();
-    static std::vector<std::string> parentClasses();
-    static std::vector<std::string> childClasses();
-    virtual bool amIAbstract()const;
-    virtual std::vector<std::string>  myParentClasses()const;
-    virtual std::vector<std::string>  myChildClasses()const;
 
     virtual std::string myName()const=0;
     virtual std::string myClass()const=0;

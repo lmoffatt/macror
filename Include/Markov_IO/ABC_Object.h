@@ -29,11 +29,6 @@ public:
     virtual bool operator ==(const ABC_Object& other)const;
     std::ostream& put(std::ostream& s)const=0;
 
-    static std::vector<std::string> parentClasses();
-    static std::vector<std::string> childClasses();
-    virtual bool amIAbstract()const;
-    virtual std::vector<std::string>  myParentClasses()const;
-    virtual std::vector<std::string>  myChildClasses()const;
 
     static std::string ClassName();
     virtual std::string myClass()const=0;

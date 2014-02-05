@@ -16,37 +16,6 @@ std::string ABC_Distribution::ClassName()
 }
 
 
-std::vector<std::string> ABC_Distribution::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Bay::ABC_ParametricDistributable::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ABC_Distribution::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Bay::NormalDistributed::ClassName());
-
-    return v;
-}
-
- bool ABC_Distribution::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_Distribution::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_Distribution::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 ABC_Distribution::~ABC_Distribution()
 {}

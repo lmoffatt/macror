@@ -383,34 +383,6 @@ std::string Single_Pulses::myClass()const
 
 
 
-std::vector<std::string> Single_Pulses::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Experiment::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> Single_Pulses::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool Single_Pulses::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  Single_Pulses::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  Single_Pulses::myChildClasses()const
-{
-    return childClasses();
-}
 
 
 

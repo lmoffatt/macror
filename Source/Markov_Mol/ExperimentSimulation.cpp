@@ -221,38 +221,6 @@ void swap(Experiment_simulation& one, Experiment_simulation& other)
 
 
 
-  std::vector<std::string> Experiment_simulation::parentClasses()
-  {
-      std::vector<std::string> v;
-      v.push_back(Markov_IO::ABC_Experiment::ClassName());
-
-     return v;
-
-  }
-
-  std::vector<std::string> Experiment_simulation::childClasses()
-  {
-      std::vector<std::string> v;
-      return v;
-  }
-
-   bool Experiment_simulation::amIAbstract()const
-  {
-      return false;
-  }
-
-   std::vector<std::string>  Experiment_simulation::myParentClasses()const
-  {
-      return parentClasses();
-  }
-   std::vector<std::string>  Experiment_simulation::myChildClasses()const
-  {
-      return childClasses();
-  }
-
-
-
-
   std::string Experiment_simulation::myName()const
   {
       return name_;

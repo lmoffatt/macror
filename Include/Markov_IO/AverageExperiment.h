@@ -51,11 +51,6 @@ class AverageExperiment: public ABC_Operator
         virtual std::string myClass()const;
         static std::string ClassName();
 
-        static std::vector<std::string> parentClasses();
-        static std::vector<std::string> childClasses();
-        virtual bool amIAbstract()const;
-        virtual std::vector<std::string>  myParentClasses()const;
-        virtual std::vector<std::string>  myChildClasses()const;
 
         };
         AverageExperiment(const std::string name, Options op);

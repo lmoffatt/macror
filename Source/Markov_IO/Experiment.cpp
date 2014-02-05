@@ -21,35 +21,6 @@ namespace Markov_IO
     }
 
 
-    std::vector<std::string> Experiment::parentClasses()
-    {
-        std::vector<std::string> v;
-        v.push_back(Markov_IO::ABC_Experiment::ClassName());
-
-       return v;
-
-    }
-
-    std::vector<std::string> Experiment::childClasses()
-    {
-        std::vector<std::string> v;
-        return v;
-    }
-
-     bool Experiment::amIAbstract()const
-    {
-        return false;
-    }
-
-     std::vector<std::string>  Experiment::myParentClasses()const
-    {
-        return parentClasses();
-    }
-     std::vector<std::string>  Experiment::myChildClasses()const
-    {
-        return childClasses();
-    }
-
 
 
     std::string Experiment::myName()const

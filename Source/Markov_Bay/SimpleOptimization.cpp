@@ -239,34 +239,6 @@ std::string SimpleOptimization::Options::ClassName()
 {
     return "Simple_Optimization_Options";
 }
-std::vector<std::string> SimpleOptimization::Options::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::BaseOptions::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> SimpleOptimization::Options::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool SimpleOptimization::Options::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  SimpleOptimization::Options::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  SimpleOptimization::Options::myChildClasses()const
-{
-    return childClasses();
-}
 
 
 SimpleOptimization::Options::Options(const Options& other):

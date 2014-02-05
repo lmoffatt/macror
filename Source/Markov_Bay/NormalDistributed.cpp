@@ -64,35 +64,6 @@ std::string NormalDistributed::ClassName()
     return "Normal_Distributed";
 }
 
-std::vector<std::string> NormalDistributed::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Bay::ABC_Distribution::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> NormalDistributed::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Mol::PatchModelNormalDistribution::ClassName());
-    return v;
-}
-
- bool NormalDistributed::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  NormalDistributed::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  NormalDistributed::myChildClasses()const
-{
-    return childClasses();
-}
 
 
 

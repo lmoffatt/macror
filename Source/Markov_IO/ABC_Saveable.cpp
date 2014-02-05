@@ -19,23 +19,6 @@ std::string ABC_Saveable::mySuperClass()const
     return ClassName();
 }
 
- std::vector<std::string>  ABC_Saveable::myParentClasses()const
- {
-     return parentClasses();
- }
-
- std::vector<std::string>  ABC_Saveable::myChildClasses()const
- {
-     return childClasses();
- }
-
-
- bool ABC_Saveable::amIAbstract() const
- {
-     return true;
- }
-
-
 
 std::string ABC_Saveable::ClassName()
 {
@@ -90,25 +73,6 @@ bool ABC_Saveable::Load(const std::string& fileName)
     return this->GetDescription()==other.GetDescription();
 }
 
-  std::vector<std::string> ABC_Saveable::parentClasses()
- {
-     std::vector<std::string> list;
-     list.push_back(ABC_Object::ClassName());
-     return list;
-
- }
-  std::vector<std::string> ABC_Saveable::childClasses()
- {
-
-     std::vector<std::string> list;
-     list.push_back(ABC_Options::ClassName());
-     list.push_back(ABC_Parametrizable::ClassName());
-     list.push_back(Markov_Bay::ABC_Result::ClassName());
-     list.push_back(ABC_trace::ClassName());
-     return list;
-
-
- }
 
   bool  create(ABC_Saveable*& v,const std::string& childClass)
   {

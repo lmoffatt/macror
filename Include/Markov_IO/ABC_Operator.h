@@ -33,12 +33,7 @@ public:
     virtual std::string myName()const=0;
     virtual std::string myClass()const=0;
     virtual std::string mySuperClass()const;
-    virtual bool amIAbstract()const;
-    static std::string ClassName();
-    static std::vector<std::string> parentClasses();
-    static std::vector<std::string> childClasses();
-    virtual std::vector<std::string>  myParentClasses()const;
-    virtual std::vector<std::string>  myChildClasses()const;
+   static std::string ClassName();
     virtual bool Save(const std::string& path);
 
     virtual bool Load(const std::string& path);

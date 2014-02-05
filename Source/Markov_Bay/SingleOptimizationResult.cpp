@@ -95,35 +95,6 @@ std::string SingleOptimizationResult::myClass()const
     return ClassName();
 }
 
-std::vector<std::string> SingleOptimizationResult::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Bay::ABC_Result::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> SingleOptimizationResult::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool SingleOptimizationResult::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  SingleOptimizationResult::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  SingleOptimizationResult::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

@@ -20,40 +20,6 @@ std::string ABC_Result::ClassName()
 }
 
 
-std::vector<std::string> ABC_Result::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Saveable::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ABC_Result::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Bay::LikelihoodEvaluation::ClassName());
-    v.push_back(Markov_Bay::OptimizationResult::ClassName());
-    v.push_back(Markov_Bay::SingleOptimizationResult::ClassName());
-
-    return v;
-}
-
- bool ABC_Result::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_Result::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_Result::myChildClasses()const
-{
-    return childClasses();
-}
-
-
 
 
 

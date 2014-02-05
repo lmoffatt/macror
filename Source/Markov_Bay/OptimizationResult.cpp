@@ -122,35 +122,6 @@ namespace Markov_Bay
     return "Optimization_Result";
   }
 
-  std::vector<std::string> OptimizationResult::parentClasses()
-  {
-    std::vector<std::string> v;
-    v.push_back(Markov_Bay::ABC_Result::ClassName());
-
-    return v;
-
-  }
-
-  std::vector<std::string> OptimizationResult::childClasses()
-  {
-    std::vector<std::string> v;
-    return v;
-  }
-
-  bool OptimizationResult::amIAbstract()const
-  {
-    return false;
-  }
-
-  std::vector<std::string>  OptimizationResult::myParentClasses()const
-  {
-    return parentClasses();
-  }
-  std::vector<std::string>  OptimizationResult::myChildClasses()const
-  {
-    return childClasses();
-  }
-
 
 
 

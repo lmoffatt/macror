@@ -97,36 +97,6 @@ std::string LikelihoodEvaluation::myClass()const
 
 
 
-std::vector<std::string> LikelihoodEvaluation::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(ABC_Result::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> LikelihoodEvaluation::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(PartialLikelihoodEvaluation::ClassName());
-    return v;
-}
-
- bool LikelihoodEvaluation::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  LikelihoodEvaluation::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  LikelihoodEvaluation::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

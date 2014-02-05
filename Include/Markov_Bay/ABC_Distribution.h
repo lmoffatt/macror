@@ -12,11 +12,6 @@ class ABC_Distribution:public  ABC_ParametricDistributable
 public:
     virtual std::string mySuperClass()const;
     static std::string ClassName();
-    static std::vector<std::string> parentClasses();
-    static std::vector<std::string> childClasses();
-    virtual bool amIAbstract()const;
-    virtual std::vector<std::string>  myParentClasses()const;
-    virtual std::vector<std::string>  myChildClasses()const;
 
     virtual ~ABC_Distribution();
 };

@@ -27,41 +27,6 @@ BaseOptions* BaseOptions::create() const
 
 
 
-std::vector<std::string> BaseOptions::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Options::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> BaseOptions::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Bay::LikelihoodOptions::ClassName());
-    v.push_back(Markov_Bay::Markov_Likelihood::Options::ClassName());
-    v.push_back(Markov_Bay::OptimizationStepBFGS::Options::ClassName());
-    v.push_back(Markov_Bay::SimpleOptimization::Options::ClassName());
-    v.push_back(Markov_Bay::TerminationByThreshold::Options::ClassName());
-    v.push_back(Markov_Mol::SimulationOptions::ClassName());
-   return v;
-}
-
- bool BaseOptions::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  BaseOptions::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  BaseOptions::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 ClassDescription BaseOptions::GetDescription()const

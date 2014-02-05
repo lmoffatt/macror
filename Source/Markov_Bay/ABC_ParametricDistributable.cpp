@@ -14,35 +14,6 @@ std::string ABC_ParametricDistributable::myClass()const
 std::string ABC_ParametricDistributable::ClassName()
 {return "Parametric_Distributable";}
 
-std::vector<std::string> ABC_ParametricDistributable::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Parametrizable::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ABC_ParametricDistributable::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Bay::ABC_Distribution::ClassName());
-    return v;
-}
-
- bool ABC_ParametricDistributable::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_ParametricDistributable::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_ParametricDistributable::myChildClasses()const
-{
-    return childClasses();
-}
 
  bool  create(ABC_ParametricDistributable*& v,const std::string& childClass)
  {

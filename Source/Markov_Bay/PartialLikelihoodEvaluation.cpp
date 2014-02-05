@@ -127,37 +127,6 @@ PartialLikelihoodEvaluation* PartialLikelihoodEvaluation::clone() const
 	 return ClassName();
      }
 
-     std::vector<std::string> PartialLikelihoodEvaluation::parentClasses()
-     {
-         std::vector<std::string> v;
-         v.push_back(Markov_Bay::LikelihoodEvaluation::ClassName());
-
-        return v;
-
-     }
-
-     std::vector<std::string> PartialLikelihoodEvaluation::childClasses()
-     {
-         std::vector<std::string> v;
-         v.push_back(Markov_Bay::YfitLikelihoodEvaluation::ClassName());
-
-         return v;
-     }
-
-      bool PartialLikelihoodEvaluation::amIAbstract()const
-     {
-         return false;
-     }
-
-      std::vector<std::string>  PartialLikelihoodEvaluation::myParentClasses()const
-     {
-         return parentClasses();
-     }
-      std::vector<std::string>  PartialLikelihoodEvaluation::myChildClasses()const
-     {
-         return childClasses();
-     }
-
 
 
 

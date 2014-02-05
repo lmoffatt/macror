@@ -18,41 +18,6 @@ std::string ABC_trace::ClassName()
     return "Trace";
 }
 
-std::vector<std::string> ABC_trace::parentClasses()
-{
-    std::vector<std::string> v;
-   // v.push_back(Markov_IO::ABC_measure_step::ClassName());
-
-    v.push_back(Markov_IO::ABC_Saveable::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ABC_trace::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Experiment::ClassName());
-    v.push_back(Markov_IO::Pulses_trace::ClassName());
-    v.push_back(Markov_IO::Trace::ClassName());
-
-    return v;
-}
-
- bool ABC_trace::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_trace::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_trace::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

@@ -37,35 +37,6 @@ std::string SimulationOptions::ClassName()
 }
 
 
-std::vector<std::string> SimulationOptions::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::BaseOptions::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> SimulationOptions::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool SimulationOptions::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  SimulationOptions::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  SimulationOptions::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 }

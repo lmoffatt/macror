@@ -26,11 +26,6 @@ public:
     static std::string ClassName();
     std::string myClass()const;
 
-    static std::vector<std::string> parentClasses();
-    static std::vector<std::string> childClasses();
-    virtual bool amIAbstract()const;
-    virtual std::vector<std::string>  myParentClasses()const;
-    virtual std::vector<std::string>  myChildClasses()const;
 
 
     //virtual std::ostream& put(std::ostream&) const=0;

@@ -312,35 +312,6 @@ std::string ParametersMoments::ClassName(){
 }
 
 
-std::vector<std::string> ParametersMoments::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::Parameters::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ParametersMoments::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool ParametersMoments::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  ParametersMoments::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ParametersMoments::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

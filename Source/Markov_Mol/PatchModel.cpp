@@ -17,36 +17,6 @@ PatchModel* PatchModel::create() const
 }
 
 
-std::vector<std::string> PatchModel::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Mol::ABC_PatchModel::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> PatchModel::childClasses()
-{
-    std::vector<std::string> v;
-
-    return v;
-}
-
-bool PatchModel::amIAbstract()const
-{
-    return false;
-}
-
-std::vector<std::string>  PatchModel::myParentClasses()const
-{
-    return parentClasses();
-}
-std::vector<std::string>  PatchModel::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

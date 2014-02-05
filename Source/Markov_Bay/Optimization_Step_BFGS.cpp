@@ -406,37 +406,6 @@ namespace Markov_Bay
   std::string OptimizationStepBFGS::Options::ClassName()
   {return "Optimization_Step_BFGS_Options";}
 
-  std::vector<std::string> OptimizationStepBFGS::Options::parentClasses()
-  {
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::BaseOptions::ClassName());
-
-    return v;
-
-  }
-
-  std::vector<std::string> OptimizationStepBFGS::Options::childClasses()
-  {
-    std::vector<std::string> v;
-    return v;
-  }
-
-  bool OptimizationStepBFGS::Options::amIAbstract()const
-  {
-    return false;
-  }
-
-  std::vector<std::string>  OptimizationStepBFGS::Options::myParentClasses()const
-  {
-    return parentClasses();
-  }
-  std::vector<std::string>  OptimizationStepBFGS::Options::myChildClasses()const
-  {
-    return childClasses();
-  }
-
-
-
 
 
 

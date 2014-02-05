@@ -705,36 +705,6 @@ return true;
  }
 
 
- std::vector<std::string> ExperimentalData::parentClasses()
- {
-     std::vector<std::string> v;
-     v.push_back(Markov_IO::ABC_Experiment::ClassName());
-
-    return v;
-
- }
-
- std::vector<std::string> ExperimentalData::childClasses()
- {
-     std::vector<std::string> v;
-     return v;
- }
-
-  bool ExperimentalData::amIAbstract()const
- {
-     return false;
- }
-
-  std::vector<std::string>  ExperimentalData::myParentClasses()const
- {
-     return parentClasses();
- }
-  std::vector<std::string>  ExperimentalData::myChildClasses()const
- {
-     return childClasses();
- }
-
-
 
 
 

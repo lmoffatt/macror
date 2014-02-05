@@ -11,24 +11,6 @@ std::string ABC_Operator::mySuperClass()const
     return ClassName();
 }
 
- std::vector<std::string>  ABC_Operator::myParentClasses()const
- {
-     return parentClasses();
- }
-
- std::vector<std::string>  ABC_Operator::myChildClasses()const
- {
-     return childClasses();
- }
-
-
- bool ABC_Operator::amIAbstract() const
- {
-     return true;
- }
-
-
-
 std::string ABC_Operator::ClassName()
 {
     return "ABC_Operator";
@@ -74,32 +56,9 @@ bool ABC_Operator::Load(const std::string& fileName)
     return this->GetDescription()==other.GetDescription();
 }
 
-  std::vector<std::string> ABC_Operator::parentClasses()
- {
-     std::vector<std::string> list;
-     list.push_back(ABC_Saveable::ClassName());
-     return list;
-
- }
-  std::vector<std::string> ABC_Operator::childClasses()
- {
-
-     std::vector<std::string> list;
-     list.push_back(AverageExperiment::ClassName());
-     return list;
-
-
- }
 
   bool  create(ABC_Operator*& v,const std::string& childClass)
   {
-      if (childClass==AverageExperiment::ClassName())
-        {
-            AverageExperiment* ae;
-            ae=new AverageExperiment();
-            v=ae;
-            return true;
-        }
        return false;
   }
 

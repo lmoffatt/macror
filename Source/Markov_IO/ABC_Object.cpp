@@ -18,25 +18,6 @@ namespace Markov_IO{
      return "Object_Base";
  }
 
-  std::vector<std::string> ABC_Object::parentClasses()
- {
-     std::vector<std::string> list;
-    return list;
- }
-
-  std::vector<std::string> ABC_Object::childClasses()
- {
-     std::vector<std::string> list;
-     list.push_back(Object<double>::ClassName());
-     list.push_back(Object<std::string>::ClassName());
-     list.push_back(Object<std::size_t>::ClassName());
-     list.push_back(Object<bool>::ClassName());
-     list.push_back(Object<Markov_LA::M_Matrix<double> >::ClassName());
-     list.push_back(Object<Markov_LA::M_Matrix<std::size_t> >::ClassName());
-
-     return list;
- }
-
   bool  create(ABC_Object*& o,const std::string& childClass)
   {
       ABC_Saveable* adesc;
@@ -80,20 +61,6 @@ namespace Markov_IO{
   }
 
 
-
-
-  bool ABC_Object::amIAbstract()const
-  {
-          return true;
-  }
-  std::vector<std::string>  ABC_Object::myParentClasses()const
-  {
-      return parentClasses();
-  }
-  std::vector<std::string>  ABC_Object::myChildClasses()const
-  {
-      return childClasses();
-  }
 
 
 

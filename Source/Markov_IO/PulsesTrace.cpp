@@ -410,35 +410,6 @@ std::string Pulses_trace::ClassName()
 
 
 
-std::vector<std::string> Pulses_trace::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_trace::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> Pulses_trace::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool Pulses_trace::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  Pulses_trace::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  Pulses_trace::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

@@ -212,35 +212,6 @@ ClassDescription Pulses_program::GetDescription()const
  }
 
 
- std::vector<std::string> Pulses_program::parentClasses()
- {
-     std::vector<std::string> v;
-     v.push_back(Markov_IO::ABC_Experiment::ClassName());
-
-    return v;
-
- }
-
- std::vector<std::string> Pulses_program::childClasses()
- {
-     std::vector<std::string> v;
-     return v;
- }
-
-  bool Pulses_program::amIAbstract()const
- {
-     return false;
- }
-
-  std::vector<std::string>  Pulses_program::myParentClasses()const
- {
-     return parentClasses();
- }
-  std::vector<std::string>  Pulses_program::myChildClasses()const
- {
-     return childClasses();
- }
-
 
 
 

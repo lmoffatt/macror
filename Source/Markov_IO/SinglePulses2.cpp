@@ -254,35 +254,6 @@ std::string Single_Pulses2::ClassName()
 {return "Single_Pulses2";}
 
 
-std::vector<std::string> Single_Pulses2::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Experiment::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> Single_Pulses2::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool Single_Pulses2::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  Single_Pulses2::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  Single_Pulses2::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

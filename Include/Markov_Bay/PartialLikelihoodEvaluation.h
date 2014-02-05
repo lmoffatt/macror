@@ -19,11 +19,6 @@ namespace Markov_Bay
        virtual bool LoadFromDescription(const Markov_IO::ClassDescription& classDes);
 
        static std::string ClassName();
-       static std::vector<std::string> parentClasses();
-       static std::vector<std::string> childClasses();
-       virtual bool amIAbstract()const;
-       virtual std::vector<std::string>  myParentClasses()const;
-       virtual std::vector<std::string>  myChildClasses()const;
 
        virtual std::string myName()const;
 	   virtual std::string myClass()const;

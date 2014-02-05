@@ -29,46 +29,6 @@ std::string ABC_Experiment::ClassName()
 }
 
 
-std::vector<std::string> ABC_Experiment::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_trace::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ABC_Experiment::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::Experiment::ClassName());
-    v.push_back(Markov_IO::Experiment_Average::ClassName());
-    v.push_back(Markov_Mol::Experiment_simulation::ClassName());
-    v.push_back(Markov_IO::Pulses_program::ClassName());
-    v.push_back(Markov_IO::Random_Pulses::ClassName());
-    v.push_back(Markov_IO::Single_Pulses::ClassName());
-    v.push_back(Markov_IO::Single_Pulses2::ClassName());
-    v.push_back(Markov_IO::ExperimentalData::ClassName());
-
-
-    return v;
-}
-
- bool ABC_Experiment::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_Experiment::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_Experiment::myChildClasses()const
-{
-    return childClasses();
-}
-
-
 
 
 const ABC_Experiment& ABC_Experiment::trace_interval()const

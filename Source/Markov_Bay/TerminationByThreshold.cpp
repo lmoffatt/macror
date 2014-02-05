@@ -142,35 +142,6 @@ TerminationByThreshold::Options::Options(const Markov_IO::ABC_Options& O):
  }
 
 
- std::vector<std::string> TerminationByThreshold::Options::parentClasses()
- {
-     std::vector<std::string> v;
-     v.push_back(Markov_IO::BaseOptions::ClassName());
-
-    return v;
-
- }
-
- std::vector<std::string> TerminationByThreshold::Options::childClasses()
- {
-     std::vector<std::string> v;
-     return v;
- }
-
-  bool TerminationByThreshold::Options::amIAbstract()const
- {
-     return false;
- }
-
-  std::vector<std::string>  TerminationByThreshold::Options::myParentClasses()const
- {
-     return parentClasses();
- }
-  std::vector<std::string>  TerminationByThreshold::Options::myChildClasses()const
- {
-     return childClasses();
- }
-
 
 }
 

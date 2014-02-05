@@ -30,35 +30,6 @@ std::string Trace::ClassName()
 
 
 
-std::vector<std::string> Trace::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_trace::ClassName());
-
-    return v;
-
-}
-
-std::vector<std::string> Trace::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
-bool Trace::amIAbstract()const
-{
-    return false;
-}
-
-std::vector<std::string>  Trace::myParentClasses()const
-{
-    return parentClasses();
-}
-std::vector<std::string>  Trace::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

@@ -15,37 +15,6 @@ std::string ABC_PatchModel::ClassName()
 }
 
 
-std::vector<std::string> ABC_PatchModel::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Parametrizable::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ABC_PatchModel::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Mol::PatchModel::ClassName());
-
-    return v;
-}
-
- bool ABC_PatchModel::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_PatchModel::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_PatchModel::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

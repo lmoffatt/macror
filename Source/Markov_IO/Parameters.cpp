@@ -329,37 +329,6 @@ std::string Parameters::Name(std::size_t i) const
 }
 
 
-std::vector<std::string> Parameters::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Parametrizable::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> Parameters::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ParametersMoments::ClassName());
-
-    return v;
-}
-
- bool Parameters::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  Parameters::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  Parameters::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 int Parameters::Index(const std::string& name) const
 {

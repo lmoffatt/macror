@@ -221,37 +221,6 @@ std::string gaussian_noise::myClass()const
 }
 
 
-std::vector<std::string> gaussian_noise::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Mol::ABC_noise::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> gaussian_noise::childClasses()
-{
-    std::vector<std::string> v;
-    return v;
-}
-
- bool gaussian_noise::amIAbstract()const
-{
-    return false;
-}
-
- std::vector<std::string>  gaussian_noise::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  gaussian_noise::myChildClasses()const
-{
-    return childClasses();
-}
-
-
-
 
 
 bool gaussian_noise::LoadFromDescription(

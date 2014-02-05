@@ -301,35 +301,6 @@ bool AverageExperiment::amIAbstract() const
   std::string AverageExperiment::Options::ClassName()
  {return "AverageExperiment_Options";}
 
-  std::vector<std::string> AverageExperiment::Options::parentClasses()
-  {
-      std::vector<std::string> v;
-      v.push_back(Markov_IO::BaseOptions::ClassName());
-
-     return v;
-
-  }
-
-  std::vector<std::string> AverageExperiment::Options::childClasses()
-  {
-      std::vector<std::string> v;
-      return v;
-  }
-
-   bool AverageExperiment::Options::amIAbstract()const
-  {
-      return false;
-  }
-
-   std::vector<std::string>  AverageExperiment::Options::myParentClasses()const
-  {
-      return parentClasses();
-  }
-   std::vector<std::string>  AverageExperiment::Options::myChildClasses()const
-  {
-      return childClasses();
-  }
-
 
 
 

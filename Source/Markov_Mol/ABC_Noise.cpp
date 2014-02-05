@@ -17,36 +17,6 @@ std::string ABC_noise::ClassName()
     return "Noise";
 }
 
-std::vector<std::string> ABC_noise::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Parametrizable::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ABC_noise::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Mol::gaussian_noise::ClassName());
-
-    return v;
-}
-
- bool ABC_noise::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_noise::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_noise::myChildClasses()const
-{
-    return childClasses();
-}
 
 
 

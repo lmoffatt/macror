@@ -17,36 +17,6 @@ std::string ABC_Options::ClassName()
     return "Options";
 }
 
- std::vector<std::string> ABC_Options::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Saveable::ClassName());
-
-   return v;
-
-}
-
- std::vector<std::string> ABC_Options::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::BaseOptions::ClassName());
-   return v;
-}
-
- bool ABC_Options::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_Options::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_Options::myChildClasses()const
-{
-    return childClasses();
-}
-
 
 
 

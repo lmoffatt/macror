@@ -1622,35 +1622,6 @@ namespace Markov_Mol
     return ClassName();
   }
 
-  std::vector<std::string> Q_Markov_Model::parentClasses()
-  {
-    std::vector<std::string> v;
-    v.push_back(Markov_Mol::ABC_Markov_Model::ClassName());
-
-    return v;
-
-  }
-
-  std::vector<std::string> Q_Markov_Model::childClasses()
-  {
-    std::vector<std::string> v;
-    return v;
-  }
-
-  bool Q_Markov_Model::amIAbstract()const
-  {
-    return false;
-  }
-
-  std::vector<std::string>  Q_Markov_Model::myParentClasses()const
-  {
-    return parentClasses();
-  }
-  std::vector<std::string>  Q_Markov_Model::myChildClasses()const
-  {
-    return childClasses();
-  }
-
 
 
 

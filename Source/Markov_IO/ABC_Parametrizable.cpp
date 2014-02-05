@@ -17,42 +17,6 @@ std::string ABC_Parametrizable::ClassName()
     return "Parametrizable";
 }
 
-std::vector<std::string> ABC_Parametrizable::parentClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_IO::ABC_Saveable::ClassName());
-
-   return v;
-
-}
-
-std::vector<std::string> ABC_Parametrizable::childClasses()
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Mol::ABC_Markov_Model::ClassName());
-
-    v.push_back(Markov_Mol::ABC_PatchModel::ClassName());
-    v.push_back(Markov_Bay::ABC_ParametricDistributable::ClassName());
-    v.push_back(Markov_Mol::ABC_noise::ClassName());
-    v.push_back(Markov_IO::Parameters::ClassName());
-
-    return v;
-}
-
- bool ABC_Parametrizable::amIAbstract()const
-{
-    return true;
-}
-
- std::vector<std::string>  ABC_Parametrizable::myParentClasses()const
-{
-    return parentClasses();
-}
- std::vector<std::string>  ABC_Parametrizable::myChildClasses()const
-
-{
-    return childClasses();
-}
 
  bool  create(ABC_Parametrizable*& v,const std::string& childClass)
  {
