@@ -474,7 +474,8 @@ SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
     Source/Markov_Console/BayesianAutocomplete.cpp
 
-OTHER_FILES +=
+OTHER_FILES += \
+    help_files/plan_aheadd.txt
 
 
 

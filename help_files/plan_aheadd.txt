@@ -1,0 +1,26 @@
+Plan ahead:
+
+1. Background
+Jeronimo suggested strongly to improve the documentation, specially to add an elaborate explanation of each command
+
+He wants a progress bar for commands that takes a while.
+
+Avoid screen freezing
+
+----
+We also disscused and we decided we want five screens:
+1. Models screen
+2. Protocols screen
+3. Measurements screen
+4. Simulations screen
+5. Analysis screen
+
+Each screen would have its own set of commands
+
+---
+Major changes ahead
+1. Split class Experiment in three: ExperimentalProtocol, SamplingSchedule, and SignalValue.
+
+2. Set windows for models, protocols, measurements, simulations and analysis.
+
+3. Simplify the excess of classes.
