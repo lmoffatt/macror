@@ -33,6 +33,8 @@ Markov_CommandManagerTest::Markov_CommandManagerTest():
       new Markov_Test::Markov_Mol_Test::Markov_Mol_Test;
 
 
+
+
   for (auto it=tests.begin(); it!=tests.end(); ++it)
   {
       autoCmptByKind[ABC_Command::testName()].push_back(it->first);

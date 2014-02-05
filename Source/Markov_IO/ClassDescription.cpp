@@ -49,9 +49,9 @@ bool isClassEnd(std::string& line,
                 std::istream& stream,
                 const std::string& className);
 
-const std::string beginLabel();
+std::string beginLabel();
 
-const std::string endLabel();
+std::string endLabel();
 
 ABC_Saveable* getDescriptible(const std::string & classname);
 
@@ -1094,12 +1094,12 @@ void RemoveComments(std::string& str)
 
 namespace {
 
-const std::string beginLabel()
+ std::string beginLabel()
 {
     return "Begin";
 }
 
-const std::string endLabel()
+std::string endLabel()
 {
     return "End";
 }

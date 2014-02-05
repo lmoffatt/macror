@@ -35,7 +35,6 @@ HEADERS += \
     Include/Tests/BiOperatorProperties_Test.h \
     Include/Tests/BasicAlgebraProperties_Test.h \
     Include/Tests/Assigment_Test.h \
-    Include/Tests/AssertVerbose.h \
     Include/Tests/AssertPlain.h \
     Include/Tests/Markov_LA/ToleranceComparison_Test.h \
     Include/Tests/Markov_LA/Matrix_Test_times.h \
