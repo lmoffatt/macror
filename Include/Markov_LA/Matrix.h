@@ -107,18 +107,18 @@ namespace Markov_LA
 	const  T&  operator() (std::size_t i,std::size_t j) const;
 
 	M_Matrix<T>&  operator() (std::size_t i,
-				  const std::string dummy,
+				  const std::string /*dummy*/,
 				  const M_Matrix<T>& newValues);
 
-	M_Matrix<T>&  operator() (const std::string dummy,
+	M_Matrix<T>&  operator() (const std::string /*dummy*/,
 				  std::size_t jColumn,
 				  const M_Matrix<T>& newValues);
 
 	M_Matrix<T>  operator() (std::size_t iRow,
-				 std::string dummy) const;
+				 std::string /*dummy*/) const;
 
 
-	M_Matrix<T>  operator() (std::string dummy,
+	M_Matrix<T>  operator() (std::string /*dummy*/,
 				 std::size_t jColumn) const;
 
 

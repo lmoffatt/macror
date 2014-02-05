@@ -235,12 +235,6 @@ ClassDescription ABC_trace::GetState()const
 
 
 
-std::vector<std::string> GetChilds(const ABC_trace* e)
-{
-    std::vector<std::string> v;
-    v.push_back(Pulses_trace::ClassName());
-    return v;
-}
 
 
 bool  create(ABC_trace*& trace,const std::string& childClass)

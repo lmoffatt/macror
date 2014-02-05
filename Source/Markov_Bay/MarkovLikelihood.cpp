@@ -53,22 +53,21 @@ namespace Markov_Bay
   }
 
 
-  PartialLikelihoodEvaluation Markov_Likelihood::run(const Markov_IO::Parameters& beta,
-                                                     const std::string& dummy)
+  PartialLikelihoodEvaluation Markov_Likelihood::run(const Markov_IO::Parameters& beta, const std::string&)
   {
     L_A->apply_parameters(beta);
 
-    return run(dummy);
+    return run("dummy");
 
   }
 
 
   YfitLikelihoodEvaluation Markov_Likelihood::run(const Markov_IO::Parameters& beta,
-                                                  const std::string& dummy0,
-                                                  const std::string& dummy1)
+                                                  const std::string& ,
+                                                  const std::string& )
   {
     L_A->apply_parameters(beta);
-    return run(dummy0,dummy1);
+    return run("dummy0","dummy1");
 
   }
 
@@ -86,7 +85,7 @@ namespace Markov_Bay
     if (Markov_LA::isFinite(L_0.logL()))
     {
 #pragma omp parallel for
-    for (int i=0; i<beta.size();++i)
+    for (std::size_t i=0; i<beta.size();++i)
       {
         Markov_IO::Parameters beta_i(beta);
         Markov_LA::M_Matrix<double> x(beta.transformed_values());
@@ -302,7 +301,7 @@ namespace Markov_Bay
   }
 
 
-  PartialLikelihoodEvaluation Markov_Likelihood::run(const std::string& dummy)
+  PartialLikelihoodEvaluation Markov_Likelihood::run(const std::string& /*dummy*/)
   {
     double logL=0;
     double elogL=0;
@@ -346,8 +345,7 @@ namespace Markov_Bay
   }
 
 
-  YfitLikelihoodEvaluation Markov_Likelihood::run(const std::string& dummy0,
-                                                  const std::string& dummy1)
+  YfitLikelihoodEvaluation Markov_Likelihood::run(const std::string& , const std::string&)
   {
     double logL=0;
     double elogL=0;

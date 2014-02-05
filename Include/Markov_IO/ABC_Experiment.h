@@ -101,7 +101,7 @@ std::ostream& operator<<(std::ostream& stream, const ABC_Experiment&  E );
 bool LoadFromDescription(ABC_Experiment*& e,
 			 const Markov_IO::ClassDescription& classDes);
 
-std::vector<std::string> GetChilds(const ABC_Experiment* e);
+
 
 bool  create(ABC_Experiment*& e,const std::string& childClass);
 

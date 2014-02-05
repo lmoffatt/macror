@@ -109,7 +109,7 @@
     Markov_Mol::Q_Markov_Model* p=new Markov_Mol::Q_Markov_Model();
     cm_->delete_var(varname.toStdString());
     cm_->add_var(varname.toStdString(),p);
-    edit(varname);
+    return edit(varname);
   }
 
 
@@ -118,7 +118,7 @@
   {
     MacrorEditWindow* eW=new MacrorEditWindow(varname,cm_);
     eW->show();
-
+ //BUG: does not make sense it does not return nothing
   }
 
 

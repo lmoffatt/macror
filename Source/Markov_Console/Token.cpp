@@ -99,7 +99,7 @@ namespace Markov_Console
 
 
   double Token::Number()const{return number_value;}
-  const std::string& Token::Path()const{return Name();}
+  std::string Token::Path()const{return Name();}
   Token::Value Token::get_token()const{return curr_tok;}
 
 

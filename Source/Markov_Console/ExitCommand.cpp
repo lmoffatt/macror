@@ -37,7 +37,7 @@ std::string ExitCommand::commandName()const
     return "exit";
 }
 /// runs the command on the command manager and returns true if succeeds
-bool ExitCommand::run(std::deque<Token> & tokenList)
+bool ExitCommand::run(std::deque<Token> & )
 {
     exit(0);
 }

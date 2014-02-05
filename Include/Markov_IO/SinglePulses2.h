@@ -27,7 +27,7 @@ public:
     virtual std::size_t total_samples() const;
 
     virtual std::size_t num_replicates()const;
-    virtual const Single_Pulses2& replicate(std::size_t i)const;
+    virtual const Single_Pulses2& replicate(std::size_t)const;
 
 
     virtual const Single_Pulses2& trace(std::size_t i)const;

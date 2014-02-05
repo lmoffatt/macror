@@ -51,12 +51,6 @@ std::vector<std::string> ABC_Distribution::childClasses()
 ABC_Distribution::~ABC_Distribution()
 {}
 
-std::vector<std::string> GetChilds(const ABC_Distribution* d)
-{
-    std::vector<std::string> v;
-    v.push_back(Markov_Mol::PatchModelNormalDistribution::ClassName());
-    return v;
- }
 
 
 bool  create(ABC_Distribution*& distribution,const std::string& childClass)

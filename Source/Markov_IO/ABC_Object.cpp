@@ -150,11 +150,11 @@ namespace Markov_IO{
  }
 
 
- bool IsChildOf(const ABC_Object* parent,const ABC_Object* child)
+ /*bool IsChildOf(const ABC_Object* parent,const ABC_Object* child)
  {
 
  }
-
+*/
 
   ABC_Object* ABC_Object::create(const std::string& childClass)
  {

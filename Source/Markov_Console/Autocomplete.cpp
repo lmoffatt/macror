@@ -61,7 +61,7 @@ std::string Autocomplete::suggestedCharacters(const std::vector<std::string>& li
 
   while((n<hint.size())&&(n<list.back().size())&&(list.back()[n]==hint[n]))
     n++;
-  std:size_t m=n;
+  std::size_t m=n;
   while((m<list[i].size())&&(m<list.back().size())&&(list[i][m]==list.back()[m]))
     m++;
   return list[i].substr(n,m-n);

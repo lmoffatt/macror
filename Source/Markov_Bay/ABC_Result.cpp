@@ -57,17 +57,6 @@ std::vector<std::string> ABC_Result::childClasses()
 
 
 
-std::vector<std::string> GetChilds(const ABC_Result* e)
-{
-    std::vector<std::string> v;
-    v.push_back(LikelihoodEvaluation::ClassName());
-    v.push_back(PartialLikelihoodEvaluation::ClassName());
-    v.push_back(YfitLikelihoodEvaluation::ClassName());
-    v.push_back(SingleOptimizationResult::ClassName());
-    v.push_back(OptimizationResult::ClassName());
-
-    return v;
- }
 
 
 bool  create(ABC_Result*& result,const std::string& childClass)

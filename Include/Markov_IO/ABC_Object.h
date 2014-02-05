@@ -48,7 +48,7 @@ public:
   bool  create(ABC_Object*& o,const std::string& childClass);
 
 
-  bool IsChildOf(const ABC_Object* parent,const ABC_Object* child);
+ // bool IsChildOf(const ABC_Object* parent,const ABC_Object* child);
 
 
 

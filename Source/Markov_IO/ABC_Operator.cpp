@@ -108,11 +108,6 @@ bool ABC_Operator::Load(const std::string& fileName)
   {
 
       AverageExperiment* o;
-      if (o->LoadFromDescription(classDesc))
-      {
-          v=o;
-          return true;
-      }
       return false;
 
   }

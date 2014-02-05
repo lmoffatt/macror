@@ -21,7 +21,7 @@ public:
 
 
     /// runs the command for a list of parameters
-    virtual bool run(std::deque<Markov_Console::Token>& tokenList);
+    virtual bool run(std::deque<Markov_Console::Token>&);
 
 private:
     MacrorMainWindow* mw;

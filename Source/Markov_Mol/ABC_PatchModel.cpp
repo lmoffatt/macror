@@ -64,12 +64,6 @@ inline bool operator==(const ABC_PatchModel& x,
     return true;
 }
 
-std::vector<std::string> GetChilds(const ABC_PatchModel* e)
-{
-    std::vector<std::string> v;
-    v.push_back(PatchModel::ClassName());
-    return v;
- }
 
 
 bool  create(ABC_PatchModel*& model,const std::string& childClass)

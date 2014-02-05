@@ -52,14 +52,14 @@ Random_Pulses* Random_Pulses::clone() const
  std::size_t Random_Pulses::num_replicates()const
 {
     return 0;
-};
+}
 
  const Random_Pulses& Random_Pulses::replicate(std::size_t i)const
 {
    ASSERT_LESS(i, num_replicates());
 
    return *this;
-};
+}
 
 
 

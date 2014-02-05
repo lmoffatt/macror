@@ -480,15 +480,6 @@ Parameters& Parameters::Transform(std::size_t i,Parameters::TRANSFORMATION tr)
 
 
 
-std::vector<std::string> GetChilds(const Parameters* e)
-{
-    std::vector<std::string> v;
-    v.push_back(Parameters::ClassName());
-    v.push_back(ParametersMoments::ClassName());
-
-    return v;
-}
-
 
 bool  create(Parameters*& par,const std::string& childClass)
 

@@ -113,7 +113,7 @@ bool ToleranceComparison<T>::isLess(T x, T y)const
 {
     T maxdif=std::max(absTol_, relTol_ *
 		    std::max(x>0?x:-x, y>0?y:-y));
-    double dif=x-y;
+    //double dif=x-y;
     return (x<y-maxdif);
 }
 

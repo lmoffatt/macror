@@ -1386,7 +1386,6 @@ std::istream& extractElementValue(std::string& line,
             while(!isClassEnd(line,stream,className))
             {
                 value+="\n"+line;
-                std::size_t max= value.max_size();
                 if (value.size()>0.9*value.max_size())
                     std::cerr<<"string too big="<<value.size()<<std::endl;
                 line.clear();

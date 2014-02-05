@@ -22,7 +22,7 @@ public:
     virtual std::string commandName()const;
 
     /// runs the command on the command manager and returns true if succeeds
-    virtual bool run(std::deque<Token>& tokenList);
+    virtual bool run(std::deque<Token>&);
 
 
 };

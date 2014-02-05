@@ -427,7 +427,6 @@ namespace Markov_Mol
   {
     tau_Map.clear();
     QC_M=Q_M;
-    std::size_t k=0;
     for(std::multimap<std::size_t,std::size_t>::const_iterator it=conn_Map.begin(); it!=conn_Map.end(); ++it)
       {
         std::size_t i=it->first;
@@ -969,13 +968,11 @@ namespace Markov_Mol
       M_Matrix<double> SSdif;
       OO=expm(Qrun*t);
       SS=expm(Qrun*(t*2));
-      M_Matrix<double>* SS0=&OO;
-      M_Matrix<double>* SS1=&SS;
-      while (!(SS==OO)&&(t<tmax))
+       while (!(SS==OO)&&(t<tmax))
         {
-          SS0=SS1;
           t*=2;
-          (*SS1)=expm(Qrun*(t*2));
+          OO=SS;
+          SS=expm(Qrun*(t*2));
         }
      // std::cerr<<"\n t="<<t<<"  SS=\n"<<SS;
      // std::cerr<<"\n _Qrun="<<Qrun<<"\n";
@@ -1394,8 +1391,7 @@ namespace Markov_Mol
 
   Markov_state_ext Q_Markov_Model::start(double equilibrium_concentration,
                                          std::size_t Nchannels,
-                                         Borrowed::MersenneTwister::MTRand& sto,
-                                         bool ext)const
+                                         Borrowed::MersenneTwister::MTRand& sto, bool)const
   {
     Markov_state_ext M(k_u);
     M.N=random_N_sample(this->Peq(equilibrium_concentration), Nchannels,sto);

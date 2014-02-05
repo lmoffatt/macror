@@ -461,8 +461,6 @@ bool LoadFromStringDescription(ABC_Markov_Model*& x,
 
 std::istream& operator>> (std::istream& stream,ABC_Markov_Model*& model);
 
-std::vector<std::string> GetChilds(const ABC_Markov_Model* e);
-
 bool  create(ABC_Markov_Model*& e,const std::string& childClass);
 
 

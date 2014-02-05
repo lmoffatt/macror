@@ -177,11 +177,11 @@ Trace::Trace():
     name_(),
     tx_(Markov_LA::M_Matrix<double>("0  0")),
     ty_(Markov_LA::M_Matrix<double>("0  0")),
-    xs_(),
-    num_measures_(0),
-    i_sample_(),
-    trace_interval_(),
-    i_replicate_()
+     trace_interval_(),
+     xs_(),
+     num_measures_(0),
+  i_sample_(),
+  i_replicate_()
     {}
 
 void swap(Trace& one, Trace& other)
@@ -390,7 +390,7 @@ void Trace::init()
         tx_=tx;
     }
     std::size_t i0x=0;
-    std:size_t i1x=0;
+    std::size_t i1x=0;
     Markov_LA::ToleranceComparison<double> tol;
     for (std::size_t i=0; i<=num_measures_; i++)
     {

@@ -130,7 +130,7 @@ Macro_Aprox_step& Macro_Aprox_step::run(const Markov_IO::ABC_measure_step& Y)
     M_Matrix<double> sumPcov=zeros(P_cov());
     M_Matrix<double> sumPmeanPrior=zeros(P_mean());
     M_Matrix<double> sumPcovPrior=zeros(P_cov());
-    double maxLogL;
+    double maxLogL=NaN();
     df_=0;
     y_d=Y.y();
 
@@ -180,15 +180,15 @@ Macro_Aprox_step& Macro_Aprox_step::run(const Markov_IO::ABC_measure_step& Y)
 
 
     plogL_d=log(sumLikelihood/NumSamples_)+maxLogL;
-    double dy=y_d-y_mean_d;
+    //double dy=y_d-y_mean_d;
 
-    double ratio=nois/y_var_d*NumSamples_;
-    double ratio2=dy/y_std_d;
+    //double ratio=nois/y_var_d*NumSamples_;
+    //double ratio2=dy/y_std_d;
 
 
-    double chi2=dy*dy/y_var_d;
+    //double chi2=dy*dy/y_var_d;
 
-    double plogL=-0.5*log(2*PI*y_var_d)-0.5*chi2;
+    //double plogL=-0.5*log(2*PI*y_var_d)-0.5*chi2;
 
     P_mean_prior_M=P_mean_M;
     P_mean_M=sumPmean/sumLikelihood;

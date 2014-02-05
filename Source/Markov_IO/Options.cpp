@@ -341,10 +341,6 @@ std::string BaseOptions::ClassName()
         else return false;
     }
 
-    std::vector<std::string> GetChilds(const BaseOptions* e)
-    {
-        return BaseOptions::childClasses();
-    }
 
     bool  create(BaseOptions*& e,const std::string& childClass)
     {

@@ -39,7 +39,7 @@ public:
 bool LoadFromDescription(ABC_Options*& e,
 			 const ClassDescription& classDes);
 
-std::vector<std::string> GetChilds(const ABC_Options* e);
+
 
 bool  create(ABC_Options*& e,const std::string& childClass);
 

@@ -52,12 +52,6 @@ std::vector<std::string> ABC_noise::childClasses()
 
 
 
-std::vector<std::string> GetChilds(const ABC_noise* e)
-{
-    std::vector<std::string> v;
-    v.push_back(gaussian_noise::ClassName());
-    return v;
- }
 
 
 bool  create(ABC_noise*& model,const std::string& childClass)

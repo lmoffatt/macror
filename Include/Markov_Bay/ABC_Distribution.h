@@ -28,8 +28,6 @@ bool LoadFromDescription(ABC_Distribution*& distribution,
 
 std::istream& operator>> (std::istream& stream,ABC_Distribution*& distribution);
 
-std::vector<std::string> GetChilds(const ABC_Distribution* d);
-
 bool  create(ABC_Distribution*& d,const std::string& childClass);
 
 }

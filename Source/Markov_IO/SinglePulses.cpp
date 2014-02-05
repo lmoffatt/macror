@@ -32,20 +32,19 @@ Single_Pulses*  Single_Pulses::clone() const
  std::size_t Single_Pulses::total_samples() const
 {
     return num_traces()*num_measures();
-};
+}
 
 
  std::size_t Single_Pulses::num_replicates()const
 {
     return 0;
-};
+}
 
- const Single_Pulses& Single_Pulses::replicate(std::size_t i)const
+ const Single_Pulses& Single_Pulses::replicate(std::size_t)const
 {
-   ASSERT_LESS(i, num_replicates());
 
    return *this;
-};
+}
 
 //     Single_Pulses& set_max_x_trace(double new_x)
 //    {

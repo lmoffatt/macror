@@ -200,8 +200,8 @@ namespace Markov_Bay
     priorPatchDist_(other.priorPatchDist_),
     optRuns_(other.optRuns_),
     resLogL_(other.resLogL_),
-    maxLik_(other.maxLik_),
     reachMaxLik_(other.reachMaxLik_),
+    maxLik_(other.maxLik_),
     posteriorModeDist_(other.posteriorModeDist_),
     posteriorMeanDist_(other.posteriorMeanDist_)
 
@@ -212,10 +212,10 @@ namespace Markov_Bay
     priorPatchDist_(),
     optRuns_(),
     resLogL_(),
+    reachMaxLik_(),
     maxLik_(),
     posteriorModeDist_(),
-    posteriorMeanDist_(),
-    reachMaxLik_()
+    posteriorMeanDist_()
   {}
   OptimizationResult::OptimizationResult(const std::string& name,
                                          const Markov_IO::ABC_Experiment& experiment,

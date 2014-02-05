@@ -81,7 +81,6 @@ protected:
 bool LoadFromDescription(BaseOptions*& e,
              const ClassDescription& classDes);
 
-std::vector<std::string> GetChilds(const BaseOptions* e);
 
 bool  create(BaseOptions*& e,const std::string& childClass);
 

@@ -98,7 +98,7 @@ namespace Markov_Mol
     virtual Markov_state_ext start(double equilibrium_concentration,
                                    std::size_t Nchannels,
                                    Borrowed::MersenneTwister::MTRand& sto,
-                                   bool dummy)const;
+                                   bool /*dummy*/)const;
 
     virtual Markov_state& run(const Markov_IO::ABC_measure_point& xdt,
                               Markov_state& M,

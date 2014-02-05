@@ -32,8 +32,6 @@ bool LoadFromDescription(ABC_Result*& result,
 
 std::istream& operator>> (std::istream& stream,ABC_Result*& result);
 
-std::vector<std::string> GetChilds(const ABC_Result* r);
-
 bool  create(ABC_Result*& r,const std::string& childClass);
 
 

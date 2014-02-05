@@ -22,7 +22,7 @@ namespace Markov_Plot
 
          GraphView* g=  aplot(parent,x);
 
-         QHBoxLayout* mainLayout;
+         QHBoxLayout* mainLayout=new QHBoxLayout;
          mainLayout->addWidget(g);
          gw->setLayout(mainLayout);
          return gw;
@@ -37,7 +37,7 @@ namespace Markov_Plot
 
          GraphView* g=  aplot(parent,x,y);
 
-         QHBoxLayout* mainLayout;
+         QHBoxLayout* mainLayout=new QHBoxLayout;
          mainLayout->addWidget(g);
          gw->setLayout(mainLayout);
          return gw;
@@ -53,7 +53,7 @@ namespace Markov_Plot
 
          GraphView* g=  aplot(parent,trace);
 
-         QHBoxLayout* mainLayout;
+         QHBoxLayout* mainLayout=new QHBoxLayout;
          mainLayout->addWidget(g);
          gw->setLayout(mainLayout);
          return gw;

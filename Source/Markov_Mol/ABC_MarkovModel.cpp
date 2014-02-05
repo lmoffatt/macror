@@ -68,13 +68,6 @@ inline bool operator==(const ABC_Markov_Model& x,
     return true;
 }
 
-std::vector<std::string> GetChilds(const ABC_Markov_Model* e)
-{
-    std::vector<std::string> v;
-    v.push_back(Q_Markov_Model::ClassName());
-    return v;
- }
-
 
 bool  create(ABC_Markov_Model*& model,const std::string& childClass)
 

@@ -139,21 +139,6 @@ std::ostream& operator<<(std::ostream& stream, const ABC_Experiment&  E )
 }
 
 
-std::vector<std::string> GetChilds(const ABC_Experiment* e)
-{
-    std::vector<std::string> v;
-    v.push_back(Experiment::ClassName());
-    v.push_back(Random_Pulses::ClassName());
-    v.push_back(Single_Pulses::ClassName());
-    v.push_back(Single_Pulses2::ClassName());
-    v.push_back(Pulses_program::ClassName());
-    v.push_back(Experiment_Average::ClassName());
-    v.push_back(Markov_Mol::Experiment_simulation::ClassName());
-    v.push_back(Markov_Mol::ExperimentalData::ClassName());
-
-
-   return v;
- }
 
 /// returns true if it is a class name descendent of ABC_Experiment
 bool  create(ABC_Experiment*& experiment,const std::string& childClass)

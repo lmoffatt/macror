@@ -45,11 +45,11 @@ public:
     virtual LikelihoodEvaluation infinity();
 
     virtual PartialLikelihoodEvaluation run(const Markov_IO::Parameters& beta,
-					    const std::string& dummyString);
+                                            const std::string& /*dummyString*/);
 
     virtual YfitLikelihoodEvaluation run(const Markov_IO::Parameters& beta,
-					    const std::string& dummyString0,
-					 const std::string& dummyString1);
+                                            const std::string& /*dummyString0*/,
+                                         const std::string& /*dummyString1*/);
 
     virtual LikelihoodEvaluation run();
 
@@ -71,10 +71,10 @@ public:
   HessianAproximationMatrix(const Markov_IO::Parameters& beta);
 
 
-    virtual PartialLikelihoodEvaluation run(const std::string& dummyString);
+    virtual PartialLikelihoodEvaluation run(const std::string&);
 
-    virtual YfitLikelihoodEvaluation run(const std::string& dummyString0,
-					 const std::string& dummyString1);
+    virtual YfitLikelihoodEvaluation run(const std::string& /*dummyString0*/,
+                                         const std::string& /*dummyString1*/);
 
 
 

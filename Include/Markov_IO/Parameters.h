@@ -130,7 +130,6 @@ std::istream& operator>>(std::istream& s,Parameters*& p);
 bool LoadFromDescription(Parameters*& p,
 			 const Markov_IO::ClassDescription& classDes);
 
-std::vector<std::string> GetChilds(const Parameters* e);
 
 bool  create(Parameters*& e,const std::string& childClass);
 

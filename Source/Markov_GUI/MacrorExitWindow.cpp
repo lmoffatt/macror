@@ -12,7 +12,7 @@ MacrorExitCommand::MacrorExitCommand(Markov_Console::Markov_CommandManager* cm, 
 
 
 
-bool MacrorExitCommand::run(std::deque<Markov_Console::Token>& tokenList)
+bool MacrorExitCommand::run(std::deque<Markov_Console::Token>& )
 {
     return mw->close();
 

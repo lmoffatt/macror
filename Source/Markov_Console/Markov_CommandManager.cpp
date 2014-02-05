@@ -450,7 +450,7 @@ namespace Markov_Console
                     experiment("myexperiment");
                 else experiment(tokens[1].Name());
             }*/
-            else if (tokens[0].Name().c_str()=="RunScript")
+            else if (tokens[0].Name()=="RunScript")
               {
                 if (tokens.size()<2) missing_parameter();
                 else runScript(tokens[1].Name());
@@ -582,6 +582,7 @@ namespace Markov_Console
           }
 
       }
+    return std::vector<std::string>();
   }
 
 

@@ -224,7 +224,7 @@ namespace Markov_Console
         Markov_IO::FileDir f(filename);
         f.begin();
         std::size_t numVar=0;
-        std::size_t numfiles=0;
+       // std::size_t numfiles=0;
 
         do
           {

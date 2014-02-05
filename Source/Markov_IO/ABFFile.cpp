@@ -1110,7 +1110,7 @@ namespace Markov_IO
                   {
                     char * D=new char[nTraceSamples_*2*nSignals_];
                     f.read(D,nTraceSamples_*2*nSignals_);
-                    for (int i=0; i< nTraceSamples_; i++)
+                    for (std::size_t i=0; i< nTraceSamples_; i++)
                       {
                         for (std::size_t n=0; n<nSignals_;n++)
                           {

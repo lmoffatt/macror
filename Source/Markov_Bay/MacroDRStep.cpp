@@ -113,9 +113,9 @@ Macro_DR_step& Macro_DR_step::start(double x)
 
 Macro_DR_step& Macro_DR_step::run(const Markov_IO::ABC_measure_step& Y)
 {
-  double dt=Y.dt();
-  double x=Y.x();
-  double y=Y.y();
+  //double dt=Y.dt();
+//  double x=Y.x();
+ // double y=Y.y();
 
 
     Q_dt=this->model().Q_step(Y,true,true);

@@ -48,10 +48,6 @@ std::string ABC_Options::ClassName()
 }
 
 
-std::vector<std::string> GetChilds(const ABC_Options* e)
-{
-   return ABC_Options::childClasses();
-}
 
 
 bool  create(ABC_Options*& option,const std::string& childClass)

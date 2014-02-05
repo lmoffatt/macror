@@ -69,8 +69,6 @@ public:
 
     std::istream& operator>> (std::istream& stream,ABC_noise*& noise);
 
-    std::vector<std::string> GetChilds(const ABC_noise* e);
-
     bool  create(ABC_noise*& e,const std::string& childClass);
 
 

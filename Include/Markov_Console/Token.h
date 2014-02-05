@@ -77,7 +77,7 @@ public:
 
     double Number()const;
 
-    const std::string& Path()const;
+    std::string Path()const;
 
     Value get_token()const;
 

@@ -93,7 +93,6 @@ bool LoadFromDescription(ABC_PatchModel*& x,
 
 std::istream& operator>> (std::istream& stream,ABC_PatchModel*& model);
 
-std::vector<std::string> GetChilds(const ABC_PatchModel* e);
 
 bool  create(ABC_PatchModel*& e,const std::string& childClass);
 

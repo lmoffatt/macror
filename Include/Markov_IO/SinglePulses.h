@@ -25,7 +25,7 @@ public:
 
     virtual std::size_t num_replicates()const;
 
-    virtual const Single_Pulses& replicate(std::size_t i)const;
+    virtual const Single_Pulses& replicate(std::size_t)const;
 
     //    virtual Single_Pulses& set_max_x_trace(double new_x)
     //    {

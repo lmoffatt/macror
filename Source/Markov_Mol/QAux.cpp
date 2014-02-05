@@ -22,9 +22,6 @@ Markov_LA::M_Matrix<size_t>& random_P_on_N(const Markov_Transition_step& Qdt,
 				Borrowed::MersenneTwister::MTRand& sto)
 {
     //std::cout<<"P "<<Qdt.P<<"N_run"<<N_run;
-  for (std::size_t i=0; i<size(N_run);++i)
-    if (N_run[i]<0)
-      std::cerr<<"N_run"<<N_run<<"\n";
   if (Qdt.P<0.0)
     std::cerr<<"negative Qdt.P"<<Qdt.P<<"\n";
 

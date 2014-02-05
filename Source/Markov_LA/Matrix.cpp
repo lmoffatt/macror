@@ -388,7 +388,7 @@ namespace Markov_LA
 
   template<typename T>
   M_Matrix<T>&  M_Matrix<T>::operator() (std::size_t iRow,
-                                         std::string dummy,
+                                         std::string /*dummy*/,
                                          const M_Matrix<T>& newValues)
   {
     ASSERT_LESS(iRow,nrows(*this));//number of rows
@@ -420,7 +420,7 @@ namespace Markov_LA
 
 
   template<typename T>
-  M_Matrix<T>&  M_Matrix<T>::operator() (const std::string dummy,
+  M_Matrix<T>&  M_Matrix<T>::operator() (const std::string /*dummy*/,
                                          std::size_t jColumn,
                                          const M_Matrix<T>& newValues)
   {
@@ -450,7 +450,7 @@ namespace Markov_LA
 
   template<typename T>
   M_Matrix<T>  M_Matrix<T>::operator() (std::size_t iRow,
-                                        const std::string dummy
+                                        const std::string /*dummy*/
                                         ) const
   {
     ASSERT_LESS(iRow,nrows(*this));
@@ -475,7 +475,7 @@ namespace Markov_LA
     */
 
   template<typename T>
-  M_Matrix<T>  M_Matrix<T>::operator() (std::string dummy,
+  M_Matrix<T>  M_Matrix<T>::operator() (std::string /*dummy*/,
                                         std::size_t jColumn
                                         ) const
   {

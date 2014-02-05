@@ -53,7 +53,7 @@ std::string incolumns(std::vector<std::string> list,std::size_t colwidth)
     std::string result;
     for (std::size_t i=0; i< nrows; ++i)
     {
-        for (std::size_t j=0; j<ncols,i+j*nrows<list.size();j++)
+        for (std::size_t j=0; j<ncols && i+j*nrows<list.size();j++)
         {
             
             std::string name=list[i+j*nrows];
@@ -113,7 +113,7 @@ Markov_Console::Markov_Console(Markov_CommandManager *c, const std::string& file
     
     if (fileCommandName.empty())
     {
-        char ch,ch0;
+        char ch,ch0=' ';
         std::cout <<cm->wellcomeMessage();
         while(true)
         {
@@ -171,6 +171,7 @@ Markov_Console::Markov_Console(Markov_CommandManager *c, const std::string& file
                     else
                     {
                         ch2=getUnbufChar();
+                        ch3=' ';
                     }
                     if ((((ch2=='[')&&(ch3=='A'))||(ch2=='H'))||  //upkey
                             (((ch2=='[')&&(ch3=='B'))||(ch2=='P'))) //downkey

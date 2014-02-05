@@ -32,19 +32,18 @@ Single_Pulses2*  Single_Pulses2::clone() const
  std::size_t Single_Pulses2::total_samples() const
 {
     return PP_PP.total_samples();
-};
+}
 
 
  std::size_t Single_Pulses2::num_replicates()const
 {
     return 0;
-};
+}
 
- const Single_Pulses2& Single_Pulses2::replicate(std::size_t i)const
+ const Single_Pulses2& Single_Pulses2::replicate(std::size_t)const
 {
-   ASSERT_LESS(i, num_replicates());
     return *this;
-};
+}
 
 
 

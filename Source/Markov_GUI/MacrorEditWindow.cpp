@@ -36,8 +36,8 @@ MacrorEditWindow::MacrorEditWindow(QString fieldName,
                                    MacrorEditWindow *parent):
 
     QDialog(parent),
-    pw_(parent),
     cm_(parent->cm_),
+    pw_(parent),
     alias(parent->alias+"."+fieldName),
     myFieldName(fieldName),
     v(parent->getFieldClass(fieldName))

@@ -109,8 +109,8 @@ using namespace Markov_LA;
         for (std::size_t i=0; i<size(sample);++i)
 
         {
-            double sam=sample[i];
-            double cat=count_.upper_bound(sample[i])->first;
+            //double sam=sample[i];
+           // double cat=count_.upper_bound(sample[i])->first;
             count_.upper_bound(sample[i])->second++;
         }
         Compute();
