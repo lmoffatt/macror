@@ -7,7 +7,7 @@
 #include "Markov_IO/ABFFile.h"
 #include "Markov_IO/PulsesProgram.h"
 
-#include "Markov_IO/Abstract_Object.h"
+#include "Markov_Object/Abstract_Object.h"
 
 /*
 int main(int argc, char **argv)

@@ -264,7 +264,6 @@ HEADERS += \
     Include/Markov_IO/ABC_Unit.h
 
 SOURCES += \
-    Source/Markov_IO/Abstract_Object.cpp\
     Source/Markov_IO/ABC_Unit.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
@@ -471,11 +470,12 @@ HEADERS += \
     Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
     Include/Markov_IO/A_Variable.h \
-    Include/Markov_IO/Abstract_Object.h
+    Include/Markov_Object/Abstract_Object.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp
+    Source/Markov_Console/BayesianAutocomplete.cpp \
+    Source/Markov_Object/Abstract_Object.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

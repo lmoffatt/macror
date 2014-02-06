@@ -1,13 +1,14 @@
+
 #include "Tests/AssertPlain.h"
 #include <cctype>
 
-#include "Markov_IO/Abstract_Object.h"
+#include "Markov_Object/Abstract_Object.h"
 
 
 
 
 
-namespace Markov_IO {
+namespace Markov_Object{
 
 
   std::string Abstract_Object::ClassName()

@@ -1,17 +1,16 @@
 #ifndef ABSTRACT_OBJECT_H
 #define ABSTRACT_OBJECT_H
+
 #include <string>
 #include <vector>
 #include <iostream>
 #include <map>
 #include <set>
-#include "Markov_LA/Matrix.h"
+//#include "Markov_LA/Matrix.h"
 
 
 
-
-
-namespace Markov_IO
+namespace Markov_Object
 {
 
   class Environment;
@@ -57,9 +56,7 @@ namespace Markov_IO
 
  //   virtual std::vector<Abstract_Object*> clients()=0;
 
-
-
-  };
+     };
 
 
   class A_Named_Object:public virtual Abstract_Object
@@ -120,7 +117,7 @@ namespace Markov_IO
     static std::string getUnit(const std::string& singleLine);
     static std::string ClassName();
 
-    virtual std::string myClass()const;
+    virtual std::string myClass()const override;
 
     virtual std::string abbr()const;
 
@@ -195,7 +192,6 @@ namespace Markov_IO
     virtual Value_Object* create()const;
 
     virtual const Variable_Object* variable()const=0;
-
   };
 
 
@@ -457,13 +453,6 @@ private:
 
 
 }
-
-
-
-
-
-
-
 
 
 
