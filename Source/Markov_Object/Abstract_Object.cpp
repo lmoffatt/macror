@@ -178,6 +178,12 @@ namespace Markov_Object{
 
 
 
+   bool Abstract_Variable_Object::isValueValid(const Abstract_Value_Object* v)const
+  {
+    return v->mySuperClasses().count(defaultValue()->myClass())!=0;
+  }
+
+
 
 
 
@@ -205,10 +211,6 @@ namespace Markov_Object{
 
 
   bool Abstract_Value_Object::isClonable()const
-  {
-    return true;
-  }
-  bool Abstract_Value_Object::isCreateable()const
   {
     return true;
   }
@@ -311,7 +313,7 @@ namespace Markov_Object{
       }
     return out;
   }
-  bool Named_Object::ToObject(Environment* e,const std::string& text,std::size_t& cursor)
+  Named_Object *Named_Object::ToObject(Environment* e,const std::string& text,std::size_t& cursor)
   {
     setEnvironment(e);
     std::size_t c0=cursor;
@@ -329,10 +331,10 @@ namespace Markov_Object{
     if (name.empty()&&tip.empty()&&whatthis.empty())
       {
         cursor=c0;
-        return false;
+        return nullptr;
       }
 
-    return true;
+    return this;
   }
 
 
@@ -405,20 +407,20 @@ namespace Markov_Object{
     return out;
   }
 
-  bool Base_Unit::ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)
+  Base_Unit *Base_Unit::ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)
   {
     std::size_t pos0=pos;
     if (!Named_Object::ToObject( e,multipleLines,pos))
       {
         pos=pos0;
 
-        return false;
+        return nullptr;
       }
     std::string line=nextLine(multipleLines,pos);
     std::string abbreviation=getUnit(line);
     abbr_=abbreviation;
 
-    return true;
+    return this;
 
   }
 
@@ -679,7 +681,7 @@ namespace Markov_Object{
 
 
   template<typename T>
-  bool SimpleVariableValue<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
+  SimpleVariableValue<T>* SimpleVariableValue<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     std::string name=Named_Object::getName(multipleLines,pos);
@@ -700,22 +702,10 @@ namespace Markov_Object{
     value_=SimpleVariableValue<T>::get(line);
     std::string ab=Base_Unit::getUnit(line);
     unit_=e->U(ab);
-    return true;
+    return this;
   }
 
 
-  template<typename T>
-  SimpleVariableValue<T>* SimpleVariableValue<T>::copyTo(Environment* e)const
-  {
-    //    return new SimpleVariableValue(variable()->idName(),
-    //                                   value(),
-
-    //                                   Environment *e,
-    //                                   std::string name,
-    //                                   std::string tip,
-    //                                   std::string whatthis);
-
-  }
 
 
   template<typename T>
@@ -727,24 +717,24 @@ namespace Markov_Object{
   }
 
   template<typename T>
-  bool SimpleVariable<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
+  SimpleVariable<T>* SimpleVariable<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     if (!Named_Object::ToObject(e,multipleLines,pos))
       {
         pos=pos0;
-        return false;
+        return nullptr;
       }
     std::string line=nextLine(multipleLines,pos);
     if (!SimpleVariableValue<T>::is(line))
       {
         pos=pos0;
-        return false;
+        return nullptr;
       }
     defautValue_=SimpleVariableValue<T>::get(line);
     std::string ab=Base_Unit::getUnit(line);
     u_=Named_Object::getEnvironment()->U(ab);
-    return true;
+    return this;
   }
 
 
@@ -1106,56 +1096,34 @@ namespace Markov_Test
                                    object_->mySuperClasses().count(Abstract_Object::ClassName())!=0));
 
 
+      //
+      std::string s=object_->ToString();
 
-          pGD.push_back(ElementaryTest("mySuperClass()",
-                                       "right in GetDescription",
-                                       des.SuperClass()==experiment_->mySuperClass()));
-      pGD.push_back(ElementaryTest("myName()",
-                                   "right in GetDescription",
-                                   des.ElementValue(des.NameIndex("name"))==
-                                   experiment_->myName()));
+      Abstract_Object *o=object_->create();
+
+      pGD.push_back(ElementaryTest("create() method",
+                                   " returns a not null pointer",
+                                   o!=nullptr));
+
+
+      if (o!=nullptr)
+        {
+          pGD.push_back(ElementaryTest("create() method",
+                                       "it should create an empty object, not internally valid "
+                                       " !o->isInternallyValid()",
+                                       !o->isInternallyValid()));
+
+
+          pGD.push_back(ElementaryTest("create() method",
+                                       "it the object should be of myClass "+object_->myClass(),
+                                       o->myClass()==object_->myClass()));
+
+        }
+
+
+
 
       results.push_back(pGD);
-      MultipleTests pGS("GetState()",
-                        "conform invariant and class");
-
-      ClassDescription st=experiment_->GetState();
-      pGS.push_back(ClassDescription_Test(st).classInvariant());
-      pGS.push_back(ElementaryTest("myClass()",
-                                   "right in GetDescription",
-                                   st.ClassName()==experiment_->myClass()));
-      pGS.push_back(ElementaryTest("mySuperClass()",
-                                   "right in GetDescription",
-                                   st.SuperClass()==experiment_->mySuperClass()));
-      pGS.push_back(ElementaryTest("myName()",
-                                   "right in GetDescription",
-                                   st.ElementValue(des.NameIndex("name"))==
-                                   experiment_->myName()));
-
-
-      results.push_back(pGS);
-      MultipleTests pLD("LoadFromDescription()",
-                        "recover rigth object");
-
-      ABC_Experiment *empty=experiment_->create();
-
-      pLD.push_back(ElementaryTest(
-                      "GetDescription()",
-                      "fill an empty object",
-                      empty->LoadFromDescription(des)));
-
-      /*  pLD.push_back(ElementaryTest(
-                          "GetDescription()",
-                          "recover the same object",
-                          *empty==*saveable_));
-        results.push_back(pLD);
-    */
-      // test on those is not implemented since nobody uses them
-      // bool Save(const std::string& path);
-
-      //     bool Load(const std::string& path);
-
-
 
       return results;
 
