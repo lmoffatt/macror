@@ -1103,8 +1103,9 @@ namespace Markov_Test
 
       pGD.push_back(ElementaryTest("mySuperClasses() method",
                                    "includes " + Abstract_Object::ClassName()+ " in set",
-                                   object_->mySuperClasses().find(Abstract_Object::ClassName())
-                                   !=object_->mySuperClasses().end());
+                                   object_->mySuperClasses().count(Abstract_Object::ClassName())!=0));
+
+
 
           pGD.push_back(ElementaryTest("mySuperClass()",
                                        "right in GetDescription",

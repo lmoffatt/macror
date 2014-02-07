@@ -20,6 +20,9 @@ namespace Markov_Object
     static std::string ClassName();
     virtual std::string myClass()const=0;
     virtual std::set<std::string> mySuperClasses()const;
+
+    virtual bool isValid()const=0;
+
     virtual Environment* getEnvironment()const =0;
     virtual std::string ToString()const=0;
 
