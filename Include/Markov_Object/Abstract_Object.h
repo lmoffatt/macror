@@ -12,54 +12,33 @@
 
 namespace Markov_Object
 {
-
   class Environment;
 
   class Abstract_Object
   {
   public:
-
     static std::string ClassName();
     virtual std::string myClass()const=0;
     virtual std::set<std::string> mySuperClasses()const;
-    virtual std::string idName()const=0;
-
-    /// hint about of the class nature
-    virtual std::string Tip()const=0;
-
-    /// a short description of the class
-    virtual std::string WhatThis()const=0;
     virtual Environment* getEnvironment()const =0;
-
-
-    virtual void setTip(const std::string& newTip)=0;
-
-    virtual void setWhatThis(const std::string& whatthis)=0;
-
-
     virtual std::string ToString()const=0;
-    virtual bool IsObject(const std::string& singleLine)const=0;
-    virtual bool ToObject(const std::string& text, std::size_t &cursor)=0;
-    virtual std::size_t numFields()const=0;
 
-    Abstract_Object();
-    virtual ~Abstract_Object();
+    virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)=0;
 
 
-    virtual bool isClonable()const=0;
+
     virtual bool isCreateable()const=0;
-    virtual Abstract_Object* clone()const=0;
+    virtual bool isClonable()const=0;
+    virtual Abstract_Object* copyTo(Environment* e)const=0;
     virtual Abstract_Object* create()const=0;
 
- //   virtual Abstract_Object* parent()=0;
- //   virtual std::vector<Abstract_Object*> childs()=0;
+    virtual ~Abstract_Object();
 
- //   virtual std::vector<Abstract_Object*> clients()=0;
-
-     };
+  };
 
 
-  class A_Named_Object:public virtual Abstract_Object
+
+  class Named_Object:public virtual Abstract_Object
   {
   public:
 
@@ -74,32 +53,42 @@ namespace Markov_Object
     static std::string ClassName();
     virtual std::string myClass()const override;
     virtual std::set<std::string> mySuperClasses()const;
-    virtual std::string idName()const override;
+    virtual std::string idName()const ;
 
     /// hint about of the class nature
-    virtual std::string Tip()const override;
+    virtual std::string Tip()const ;
 
     /// a short description of the class
-    virtual std::string WhatThis()const override;
+    virtual std::string WhatThis()const ;
     virtual Environment* getEnvironment() const override;
 
 
-    virtual void setTip(const std::string& newTip) override;
+    virtual void setTip(const std::string& newTip) ;
 
-    virtual void setWhatThis(const std::string &whatthis) override;
+    virtual void setWhatThis(const std::string &whatthis) ;
 
 
     virtual std::string ToString()const override;
-    virtual bool ToObject(const std::string& text, std::size_t &cursor)  override;
-    virtual std::size_t numFields()const override;
+    virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)  override;
+    virtual bool isClonable()const override { return false;}
+    virtual Named_Object* copyTo(Environment* e)const override { return nullptr;}
+
+    virtual bool isCreateable()const override { return true;}
 
 
 
-    virtual ~A_Named_Object();
-    A_Named_Object(Environment* e,
-                    std::string variablename,
-                    std::string tip,
-                    std::string whatthis);
+    virtual ~Named_Object();
+    Named_Object(Environment* e,
+                 std::string variablename,
+                 std::string tip,
+                 std::string whatthis);
+
+    Named_Object(Environment* e);
+
+  protected:
+    virtual void setEnvironment(Environment *e);
+
+
 
   private:
 
@@ -111,7 +100,7 @@ namespace Markov_Object
   };
 
 
-  class Base_Unit:public virtual A_Named_Object
+  class Base_Unit:public virtual Named_Object
   {
   public:
     static std::string getUnit(const std::string& singleLine);
@@ -122,13 +111,13 @@ namespace Markov_Object
     virtual std::string abbr()const;
 
     virtual std::string ToString()const;
-    virtual bool ToObject(const std::string& multipleLines,std::size_t& pos);
-    virtual bool IsObject(const std::string& singleLine)const override;
+    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos);
 
-    virtual bool isClonable()const;
     virtual bool isCreateable()const;
-    virtual Abstract_Object* clone()const;
+
     virtual Abstract_Object* create()const;
+
+    virtual std::size_t numFields()const{return 0;}
 
 
 
@@ -138,6 +127,10 @@ namespace Markov_Object
               std::string tip,
               std::string whatthis);
 
+    Base_Unit(Environment* e);
+
+
+
   private:
 
     std::string abbr_;
@@ -145,56 +138,67 @@ namespace Markov_Object
 
 
 
-  class Valued_Object:public virtual Abstract_Object
+  class Abstract_Valued_Object:public virtual Abstract_Object
   {
   public:
     static std::string ClassName();
-    virtual std::string myClass()const override;
-    virtual std::set<std::string> mySuperClasses()const override;
+    virtual std::string myClass()const ;
+    virtual std::set<std::string> mySuperClasses()const ;
 
     virtual const Base_Unit* myUnit()const=0;
-    virtual ~Valued_Object();
+    virtual ~Abstract_Valued_Object();
 
   };
 
-  class Value_Object;
+  class Abstract_Value_Object;
 
 
-  class Variable_Object: public virtual Abstract_Object
+  class Abstract_Variable_Object: public Named_Object
   {
   public:
 
     static std::string ClassName();
     virtual std::string myClass()const override;
     virtual std::set<std::string> mySuperClasses()const override;
-    virtual ~Variable_Object();
+    virtual ~Abstract_Variable_Object();
 
 
-    virtual bool isClonable()const;
-    virtual Variable_Object* clone()const;
+    virtual Abstract_Variable_Object* create() const=0;
 
-    virtual Value_Object* defaultSample()const=0;
 
+    virtual Abstract_Value_Object* defaultValue()const=0;
+
+    Abstract_Variable_Object(Environment* e,
+                             std::string variablename,
+                             std::string tip,
+                             std::string whatthis)
+      :  Named_Object(e,variablename,tip,whatthis)
+    {}
+
+    Abstract_Variable_Object(Environment* e)
+      :
+        Named_Object(e){}
   };
 
 
-  class Value_Object: public virtual Abstract_Object
+  class Abstract_Value_Object: public  virtual Abstract_Object
   {
   public:
     static std::string ClassName();
 
     virtual std::string myClass()const override;
     virtual std::set<std::string> mySuperClasses()const override;
-    virtual ~Value_Object();
+    virtual ~Abstract_Value_Object();
 
     virtual bool isClonable()const;
     virtual bool isCreateable()const;
-    virtual Value_Object* create()const;
-
-    virtual const Variable_Object* variable()const=0;
+    virtual Abstract_Value_Object* create()const;
+    virtual Environment* getEnvironment() const override
+    {
+      return variable()->getEnvironment();
+    }
+    virtual const Abstract_Variable_Object* variable()const=0;
   };
-
-
 
 
 
@@ -202,26 +206,26 @@ namespace Markov_Object
   class SimpleVariableValue;
 
   template<typename T>
-  class SimpleVariable: public Variable_Object,public Valued_Object,public A_Named_Object
+  class SimpleVariable: public Abstract_Variable_Object,public Abstract_Valued_Object
   {
   public:
 
     static std::string ClassName();
     virtual std::string myClass()const override;
     virtual std::set<std::string> mySuperClasses()const override;
-    virtual SimpleVariable<T>* clone() const{}
-
     virtual const Base_Unit* myUnit()const ;
 
     virtual std::string ToString()const override;
-    virtual bool ToObject(const std::string& multipleLines,std::size_t& pos) override;
-    virtual bool IsObject(const std::string& singleLine)const override;
+    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
 
-    virtual SimpleVariableValue<T>* defaultSample()const override;
+    virtual SimpleVariableValue<T>* defaultValue()const override;
 
 
     virtual bool isCreateable()const;
     virtual SimpleVariable<T>* create()const;
+
+    SimpleVariable(Environment *e);
+
 
 
 
@@ -237,11 +241,18 @@ namespace Markov_Object
   private:
     T defautValue_;
     const Base_Unit* u_;
+
+    // Abstract_Object interface
+  public:
+    virtual std::size_t numFields() const
+    {
+      return 0;
+    }
   };
 
 
   template<typename T>
-  class SimpleVariableValue: public Value_Object,public Valued_Object, public A_Named_Object
+  class SimpleVariableValue: public Abstract_Value_Object,public Abstract_Valued_Object
   {
   public:
 
@@ -251,6 +262,7 @@ namespace Markov_Object
     virtual std::string myClass()const override;
 
     static std::string ClassName();
+
     virtual std::set<std::string> mySuperClasses()const override;
 
     virtual const Base_Unit* myUnit()const override;
@@ -260,194 +272,227 @@ namespace Markov_Object
     virtual T value() const;
 
     virtual std::string ToString()const override;
-    virtual bool ToObject(const std::string& multipleLines,std::size_t& pos)override;
-    virtual bool IsObject(const std::string& singleLine)const override;
+    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)override;
 
 
-    virtual SimpleVariableValue<T>* clone()const;
+    virtual SimpleVariableValue<T>* copyTo(Environment* e)const;
 
     SimpleVariableValue(std::string variablename,
                         T defaultValue,
                         std::string unit,
-                        Environment *e,
-                        std::string name,
-                        std::string tip,
-                        std::string whatthis);
+                        Environment *e);
     ~SimpleVariableValue();
 
   private:
     const SimpleVariable<T>* variable_;
     const Base_Unit* unit_;
     T value_;
+
+    // Abstract_Object interface
   };
 
 
-
-
-  class Complex_Object:public A_Named_Object
-
+  class FieldVariable: public Abstract_Variable_Object
   {
+    // Abstract_Variable_Object interface
   public:
-    virtual std::string beginLine()const;
-    virtual std::string endLine()const;
-    static std::string beginLabel();
-    static std::string endLabel();
-    static std::string getClassName(const std::string& singleLine);
-    static std::string getFieldName(const std::string& singleLine);
-
-    static std::string ClassName();
-    virtual std::string myClass()const override;
-    virtual std::set<std::string> mySuperClasses()const override;
-
-    virtual std::size_t numFields()const override;
-
-    virtual std::string fieldName(std::size_t i)const;
-
-    virtual Abstract_Object const * fieldVariable(const std::string& fieldname)const;
-
-    virtual Abstract_Object  * fieldVariable(const std::string& fieldname);
-
-
-    virtual bool hasField(const std::string& fieldN)const;
-
-
-    virtual bool setField(const std::string& fieldN,Abstract_Object*  o);
-
-
-    virtual bool push_back(const std::string &fieldname,
-                           Abstract_Object* object);
-
+    virtual Abstract_Value_Object *defaultValue() const;
 
     virtual std::string ToString()const override;
-    virtual bool ToObject(const std::string& multipleLines,std::size_t& pos) override;
-    virtual bool IsObject(const std::string& singleLine) const override;
+    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
+    virtual Abstract_Variable_Object const * variable()const;
+
+    virtual Abstract_Variable_Object  * variable();
 
 
+    virtual bool setField(Abstract_Object*  o);
 
-    Complex_Object(Environment* e,
-                     std::string name,
-                     std::string tip,
-                     std::string whatthis);
 
-    ~Complex_Object();
+    FieldVariable(Environment* e,
+                  Abstract_Variable_Object* var,
+                  std::string name,
+                  std::string tip,
+                  std::string whatthis);
 
   private:
-    std::vector<std::string> fieldNames_;
-    std::map<std::string,Abstract_Object*> fieldVariables_;
+    Abstract_Variable_Object * var_;
+
   };
 
 
-  class Complex_Variable;
-  class Complex_Variable_Value:public Value_Object,public Complex_Object
+
+  //  class Complex_Object:public Abstract_Variable_Object
+
+  //  {
+  //  public:
+  //    virtual std::string beginLine()const;
+  //    virtual std::string endLine()const;
+  //    static std::string beginLabel();
+  //    static std::string endLabel();
+  //    static std::string getClassName(const std::string& singleLine);
+  //    static std::string getFieldName(const std::string& singleLine);
+
+  //    static std::string ClassName();
+  //    virtual std::string myClass()const override;
+  //    virtual std::set<std::string> mySuperClasses()const override;
+
+  //    virtual std::size_t numFields()const override;
+
+  //    virtual std::string fieldName(std::size_t i)const;
+
+  //    virtual FieldVariable const * fieldVariable(const std::string& fieldname)const;
+
+  //    virtual FieldVariable  * fieldVariable(const std::string& fieldname);
+
+
+  //    virtual bool hasField(const std::string& fieldN)const;
+
+
+
+
+  //    virtual bool setField(const std::string& fieldN,Abstract_Object*  o);
+
+
+  //    virtual bool push_back(const std::string &fieldname,
+  //                           Abstract_Object* object);
+
+
+  //    virtual std::string ToString()const override;
+  //    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
+  //    virtual bool IsObject(const std::string& singleLine) const override;
+
+
+
+  //    Complex_Object(Environment* e,
+  //                   std::string name,
+  //                   std::string tip,
+  //                   std::string whatthis);
+
+  //    ~Complex_Object();
+
+  //  private:
+  //    std::vector<std::string> fieldNames_;
+  //    std::map<std::string,Abstract_Object*> fieldVariables_;
+
+  //  };
+
+
+  //  class Composite_Variable;
+  //  class Complex_Variable_Value:public Abstract_Value_Object,public Complex_Object
+  //  {
+  //  public:
+  //    static std::string ClassName();
+  //    virtual std::string myClass()const override;
+  //    virtual std::set<std::string> mySuperClasses()const override;
+
+  //    virtual Abstract_Value_Object const * fieldVariable(const std::string& fieldname)const;
+  //    virtual Abstract_Value_Object * fieldVariable(const std::string& fieldname);
+
+  //    virtual bool setField(const std::string& fieldN,Abstract_Value_Object*  o);
+
+  //    virtual const Abstract_Variable_Object* variable()const override;
+
+
+  //    virtual bool push_back(const std::string &fieldname,
+  //                           Abstract_Value_Object *object);
+
+
+  //    Complex_Variable_Value(Environment* e,
+  //                           std::string name,
+  //                           std::string tip,
+  //                           std::string whatthis,
+  //                           std::string complexvar);
+
+  //    ~Complex_Variable_Value();
+
+  //  private:
+  //    const Composite_Variable* cmplxvar_;
+  //  };
+
+
+  //  class Composite_Variable:public Abstract_Variable_Object, public Complex_Object
+  //  {
+  //  public:
+
+  //    static std::string ClassName();
+  //    virtual std::string myClass()const override;
+  //    virtual std::set<std::string> mySuperClasses()const override;
+
+
+  //    virtual Abstract_Variable_Object const * fieldVariable(const std::string& fieldname)const;
+
+  //    virtual Abstract_Variable_Object  * fieldVariable(const std::string& fieldname);
+
+
+  //    virtual bool setField(const std::string& fieldN,Abstract_Variable_Object*  o);
+
+
+  //    virtual bool push_back(const std::string &fieldname,
+  //                           Abstract_Variable_Object* object);
+
+
+  //    virtual Complex_Variable_Value* defaultValue()const override;
+
+  //    virtual Composite_Variable* create() const {}
+  //    virtual bool isCreateable()const {return false;}
+
+
+  //    Composite_Variable(Environment* e,
+  //                       std::string name,
+  //                       std::string tip,
+  //                       std::string whatthis);
+
+  //    ~Composite_Variable();
+  //  private:
+
+  //    std::map<std::string,std::pair<std::string,std::string>> fieldTipWhatThis_;
+  //    std::vector<std::string> fieldNames_;
+  //    std::map<std::string,Abstract_Object*> fieldVariables_;
+
+  //  };
+
+
+
+
+
+
+  class Environment
   {
   public:
-    static std::string ClassName();
-    virtual std::string myClass()const override;
-    virtual std::set<std::string> mySuperClasses()const override;
+    const Base_Unit* U(const std::string& unitNameorAbreviation)const
+    {
+      auto it=units_.find(unitNameorAbreviation);
+      if (it!=units_.end())
+        return it->second;
+      else return nullptr;
+    }
+    const Named_Object* V(const std::string& variablename,const std::string& variabletype)const
+    {
+      auto it=variables_.find(variablename);
+      if (it!=variables_.end())
+        {
+          Named_Object* v=it->second;
+          if (v->mySuperClasses().find(variabletype)!=v->mySuperClasses().end())
+            return v;
+        }
+      return nullptr;
+    }
 
-    virtual Value_Object const * fieldVariable(const std::string& fieldname)const;
-    virtual Value_Object * fieldVariable(const std::string& fieldname);
+    void addUnit(Base_Unit* u)
+    {
+      units_[u->abbr()]=u;
+    }
 
-    virtual bool setField(const std::string& fieldN,Value_Object*  o);
-    virtual bool push_back(const std::string &fieldname,
-                           Value_Object *object);
-
-    virtual const Variable_Object* variable()const override;
-
-
-    virtual Complex_Variable_Value* clone()const override{}
-
-
-    Complex_Variable_Value(Environment* e,
-                     std::string name,
-                     std::string tip,
-                     std::string whatthis,
-                          std::string complexvar);
-
-    ~Complex_Variable_Value();
+    void addVariable(Named_Object* v)
+    {
+      variables_[v->idName()]=v;
+    }
 
   private:
-    const Complex_Variable* cmplxvar_;
+    std::map<std::string,Base_Unit*> units_;
+    std::map<std::string,Named_Object*> variables_;
+
   };
-
-
-  class Complex_Variable:public Variable_Object, public Complex_Object
-  {
-  public:
-
-    static std::string ClassName();
-    virtual std::string myClass()const override;
-    virtual std::set<std::string> mySuperClasses()const override;
-
-
-    virtual Variable_Object const * fieldVariable(const std::string& fieldname)const;
-
-    virtual Variable_Object  * fieldVariable(const std::string& fieldname);
-
-
-   virtual bool setField(const std::string& fieldN,Variable_Object*  o);
-
-
-    virtual bool push_back(const std::string &fieldname,
-                           Variable_Object* object);
-
-
-    virtual Complex_Variable_Value* defaultSample()const override;
-
-    virtual Complex_Variable* create() const {}
-    virtual bool isCreateable()const {return false;}
-
-
-    Complex_Variable(Environment* e,
-                     std::string name,
-                     std::string tip,
-                     std::string whatthis);
-
-    ~Complex_Variable();
-};
-
-
-
-
-
-
-class Environment
-{
-public:
-  const Base_Unit* U(const std::string& unitNameorAbreviation)const
-  {
-    auto it=units_.find(unitNameorAbreviation);
-    if (it!=units_.end())
-      return it->second;
-    else return nullptr;
-  }
-  const Variable_Object* V(const std::string& variablename,const std::string& variabletype)const
-  {
-    auto it=variables_.find(variablename);
-    if (it!=variables_.end())
-      {
-        Variable_Object* v=it->second;
-        if (v->mySuperClasses().find(variabletype)!=v->mySuperClasses().end())
-          return v;
-      }
-    return nullptr;
-  }
-
-  void addUnit(Base_Unit* u)
-  {
-    units_[u->abbr()]=u;
-  }
-
-  void addVariable(Variable_Object* v)
-  {
-    variables_[v->idName()]=v;
-  }
-
-private:
-  std::map<std::string,Base_Unit*> units_;
-  std::map<std::string,Variable_Object*> variables_;
-
-};
 
 
 
@@ -459,3 +504,42 @@ private:
 
 
 #endif // ABSTRACT_OBJECT_H
+
+
+
+
+#ifdef MACRO_TEST
+
+
+#include "Tests/MultipleTests.h"
+namespace Markov_Test
+{
+  namespace Markov_Object_Test
+  {
+
+    using namespace Markov_Object;
+
+    class Abstract_Object_Test
+    {
+    public:
+
+      virtual MultipleTests classInvariant()const;
+
+      Abstract_Object_Test(const Abstract_Object& object);
+
+      virtual~Abstract_Object_Test();
+      static std::string TestName();
+
+      virtual std::string myTest()const;
+
+
+    protected:
+      const Abstract_Object* object_;
+    };
+
+  }
+}
+
+#endif //MACRO_TEST
+
+

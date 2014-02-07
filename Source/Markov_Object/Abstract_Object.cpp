@@ -24,45 +24,44 @@ namespace Markov_Object{
     return mySC;
   }
 
-  std::set<std::string> A_Named_Object::mySuperClasses()const
+  std::set<std::string> Named_Object::mySuperClasses()const
   {
     auto mySC=Abstract_Object::mySuperClasses();
     mySC.insert(ClassName());
     return mySC;
   }
 
-  std::string A_Named_Object::ClassName()
+  std::string Named_Object::ClassName()
   {
     return "Named_Object";
   }
 
-  A_Named_Object::~A_Named_Object()
+  Named_Object::~Named_Object()
   {}
 
 
   Abstract_Object::~Abstract_Object()
   {}
 
-  Abstract_Object::Abstract_Object(){}
 
-  std::string Complex_Object::beginLabel()
-  {
-    return "Begin";
-  }
+  //  std::string Complex_Object::beginLabel()
+  //  {
+  //    return "Begin";
+  //  }
 
-  std::string Complex_Object::endLabel()
-  {
-    return "End";
-  }
+  //  std::string Complex_Object::endLabel()
+  //  {
+  //    return "End";
+  //  }
 
 
-  std::string A_Named_Object::myClass()const
+  std::string Named_Object::myClass()const
   {
     return ClassName();
   }
 
 
-  std::string A_Named_Object::getName(const std::string& multiplelines,std::size_t& pos)
+  std::string Named_Object::getName(const std::string& multiplelines,std::size_t& pos)
 
   {
     std::size_t pos0=pos;
@@ -83,7 +82,7 @@ namespace Markov_Object{
       }
   }
 
-  std::string A_Named_Object::getTip(const std::string& multiplelines, std::size_t &pos)
+  std::string Named_Object::getTip(const std::string& multiplelines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     std::size_t i=multiplelines.find("//",pos);
@@ -103,13 +102,13 @@ namespace Markov_Object{
       }
   }
 
-  std::string A_Named_Object::removeInitialSpaces(const std::string& line)
+  std::string Named_Object::removeInitialSpaces(const std::string& line)
   {
     return line.substr(line.find_first_not_of(" \t"));
   }
 
 
-  std::string A_Named_Object::nextLine(const std::string &lines, std::size_t &n)
+  std::string Named_Object::nextLine(const std::string &lines, std::size_t &n)
   {
     std::size_t n0=n;
     std::size_t nlast=lines.find_first_of("\r\n",n0);
@@ -118,7 +117,7 @@ namespace Markov_Object{
     return lines.substr(n0,nlast-n0);
   }
 
-  std::string A_Named_Object::getWhatThis(const std::string& multiplelines, std::size_t &pos)
+  std::string Named_Object::getWhatThis(const std::string& multiplelines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     std::string whatthis;
@@ -138,53 +137,43 @@ namespace Markov_Object{
 
 
 
-  Valued_Object::~Valued_Object(){}
+  Abstract_Valued_Object::~Abstract_Valued_Object(){}
 
 
-  std::string Valued_Object::ClassName()
+  std::string Abstract_Valued_Object::ClassName()
   {
     return "Valued_Object";
   }
 
-  std::string Valued_Object::myClass()const
+  std::string Abstract_Valued_Object::myClass()const
   {
     return ClassName();
   }
-  std::set<std::string> Valued_Object::mySuperClasses()const
+  std::set<std::string> Abstract_Valued_Object::mySuperClasses()const
   {
-    auto sc=Abstract_Object::mySuperClasses();
+    std::set<std::string> sc;
     sc.insert(ClassName());
     return sc;
 
   }
 
-  std::string Variable_Object::ClassName()
+  std::string Abstract_Variable_Object::ClassName()
   {
     return "Variable_Object";
   }
 
-  std::string Variable_Object::myClass()const {
+  std::string Abstract_Variable_Object::myClass()const {
     return ClassName();
   }
 
-  std::set<std::string> Variable_Object::mySuperClasses()const {
+  std::set<std::string> Abstract_Variable_Object::mySuperClasses()const {
     auto mySC=Abstract_Object::mySuperClasses();
     mySC.insert(ClassName());
     return mySC;
   }
 
 
-  Variable_Object::~Variable_Object(){}
-
-
-  bool Variable_Object::isClonable()const
-  {
-    return false;
-  }
-  Variable_Object *Variable_Object::clone()const
-  {
-    return nullptr;
-  }
+  Abstract_Variable_Object::~Abstract_Variable_Object(){}
 
 
 
@@ -192,16 +181,18 @@ namespace Markov_Object{
 
 
 
-  std::string Value_Object::ClassName()
+
+
+  std::string Abstract_Value_Object::ClassName()
   {
     return "Value_Object";
   }
 
-  std::string Value_Object::myClass()const {
+  std::string Abstract_Value_Object::myClass()const {
     return ClassName();
   }
 
-  std::set<std::string> Value_Object::mySuperClasses()const {
+  std::set<std::string> Abstract_Value_Object::mySuperClasses()const {
     auto mySC=Abstract_Object::mySuperClasses();
     mySC.insert(ClassName());
     return mySC;
@@ -209,92 +200,88 @@ namespace Markov_Object{
 
 
 
-  Value_Object::~Value_Object(){}
+  Abstract_Value_Object::~Abstract_Value_Object(){}
 
 
 
-  bool Value_Object::isClonable()const
+  bool Abstract_Value_Object::isClonable()const
   {
     return true;
   }
-   bool Value_Object::isCreateable()const
-   {
-     return true;
-   }
-   Value_Object* Value_Object::create()const
-   {
-     return variable()->defaultSample();
-   }
-
-
-
-
-
-
-
-
-
-
-
-
-  std::string Complex_Object::beginLine()const
+  bool Abstract_Value_Object::isCreateable()const
   {
-    return myClass()+" "+beginLabel();
+    return true;
   }
-  std::string Complex_Object::endLine()const
+  Abstract_Value_Object* Abstract_Value_Object::create()const
   {
-    return myClass()+" "+endLabel();
+    return variable()->defaultValue();
   }
 
 
 
 
-  std::string A_Named_Object::idName()const
+
+
+
+
+
+
+
+
+  //  std::string Complex_Object::beginLine()const
+  //  {
+  //    return myClass()+" "+beginLabel();
+  //  }
+  //  std::string Complex_Object::endLine()const
+  //  {
+  //    return myClass()+" "+endLabel();
+  //  }
+
+
+
+
+  std::string Named_Object::idName()const
   {
     return variableName_;
   }
 
   /// hint about of the class nature
-  std::string A_Named_Object::Tip()const
+  std::string Named_Object::Tip()const
   {
     return tip_;
   }
 
   /// a short description of the class
-  std::string A_Named_Object::WhatThis()const
+  std::string Named_Object::WhatThis()const
   {
     return whatThis_;
   }
 
-  void A_Named_Object::setTip(const std::string &newTip){
+  void Named_Object::setTip(const std::string &newTip){
     tip_=newTip;
   }
 
-  void A_Named_Object::setWhatThis(const std::string& whatthis)
+  void Named_Object::setWhatThis(const std::string& whatthis)
   {
     whatThis_=whatthis;
 
   }
 
-  Environment* A_Named_Object::getEnvironment() const
+  Environment* Named_Object::getEnvironment() const
   {
     return e_;
   }
 
-//  const Environment* Named_Object::getEnvironment()const
-//  {
-//    return e_;
-//  }
-
-
-  std::size_t A_Named_Object::numFields()const
-  {
-    return 0;
-  }
+  //  const Environment* Named_Object::getEnvironment()const
+  //  {
+  //    return e_;
+  //  }
 
 
 
-  std::string A_Named_Object::ToString()const
+
+
+  std::string Named_Object::ToString()const
   {
     std::string out;
     if (!idName().empty())
@@ -324,8 +311,9 @@ namespace Markov_Object{
       }
     return out;
   }
-  bool A_Named_Object::ToObject(const std::string& text,std::size_t& cursor)
+  bool Named_Object::ToObject(Environment* e,const std::string& text,std::size_t& cursor)
   {
+    setEnvironment(e);
     std::size_t c0=cursor;
     std::string name=getName(text,cursor);
     std::string tip=getTip(text,cursor);
@@ -343,18 +331,30 @@ namespace Markov_Object{
         cursor=c0;
         return false;
       }
+
     return true;
   }
 
 
 
-  A_Named_Object::A_Named_Object(Environment* e,
+  Named_Object::Named_Object(Environment* e,
                              std::string variablename,
                              std::string tip,
                              std::string whatthis)
     :
       Abstract_Object(),
-      e_(e),variableName_(variablename),tip_(tip),whatThis_(whatthis){}
+      e_(e),variableName_{variablename},tip_{tip},whatThis_{whatthis}{}
+
+
+  Named_Object::Named_Object(Environment* e)
+    :
+      Abstract_Object(),
+      e_{e},variableName_{},tip_{},whatThis_{}{}
+
+  void Named_Object::setEnvironment(Environment *e)
+  {
+    e_=e;
+  }
 
 
 
@@ -386,17 +386,9 @@ namespace Markov_Object{
   }
 
 
-  bool Base_Unit::isClonable()const
-  {
-    return false;
-  }
   bool Base_Unit::isCreateable()const
   {
     return false;
-  }
-  Abstract_Object* Base_Unit::clone()const
-  {
-    return nullptr;
   }
   Abstract_Object* Base_Unit::create()const
   {
@@ -407,23 +399,22 @@ namespace Markov_Object{
 
   std::string Base_Unit::ToString()const
   {
-    std::string out=A_Named_Object::ToString();
+    std::string out=Named_Object::ToString();
     out+=abbr()+"\n";
 
     return out;
   }
 
-  bool Base_Unit::ToObject(const std::string& multipleLines,std::size_t& pos)
+  bool Base_Unit::ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)
   {
     std::size_t pos0=pos;
-    std::string line=nextLine(multipleLines,pos);
-    if (!A_Named_Object::ToObject(multipleLines,pos))
+    if (!Named_Object::ToObject( e,multipleLines,pos))
       {
         pos=pos0;
 
         return false;
       }
-    line=nextLine(multipleLines,pos);
+    std::string line=nextLine(multipleLines,pos);
     std::string abbreviation=getUnit(line);
     abbr_=abbreviation;
 
@@ -431,10 +422,6 @@ namespace Markov_Object{
 
   }
 
-  bool Base_Unit::IsObject(const std::string& singleLine) const
-  {
-    return !getUnit(singleLine).empty();
-  }
 
 
 
@@ -444,11 +431,15 @@ namespace Markov_Object{
                        std::string tip,
                        std::string whatthis)
     :
-      A_Named_Object(e,name,tip,whatthis),
+      Named_Object(e,name,tip,whatthis),
       abbr_(abbreviation){
     e->addUnit(this);
   }
 
+  Base_Unit::Base_Unit(Environment* e)
+    :
+      Named_Object(e),
+      abbr_(){}
 
 
   template<typename T>
@@ -474,10 +465,10 @@ namespace Markov_Object{
   std::set<std::string> SimpleVariable<T>::mySuperClasses()const
   {
     //Variable_Object,public Valued_Object,public Named_Object
-    auto vo=Variable_Object::mySuperClasses();
+    auto vo=Abstract_Variable_Object::mySuperClasses();
 
-    auto va=Valued_Object::mySuperClasses();
-    auto na=A_Named_Object::mySuperClasses();
+    auto va=Abstract_Valued_Object::mySuperClasses();
+    auto na=Named_Object::mySuperClasses();
     vo.insert(va.begin(),va.end());
     vo.insert(na.begin(),na.end());
 
@@ -503,25 +494,29 @@ namespace Markov_Object{
                                     std::string tip,
                                     std::string whatthis)
     :
-      A_Named_Object(e,name,tip,whatthis),
+      Abstract_Variable_Object(e,name,tip,whatthis),
       defautValue_(defaultValue),
       u_{e->U(unit)}
   {
     e->addVariable(this);
   }
 
+  template<typename T>
+  SimpleVariable<T>::SimpleVariable(Environment* e)
+    :
+      Abstract_Variable_Object(e),
+      defautValue_{T()},
+      u_{}
+  {}
 
 
   template<typename T>
-  SimpleVariableValue<T>* SimpleVariable<T>::defaultSample() const
+  SimpleVariableValue<T>* SimpleVariable<T>::defaultValue() const
   {
     return new SimpleVariableValue<T>(idName(),
                                       defautValue_,
                                       myUnit()->abbr(),
-                                      getEnvironment(),
-                                      idName()+"_dval",
-                                      idName()+" default value",
-                                      "default valued generated by "+idName());
+                                      getEnvironment());
   }
 
 
@@ -534,7 +529,7 @@ namespace Markov_Object{
   template<typename T>
   SimpleVariable<T>* SimpleVariable<T>::create()const
   {
-    return new SimpleVariable<T>("",T(),"",getEnvironment(),"","");
+    return new SimpleVariable<T>("",T(),"",Named_Object::getEnvironment(),"","");
   }
 
 
@@ -595,12 +590,8 @@ namespace Markov_Object{
   template<typename T>
   SimpleVariableValue<T>::SimpleVariableValue(std::string variablename,
                                               T v,
-                                              std::string unit, Environment *e,
-                                              std::string name,
-                                              std::string tip,
-                                              std::string whatthis)
-    : A_Named_Object(e,name,tip,whatthis),
-      variable_(dynamic_cast<const SimpleVariable<T>*>(e->V(variablename,SimpleVariable<T>::ClassName()))),
+                                              std::string unit, Environment *e)
+    : variable_(dynamic_cast<const SimpleVariable<T>*>(e->V(variablename,SimpleVariable<T>::ClassName()))),
       value_(v),
       unit_(e->U(unit))
   {}
@@ -680,7 +671,7 @@ namespace Markov_Object{
   template<typename T>
   std::string SimpleVariableValue<T>::ToString()const
   {
-    std::string out=A_Named_Object::ToString();
+    std::string out=this->variable()->idName()+"\n";
     out+=std::to_string(value());
     out+=myUnit()->abbr()+"\n";
     return out;
@@ -688,12 +679,19 @@ namespace Markov_Object{
 
 
   template<typename T>
-  bool SimpleVariableValue<T>::ToObject(const std::string& multipleLines, std::size_t &pos)
+  bool SimpleVariableValue<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
-    if (!A_Named_Object::ToObject(multipleLines,pos))
-      return false;
-    std::string line=nextLine(multipleLines,pos);
+    std::string name=Named_Object::getName(multipleLines,pos);
+    const Named_Object* p=e->V(name,SimpleVariable<T>::ClassName());
+    if (p!=nullptr)
+      variable_=dynamic_cast<const SimpleVariable<T>*>(p);
+    else
+      {
+        pos=pos0;
+        return false;
+      }
+    std::string line=Named_Object::nextLine(multipleLines,pos);
     if (!SimpleVariableValue<T>::is(line))
       {
         pos=pos0;
@@ -701,44 +699,42 @@ namespace Markov_Object{
       }
     value_=SimpleVariableValue<T>::get(line);
     std::string ab=Base_Unit::getUnit(line);
-    unit_=getEnvironment()->U(ab);
+    unit_=e->U(ab);
     return true;
   }
 
-  template<typename T>
-  bool SimpleVariableValue<T>::IsObject(const std::string &singleLine) const
-  {
-    return SimpleVariableValue<T>::is(singleLine);
-  }
 
   template<typename T>
-  SimpleVariableValue<T>* SimpleVariableValue<T>::clone()const
+  SimpleVariableValue<T>* SimpleVariableValue<T>::copyTo(Environment* e)const
   {
-//    return new SimpleVariableValue(variable()->idName(),
-//                                   value(),
+    //    return new SimpleVariableValue(variable()->idName(),
+    //                                   value(),
 
-//                                   Environment *e,
-//                                   std::string name,
-//                                   std::string tip,
-//                                   std::string whatthis);
+    //                                   Environment *e,
+    //                                   std::string name,
+    //                                   std::string tip,
+    //                                   std::string whatthis);
 
   }
 
 
   template<typename T>
   std::string SimpleVariable<T>::ToString()const{
-    std::string out=A_Named_Object::ToString();
+    std::string out=Named_Object::ToString();
     out+=std::to_string(defautValue_);
     out+=u_->abbr()+"\n";
     return out;
   }
 
   template<typename T>
-  bool SimpleVariable<T>::ToObject(const std::string& multipleLines, std::size_t &pos)
+  bool SimpleVariable<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
-    if (!A_Named_Object::ToObject(multipleLines,pos))
-      return false;
+    if (!Named_Object::ToObject(e,multipleLines,pos))
+      {
+        pos=pos0;
+        return false;
+      }
     std::string line=nextLine(multipleLines,pos);
     if (!SimpleVariableValue<T>::is(line))
       {
@@ -747,42 +743,37 @@ namespace Markov_Object{
       }
     defautValue_=SimpleVariableValue<T>::get(line);
     std::string ab=Base_Unit::getUnit(line);
-    u_=getEnvironment()->U(ab);
+    u_=Named_Object::getEnvironment()->U(ab);
     return true;
   }
 
 
-  template<typename T>
-  bool SimpleVariable<T>::IsObject(const std::string &singleLine)const
+
+
+  //  std::string Complex_Object::getClassName(const std::string& singleLine)
+  //  {
+  //    std::size_t pos=0;
+  //    std::string classname=Named_Object::getName(singleLine,pos);
+  //    std::string bgl=Named_Object::getName(singleLine,pos);
+  //    if (bgl==beginLabel())
+  //      return classname;
+  //    else
+  //      return "";
+
+  //  }
+
+
+
+  //  std::string Complex_Object::getFieldName(const std::string &singleLine)
+  //  {
+  //    std::size_t pos=0;
+  //    std::string fieldname=Named_Object::getName(singleLine,pos);
+  //    return fieldname;
+  //  }
+
+  static Abstract_Variable_Object* getFieldValue(const std::string multipleLines,std::size_t& pos)
   {
-    return SimpleVariableValue<T>::is(singleLine);
-  }
-
-
-  std::string Complex_Object::getClassName(const std::string& singleLine)
-  {
-    std::size_t pos=0;
-    std::string classname=A_Named_Object::getName(singleLine,pos);
-    std::string bgl=A_Named_Object::getName(singleLine,pos);
-    if (bgl==beginLabel())
-      return classname;
-    else
-      return "";
-
-  }
-
-
-
-  std::string Complex_Object::getFieldName(const std::string &singleLine)
-  {
-    std::size_t pos=0;
-    std::string fieldname=A_Named_Object::getName(singleLine,pos);
-    return fieldname;
-  }
-
-  static Variable_Object* getFieldValue(const std::string multipleLines,std::size_t& pos)
-  {
-    std::string line=A_Named_Object::nextLine(multipleLines,pos);
+    std::string line=Named_Object::nextLine(multipleLines,pos);
 
   }
 
@@ -792,283 +783,282 @@ namespace Markov_Object{
 
 
 
-  std::string Complex_Object::ClassName(){
-    return "Complex_object";
-  }
-
-  std::string Complex_Object::myClass()const{
-    return ClassName();
-  }
-
-
-  std::set<std::string> Complex_Object::mySuperClasses()const {
-    auto mySC=A_Named_Object::mySuperClasses();
-    mySC.insert(ClassName());
-    return mySC;
-  }
-
-
-  std::size_t Complex_Object::numFields()const{
-    return fieldNames_.size();
-  }
-
-  std::string Complex_Object::fieldName(std::size_t i)const{
-    return fieldNames_[i];
-  }
-
-
-  bool Complex_Object::hasField(const std::string& fieldN)const
-  {
-    return fieldVariables_.find(fieldN)!=fieldVariables_.end();
-  }
-
-
-  bool Complex_Object::setField(const std::string& fieldN,Abstract_Object*  o)
-  {
-    if (hasField(fieldN))
-      {
-        fieldVariables_[fieldN]=o;
-        return true;
-      }
-    else
-      return false;
-  }
-
-
-  bool Complex_Object::push_back(const std::string & fieldname,
-                                 Abstract_Object* object)
-  {
-    if (!setField(fieldname,object))
-      {
-        fieldNames_.push_back(fieldname);
-        fieldVariables_[fieldname]=object;
-      }
-    return true;
-
-  }
-
-
-
-  const Abstract_Object* Complex_Object::fieldVariable(const std::string& fieldname)const
-  {
-    auto it=fieldVariables_.find(fieldname);
-    if (it!=fieldVariables_.end())
-      return it->second;
-    else
-      return nullptr;
-  }
-  Abstract_Object *Complex_Object::fieldVariable(const std::string& fieldname)
-  {
-    auto it=fieldVariables_.find(fieldname);
-    if (it!=fieldVariables_.end())
-      return it->second;
-    else
-      return nullptr;
-  }
-
-
-
-  std::string Complex_Object::ToString()const{
-    std::string out=beginLine()+"\n";
-    out+=A_Named_Object::ToString();
-    for (std::size_t i=0; i<numFields(); ++i)
-      {
-        out+=fieldName(i)+"\n";
-        out+=fieldVariable(fieldName(i))->ToString();
-      }
-    out+=endLine()+"\n";
-    return out;
-  }
-
-  bool Complex_Object::ToObject(const std::string& multipleLines, std::size_t &pos)
-  {
-    std::size_t pos0=pos;
-    std::string line=nextLine(multipleLines,pos);
-    if (line!=beginLine())
-      {
-        pos=pos0;
-        return false;
-      }
-
-    if (!A_Named_Object::ToObject(multipleLines,pos))
-      return false;
-
+  //  std::string Complex_Object::ClassName(){
+  //    return "Complex_object";
+  //  }
+
+  //  std::string Complex_Object::myClass()const{
+  //    return ClassName();
+  //  }
+
+
+  //  std::set<std::string> Complex_Object::mySuperClasses()const {
+  //    auto mySC=Abstract_Object::mySuperClasses();
+  //    mySC.insert(ClassName());
+  //    return mySC;
+  //  }
+
+
+  //  std::size_t Complex_Object::numFields()const{
+  //    return fieldNames_.size();
+  //  }
+
+  //  std::string Complex_Object::fieldName(std::size_t i)const{
+  //    return fieldNames_[i];
+  //  }
+
+
+  //  bool Complex_Object::hasField(const std::string& fieldN)const
+  //  {
+  //    return fieldVariables_.find(fieldN)!=fieldVariables_.end();
+  //  }
+
+
+  //  bool Complex_Object::setField(const std::string& fieldN,Abstract_Object*  o)
+  //  {
+  //    if (hasField(fieldN))
+  //      {
+  //        fieldVariables_[fieldN]=o;
+  //        return true;
+  //      }
+  //    else
+  //      return false;
+  //  }
+
+
+  //  bool Complex_Object::push_back(const std::string & fieldname,
+  //                                 Abstract_Object* object)
+  //  {
+  //    if (!setField(fieldname,object))
+  //      {
+  //        fieldNames_.push_back(fieldname);
+  //        fieldVariables_[fieldname]=object;
+  //      }
+  //    return true;
+
+  //  }
+
+
+
+  //  const Abstract_Object* Complex_Object::fieldVariable(const std::string& fieldname)const
+  //  {
+  //    auto it=fieldVariables_.find(fieldname);
+  //    if (it!=fieldVariables_.end())
+  //      return it->second;
+  //    else
+  //      return nullptr;
+  //  }
+  //  Abstract_Object *Complex_Object::fieldVariable(const std::string& fieldname)
+  //  {
+  //    auto it=fieldVariables_.find(fieldname);
+  //    if (it!=fieldVariables_.end())
+  //      return it->second;
+  //    else
+  //      return nullptr;
+  //  }
+
+
+
+  //  std::string Complex_Object::ToString()const{
+  //    std::string out=beginLine()+"\n";
+  //    for (std::size_t i=0; i<numFields(); ++i)
+  //      {
+  //        out+=fieldName(i)+"\n";
+  //        out+=fieldVariable(fieldName(i))->ToString();
+  //      }
+  //    out+=endLine()+"\n";
+  //    return out;
+  //  }
+
+  //  bool Complex_Object::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
+  //  {
+  //    std::size_t pos0=pos;
+  //    std::string line=Named_Object::nextLine(multipleLines,pos);
+  //    if (line!=beginLine())
+  //      {
+  //        pos=pos0;
+  //        return false;
+  //      }
+
+  //    if (!Named_Object::ToObject(e,multipleLines,pos))
+  //      return false;
+
+
+  //    line=nextLine(multipleLines,pos);
+  //    while ((line!=endLine())&&pos<multipleLines.size())
+  //      {
+  //        std::string fieldname=getFieldName(line);
+  //        if (!hasField(fieldname))
+  //          {
+  //            pos=pos0;
+  //            return false;
+  //          }
+  //        Abstract_Object *v=this->fieldVariable(fieldname);
+  //        v->ToObject(e,multipleLines,pos);
+  //        line=nextLine(multipleLines,pos);
+  //      }
+  //    return true;
 
-    line=nextLine(multipleLines,pos);
-    while ((line!=endLine())&&pos<multipleLines.size())
-      {
-        std::string fieldname=getFieldName(line);
-        if (!hasField(fieldname))
-          {
-            pos=pos0;
-            return false;
-          }
-        Abstract_Object *v=this->fieldVariable(fieldname);
-        v->ToObject(multipleLines,pos);
-        line=nextLine(multipleLines,pos);
-      }
-    return true;
+  //  }
 
-  }
+  //  bool Complex_Object::IsObject(const std::string& singleLine)const
+  //  {
+  //    return singleLine==beginLine();
+  //  }
 
-  bool Complex_Object::IsObject(const std::string& singleLine)const
-  {
-    return singleLine==beginLine();
-  }
+  //  Complex_Object:: ~Complex_Object(){}
 
-  Complex_Object:: ~Complex_Object(){}
+  //  Complex_Object::Complex_Object(Environment* e,
+  //                                 std::string name,
+  //                                 std::string tip,
+  //                                 std::string whatthis)
+  //    :
+  //      Named_Object(e,name,tip,whatthis)
+  //  {}
 
-  Complex_Object::Complex_Object(Environment* e,
-                                 std::string name,
-                                 std::string tip,
-                                 std::string whatthis)
-    :
-      A_Named_Object(e,name,tip,whatthis)
-  {}
 
 
 
+  //  std::string Composite_Variable::ClassName(){
+  //    return "Complex_Variable";
+  //  }
 
+  //  std::string Composite_Variable::myClass()const{
+  //    return ClassName();
+  //  }
 
-  std::string Complex_Variable::ClassName(){
-    return "Complex_Variable";
-  }
 
-  std::string Complex_Variable::myClass()const{
-    return ClassName();
-  }
+  //  std::set<std::string> Composite_Variable::mySuperClasses()const {
+  //    //public Variable_Object, public Complex_Object
+  //    auto mySC=Abstract_Variable_Object::mySuperClasses();
+  //    auto co=Complex_Object::mySuperClasses();
+  //    mySC.insert(co.begin(),co.end());
+  //    mySC.insert(ClassName());
+  //    return mySC;
+  //  }
 
 
-  std::set<std::string> Complex_Variable::mySuperClasses()const {
-    //public Variable_Object, public Complex_Object
-    auto mySC=Variable_Object::mySuperClasses();
-    auto co=Complex_Object::mySuperClasses();
-    mySC.insert(co.begin(),co.end());
-    mySC.insert(ClassName());
-    return mySC;
-  }
 
+  //  Abstract_Variable_Object const * Composite_Variable::fieldVariable(const std::string& fieldname)const
+  //  {
+  //    return dynamic_cast<Abstract_Variable_Object const *>(Complex_Object::fieldVariable(fieldname));
+  //  }
 
+  //  Abstract_Variable_Object  * Composite_Variable::fieldVariable(const std::string& fieldname)
+  //  {
+  //    return dynamic_cast<Abstract_Variable_Object*>(Complex_Object::fieldVariable(fieldname));
 
-  Variable_Object const * Complex_Variable::fieldVariable(const std::string& fieldname)const
-  {
-    return dynamic_cast<Variable_Object const *>(Complex_Object::fieldVariable(fieldname));
-  }
+  //  }
 
-  Variable_Object  * Complex_Variable::fieldVariable(const std::string& fieldname)
-  {
-    return dynamic_cast<Variable_Object*>(Complex_Object::fieldVariable(fieldname));
 
-  }
+  //  bool Composite_Variable::setField(const std::string& fieldN,Abstract_Variable_Object*  o)
+  //  {
+  //    return Complex_Object::setField(fieldN,o);
+  //  }
 
 
-  bool Complex_Variable::setField(const std::string& fieldN,Variable_Object*  o)
-  {
-    return Complex_Object::setField(fieldN,o);
-  }
+  //  bool Composite_Variable::push_back(const std::string &fieldname,
+  //                                   Abstract_Variable_Object* object)
+  //  {
+  //    return Complex_Object::push_back(fieldname,object);
 
+  //  }
 
-  bool Complex_Variable::push_back(const std::string &fieldname,
-                                   Variable_Object* object)
-  {
-    return Complex_Object::push_back(fieldname,object);
-  }
+  //  Composite_Variable::Composite_Variable(Environment* e,
+  //                                     std::string name,
+  //                                     std::string tip,
+  //                                     std::string whatthis)
+  //    :Complex_Object(e,name,tip,whatthis)
+  //  {
+  //    e->addVariable(this);
+  //  }
 
-  Complex_Variable::Complex_Variable(Environment* e,
-                                     std::string name,
-                                     std::string tip,
-                                     std::string whatthis)
-    :Complex_Object(e,name,tip,whatthis)
-  {
-    e->addVariable(this);
-  }
 
+  //  Composite_Variable::~Composite_Variable(){}
 
-  Complex_Variable::~Complex_Variable(){}
+  //  std::string Complex_Variable_Value::ClassName(){
+  //    return "Complex_Variable_Value";
+  //  }
 
-  std::string Complex_Variable_Value::ClassName(){
-    return "Complex_Variable_Value";
-  }
+  //  std::string Complex_Variable_Value::myClass()const{
+  //    return ClassName();
+  //  }
 
-  std::string Complex_Variable_Value::myClass()const{
-    return ClassName();
-  }
 
+  //  std::set<std::string> Complex_Variable_Value::mySuperClasses()const {
+  //    //public Complex_Object,public Value_Object
 
-  std::set<std::string> Complex_Variable_Value::mySuperClasses()const {
-    //public Complex_Object,public Value_Object
+  //    auto mySC=Complex_Object::mySuperClasses();
+  //    auto vo=Abstract_Value_Object::mySuperClasses();
+  //    mySC.insert(vo.begin(),vo.end());
+  //    mySC.insert(ClassName());
+  //    return mySC;
+  //  }
 
-    auto mySC=Complex_Object::mySuperClasses();
-    auto vo=Value_Object::mySuperClasses();
-    mySC.insert(vo.begin(),vo.end());
-    mySC.insert(ClassName());
-    return mySC;
-  }
 
+  //  Abstract_Value_Object const * Complex_Variable_Value::fieldVariable(const std::string& fieldname)const
+  //  {
+  //    return dynamic_cast<Abstract_Value_Object const *>(Complex_Object::fieldVariable(fieldname));
+  //  }
 
-  Value_Object const * Complex_Variable_Value::fieldVariable(const std::string& fieldname)const
-  {
-    return dynamic_cast<Value_Object const *>(Complex_Object::fieldVariable(fieldname));
-  }
+  //  Abstract_Value_Object  * Complex_Variable_Value::fieldVariable(const std::string& fieldname)
+  //  {
+  //    return dynamic_cast<Abstract_Value_Object*>(Complex_Object::fieldVariable(fieldname));
 
-  Value_Object  * Complex_Variable_Value::fieldVariable(const std::string& fieldname)
-  {
-    return dynamic_cast<Value_Object*>(Complex_Object::fieldVariable(fieldname));
+  //  }
 
-  }
 
+  //  bool Complex_Variable_Value::setField(const std::string& fieldN,Abstract_Value_Object*  o)
+  //  {
+  //    return Complex_Object::setField(fieldN,o);
+  //  }
 
-  bool Complex_Variable_Value::setField(const std::string& fieldN,Value_Object*  o)
-  {
-    return Complex_Object::setField(fieldN,o);
-  }
 
+  //  bool Complex_Variable_Value::push_back(const std::string &fieldname,
+  //                                         Abstract_Value_Object* object)
+  //  {
+  //    return Complex_Object::push_back(fieldname,object);
+  //  }
 
-  bool Complex_Variable_Value::push_back(const std::string &fieldname,
-                                         Value_Object* object)
-  {
-    return Complex_Object::push_back(fieldname,object);
-  }
 
 
+  //  Complex_Variable_Value::Complex_Variable_Value(Environment* e,
+  //                                                 std::string name,
+  //                                                 std::string tip,
+  //                                                 std::string whatthis,
+  //                                                 std::string complexvar):
+  //    Complex_Object(e,name,tip,whatthis),
+  //    cmplxvar_(dynamic_cast<Composite_Variable const*>(e->V(complexvar,Composite_Variable::ClassName())))
+  //  {}
 
-  Complex_Variable_Value::Complex_Variable_Value(Environment* e,
-                                                 std::string name,
-                                                 std::string tip,
-                                                 std::string whatthis,
-                                                 std::string complexvar):
-    Complex_Object(e,name,tip,whatthis),
-    cmplxvar_(dynamic_cast<Complex_Variable const*>(e->V(complexvar,Complex_Variable::ClassName())))
-  {}
+  //  Complex_Variable_Value::~Complex_Variable_Value(){}
 
-  Complex_Variable_Value::~Complex_Variable_Value(){}
 
 
 
+  //  Complex_Variable_Value* Composite_Variable::defaultValue() const {
 
-  Complex_Variable_Value* Complex_Variable::defaultSample() const {
+  //    Complex_Variable_Value* out= new Complex_Variable_Value(
+  //          getEnvironment(),
+  //          idName()+"_default_sample",
+  //          "default sample",
+  //          idName()+"complex variable default sample",
+  //          idName());
+  //    for (std::size_t i=0; i<this->numFields(); i++)
+  //      {
+  //        out->push_back(fieldName(i),fieldVariable(fieldName(i))->defaultValue());
+  //      }
+  //    return out;
 
-    Complex_Variable_Value* out= new Complex_Variable_Value(
-          getEnvironment(),
-          idName()+"_default_sample",
-          "default sample",
-          idName()+"complex variable default sample",
-          idName());
-    for (std::size_t i=0; i<this->numFields(); i++)
-      {
-        out->push_back(fieldName(i),fieldVariable(fieldName(i))->defaultSample());
-      }
-    return out;
+  //  }
 
-  }
 
 
+  //  const Abstract_Variable_Object* Complex_Variable_Value::variable()const
+  //  {
+  //    return cmplxvar_;
 
-  const Variable_Object* Complex_Variable_Value::variable()const
-  {
-    return cmplxvar_;
-
-  }
+  //  }
 
 
 
@@ -1087,5 +1077,116 @@ namespace Markov_Object{
   class SimpleVariableValue<double>;
 
 
+
 }
+
+
+#ifdef MACRO_TEST
+
+#include "Tests/ElementaryTest.h"
+
+namespace Markov_Test
+{
+  namespace Markov_Object_Test
+  {
+
+    using namespace Markov_Object;
+
+
+    MultipleTests Abstract_Object_Test::classInvariant()const
+    {
+      MultipleTests results(Abstract_Object::ClassName(),
+                            "Class Invariant");
+
+      MultipleTests pGD("methods",
+                        "invariants");
+
+      pGD.push_back(ElementaryTest("mySuperClasses() method",
+                                   "includes " + Abstract_Object::ClassName()+ " in set",
+                                   object_->mySuperClasses().find(Abstract_Object::ClassName())
+                                   !=object_->mySuperClasses().end());
+
+          pGD.push_back(ElementaryTest("mySuperClass()",
+                                       "right in GetDescription",
+                                       des.SuperClass()==experiment_->mySuperClass()));
+      pGD.push_back(ElementaryTest("myName()",
+                                   "right in GetDescription",
+                                   des.ElementValue(des.NameIndex("name"))==
+                                   experiment_->myName()));
+
+      results.push_back(pGD);
+      MultipleTests pGS("GetState()",
+                        "conform invariant and class");
+
+      ClassDescription st=experiment_->GetState();
+      pGS.push_back(ClassDescription_Test(st).classInvariant());
+      pGS.push_back(ElementaryTest("myClass()",
+                                   "right in GetDescription",
+                                   st.ClassName()==experiment_->myClass()));
+      pGS.push_back(ElementaryTest("mySuperClass()",
+                                   "right in GetDescription",
+                                   st.SuperClass()==experiment_->mySuperClass()));
+      pGS.push_back(ElementaryTest("myName()",
+                                   "right in GetDescription",
+                                   st.ElementValue(des.NameIndex("name"))==
+                                   experiment_->myName()));
+
+
+      results.push_back(pGS);
+      MultipleTests pLD("LoadFromDescription()",
+                        "recover rigth object");
+
+      ABC_Experiment *empty=experiment_->create();
+
+      pLD.push_back(ElementaryTest(
+                      "GetDescription()",
+                      "fill an empty object",
+                      empty->LoadFromDescription(des)));
+
+      /*  pLD.push_back(ElementaryTest(
+                          "GetDescription()",
+                          "recover the same object",
+                          *empty==*saveable_));
+        results.push_back(pLD);
+    */
+      // test on those is not implemented since nobody uses them
+      // bool Save(const std::string& path);
+
+      //     bool Load(const std::string& path);
+
+
+
+      return results;
+
+
+    }
+
+    Abstract_Object_Test::Abstract_Object_Test(const Abstract_Object& object)
+      :
+        object_(&object)
+    {}
+
+    Abstract_Object_Test::~Abstract_Object_Test()
+    {
+
+    }
+
+    std::string Abstract_Object_Test::TestName()
+    {
+      return "Abstract_Object_Test";
+    }
+
+    std::string Abstract_Object_Test::myTest()const
+    {
+      return TestName();
+    }
+
+
+
+  }
+}
+
+#endif //MACRO_TEST
+
+
 

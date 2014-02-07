@@ -24,48 +24,54 @@ int main(int argc, char **argv)
 
 int main()
 {
-  Markov_IO::Environment e;
-  Markov_IO::Base_Unit* u=new Markov_IO::Base_Unit("ms","milisecond",&e,"time","scale of time");
-  std::cout<<u->ToString();
-  Markov_IO::Base_Unit* u2=new Markov_IO::Base_Unit("","",&e,"","");
+  Markov_Object::Environment e;
+  Markov_Object::Base_Unit* u=new Markov_Object::Base_Unit("ms","milisecond",&e,"time","scale of time");
+ // std::cout<<u->ToString();
+  Markov_Object::Base_Unit* u2=new Markov_Object::Base_Unit(&e);
   std::size_t n=0;
-  u2->ToObject(u->ToString(),n);
-  std::cout<<u2->ToString();
+  u2->ToObject(&e,u->ToString(),n);
+  //std::cout<<u2->ToString();
 
 
   e.addUnit(u);
-  Markov_IO::SimpleVariable<std::size_t> c("milisecond_number",10.0,"ms",&e,"delay","time to reach maximum");
-  Markov_IO::SimpleVariable<std::size_t> c2("",0,"",&e,"","");
+  Markov_Object::SimpleVariable<std::size_t> c("milisecond_number",10.0,"ms",&e,"delay","time to reach maximum");
+  Markov_Object::SimpleVariable<std::size_t>* c2=new Markov_Object::SimpleVariable<std::size_t>(&e);
   n=0;
-  c2.ToObject(c.ToString(),n);
+  c2->ToObject(&e,c.ToString(),n);
 
-  std::cout<<c.ToString();
-  std::cout<<c2.ToString();
+  //std::cout<<c.ToString();
+  //std::cout<<c2->ToString();
+  //std::cout<<c2->myUnit()->ToString();
 
 
 
-  Markov_IO::SimpleVariable<double> d("milisecond_number_real",0.0,"ms",&e,"delay","time to reach maximum");
-  Markov_IO::SimpleVariable<double> d2("",0.0,"",&e,"","");
+
+  Markov_Object::SimpleVariable<double> d("milisecond_number_real",0.0,"ms",&e,"delay","time to reach maximum");
+  Markov_Object::SimpleVariable<double> d2(&e);
   n=0;
-  c2.ToObject(d.ToString(),n);
+  c2->ToObject(&e,d.ToString(),n);
 
-  std::cout<<d.ToString();
-  std::cout<<c2.ToString();
-  std::cout<<c.defaultSample()->ToString();
+ // std::cout<<d.ToString();
+ // std::cout<<c2.ToString();
+ // std::cout<<c.defaultSample()->ToString();
 
-  Markov_IO::SimpleVariableValue<double> dd("milisecond_number_real",9.345,"ms",&e,"","","");
-  Markov_IO::SimpleVariableValue<double> d3("milisecond_number_real",9.345,"ms",&e,"","","");
+  Markov_Object::SimpleVariableValue<double> dd("milisecond_number_real",9.345,"ms",&e);
+  Markov_Object::SimpleVariableValue<double> d3("milisecond_number_real",9.345,"ms",&e);
 
-  Markov_IO::Complex_Variable m(&e,"model","un modelo1","la puta digo");
-  m.push_back("Q",&d);
-  m.push_back("g",&d);
-
-
-  std::cout<<m.ToString();
-  std::cout<<m.defaultSample()->ToString();
+  std::cout << dd.ToString();
+  std::cout << dd.variable()->ToString();
 
 
+//  Markov_Object::Composite_Variable m(&e,"model","un modelo1","la puta digo");
+//  m.push_back("Q",&d);
+//  m.push_back("g",&d);
 
 
-  std::cout<<dd.ToString();
+  //std::cout<<m.ToString();
+  //std::cout<<m.defaultValue()->ToString();
+
+
+
+
+  // std::cout<<dd.ToString();
 }
