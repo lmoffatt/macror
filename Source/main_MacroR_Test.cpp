@@ -9,7 +9,7 @@
 
 #include "Markov_Object/Abstract_Object.h"
 
-/*
+
 int main(int argc, char **argv)
 {
  QApplication app(argc, argv);
@@ -20,9 +20,9 @@ int main(int argc, char **argv)
     return app.exec();
 }
 
-*/
 
-int main()
+
+/*int main()
 {
   Markov_IO::Environment e;
   Markov_IO::Base_Unit* u=new Markov_IO::Base_Unit("ms","milisecond",&e,"time","scale of time");
@@ -69,3 +69,4 @@ int main()
 
   std::cout<<dd.ToString();
 }
+*/
