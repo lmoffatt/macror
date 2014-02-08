@@ -11,31 +11,88 @@
 namespace Markov_Object{
 
 
-  std::string Abstract_Object::ClassName()
+
+  Class_info Abstract_Object::classInfo()
   {
-    return "Abstract_Object";
+    return Class_info
+    {
+        {ClassName()},
+        {ClassName()},
+        false,
+        false
+      };
+
+  }
+
+  Class_info Abstract_Object::myClassInfo() const
+  {
+     classInfo();
+  }
+
+  std::string Abstract_Object::myClass() const
+  {
+    return ClassName();
   }
 
 
-  std::set<std::string> Abstract_Object::mySuperClasses()const
+
+  std::set<std::string> Abstract_Object:: SuperClasses()
   {
     std::set<std::string> mySC;
     mySC.insert(ClassName());
     return mySC;
   }
 
-  std::set<std::string> Named_Object::mySuperClasses()const
+
+  Abstract_Object *Abstract_Object::dynamicCast(Abstract_Object *o) const
   {
-    auto mySC=Abstract_Object::mySuperClasses();
+    return dynamic_cast<Abstract_Object*>(o);
+  }
+
+  const Abstract_Object *Abstract_Object::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<const Abstract_Object*>(o);
+  }
+
+  std::set<std::string> Named_Object:: SuperClasses()
+  {
+    auto mySC=Abstract_Object::SuperClasses();
     mySC.insert(ClassName());
     return mySC;
   }
+
+  Class_info Named_Object::classInfo()
+  {
+    return Class_info
+    {
+        {ClassName()},
+        {SuperClasses()},
+        true,
+        false
+      };
+
+  }
+
+  Class_info Named_Object::myClassInfo() const
+  {
+     classInfo();
+  }
+
 
   std::string Named_Object::ClassName()
   {
     return "Named_Object";
   }
 
+  Named_Object *Named_Object::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast<Named_Object*>(o);
+  }
+
+  const Named_Object *Named_Object::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<const Named_Object*>(o);
+  }
   Named_Object::~Named_Object()
   {}
 
@@ -149,13 +206,30 @@ namespace Markov_Object{
   {
     return ClassName();
   }
-  std::set<std::string> Abstract_Valued_Object::mySuperClasses()const
+  std::set<std::string> Abstract_Valued_Object::SuperClasses()
   {
     std::set<std::string> sc;
     sc.insert(ClassName());
     return sc;
 
   }
+  Class_info Abstract_Valued_Object::classInfo()
+  {
+    return Class_info
+    {
+        {ClassName()},
+        {SuperClasses()},
+        false,
+        false
+      };
+
+  }
+
+  Class_info Abstract_Valued_Object::myClassInfo() const
+  {
+     classInfo();
+  }
+
 
   std::string Abstract_Variable_Object::ClassName()
   {
@@ -166,21 +240,56 @@ namespace Markov_Object{
     return ClassName();
   }
 
-  std::set<std::string> Abstract_Variable_Object::mySuperClasses()const {
-    auto mySC=Abstract_Object::mySuperClasses();
+  Class_info Abstract_Variable_Object::classInfo()
+  {
+    return Class_info
+    {
+        {ClassName()},
+        {SuperClasses()},
+        false,
+        false
+      };
+
+  }
+
+  Class_info Abstract_Variable_Object::myClassInfo() const
+  {
+     classInfo();
+  }
+
+
+  std::set<std::string> Abstract_Variable_Object:: SuperClasses() {
+    auto mySC=Abstract_Object::SuperClasses();
     mySC.insert(ClassName());
     return mySC;
   }
 
+  Abstract_Valued_Object *Abstract_Valued_Object::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast<Abstract_Valued_Object*>(o);
+  }
 
+  const Abstract_Valued_Object *Abstract_Valued_Object::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<const Abstract_Valued_Object*>(o);
+  }
   Abstract_Variable_Object::~Abstract_Variable_Object(){}
 
-
-
-
-   bool Abstract_Variable_Object::isValueValid(const Abstract_Value_Object* v)const
+  Abstract_Variable_Object *Abstract_Variable_Object::dynamicCast(Abstract_Object *o) const
   {
-    return v->mySuperClasses().count(defaultValue()->myClass())!=0;
+    return dynamic_cast<Abstract_Variable_Object *>(o);
+  }
+
+  const Abstract_Variable_Object *Abstract_Variable_Object::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<const Abstract_Variable_Object *>(o);
+  }
+
+
+
+  bool Abstract_Variable_Object::isValueValid(const Abstract_Value_Object* v)const
+  {
+    return v->myClassInfo().superClasses.count(defaultValue()->myClass())!=0;
   }
 
 
@@ -198,12 +307,39 @@ namespace Markov_Object{
     return ClassName();
   }
 
-  std::set<std::string> Abstract_Value_Object::mySuperClasses()const {
-    auto mySC=Abstract_Object::mySuperClasses();
+  Class_info Abstract_Value_Object::classInfo()
+  {
+    return Class_info
+    {
+        {ClassName()},
+        {SuperClasses()},
+        false,
+        false
+      };
+
+  }
+
+  Class_info Abstract_Value_Object::myClassInfo() const
+  {
+     classInfo();
+  }
+
+
+  std::set<std::string> Abstract_Value_Object:: SuperClasses() {
+    auto mySC=Abstract_Object::SuperClasses();
     mySC.insert(ClassName());
     return mySC;
   }
 
+  Abstract_Value_Object *Abstract_Value_Object::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast<Abstract_Value_Object*> (o);
+  }
+
+  const Abstract_Value_Object *Abstract_Value_Object::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<const Abstract_Value_Object*> (o);
+  }
 
 
   Abstract_Value_Object::~Abstract_Value_Object(){}
@@ -345,13 +481,31 @@ namespace Markov_Object{
                              std::string whatthis)
     :
       Abstract_Object(),
-      e_(e),variableName_{variablename},tip_{tip},whatThis_{whatthis}{}
+      e_(e),variableName_{variablename},tip_{tip},whatThis_{whatthis}
+
+  {
+    auto p=e->V(variablename,Named_Object::ClassName());
+    bool isD=(p);
+    isDuplicate_=isD;
+
+  }
 
 
   Named_Object::Named_Object(Environment* e)
     :
       Abstract_Object(),
-      e_{e},variableName_{},tip_{},whatThis_{}{}
+      e_{e},variableName_{},tip_{},whatThis_{},isDuplicate_(false){
+    isDuplicate_=false;
+
+  }
+
+  Named_Object::Named_Object()
+    :
+      Abstract_Object(),
+      e_{nullptr},variableName_{},tip_{},whatThis_{},isDuplicate_(false){}
+
+
+
 
   void Named_Object::setEnvironment(Environment *e)
   {
@@ -383,6 +537,19 @@ namespace Markov_Object{
     return ClassName();
   }
 
+  Base_Unit *Base_Unit::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast<Base_Unit*>(o);
+
+  }
+
+  const Base_Unit *Base_Unit::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<const Base_Unit*>(o);
+
+  }
+
+
   std::string Base_Unit::abbr()const{
     return abbr_;
   }
@@ -392,9 +559,9 @@ namespace Markov_Object{
   {
     return false;
   }
-  Abstract_Object* Base_Unit::create()const
+  Base_Unit* Base_Unit::create()const
   {
-    return nullptr;
+    return new Base_Unit;
   }
 
 
@@ -438,6 +605,11 @@ namespace Markov_Object{
     e->addUnit(this);
   }
 
+  Base_Unit::Base_Unit()
+    :
+      abbr_(){}
+
+
   Base_Unit::Base_Unit(Environment* e)
     :
       Named_Object(e),
@@ -463,16 +635,33 @@ namespace Markov_Object{
 
   }
 
+
   template<typename T>
-  std::set<std::string> SimpleVariable<T>::mySuperClasses()const
+  Class_info SimpleVariable<T>::classInfo()
+  {
+    return Class_info
+    {
+        {ClassName()},
+        {SuperClasses()},
+        false,
+        false
+      };
+
+  }
+  template<typename T>
+  Class_info SimpleVariable<T>::myClassInfo() const
+  {
+     classInfo();
+  }
+
+  template<typename T>
+  std::set<std::string> SimpleVariable<T>:: SuperClasses()
   {
     //Variable_Object,public Valued_Object,public Named_Object
-    auto vo=Abstract_Variable_Object::mySuperClasses();
+    auto vo=Abstract_Variable_Object::SuperClasses();
 
-    auto va=Abstract_Valued_Object::mySuperClasses();
-    auto na=Named_Object::mySuperClasses();
+    auto va=Abstract_Valued_Object::SuperClasses();
     vo.insert(va.begin(),va.end());
-    vo.insert(na.begin(),na.end());
 
 
     vo.insert(ClassName());
@@ -480,6 +669,17 @@ namespace Markov_Object{
 
   }
 
+  template<typename T>
+  SimpleVariable<T> *SimpleVariable<T>::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast< SimpleVariable<T> *>(o);
+  }
+
+  template<typename T>
+  const SimpleVariable<T> *SimpleVariable<T>::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast< const SimpleVariable<T> *>(o);
+  }
 
 
   template<typename T>
@@ -496,6 +696,7 @@ namespace Markov_Object{
                                     std::string tip,
                                     std::string whatthis)
     :
+      Abstract_Object(),
       Abstract_Variable_Object(e,name,tip,whatthis),
       defautValue_(defaultValue),
       u_{e->U(unit)}
@@ -506,9 +707,19 @@ namespace Markov_Object{
   template<typename T>
   SimpleVariable<T>::SimpleVariable(Environment* e)
     :
+      Abstract_Object(),
       Abstract_Variable_Object(e),
       defautValue_{T()},
-      u_{}
+      u_{nullptr}
+  {}
+
+  template<typename T>
+  SimpleVariable<T>::SimpleVariable()
+    :
+      Abstract_Object(),
+      Abstract_Variable_Object(),
+      defautValue_{T()},
+      u_{nullptr}
   {}
 
 
@@ -531,7 +742,7 @@ namespace Markov_Object{
   template<typename T>
   SimpleVariable<T>* SimpleVariable<T>::create()const
   {
-    return new SimpleVariable<T>("",T(),"",Named_Object::getEnvironment(),"","");
+    return new SimpleVariable<T>;
   }
 
 
@@ -549,14 +760,47 @@ namespace Markov_Object{
 
 
 
+
+
   template<typename T>
   std::set<std::string>
-  SimpleVariableValue<T>::mySuperClasses()const {
-    auto mySC=Abstract_Object::mySuperClasses();
+  SimpleVariableValue<T>:: SuperClasses() {
+    auto mySC=Abstract_Object::SuperClasses();
     mySC.insert(ClassName());
     return mySC;
   }
 
+
+  template<typename T>
+  Class_info SimpleVariableValue<T>::classInfo()
+  {
+    return Class_info
+    {
+        {ClassName()},
+        {SuperClasses()},
+        false,
+        false
+      };
+
+  }
+  template<typename T>
+  Class_info SimpleVariableValue<T>::myClassInfo() const
+  {
+     classInfo();
+  }
+
+
+  template<typename T>
+  SimpleVariableValue<T> *SimpleVariableValue<T>::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast<  SimpleVariableValue<T> *> (o);
+  }
+
+  template<typename T>
+  const SimpleVariableValue<T> *SimpleVariableValue<T>::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<  const SimpleVariableValue<T> *> (o);
+  }
 
 
 
@@ -592,11 +836,22 @@ namespace Markov_Object{
   template<typename T>
   SimpleVariableValue<T>::SimpleVariableValue(std::string variablename,
                                               T v,
-                                              std::string unit, Environment *e)
+                                              std::string unit,
+                                              Environment *e)
     : variable_(dynamic_cast<const SimpleVariable<T>*>(e->V(variablename,SimpleVariable<T>::ClassName()))),
       value_(v),
       unit_(e->U(unit))
-  {}
+  {
+  }
+
+  template<typename T>
+  SimpleVariableValue<T>::SimpleVariableValue()
+    : variable_(nullptr),
+      value_(),
+      unit_(nullptr)
+  {  }
+
+
 
   template<typename T>
   SimpleVariableValue<T>::~SimpleVariableValue(){}
@@ -782,7 +1037,7 @@ namespace Markov_Object{
   //  }
 
 
-  //  std::set<std::string> Complex_Object::mySuperClasses()const {
+  //  std::set<std::string> Complex_Object:: SuperClasses() {
   //    auto mySC=Abstract_Object::mySuperClasses();
   //    mySC.insert(ClassName());
   //    return mySC;
@@ -918,7 +1173,7 @@ namespace Markov_Object{
   //  }
 
 
-  //  std::set<std::string> Composite_Variable::mySuperClasses()const {
+  //  std::set<std::string> Composite_Variable:: SuperClasses() {
   //    //public Variable_Object, public Complex_Object
   //    auto mySC=Abstract_Variable_Object::mySuperClasses();
   //    auto co=Complex_Object::mySuperClasses();
@@ -975,7 +1230,7 @@ namespace Markov_Object{
   //  }
 
 
-  //  std::set<std::string> Complex_Variable_Value::mySuperClasses()const {
+  //  std::set<std::string> Complex_Variable_Value:: SuperClasses() {
   //    //public Complex_Object,public Value_Object
 
   //    auto mySC=Complex_Object::mySuperClasses();
@@ -1066,6 +1321,34 @@ namespace Markov_Object{
   template
   class SimpleVariableValue<double>;
 
+  Abstract_Object *Environment::create(std::string classname)
+  {
+    auto it=classes_.find(classname);
+    if (it!=classes_.end())
+      return it->second->create();
+    else
+      return nullptr;
+
+  }
+
+
+
+
+  Environment::Environment()
+    :
+      units_{},
+      variables_{},
+      classes_{}
+  {
+    classes_[Base_Unit::ClassName()]=new Base_Unit;
+    classes_[SimpleVariable<double>::ClassName()]=new SimpleVariable<double>;
+    classes_[SimpleVariable<std::size_t>::ClassName()]=new SimpleVariable<std::size_t>;
+    classes_[SimpleVariableValue<double>::ClassName()]=new SimpleVariableValue<double>;
+    classes_[SimpleVariableValue<std::size_t>::ClassName()]=new SimpleVariableValue<std::size_t>;
+  }
+
+
+
 
 
 }
@@ -1088,12 +1371,27 @@ namespace Markov_Test
       MultipleTests results(Abstract_Object::ClassName(),
                             "Class Invariant");
 
-      MultipleTests pGD("methods",
+      MultipleTests pMI("methods",
                         "invariants");
 
-      pGD.push_back(ElementaryTest("mySuperClasses() method",
+
+      const Abstract_Object *a=static_cast<const Abstract_Object*>(object_);
+
+      pMI.push_back(ElementaryTest("myClasses()==ClassName",
+                                   "static_cast<Abstract_Object*>().myClass()==ClassName()",
+                                   a->myClass()==Abstract_Object::ClassName()));
+
+
+
+
+      pMI.push_back(ElementaryTest("mySuperClasses() method",
                                    "includes " + Abstract_Object::ClassName()+ " in set",
-                                   object_->mySuperClasses().count(Abstract_Object::ClassName())!=0));
+                                   object_->myClassInfo().superClasses.count(Abstract_Object::ClassName())!=0));
+
+
+      MultipleTests cMI("create() method ",
+                        "invariants");
+
 
 
       //
@@ -1101,29 +1399,34 @@ namespace Markov_Test
 
       Abstract_Object *o=object_->create();
 
-      pGD.push_back(ElementaryTest("create() method",
-                                   " returns a not null pointer",
+      cMI.push_back(ElementaryTest(" does not return a null pointer",
+                                   "create()!=nullptr",
                                    o!=nullptr));
 
 
       if (o!=nullptr)
         {
-          pGD.push_back(ElementaryTest("create() method",
-                                       "it should create an empty object, not internally valid "
+          cMI.push_back(ElementaryTest("creater pointer not internally valid",
                                        " !o->isInternallyValid()",
                                        !o->isInternallyValid()));
 
 
-          pGD.push_back(ElementaryTest("create() method",
+          cMI.push_back(ElementaryTest("match class",
                                        "it the object should be of myClass "+object_->myClass(),
                                        o->myClass()==object_->myClass()));
 
         }
 
+      pMI.push_back(cMI);
+
+
+      MultipleTests fMI("create() method ",
+                        "invariants");
 
 
 
-      results.push_back(pGD);
+
+      results.push_back(pMI);
 
       return results;
 

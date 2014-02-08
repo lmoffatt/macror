@@ -16,6 +16,18 @@
 
 namespace Markov_Object
 {
+
+
+
+  struct Class_info
+  {
+    std::string ClassName;
+    std::set<std::string> superClasses;
+    bool hasIdName;
+    bool isValued;
+
+  };
+
   class Environment;
 
   class Abstract_Object
@@ -23,9 +35,15 @@ namespace Markov_Object
   public:
 
   // class properties
-    static std::string ClassName();
-    virtual std::string myClass()const=0;
-    virtual std::set<std::string> mySuperClasses()const;
+    static std::string ClassName()
+    {
+      return "Abstract_Object";
+    }
+
+    static Class_info classInfo();
+    virtual Class_info myClassInfo()const;
+    virtual std::string myClass()const;
+    static std::set<std::string> SuperClasses();
 
 
   // Domain integrity of all internal values of the object
@@ -59,6 +77,13 @@ namespace Markov_Object
     /// creates a object of current Class
     virtual Abstract_Object* create()const=0;
 
+
+
+    /// cast an Abstract_Object to myClass
+    virtual Abstract_Object* dynamicCast(Abstract_Object* o)const;
+    virtual const Abstract_Object* dynamicCast(const Abstract_Object* o)const;
+
+
     /// returns enough information to make an InternallyValid copy of the object.
     /// if is an empty object it returns enough information to make another empty object
     virtual std::string ToString()const=0;
@@ -83,12 +108,6 @@ namespace Markov_Object
 
 
 
-    /// returns true if the object has a name that is referenceable in the Environment
-    virtual bool hasIdName()const=0;
-
-
-    /// returns true if the object represents a value
-    virtual bool isValued()const=0;
 
 
     virtual ~Abstract_Object();
@@ -111,7 +130,16 @@ namespace Markov_Object
 
     static std::string ClassName();
     virtual std::string myClass()const override;
-    virtual std::set<std::string> mySuperClasses()const;
+
+    static Class_info classInfo();
+    virtual Class_info myClassInfo()const override;
+
+    static std::set<std::string> SuperClasses();
+
+    /// cast an Abstract_Object to Named_Object
+    virtual Named_Object* dynamicCast(Abstract_Object* o)const override;
+    virtual const Named_Object* dynamicCast(const Abstract_Object* o)const override;
+
 
     /// hopefully unique identifier of the object
     /// if not uniqueId returns false
@@ -121,7 +149,10 @@ namespace Markov_Object
 
     virtual bool isInternallyValid() const
     {
-      return !variableName_.empty();
+      std::size_t n=0;
+      bool validName=variableName_==Named_Object::getName(variableName_,n);
+      bool validEnvironment=e_!=nullptr;
+      return validName&&validEnvironment;
     }
 
 
@@ -166,20 +197,20 @@ namespace Markov_Object
 
     Named_Object(Environment* e);
 
+    Named_Object();
+
   protected:
     virtual void setEnvironment(Environment *e);
 
 
 
   private:
-
     Environment* e_;
     std::string variableName_;
     std::string tip_;
     std::string whatThis_;
     bool isDuplicate_;
-
-  };
+};
 
 
   class Base_Unit:public virtual Named_Object
@@ -189,6 +220,10 @@ namespace Markov_Object
 
     static std::string ClassName();
     virtual std::string myClass()const override;
+    /// cast an Abstract_Object to Base_Unit
+    virtual Base_Unit * dynamicCast(Abstract_Object* o)const override;
+    virtual const Base_Unit * dynamicCast(const Abstract_Object* o)const override;
+
 
     virtual std::string abbr()const;
 
@@ -197,11 +232,11 @@ namespace Markov_Object
 
     virtual bool isCreateable()const;
 
-    virtual Abstract_Object* create()const;
+    virtual Base_Unit* create()const;
 
     virtual std::size_t numFields()const{return 0;}
 
-
+    Base_Unit();
 
     Base_Unit(std::string abbreviation,
               std::string name,
@@ -255,8 +290,15 @@ namespace Markov_Object
   {
   public:
     static std::string ClassName();
-    virtual std::string myClass()const ;
-    virtual std::set<std::string> mySuperClasses()const ;
+    virtual std::string myClass()const override;
+    static Class_info classInfo();
+    virtual Class_info myClassInfo()const override;
+
+    static std::set<std::string> SuperClasses() ;
+    /// cast an Abstract_Object to Abstract_Valued_Object
+    virtual Abstract_Valued_Object * dynamicCast(Abstract_Object* o)const override;
+    virtual const Abstract_Valued_Object * dynamicCast(const Abstract_Object* o)const override;
+
 
     virtual const Base_Unit* myUnit()const=0;
     virtual ~Abstract_Valued_Object();
@@ -292,8 +334,14 @@ namespace Markov_Object
 
     static std::string ClassName();
     virtual std::string myClass()const override;
-    virtual std::set<std::string> mySuperClasses()const override;
+    static Class_info classInfo();
+    virtual Class_info myClassInfo()const override;
+
+    static std::set<std::string> SuperClasses();
     virtual ~Abstract_Variable_Object();
+    /// cast an Abstract_Object to Abstract_Variable_Object
+    virtual Abstract_Variable_Object * dynamicCast(Abstract_Object* o)const override;
+    virtual const Abstract_Variable_Object * dynamicCast(const Abstract_Object* o)const override;
 
 
     virtual Abstract_Variable_Object* create() const=0;
@@ -308,12 +356,16 @@ namespace Markov_Object
                              std::string variablename,
                              std::string tip,
                              std::string whatthis)
-      :  Named_Object(e,variablename,tip,whatthis)
+      : Named_Object(e,variablename,tip,whatthis)
     {}
 
     Abstract_Variable_Object(Environment* e)
       :
         Named_Object(e){}
+
+    Abstract_Variable_Object(){}
+
+
   };
 
 
@@ -323,7 +375,14 @@ namespace Markov_Object
     static std::string ClassName();
 
     virtual std::string myClass()const override;
-    virtual std::set<std::string> mySuperClasses()const override;
+    static Class_info classInfo();
+    virtual Class_info myClassInfo()const override;
+
+    static std::set<std::string> SuperClasses();
+    /// cast an Abstract_Object to Abstract_Value_Object
+    virtual Abstract_Value_Object * dynamicCast(Abstract_Object* o)const override;
+    virtual const Abstract_Value_Object * dynamicCast(const Abstract_Object* o)const override;
+
     virtual ~Abstract_Value_Object();
 
     virtual bool isClonable()const;
@@ -352,7 +411,16 @@ namespace Markov_Object
 
     static std::string ClassName();
     virtual std::string myClass()const override;
-    virtual std::set<std::string> mySuperClasses()const override;
+    static Class_info classInfo();
+    virtual Class_info myClassInfo()const override;
+
+    static std::set<std::string> SuperClasses();
+
+    /// cast an Abstract_Object to SimpleVariable<T>
+    virtual SimpleVariable<T> * dynamicCast(Abstract_Object* o)const override;
+    virtual const SimpleVariable<T> * dynamicCast(const Abstract_Object* o)const override;
+
+
     virtual const Base_Unit* myUnit()const ;
 
     virtual std::string ToString()const override;
@@ -362,7 +430,7 @@ namespace Markov_Object
 
     virtual bool isValueValid(const Abstract_Value_Object* ob)const
     {
-      return ob->mySuperClasses().count(defaultValue()->myClass())!=0;
+      return ob->myClassInfo().superClasses.count(defaultValue()->myClass())!=0;
     }
 
     virtual bool isCreateable()const;
@@ -371,7 +439,7 @@ namespace Markov_Object
     SimpleVariable(Environment *e);
 
 
-
+    SimpleVariable();
 
 
 
@@ -420,12 +488,18 @@ bool SimpleVariable<T>::isValued() const
     }
     virtual SimpleVariableValue<T> *create() const
     {
-      return variable()->defaultValue();
+      return new SimpleVariableValue<T>;
     }
 
     virtual bool isInternallyValid() const
     {
-      return variable()->isValueValid(this);
+      bool validVariable= variable()!=nullptr;
+      if (validVariable)
+        {
+      bool validUnit=myUnit()!=nullptr;
+      return validUnit&&validVariable;
+        }
+      else return validVariable;
     }
 
 
@@ -457,8 +531,15 @@ bool SimpleVariable<T>::isValued() const
     virtual std::string myClass()const override;
 
     static std::string ClassName();
+    static Class_info classInfo();
+    virtual Class_info myClassInfo()const override;
 
-    virtual std::set<std::string> mySuperClasses()const override;
+    static std::set<std::string> SuperClasses();
+
+    /// cast an Abstract_Object to SimpleVariableValue<T>
+    virtual SimpleVariableValue<T> * dynamicCast(Abstract_Object* o)const override;
+    virtual const SimpleVariableValue<T> * dynamicCast(const Abstract_Object* o)const override;
+
 
     virtual const Base_Unit* myUnit()const override;
 
@@ -471,6 +552,7 @@ bool SimpleVariable<T>::isValued() const
 
 
 
+    SimpleVariableValue();
     SimpleVariableValue(std::string variablename,
                         T defaultValue,
                         std::string unit,
@@ -481,7 +563,6 @@ bool SimpleVariable<T>::isValued() const
     const SimpleVariable<T>* variable_;
     const Base_Unit* unit_;
     T value_;
-
   };
 
 
@@ -527,7 +608,7 @@ bool SimpleVariable<T>::isValued() const
 
   //    static std::string ClassName();
   //    virtual std::string myClass()const override;
-  //    virtual std::set<std::string> mySuperClasses()const override;
+  //    static std::set<std::string> SuperClasses();
 
   //    virtual std::size_t numFields()const override;
 
@@ -576,7 +657,7 @@ bool SimpleVariable<T>::isValued() const
   //  public:
   //    static std::string ClassName();
   //    virtual std::string myClass()const override;
-  //    virtual std::set<std::string> mySuperClasses()const override;
+  //    static std::set<std::string> SuperClasses();
 
   //    virtual Abstract_Value_Object const * fieldVariable(const std::string& fieldname)const;
   //    virtual Abstract_Value_Object * fieldVariable(const std::string& fieldname);
@@ -609,7 +690,7 @@ bool SimpleVariable<T>::isValued() const
 
   //    static std::string ClassName();
   //    virtual std::string myClass()const override;
-  //    virtual std::set<std::string> mySuperClasses()const override;
+  //    static std::set<std::string> SuperClasses();
 
 
   //    virtual Abstract_Variable_Object const * fieldVariable(const std::string& fieldname)const;
@@ -665,7 +746,7 @@ bool SimpleVariable<T>::isValued() const
       if (it!=variables_.end())
         {
           Named_Object* v=it->second;
-          if (v->mySuperClasses().find(variabletype)!=v->mySuperClasses().end())
+          if (v->myClassInfo().superClasses.count(variabletype)!=0)
             return v;
         }
       return nullptr;
@@ -681,9 +762,17 @@ bool SimpleVariable<T>::isValued() const
       variables_[v->idName()]=v;
     }
 
+    Abstract_Object* create(std::string classname);
+
+    Abstract_Object* dynamicCast(Abstract_Object* o,std::string classname);
+
+
+    Environment();
+
   private:
     std::map<std::string,Base_Unit*> units_;
     std::map<std::string,Named_Object*> variables_;
+    std::map<std::string,Abstract_Object*> classes_;
 
   };
 
