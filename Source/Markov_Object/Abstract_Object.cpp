@@ -26,7 +26,7 @@ namespace Markov_Object{
 
   Class_info Abstract_Object::myClassInfo() const
   {
-     classInfo();
+    return classInfo();
   }
 
   std::string Abstract_Object::myClass() const
@@ -75,7 +75,7 @@ namespace Markov_Object{
 
   Class_info Named_Object::myClassInfo() const
   {
-     classInfo();
+    return classInfo();
   }
 
 
@@ -208,7 +208,7 @@ namespace Markov_Object{
   }
   std::set<std::string> Abstract_Valued_Object::SuperClasses()
   {
-    std::set<std::string> sc;
+    std::set<std::string> sc=Abstract_Object::SuperClasses();
     sc.insert(ClassName());
     return sc;
 
@@ -227,7 +227,7 @@ namespace Markov_Object{
 
   Class_info Abstract_Valued_Object::myClassInfo() const
   {
-     classInfo();
+    return classInfo();
   }
 
 
@@ -254,12 +254,12 @@ namespace Markov_Object{
 
   Class_info Abstract_Variable_Object::myClassInfo() const
   {
-     classInfo();
+    return classInfo();
   }
 
 
   std::set<std::string> Abstract_Variable_Object:: SuperClasses() {
-    auto mySC=Abstract_Object::SuperClasses();
+    auto mySC=Named_Object::SuperClasses();
     mySC.insert(ClassName());
     return mySC;
   }
@@ -321,7 +321,7 @@ namespace Markov_Object{
 
   Class_info Abstract_Value_Object::myClassInfo() const
   {
-     classInfo();
+    return classInfo();
   }
 
 
@@ -484,7 +484,7 @@ namespace Markov_Object{
       e_(e),variableName_{variablename},tip_{tip},whatThis_{whatthis}
 
   {
-    auto p=e->V(variablename,Named_Object::ClassName());
+    auto p=e->V(variablename);
     bool isD=(p);
     isDuplicate_=isD;
 
@@ -651,7 +651,7 @@ namespace Markov_Object{
   template<typename T>
   Class_info SimpleVariable<T>::myClassInfo() const
   {
-     classInfo();
+    return classInfo();
   }
 
   template<typename T>
@@ -762,13 +762,22 @@ namespace Markov_Object{
 
 
 
+
   template<typename T>
-  std::set<std::string>
-  SimpleVariableValue<T>:: SuperClasses() {
-    auto mySC=Abstract_Object::SuperClasses();
-    mySC.insert(ClassName());
-    return mySC;
+  std::set<std::string> SimpleVariableValue<T>:: SuperClasses()
+  {
+    //Variable_Object,public Valued_Object,public Named_Object
+    auto vo=Abstract_Value_Object::SuperClasses();
+
+    auto va=Abstract_Valued_Object::SuperClasses();
+    vo.insert(va.begin(),va.end());
+
+
+    vo.insert(ClassName());
+    return vo;
+
   }
+
 
 
   template<typename T>
@@ -786,7 +795,7 @@ namespace Markov_Object{
   template<typename T>
   Class_info SimpleVariableValue<T>::myClassInfo() const
   {
-     classInfo();
+    return classInfo();
   }
 
 
@@ -838,7 +847,7 @@ namespace Markov_Object{
                                               T v,
                                               std::string unit,
                                               Environment *e)
-    : variable_(dynamic_cast<const SimpleVariable<T>*>(e->V(variablename,SimpleVariable<T>::ClassName()))),
+    : variable_(dynamic_cast<const SimpleVariable<T>*>(e->V(variablename))),
       value_(v),
       unit_(e->U(unit))
   {
@@ -940,7 +949,7 @@ namespace Markov_Object{
   {
     std::size_t pos0=pos;
     std::string name=Named_Object::getName(multipleLines,pos);
-    const Named_Object* p=e->V(name,SimpleVariable<T>::ClassName());
+    const Named_Object* p=e->V(name);
     if (p!=nullptr)
       variable_=dynamic_cast<const SimpleVariable<T>*>(p);
     else
@@ -1332,6 +1341,52 @@ namespace Markov_Object{
   }
 
 
+  bool Environment::doesDynCast(const Abstract_Object *o, std::string classname)
+  {
+    // concrete classes
+    auto it=classes_.find(classname);
+    if (it!=classes_.end())
+      {
+        const Abstract_Object* c=it->second;
+        return c->dynamicCast(o)!=nullptr;
+      }
+    else
+      // Abstract classes one by one
+      if (classname==Abstract_Object::ClassName())
+        return dynamic_cast<const Abstract_Object*>(o)!=nullptr;
+      else if (classname==Abstract_Valued_Object::ClassName())
+        return dynamic_cast<const Abstract_Valued_Object*>(o)!=nullptr;
+      else if (classname==Abstract_Value_Object::ClassName())
+        return dynamic_cast<const Abstract_Value_Object*>(o)!=nullptr;
+      else if (classname==Abstract_Variable_Object::ClassName())
+        return dynamic_cast<const Abstract_Variable_Object*>(o)!=nullptr;
+      else return false;
+
+  }
+
+  std::set<std::string> Environment::getSuperClasses(const std::string &classname)
+  {
+    // concrete classes
+    Abstract_Object* o=create(classname);
+    std::set<std::string> s;
+    for (auto it:classes_)
+      {
+        const Abstract_Object* v=it.second;
+        if (v->dynamicCast(o))
+          s.insert(it.first);
+      }
+    // Abstract classes one by one
+    if (dynamic_cast<const Abstract_Object*>(o)!=nullptr)
+      s.insert(Abstract_Object::ClassName());
+    if (dynamic_cast<const Abstract_Valued_Object*>(o)!=nullptr)
+      s.insert(Abstract_Valued_Object::ClassName());
+    if (dynamic_cast<const Abstract_Value_Object*>(o)!=nullptr)
+      s.insert(Abstract_Value_Object::ClassName());
+    if (dynamic_cast<const Abstract_Variable_Object*>(o)!=nullptr)
+      s.insert(Abstract_Variable_Object::ClassName());
+
+    return s;
+  }
 
 
   Environment::Environment()
@@ -1374,54 +1429,155 @@ namespace Markov_Test
       MultipleTests pMI("methods",
                         "invariants");
 
-
-      const Abstract_Object *a=static_cast<const Abstract_Object*>(object_);
-
-      pMI.push_back(ElementaryTest("myClasses()==ClassName",
-                                   "static_cast<Abstract_Object*>().myClass()==ClassName()",
-                                   a->myClass()==Abstract_Object::ClassName()));
+      {
+        MultipleTests pE("valid unsensitive",
+                         "invariants that can be tested on an empty object");
 
 
 
+        // validity of superclasses
 
-      pMI.push_back(ElementaryTest("mySuperClasses() method",
-                                   "includes " + Abstract_Object::ClassName()+ " in set",
-                                   object_->myClassInfo().superClasses.count(Abstract_Object::ClassName())!=0));
+        Environment E;
+        auto sc=object_->myClassInfo().superClasses;
+        auto sc2=E.getSuperClasses(object_->myClass());
+
+        std::string ssc;
+        for (auto e:sc)
+          ssc=ssc+","+e;
+
+        std::string ssc2;
+        for (auto e:sc2)
+          ssc2=ssc2+","+e;
 
 
-      MultipleTests cMI("create() method ",
+        pE.push_back(ElementaryTest("myClassInfo.SuperClasses method",
+                                    "it should include all classes that can be dynamic_casted \n"
+                                    "\nmyClassInfo.SuperClasses  : "+ssc+
+                                    "\nEnvironment dynamic_casted: "+ssc2,
+                                    object_->myClassInfo().superClasses==
+                                    E.getSuperClasses(object_->myClass())));
+
+
+
+        MultipleTests cMI("create() method ",
+                          "invariants");
+
+
+
+        //
+        Abstract_Object *o=object_->create();
+
+        cMI.push_back(ElementaryTest(" does not return a null pointer",
+                                     "create()!=nullptr",
+                                     o!=nullptr));
+
+
+        if (o!=nullptr)
+          {
+            cMI.push_back(ElementaryTest("creater pointer not internally valid",
+                                         " !o->isInternallyValid()",
+                                         !o->isInternallyValid()));
+
+
+            cMI.push_back(ElementaryTest("match class",
+                                         "it the object should be of myClass "+object_->myClass(),
+                                         o->myClass()==object_->myClass()));
+
+
+
+          }
+
+        pE.push_back(cMI);
+
+        pMI.push_back(pE);
+      }
+      {
+      MultipleTests fMI("ToString()  ToObject() methods ",
                         "invariants");
 
 
+        std::string str=object_->ToString();
 
-      //
-      std::string s=object_->ToString();
+        MultipleTests eEv("ToObject on ToString in an empty Environment",
+            "recovers an internally valid object with invalid references");
 
-      Abstract_Object *o=object_->create();
-
-      cMI.push_back(ElementaryTest(" does not return a null pointer",
-                                   "create()!=nullptr",
-                                   o!=nullptr));
+        Environment Eempty;
 
 
-      if (o!=nullptr)
-        {
-          cMI.push_back(ElementaryTest("creater pointer not internally valid",
-                                       " !o->isInternallyValid()",
-                                       !o->isInternallyValid()));
+
+        Abstract_Object *o=object_->create();
+        std::size_t n=0;
 
 
-          cMI.push_back(ElementaryTest("match class",
-                                       "it the object should be of myClass "+object_->myClass(),
-                                       o->myClass()==object_->myClass()));
-
-        }
-
-      pMI.push_back(cMI);
 
 
-      MultipleTests fMI("create() method ",
-                        "invariants");
+        //
+
+        bool b=o->ToObject(&Eempty,str,n);
+
+
+        eEv.push_back(ElementaryTest("the operation is successfull",
+                                     "ToObject(E,ToString,n)==true",
+                                     b));
+
+        eEv.push_back(ElementaryTest("the object is internallyValid",
+                                     "o->isInternallyValid()",
+                                     o->isInternallyValid()));
+
+        eEv.push_back(ElementaryTest("the object returns exactly the same string",
+                                     "o->ToString()==object_->ToString()",
+                                     o->ToString()==object_->ToString()));
+
+        if (object_->refersEnvironment())
+          {
+          eEv.push_back(ElementaryTest("the object refers to invalidObjects",
+                                       "!o->refersToValidObjects()",
+                                       o->refersToValidObjects()==false));
+          eEv.push_back(ElementaryTest("the object is not valid",
+                                       "o->isValid()==false",
+                                       o->isValid()==false));
+
+
+          std::string mycontext=object_->contextToString();
+          std::string acontext;
+          auto ref=object_->referencedObjects();
+
+          for (const Abstract_Object* s:ref)
+            acontext+=s->ToString()+"\n";
+          eEv.push_back(ElementaryTest("contextToString has all the referencedObjects",
+                                       "equality of output strings",
+                                       mycontext==acontext));
+
+
+
+
+          }
+        else
+          {
+            eEv.push_back(ElementaryTest("there is no objects to refer",
+                                         "!o->refersToValidObjects()",
+                                         o->refersToValidObjects()));
+            eEv.push_back(ElementaryTest("the object is valid",
+                                         "o->isValid()",
+                                         o->isValid()));
+
+          }
+
+
+
+
+        //
+
+
+
+
+
+        if (!object_->myClassInfo().hasIdName)
+
+
+
+
+
 
 
 
@@ -1431,6 +1587,7 @@ namespace Markov_Test
       return results;
 
 
+    }
     }
 
     Abstract_Object_Test::Abstract_Object_Test(const Abstract_Object& object)

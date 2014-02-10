@@ -17,8 +17,6 @@
 namespace Markov_Object
 {
 
-
-
   struct Class_info
   {
     std::string ClassName;
@@ -41,8 +39,11 @@ namespace Markov_Object
     }
 
     static Class_info classInfo();
+
     virtual Class_info myClassInfo()const;
+
     virtual std::string myClass()const;
+
     static std::set<std::string> SuperClasses();
 
 
@@ -51,13 +52,13 @@ namespace Markov_Object
    // it does not check it existance
     virtual bool isInternallyValid()const=0;
 
+
     /// if it is an unreferenced value without any referenced objects it returns false
     virtual bool refersEnvironment()const=0;
 
     /// returns the Environment where the object belongs
     /// if it is an unreferenced value without any referenced objects it returns a nullptr.
     virtual Environment* getEnvironment()const =0;
-
 
 
      /// checks for the existance of all refered objects
@@ -81,6 +82,8 @@ namespace Markov_Object
 
     /// cast an Abstract_Object to myClass
     virtual Abstract_Object* dynamicCast(Abstract_Object* o)const;
+
+
     virtual const Abstract_Object* dynamicCast(const Abstract_Object* o)const;
 
 
@@ -105,6 +108,7 @@ namespace Markov_Object
     // if text is Tostring, it should return an internallyvalid copy of the object
     // objects that are referenceable are also incoporated to the Environment
     virtual Abstract_Object* ToObject(Environment* e,const std::string& text, std::size_t &cursor)=0;
+
 
 
 
@@ -740,16 +744,15 @@ bool SimpleVariable<T>::isValued() const
         return it->second;
       else return nullptr;
     }
-    const Named_Object* V(const std::string& variablename,const std::string& variabletype)const
+    const Named_Object* V(const std::string& variablename)const
     {
       auto it=variables_.find(variablename);
       if (it!=variables_.end())
         {
           Named_Object* v=it->second;
-          if (v->myClassInfo().superClasses.count(variabletype)!=0)
             return v;
         }
-      return nullptr;
+      else return nullptr;
     }
 
     void addUnit(Base_Unit* u)
@@ -764,8 +767,10 @@ bool SimpleVariable<T>::isValued() const
 
     Abstract_Object* create(std::string classname);
 
-    Abstract_Object* dynamicCast(Abstract_Object* o,std::string classname);
 
+    bool doesDynCast(const Abstract_Object* o,std::string classname);
+
+    std::set<std::string> getSuperClasses(const std::string& classname);
 
     Environment();
 
