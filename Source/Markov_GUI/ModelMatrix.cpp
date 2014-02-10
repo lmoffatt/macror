@@ -335,7 +335,7 @@ bool ModelMatrix::setHeaderData(int section, Qt::Orientation orientation, const 
 
 ModelQMatrix::ModelQMatrix(Markov_LA::M_Matrix<double> *matrix,QObject *parent):
   ModelMatrix(matrix,parent),
-Z(Markov_LA::zeros<double>(Markov_LA::nrows(*m),1))
+  Z(Markov_LA::zeros<double>(Markov_LA::nrows(*m),1))
 {
 }
 
@@ -361,9 +361,14 @@ bool  ModelQMatrix::setData(const QModelIndex &index, const QVariant &value, int
   if (m &&(i<Markov_LA::nrows(*m))&&(j<Markov_LA::ncols(*m)))
     {
       (*m)(i,j)=kij;
+      if ((*m)(i,j)==0)
+        {
+          bool hasloops;
+          Z=Markov_Mol::getPartitionVector(*m,Markov_Mol::getConnectionMap(*m),hasloops,false);
+        }
       if ((Z[j]!=0)&&(Z[i]!=0))
         {
-          (*m)(j,i)=(*m)(i,j)*Z[j]/Z[i];
+          (*m)(j,i)=(*m)(i,j)*Z[i]/Z[j];
           (*m)(j,j)=0;
           (*m)(j,j)=-Markov_LA::totalsum((*m)(j,":"));
         }
