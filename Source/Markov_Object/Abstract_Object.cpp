@@ -449,28 +449,26 @@ namespace Markov_Object{
       }
     return out;
   }
-  Named_Object *Named_Object::ToObject(Environment* e,const std::string& text,std::size_t& cursor)
+  bool Named_Object::ToObject(Environment* e,const std::string& text,std::size_t& cursor)
   {
-    setEnvironment(e);
     std::size_t c0=cursor;
     std::string name=getName(text,cursor);
     std::string tip=getTip(text,cursor);
     std::string whatthis=getWhatThis(text,cursor);
-
-    if (!name.empty())
-      this->variableName_=name;
-    if (!tip.empty())
-      setTip(tip);
-    if(!whatthis.empty())
-      setWhatThis(whatthis);
-
     if (name.empty()&&tip.empty()&&whatthis.empty())
       {
         cursor=c0;
-        return nullptr;
+        return false;
       }
 
-    return this;
+    this->setEnvironment(e);
+    if (!name.empty())
+      this->variableName_=name;
+    if (!tip.empty())
+      this->setTip(tip);
+    if(!whatthis.empty())
+      this->setWhatThis(whatthis);
+    return true;
   }
 
 
@@ -574,7 +572,7 @@ namespace Markov_Object{
     return out;
   }
 
-  Base_Unit *Base_Unit::ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)
+  bool Base_Unit::ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)
   {
     std::size_t pos0=pos;
     if (!Named_Object::ToObject( e,multipleLines,pos))
@@ -762,7 +760,6 @@ namespace Markov_Object{
 
 
 
-
   template<typename T>
   std::set<std::string> SimpleVariableValue<T>:: SuperClasses()
   {
@@ -847,17 +844,21 @@ namespace Markov_Object{
                                               T v,
                                               std::string unit,
                                               Environment *e)
-    : variable_(dynamic_cast<const SimpleVariable<T>*>(e->V(variablename))),
-      value_(v),
-      unit_(e->U(unit))
+    : variableId_(variablename),
+      variable_(dynamic_cast<const SimpleVariable<T>*>(e->V(variablename))),
+      unitId_(unit),
+      unit_(e->U(unit)),
+      value_(v)
   {
   }
 
   template<typename T>
   SimpleVariableValue<T>::SimpleVariableValue()
-    : variable_(nullptr),
-      value_(),
-      unit_(nullptr)
+    : variableId_(),
+      variable_(nullptr),
+      unitId_(),
+      unit_(nullptr),
+      value_()
   {  }
 
 
@@ -945,10 +946,11 @@ namespace Markov_Object{
 
 
   template<typename T>
-  SimpleVariableValue<T>* SimpleVariableValue<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
+  bool SimpleVariableValue<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     std::string name=Named_Object::getName(multipleLines,pos);
+    variableId_=name;
     const Named_Object* p=e->V(name);
     if (p!=nullptr)
       variable_=dynamic_cast<const SimpleVariable<T>*>(p);
@@ -981,13 +983,13 @@ namespace Markov_Object{
   }
 
   template<typename T>
-  SimpleVariable<T>* SimpleVariable<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
+  bool SimpleVariable<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     if (!Named_Object::ToObject(e,multipleLines,pos))
       {
         pos=pos0;
-        return nullptr;
+        return false;
       }
     std::string line=nextLine(multipleLines,pos);
     if (!SimpleVariableValue<T>::is(line))
@@ -1490,76 +1492,79 @@ namespace Markov_Test
         pE.push_back(cMI);
 
         pMI.push_back(pE);
+        delete o;
       }
       {
-      MultipleTests fMI("ToString()  ToObject() methods ",
-                        "invariants");
+        MultipleTests fMI("ToString()  ToObject() methods ",
+                          "invariants");
 
 
         std::string str=object_->ToString();
 
         MultipleTests eEv("ToObject on ToString in an empty Environment",
-            "recovers an internally valid object with invalid references");
+                          "recovers an internally valid object with invalid references");
 
         Environment Eempty;
 
 
 
-        Abstract_Object *o=object_->create();
-        std::size_t n=0;
 
 
 
 
         //
 
-        bool b=o->ToObject(&Eempty,str,n);
+        Abstract_Object* b=object_->create();
+        bool isb=b->ToObject(&Eempty,str);
 
 
         eEv.push_back(ElementaryTest("the operation is successfull",
                                      "ToObject(E,ToString,n)==true",
-                                     b));
+                                     isb));
 
         eEv.push_back(ElementaryTest("the object is internallyValid",
-                                     "o->isInternallyValid()",
-                                     o->isInternallyValid()));
+                                     "b->isInternallyValid()",
+                                     b->isInternallyValid()));
 
         eEv.push_back(ElementaryTest("the object returns exactly the same string",
                                      "o->ToString()==object_->ToString()",
-                                     o->ToString()==object_->ToString()));
+                                     b->ToString()==object_->ToString()));
 
         if (object_->refersEnvironment())
           {
-          eEv.push_back(ElementaryTest("the object refers to invalidObjects",
-                                       "!o->refersToValidObjects()",
-                                       o->refersToValidObjects()==false));
-          eEv.push_back(ElementaryTest("the object is not valid",
-                                       "o->isValid()==false",
-                                       o->isValid()==false));
+            eEv.push_back(ElementaryTest("the object refers to invalidObjects",
+                                         "!o->refersToValidObjects()",
+                                         b->refersToValidObjects()==false));
+            eEv.push_back(ElementaryTest("the object is not valid",
+                                         "o->isValid()==false",
+                                         b->isValid()==false));
 
 
-          std::string mycontext=object_->contextToString();
-          std::string acontext;
-          auto ref=object_->referencedObjects();
+            std::string mycontext=object_->contextToString();
+            std::string acontext;
+            auto ref=object_->referencedObjects();
 
-          for (const Abstract_Object* s:ref)
-            acontext+=s->ToString()+"\n";
-          eEv.push_back(ElementaryTest("contextToString has all the referencedObjects",
-                                       "equality of output strings",
-                                       mycontext==acontext));
+            for (const Abstract_Object* s:ref)
+              acontext+=s->ToString()+"\n";
+            eEv.push_back(ElementaryTest("contextToString has all the referencedObjects",
+                                         "equality of output strings",
+                                         mycontext==acontext));
 
+            for (const Abstract_Object* s:ref)
+              s->create()->ToObject(&Eempty,s->ToString());
 
-
-
+            eEv.push_back(ElementaryTest("after adding the referenced objects, the object is valid",
+                                         "o->isValid()==false",
+                                         b->isValid()==true));
           }
         else
           {
             eEv.push_back(ElementaryTest("there is no objects to refer",
                                          "!o->refersToValidObjects()",
-                                         o->refersToValidObjects()));
+                                         b->refersToValidObjects()));
             eEv.push_back(ElementaryTest("the object is valid",
                                          "o->isValid()",
-                                         o->isValid()));
+                                         b->isValid()));
 
           }
 
@@ -1582,12 +1587,12 @@ namespace Markov_Test
 
 
 
-      results.push_back(pMI);
+          results.push_back(pMI);
 
-      return results;
+        return results;
 
 
-    }
+      }
     }
 
     Abstract_Object_Test::Abstract_Object_Test(const Abstract_Object& object)

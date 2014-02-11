@@ -106,9 +106,15 @@ namespace Markov_Object
     // if the object is not of myClass, it returns a nullptr
     // otherwise it returns a new pointer with an object build with text
     // if text is Tostring, it should return an internallyvalid copy of the object
-    // objects that are referenceable are also incoporated to the Environment
-    virtual Abstract_Object* ToObject(Environment* e,const std::string& text, std::size_t &cursor)=0;
+    // all the new pointers are incorporated to the environment
+    virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)=0;
 
+
+    virtual bool ToObject(Environment* e,const std::string& text)
+    {
+      std::size_t n=0;
+      return ToObject(e,text,n);
+    }
 
 
 
@@ -188,7 +194,7 @@ namespace Markov_Object
 
     virtual std::string ToString()const override;
 
-    virtual Named_Object* ToObject(Environment* e,const std::string& text, std::size_t &cursor)  override;
+    virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)  override;
 
 
 
@@ -232,7 +238,7 @@ namespace Markov_Object
     virtual std::string abbr()const;
 
     virtual std::string ToString()const;
-    virtual Base_Unit* ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos);
+    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos);
 
     virtual bool isCreateable()const;
 
@@ -428,7 +434,7 @@ namespace Markov_Object
     virtual const Base_Unit* myUnit()const ;
 
     virtual std::string ToString()const override;
-    virtual SimpleVariable* ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
+    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
 
     virtual SimpleVariableValue<T>* defaultValue()const override;
 
@@ -552,7 +558,7 @@ bool SimpleVariable<T>::isValued() const
     virtual T value() const;
 
     virtual std::string ToString()const override;
-    virtual SimpleVariableValue<T>* ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)override;
+    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)override;
 
 
 
@@ -564,7 +570,9 @@ bool SimpleVariable<T>::isValued() const
     ~SimpleVariableValue();
 
   private:
+    std::string variableId_;
     const SimpleVariable<T>* variable_;
+    std::string unitId_;
     const Base_Unit* unit_;
     T value_;
   };
@@ -574,10 +582,9 @@ bool SimpleVariable<T>::isValued() const
   {
     // Abstract_Variable_Object interface
   public:
-    virtual Abstract_Value_Object *defaultValue() const;
 
     virtual std::string ToString()const override;
-    virtual FieldVariable* ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
+    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
     virtual Abstract_Variable_Object const * variable()const;
 
     virtual Abstract_Variable_Object  * variable();

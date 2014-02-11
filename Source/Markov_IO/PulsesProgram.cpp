@@ -46,7 +46,7 @@ const Pulses_program& Pulses_program::trace(std::size_t i)const
   ASSERT_LESS(i, num_traces());
   itrace_u=i;
     run_trace_T=traces_v[to_i_trace_v[itrace_u]];
-    run_trace_T.set_max_x_trace(pulse_concentration_M[itrace_u]);
+    run_trace_T. set_max_x_trace(pulse_concentration_M[itrace_u]);
     run_trace_T[0];
     return *this;
 }
