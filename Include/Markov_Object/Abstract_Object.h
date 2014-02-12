@@ -65,10 +65,7 @@ namespace Markov_Object
     }
 
 
-    virtual void setEnvironment(Environment* E)
-    {
-      E_=E;
-    }
+
 
 
     /// checks for the existance of all refered objects
@@ -103,14 +100,18 @@ namespace Markov_Object
 
 
     /// returns a string representation of the referenced objects
+
     virtual std::string contextToString()const;
 
 
 
-    // if the object is not of myClass, it returns a nullptr
-    // otherwise it returns a new pointer with an object build with text
-    // if text is Tostring, it should return an internallyvalid copy of the object
-    // all the new pointers are incorporated to the environment
+
+
+
+
+    // if the object is not of myClass, it returns false
+   // if the object is of myClass, it returns true and it uses the text to
+    // reasign its internal structure accordingly with it
     virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)=0;
 
 
@@ -119,6 +120,38 @@ namespace Markov_Object
       std::size_t n=0;
       return ToObject(e,text,n);
     }
+
+    static std::string classNameBeginMarker()
+    {
+      return "<";
+    }
+    static std::string classNameEndMarker()
+    {
+      return ">";
+    }
+
+    static std::string namePermittedCharacters()
+    {
+      return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789_";
+    }
+
+    static std::string getClassName(const std::string& line,std::size_t pos)
+    {
+       auto n0=line.find_first_of(classNameBeginMarker(),pos);
+       auto nend=line.find_first_of(classNameEndMarker(),n0);
+
+       std::string name=line.substr(n0,nend);
+       if (name.empty())
+           return name;
+       auto m=name.find_first_not_of(namePermittedCharacters(),0);
+
+       if (m!=name.npos)
+         return name;
+       else
+         return "";
+    }
+
+
 
 
     Abstract_Object():
@@ -131,6 +164,12 @@ namespace Markov_Object
 
     virtual ~Abstract_Object();
 
+
+  protected:
+    virtual void setEnvironment(Environment* E)
+    {
+      E_=E;
+    }
   private:
     Environment* E_;
 

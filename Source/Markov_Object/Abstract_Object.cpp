@@ -1539,6 +1539,8 @@ namespace Markov_Test
 
           std::string str=object_->ToString();
 
+
+
           {
 
             MultipleTests emptyEI("ToObject on ToString in an empty Environment",
