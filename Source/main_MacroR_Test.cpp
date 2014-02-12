@@ -47,6 +47,7 @@ int main()
 
 
   Markov_Object::SimpleVariable<double> d("milisecond_number_real",0.0,"ms",&e,"delay","time to reach maximum");
+  e.add(&d);
   Markov_Object::SimpleVariable<double> d2(&e);
   n=0;
   c2->ToObject(&e,d.ToString(),n);

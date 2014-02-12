@@ -27,12 +27,13 @@ namespace Markov_Object
   };
 
   class Environment;
+  class Named_Object;
 
   class Abstract_Object
   {
   public:
 
-  // class properties
+    // class properties
     static std::string ClassName()
     {
       return "Abstract_Object";
@@ -47,9 +48,9 @@ namespace Markov_Object
     static std::set<std::string> SuperClasses();
 
 
-  // Domain integrity of all internal values of the object
+    // Domain integrity of all internal values of the object
     // the referenced keys has to be formally valid but
-   // it does not check it existance
+    // it does not check it existance
     virtual bool isInternallyValid()const=0;
 
 
@@ -58,10 +59,19 @@ namespace Markov_Object
 
     /// returns the Environment where the object belongs
     /// if it is an unreferenced value without any referenced objects it returns a nullptr.
-    virtual Environment* getEnvironment()const =0;
+    virtual Environment* getEnvironment()const
+    {
+      return E_;
+    }
 
 
-     /// checks for the existance of all refered objects
+    virtual void setEnvironment(Environment* E)
+    {
+      E_=E;
+    }
+
+
+    /// checks for the existance of all refered objects
     virtual bool refersToValidObjects()const=0;
 
     virtual bool isValid()const
@@ -71,7 +81,7 @@ namespace Markov_Object
 
 
     // returns the set of all the objects referenced by this to make itself meaningfull
-    virtual std::set<const Abstract_Object*> referencedObjects()const=0;
+    virtual std::set<const Named_Object*> referencedObjects()const=0;
 
 
 
@@ -93,13 +103,7 @@ namespace Markov_Object
 
 
     /// returns a string representation of the referenced objects
-    virtual std::string contextToString()const
-    {
-      std::string s;
-      for (auto r : referencedObjects())
-        s+=r->ToString();
-      return s;
-    }
+    virtual std::string contextToString()const;
 
 
 
@@ -117,10 +121,18 @@ namespace Markov_Object
     }
 
 
+    Abstract_Object():
+      E_(nullptr){}
+
+    Abstract_Object(Environment* E):
+      E_(E){}
 
 
 
     virtual ~Abstract_Object();
+
+  private:
+    Environment* E_;
 
   };
 
@@ -133,6 +145,24 @@ namespace Markov_Object
     static std::string getName(const std::string& multiplelines, std::size_t& pos);
     static std::string getTip(const std::string& multiplelines, std::size_t& pos);
     static std::string getWhatThis(const std::string& multiplelines,std::size_t& pos);
+    static std::string getName(const std::string& multiplelines)
+    {
+      std::size_t n=0;
+      return getName(multiplelines,n);
+    }
+
+    static std::string getTip(const std::string& multiplelines)
+    {
+      std::size_t n=0;
+      return getTip(multiplelines,n);
+    }
+
+    static std::string getWhatThis(const std::string& multiplelines)
+    {
+      std::size_t n=0;
+      return getWhatThis(multiplelines,n);
+    }
+
 
     static std::string nextLine(const std::string& lines,std::size_t& n);
 
@@ -151,6 +181,9 @@ namespace Markov_Object
     virtual const Named_Object* dynamicCast(const Abstract_Object* o)const override;
 
 
+    virtual Named_Object* create()const=0;
+
+
     /// hopefully unique identifier of the object
     /// if not uniqueId returns false
     virtual std::string idName()const ;
@@ -161,7 +194,7 @@ namespace Markov_Object
     {
       std::size_t n=0;
       bool validName=variableName_==Named_Object::getName(variableName_,n);
-      bool validEnvironment=e_!=nullptr;
+      bool validEnvironment=getEnvironment()!=nullptr;
       return validName&&validEnvironment;
     }
 
@@ -183,8 +216,6 @@ namespace Markov_Object
 
     /// a short description of the class
     virtual std::string WhatThis()const ;
-
-    virtual Environment* getEnvironment() const override;
 
 
     virtual void setTip(const std::string& newTip) ;
@@ -209,18 +240,14 @@ namespace Markov_Object
 
     Named_Object();
 
-  protected:
-    virtual void setEnvironment(Environment *e);
-
 
 
   private:
-    Environment* e_;
     std::string variableName_;
     std::string tip_;
     std::string whatThis_;
     bool isDuplicate_;
-};
+  };
 
 
   class Base_Unit:public virtual Named_Object
@@ -230,6 +257,13 @@ namespace Markov_Object
 
     static std::string ClassName();
     virtual std::string myClass()const override;
+
+
+    static Class_info classInfo();
+    virtual Class_info myClassInfo()const override;
+
+    static std::set<std::string> SuperClasses();
+
     /// cast an Abstract_Object to Base_Unit
     virtual Base_Unit * dynamicCast(Abstract_Object* o)const override;
     virtual const Base_Unit * dynamicCast(const Abstract_Object* o)const override;
@@ -260,7 +294,7 @@ namespace Markov_Object
     {
       return false;
     }
-    virtual bool refersToValidObjects() const
+    virtual bool refersToValidObjects() const override
     {
       return true;
     }
@@ -268,13 +302,9 @@ namespace Markov_Object
     {
       return !abbr_.empty();
     }
-    virtual std::set<const Abstract_Object *> referencedObjects() const
+    virtual std::set<const Named_Object *> referencedObjects() const
     {
-      return std::set<const Abstract_Object *>();
-    }
-    virtual std::string contextToString() const
-    {
-      return std::string();
+      return std::set<const Named_Object *>();
     }
 
     virtual bool hasIdName() const
@@ -292,7 +322,7 @@ namespace Markov_Object
 
     std::string abbr_;
 
-    };
+  };
 
 
 
@@ -317,16 +347,16 @@ namespace Markov_Object
     virtual bool refersEnvironment()const
     {return true;}
 
-    virtual bool refersToValidObjects()const
+    virtual bool refersToValidObjects()const override
     {
-    bool validUnit=myUnit()!=nullptr;
-    return validUnit;
+      bool validUnit=myUnit()!=nullptr;
+      return validUnit;
     }
 
     // returns the set of all the objects referenced by this to make itself meaningfull
-    virtual std::set<const Abstract_Object*> referencedObjects()const
+    virtual std::set<const Named_Object*> referencedObjects()const
     {
-      std::set<const Abstract_Object *> s;
+      std::set<const Named_Object *> s;
       if (myUnit())
         s.insert(myUnit());
       return s;
@@ -397,10 +427,6 @@ namespace Markov_Object
 
     virtual bool isClonable()const;
     virtual Abstract_Value_Object* create()const;
-    virtual Environment* getEnvironment() const override
-    {
-      return variable()->getEnvironment();
-    }
     virtual const Abstract_Variable_Object* variable()const=0;
     virtual bool isValued() const
     {
@@ -480,11 +506,11 @@ namespace Markov_Object
 
 
 
-template<typename T>
-bool SimpleVariable<T>::isValued() const
-{
-  return false;
-}
+  template<typename T>
+  bool SimpleVariable<T>::isValued() const
+  {
+    return false;
+  }
 
 
   template<typename T>
@@ -503,13 +529,10 @@ bool SimpleVariable<T>::isValued() const
 
     virtual bool isInternallyValid() const
     {
-      bool validVariable= variable()!=nullptr;
-      if (validVariable)
-        {
-      bool validUnit=myUnit()!=nullptr;
-      return validUnit&&validVariable;
-        }
-      else return validVariable;
+      bool validVariableId=!variableId_.empty()&&
+          (variableId_==Named_Object::getName(variableId_));
+      bool validUnit=!unitId_.empty()&&(unitId_==Base_Unit::getUnit(unitId_));
+     return validUnit&&validVariableId;
     }
 
 
@@ -518,16 +541,16 @@ bool SimpleVariable<T>::isValued() const
     {
       return true;
     }
-    virtual bool refersToValidObjects() const
+    virtual bool refersToValidObjects() const override
     {
       bool validUnit=myUnit()!=nullptr;
       bool validVar=variable()!=nullptr;
       return validUnit&& validVar;
     }
-    virtual std::set<const Abstract_Object *> referencedObjects() const
+    virtual std::set<const Named_Object *> referencedObjects() const
     {
       auto s=Abstract_Valued_Object::referencedObjects();
-      if (variable())
+      if (variable()!=nullptr)
         s.insert(variable());
       return s;
     }
@@ -757,7 +780,7 @@ bool SimpleVariable<T>::isValued() const
       if (it!=variables_.end())
         {
           Named_Object* v=it->second;
-            return v;
+          return v;
         }
       else return nullptr;
     }
@@ -771,6 +794,19 @@ bool SimpleVariable<T>::isValued() const
     {
       variables_[v->idName()]=v;
     }
+
+    void add(Named_Object* v)
+    {
+      auto nn=v->myClassInfo().superClasses;
+      if (v->myClassInfo().superClasses.count(Base_Unit::ClassName())!=0)
+        {
+          Base_Unit* u=dynamic_cast<Base_Unit*>(v);
+          units_[u->abbr()]=u;
+        }
+      else
+          variables_[v->idName()]=v;
+    }
+
 
     Abstract_Object* create(std::string classname);
 
