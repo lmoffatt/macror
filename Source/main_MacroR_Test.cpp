@@ -76,11 +76,11 @@ int main()
 
   auto cp=&c;
 
-  Markov_Test::Markov_Object_Test::Abstract_Object_Test test3(cp);
+  Markov_Test::Markov_Object_Test::Named_Object_Test test3(cp);
   std::cout<<test3.classInvariant().VerboseLevel(false);
 
-  Markov_Test::Markov_Object_Test::Abstract_Object_Test test4(d2);
-  std::cout<<test4.classInvariant().VerboseLevel(false);
+  Markov_Test::Markov_Object_Test::Named_Object_Test test4(d2);
+ std::cout<<test4.classInvariant().VerboseLevel(false);
 
 
 //  Markov_Object::Composite_Variable m(&e,"model","un modelo1","la puta digo");

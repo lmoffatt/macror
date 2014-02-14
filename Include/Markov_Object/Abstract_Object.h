@@ -21,9 +21,9 @@ namespace Markov_Object
   {
     std::string ClassName;
     std::set<std::string> superClasses;
+    bool refersEnvironment;
     bool hasIdName;
     bool isValued;
-
   };
 
   class Environment;
@@ -54,9 +54,6 @@ namespace Markov_Object
     virtual bool isInternallyValid()const=0;
 
 
-    /// if it is an unreferenced value without any referenced objects it returns false
-    virtual bool refersEnvironment()const=0;
-
     /// returns the Environment where the object belongs
     /// if it is an unreferenced value without any referenced objects it returns a nullptr.
     virtual Environment* getEnvironment()const
@@ -65,11 +62,17 @@ namespace Markov_Object
     }
 
 
+    virtual bool empty()const
+    {
+      return ToString().empty();
+    }
 
 
 
     /// checks for the existance of all refered objects
-    virtual bool refersToValidObjects()const=0;
+    virtual bool refersToValidObjects()const
+    {return true;}
+
 
     virtual bool isValid()const
     {
@@ -78,7 +81,11 @@ namespace Markov_Object
 
 
     // returns the set of all the objects referenced by this to make itself meaningfull
-    virtual std::set<const Named_Object*> referencedObjects()const=0;
+    virtual std::set<std::string> referencedObjects()const
+    {
+      return std::set<std::string>();
+    }
+
 
 
 
@@ -227,7 +234,6 @@ namespace Markov_Object
     /// if not uniqueId returns false
     virtual std::string idName()const ;
 
-    virtual bool hasIdName()const { return true;}
 
     virtual bool isInternallyValid() const
     {
@@ -237,16 +243,23 @@ namespace Markov_Object
       return validName&&validEnvironment;
     }
 
+    /// it checks for the environment to reference it
+    ///
+
+    virtual bool isReferenced()const;
 
 
-    /// returns false in case that the proposed idName is already present in the Environment
+
+    /// returns true in case that the proposed idName is already present in the Environment
     /// in this case, the Environment is left unchanged
-    virtual bool isDuplicate()const
+    virtual bool isDuplicate()const;
+
+
+
+    virtual bool isValid()const override
     {
-      return isDuplicate_;
+      return Abstract_Object::isValid()&&isReferenced();
     }
-
-
 
 
 
@@ -266,6 +279,11 @@ namespace Markov_Object
 
     virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)  override;
 
+    virtual bool ToObject(Environment* e,const std::string& text) override
+    {
+      std::size_t n=0;
+      return ToObject(e,text,n);
+    }
 
 
 
@@ -290,7 +308,6 @@ namespace Markov_Object
     std::string variableName_;
     std::string tip_;
     std::string whatThis_;
-    bool isDuplicate_;
   };
 
 
@@ -313,7 +330,7 @@ namespace Markov_Object
     virtual const Base_Unit * dynamicCast(const Abstract_Object* o)const override;
 
 
-    virtual std::string abbr()const;
+    virtual std::string longName()const;
 
     virtual std::string ToString()const;
     virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos);
@@ -334,37 +351,10 @@ namespace Markov_Object
 
     Base_Unit(Environment* e);
 
-    virtual bool refersEnvironment() const
-    {
-      return false;
-    }
-    virtual bool refersToValidObjects() const override
-    {
-      return true;
-    }
-    virtual bool isValid() const
-    {
-      return !abbr_.empty();
-    }
-    virtual std::set<const Named_Object *> referencedObjects() const
-    {
-      return std::set<const Named_Object *>();
-    }
-
-    virtual bool hasIdName() const
-    {
-      return true;
-    }
-    virtual bool isValued() const
-    {
-      return false;
-    }
-
-
 
   private:
 
-    std::string abbr_;
+    std::string longName_;
 
   };
 
@@ -388,23 +378,13 @@ namespace Markov_Object
     virtual ~Abstract_Valued_Object();
 
 
-    virtual bool refersEnvironment()const
-    {return true;}
-
     virtual bool refersToValidObjects()const override
     {
       bool validUnit=myUnit()!=nullptr;
       return validUnit;
     }
 
-    // returns the set of all the objects referenced by this to make itself meaningfull
-    virtual std::set<const Named_Object*> referencedObjects()const
-    {
-      std::set<const Named_Object *> s;
-      if (myUnit())
-        s.insert(myUnit());
-      return s;
-    }
+
 
     Abstract_Valued_Object():
       Abstract_Object(){}
@@ -493,8 +473,6 @@ namespace Markov_Object
 
     Abstract_Value_Object(Environment* E):
       Abstract_Object(E){}
-
-
 
   };
 
@@ -610,21 +588,17 @@ namespace Markov_Object
 
 
 
-    virtual bool refersEnvironment() const
-    {
-      return true;
-    }
     virtual bool refersToValidObjects() const override
     {
       bool validUnit=myUnit()!=nullptr;
       bool validVar=variable()!=nullptr;
       return validUnit&& validVar;
     }
-    virtual std::set<const Named_Object *> referencedObjects() const
+    virtual std::set<std::string> referencedObjects() const
     {
-      auto s=Abstract_Valued_Object::referencedObjects();
-      if (variable()!=nullptr)
-        s.insert(variable());
+      std::set<std::string> s;
+      s.insert(unitId_);
+      s.insert(variableId_);
       return s;
     }
     virtual bool hasIdName() const
@@ -860,7 +834,7 @@ namespace Markov_Object
 
     void addUnit(Base_Unit* u)
     {
-      units_[u->abbr()]=u;
+      units_[u->idName()]=u;
     }
 
     void addVariable(Named_Object* v)
@@ -873,10 +847,10 @@ namespace Markov_Object
       if (v->myClassInfo().superClasses.count(Base_Unit::ClassName())!=0)
         {
           Base_Unit* u=dynamic_cast<Base_Unit*>(v);
-          auto it=units_.find(u->abbr());
+          auto it=units_.find(u->longName());
           if(it!=units_.end())
             delete it->second;
-          units_[u->abbr()]=u;
+          units_[u->longName()]=u;
         }
       else
         {
