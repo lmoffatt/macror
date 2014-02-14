@@ -110,7 +110,7 @@ namespace Markov_Object
 
 
     // if the object is not of myClass, it returns false
-   // if the object is of myClass, it returns true and it uses the text to
+    // if the object is of myClass, it returns true and it uses the text to
     // reasign its internal structure accordingly with it
     virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)=0;
 
@@ -137,18 +137,18 @@ namespace Markov_Object
 
     static std::string getClassName(const std::string& line,std::size_t pos)
     {
-       auto n0=line.find_first_of(classNameBeginMarker(),pos);
-       auto nend=line.find_first_of(classNameEndMarker(),n0);
+      auto n0=line.find_first_of(classNameBeginMarker(),pos);
+      auto nend=line.find_first_of(classNameEndMarker(),n0);
 
-       std::string name=line.substr(n0,nend);
-       if (name.empty())
-           return name;
-       auto m=name.find_first_not_of(namePermittedCharacters(),0);
+      std::string name=line.substr(n0,nend);
+      if (name.empty())
+        return name;
+      auto m=name.find_first_not_of(namePermittedCharacters(),0);
 
-       if (m!=name.npos)
-         return name;
-       else
-         return "";
+      if (m!=name.npos)
+        return name;
+      else
+        return "";
     }
 
 
@@ -280,6 +280,11 @@ namespace Markov_Object
     Named_Object();
 
 
+    Named_Object(const Named_Object& other):
+      Abstract_Object(other.getEnvironment()),
+      variableName_(other.variableName_),
+      tip_(other.tip_),
+      whatThis_(other.whatThis_){}
 
   private:
     std::string variableName_;
@@ -401,6 +406,12 @@ namespace Markov_Object
       return s;
     }
 
+    Abstract_Valued_Object():
+      Abstract_Object(){}
+
+    Abstract_Valued_Object(Environment* E):
+      Abstract_Object(E){}
+
 
   };
 
@@ -435,7 +446,8 @@ namespace Markov_Object
                              std::string variablename,
                              std::string tip,
                              std::string whatthis)
-      : Named_Object(e,variablename,tip,whatthis)
+      : Abstract_Object(e),
+        Named_Object(e,variablename,tip,whatthis)
     {}
 
     Abstract_Variable_Object(Environment* e)
@@ -443,6 +455,11 @@ namespace Markov_Object
         Named_Object(e){}
 
     Abstract_Variable_Object(){}
+
+    Abstract_Variable_Object(const Abstract_Variable_Object& other):
+      Abstract_Object(other.getEnvironment()),
+      Named_Object(other)
+    {}
 
 
   };
@@ -471,6 +488,13 @@ namespace Markov_Object
     {
       return true;
     }
+    Abstract_Value_Object():
+      Abstract_Object(){}
+
+    Abstract_Value_Object(Environment* E):
+      Abstract_Object(E){}
+
+
 
   };
 
@@ -516,6 +540,16 @@ namespace Markov_Object
 
     SimpleVariable();
 
+    SimpleVariable(const SimpleVariable<T>& other):
+      Abstract_Object(other.getEnvironment()),
+      Abstract_Valued_Object(other.getEnvironment()),
+      Abstract_Variable_Object(other),
+      defautValue_(other.defautValue_),
+      unitId_(other.unitId_){}
+
+
+
+
 
 
     SimpleVariable(std::string name,
@@ -527,7 +561,7 @@ namespace Markov_Object
     ~SimpleVariable();
   private:
     T defautValue_;
-    const Base_Unit* u_;
+    std::string unitId_;
 
     // Abstract_Object interface
   public:
@@ -571,7 +605,7 @@ namespace Markov_Object
       bool validVariableId=!variableId_.empty()&&
           (variableId_==Named_Object::getName(variableId_));
       bool validUnit=!unitId_.empty()&&(unitId_==Base_Unit::getUnit(unitId_));
-     return validUnit&&validVariableId;
+      return validUnit&&validVariableId;
     }
 
 
@@ -836,15 +870,24 @@ namespace Markov_Object
 
     void add(Named_Object* v)
     {
-      auto nn=v->myClassInfo().superClasses;
       if (v->myClassInfo().superClasses.count(Base_Unit::ClassName())!=0)
         {
           Base_Unit* u=dynamic_cast<Base_Unit*>(v);
+          auto it=units_.find(u->abbr());
+          if(it!=units_.end())
+            delete it->second;
           units_[u->abbr()]=u;
         }
       else
+        {
+          auto it=variables_.find(v->idName());
+          if(it!=variables_.end())
+            delete it->second;
           variables_[v->idName()]=v;
+        }
     }
+
+
 
 
     Abstract_Object* create(std::string classname);
@@ -853,6 +896,12 @@ namespace Markov_Object
     bool doesDynCast(const Abstract_Object* o,std::string classname);
 
     std::set<std::string> getSuperClasses(const std::string& classname);
+
+    bool empty()const
+    {
+
+      return units_.empty()&&variables_.empty();
+    }
 
     Environment();
 
@@ -894,7 +943,7 @@ namespace Markov_Test
 
       virtual MultipleTests classInvariant()const;
 
-      Abstract_Object_Test(const Abstract_Object& object);
+      Abstract_Object_Test(const Abstract_Object* object);
 
       virtual~Abstract_Object_Test();
       static std::string TestName();
@@ -905,6 +954,34 @@ namespace Markov_Test
     protected:
       const Abstract_Object* object_;
     };
+
+
+    class Named_Object_Test:public Abstract_Object_Test
+    {
+    public:
+
+      virtual MultipleTests classInvariant()const;
+
+      Named_Object_Test(const Named_Object* object):
+        Abstract_Object_Test(object),
+        named_object_(object){}
+
+      virtual~Named_Object_Test(){}
+      static std::string TestName()
+      {
+        return "Named_Object_Test";
+      }
+
+      virtual std::string myTest()const
+      {
+        return TestName();
+      }
+
+
+    protected:
+      const Named_Object* named_object_;
+    };
+
 
   }
 }

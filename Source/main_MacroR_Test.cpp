@@ -46,13 +46,13 @@ int main()
 
 
 
-  Markov_Object::SimpleVariable<double> d("milisecond_number_real",0.0,"ms",&e,"delay","time to reach maximum");
-  e.add(&d);
-  Markov_Object::SimpleVariable<double> d2(&e);
+  Markov_Object::SimpleVariable<double> *d= new Markov_Object::SimpleVariable<double> ("milisecond_number_real",0.0,"ms",&e,
+                                                                                     "delay","time to reach maximum");
+  e.add(d);
+  Markov_Object::SimpleVariable<double> * d2= new Markov_Object::SimpleVariable<double>;
   n=0;
-  c2->ToObject(&e,d.ToString(),n);
+  c2->ToObject(&e,d->ToString(),n);
 
-  std::cout<<d.ToString();
   std::cout<<c2->ToString();
   std::cout<<c.defaultValue()->ToString();
 
@@ -66,9 +66,21 @@ int main()
 
 
 
-  Markov_Test::Markov_Object_Test::Abstract_Object_Test test(dd);
-  std::cout<<test.classInvariant().VerboseLevel(true);
+  Markov_Test::Markov_Object_Test::Abstract_Object_Test test(&dd);
+  std::cout<<test.classInvariant().VerboseLevel(false);
 
+
+  Markov_Test::Markov_Object_Test::Named_Object_Test test2(d);
+
+  std::cout<<test2.classInvariant().VerboseLevel(false);
+
+  auto cp=&c;
+
+  Markov_Test::Markov_Object_Test::Abstract_Object_Test test3(cp);
+  std::cout<<test3.classInvariant().VerboseLevel(false);
+
+  Markov_Test::Markov_Object_Test::Abstract_Object_Test test4(d2);
+  std::cout<<test4.classInvariant().VerboseLevel(false);
 
 
 //  Markov_Object::Composite_Variable m(&e,"model","un modelo1","la puta digo");

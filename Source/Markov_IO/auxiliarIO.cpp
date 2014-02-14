@@ -239,6 +239,15 @@ namespace Markov_IO
     return str;
   }
 
+
+
+
+
+
+
+
+
+
   template<>
   bool ToValue(const std::string& str,double& value)
   {

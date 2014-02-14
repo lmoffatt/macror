@@ -8,6 +8,8 @@
 
 #include <map>
 #include <vector>
+#include <set>
+
 
 #include "Markov_IO/ABC_Object.h"
 
@@ -47,7 +49,25 @@ namespace Markov_IO
     template <class T>
     std::string ToString(const T& x);
 
+
+
+
     /**
+@brief Displays in a String the contents of the class T.
+*/
+    template <>
+    inline std::string ToString(const std::set<std::string>& x)
+    {
+      std::string s;
+      for (auto item:x)
+        s+=ToString(item)+",";
+       s.pop_back();
+       return s;
+    }
+
+    /**
+
+
 
 
 
