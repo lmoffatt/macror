@@ -464,10 +464,6 @@ namespace Markov_Object
     virtual bool isClonable()const;
     virtual Abstract_Value_Object* create()const;
     virtual const Abstract_Variable_Object* variable()const=0;
-    virtual bool isValued() const
-    {
-      return true;
-    }
     Abstract_Value_Object():
       Abstract_Object(){}
 
@@ -814,9 +810,9 @@ namespace Markov_Object
   class Environment
   {
   public:
-    const Base_Unit* U(const std::string& unitNameorAbreviation)const
+    const Base_Unit* U(const std::string& unitAbreviation)const
     {
-      auto it=units_.find(unitNameorAbreviation);
+      auto it=units_.find(unitAbreviation);
       if (it!=units_.end())
         return it->second;
       else return nullptr;
@@ -834,11 +830,25 @@ namespace Markov_Object
 
     void addUnit(Base_Unit* u)
     {
+      auto it=units_.find(u->idName());
+      if(it!=units_.end())
+        {
+          if (it->second==u)
+            return;
+          delete it->second;
+        }
       units_[u->idName()]=u;
     }
 
     void addVariable(Named_Object* v)
     {
+      auto it=variables_.find(v->idName());
+      if(it!=variables_.end())
+        {
+          if (it->second==v)
+            return;
+          delete it->second;
+        }
       variables_[v->idName()]=v;
     }
 
@@ -847,17 +857,11 @@ namespace Markov_Object
       if (v->myClassInfo().superClasses.count(Base_Unit::ClassName())!=0)
         {
           Base_Unit* u=dynamic_cast<Base_Unit*>(v);
-          auto it=units_.find(u->longName());
-          if(it!=units_.end())
-            delete it->second;
-          units_[u->longName()]=u;
+          addUnit(u);
         }
       else
         {
-          auto it=variables_.find(v->idName());
-          if(it!=variables_.end())
-            delete it->second;
-          variables_[v->idName()]=v;
+          addVariable(v);
         }
     }
 
@@ -878,6 +882,16 @@ namespace Markov_Object
     }
 
     Environment();
+
+    ~Environment()
+    {
+      for (auto it:units_)
+        delete it.second;
+      for (auto it:variables_)
+        delete it.second;
+      for (auto it:classes_)
+        delete it.second;
+    }
 
   private:
     std::map<std::string,Base_Unit*> units_;
@@ -905,10 +919,10 @@ namespace Markov_Object
 
 namespace  Markov_IO {
 
-std::string ToString(Markov_Object::Environment*const & x);
-std::string ToString(decltype (nullptr) const& x);
-std::string ToString(Markov_Object::Abstract_Object*const & x);
-std::string ToString(Markov_Object::Named_Object*const & x);
+  std::string ToString(Markov_Object::Environment*const & x);
+  std::string ToString(decltype (nullptr) const& x);
+  std::string ToString(Markov_Object::Abstract_Object*const & x);
+  std::string ToString(Markov_Object::Named_Object*const & x);
 
 
 }

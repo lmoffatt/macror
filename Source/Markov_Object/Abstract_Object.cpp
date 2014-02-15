@@ -658,9 +658,7 @@ namespace Markov_Object{
                        std::string whatthis)
     :
       Named_Object(e,abbreviation,tip,whatthis),
-      longName_(name){
-    e->addUnit(this);
-  }
+      longName_(name){}
 
   Base_Unit::Base_Unit()
     :
@@ -1855,7 +1853,7 @@ namespace Markov_Test
 
         {
           MultipleTests M2("case isValid and not duplicate",
-             "conditions");
+                           "conditions");
           M2.push_back(TEST_EQ("isReferenced",
                                o->getEnvironment()->V(o->idName()),o));
           M2.push_back(TEST_EQ("same value",
@@ -1946,52 +1944,63 @@ namespace Markov_Test
                                    no->idName()));
             }
           M.push_back(M2);
-          E->add(no);
-          MultipleTests M3("Environment adds the new object",
-                           "postconditions of this operation");
+          if (o->getEnvironment()!=E)
+            {
+              E->add(no);
+              MultipleTests M3("Environment adds the new object",
+                               "postconditions of this operation");
 
-          M3.push_back(TEST_EQ("Environment returns the right address",
-                               E->V(no->idName()),
-                               no));
-          M3.push_back(TEST_EQ("same value",
-                               E->V(no->idName())->ToString(),
-                               no->ToString()));
+              M3.push_back(TEST_EQ("Environment returns the right address",
+                                   E->V(no->idName()),
+                                   no));
+              M3.push_back(TEST_EQ("same value",
+                                   E->V(no->idName())->ToString(),
+                                   no->ToString()));
 
-          M3.push_back(TEST_EQ("not duplicate",
-                               no->isDuplicate(),
-                               false));
-
-          if (environmentclass=="native")
-            M3.push_back(TEST_EQ("old object is duplicate now",
-                                 o->isDuplicate(),
-                                 true));
-
-          M.push_back(M3);
-          // add a duplicate
-          Named_Object* no2=o->create();
-          std::size_t n2=0;
-          MultipleTests M4("we create a second copy in the Environment",
-                           "postconditions of this operation");
-
-          bool isno2=no2->ToObject(E,o->ToString(),n2);
-          M4.push_back(ElementaryTest("succesfully created",
-                                      "no2->ToObject(E,o->ToString())==true",
-                                      isno2));
-
-          M4.push_back(TEST_EQ("returns the same string",
-                               no2->ToString(),
-                               o->ToString()));
-
-          M4.push_back(TEST_EQ("new object is duplicate",
-                               no2->isDuplicate(),
-                               true));
-
-          M4.push_back(TEST_EQ("old new object is not duplicate",
-                               no->isDuplicate(),
-                               false));
+              M3.push_back(TEST_EQ("not duplicate",
+                                   no->isDuplicate(),
+                                   false));
 
 
-          M.push_back(M4);
+              M.push_back(M3);
+              // add a duplicate
+              Named_Object* no2=o->create();
+              std::size_t n2=0;
+              MultipleTests M4("we create a second copy in the Environment",
+                               "postconditions of this operation");
+
+              bool isno2=no2->ToObject(E,o->ToString(),n2);
+              M4.push_back(ElementaryTest("succesfully created",
+                                          "no2->ToObject(E,o->ToString())==true",
+                                          isno2));
+
+              M4.push_back(TEST_EQ("returns the same string",
+                                   no2->ToString(),
+                                   o->ToString()));
+
+              M4.push_back(TEST_EQ("new object is duplicate",
+                                   no2->isDuplicate(),
+                                   true));
+
+              M4.push_back(TEST_EQ("old new object is not duplicate",
+                                   no->isDuplicate(),
+                                   false));
+
+
+
+              M.push_back(M4);
+              MultipleTests M5("we add the second copy to the Environment",
+                               "postconditions of this operation");
+
+              E->add(no2);
+                M5.push_back(TEST_EQ("point to new object",
+                                     E->V(o->idName()),
+                                     no2));
+
+                M.push_back(M5);
+
+
+            }
         }
 
       return M;
