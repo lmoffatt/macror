@@ -15,7 +15,6 @@
 
 
 
-
 namespace Markov_IO
 {
 
@@ -48,6 +47,17 @@ namespace Markov_IO
 */
     template <class T>
     std::string ToString(const T& x);
+
+
+    template <class T>
+    std::string ToString(const T* o )
+    {
+      std::stringstream ss;
+      ss<<o;
+      std::string str=ss.str();
+      return str;
+    }
+
 
 
 

@@ -27,6 +27,7 @@
 
 
 
+
 /*!
   it waits for an input from io
   */
@@ -222,6 +223,8 @@ namespace Markov_IO
     std::string str=ss.str();
     return str;
   }
+
+
 
 
   template <>

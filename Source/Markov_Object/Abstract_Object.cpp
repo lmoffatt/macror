@@ -185,7 +185,7 @@ namespace Markov_Object{
   std::string Named_Object::removeInitialSpaces(const std::string& line)
   {
     if (line.empty())
-        return "";
+      return "";
     return line.substr(line.find_first_not_of(" \t"));
   }
 
@@ -1484,9 +1484,50 @@ namespace Markov_Object{
 
 
 
+}
+
+#include <sstream>
+
+namespace  Markov_IO {
+
+
+  std::string ToString(Markov_Object::Environment * const &x)
+  {
+
+    std::stringstream ss;
+    ss<<x;
+    std::string str=ss.str();
+    return str;
+
+  }
+  std::string ToString(Markov_Object::Abstract_Object * const &x)
+  {
+
+    std::stringstream ss;
+    ss<<x;
+    std::string str=ss.str();
+    return str;
+
+  }
+  std::string ToString(Markov_Object::Named_Object * const &x)
+  {
+
+    std::stringstream ss;
+    ss<<x;
+    std::string str=ss.str();
+    return str;
+
+  }
+
+  std::string ToString(decltype (nullptr) const& x)
+  {
+    return "nullptr";
+  }
+
 
 
 }
+
 
 
 #ifdef MACRO_TEST
@@ -1503,6 +1544,7 @@ namespace Markov_Test
   {
 
     using namespace Markov_Object;
+
 
     MultipleTests getClassInfoInvariants(const Abstract_Object* object_)
     {
@@ -1590,7 +1632,7 @@ namespace Markov_Test
         {
           M.push_back(TEST_NEQ("internally invalid objects are  empty",
                                object_->isInternallyValid(),
-                              object_->empty()));
+                               object_->empty()));
 
           M.push_back(TEST_EQ("empty objects returns empty strings",
                               object_->ToString(),
@@ -1600,11 +1642,11 @@ namespace Markov_Test
           bool isToObject=o->ToObject(&E,object_->ToString());
 
           M.push_back(ElementaryTest("ToObject on empty string returns false",
-                                      "ToString(ToObject(" "))==false ",
-                                      isToObject));
-          M.push_back(ElementaryTest("ToObject sets the environment",
-                                       "getEnvironment==&E",
-                                       o->getEnvironment()==&E));
+                                     "ToString(ToObject(" "))==false ",
+                                     isToObject==false));
+          M.push_back(ElementaryTest("ToObject do not set the environment",
+                                     "getEnvironment==nullptr",
+                                     o->getEnvironment()==nullptr));
 
 
 
@@ -1709,7 +1751,7 @@ namespace Markov_Test
                               acontext));
         }
 
-       return M;
+      return M;
     }
 
 
@@ -1767,90 +1809,190 @@ namespace Markov_Test
     }
 
 
-
-    MultipleTests idNameInvariant(const Named_Object* o)
+    MultipleTests isreferenced(const Named_Object* o)
     {
-      MultipleTests M;
+      MultipleTests M("is-Referenced",
+                      "poscondition");
 
-      bool isfree=true;
+      if (o->isReferenced())
+        M.push_back(TEST_EQ("the environment returns a reference to this",
+                            o->getEnvironment()->V(o->idName())
+                            ,o));
+      else
+        M.push_back(TEST_NEQ("the environment returns not a reference to this",
+                             o->getEnvironment()->V(o->idName())
+                             ,o));
+      return M;
+
+    }
+
+
+    MultipleTests idNameInvariant(const Named_Object* o,Environment* E)
+    {
+      std::string environmentclass;
+      std::string objectclass;
+
+      if (E->empty())
+        environmentclass="Empty";
+      else if (o->getEnvironment()==E)
+        environmentclass="Native";
+      else
+        environmentclass="Foreign";
+
+      if (o->empty())
+        objectclass="empty";
+      else if (o->isValid())
+        objectclass="valid";
+      else if (o->isDuplicate())
+        objectclass="duplicate";
+      else
+        objectclass="internallyValid";
+
+      MultipleTests M(environmentclass+" Environment,"+objectclass+" object",
+                      "To String/ ToObject invariants");
+
       if (o->isValid()&&!o->isDuplicate())
 
         {
-          isfree=false;
-          M=MultipleTests("Valid and original Objects ",
-                          " valid objects are referred in its environment");
-
-          M.push_back(ElementaryTest("same address",
-                                     "o->getEnvironment()->V(o->idName())==o",
-                                     o->getEnvironment()->V(o->idName())==
-                                     o));
-          M.push_back(TEST_EQ("same value",
-                              o->getEnvironment()->V(o->idName())->ToString(),
-                              o->ToString()));
-
+          MultipleTests M2("case isValid and not duplicate",
+             "conditions");
+          M2.push_back(TEST_EQ("isReferenced",
+                               o->getEnvironment()->V(o->idName()),o));
+          M2.push_back(TEST_EQ("same value",
+                               o->getEnvironment()->V(o->idName())->ToString(),
+                               o->ToString()));
+          M2.push_back(TEST_EQ("same name",
+                               o->getEnvironment()->V(o->idName())->idName(),
+                               o->idName()));
+          M.push_back(M2);
         }
       else if (o->isDuplicate())
         {
-          M=MultipleTests("duplicate Objects ",
-                          "the environment has a copy");
-          M.push_back(ElementaryTest("different address",
-                                     "o->getEnvironment()->V(o->idName())!=o",
-                                     o->getEnvironment()->V(o->idName())!=o));
+          MultipleTests M2("duplicate Objects ",
+                           "the environment has a copy");
+          M2.push_back(TEST_NEQ("different address",
+                                o->getEnvironment()->V(o->idName()),
+                                o));
+          M2.push_back(TEST_EQ("same name",
+                               o->getEnvironment()->V(o->idName())->idName(),
+                               o->idName()));
+          M.push_back(M2);
 
 
+        }
+      else if (o->getEnvironment()!=nullptr)
+        {
+          MultipleTests M2("non integrated Objects ",
+                           "the environment knows nothing about them");
+
+          M2.push_back(TEST_EQ("no address",
+                               o->getEnvironment()->V(o->idName()),
+                               nullptr));
+          M.push_back(M2);
+        }
+
+
+      // now test on to object and generation of duplicates
+      Named_Object* no=o->create();
+      std::size_t n=0;
+      bool isno=no->ToObject(E,o->ToString(),n);
+
+      // operations on empty objects produce nothing
+
+      if (!o->isInternallyValid())
+        {
+          MultipleTests M2("internally invalid object",
+                           "o->isInternallyValid()==false");
+
+          M2.push_back(ElementaryTest("result of ToObject",
+                                      "no->ToObject(E,o->ToString(),n)==false",
+                                      isno==false));
+
+          M2.push_back(TEST_NEQ("the environment is not transferred",
+                                no->getEnvironment(),E));
+
+          M2.push_back(TEST_EQ("the new object is empty",
+                               no->empty(),true));
+
+          M2.push_back(TEST_EQ("the new object gives empty string",
+                               no->ToString(),std::string("")));
+          M.push_back(M2);
 
         }
       else
         {
-          M=MultipleTests("non integrated Objects ",
-                          "the environment knows nothing about them");
+          MultipleTests M2("internally valid object",
+                           "o->isInternallyValid()==true");
 
-          if (o->getEnvironment()!=nullptr)
-            M.push_back(ElementaryTest("no address",
-                                       "o->getEnvironment()->V(o->idName())==nullptr",
-                                       o->getEnvironment()->V(o->idName())==nullptr));
+          M2.push_back(TEST_EQ("refers to the provided environment",
+                               no->getEnvironment(),E));
 
+          if (environmentclass=="empty")
+            {
+              M2.push_back(TEST_EQ("is not duplicate",
+                                   no->isDuplicate(),false));
+              M2.push_back(TEST_EQ("the Environment has no reference of this yet",
+                                   E->V(no->idName()),nullptr));
+
+            }
+          else if ((environmentclass=="native")&&(o->isValid()))
+            {
+              M2.push_back(TEST_EQ("is duplicate",
+                                   no->isDuplicate(),true));
+              M2.push_back(TEST_EQ("the Environment refers the old object ",
+                                   E->V(no->idName()),o));
+              M2.push_back(TEST_EQ("same name",
+                                   E->V(o->idName())->idName(),
+                                   no->idName()));
+            }
+          M.push_back(M2);
+          E->add(no);
+          MultipleTests M3("Environment adds the new object",
+                           "postconditions of this operation");
+
+          M3.push_back(TEST_EQ("Environment returns the right address",
+                               E->V(no->idName()),
+                               no));
+          M3.push_back(TEST_EQ("same value",
+                               E->V(no->idName())->ToString(),
+                               no->ToString()));
+
+          M3.push_back(TEST_EQ("not duplicate",
+                               no->isDuplicate(),
+                               false));
+
+          if (environmentclass=="native")
+            M3.push_back(TEST_EQ("old object is duplicate now",
+                                 o->isDuplicate(),
+                                 true));
+
+          M.push_back(M3);
+          // add a duplicate
+          Named_Object* no2=o->create();
+          std::size_t n2=0;
+          MultipleTests M4("we create a second copy in the Environment",
+                           "postconditions of this operation");
+
+          bool isno2=no2->ToObject(E,o->ToString(),n2);
+          M4.push_back(ElementaryTest("succesfully created",
+                                      "no2->ToObject(E,o->ToString())==true",
+                                      isno2));
+
+          M4.push_back(TEST_EQ("returns the same string",
+                               no2->ToString(),
+                               o->ToString()));
+
+          M4.push_back(TEST_EQ("new object is duplicate",
+                               no2->isDuplicate(),
+                               true));
+
+          M4.push_back(TEST_EQ("old new object is not duplicate",
+                               no->isDuplicate(),
+                               false));
+
+
+          M.push_back(M4);
         }
-
-      Environment E;
-      Named_Object* no=o->create();
-      std::size_t n=0;
-      bool isno=no->ToObject(&E,o->ToString(),n);
-      MultipleTests M2("Copied to an empty environment ",
-                       " put itself in this environment");
-
-
-
-      M2.push_back(ElementaryTest("refers to the new environment",
-                                  "no->getEnvironment()==&E",
-                                  no->getEnvironment()==&E));
-
-      M2.push_back(ElementaryTest("is not duplicate",
-                                  "no->isDuplicate==false",
-                                  no->isDuplicate()==false));
-
-
-      M2.push_back(ElementaryTest("The object has to specifically added",
-                                  "E.V(o->idName())==nullptr",
-                                  E.V(o->idName())==nullptr));
-      E.add(no);
-
-      M2.push_back(ElementaryTest("same address",
-                                  "E.V(o->idName())==no",
-                                  E.V(o->idName())==no));
-      M2.push_back(TEST_EQ("same value",
-                           E.V(o->idName())->ToString(),
-                           o->ToString()));
-      // add a duplicate
-
-      Named_Object* no2=o->create();
-      std::size_t n2=0;
-      bool isno2=no2->ToObject(&E,o->ToString(),n2);
-      M2.push_back(ElementaryTest("create a duplicate",
-                                  "no2->isDuplicate==true",
-                                  no2->isDuplicate()==true));
-
-      M.push_back(M2);
 
       return M;
     }
@@ -1865,7 +2007,8 @@ namespace Markov_Test
 
       M.push_back(Abstract_Object_Test::classInvariant());
 
-      M.push_back(idNameInvariant(named_object_));
+      Environment E;
+      M.push_back(idNameInvariant(named_object_,&E));
 
       return M;
 

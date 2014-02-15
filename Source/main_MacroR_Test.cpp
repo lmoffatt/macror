@@ -67,7 +67,7 @@ int main()
 
 
   Markov_Test::Markov_Object_Test::Abstract_Object_Test test(&dd);
-  std::cout<<test.classInvariant().VerboseLevel(false);
+  std::cout<<test.classInvariant().VerboseLevel(true);
 
 
   Markov_Test::Markov_Object_Test::Named_Object_Test test2(d);
@@ -77,7 +77,7 @@ int main()
   auto cp=&c;
 
   Markov_Test::Markov_Object_Test::Named_Object_Test test3(cp);
-  std::cout<<test3.classInvariant().VerboseLevel(false);
+  std::cout<<test3.classInvariant().VerboseLevel(true);
 
   Markov_Test::Markov_Object_Test::Named_Object_Test test4(d2);
  std::cout<<test4.classInvariant().VerboseLevel(false);

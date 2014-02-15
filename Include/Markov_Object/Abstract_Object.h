@@ -903,6 +903,15 @@ namespace Markov_Object
 #ifdef MACRO_TEST
 
 
+namespace  Markov_IO {
+
+std::string ToString(Markov_Object::Environment*const & x);
+std::string ToString(decltype (nullptr) const& x);
+std::string ToString(Markov_Object::Abstract_Object*const & x);
+std::string ToString(Markov_Object::Named_Object*const & x);
+
+
+}
 #include "Tests/MultipleTests.h"
 namespace Markov_Test
 {
