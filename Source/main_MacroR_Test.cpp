@@ -8,6 +8,13 @@
 #include "Markov_IO/PulsesProgram.h"
 
 #include "Markov_Object/Abstract_Object.h"
+#include "Markov_Object/Environment.h"
+#include "Markov_Object/Measurement_Unit.h"
+#include "Markov_Object/SimpleVariableValue.h"
+
+#include "Markov_Object/SimpleVariable.h"
+
+
 
 /*
 int main(int argc, char **argv)
@@ -25,9 +32,9 @@ int main(int argc, char **argv)
 int main()
 {
   Markov_Object::Environment e;
-  Markov_Object::Base_Unit* u=new Markov_Object::Base_Unit("ms","milisecond",&e,"time","scale of time");
+  Markov_Object::Measurement_Unit* u=new Markov_Object::Measurement_Unit("ms","milisecond",&e,"time","scale of time");
   std::cout<<u->ToString();
-  Markov_Object::Base_Unit* u2=new Markov_Object::Base_Unit(&e);
+  Markov_Object::Measurement_Unit* u2=new Markov_Object::Measurement_Unit(&e);
   std::size_t n=0;
   u2->ToObject(&e,u->ToString(),n);
   std::cout<<u2->ToString();
@@ -72,16 +79,16 @@ int main()
   std::cout<<test.classInvariant().VerboseLevel(false);
 
 
-  Markov_Test::Markov_Object_Test::Named_Object_Test test2(d);
+  Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test2(d);
 
   std::cout<<test2.classInvariant().VerboseLevel(false);
 
   auto cp=&c;
 
-  Markov_Test::Markov_Object_Test::Named_Object_Test test3(cp);
+  Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test3(cp);
   std::cout<<test3.classInvariant().VerboseLevel(false);
 
-  Markov_Test::Markov_Object_Test::Named_Object_Test test4(d2);
+  Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test4(d2);
   std::cout<<test4.classInvariant().VerboseLevel(false);
 
 

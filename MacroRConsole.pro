@@ -470,12 +470,26 @@ HEADERS += \
     Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
     Include/Markov_IO/A_Variable.h \
-    Include/Markov_Object/Abstract_Object.h
+    Include/Markov_Object/Abstract_Object.h \
+    Include/Markov_Object/Environment.h \
+    Include/Markov_Object/Abstract_Named_Object.h \
+    Include/Markov_Object/SimpleVariable.h \
+    Include/Markov_Object/Measurement_Unit.h \
+    Include/Markov_Object/Abstract_Value_Object.h \
+    Include/Markov_Object/Abstract_Variable_Object.h \
+    Include/Markov_Object/SimpleVariableValue.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
     Source/Markov_Console/BayesianAutocomplete.cpp \
-    Source/Markov_Object/Abstract_Object.cpp
+    Source/Markov_Object/Abstract_Object.cpp \
+    Source/Markov_Object/Environment.cpp \
+    Source/Markov_Object/Abstract_Named_Object.cpp \
+    Source/Markov_Object/SimpleVariable.cpp \
+    Source/Markov_Object/Measurement_Unit.cpp \
+    Source/Markov_Object/Abstract_Value_Object.cpp \
+    Source/Markov_Object/Abstract_Variable_Object.cpp \
+    Source/Markov_Object/SimpleVariableValue.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt
