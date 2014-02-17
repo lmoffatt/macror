@@ -62,22 +62,16 @@ namespace Markov_Object
     }
 
 
-    virtual bool empty()const
-    {
-      return ToString().empty();
-    }
+    virtual bool empty()const;
 
 
 
     /// checks for the existance of all refered objects
-    virtual bool refersToValidObjects()const
-    {return true;}
+    virtual bool refersToValidObjects()const =0;
 
 
-    virtual bool isValid()const
-    {
-      return isInternallyValid()&&refersToValidObjects();
-    }
+
+    virtual bool isValid()const;
 
 
     // returns the set of all the objects referenced by this to make itself meaningfull
@@ -119,41 +113,17 @@ namespace Markov_Object
     virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)=0;
 
 
-    virtual bool ToObject(Environment* e,const std::string& text)
-    {
-      std::size_t n=0;
-      return ToObject(e,text,n);
-    }
+    virtual bool ToObject(Environment* e,const std::string& text);
 
     static std::string classNameBeginMarker()
     {
       return "<";
     }
-    static std::string classNameEndMarker()
-    {
-      return ">";
-    }
+    static std::string classNameEndMarker();
 
-    static std::string namePermittedCharacters()
-    {
-      return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789_";
-    }
+    static std::string namePermittedCharacters();
 
-    static std::string getClassName(const std::string& line,std::size_t pos)
-    {
-      auto n0=line.find_first_of(classNameBeginMarker(),pos);
-      auto nend=line.find_first_of(classNameEndMarker(),n0);
-
-      std::string name=line.substr(n0,nend);
-      if (name.empty())
-        return name;
-      auto m=name.find_first_not_of(namePermittedCharacters(),0);
-
-      if (m!=name.npos)
-        return name;
-      else
-        return "";
-    }
+    static std::string getClassName(const std::string& line,std::size_t pos);
 
     Abstract_Object():
       E_(nullptr){}

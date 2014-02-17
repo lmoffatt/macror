@@ -495,6 +495,26 @@ namespace Markov_Test
 
 
 
+    MultipleTests Abstract_Named_Object_Test::classInvariant() const
+        {
+
+
+          MultipleTests M("Named Object Tests",
+                          "interface invariants");
+
+          M.push_back(Abstract_Object_Test::classInvariant());
+
+          Environment E;
+          M.push_back(idNameInvariant(named_object_,&E));
+          if (named_object_->getEnvironment()!=nullptr)
+            M.push_back(idNameInvariant(named_object_,named_object_->getEnvironment()));
+
+          return M;
+
+        }
+
+
+
   }
 }
 

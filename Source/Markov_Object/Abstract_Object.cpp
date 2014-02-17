@@ -43,6 +43,16 @@ namespace Markov_Object
     mySC.insert(ClassName());
     return mySC;
   }
+
+  bool Abstract_Object::empty() const
+  {
+    return ToString().empty();
+  }
+
+  bool Abstract_Object::isValid() const
+  {
+    return isInternallyValid()&&refersToValidObjects();
+  }
   
   
   Abstract_Object *Abstract_Object::dynamicCast(Abstract_Object *o) const
@@ -72,6 +82,38 @@ namespace Markov_Object
         
       }
     return s;
+  }
+
+  bool Abstract_Object::ToObject(Environment *e, const std::string &text)
+  {
+    std::size_t n=0;
+    return ToObject(e,text,n);
+  }
+
+  std::string Abstract_Object::classNameEndMarker()
+  {
+    return ">";
+  }
+
+  std::string Abstract_Object::namePermittedCharacters()
+  {
+    return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789_";
+  }
+
+  std::string Abstract_Object::getClassName(const std::string &line, std::size_t pos)
+  {
+    auto n0=line.find_first_of(classNameBeginMarker(),pos);
+    auto nend=line.find_first_of(classNameEndMarker(),n0);
+
+    std::string name=line.substr(n0,nend);
+    if (name.empty())
+      return name;
+    auto m=name.find_first_not_of(namePermittedCharacters(),0);
+
+    if (m!=name.npos)
+      return name;
+    else
+      return "";
   }
   
 

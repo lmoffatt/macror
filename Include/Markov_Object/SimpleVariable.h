@@ -35,7 +35,10 @@ namespace Markov_Object {
 
     virtual std::set<std::string> referencedObjects()const;
 
-
+     virtual bool refersToValidObjects()const override
+    {
+      return myUnit()!=nullptr;
+    }
 
     virtual bool isValidValue(const Abstract_Value_Object* ob)const;
 

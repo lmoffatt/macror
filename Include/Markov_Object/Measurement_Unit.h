@@ -39,6 +39,11 @@ namespace Markov_Object {
     }
 
 
+    virtual bool refersToValidObjects()const override
+    {
+      return true;
+    }
+
     virtual std::size_t numFields()const{return 0;}
 
     Measurement_Unit();
