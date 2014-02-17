@@ -81,10 +81,7 @@ namespace Markov_Object
 
 
     // returns the set of all the objects referenced by this to make itself meaningfull
-    virtual std::set<std::string> referencedObjects()const
-    {
-      return std::set<std::string>();
-    }
+    virtual std::set<std::string> referencedObjects()const=0;
 
 
 
@@ -339,6 +336,12 @@ namespace Markov_Object
 
     virtual Base_Unit* create()const;
 
+    virtual std::set<std::string> referencedObjects()const
+    {
+      return std::set<std::string>();
+    }
+
+
     virtual std::size_t numFields()const{return 0;}
 
     Base_Unit();
@@ -386,6 +389,7 @@ namespace Markov_Object
 
 
 
+
     Abstract_Valued_Object():
       Abstract_Object(){}
 
@@ -419,8 +423,12 @@ namespace Markov_Object
 
     virtual Abstract_Value_Object* defaultValue()const=0;
 
+    virtual Abstract_Value_Object* unKnownValue()const=0;
 
-    virtual bool isValueValid(const Abstract_Value_Object* v)const;
+
+    virtual bool isValidValue(const Abstract_Value_Object* v)const=0;
+
+
 
     Abstract_Variable_Object(Environment* e,
                              std::string variablename,
@@ -461,14 +469,17 @@ namespace Markov_Object
 
     virtual ~Abstract_Value_Object();
 
-    virtual bool isClonable()const;
-    virtual Abstract_Value_Object* create()const;
+    virtual Abstract_Value_Object* create()const=0;
+
     virtual const Abstract_Variable_Object* variable()const=0;
+
     Abstract_Value_Object():
       Abstract_Object(){}
 
     Abstract_Value_Object(Environment* E):
       Abstract_Object(E){}
+
+    virtual bool isUnknown()const=0;
 
   };
 
@@ -501,9 +512,26 @@ namespace Markov_Object
 
     virtual SimpleVariableValue<T>* defaultValue()const override;
 
-    virtual bool isValueValid(const Abstract_Value_Object* ob)const
+    virtual SimpleVariableValue<T>* unKnownValue()const override
     {
-      return ob->myClassInfo().superClasses.count(defaultValue()->myClass())!=0;
+      return new SimpleVariableValue<T>(idName(),
+                                        SimpleVariableValue<T>::unknownValue(),
+                                        myUnit()->idName(),
+                                        getEnvironment());
+
+    }
+
+
+    virtual std::set<std::string> referencedObjects()const
+    {
+      return {unitId_};
+    }
+
+
+
+    virtual bool isValidValue(const Abstract_Value_Object* ob)const
+    {
+      return ob->variable()==this;
     }
 
     virtual bool isCreateable()const;
@@ -516,8 +544,8 @@ namespace Markov_Object
 
     SimpleVariable(const SimpleVariable<T>& other):
       Abstract_Object(other.getEnvironment()),
-      Abstract_Valued_Object(other.getEnvironment()),
       Abstract_Variable_Object(other),
+      Abstract_Valued_Object(other.getEnvironment()),
       defautValue_(other.defautValue_),
       unitId_(other.unitId_){}
 
@@ -565,10 +593,6 @@ namespace Markov_Object
   {
   public:
 
-    virtual bool isClonable() const
-    {
-      return true;
-    }
     virtual SimpleVariableValue<T> *create() const
     {
       return new SimpleVariableValue<T>;
@@ -601,7 +625,7 @@ namespace Markov_Object
     {
       return false;
     }
-    static T get(const std::string &singleLine);
+    static T get(const std::string &singleLine,std::size_t* pos);
     static bool is(const std::string& singleLine);
 
     virtual std::string myClass()const override;
@@ -627,6 +651,10 @@ namespace Markov_Object
     virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)override;
 
 
+    static T unknownValue();
+
+    virtual bool isUnknown()const override;
+
 
     SimpleVariableValue();
     SimpleVariableValue(std::string variablename,
@@ -637,10 +665,9 @@ namespace Markov_Object
 
   private:
     std::string variableId_;
-    const SimpleVariable<T>* variable_;
-    std::string unitId_;
-    const Base_Unit* unit_;
-    T value_;
+     std::string unitId_;
+     T value_;
+
   };
 
 
@@ -828,6 +855,18 @@ namespace Markov_Object
       else return nullptr;
     }
 
+    std::set<std::string> Variables()const
+    {
+      std::set<std::string> o;
+      for (auto m:variables_)
+        {
+          if (dynamic_cast<Abstract_Value_Object*>(m.second)!=nullptr)
+            o.insert(m.first);
+
+        }
+      return o;
+    }
+
     void addUnit(Base_Unit* u)
     {
       auto it=units_.find(u->idName());
@@ -978,6 +1017,34 @@ namespace Markov_Test
     protected:
       const Named_Object* named_object_;
     };
+
+
+    class Abstract_Value_Test:public Abstract_Object_Test
+    {
+    public:
+
+      virtual MultipleTests classInvariant()const;
+
+      Abstract_Value_Test(const Abstract_Value_Object* object):
+        Abstract_Object_Test(object),
+        value_object_(object){}
+
+      virtual~Abstract_Value_Test(){}
+      static std::string TestName()
+      {
+        return "Abstract_Value_Test";
+      }
+
+      virtual std::string myTest()const
+      {
+        return TestName();
+      }
+
+
+    protected:
+      const Abstract_Value_Object* value_object_;
+    };
+
 
 
   }
