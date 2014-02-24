@@ -5,6 +5,7 @@
 #include "Markov_Object/Abstract_Object.h"
 #include "Markov_Object/Environment.h"
 #include "Markov_Object/Measurement_Unit.h"
+#include "Markov_Object/Abstract_Variable_Object.h"
 
 
 namespace Markov_Object
@@ -42,6 +43,16 @@ namespace Markov_Object
     std::set<std::string> mySC;
     mySC.insert(ClassName());
     return mySC;
+  }
+
+  bool Abstract_Object::belongsTo(const std::string classname) const
+  {
+    return myClassInfo().superClasses.count(classname)!=0;
+  }
+
+  Environment *Abstract_Object::getEnvironment() const
+  {
+    return E_;
   }
 
   bool Abstract_Object::empty() const
@@ -90,36 +101,22 @@ namespace Markov_Object
     return ToObject(e,text,n);
   }
 
-  std::string Abstract_Object::classNameEndMarker()
-  {
-    return ">";
-  }
 
-  std::string Abstract_Object::namePermittedCharacters()
-  {
-    return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789_";
-  }
+  Abstract_Object::Abstract_Object(Environment *E):
+    E_(E){}
 
-  std::string Abstract_Object::getClassName(const std::string &line, std::size_t pos)
-  {
-    auto n0=line.find_first_of(classNameBeginMarker(),pos);
-    auto nend=line.find_first_of(classNameEndMarker(),n0);
-
-    std::string name=line.substr(n0,nend);
-    if (name.empty())
-      return name;
-    auto m=name.find_first_not_of(namePermittedCharacters(),0);
-
-    if (m!=name.npos)
-      return name;
-    else
-      return "";
-  }
+  Abstract_Object::Abstract_Object():
+    E_(nullptr){}
   
 
   
   Abstract_Object::~Abstract_Object()
   {}
+
+  void Abstract_Object::setEnvironment(Environment *E)
+  {
+    E_=E;
+  }
   
   
   //  std::string Complex_Object::beginLabel()
@@ -184,23 +181,8 @@ namespace Markov_Object
   {
     return dynamic_cast<const Abstract_Valued_Object*>(o);
   }
-  Abstract_Variable_Object::~Abstract_Variable_Object(){}
-  
-  Abstract_Variable_Object *Abstract_Variable_Object::dynamicCast(Abstract_Object *o) const
-  {
-    return dynamic_cast<Abstract_Variable_Object *>(o);
-  }
-  
-  const Abstract_Variable_Object *Abstract_Variable_Object::dynamicCast(const Abstract_Object *o) const
-  {
-    return dynamic_cast<const Abstract_Variable_Object *>(o);
-  }
-  
-  
-  
 
-  
-  
+
   
   
   
@@ -667,7 +649,8 @@ namespace Markov_Test
     }
     
     
-    
+
+
     
     MultipleTests getToStringToObjectInvariants(const Abstract_Object* object_,
                                                 Environment& E)

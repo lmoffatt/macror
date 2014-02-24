@@ -1,6 +1,7 @@
 #ifndef ABSTRACT_NAMED_OBJECT_H
 #define ABSTRACT_NAMED_OBJECT_H
 #include "Markov_Object/Abstract_Object.h"
+#include "Markov_Object/Environment.h"
 
 
 namespace Markov_Object {
@@ -14,28 +15,19 @@ public:
   static std::string getName(const std::string& multiplelines, std::size_t& pos);
   static std::string getTip(const std::string& multiplelines, std::size_t& pos);
   static std::string getWhatThis(const std::string& multiplelines,std::size_t& pos);
-  static std::string getName(const std::string& multiplelines)
-  {
-    std::size_t n=0;
-    return getName(multiplelines,n);
-  }
+  static std::string getName(const std::string& multiplelines);
 
-  static std::string getTip(const std::string& multiplelines)
-  {
-    std::size_t n=0;
-    return getTip(multiplelines,n);
-  }
+  static std::string getTip(const std::string& multiplelines);
 
-  static std::string getWhatThis(const std::string& multiplelines)
-  {
-    std::size_t n=0;
-    return getWhatThis(multiplelines,n);
-  }
+  static std::string getWhatThis(const std::string& multiplelines);
 
 
   static std::string nextLine(const std::string& lines,std::size_t& n);
 
   static std::string removeInitialSpaces(const std::string& line);
+
+  static void skipSpaces(const std::string& line,std::size_t& n);
+
 
   static std::string ClassName();
   virtual std::string myClass()const override;
@@ -69,13 +61,28 @@ public:
   /// it checks for the environment to reference it
   ///
 
-  virtual bool isReferenced()const;
+  virtual bool isReferenced()const
+  {
+    if (getEnvironment()==nullptr)
+      return false;
+    else
+      return getEnvironment()->idN(idName())==this;
+
+
+  }
 
 
 
   /// returns true in case that the proposed idName is already present in the Environment
   /// in this case, the Environment is left unchanged
-  virtual bool isDuplicate()const;
+  virtual bool isDuplicate() const
+  {
+    if (getEnvironment()==nullptr)
+      return false;
+    else
+      return (getEnvironment()->idN(idName())!=nullptr)&&(getEnvironment()->idN(idName())!=this);
+
+  }
 
 
 
@@ -102,11 +109,7 @@ public:
 
   virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)  override;
 
-  virtual bool ToObject(Environment* e,const std::string& text) override
-  {
-    std::size_t n=0;
-    return ToObject(e,text,n);
-  }
+  virtual bool ToObject(Environment* e,const std::string& text) override;
 
 
 
@@ -121,11 +124,7 @@ public:
   Abstract_Named_Object();
 
 
-  Abstract_Named_Object(const Abstract_Named_Object& other):
-    Abstract_Object(other.getEnvironment()),
-    variableName_(other.variableName_),
-    tip_(other.tip_),
-    whatThis_(other.whatThis_){}
+  Abstract_Named_Object(const Abstract_Named_Object& other);
 
 private:
   std::string variableName_;

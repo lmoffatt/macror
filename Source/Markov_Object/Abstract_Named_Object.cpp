@@ -1,3 +1,4 @@
+#include <string>
 #include "Markov_Object/Abstract_Named_Object.h"
 #include "Markov_Object/Measurement_Unit.h"
 
@@ -50,30 +51,18 @@ namespace  Markov_Object {
   Abstract_Named_Object::~Abstract_Named_Object()
   {}
 
+  Abstract_Named_Object::Abstract_Named_Object(const Abstract_Named_Object &other):
+    Abstract_Object(other.getEnvironment()),
+    variableName_(other.variableName_),
+    tip_(other.tip_),
+    whatThis_(other.whatThis_){}
+
 
   std::string Abstract_Named_Object::idName()const
   {
     return variableName_;
   }
 
-  bool Abstract_Named_Object::isReferenced() const
-  {
-    return (getEnvironment()!=nullptr)&&(getEnvironment()->V(idName())==this);
-  }
-
-  bool Abstract_Named_Object::isDuplicate() const
-  {
-    if (getEnvironment()==nullptr)
-      return false;
-    else
-      {
-        auto p=getEnvironment()->V(idName());
-        if (p==nullptr)
-          return false;
-        else
-          return p!=this;
-      }
-  }
 
   /// hint about of the class nature
   std::string Abstract_Named_Object::Tip()const
@@ -131,6 +120,12 @@ namespace  Markov_Object {
         out+="\n";
       }
     return out;
+  }
+
+  bool Abstract_Named_Object::ToObject(Environment *e, const std::string &text)
+  {
+    std::size_t n=0;
+    return ToObject(e,text,n);
   }
   bool Abstract_Named_Object::ToObject(Environment* e,const std::string& text,std::size_t& cursor)
   {
@@ -232,11 +227,37 @@ namespace  Markov_Object {
 
   std::string Abstract_Named_Object::removeInitialSpaces(const std::string& line)
   {
-    if (line.empty())
+    auto n=line.find_first_not_of(" \t");
+    if (n==line.npos)
       return "";
-    return line.substr(line.find_first_not_of(" \t"));
+    else
+      return line.substr(n);
   }
 
+  void Abstract_Named_Object::skipSpaces(const std::string &line, std::size_t &n)
+  {
+    n=line.find_last_not_of(" \t",n);
+
+  }
+
+
+  std::string Abstract_Named_Object::getName(const std::string &multiplelines)
+  {
+    std::size_t n=0;
+    return getName(multiplelines,n);
+  }
+
+  std::string Abstract_Named_Object::getTip(const std::string &multiplelines)
+  {
+    std::size_t n=0;
+    return getTip(multiplelines,n);
+  }
+
+  std::string Abstract_Named_Object::getWhatThis(const std::string &multiplelines)
+  {
+    std::size_t n=0;
+    return getWhatThis(multiplelines,n);
+  }
 
   std::string Abstract_Named_Object::nextLine(const std::string &lines, std::size_t &n)
   {
@@ -299,11 +320,11 @@ namespace Markov_Test
 
       if (o->isReferenced())
         M.push_back(TEST_EQ("the environment returns a reference to this",
-                            o->getEnvironment()->V(o->idName())
+                            o->getEnvironment()->idN(o->idName())
                             ,o));
       else
         M.push_back(TEST_NEQ("the environment returns not a reference to this",
-                             o->getEnvironment()->V(o->idName())
+                             o->getEnvironment()->idN(o->idName())
                              ,o));
       return M;
 
@@ -340,12 +361,12 @@ namespace Markov_Test
           MultipleTests M2("case isValid and not duplicate",
                            "conditions");
           M2.push_back(TEST_EQ("isReferenced",
-                               o->getEnvironment()->V(o->idName()),o));
+                               o->getEnvironment()->idN(o->idName()),o));
           M2.push_back(TEST_EQ("same value",
-                               o->getEnvironment()->V(o->idName())->ToString(),
+                               o->getEnvironment()->idN(o->idName())->ToString(),
                                o->ToString()));
           M2.push_back(TEST_EQ("same name",
-                               o->getEnvironment()->V(o->idName())->idName(),
+                               o->getEnvironment()->idN(o->idName())->idName(),
                                o->idName()));
           M.push_back(M2);
         }
@@ -354,10 +375,10 @@ namespace Markov_Test
           MultipleTests M2("duplicate Objects ",
                            "the environment has a copy");
           M2.push_back(TEST_NEQ("different address",
-                                o->getEnvironment()->V(o->idName()),
+                                o->getEnvironment()->idN(o->idName()),
                                 o));
           M2.push_back(TEST_EQ("same name",
-                               o->getEnvironment()->V(o->idName())->idName(),
+                               o->getEnvironment()->idN(o->idName())->idName(),
                                o->idName()));
           M.push_back(M2);
 
@@ -423,9 +444,9 @@ namespace Markov_Test
               M2.push_back(TEST_EQ("is duplicate",
                                    no->isDuplicate(),true));
               M2.push_back(TEST_EQ("the Environment refers the old object ",
-                                   E->V(no->idName()),o));
+                                   E->idN(no->idName()),o));
               M2.push_back(TEST_EQ("same name",
-                                   E->V(o->idName())->idName(),
+                                   E->idN(o->idName())->idName(),
                                    no->idName()));
             }
           M.push_back(M2);
@@ -436,10 +457,10 @@ namespace Markov_Test
                                "postconditions of this operation");
 
               M3.push_back(TEST_EQ("Environment returns the right address",
-                                   E->V(no->idName()),
+                                   E->idN(no->idName()),
                                    no));
               M3.push_back(TEST_EQ("same value",
-                                   E->V(no->idName())->ToString(),
+                                   E->idN(no->idName())->ToString(),
                                    no->ToString()));
 
               M3.push_back(TEST_EQ("not duplicate",
@@ -479,7 +500,7 @@ namespace Markov_Test
 
               E->add(no2);
               M5.push_back(TEST_EQ("point to new object",
-                                   E->V(o->idName()),
+                                   E->idN(o->idName()),
                                    no2));
 
               M.push_back(M5);

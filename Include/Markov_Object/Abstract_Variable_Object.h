@@ -55,7 +55,7 @@ namespace Markov_Object {
     {}
 
 
-  };
+   };
 
 }
 

@@ -71,7 +71,8 @@ namespace Markov_IO
       std::string s;
       for (auto item:x)
         s+=ToString(item)+",";
-       s.pop_back();
+       if (!s.empty())
+         s.pop_back();
        return s;
     }
 

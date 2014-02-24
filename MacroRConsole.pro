@@ -264,6 +264,17 @@ HEADERS += \
     Include/Markov_IO/ABC_Unit.h
 
 SOURCES += \
+    Source/Markov_Object/Abstract_Object.cpp \
+    Source/Markov_Object/Quantity.cpp\
+    Source/Markov_Object/Environment.cpp \
+    Source/Markov_Object/Abstract_Named_Object.cpp \
+    Source/Markov_Object/SimpleVariable.cpp \
+    Source/Markov_Object/Measurement_Unit.cpp \
+    Source/Markov_Object/Abstract_Value_Object.cpp \
+    Source/Markov_Object/Abstract_Variable_Object.cpp \
+    Source/Markov_Object/SimpleVariableValue.cpp \
+    Source/Markov_Object/Measurement.cpp \
+    Source/Markov_Object/Magnitude.cpp \
     Source/Markov_IO/ABC_Unit.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
@@ -477,19 +488,14 @@ HEADERS += \
     Include/Markov_Object/Measurement_Unit.h \
     Include/Markov_Object/Abstract_Value_Object.h \
     Include/Markov_Object/Abstract_Variable_Object.h \
-    Include/Markov_Object/SimpleVariableValue.h
+    Include/Markov_Object/SimpleVariableValue.h \
+    Include/Markov_Object/Measurement.h \
+    Include/Markov_Object/Magnitude.h \
+    Include/Markov_Object/Quantity.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp \
-    Source/Markov_Object/Abstract_Object.cpp \
-    Source/Markov_Object/Environment.cpp \
-    Source/Markov_Object/Abstract_Named_Object.cpp \
-    Source/Markov_Object/SimpleVariable.cpp \
-    Source/Markov_Object/Measurement_Unit.cpp \
-    Source/Markov_Object/Abstract_Value_Object.cpp \
-    Source/Markov_Object/Abstract_Variable_Object.cpp \
-    Source/Markov_Object/SimpleVariableValue.cpp
+    Source/Markov_Console/BayesianAutocomplete.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

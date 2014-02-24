@@ -48,6 +48,8 @@ namespace Markov_Object
     static std::set<std::string> SuperClasses();
 
 
+    virtual bool belongsTo(const std::string classname)const;
+
     // Domain integrity of all internal values of the object
     // the referenced keys has to be formally valid but
     // it does not check it existance
@@ -56,10 +58,7 @@ namespace Markov_Object
 
     /// returns the Environment where the object belongs
     /// if it is an unreferenced value without any referenced objects it returns a nullptr.
-    virtual Environment* getEnvironment()const
-    {
-      return E_;
-    }
+    virtual Environment* getEnvironment()const;
 
 
     virtual bool empty()const;
@@ -115,32 +114,15 @@ namespace Markov_Object
 
     virtual bool ToObject(Environment* e,const std::string& text);
 
-    static std::string classNameBeginMarker()
-    {
-      return "<";
-    }
-    static std::string classNameEndMarker();
 
-    static std::string namePermittedCharacters();
+    Abstract_Object();
 
-    static std::string getClassName(const std::string& line,std::size_t pos);
-
-    Abstract_Object():
-      E_(nullptr){}
-
-    Abstract_Object(Environment* E):
-      E_(E){}
-
-
-
+    Abstract_Object(Environment* E);
     virtual ~Abstract_Object();
 
 
   protected:
-    virtual void setEnvironment(Environment* E)
-    {
-      E_=E;
-    }
+    virtual void setEnvironment(Environment* E);
   private:
     Environment* E_;
 

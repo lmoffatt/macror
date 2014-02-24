@@ -51,7 +51,10 @@ namespace Markov_Object {
 
     virtual bool isUnknown()const override;
 
-
+    
+    
+    
+    
     SimpleVariableValue();
     SimpleVariableValue(std::string variablename,
                         T defaultValue,

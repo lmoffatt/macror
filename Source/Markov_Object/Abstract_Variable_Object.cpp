@@ -1,4 +1,5 @@
 #include "Markov_Object/Abstract_Variable_Object.h"
+#include "Markov_Object/Environment.h"
 
 namespace Markov_Object {
   std::string Abstract_Variable_Object::ClassName()
@@ -34,5 +35,26 @@ namespace Markov_Object {
     mySC.insert(ClassName());
     return mySC;
   }
+
+
+  Abstract_Variable_Object::~Abstract_Variable_Object(){}
+
+  Abstract_Variable_Object *Abstract_Variable_Object::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast<Abstract_Variable_Object *>(o);
+  }
+
+  const Abstract_Variable_Object *Abstract_Variable_Object::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<const Abstract_Variable_Object *>(o);
+  }
+
+
+
+
+
+
+
+
 
 }

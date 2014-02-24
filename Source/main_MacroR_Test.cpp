@@ -13,7 +13,7 @@
 #include "Markov_Object/SimpleVariableValue.h"
 
 #include "Markov_Object/SimpleVariable.h"
-
+#include "Markov_Object/Quantity.h"
 
 
 /*
@@ -32,7 +32,12 @@ int main(int argc, char **argv)
 int main()
 {
   Markov_Object::Environment e;
-  Markov_Object::Measurement_Unit* u=new Markov_Object::Measurement_Unit("ms","milisecond",&e,"time","scale of time");
+  Markov_Object::Quantity q(&e,"VELOCITY","VELOCITY*VELOCITY^-2","distance","dimension of space distance");
+  std::cout<<q.ToString();
+  Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test(&q);
+  std::cout<<test.classInvariant().VerboseLevel(false);
+
+  /*Markov_Object::Measurement_Unit* u=new Markov_Object::Measurement_Unit("ms","milisecond",&e,"time","scale of time");
   std::cout<<u->ToString();
   Markov_Object::Measurement_Unit* u2=new Markov_Object::Measurement_Unit(&e);
   std::size_t n=0;
@@ -102,6 +107,6 @@ int main()
 
 
 
-
+*/
   // std::cout<<dd.ToString();
 }

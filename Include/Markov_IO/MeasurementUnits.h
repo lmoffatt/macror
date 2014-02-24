@@ -29,7 +29,6 @@ namespace Markov_IO
 
     virtual  std::string abbr()const=0;
 
-
     virtual ABC_Unit* pow(int exponent)const=0;
 
     virtual ABC_Unit* times(const ABC_Unit* other)const=0;

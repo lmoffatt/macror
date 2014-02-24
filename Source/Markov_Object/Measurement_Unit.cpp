@@ -1,10 +1,12 @@
 #include "Markov_Object/Measurement_Unit.h"
+#include "Markov_Object/Environment.h"
 
 namespace Markov_Object {
 
-  std::string Measurement_Unit::getUnit(const std::string& singleLine)
+  std::string Measurement_Unit::getUnit(const std::string& singleLine, std::size_t &cursor)
   {
-    std::size_t i=singleLine.find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    std::size_t pos=cursor;
+    std::size_t i=singleLine.find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",pos);
     if (i==singleLine.npos)
       return "";
     std::size_t j=singleLine.find_first_not_of(
@@ -12,8 +14,16 @@ namespace Markov_Object {
 
 
     std::string abbr=singleLine.substr(i,j-i);
+    cursor=j;
 
     return abbr;
+
+  }
+
+  std::string Measurement_Unit::getUnit(const std::string &singleLine)
+  {
+    std::size_t n=0;
+    return getUnit(singleLine,n);
 
   }
 
@@ -45,6 +55,7 @@ namespace Markov_Object {
 
   }
 
+
   Class_info Measurement_Unit::myClassInfo() const
   {
     return classInfo();
@@ -64,26 +75,46 @@ namespace Markov_Object {
   }
 
 
-  std::string Measurement_Unit::longName()const{
+  std::string Measurement_Unit::fullName()const{
     return longName_;
   }
 
-
-  bool Measurement_Unit::isCreateable()const
+  Measurement_Unit *Measurement_Unit::pow(int exponent) const
   {
-    return false;
+    std::string fullname;
+    std::string name;
+    std::string terms;
+    Environment* e;
+    std::string tip;
+    std::string whatthis;
+
+
   }
+
+
   Measurement_Unit* Measurement_Unit::create()const
   {
     return new Measurement_Unit;
   }
-
-
-
+  
+  std::set<std::string> Measurement_Unit::referencedObjects() const
+  {
+    return std::set<std::string>();
+  }
+  
+  bool Measurement_Unit::refersToValidObjects() const
+  {
+    return true;
+  }
+  
+  std::size_t Measurement_Unit::numFields() const{return 0;}
+  
+  
+  
   std::string Measurement_Unit::ToString()const
   {
     std::string out=Abstract_Named_Object::ToString();
-    out+=longName()+"\n";
+    out+=fullName()+"\n";
 
     return out;
   }
@@ -109,14 +140,16 @@ namespace Markov_Object {
 
 
 
-  Measurement_Unit::Measurement_Unit(std::string abbreviation,
-                       std::string name,
-                       Environment* e,
-                       std::string tip,
-                       std::string whatthis)
+  Measurement_Unit::Measurement_Unit(std::string fullname,
+                                     std::string name,
+                                     std::string terms,
+                                     Environment* e,
+                                     std::string tip,
+                                     std::string whatthis)
     :
-      Abstract_Named_Object(e,abbreviation,tip,whatthis),
-      longName_(name){}
+      Abstract_Named_Object(e,name,tip,whatthis),
+      longName_(fullname)
+  {}
 
   Measurement_Unit::Measurement_Unit()
     :
