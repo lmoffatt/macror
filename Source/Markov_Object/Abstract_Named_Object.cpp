@@ -63,6 +63,20 @@ namespace  Markov_Object {
     return variableName_;
   }
 
+  bool Abstract_Named_Object::isDuplicate() const
+  {
+    if (getEnvironment()==nullptr)
+      return false;
+    else
+      return (getEnvironment()->idN(idName())!=nullptr)&&(getEnvironment()->idN(idName())!=this);
+
+  }
+
+  bool Abstract_Named_Object::isValid() const
+  {
+    return Abstract_Object::isValid()&&isReferenced();
+  }
+
 
   /// hint about of the class nature
   std::string Abstract_Named_Object::Tip()const
@@ -511,6 +525,8 @@ namespace Markov_Test
 
       return M;
     }
+
+
 
 
 

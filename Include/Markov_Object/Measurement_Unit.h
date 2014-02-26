@@ -33,14 +33,15 @@ namespace Markov_Object {
     static std::string getUnit(const std::string& singleLine);
 
     static std::string ClassName();
+    static Class_info classInfo();
+
+    static std::set<std::string> SuperClasses();
+
     virtual std::string myClass()const override;
 
 
-    static Class_info classInfo();
 
-    static Measurement_Unit Dimensionless();
     virtual Class_info myClassInfo()const override;
-    static std::set<std::string> SuperClasses();
 
     /// cast an Abstract_Object to Base_Unit
     virtual Measurement_Unit * dynamicCast(Abstract_Object* o)const override;

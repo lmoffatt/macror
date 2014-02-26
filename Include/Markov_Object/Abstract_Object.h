@@ -34,20 +34,21 @@ namespace Markov_Object
   public:
 
     // class properties
-    static std::string ClassName()
-    {
-      return "Abstract_Object";
-    }
+    static std::string ClassName();
 
     static Class_info classInfo();
+
+
+    static std::set<std::string> SuperClasses();
+
 
     virtual Class_info myClassInfo()const;
 
     virtual std::string myClass()const;
 
-    static std::set<std::string> SuperClasses();
-
-
+    /// returns the Environment where the object belongs
+    /// if it is an unreferenced value without any referenced objects it returns a nullptr.
+    virtual Environment* getEnvironment()const;
     virtual bool belongsTo(const std::string classname)const;
 
     // Domain integrity of all internal values of the object
@@ -56,12 +57,12 @@ namespace Markov_Object
     virtual bool isInternallyValid()const=0;
 
 
-    /// returns the Environment where the object belongs
-    /// if it is an unreferenced value without any referenced objects it returns a nullptr.
-    virtual Environment* getEnvironment()const;
 
 
-    virtual bool empty()const;
+    virtual bool empty()const
+    {
+      return getEnvironment()==nullptr;
+    }
 
 
 

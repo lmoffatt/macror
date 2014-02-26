@@ -32,8 +32,14 @@ int main(int argc, char **argv)
 int main()
 {
   Markov_Object::Environment e;
-  Markov_Object::Quantity q(&e,"VELOCITY","VELOCITY*VELOCITY^-2","distance","dimension of space distance");
+  Markov_Object::QuantityExpression qe(&e,{{"L",1},{"M",-2}});
+  Markov_Object::QuantityExpression qe2(&e,{{"L",-1},{"MN",2}});
+  std::cout<<qe.ToString();
+      Markov_Object::Quantity q(&e,"VELOCITY","VELOCITY*VELOCITY^-2","distance","dimension of space distance");
   std::cout<<q.ToString();
+  Markov_Test::Markov_Object_Test::QuantityExpression_Test test1({&qe,&qe2});
+  std::cout<<test1.classInvariant().VerboseLevel(false);
+
   Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test(&q);
   std::cout<<test.classInvariant().VerboseLevel(false);
 

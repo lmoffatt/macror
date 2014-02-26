@@ -18,7 +18,7 @@ namespace Markov_Object {
     return {
         ClassName(),
             SuperClasses(),
-            false,
+            true,
             true,
             false
       };
@@ -49,64 +49,45 @@ namespace Markov_Object {
     else
       {
         std::string o=ClassName()+" "+ Abstract_Named_Object::ToString();
-        for (auto m=def_.begin();m!=def_.end();++m)
-          {
-            if (m->second!=0)
-              {
-                o+=m->first;
-                if (m->second!=1)
-                  {
-                    o+=pow+std::to_string(m->second);
-                  }
-              }
-            if (m!=--def_.end())
-              o+=mult;
-
-          }
-        o+="\n";
+        o+=def_.ToString();
         return o;
       }
   }
 
   bool Quantity::ToObject(Environment *e, const std::string &text, std::size_t &cursor)
   {
-    if (text.empty())
-        return false;
     std::size_t cursor0=cursor;
     Abstract_Named_Object::skipSpaces(text,cursor);
     auto clsnms=ClassName().size();
 
     // it should have the classname
-    if (text.substr(cursor,clsnms)!=ClassName())
-      {     cursor=cursor0;
-
-        return false;
-      }
-    else
+    if ((!text.empty())&&(text.substr(cursor,clsnms)==ClassName()))
       {
         cursor+=clsnms;
         if (Abstract_Named_Object::ToObject(e,text,cursor))
           {
-
-            def_=getDefinition(text,cursor);
-            return true;
-          }
-        else
-          {
-            cursor=cursor0;
-            return false;
+            if (def_.ToObject(e,text,cursor))
+              return true;
           }
       }
+    cursor=cursor0;
+    return false;
+
   }
+
 
   bool Quantity::refersToValidObjects() const
   {
-    return true;
   }
 
   std::set<std::string> Quantity::referencedObjects() const
   {
-    return std::set<std::string>();
+    std::set<std::string> out;
+    for (auto t:def_.value())
+      {
+        out.insert(t.first);
+      }
+    return out;
   }
 
   bool Quantity::ToObject(Environment *e, const std::string &text)
@@ -114,6 +95,9 @@ namespace Markov_Object {
     std::size_t n=0;
     return ToObject(e,text,n);
   }
+
+
+
 
   Quantity::Quantity():
     Abstract_Object(),
@@ -131,7 +115,7 @@ namespace Markov_Object {
     :
       Abstract_Object(e),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(quatityDefinition)
+      def_(e,quatityDefinition)
   {}
 
   Quantity::Quantity(Environment *e,
@@ -142,9 +126,8 @@ namespace Markov_Object {
     :
       Abstract_Object(e),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(getDefinition(quatityDefinition))
+      def_(e,QuantityExpression::getDefinition(quatityDefinition))
   {}
-
 
 
 

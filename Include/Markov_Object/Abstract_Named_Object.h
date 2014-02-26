@@ -75,21 +75,11 @@ public:
 
   /// returns true in case that the proposed idName is already present in the Environment
   /// in this case, the Environment is left unchanged
-  virtual bool isDuplicate() const
-  {
-    if (getEnvironment()==nullptr)
-      return false;
-    else
-      return (getEnvironment()->idN(idName())!=nullptr)&&(getEnvironment()->idN(idName())!=this);
-
-  }
+  virtual bool isDuplicate() const;
 
 
 
-  virtual bool isValid()const override
-  {
-    return Abstract_Object::isValid()&&isReferenced();
-  }
+  virtual bool isValid()const override;
 
 
 

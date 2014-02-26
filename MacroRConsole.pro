@@ -264,8 +264,10 @@ HEADERS += \
     Include/Markov_IO/ABC_Unit.h
 
 SOURCES += \
-    Source/Markov_Object/Abstract_Object.cpp \
+    Source/Markov_Object/QuantityExpression.cpp\
+    Source/Markov_Object/QuantityExpression.cpp\
     Source/Markov_Object/Quantity.cpp\
+    Source/Markov_Object/Abstract_Object.cpp \
     Source/Markov_Object/Environment.cpp \
     Source/Markov_Object/Abstract_Named_Object.cpp \
     Source/Markov_Object/SimpleVariable.cpp \
@@ -491,7 +493,8 @@ HEADERS += \
     Include/Markov_Object/SimpleVariableValue.h \
     Include/Markov_Object/Measurement.h \
     Include/Markov_Object/Magnitude.h \
-    Include/Markov_Object/Quantity.h
+    Include/Markov_Object/Quantity.h \
+    Include/Markov_Object/QuantityExpression.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \

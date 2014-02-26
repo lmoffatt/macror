@@ -13,6 +13,11 @@ namespace Markov_Object
 
 
   
+  std::string Abstract_Object::ClassName()
+  {
+    return "Abstract_Object";
+  }
+
   Class_info Abstract_Object::classInfo()
   {
     return Class_info
@@ -55,10 +60,6 @@ namespace Markov_Object
     return E_;
   }
 
-  bool Abstract_Object::empty() const
-  {
-    return ToString().empty();
-  }
 
   bool Abstract_Object::isValid() const
   {
@@ -790,11 +791,9 @@ namespace Markov_Test
           
           for (auto s:ref)
             {
-              if (object_->getEnvironment()->V(s)!=nullptr)
-                acontext+=object_->getEnvironment()->V(s)->ToString();
-              else if (object_->getEnvironment()->U(s)!=nullptr)
-                acontext+=object_->getEnvironment()->U(s)->ToString();
-            }
+              if (object_->getEnvironment()->idN(s)!=nullptr)
+                acontext+=object_->getEnvironment()->idN(s)->ToString();
+              }
           M.push_back(TEST_EQ("contextToString has all the referencedObjects",
                               object_->contextToString(),
                               acontext));

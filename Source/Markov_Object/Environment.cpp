@@ -177,6 +177,7 @@ namespace Markov_Object {
     classes_[SimpleVariableValue<double>::ClassName()]=new SimpleVariableValue<double>;
     classes_[SimpleVariableValue<std::size_t>::ClassName()]=new SimpleVariableValue<std::size_t>;
     classes_[Quantity::ClassName()]=new Quantity;
+    classes_[QuantityExpression::ClassName()]=new QuantityExpression;
 
   }
 
