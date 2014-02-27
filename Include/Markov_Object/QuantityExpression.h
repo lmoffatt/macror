@@ -34,10 +34,7 @@ namespace Markov_Object {
     QuantityExpression& operator*=(int n);
 
     static
-    QuantityExpression dimensionless()
-    {
-      return QuantityExpression();
-    }
+    QuantityExpression dimensionless();
 
     bool operator<(const QuantityExpression& other);
 
@@ -55,32 +52,25 @@ namespace Markov_Object {
     // Abstract_Object interface
     virtual Class_info myClassInfo() const override;
     virtual std::string myClass() const override;
-    virtual bool isInternallyValid() const override;
 
     virtual bool empty() const override;
 
-    virtual bool refersToValidObjects() const override;
     virtual bool isValid() const override;
-    virtual std::set<std::string> referencedObjects() const override;
     virtual QuantityExpression *create() const override;
     virtual QuantityExpression *dynamicCast(Abstract_Object *o) const override;
     virtual const QuantityExpression *dynamicCast(const Abstract_Object *o) const override;
 
     virtual std::string ToString() const override;
 
-    virtual bool ToObject(Environment *e, const std::string &text, std::size_t &cursor) override;
-    virtual bool ToObject(Environment *e, const std::string &text) override;
+    virtual bool ToObject(const std::string &text, std::size_t &cursor) override;
+    virtual bool ToObject(const std::string &text) override;
 
-    QuantityExpression(Environment* e,std::map<std::string,int> expression);
+    QuantityExpression(std::map<std::string,int> expression);
 
-    QuantityExpression(Environment* e);
 
     QuantityExpression();
 
-    virtual std::map<std::string, int> value()const
-    {
-      return expr_;
-    }
+    virtual std::map<std::string, int> value()const;
 
   private:
     std::map<std::string, int> expr_;

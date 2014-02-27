@@ -3,7 +3,6 @@
 #include "Tests/AssertPlain.h"
 
 #include "Markov_Object/Abstract_Object.h"
-#include "Markov_Object/Environment.h"
 #include "Markov_Object/Measurement_Unit.h"
 #include "Markov_Object/Abstract_Variable_Object.h"
 
@@ -43,7 +42,7 @@ namespace Markov_Object
   
   
   
-  std::set<std::string> Abstract_Object:: SuperClasses()
+  std::set<std::string> Abstract_Object::SuperClasses()
   {
     std::set<std::string> mySC;
     mySC.insert(ClassName());
@@ -55,16 +54,9 @@ namespace Markov_Object
     return myClassInfo().superClasses.count(classname)!=0;
   }
 
-  Environment *Abstract_Object::getEnvironment() const
-  {
-    return E_;
-  }
 
 
-  bool Abstract_Object::isValid() const
-  {
-    return isInternallyValid()&&refersToValidObjects();
-  }
+
   
   
   Abstract_Object *Abstract_Object::dynamicCast(Abstract_Object *o) const
@@ -77,48 +69,24 @@ namespace Markov_Object
     return dynamic_cast<const Abstract_Object*>(o);
   }
   
-  std::string Abstract_Object::contextToString() const
-  {
-    std::string s;
-    for (auto r : referencedObjects())
-      {
-        auto v=getEnvironment()->V(r);
-        if (v!=nullptr)
-          s+=v->ToString();
-        else
-          {
-            auto u=getEnvironment()->U(r);
-            if (u!=nullptr)
-              s+=u->ToString();
-          }
-        
-      }
-    return s;
-  }
 
-  bool Abstract_Object::ToObject(Environment *e, const std::string &text)
+  bool Abstract_Object::ToObject(const std::string &text)
   {
     std::size_t n=0;
-    return ToObject(e,text,n);
+    return ToObject(text,n);
   }
 
 
-  Abstract_Object::Abstract_Object(Environment *E):
-    E_(E){}
 
-  Abstract_Object::Abstract_Object():
-    E_(nullptr){}
+  Abstract_Object::Abstract_Object()
+  {}
   
 
   
   Abstract_Object::~Abstract_Object()
   {}
 
-  void Abstract_Object::setEnvironment(Environment *E)
-  {
-    E_=E;
-  }
-  
+
   
   //  std::string Complex_Object::beginLabel()
   //  {
@@ -629,19 +597,11 @@ namespace Markov_Test
         {
           createI.push_back(TEST_EQ("creater pointer empty",
                                     o->empty(),true));
-          createI.push_back(TEST_EQ("creater pointer not internally valid",
-                                    o->isInternallyValid(),false));
-          
+
           
           createI.push_back(TEST_EQ("match class",
                                     object_->myClass(),
                                     o->myClass()));
-          
-          
-          createI.push_back(ElementaryTest("no Environment",
-                                           "o->getEnvironment()==nullptr",
-                                           o->getEnvironment()==nullptr));
-          
           
         }
       delete o;
@@ -650,213 +610,92 @@ namespace Markov_Test
     }
     
     
-
-
-    
-    MultipleTests getToStringToObjectInvariants(const Abstract_Object* object_,
-                                                Environment& E)
+    MultipleTests getToStringToObjectInvariants(const Abstract_Object* object_)
     {
-      
-      std::string environmentclass;
-      std::string objectclass;
-      
-      if (E.empty())
-        environmentclass="Empty";
-      else if (object_->getEnvironment()==&E)
-        environmentclass="Native";
-      else
-        environmentclass="Foreign";
-      
+
+      MultipleTests M("To String/ ToObject"," invariants");
+
+      Abstract_Object* o=object_->create();
       if (object_->empty())
-        objectclass="empty";
-      else if (object_->isValid())
-        objectclass="valid";
-      else
-        objectclass="internallyValid";
-      
-      MultipleTests M(environmentclass+" Environment,"+objectclass+" object",
-                      "To String/ ToObject invariants");
-      
-      
-      if (!object_->isInternallyValid())
         {
-          M.push_back(TEST_NEQ("internally invalid objects are  empty",
-                               object_->isInternallyValid(),
-                               object_->empty()));
-          
           M.push_back(TEST_EQ("empty objects returns empty strings",
                               object_->ToString(),
                               std::string("")));
-          
-          Abstract_Object* o=object_->create();
-          bool isToObject=o->ToObject(&E,object_->ToString());
-          
+
+          bool isToObject=o->ToObject(object_->ToString());
+
           M.push_back(ElementaryTest("ToObject on empty string returns false",
                                      "ToString(ToObject(" "))==false ",
                                      isToObject==false));
-          M.push_back(ElementaryTest("ToObject do not set the environment",
-                                     "getEnvironment==nullptr",
-                                     o->getEnvironment()==nullptr));
-          
-          
-          
-          
         }
       else
         {
-          M.push_back(ElementaryTest("internally valid objects are not empty",
-                                     "isinternallyvalid!=empty()",
-                                     !object_->empty()));
-          
-          Abstract_Object* o=object_->create();
-          bool isToObject=o->ToObject(&E,object_->ToString());
-          
-          
+          bool isToObject=o->ToObject(object_->ToString());
+
+
           MultipleTests M2("applying o->ToObject on o->ToString",
                            "invariants");
-          
-          
-          
+
+
+
           M2.push_back(ElementaryTest("ToObject  returns true",
                                       "ToString(ToObject(ToString))==true ",
                                       isToObject));
-          
+
           M2.push_back(TEST_EQ("myClass is recovered",
                                object_->myClass(),
                                o->myClass()));
-          
+
           M2.push_back(TEST_EQ("ToString is recovered",
                                object_->ToString(),
                                o->ToString()));
-          
-          
+
+
           M.push_back(M2);
-          MultipleTests M33("ToObject on getEnvironment",
-                            "invariants");
-          M33.push_back(ElementaryTest("ToObject sets the environment",
-                                       "getEnvironment==&E",
-                                       o->getEnvironment()==&E));
-          
-          if (!object_->myClassInfo().refersEnvironment)
-            {
-              M33.push_back(ElementaryTest("refersToValidObjects true",
-                                           "In a new environment if it does not refer to anyone,"
-                                           "the object is valid "
-                                           "object_->refersToValidObjects()==true",
-                                           object_->refersToValidObjects()==true));
-            }
-          else if  (E.empty()|| &E!=object_->getEnvironment())
-            {
-              if (E.empty())
-                M33.push_back(ElementaryTest("In a new empty environment references are invalid",
-                                             "o->refersToValidObjects()==false",
-                                             o->refersToValidObjects()==false));
-              
-              if (object_->refersToValidObjects())
-                {
-                  auto ref=object_->referencedObjects();
-                  for (auto s:ref)
-                    {
-                      const Abstract_Named_Object* rob=object_->getEnvironment()->V(s);
-                      if (rob==nullptr)
-                        rob=object_->getEnvironment()->U(s);
-                      if (rob!=nullptr)
-                        {
-                          Abstract_Named_Object* oo=rob->create();
-                          std::string strrob=rob->ToString();
-                          if (oo->ToObject(&E,strrob))
-                            E.add(oo);
-                          
-                          
-                        }
-                    }  // referred objects added to environment
-                  
-                  M33.push_back(ElementaryTest("After adding the referred objects",
-                                               "object_->refersToValidObjects()==true",
-                                               o->refersToValidObjects()==true));
-                }
-              
-            }
-          else if (&E==object_->getEnvironment())
-            {
-              M33.push_back(ElementaryTest("In the same environment references are valid",
-                                           "object_->refersToValidObjects()==o->refersToValidObjects",
-                                           o->refersToValidObjects()==object_->refersToValidObjects()));
-            }
-          
-          M.push_back(M33);
-          
-          std::string acontext;
-          auto ref=object_->referencedObjects();
-          
-          for (auto s:ref)
-            {
-              if (object_->getEnvironment()->idN(s)!=nullptr)
-                acontext+=object_->getEnvironment()->idN(s)->ToString();
-              }
-          M.push_back(TEST_EQ("contextToString has all the referencedObjects",
-                              object_->contextToString(),
-                              acontext));
+
         }
-      
+      delete o;
       return M;
     }
-    
-    
-    
+
     MultipleTests Abstract_Object_Test::classInvariant()const
     {
-      MultipleTests results(Abstract_Object::ClassName(),
+      MultipleTests M(Abstract_Object::ClassName(),
                             "Class Invariants");
-      
-      MultipleTests methodsI("methods",
-                             "invariants");
-      
-      object_->myClassInfo();
-      
-      methodsI.push_back(getClassInfoInvariants(object_));
-      
-      methodsI.push_back(getcreateInvariants(object_));
-      
-      
-      MultipleTests ToStringToObjectI("ToString()  ToObject() methods ",
-                                      "invariants");
-      
-      Environment E;
-      ToStringToObjectI.push_back(getToStringToObjectInvariants(object_,E));
-      if (object_->getEnvironment()!=nullptr)
-        ToStringToObjectI.push_back(getToStringToObjectInvariants(object_,*object_->getEnvironment()));
-      
-      
-      methodsI.push_back(ToStringToObjectI);
-      results.push_back(methodsI);
-      
-      return results;
-      
-      
+
+      M.push_back(getClassInfoInvariants(object_));
+
+      M.push_back(getcreateInvariants(object_));
+
+
+      M.push_back(getToStringToObjectInvariants(object_));
+
+      return M;
+
+
     }
-    
+
     Abstract_Object_Test::Abstract_Object_Test(const Abstract_Object *object)
       :
         object_(object)
     {}
-    
+
     Abstract_Object_Test::~Abstract_Object_Test()
     {
-      
+
     }
-    
+
     std::string Abstract_Object_Test::TestName()
     {
       return "Abstract_Object_Test";
     }
-    
+
     std::string Abstract_Object_Test::myTest()const
     {
       return TestName();
     }
-    
-    
+
+
 
 
 

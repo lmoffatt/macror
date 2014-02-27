@@ -27,7 +27,7 @@ namespace Markov_Object {
 
     virtual bool empty() const;
 
-    virtual bool ToObject(Environment *e, const std::string &text, std::size_t &cursor);
+    virtual bool ToObject(const std::string &text, std::size_t &cursor);
 
 
     /// checks for the existance of all refered objects
@@ -36,7 +36,7 @@ namespace Markov_Object {
     std::set<std::string> referencedObjects() const;
 
 
-    virtual bool ToObject(Environment *e, const std::string &text);
+    virtual bool ToObject(const std::string &text);
 
 
     QuantityExpression definition()const
@@ -46,7 +46,7 @@ namespace Markov_Object {
 
     QuantityExpression self()const
     {
-      return QuantityExpression(getEnvironment(),{{idName(),1}});
+      return QuantityExpression({{idName(),1}});
     }
 
 
@@ -78,7 +78,7 @@ namespace Markov_Object {
             {
               const Quantity* q=getEnvironment()->Q(t.first);
               if (q==nullptr)
-                return nullptr;
+                return QuantityExpression();
               else if (upstream.count(q->idName())!=0)
                 return self();
               else

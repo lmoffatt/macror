@@ -42,7 +42,15 @@ public:
   virtual const Abstract_Named_Object* dynamicCast(const Abstract_Object* o)const override;
 
 
-  virtual Abstract_Named_Object* create()const=0;
+  virtual Abstract_Named_Object* create()const override=0 ;
+
+  /// returns the Environment where the object belongs
+  /// if it is an unreferenced value without any referenced objects it returns a nullptr.
+  virtual Environment *getEnvironment()const;
+
+
+  /// returns a string representation of the referenced objects
+  virtual std::string contextToString()const;
 
 
   /// hopefully unique identifier of the object
@@ -72,6 +80,16 @@ public:
   }
 
 
+  virtual bool refersToValidObjects()const
+  {
+
+  }
+
+
+  virtual std::set<std::string> referencedObjects() const=0;
+
+
+
 
   /// returns true in case that the proposed idName is already present in the Environment
   /// in this case, the Environment is left unchanged
@@ -97,9 +115,26 @@ public:
 
   virtual std::string ToString()const override;
 
-  virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)  override;
+  virtual bool ToObject(const std::string& text, std::size_t &cursor) override ;
 
-  virtual bool ToObject(Environment* e,const std::string& text) override;
+  virtual bool ToObject(const std::string& text) override;
+
+  virtual bool ToObject(Environment* E,const std::string& text, std::size_t &cursor)
+  {
+    if (ToObject(text,cursor))
+      {
+        setEnvironment(E);
+        return true;
+      }
+    return false;
+  }
+
+  virtual bool ToObject(Environment* E,const std::string& text)
+  {
+    std::size_t n=0;
+    return ToObject(E,text,n);
+  }
+
 
 
 
@@ -116,7 +151,11 @@ public:
 
   Abstract_Named_Object(const Abstract_Named_Object& other);
 
+protected:
+  virtual void setEnvironment(Environment* E);
+
 private:
+  Environment* E_;
   std::string variableName_;
   std::string tip_;
   std::string whatThis_;

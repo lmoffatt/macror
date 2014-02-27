@@ -26,13 +26,11 @@ namespace Markov_Object {
 
     virtual Abstract_Value_Object* create()const=0;
 
-    virtual const Abstract_Variable_Object* variable()const=0;
+    virtual std::string variable()const=0;
 
     Abstract_Value_Object():
       Abstract_Object(){}
 
-    Abstract_Value_Object(Environment* E):
-      Abstract_Object(E){}
 
     virtual bool isUnknown()const=0;
 
@@ -48,10 +46,6 @@ namespace Markov_Object {
 
 namespace  Markov_IO {
 
-  std::string ToString(Markov_Object::Environment*const & x);
-  std::string ToString(decltype (nullptr) const& x);
-  std::string ToString(Markov_Object::Abstract_Object*const & x);
-  std::string ToString(Markov_Object::Abstract_Named_Object*const & x);
 
 
 }

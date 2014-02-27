@@ -91,12 +91,9 @@ namespace Markov_Test
 
       if (o->isValid())
         {
-          M.push_back(TEST_NEQ("returns a non null pointer",
-                               o->variable(),
-                               nullptr));
-          M.push_back(TEST_EQ("is a valid value of its variable",
-                              o->variable()->isValidValue(o),
-                              true));
+          M.push_back(TEST_NEQ("returns a non empty string",
+                               o->variable().empty(),
+                               false));
         }
 
       return M;
@@ -106,17 +103,17 @@ namespace Markov_Test
 
 
 
-    MultipleTests unknownMethodPostConditions(const Abstract_Value_Object* o)
+    MultipleTests unknownMethodPostConditions(const Abstract_Variable_Object* o)
     {
       MultipleTests M("unknown() method",
                       "postconditions");
 
-      Abstract_Value_Object* u=o->variable()->unKnownValue();
-      M.push_back(ElementaryTest("variable()->unknown",
-                                 "o->variable()->unKnownValue()->isUnknown()==true",
+      Abstract_Value_Object* u=o->unKnownValue();
+      M.push_back(ElementaryTest("unknownValue it is, actually",
+                                 "unKnownValue()->isUnknown()==true",
                                  u->isUnknown()==true));
-      Abstract_Value_Object* ou=o->create();
-      bool isu=ou->ToObject(o->getEnvironment(),u->ToString());
+      Abstract_Value_Object* ou=u->create();
+      bool isu=ou->ToObject(u->ToString());
       M.push_back(ElementaryTest("serialize unknown value",
                                  "ToObject(unknownValue)==true",
                                  isu==true));
@@ -143,7 +140,7 @@ namespace Markov_Test
       M.push_back(Abstract_Object_Test::classInvariant());
 
       M.push_back(variableMethodPostConditions(this->value_object_));
-      M.push_back(unknownMethodPostConditions(this->value_object_));
+     // M.push_back(unknownMethodPostConditions(this->value_object_));
 
       return M;
 

@@ -72,11 +72,8 @@ namespace Markov_Object {
 
 
   template<typename T>
-  const Measurement_Unit* SimpleVariable<T>::myUnit()const{
-    if (getEnvironment()!=nullptr)
-      return getEnvironment()->U(unitId_);
-    else
-      return nullptr;
+   std::string SimpleVariable<T>::myUnit()const{
+     return unitId_;
   }
 
 
@@ -88,7 +85,7 @@ namespace Markov_Object {
                                     std::string tip,
                                     std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       Abstract_Variable_Object(e,name,tip,whatthis),
       defautValue_(defaultValue),
       unitId_(unit)
@@ -99,7 +96,7 @@ namespace Markov_Object {
   template<typename T>
   SimpleVariable<T>::SimpleVariable(Environment* e)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       Abstract_Variable_Object(e),
       defautValue_{T()},
       unitId_{}
@@ -120,8 +117,7 @@ namespace Markov_Object {
   {
     return new SimpleVariableValue<T>(idName(),
                                       defautValue_,
-                                      unitId_,
-                                      getEnvironment());
+                                      unitId_);
   }
 
   template<typename T>
@@ -129,8 +125,7 @@ namespace Markov_Object {
   {
     return new SimpleVariableValue<T>(idName(),
                                       SimpleVariableValue<T>::unknownValue(),
-                                      myUnit()->idName(),
-                                      getEnvironment());
+                                      myUnit());
 
   }
 
@@ -143,7 +138,7 @@ namespace Markov_Object {
   template<typename T>
   bool SimpleVariable<T>::isValidValue(const Abstract_Value_Object *ob) const
   {
-    return ob->variable()==this;
+    return ob->variable()==idName();
   }
 
 
@@ -160,10 +155,10 @@ namespace Markov_Object {
   }
 
   template<typename T>
-  bool SimpleVariable<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
+  bool SimpleVariable<T>::ToObject(const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
-    if (!Abstract_Named_Object::ToObject(e,multipleLines,pos))
+    if (!Abstract_Named_Object::ToObject(multipleLines,pos))
       {
         pos=pos0;
         return false;

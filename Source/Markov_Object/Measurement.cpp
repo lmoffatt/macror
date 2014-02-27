@@ -113,9 +113,9 @@ namespace Markov_Object {
   }
 
   template<typename T>
-  const Measurement_Unit *Measurement<T>::unit() const
+  std::string Measurement<T>::unit() const
   {
-    return getEnvironment()->U(unitId_);
+    return unitId_;
 
   }
 
@@ -125,11 +125,7 @@ namespace Markov_Object {
     if (isValid())
       {
         T v=std::pow(value_,n);
-        auto testuni=unit()->pow(n);
-        getEnvironment()->addUnit(testuni);
-        std::string u=testuni->idName();
-        return new Measurement<T>(v,u);
-      }
+        }
   }
 
   template<typename T>
@@ -137,12 +133,6 @@ namespace Markov_Object {
   {
     if (isValid()&&other->isValid())
       {
-        auto up=unit()->times(other->unit());
-        T v=value()*other->value()*up.second;
-        auto u=up.first;
-        getEnvironment()->addUnit(u);
-        std::string us=u->idName();
-        return new Measurement<T>(v,us);
       }
     else return nullptr;
   }
@@ -152,12 +142,6 @@ namespace Markov_Object {
   {
     if (isValid()&&other->isValid())
       {
-        auto up=unit()->over(other->unit());
-        T v=value()*other->value()*up.second;
-        auto u=up.first;
-        getEnvironment()->addUnit(u);
-        std::string us=u->idName();
-        return new Measurement<T>(v,us);
       }
     else return nullptr;
   }
@@ -166,8 +150,8 @@ namespace Markov_Object {
 
   
   template<typename T>
-  Measurement<T>::Measurement(Environment *E, T value, std::string unit):
-    Abstract_Object(E),
+  Measurement<T>::Measurement(T value, std::string unit):
+    Abstract_Object(),
     value_(value),
     unitId_(unit){}
 

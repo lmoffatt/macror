@@ -48,14 +48,40 @@ namespace  Markov_Object {
     return dynamic_cast<const Abstract_Named_Object*>(o);
   }
 
+  Environment *Abstract_Named_Object::getEnvironment() const
+  {
+    return E_;
+  }
+
   Abstract_Named_Object::~Abstract_Named_Object()
   {}
 
   Abstract_Named_Object::Abstract_Named_Object(const Abstract_Named_Object &other):
-    Abstract_Object(other.getEnvironment()),
+    Abstract_Object(),
     variableName_(other.variableName_),
     tip_(other.tip_),
     whatThis_(other.whatThis_){}
+
+  void Abstract_Named_Object::setEnvironment(Environment *E)
+  {
+    E_=E;
+  }
+
+
+
+  std::string Abstract_Named_Object::contextToString() const
+  {
+    std::string s;
+    for (auto r : referencedObjects())
+      {
+        auto v=getEnvironment()->idN(r);
+        if (v!=nullptr)
+          s+=v->ToString();
+
+      }
+    return s;
+  }
+
 
 
   std::string Abstract_Named_Object::idName()const
@@ -136,12 +162,12 @@ namespace  Markov_Object {
     return out;
   }
 
-  bool Abstract_Named_Object::ToObject(Environment *e, const std::string &text)
+  bool Abstract_Named_Object::ToObject(const std::string &text)
   {
     std::size_t n=0;
-    return ToObject(e,text,n);
+    return ToObject(text,n);
   }
-  bool Abstract_Named_Object::ToObject(Environment* e,const std::string& text,std::size_t& cursor)
+  bool Abstract_Named_Object::ToObject(const std::string& text, std::size_t& cursor)
   {
     std::size_t c0=cursor;
     std::string name=getName(text,cursor);
@@ -153,7 +179,6 @@ namespace  Markov_Object {
         return false;
       }
 
-    this->setEnvironment(e);
     if (!name.empty())
       this->variableName_=name;
     if (!tip.empty())
@@ -166,11 +191,12 @@ namespace  Markov_Object {
 
 
   Abstract_Named_Object::Abstract_Named_Object(Environment* e,
-                             std::string variablename,
-                             std::string tip,
-                             std::string whatthis)
+                                               std::string variablename,
+                                               std::string tip,
+                                               std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
+      E_{e},
       variableName_{variablename},tip_{tip},whatThis_{whatthis}
 
   {
@@ -179,8 +205,8 @@ namespace  Markov_Object {
 
   Abstract_Named_Object::Abstract_Named_Object(Environment* e)
     :
-      Abstract_Object(e),
-      variableName_{},tip_{},whatThis_{}{
+      Abstract_Object(),
+      E_{e},variableName_{},tip_{},whatThis_{}{
 
   }
 
@@ -312,6 +338,13 @@ namespace  Markov_Object {
 
 #include "Tests/TESTS.h"
 #include "Tests/ElementaryTest.h"
+
+namespace  Markov_IO {
+
+  std::string ToString(Markov_Object::Environment*const & x);
+
+
+}
 
 
 
@@ -527,24 +560,173 @@ namespace Markov_Test
     }
 
 
+    MultipleTests getToStringToObjectInvariants(const Abstract_Named_Object* object_,
+                                                Environment* E)
+    {
+
+      std::string environmentclass;
+      std::string objectclass;
+
+      if (E->empty())
+        environmentclass="Empty";
+      else if (object_->getEnvironment()==E)
+        environmentclass="Native";
+      else
+        environmentclass="Foreign";
+
+      if (object_->empty())
+        objectclass="empty";
+      else if (object_->isValid())
+        objectclass="valid";
+      else
+        objectclass="internallyValid";
+
+      MultipleTests M(environmentclass+" Environment,"+objectclass+" object",
+                      "To String/ ToObject invariants");
+
+
+      if (!object_->isInternallyValid())
+        {
+          M.push_back(TEST_NEQ("internally invalid objects are  empty",
+                               object_->isInternallyValid(),
+                               object_->empty()));
+
+          M.push_back(TEST_EQ("empty objects returns empty strings",
+                              object_->ToString(),
+                              std::string("")));
+
+          Abstract_Named_Object* o=object_->create();
+          bool isToObject=o->ToObject(E,object_->ToString());
+
+          M.push_back(ElementaryTest("ToObject on empty string returns false",
+                                     "ToString(ToObject(" "))==false ",
+                                     isToObject==false));
+          M.push_back(ElementaryTest("ToObject do not set the environment",
+                                     "getEnvironment==nullptr",
+                                     o->getEnvironment()==nullptr));
+
+
+
+
+        }
+      else
+        {
+          M.push_back(ElementaryTest("internally valid objects are not empty",
+                                     "isinternallyvalid!=empty()",
+                                     !object_->empty()));
+
+          Abstract_Named_Object* o=object_->create();
+          bool isToObject=o->ToObject(E,object_->ToString());
+
+
+          MultipleTests M2("applying o->ToObject on o->ToString",
+                           "invariants");
+
+
+
+          M2.push_back(ElementaryTest("ToObject  returns true",
+                                      "ToString(ToObject(ToString))==true ",
+                                      isToObject));
+
+          M2.push_back(TEST_EQ("myClass is recovered",
+                               object_->myClass(),
+                               o->myClass()));
+
+          M2.push_back(TEST_EQ("ToString is recovered",
+                               object_->ToString(),
+                               o->ToString()));
+
+
+          M.push_back(M2);
+          MultipleTests M33("ToObject on getEnvironment",
+                            "invariants");
+          M33.push_back(ElementaryTest("ToObject sets the environment",
+                                       "getEnvironment==&E",
+                                       o->getEnvironment()==E));
+
+          if (!object_->myClassInfo().refersEnvironment)
+            {
+              M33.push_back(ElementaryTest("refersToValidObjects true",
+                                           "In a new environment if it does not refer to anyone,"
+                                           "the object is valid "
+                                           "object_->refersToValidObjects()==true",
+                                           object_->refersToValidObjects()==true));
+            }
+          else if  (E->empty()|| E!=object_->getEnvironment())
+            {
+              if (E->empty())
+                M33.push_back(ElementaryTest("In a new empty environment references are invalid",
+                                             "o->refersToValidObjects()==false",
+                                             o->refersToValidObjects()==false));
+
+              if (object_->refersToValidObjects())
+                {
+                  auto ref=object_->referencedObjects();
+                  for (auto s:ref)
+                    {
+                      const Abstract_Named_Object* rob=object_->getEnvironment()->idN(s);
+                      if (rob!=nullptr)
+                        {
+                          Abstract_Named_Object* oo=rob->create();
+                          std::string strrob=rob->ToString();
+                          if (oo->ToObject(E,strrob))
+                            E->add(oo);
+
+
+                        }
+                    }  // referred objects added to environment
+
+                  M33.push_back(ElementaryTest("After adding the referred objects",
+                                               "object_->refersToValidObjects()==true",
+                                               o->refersToValidObjects()==true));
+                }
+
+            }
+          else if (E==object_->getEnvironment())
+            {
+              M33.push_back(ElementaryTest("In the same environment references are valid",
+                                           "object_->refersToValidObjects()==o->refersToValidObjects",
+                                           o->refersToValidObjects()==object_->refersToValidObjects()));
+            }
+
+          M.push_back(M33);
+
+          std::string acontext;
+          auto ref=object_->referencedObjects();
+
+          for (auto s:ref)
+            {
+              if (object_->getEnvironment()->idN(s)!=nullptr)
+                acontext+=object_->getEnvironment()->idN(s)->ToString();
+            }
+          M.push_back(TEST_EQ("contextToString has all the referencedObjects",
+                              object_->contextToString(),
+                              acontext));
+        }
+
+      return M;
+    }
 
 
 
 
 
     MultipleTests Abstract_Named_Object_Test::classInvariant() const
+    {
+
+
+      MultipleTests M("Named Object Tests",
+                      "interface invariants");
+
+      M.push_back(Abstract_Object_Test::classInvariant());
+
+      Environment E;
+      M.push_back(idNameInvariant(named_object_,&E));
+      M.push_back(getToStringToObjectInvariants(named_object_,&E));
+      if (named_object_->getEnvironment()!=nullptr)
         {
-
-
-          MultipleTests M("Named Object Tests",
-                          "interface invariants");
-
-          M.push_back(Abstract_Object_Test::classInvariant());
-
-          Environment E;
-          M.push_back(idNameInvariant(named_object_,&E));
-          if (named_object_->getEnvironment()!=nullptr)
-            M.push_back(idNameInvariant(named_object_,named_object_->getEnvironment()));
+          M.push_back(idNameInvariant(named_object_,named_object_->getEnvironment()));
+          M.push_back(getToStringToObjectInvariants(named_object_,named_object_->getEnvironment()));
 
           return M;
 
@@ -552,6 +734,7 @@ namespace Markov_Test
 
 
 
+    }
   }
 }
 

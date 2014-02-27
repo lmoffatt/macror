@@ -54,7 +54,12 @@ namespace Markov_Object {
       }
   }
 
-  bool Quantity::ToObject(Environment *e, const std::string &text, std::size_t &cursor)
+  bool Quantity::empty() const
+  {
+    return  getEnvironment()==nullptr;
+  }
+
+  bool Quantity::ToObject(const std::string &text, std::size_t &cursor)
   {
     std::size_t cursor0=cursor;
     Abstract_Named_Object::skipSpaces(text,cursor);
@@ -64,9 +69,9 @@ namespace Markov_Object {
     if ((!text.empty())&&(text.substr(cursor,clsnms)==ClassName()))
       {
         cursor+=clsnms;
-        if (Abstract_Named_Object::ToObject(e,text,cursor))
+        if (Abstract_Named_Object::ToObject(text,cursor))
           {
-            if (def_.ToObject(e,text,cursor))
+            if (def_.ToObject(text,cursor))
               return true;
           }
       }
@@ -90,10 +95,10 @@ namespace Markov_Object {
     return out;
   }
 
-  bool Quantity::ToObject(Environment *e, const std::string &text)
+  bool Quantity::ToObject(const std::string &text)
   {
     std::size_t n=0;
-    return ToObject(e,text,n);
+    return ToObject(text,n);
   }
 
 
@@ -104,7 +109,7 @@ namespace Markov_Object {
     Abstract_Named_Object(){}
 
   Quantity::Quantity(Environment *e):
-    Abstract_Object(e),
+    Abstract_Object(),
     Abstract_Named_Object(e){}
 
   Quantity::Quantity(Environment *e,
@@ -113,9 +118,9 @@ namespace Markov_Object {
                      std::string longName,
                      std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(e,quatityDefinition)
+      def_(quatityDefinition)
   {}
 
   Quantity::Quantity(Environment *e,
@@ -124,9 +129,9 @@ namespace Markov_Object {
                      std::string longName,
                      std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(e,QuantityExpression::getDefinition(quatityDefinition))
+      def_(QuantityExpression::getDefinition(quatityDefinition))
   {}
 
 

@@ -13,43 +13,32 @@ namespace Markov_Object {
   {
   public:
 
-    virtual SimpleVariableValue<T> *create() const;
-
-    virtual bool isInternallyValid() const;
-
-
-
-    virtual bool refersToValidObjects() const override;
-    virtual std::set<std::string> referencedObjects() const;
     static T get(const std::string &singleLine,std::size_t* pos);
     static bool is(const std::string& singleLine);
-
-    virtual std::string myClass()const override;
-
     static std::string ClassName();
     static Class_info classInfo();
-    virtual Class_info myClassInfo()const override;
-
     static std::set<std::string> SuperClasses();
+    static T unknownValue();
+
+    virtual std::string myClass()const override;
+    virtual SimpleVariableValue<T> *create() const override;
+    virtual bool isValid() const override;
+    virtual Class_info myClassInfo()const override;
 
     /// cast an Abstract_Object to SimpleVariableValue<T>
     virtual SimpleVariableValue<T> * dynamicCast(Abstract_Object* o)const override;
     virtual const SimpleVariableValue<T> * dynamicCast(const Abstract_Object* o)const override;
+    virtual std::string myUnit()const override;
 
+    virtual std::string variable()const override;
 
-    virtual const Measurement_Unit* myUnit()const override;
-
-    virtual const SimpleVariable<T>* variable()const override;
-
-    virtual T value() const;
 
     virtual std::string ToString()const override;
-    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)override;
-
-
-    static T unknownValue();
-
+    virtual bool ToObject(const std::string& multipleLines,std::size_t& pos)override;
     virtual bool isUnknown()const override;
+
+
+    virtual T value() const;
 
     
     
@@ -58,8 +47,7 @@ namespace Markov_Object {
     SimpleVariableValue();
     SimpleVariableValue(std::string variablename,
                         T defaultValue,
-                        std::string unit,
-                        Environment *e);
+                        std::string unit);
     ~SimpleVariableValue();
 
   private:

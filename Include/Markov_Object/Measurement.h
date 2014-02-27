@@ -54,7 +54,7 @@ namespace Markov_Object {
 
 
     virtual T value()const;
-    virtual const Measurement_Unit* unit()const;
+    virtual std::string unit()const;
 
 
     virtual Measurement* pow(int n) const;
@@ -74,7 +74,7 @@ namespace Markov_Object {
 
     static T unknownValue();
 
-    Measurement(Environment* E,T value, std::string unit);
+    Measurement(T value, std::string unit);
 
 
   private:

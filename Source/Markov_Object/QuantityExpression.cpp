@@ -123,6 +123,11 @@ namespace Markov_Object {
     return *this;
   }
 
+  QuantityExpression QuantityExpression::dimensionless()
+  {
+    return QuantityExpression();
+  }
+
 
 
   bool QuantityExpression::operator<(const QuantityExpression &other)
@@ -136,34 +141,11 @@ namespace Markov_Object {
     return it->first<itOther->first;
   }
 
-  bool QuantityExpression::refersToValidObjects() const
-  {
-    if (getEnvironment()==nullptr)
-      return false;
-    for (auto t:expr_)
-      {
-        if (getEnvironment()->Q(t.first)==nullptr)
-          return false;
-      }
-    return true;
-
-  }
 
   bool QuantityExpression::isValid() const
   {
-    return refersToValidObjects();
-  }
+    }
 
-  std::set<std::string> QuantityExpression::referencedObjects() const
-  {
-    std::set<std::string> out;
-    for (auto t:expr_)
-      {
-        out.insert(t.first);
-
-      }
-    return out;
-  }
 
   QuantityExpression *QuantityExpression::create() const
   {
@@ -196,33 +178,33 @@ namespace Markov_Object {
     return o;
   }
 
-  bool QuantityExpression::ToObject(Environment *e, const std::string &text)
+  bool QuantityExpression::ToObject(const std::string &text)
   {
     std::size_t n=0;
-    return ToObject(e,text,n);
+    return ToObject(text,n);
   }
 
   QuantityExpression::QuantityExpression():
     Abstract_Object(),
     expr_(){}
 
+  std::map<std::string, int> QuantityExpression::value() const
+  {
+    return expr_;
+  }
 
 
-  QuantityExpression::QuantityExpression(Environment *e):
-    Abstract_Object(e),
-    expr_(){}
 
-  QuantityExpression::QuantityExpression(Environment *e, std::map<std::string, int> expression):
-    Abstract_Object(e),
+  QuantityExpression::QuantityExpression(std::map<std::string, int> expression):
+    Abstract_Object(),
     expr_(expression){}
 
-  bool QuantityExpression::ToObject(Environment *e, const std::string &text, std::size_t &cursor)
+  bool QuantityExpression::ToObject(const std::string &text, std::size_t &cursor)
   {
     auto def=getDefinition(text,cursor);
     if (def.find("")!=def.end())
       return false;
     expr_=def;
-    setEnvironment(e);
     return true;
   }
 
@@ -236,19 +218,6 @@ namespace Markov_Object {
     return expr_.empty();
   }
 
-  bool QuantityExpression::isInternallyValid() const
-  {
-    if (getEnvironment()==nullptr)
-      return false;
-    for (auto t:expr_)
-      {
-        if (t.first.empty())
-          return false;
-        if (Abstract_Named_Object::getName(t.first)!=t.first)
-          return false;
-      }
-    return true;
-  }
 
   std::string QuantityExpression::myClass() const
   {

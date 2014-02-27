@@ -39,7 +39,7 @@ namespace Markov_Object {
                              std::string variablename,
                              std::string tip,
                              std::string whatthis)
-      : Abstract_Object(e),
+      : Abstract_Object(),
         Abstract_Named_Object(e,variablename,tip,whatthis)
     {}
 
@@ -50,7 +50,7 @@ namespace Markov_Object {
     Abstract_Variable_Object(){}
 
     Abstract_Variable_Object(const Abstract_Variable_Object& other):
-      Abstract_Object(other.getEnvironment()),
+      Abstract_Object(),
       Abstract_Named_Object(other)
     {}
 

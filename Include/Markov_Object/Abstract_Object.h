@@ -12,8 +12,6 @@
 
 //#include "Markov_LA/Matrix.h"
 
-
-
 namespace Markov_Object
 {
 
@@ -25,9 +23,6 @@ namespace Markov_Object
     bool hasIdName;
     bool isValued;
   };
-
-  class Environment;
-  class Abstract_Named_Object;
 
   class Abstract_Object
   {
@@ -46,86 +41,47 @@ namespace Markov_Object
 
     virtual std::string myClass()const;
 
-    /// returns the Environment where the object belongs
-    /// if it is an unreferenced value without any referenced objects it returns a nullptr.
-    virtual Environment* getEnvironment()const;
     virtual bool belongsTo(const std::string classname)const;
-
-    // Domain integrity of all internal values of the object
-    // the referenced keys has to be formally valid but
-    // it does not check it existance
-    virtual bool isInternallyValid()const=0;
-
-
 
 
     virtual bool empty()const
     {
-      return getEnvironment()==nullptr;
+      return false;
     }
 
+    virtual bool isValid()const
+    {
 
-
-    /// checks for the existance of all refered objects
-    virtual bool refersToValidObjects()const =0;
-
-
-
-    virtual bool isValid()const;
-
-
-    // returns the set of all the objects referenced by this to make itself meaningfull
-    virtual std::set<std::string> referencedObjects()const=0;
-
-
+    }
 
 
     /// creates a object of current Class
     virtual Abstract_Object* create()const=0;
 
-
-
     /// cast an Abstract_Object to myClass
     virtual Abstract_Object* dynamicCast(Abstract_Object* o)const;
 
-
     virtual const Abstract_Object* dynamicCast(const Abstract_Object* o)const;
-
 
     /// returns enough information to make an InternallyValid copy of the object.
     /// if is an empty object it returns enough information to make another empty object
     virtual std::string ToString()const=0;
 
 
-    /// returns a string representation of the referenced objects
-
-    virtual std::string contextToString()const;
-
-
-
-
-
-
-
     // if the object is not of myClass, it returns false
     // if the object is of myClass, it returns true and it uses the text to
     // reasign its internal structure accordingly with it
-    virtual bool ToObject(Environment* e,const std::string& text, std::size_t &cursor)=0;
+    virtual bool ToObject(const std::string& text, std::size_t &cursor)=0;
 
 
-    virtual bool ToObject(Environment* e,const std::string& text);
+    virtual bool ToObject(const std::string& text);
 
 
     Abstract_Object();
 
-    Abstract_Object(Environment* E);
     virtual ~Abstract_Object();
 
 
-  protected:
-    virtual void setEnvironment(Environment* E);
-  private:
-    Environment* E_;
 
   };
 
@@ -146,14 +102,12 @@ namespace Markov_Object
     virtual Abstract_Valued_Object * dynamicCast(Abstract_Object* o)const override;
     virtual const Abstract_Valued_Object * dynamicCast(const Abstract_Object* o)const override;
 
-    virtual const Measurement_Unit* myUnit()const=0;
+    virtual std::string myUnit()const=0;
     virtual ~Abstract_Valued_Object();
 
     Abstract_Valued_Object():
       Abstract_Object(){}
 
-    Abstract_Valued_Object(Environment* E):
-      Abstract_Object(E){}
 
 
   };
@@ -339,7 +293,6 @@ namespace Markov_Object
 
 namespace  Markov_IO {
 
-  std::string ToString(Markov_Object::Environment*const & x);
   std::string ToString(decltype (nullptr) const& x);
   std::string ToString(Markov_Object::Abstract_Object*const & x);
 

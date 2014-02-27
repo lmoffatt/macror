@@ -15,13 +15,9 @@ namespace Markov_Object {
 
 
   template<typename T>
-  const SimpleVariable<T>* SimpleVariableValue<T>::variable()const
+  std::string SimpleVariableValue<T>::variable()const
   {
-
-    if (getEnvironment()!=nullptr)
-      return dynamic_cast<const SimpleVariable<T>*>(getEnvironment()->V(variableId_));
-    else
-      return nullptr;
+    return variableId_;
   }
 
 
@@ -90,7 +86,7 @@ namespace Markov_Object {
   }
 
   template<typename T>
-  bool SimpleVariableValue<T>::isInternallyValid() const
+  bool SimpleVariableValue<T>::isValid() const
   {
     bool validVariableId=!variableId_.empty()&&
         (variableId_==Abstract_Named_Object::getName(variableId_));
@@ -98,22 +94,6 @@ namespace Markov_Object {
     return validUnit&&validVariableId;
   }
 
-  template<typename T>
-  bool SimpleVariableValue<T>::refersToValidObjects() const
-  {
-    bool validUnit=myUnit()!=nullptr;
-    bool validVar=variable()!=nullptr;
-    return validUnit&& validVar;
-  }
-
-  template<typename T>
-  std::set<std::string> SimpleVariableValue<T>::referencedObjects() const
-  {
-    std::set<std::string> s;
-    s.insert(unitId_);
-    s.insert(variableId_);
-    return s;
-  }
 
   template<typename T>
   std::string SimpleVariableValue<T>::myClass()const
@@ -136,12 +116,9 @@ namespace Markov_Object {
 
 
   template<typename T>
-  const Measurement_Unit* SimpleVariableValue<T>::myUnit()const
+   std::string SimpleVariableValue<T>::myUnit()const
   {
-    if (getEnvironment()!=nullptr)
-      return getEnvironment()->U(unitId_);
-    else
-      return nullptr;
+      return unitId_;
   }
 
 
@@ -149,9 +126,8 @@ namespace Markov_Object {
   template<typename T>
   SimpleVariableValue<T>::SimpleVariableValue(std::string variablename,
                                               T v,
-                                              std::string unit,
-                                              Environment *e)
-    : Abstract_Object(e),
+                                              std::string unit)
+    : Abstract_Object(),
       variableId_(variablename),
       unitId_(unit),
       value_(v)
@@ -283,19 +259,10 @@ namespace Markov_Object {
 
 
   template<typename T>
-  bool SimpleVariableValue<T>::ToObject(Environment* e,const std::string& multipleLines, std::size_t &pos)
+  bool SimpleVariableValue<T>::ToObject(const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     variableId_=Abstract_Named_Object::getName(multipleLines,pos);
-    const Abstract_Named_Object* p=e->V(variableId_);
-    if (p!=nullptr)
-      {
-        if (dynamic_cast<const SimpleVariable<T>*>(p)==nullptr)
-          {
-            pos=pos0;
-            return false;
-          }
-      }
     ++pos;
     std::string line=Abstract_Named_Object::nextLine(multipleLines,pos);
     if (!SimpleVariableValue<T>::is(line))
@@ -306,14 +273,7 @@ namespace Markov_Object {
     std::size_t posline=0;
     value_=SimpleVariableValue<T>::get(line,&posline);
     unitId_=Measurement_Unit::getUnit(line.substr(posline));
-    if (this->isInternallyValid())
-      {
-        setEnvironment(e);
-        return true;
-      }
-    else
-      return false;
-
+    return true;
   }
 
 
