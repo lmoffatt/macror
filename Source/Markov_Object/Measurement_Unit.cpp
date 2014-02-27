@@ -102,10 +102,7 @@ namespace Markov_Object {
     return std::set<std::string>();
   }
   
-  bool Measurement_Unit::refersToValidObjects() const
-  {
-    return true;
-  }
+
   
   std::size_t Measurement_Unit::numFields() const{return 0;}
   

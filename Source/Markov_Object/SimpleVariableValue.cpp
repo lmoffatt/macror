@@ -86,7 +86,7 @@ namespace Markov_Object {
   }
 
   template<typename T>
-  bool SimpleVariableValue<T>::isValid() const
+  bool SimpleVariableValue<T>::invalid() const
   {
     bool validVariableId=!variableId_.empty()&&
         (variableId_==Abstract_Named_Object::getName(variableId_));

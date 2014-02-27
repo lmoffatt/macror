@@ -595,7 +595,7 @@ namespace Markov_Test
       
       if (o!=nullptr)
         {
-          createI.push_back(TEST_EQ("creater pointer empty",
+          createI.push_back(TEST_EQ("created pointer empty",
                                     o->empty(),true));
 
           
@@ -626,6 +626,18 @@ namespace Markov_Test
 
           M.push_back(ElementaryTest("ToObject on empty string returns false",
                                      "ToString(ToObject(" "))==false ",
+                                     isToObject==false));
+        }
+      else if (object_->invalid())
+        {
+          M.push_back(TEST_NEQ("invalid objects returns nonempty strings",
+                               object_->ToString(),
+                               std::string("")));
+
+          bool isToObject=o->ToObject(object_->ToString());
+
+          M.push_back(ElementaryTest("ToObject on invalid generated string returns false",
+                                     "ToString(ToObject(invalid ))==false ",
                                      isToObject==false));
         }
       else
@@ -661,7 +673,7 @@ namespace Markov_Test
     MultipleTests Abstract_Object_Test::classInvariant()const
     {
       MultipleTests M(Abstract_Object::ClassName(),
-                            "Class Invariants");
+                      "Class Invariants");
 
       M.push_back(getClassInfoInvariants(object_));
 

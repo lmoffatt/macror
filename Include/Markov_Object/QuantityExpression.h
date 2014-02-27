@@ -21,6 +21,9 @@ namespace Markov_Object {
 
     static constexpr const char* separator=" \t\n";
 
+    static    std::string getName(const std::string text, std::size_t &cursor);
+    static    std::string getName(const std::string text);
+
     static
     std::map<std::string,int> getDefinition(const std::string& defs,std::size_t& cursor);
 
@@ -55,7 +58,7 @@ namespace Markov_Object {
 
     virtual bool empty() const override;
 
-    virtual bool isValid() const override;
+    virtual bool invalid() const override;
     virtual QuantityExpression *create() const override;
     virtual QuantityExpression *dynamicCast(Abstract_Object *o) const override;
     virtual const QuantityExpression *dynamicCast(const Abstract_Object *o) const override;

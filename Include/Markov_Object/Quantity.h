@@ -14,35 +14,25 @@ namespace Markov_Object {
 
 
     static std::string ClassName();
-
     static Class_info classInfo();
     static std::set<std::string> SuperClasses();
 
     // virtual methods
     virtual std::string myClass()const override;
     virtual Class_info myClassInfo()const override;
+    virtual Quantity *create() const override;
+    virtual std::string ToString() const override;
+    virtual bool empty() const override;
+    virtual bool invalid() const override;
 
-    virtual Quantity *create() const;
-    virtual std::string ToString() const;
-
-    virtual bool empty() const;
-
-    virtual bool ToObject(const std::string &text, std::size_t &cursor);
-
+    virtual bool ToObject(const std::string &text, std::size_t &cursor) override;
 
     /// checks for the existance of all refered objects
-    virtual bool refersToValidObjects()const;
-
-    std::set<std::string> referencedObjects() const;
+    std::set<std::string> referencedObjects() const override;
 
 
-    virtual bool ToObject(const std::string &text);
-
-
-    QuantityExpression definition()const
-    {
-      return definition({idName()});
-    }
+    // new methods
+    QuantityExpression definition()const;
 
     QuantityExpression self()const
     {
@@ -69,29 +59,7 @@ namespace Markov_Object {
              std::string whatthis);
 
   private:
-    QuantityExpression definition(std::set<std::string> upstream) const
-    {
-      QuantityExpression out;
-      if (getEnvironment()!=nullptr)
-        {
-          for (auto t:def_.value())
-            {
-              const Quantity* q=getEnvironment()->Q(t.first);
-              if (q==nullptr)
-                return QuantityExpression();
-              else if (upstream.count(q->idName())!=0)
-                return self();
-              else
-                {
-                  auto defq=q->definition(upstream)*t.second;
-                  out+=defq;
-                }
-
-            }
-        }
-    }
-
-
+    QuantityExpression definition(std::set<std::string> upstream) const;
     QuantityExpression def_;
 
   };

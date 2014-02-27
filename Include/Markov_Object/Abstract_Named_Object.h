@@ -11,85 +11,62 @@ namespace Markov_Object {
 class Abstract_Named_Object:public virtual Abstract_Object
 {
 public:
-
+// static helper methods
   static std::string getName(const std::string& multiplelines, std::size_t& pos);
   static std::string getTip(const std::string& multiplelines, std::size_t& pos);
   static std::string getWhatThis(const std::string& multiplelines,std::size_t& pos);
+
   static std::string getName(const std::string& multiplelines);
-
   static std::string getTip(const std::string& multiplelines);
-
   static std::string getWhatThis(const std::string& multiplelines);
 
 
   static std::string nextLine(const std::string& lines,std::size_t& n);
-
   static std::string removeInitialSpaces(const std::string& line);
 
   static void skipSpaces(const std::string& line,std::size_t& n);
 
-
+  // reflection statics
   static std::string ClassName();
-  virtual std::string myClass()const override;
-
   static Class_info classInfo();
-  virtual Class_info myClassInfo()const override;
-
   static std::set<std::string> SuperClasses();
 
-  /// cast an Abstract_Object to Named_Object
+  // reflection overrides
+  virtual std::string myClass()const override;
+  virtual Class_info myClassInfo()const override;
   virtual Abstract_Named_Object* dynamicCast(Abstract_Object* o)const override;
   virtual const Abstract_Named_Object* dynamicCast(const Abstract_Object* o)const override;
 
 
+  // abtract overrides
+
   virtual Abstract_Named_Object* create()const override=0 ;
 
   /// returns the Environment where the object belongs
+
+
   /// if it is an unreferenced value without any referenced objects it returns a nullptr.
+
+  // implemented overrides
+  virtual bool invalid() const override;
+  virtual bool empty() const override;
+
+  virtual std::string ToString()const override;
+  virtual bool ToObject(const std::string& text, std::size_t &cursor) override ;
+
+
+
+
+  // new implemented virtual methods
+// Environment
   virtual Environment *getEnvironment()const;
 
 
-  /// returns a string representation of the referenced objects
-  virtual std::string contextToString()const;
-
-
-  /// hopefully unique identifier of the object
-  /// if not uniqueId returns false
+  /// identifier of the object
   virtual std::string idName()const ;
 
-
-  virtual bool isInternallyValid() const
-  {
-    std::size_t n=0;
-    bool validName=variableName_==Abstract_Named_Object::getName(variableName_,n);
-    bool validEnvironment=getEnvironment()!=nullptr;
-    return validName&&validEnvironment;
-  }
-
-  /// it checks for the environment to reference it
-  ///
-
-  virtual bool isReferenced()const
-  {
-    if (getEnvironment()==nullptr)
-      return false;
-    else
-      return getEnvironment()->idN(idName())==this;
-
-
-  }
-
-
-  virtual bool refersToValidObjects()const
-  {
-
-  }
-
-
-  virtual std::set<std::string> referencedObjects() const=0;
-
-
-
+  /// it checks for the environment to reference this object
+  virtual bool isReferenced()const;
 
   /// returns true in case that the proposed idName is already present in the Environment
   /// in this case, the Environment is left unchanged
@@ -97,46 +74,38 @@ public:
 
 
 
-  virtual bool isValid()const override;
+  // new helper methods
+  virtual bool ToObject(Environment* E,const std::string& text, std::size_t &cursor);
+  virtual bool ToObject(Environment* E,const std::string& text);
 
 
-
+ //Tip and whatthis
   /// hint about of the class nature
   virtual std::string Tip()const ;
-
   /// a short description of the class
   virtual std::string WhatThis()const ;
 
-
   virtual void setTip(const std::string& newTip) ;
-
   virtual void setWhatThis(const std::string &whatthis) ;
 
 
-  virtual std::string ToString()const override;
 
-  virtual bool ToObject(const std::string& text, std::size_t &cursor) override ;
 
-  virtual bool ToObject(const std::string& text) override;
+// new abstract method, gives the list of objects referenced
+  // for this object to has meaning
+  virtual std::set<std::string> referencedObjects() const=0;
 
-  virtual bool ToObject(Environment* E,const std::string& text, std::size_t &cursor)
-  {
-    if (ToObject(text,cursor))
-      {
-        setEnvironment(E);
-        return true;
-      }
-    return false;
-  }
 
-  virtual bool ToObject(Environment* E,const std::string& text)
-  {
-    std::size_t n=0;
-    return ToObject(E,text,n);
-  }
+  //Helper methods for checking the referenced objects
+  virtual bool refersToValidObjects()const;
+  /// returns a string representation of the referenced objects
+  virtual std::string contextToString()const;
 
 
 
+
+
+/// constructors and destructor
 
   virtual ~Abstract_Named_Object();
   Abstract_Named_Object(Environment* e,
@@ -147,6 +116,7 @@ public:
   Abstract_Named_Object(Environment* e);
 
   Abstract_Named_Object();
+
 
 
   Abstract_Named_Object(const Abstract_Named_Object& other);

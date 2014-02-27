@@ -23,6 +23,24 @@ namespace Markov_Object {
     virtual const SimpleVariable<T> * dynamicCast(const Abstract_Object* o)const override;
 
 
+    virtual bool empty()const override
+     {
+       return Abstract_Variable_Object::empty()&&
+           unitId_.empty()&&
+           defautValue_==T();
+
+     }
+
+     virtual bool invalid()const override
+      {
+        return !empty()&&
+            (Abstract_Variable_Object::empty()||
+             unitId_.empty());
+
+      }
+
+
+
     virtual std::string myUnit()const ;
 
     virtual std::string ToString()const override;
@@ -35,12 +53,7 @@ namespace Markov_Object {
 
     virtual std::set<std::string> referencedObjects()const;
 
-     virtual bool refersToValidObjects()const override
-    {
-      return getEnvironment()->U(myUnit())!=nullptr;
-    }
-
-    virtual bool isValidValue(const Abstract_Value_Object* ob)const;
+      virtual bool isValidValue(const Abstract_Value_Object* ob)const;
 
     virtual bool isCreateable()const;
     virtual SimpleVariable<T>* create()const;

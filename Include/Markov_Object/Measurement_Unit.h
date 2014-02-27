@@ -61,6 +61,27 @@ namespace Markov_Object {
     }
 
 
+   virtual bool empty()const override
+    {
+      return Abstract_Named_Object::empty()&&
+          idMagnitude_.empty()&&
+          longName_.empty()&&
+          terms_.empty();
+
+    }
+
+    virtual bool invalid()const override
+     {
+       return !empty()&&
+           (Abstract_Named_Object::empty()||
+            idMagnitude_.empty()||
+            longName_.empty()||
+            terms_.empty());
+
+     }
+
+
+
     ///
     virtual double conversionFactor(const Measurement_Unit *other)const
     {
@@ -86,8 +107,6 @@ namespace Markov_Object {
 
     virtual std::set<std::string> referencedObjects()const;
 
-
-    virtual bool refersToValidObjects()const override;
 
     virtual std::size_t numFields()const;
 

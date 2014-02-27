@@ -56,8 +56,18 @@ namespace Markov_Object {
 
   bool Quantity::empty() const
   {
-    return  getEnvironment()==nullptr;
+    return  Abstract_Named_Object::empty()&&def_.empty();
   }
+
+
+  /// if the definition is valid and the definition is empty is valid
+  bool Quantity::invalid() const
+  {
+    return Abstract_Named_Object::invalid()||
+        (Abstract_Named_Object::empty()&&(!def_.empty()));
+  }
+
+
 
   bool Quantity::ToObject(const std::string &text, std::size_t &cursor)
   {
@@ -81,9 +91,6 @@ namespace Markov_Object {
   }
 
 
-  bool Quantity::refersToValidObjects() const
-  {
-  }
 
   std::set<std::string> Quantity::referencedObjects() const
   {
@@ -95,12 +102,10 @@ namespace Markov_Object {
     return out;
   }
 
-  bool Quantity::ToObject(const std::string &text)
+  QuantityExpression Quantity::definition() const
   {
-    std::size_t n=0;
-    return ToObject(text,n);
+    return definition({idName()});
   }
-
 
 
 
@@ -133,6 +138,28 @@ namespace Markov_Object {
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
       def_(QuantityExpression::getDefinition(quatityDefinition))
   {}
+
+  QuantityExpression Quantity::definition(std::set<std::string> upstream) const
+  {
+    QuantityExpression out;
+    if (getEnvironment()!=nullptr)
+      {
+        for (auto t:def_.value())
+          {
+            const Quantity* q=getEnvironment()->Q(t.first);
+            if (q==nullptr)
+              return QuantityExpression();
+            else if (upstream.count(q->idName())!=0)
+              return self();
+            else
+              {
+                auto defq=q->definition(upstream)*t.second;
+                out+=defq;
+              }
+
+          }
+      }
+  }
 
 
 

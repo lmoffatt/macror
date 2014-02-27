@@ -14,6 +14,23 @@ namespace Markov_Object {
     return getDefinition(defs,n);
   }
 
+  std::string QuantityExpression::getName(const std::string text,std::size_t& cursor)
+  {
+    Abstract_Named_Object::skipSpaces(text,cursor);
+
+
+    auto start=text.find_first_of(allowed,cursor);
+    cursor=text.find_first_not_of(allowed,start);
+
+    std::string current=text.substr(start,cursor-start);
+    return current;
+  }
+  std::string QuantityExpression::getName(const std::string text)
+  {
+    std::size_t n=0; return getName(text,n);
+  }
+
+
   std::map<std::string, int> QuantityExpression::getDefinition(const std::string &defs, std::size_t &cursor)
   {
     std::size_t cursor0=cursor;
@@ -32,10 +49,8 @@ namespace Markov_Object {
       {
         while (pos<=candidate.size())
           {
-            auto start=candidate.find_first_of(allowed,pos);
-            pos=candidate.find_first_not_of(allowed,start);
 
-            std::string current=candidate.substr(start,pos-start);
+            std::string current=getName(candidate,pos);
             if (current.empty())
               break;
 
@@ -142,9 +157,16 @@ namespace Markov_Object {
   }
 
 
-  bool QuantityExpression::isValid() const
+  bool QuantityExpression::invalid() const
   {
-    }
+    for (auto t:expr_)
+      {
+        if ((t.first.empty())|| (t.first!=getName(t.first)))
+          return true;
+      }
+   return false;
+
+  }
 
 
   QuantityExpression *QuantityExpression::create() const
@@ -297,8 +319,8 @@ namespace Markov_Test
             {
               closure.push_back(TEST_EQ_xi_xj(q->ToString(),
                                               q2->ToString(),
-                                              (*q+*q2).isValid(),
-                                              q->isValid()&&q2->isValid()));
+                                              (*q+*q2).invalid(),
+                                              q->invalid()&&q2->invalid()));
             }
         }
 

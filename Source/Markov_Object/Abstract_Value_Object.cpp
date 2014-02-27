@@ -89,7 +89,7 @@ namespace Markov_Test
       MultipleTests M("variable() method",
                       "postconditions");
 
-      if (o->isValid())
+      if (o->invalid())
         {
           M.push_back(TEST_NEQ("returns a non empty string",
                                o->variable().empty(),

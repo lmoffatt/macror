@@ -28,45 +28,32 @@ namespace Markov_Object
   {
   public:
 
-    // class properties
+     // static
     static std::string ClassName();
-
     static Class_info classInfo();
-
-
     static std::set<std::string> SuperClasses();
 
 
+ //virtual implemented reflection
     virtual Class_info myClassInfo()const;
-
     virtual std::string myClass()const;
+    /// cast an Abstract_Object to myClass
+    virtual Abstract_Object* dynamicCast(Abstract_Object* o)const;
+    virtual const Abstract_Object* dynamicCast(const Abstract_Object* o)const;
 
-    virtual bool belongsTo(const std::string classname)const;
 
 
-    virtual bool empty()const
-    {
-      return false;
-    }
-
-    virtual bool isValid()const
-    {
-
-    }
-
+   // virtual abstract
+    virtual bool empty()const=0;
+    virtual bool invalid()const=0;
 
     /// creates a object of current Class
     virtual Abstract_Object* create()const=0;
 
-    /// cast an Abstract_Object to myClass
-    virtual Abstract_Object* dynamicCast(Abstract_Object* o)const;
-
-    virtual const Abstract_Object* dynamicCast(const Abstract_Object* o)const;
 
     /// returns enough information to make an InternallyValid copy of the object.
     /// if is an empty object it returns enough information to make another empty object
     virtual std::string ToString()const=0;
-
 
     // if the object is not of myClass, it returns false
     // if the object is of myClass, it returns true and it uses the text to
@@ -74,8 +61,12 @@ namespace Markov_Object
     virtual bool ToObject(const std::string& text, std::size_t &cursor)=0;
 
 
+//implemented helper methods
+    virtual bool belongsTo(const std::string classname)const;
     virtual bool ToObject(const std::string& text);
 
+
+    //constructors destructors
 
     Abstract_Object();
 

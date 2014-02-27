@@ -22,7 +22,6 @@ namespace Markov_Object {
 
     virtual std::string myClass()const override;
     virtual SimpleVariableValue<T> *create() const override;
-    virtual bool isValid() const override;
     virtual Class_info myClassInfo()const override;
 
     /// cast an Abstract_Object to SimpleVariableValue<T>
@@ -40,8 +39,17 @@ namespace Markov_Object {
 
     virtual T value() const;
 
-    
-    
+    virtual bool empty()const override
+     {
+       return variableId_.empty()&&
+           unitId_.empty()&&
+           value_==T();
+
+     }
+
+     virtual bool invalid()const override;
+
+
     
     
     SimpleVariableValue();

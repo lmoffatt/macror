@@ -4,7 +4,7 @@
 #include "Markov_Object/Environment.h"
 
 namespace Markov_Object {
-  
+  /*
   template<typename T>
   std::string Measurement<T>::ClassName()
   {
@@ -30,11 +30,7 @@ namespace Markov_Object {
     
   }
   
-  template<typename T>
-  bool Measurement<T>::isInternallyValid() const
-  {
-    return !unitId_.empty();
-  }
+
   
   template<typename T>
   bool Measurement<T>::empty() const
@@ -42,18 +38,12 @@ namespace Markov_Object {
     return !unitId_.empty();
   }
   
-  template<typename T>
-  bool Measurement<T>::refersToValidObjects() const
-  {
-    return unit()!=nullptr;
-    
-  }
-  
+
   template<typename T>
   std::string Measurement<T>::ToString() const
   {
     std::string out;
-    out=std::to_string(value())+" "+unit()->ToString()+"\n";
+    out=std::to_string(value())+" "+unit()+"\n";
     return out;
   }
 
@@ -87,10 +77,8 @@ namespace Markov_Object {
   }
 
   template<typename T>
-  bool Measurement<T>::ToObject(Environment *e, const std::string &text, std::size_t &cursor)
+  bool Measurement<T>::ToObject(const std::string &text, std::size_t &cursor)
   {
-
-
     if (is(text))
       {
         T v=get(text,cursor);
@@ -122,7 +110,7 @@ namespace Markov_Object {
   template<typename T>
   Measurement<T> *Measurement<T>::pow(int n) const
   {
-    if (isValid())
+    if (invalid())
       {
         T v=std::pow(value_,n);
         }
@@ -131,7 +119,7 @@ namespace Markov_Object {
   template<typename T>
   Measurement<T> *Measurement<T>::times(const Measurement *other) const
   {
-    if (isValid()&&other->isValid())
+    if (invalid()&&other->invalid())
       {
       }
     else return nullptr;
@@ -140,7 +128,7 @@ namespace Markov_Object {
   template<typename T>
   Measurement<T> *Measurement<T>::over(const Measurement *other) const
   {
-    if (isValid()&&other->isValid())
+    if (invalid()&&other->invalid())
       {
       }
     else return nullptr;
@@ -249,7 +237,7 @@ namespace Markov_Object {
 
 
 
-  
+  */
   
   
   
