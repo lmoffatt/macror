@@ -161,9 +161,9 @@ namespace Markov_Test
 
       virtual MultipleTests classInvariant()const;
 
-      Abstract_Named_Object_Test(const Abstract_Named_Object* object):
-        Abstract_Object_Test(object),
-        named_object_(object){}
+      Abstract_Named_Object_Test(std::set<const Abstract_Named_Object* > objects):
+        Abstract_Object_Test(std::set<const Abstract_Object*>(objects.begin(),objects.end())),
+        named_objects_(objects){}
 
       virtual~Abstract_Named_Object_Test(){}
       static std::string TestName()
@@ -178,7 +178,7 @@ namespace Markov_Test
 
 
     protected:
-      const Abstract_Named_Object* named_object_;
+       std::set<const Abstract_Named_Object*> named_objects_;
     };
 
 

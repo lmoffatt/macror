@@ -59,12 +59,12 @@ namespace Markov_Object
 
   
   
-  Abstract_Object *Abstract_Object::dynamicCast(Abstract_Object *o) const
+  Abstract_Object* Abstract_Object::dynamicCast( Abstract_Object* o) const
   {
-    return dynamic_cast<Abstract_Object*>(o);
+    return dynamic_cast<Abstract_Object*> (o);
   }
   
-  const Abstract_Object *Abstract_Object::dynamicCast(const Abstract_Object *o) const
+  const Abstract_Object* Abstract_Object::dynamicCast(const Abstract_Object* o) const
   {
     return dynamic_cast<const Abstract_Object*>(o);
   }
@@ -141,12 +141,12 @@ namespace Markov_Object
   
   
 
-  Abstract_Valued_Object *Abstract_Valued_Object::dynamicCast(Abstract_Object *o) const
+  Abstract_Valued_Object* Abstract_Valued_Object::dynamicCast(Abstract_Object* o) const
   {
     return dynamic_cast<Abstract_Valued_Object*>(o);
   }
   
-  const Abstract_Valued_Object *Abstract_Valued_Object::dynamicCast(const Abstract_Object *o) const
+  const Abstract_Valued_Object* Abstract_Valued_Object::dynamicCast(const Abstract_Object* o) const
   {
     return dynamic_cast<const Abstract_Valued_Object*>(o);
   }
@@ -284,7 +284,7 @@ namespace Markov_Object
   //    else
   //      return nullptr;
   //  }
-  //  Abstract_Object *Complex_Object::fieldVariable(const std::string& fieldname)
+  //  Abstract_Object* Complex_Object::fieldVariable(const std::string& fieldname)
   //  {
   //    auto it=fieldVariables_.find(fieldname);
   //    if (it!=fieldVariables_.end())
@@ -329,7 +329,7 @@ namespace Markov_Object
   //            pos=pos0;
   //            return false;
   //          }
-  //        Abstract_Object *v=this->fieldVariable(fieldname);
+  //        Abstract_Object* v=this->fieldVariable(fieldname);
   //        v->ToObject(e,multipleLines,pos);
   //        line=nextLine(multipleLines,pos);
   //      }
@@ -517,7 +517,7 @@ namespace  Markov_IO {
     return str;
     
   }
-  std::string ToString(Markov_Object::Abstract_Object * const &x)
+  std::string ToString(Markov_Object::Abstract_Object*  const &x)
   {
     
     std::stringstream ss;
@@ -586,7 +586,7 @@ namespace Markov_Test
     {
       MultipleTests createI("create() method ",
                             "o=object_->create()");
-      Abstract_Object *o=object_->create();
+      Abstract_Object* o=object_->create();
       
       createI.push_back(ElementaryTest(" does not return a null pointer",
                                        "create()!=nullptr",
@@ -675,44 +675,51 @@ namespace Markov_Test
       MultipleTests M(Abstract_Object::ClassName(),
                       "Class Invariants");
 
-      M.push_back(getClassInfoInvariants(object_));
+      for (auto o:objects_)
+        {
 
-      M.push_back(getcreateInvariants(object_));
+          MultipleTests MM("case"+o->ToString(),"class invariants");
+
+          MM.push_back(getClassInfoInvariants(o));
+
+          MM.push_back(getcreateInvariants(o));
 
 
-      M.push_back(getToStringToObjectInvariants(object_));
+          MM.push_back(getToStringToObjectInvariants(o));
 
+          M.push_back(MM);
+
+        }
       return M;
+    }
+
+      Abstract_Object_Test::Abstract_Object_Test
+      (const std::set<const Abstract_Object* >& objects)
+        :
+          objects_(objects)
+      {}
+
+      Abstract_Object_Test::~Abstract_Object_Test()
+      {
+
+      }
+
+      std::string Abstract_Object_Test::TestName()
+      {
+        return "Abstract_Object_Test";
+      }
+
+      std::string Abstract_Object_Test::myTest()const
+      {
+        return TestName();
+      }
+
+
+
 
 
     }
-
-    Abstract_Object_Test::Abstract_Object_Test(const Abstract_Object *object)
-      :
-        object_(object)
-    {}
-
-    Abstract_Object_Test::~Abstract_Object_Test()
-    {
-
-    }
-
-    std::string Abstract_Object_Test::TestName()
-    {
-      return "Abstract_Object_Test";
-    }
-
-    std::string Abstract_Object_Test::myTest()const
-    {
-      return TestName();
-    }
-
-
-
-
-
   }
-}
 
 #endif //MACRO_TEST
 

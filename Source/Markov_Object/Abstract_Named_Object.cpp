@@ -65,6 +65,7 @@ namespace  Markov_Object {
   void Abstract_Named_Object::setEnvironment(Environment *E)
   {
     E_=E;
+   // E->add(this);
   }
 
 
@@ -631,8 +632,8 @@ namespace Markov_Test
                                object_->empty()));
 
           M.push_back(TEST_NEQ("invalid objects returns non empty strings",
-                              object_->ToString(),
-                              std::string("")));
+                               object_->ToString(),
+                               std::string("")));
 
           Abstract_Named_Object* o=object_->create();
           bool isToObject=o->ToObject(E,object_->ToString());
@@ -759,19 +760,23 @@ namespace Markov_Test
 
       M.push_back(Abstract_Object_Test::classInvariant());
 
-      Environment E;
-      M.push_back(idNameInvariant(named_object_,&E));
-      M.push_back(getToStringToObjectInvariants(named_object_,&E));
-      if (named_object_->getEnvironment()!=nullptr)
+      for (auto n:named_objects_)
         {
-          M.push_back(idNameInvariant(named_object_,named_object_->getEnvironment()));
-          M.push_back(getToStringToObjectInvariants(named_object_,named_object_->getEnvironment()));
+          MultipleTests MM("testing "+n->idName(),"class invariants");
+          Environment E;
+          MM.push_back(idNameInvariant(n,&E));
+          MM.push_back(getToStringToObjectInvariants(n,&E));
+          if (n->getEnvironment()!=nullptr)
+            {
+              MM.push_back(idNameInvariant(n,n->getEnvironment()));
+              MM.push_back(getToStringToObjectInvariants(n,n->getEnvironment()));
 
 
+            }
+
+          M.push_back(MM);
         }
-
       return M;
-
 
     }
   }

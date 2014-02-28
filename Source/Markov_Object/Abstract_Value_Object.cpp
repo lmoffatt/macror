@@ -36,12 +36,12 @@ namespace Markov_Object {
     return mySC;
   }
 
-  Abstract_Value_Object *Abstract_Value_Object::dynamicCast(Abstract_Object *o) const
+  Abstract_Value_Object *Abstract_Value_Object::dynamicCast(Abstract_Object*o) const
   {
     return dynamic_cast<Abstract_Value_Object*> (o);
   }
 
-  const Abstract_Value_Object *Abstract_Value_Object::dynamicCast(const Abstract_Object *o) const
+  const Abstract_Value_Object *Abstract_Value_Object::dynamicCast(const Abstract_Object*o) const
   {
     return dynamic_cast<const Abstract_Value_Object*> (o);
   }
@@ -62,9 +62,6 @@ namespace Markov_Object {
 
 
 
-Markov_Test::Markov_Object_Test::Abstract_Value_Test::Abstract_Value_Test(const Markov_Object::Abstract_Value_Object *object):
-  Abstract_Object_Test(object),
-  value_object_(object){}
 
 
 

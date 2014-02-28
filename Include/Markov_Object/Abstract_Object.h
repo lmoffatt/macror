@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <memory>
 
 
 #include <limits>
@@ -303,7 +304,7 @@ namespace Markov_Test
 
       virtual MultipleTests classInvariant()const;
 
-      Abstract_Object_Test(const Abstract_Object* object);
+      Abstract_Object_Test(const std::set<const Abstract_Object *> &objects);
 
       virtual~Abstract_Object_Test();
       static std::string TestName();
@@ -312,7 +313,7 @@ namespace Markov_Test
 
 
     protected:
-      const Abstract_Object* object_;
+      std::set<const Abstract_Object*> objects_;
     };
 
 

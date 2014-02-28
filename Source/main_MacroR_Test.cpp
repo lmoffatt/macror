@@ -32,15 +32,28 @@ int main(int argc, char **argv)
 int main()
 {
   Markov_Object::Environment e;
+ /*
   Markov_Object::QuantityExpression qe({{"L",1},{"M",-2}});
   Markov_Object::QuantityExpression qe2({{"L",-1},{"MN",2}});
-  std::cout<<qe.ToString();
-      Markov_Object::Quantity q(&e,"VELOCITY","VELOCITY*VELOCITY^-2","distance","dimension of space distance");
-  std::cout<<q.ToString();
+  std::cout<<qe.ToString();std::cout<<q.ToString();
   Markov_Test::Markov_Object_Test::QuantityExpression_Test test1({&qe,&qe2});
   std::cout<<test1.classInvariant().VerboseLevel(false);
 
-  Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test(&q);
+*/
+
+  using Markov_Object::Quantity;
+  Quantity* L=new Quantity(&e,"L","L","longitude","dimension of distance and length");
+  Quantity* T=new Quantity(&e,"T","T","time","dimension of time");
+  Quantity* M=new Quantity(&e,"M","M","mass","dimension of mass");
+  Quantity* V=new Quantity(&e,"VELOCITY","L*T^-1","velocity","derivative of space over time");
+  Quantity* A=new Quantity(&e,"ASCELERATION","VELOCITY*T^-1","asceleration","second derivative of space over time");
+  Quantity* F=new Quantity(&e,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time");
+
+
+  e.add(L);  e.add(T);  e.add(V); e.add(A); e.add(F); e.add(M);
+
+  Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
+  std::cout<<test.classInvariant().VerboseLevel(true);
   std::cout<<test.classInvariant().VerboseLevel(false);
 
   /*Markov_Object::Measurement_Unit* u=new Markov_Object::Measurement_Unit("ms","milisecond",&e,"time","scale of time");

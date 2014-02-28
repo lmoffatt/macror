@@ -44,7 +44,7 @@ namespace Markov_Object {
   {
     auto it=idNames_.find(quantityName);
     if (it!=idNames_.end())
-        if (it->second->belongsTo(Abstract_Variable_Object::ClassName()))
+        if (it->second->belongsTo(Quantity::ClassName()))
           return dynamic_cast<const Quantity*> (it->second);
     return nullptr;
 
@@ -99,7 +99,7 @@ namespace Markov_Object {
   }
 
 
-  Abstract_Object *Environment::create(std::string classname)
+  Abstract_Object*Environment::create(std::string classname)
   {
     auto it=classes_.find(classname);
     if (it!=classes_.end())
@@ -110,7 +110,7 @@ namespace Markov_Object {
   }
 
 
-  bool Environment::doesDynCast(const Abstract_Object *o, std::string classname)
+  bool Environment::doesDynCast(const Abstract_Object*o, std::string classname)
   {
     // concrete classes
     auto it=classes_.find(classname);

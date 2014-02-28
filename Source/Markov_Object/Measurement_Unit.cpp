@@ -62,13 +62,13 @@ namespace Markov_Object {
   }
 
 
-  Measurement_Unit *Measurement_Unit::dynamicCast(Abstract_Object *o) const
+  Measurement_Unit *Measurement_Unit::dynamicCast(Abstract_Object*o) const
   {
     return dynamic_cast<Measurement_Unit*>(o);
 
   }
 
-  const Measurement_Unit *Measurement_Unit::dynamicCast(const Abstract_Object *o) const
+  const Measurement_Unit *Measurement_Unit::dynamicCast(const Abstract_Object*o) const
   {
     return dynamic_cast<const Measurement_Unit*>(o);
 

@@ -14,6 +14,8 @@ namespace Markov_Object {
   public:
     static const char pow='^';
     static  const char mult='*';
+    static  const char div='*';
+
     static constexpr const char* allowed="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static constexpr const char* numeric="1234567890+-";
 
@@ -31,25 +33,21 @@ namespace Markov_Object {
     static
     std::map<std::string,int> getDefinition(const std::string& defs);
 
-
-
-    QuantityExpression &operator+=(const QuantityExpression& other);
-    QuantityExpression& operator*=(int n);
-
     static
     QuantityExpression dimensionless();
 
-    bool operator<(const QuantityExpression& other);
 
-    //static
 
     static std::string ClassName();
-
     static Class_info classInfo();
-
-
     static std::set<std::string> SuperClasses();
 
+
+   // new methods non virtual
+    QuantityExpression &operator+=(const QuantityExpression& other);
+    QuantityExpression& operator*=(int n);
+
+    bool operator<(const QuantityExpression& other);
 
 
     // Abstract_Object interface
@@ -60,13 +58,12 @@ namespace Markov_Object {
 
     virtual bool invalid() const override;
     virtual QuantityExpression *create() const override;
-    virtual QuantityExpression *dynamicCast(Abstract_Object *o) const override;
-    virtual const QuantityExpression *dynamicCast(const Abstract_Object *o) const override;
+    virtual QuantityExpression *dynamicCast(Abstract_Object*o) const override;
+    virtual const QuantityExpression *dynamicCast(const Abstract_Object* o) const override;
 
     virtual std::string ToString() const override;
 
     virtual bool ToObject(const std::string &text, std::size_t &cursor) override;
-    virtual bool ToObject(const std::string &text) override;
 
     QuantityExpression(std::map<std::string,int> expression);
 

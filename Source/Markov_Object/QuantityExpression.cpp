@@ -5,7 +5,7 @@
 
 namespace Markov_Object {
   std::string QuantityExpression::legal(){
-    return std::string(allowed)+mult+pow+numeric;
+    return std::string(allowed)+mult+pow+numeric+div;
   }
 
   std::map<std::string, int> QuantityExpression::getDefinition(const std::string &defs)
@@ -83,17 +83,24 @@ namespace Markov_Object {
                   ++pos;
                 op=candidate[pos];
               }
-            if ((op==mult)||(op==0)||(std::string(separator).find(op)!=std::string::npos))
+            if ((op==mult)||
+                (op==div)||
+                (op==0)||
+                (std::string(separator).find(op)!=std::string::npos))
               {
                 if (out.find(current)!=out.end())
                   {
-                    out[current]+=exponent;
+                    if (op==div)
+                    out[current]-=exponent;
+                    else
+                      out[current]+=exponent;
+
                   }
                 else
                   {
                     out[current]=exponent;
                   }
-                if (op!=mult)
+                if ((op!=mult)&&(op!=div))
                   break;
               }
             else
@@ -174,7 +181,7 @@ namespace Markov_Object {
     return new QuantityExpression;
   }
 
-  const QuantityExpression *QuantityExpression::dynamicCast(const Abstract_Object *o) const
+  const QuantityExpression *QuantityExpression::dynamicCast(const Abstract_Object*o) const
   {
     return dynamic_cast<const QuantityExpression*>(o);
   }
@@ -182,29 +189,26 @@ namespace Markov_Object {
   std::string QuantityExpression::ToString() const
   {
     std::string o;
-    for (auto m=expr_.begin();m!=expr_.end();++m)
+    auto m=expr_.begin();
+    while ((m!=expr_.end())&&(m->second==0)) ++m;
+    auto m0=m;
+    for (m;m!=expr_.end();++m)
       {
         if (m->second!=0)
           {
+            if (m!=m0)
+              o+=mult;
             o+=m->first;
             if (m->second!=1)
               {
                 o+=pow+std::to_string(m->second);
               }
-            if ((++m!=expr_.end())&&(m->second!=0))
-              o+=mult;
-            --m;
           }
 
       }
     return o;
   }
 
-  bool QuantityExpression::ToObject(const std::string &text)
-  {
-    std::size_t n=0;
-    return ToObject(text,n);
-  }
 
   QuantityExpression::QuantityExpression():
     Abstract_Object(),
@@ -230,7 +234,7 @@ namespace Markov_Object {
     return true;
   }
 
-  QuantityExpression *QuantityExpression::dynamicCast(Abstract_Object *o) const
+  QuantityExpression *QuantityExpression::dynamicCast(Abstract_Object*o) const
   {
     return dynamic_cast<QuantityExpression*>(o);
   }
@@ -416,8 +420,9 @@ namespace Markov_Test
     }
 
 
-    QuantityExpression_Test::QuantityExpression_Test(const std::set<const QuantityExpression *> &object):
-      Abstract_Object_Test(*object.begin()),
+    QuantityExpression_Test::QuantityExpression_Test
+    (const std::set<const QuantityExpression *> &object):
+      Abstract_Object_Test({object.begin(),object.end()}),
       qe_(object){}
 
 

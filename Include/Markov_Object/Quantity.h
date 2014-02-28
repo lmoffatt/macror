@@ -32,12 +32,12 @@ namespace Markov_Object {
 
 
     // new methods
-    QuantityExpression definition()const;
 
-    QuantityExpression self()const
-    {
-      return QuantityExpression({{idName(),1}});
-    }
+
+    QuantityExpression definition()const;
+    QuantityExpression baseDefinition()const;
+
+    QuantityExpression self()const;
 
 
 
@@ -45,6 +45,12 @@ namespace Markov_Object {
 
     Quantity(Environment* e);
 
+
+    Quantity(Environment* e,
+             std::string quantityAbreviation,
+             QuantityExpression quatityDefinition,
+             std::string longName,
+             std::string whatthis);
 
     Quantity(Environment* e,
              std::string magnitudeAbbreviation,
@@ -59,7 +65,7 @@ namespace Markov_Object {
              std::string whatthis);
 
   private:
-    QuantityExpression definition(std::set<std::string> upstream) const;
+    QuantityExpression baseDefinition(std::set<std::string> upstream) const;
     QuantityExpression def_;
 
   };
@@ -67,6 +73,53 @@ namespace Markov_Object {
 
 
 }
+
+
+#ifdef MACRO_TEST
+
+
+#include "Tests/MultipleTests.h"
+namespace Markov_Test
+{
+  namespace Markov_Object_Test
+  {
+
+    using namespace Markov_Object;
+
+
+
+    class Quantity_Test:public Abstract_Named_Object_Test
+    {
+    public:
+
+      virtual MultipleTests classInvariant()const;
+
+      Quantity_Test(const std::set<const Quantity*>& object);
+
+      virtual~Quantity_Test(){}
+      static std::string TestName()
+      {
+        return "Quantity_Test";
+      }
+
+      virtual std::string myTest()const
+      {
+        return TestName();
+      }
+
+
+    protected:
+      std::set<const Quantity*> qe_;
+    };
+
+
+
+
+
+  }
+}
+
+#endif //MACRO_TEST
 
 
 
