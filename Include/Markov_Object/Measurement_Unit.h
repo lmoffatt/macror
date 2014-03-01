@@ -26,7 +26,7 @@ namespace Markov_Object {
   class Measurement;
 
 
-  class Measurement_Unit:public virtual Abstract_Named_Object
+  class Measurement_Unit:public Abstract_Named_Object
   {
   public:
     static std::string getUnit(const std::string& singleLine, std::size_t& cursor);
@@ -37,10 +37,9 @@ namespace Markov_Object {
 
     static std::set<std::string> SuperClasses();
 
+
+
     virtual std::string myClass()const override;
-
-
-
     virtual Class_info myClassInfo()const override;
 
     /// cast an Abstract_Object to Base_Unit
@@ -67,7 +66,6 @@ namespace Markov_Object {
           idMagnitude_.empty()&&
           longName_.empty()&&
           terms_.empty();
-
     }
 
     virtual bool invalid()const override
@@ -132,15 +130,6 @@ namespace Markov_Object {
     // Abstract_Object interface
 
     // Abstract_Named_Object interface
-  public:
-    virtual bool isReferenced() const
-    {
-      return true;
-    }
-    virtual bool isDuplicate() const
-    {
-      return false;
-    }
 
     // Abstract_Object interface
   };

@@ -23,9 +23,9 @@ public:
   std::shared_ptr<Abstract_Named_Object> idN(const std::string& variablename);
 
 
-  const Measurement_Unit* U(const std::string& unitAbreviation)const;
-  const Abstract_Variable_Object* V(const std::string& variablename)const;
-  std::shared_ptr<Quantity> Q(const std::string& quantityName)const;
+  std::shared_ptr<Measurement_Unit> U(const std::string& unitAbreviation);
+  std::shared_ptr<Abstract_Variable_Object > V(const std::string& variablename);
+  std::shared_ptr<Quantity> Q(const std::string& quantityName);
 
 
 

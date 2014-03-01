@@ -405,6 +405,16 @@ namespace  Markov_IO {
       return str;
 
   }
+  std::string ToString(const std::shared_ptr<Markov_Object::Abstract_Variable_Object> &x)
+  {
+
+      std::stringstream ss;
+      ss<<x;
+      std::string str=ss.str();
+      return str;
+
+  }
+
 
   std::string ToString(const std::shared_ptr<Markov_Object::Environment> &x)
   {

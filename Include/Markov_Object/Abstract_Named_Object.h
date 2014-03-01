@@ -146,6 +146,7 @@ namespace  Markov_IO {
   std::string ToString(Markov_Object::Abstract_Named_Object*const & x);
   std::string ToString(const std::shared_ptr< Markov_Object::Abstract_Named_Object> &x);
   std::string ToString(const std::shared_ptr< Markov_Object::Environment> &x);
+  std::string ToString(const std::shared_ptr<Markov_Object::Abstract_Variable_Object> &x);
 
 
 

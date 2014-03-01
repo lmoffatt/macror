@@ -13,12 +13,12 @@ namespace Markov_Object {
 
 
 
-  const Measurement_Unit *Environment::U(const std::string &unitAbreviation) const
+  std::shared_ptr<Measurement_Unit> Environment::U(const std::string &unitAbreviation)
   {
     auto it=idNames_.find(unitAbreviation);
     if (it!=idNames_.end())
         if (it->second->myClassInfo().superClasses.count(Measurement_Unit::ClassName())!=0)
-          return dynamic_cast<const Measurement_Unit*> (it->second.get());
+          return std::dynamic_pointer_cast<Measurement_Unit> (it->second);
     return nullptr;
   }
 
@@ -34,23 +34,23 @@ namespace Markov_Object {
   {
     auto it=idNames_.find(variablename);
     if (it!=idNames_.end())
-      return std::move(it->second);
-    else return nullptr;
+      return it->second;
+    else return std::shared_ptr<const Abstract_Named_Object>();
 
   }
 
 
 
-  const Abstract_Variable_Object *Environment::V(const std::string &variablename) const
+  std::shared_ptr<Abstract_Variable_Object> Environment::V(const std::string &variablename)
   {
     auto it=idNames_.find(variablename);
     if (it!=idNames_.end())
         if (it->second->belongsTo(Abstract_Variable_Object::ClassName()))
-          return dynamic_cast<const Abstract_Variable_Object*> (it->second.get());
+          return std::dynamic_pointer_cast< Abstract_Variable_Object> (it->second);
     return nullptr;
   }
 
-  std::shared_ptr<Quantity> Environment::Q(const std::string &quantityName) const
+  std::shared_ptr<Quantity> Environment::Q(const std::string &quantityName)
   {
     auto it=idNames_.find(quantityName);
     if (it!=idNames_.end())
