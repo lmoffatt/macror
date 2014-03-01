@@ -124,11 +124,11 @@ namespace Markov_Object {
     Abstract_Object(),
     Abstract_Named_Object(){}
   
-  Quantity::Quantity(Environment *e):
+  Quantity::Quantity(const std::shared_ptr<Environment>& e):
     Abstract_Object(),
     Abstract_Named_Object(e){}
 
-  Quantity::Quantity(Environment *e,
+  Quantity::Quantity(const std::shared_ptr<Environment>& e,
                      std::string quantityAbreviation,
                      QuantityExpression quatityDefinition,
                      std::string longName, std::string whatthis)
@@ -140,7 +140,7 @@ namespace Markov_Object {
 
   }
   
-  Quantity::Quantity(Environment *e,
+  Quantity::Quantity(const std::shared_ptr<Environment>& e,
                      std::string quantityAbreviation,
                      std::map<std::string, int> quatityDefinition,
                      std::string longName,
@@ -151,7 +151,7 @@ namespace Markov_Object {
       def_(quatityDefinition)
   {}
   
-  Quantity::Quantity(Environment *e,
+  Quantity::Quantity(const std::shared_ptr<Environment> &e,
                      std::string quantityAbreviation,
                      std::string quatityDefinition,
                      std::string longName,

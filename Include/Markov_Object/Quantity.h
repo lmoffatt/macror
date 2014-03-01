@@ -43,22 +43,22 @@ namespace Markov_Object {
 
     Quantity();
 
-    Quantity(Environment* e);
+    Quantity(const std::shared_ptr<Environment> &e);
 
 
-    Quantity(Environment* e,
+    Quantity(const std::shared_ptr<Environment>& e,
              std::string quantityAbreviation,
              QuantityExpression quatityDefinition,
              std::string longName,
              std::string whatthis);
 
-    Quantity(Environment* e,
+    Quantity(const std::shared_ptr<Environment>& e,
              std::string magnitudeAbbreviation,
              std::map<std::string, int> quatityDefinition,
              std::string longName,
              std::string whatthis);
 
-    Quantity(Environment* e,
+    Quantity(const std::shared_ptr<Environment>& e,
              std::string magnitudeAbbreviation,
              std::string quatityDefinition,
              std::string longName,

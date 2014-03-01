@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
 int main()
 {
-  Markov_Object::Environment e;
+  std::shared_ptr<Markov_Object::Environment> e=std::make_shared<Markov_Object::Environment>();
  /*
   Markov_Object::QuantityExpression qe({{"L",1},{"M",-2}});
   Markov_Object::QuantityExpression qe2({{"L",-1},{"MN",2}});
@@ -42,15 +42,15 @@ int main()
 */
 
   using Markov_Object::Quantity;
-  std::shared_ptr<Quantity> L=std::make_shared<Quantity>(&e,"L","L","longitude","dimension of distance and length");
-  std::shared_ptr<Quantity> T=std::make_shared<Quantity>(&e,"T","T","time","dimension of time");
-  std::shared_ptr<Quantity> M=std::make_shared<Quantity>(&e,"M","M","mass","dimension of mass");
-  std::shared_ptr<Quantity> V=std::make_shared<Quantity>(&e,"VELOCITY","L*T^-1","velocity","derivative of space over time");
-  std::shared_ptr<Quantity> A=std::make_shared<Quantity>(&e,"ASCELERATION","VELOCITY*T^-1","asceleration","second derivative of space over time");
-  std::shared_ptr<Quantity> F=std::make_shared<Quantity>(&e,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time");
+  std::shared_ptr<Quantity> L=std::make_shared<Quantity>(e,"L","L","longitude","dimension of distance and length");
+  std::shared_ptr<Quantity> T=std::make_shared<Quantity>(e,"T","T","time","dimension of time");
+  std::shared_ptr<Quantity> M=std::make_shared<Quantity>(e,"M","M","mass","dimension of mass");
+  std::shared_ptr<Quantity> V=std::make_shared<Quantity>(e,"VELOCITY","L*T^-1","velocity","derivative of space over time");
+  std::shared_ptr<Quantity> A=std::make_shared<Quantity>(e,"ASCELERATION","VELOCITY*T^-1","asceleration","second derivative of space over time");
+  std::shared_ptr<Quantity> F=std::make_shared<Quantity>(e,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time");
 
 
-  e.add(L);  e.add(T);  e.add(V); e.add(A); e.add(F); e.add(M);
+  e->add(L);  e->add(T);  e->add(V); e->add(A); e->add(F); e->add(M);
 
   Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
   std::cout<<test.classInvariant().VerboseLevel(true);

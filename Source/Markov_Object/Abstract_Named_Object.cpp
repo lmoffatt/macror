@@ -48,9 +48,10 @@ namespace  Markov_Object {
     return dynamic_cast<const Abstract_Named_Object*>(o);
   }
 
-  Environment *Abstract_Named_Object::getEnvironment() const
+  std::shared_ptr<Environment>
+  Abstract_Named_Object::getEnvironment() const
   {
-    return E_;
+    return E_.lock();
   }
 
   Abstract_Named_Object::~Abstract_Named_Object()
@@ -62,7 +63,7 @@ namespace  Markov_Object {
     tip_(other.tip_),
     whatThis_(other.whatThis_){}
 
-  void Abstract_Named_Object::setEnvironment(Environment *E)
+  void Abstract_Named_Object::setEnvironment(const std::shared_ptr<Environment>& E)
   {
     E_=E;
    // E->add(this);
@@ -83,13 +84,16 @@ namespace  Markov_Object {
     return s;
   }
 
-  bool Abstract_Named_Object::ToObject(Environment *E, const std::string &text)
+  bool Abstract_Named_Object::ToObject(const std::shared_ptr<Environment>& E,
+                                       const std::string &text)
   {
     std::size_t n=0;
     return ToObject(E,text,n);
   }
 
-  bool Abstract_Named_Object::ToObject(Environment *E, const std::string &text, std::size_t &cursor)
+  bool Abstract_Named_Object::ToObject(const std::shared_ptr<Environment>& E,
+                                       const std::string &text,
+                                       std::size_t &cursor)
   {
     if (ToObject(text,cursor))
       {
@@ -140,7 +144,7 @@ namespace  Markov_Object {
 
   bool Abstract_Named_Object::empty() const
   {
-    return (E_==nullptr&&
+    return (E_.expired()&&
             idName().empty()&&
             Tip().empty()&&
             WhatThis().empty());
@@ -239,7 +243,7 @@ namespace  Markov_Object {
 
 
 
-  Abstract_Named_Object::Abstract_Named_Object(Environment* e,
+  Abstract_Named_Object::Abstract_Named_Object(const std::shared_ptr<Environment>& e,
                                                std::string variablename,
                                                std::string tip,
                                                std::string whatthis)
@@ -252,7 +256,7 @@ namespace  Markov_Object {
   }
 
 
-  Abstract_Named_Object::Abstract_Named_Object(Environment* e)
+  Abstract_Named_Object::Abstract_Named_Object(const std::shared_ptr<Environment> &e)
     :
       Abstract_Object(),
       E_{e},variableName_{},tip_{},whatThis_{}{
@@ -262,7 +266,7 @@ namespace  Markov_Object {
   Abstract_Named_Object::Abstract_Named_Object()
     :
       Abstract_Object(),
-      E_{nullptr},variableName_{},tip_{},whatThis_{}{}
+      E_{},variableName_{},tip_{},whatThis_{}{}
 
 
   std::string Abstract_Named_Object::myClass()const
@@ -402,6 +406,15 @@ namespace  Markov_IO {
 
   }
 
+  std::string ToString(const std::shared_ptr<Markov_Object::Environment> &x)
+  {
+    std::stringstream ss;
+    ss<<x;
+    std::string str=ss.str();
+    return str;
+
+  }
+
 
 }
 
@@ -438,7 +451,8 @@ namespace Markov_Test
 
 
 
-    MultipleTests idNameInvariant(std::shared_ptr<Abstract_Named_Object> o,Environment* E)
+    MultipleTests idNameInvariant(std::shared_ptr<Abstract_Named_Object> o,
+                                  const std::shared_ptr<Environment>& E)
     {
       std::string environmentclass;
 
@@ -610,8 +624,9 @@ namespace Markov_Test
     }
 
 
-    MultipleTests getToStringToObjectInvariants(std::shared_ptr<Abstract_Named_Object> object_,
-                                                Environment* E)
+    MultipleTests getToStringToObjectInvariants(
+        std::shared_ptr<Abstract_Named_Object> object_,
+       const std::shared_ptr<Environment>& E)
     {
 
       std::string environmentclass;
@@ -773,10 +788,10 @@ namespace Markov_Test
       for (auto n:named_objects_)
         {
           MultipleTests MM("testing "+n->idName(),"class invariants");
-          Environment E;
-          MM.push_back(idNameInvariant(n,&E));
-          MM.push_back(getToStringToObjectInvariants(n,&E));
-          if (n->getEnvironment()!=nullptr)
+          std::shared_ptr<Environment> E=std::make_shared<Environment>();
+          MM.push_back(idNameInvariant(n,E));
+          MM.push_back(getToStringToObjectInvariants(n,E));
+          if (n->getEnvironment())
             {
               MM.push_back(idNameInvariant(n,n->getEnvironment()));
               MM.push_back(getToStringToObjectInvariants(n,n->getEnvironment()));

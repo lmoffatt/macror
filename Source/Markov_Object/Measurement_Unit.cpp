@@ -116,7 +116,8 @@ namespace Markov_Object {
     return out;
   }
 
-  bool Measurement_Unit::ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos)
+  bool Measurement_Unit::ToObject(const std::shared_ptr<Environment>& e,
+                                  const std::string& multipleLines,std::size_t& pos)
   {
     std::size_t pos0=pos;
     if (!Abstract_Named_Object::ToObject( e,multipleLines,pos))
@@ -140,7 +141,7 @@ namespace Markov_Object {
   Measurement_Unit::Measurement_Unit(std::string fullname,
                                      std::string name,
                                      std::string terms,
-                                     Environment* e,
+                                     const std::shared_ptr<Environment>& e,
                                      std::string tip,
                                      std::string whatthis)
     :
@@ -153,7 +154,7 @@ namespace Markov_Object {
       longName_(){}
 
 
-  Measurement_Unit::Measurement_Unit(Environment* e)
+  Measurement_Unit::Measurement_Unit(const std::shared_ptr<Environment>&e)
     :
       Abstract_Named_Object(e),
       longName_(){}
