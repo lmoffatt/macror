@@ -170,7 +170,7 @@ namespace Markov_Object {
       {
         for (auto t:def_.value())
           {
-            const Quantity* q=getEnvironment()->Q(t.first);
+            std::shared_ptr<Quantity> q=getEnvironment()->Q(t.first);
             if (q==nullptr)
               return QuantityExpression();
             else if (upstream.count(q->idName())!=0)
@@ -204,16 +204,16 @@ namespace Markov_Test
   namespace Markov_Object_Test
   {
     
-    MultipleTests BaseDefinitionInvariant(const std::set<const Quantity*>& qs)
+    MultipleTests BaseDefinitionInvariant(const std::set<std::shared_ptr<Quantity>>& qs)
     {
       
 
       MultipleTests M("test for Distributivity of baseDefinition over multiplication",
                             "For all qa, qb  in A,"
                             "qa.baseDefinition+qb.baseDefinition==(qa+qb).baseDefinition");
-      for (const Quantity* q:qs)
+      for (auto q:qs)
         {
-          for (const Quantity* q2:qs)
+          for (auto q2:qs)
             {
               if (q->getEnvironment()==q2->getEnvironment())
                 {
@@ -238,9 +238,9 @@ namespace Markov_Test
       MultipleTests D("test for Distributivity of baseDefinition over division",
                             "For all qa, qb  in A,"
                             "qa.baseDefinition+qb.baseDefinition*-1==(qa+qb*-1).baseDefinition");
-      for (const Quantity* q:qs)
+      for (std::shared_ptr<Quantity> q:qs)
         {
-          for (const Quantity* q2:qs)
+          for (std::shared_ptr<Quantity> q2:qs)
             {
               if (q->getEnvironment()==q2->getEnvironment())
                 {
@@ -285,8 +285,8 @@ namespace Markov_Test
     }
     
     
-    Quantity_Test::Quantity_Test(const std::set<const Quantity *> &object):
-      Abstract_Named_Object_Test(std::set<const Abstract_Named_Object*>(
+    Quantity_Test::Quantity_Test(const std::set<std::shared_ptr<Quantity >> &object):
+      Abstract_Named_Object_Test(std::set<std::shared_ptr<Abstract_Named_Object>>(
                                    object.begin(),object.end())),
       qe_(object){}
     

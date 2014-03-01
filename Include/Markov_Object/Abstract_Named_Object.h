@@ -1,5 +1,7 @@
 #ifndef ABSTRACT_NAMED_OBJECT_H
 #define ABSTRACT_NAMED_OBJECT_H
+#include <memory>
+
 #include "Markov_Object/Abstract_Object.h"
 #include "Markov_Object/Environment.h"
 
@@ -142,6 +144,7 @@ private:
 namespace  Markov_IO {
 
   std::string ToString(Markov_Object::Abstract_Named_Object*const & x);
+  std::string ToString(const std::shared_ptr< Markov_Object::Abstract_Named_Object> &x);
 
 
 }
@@ -161,8 +164,9 @@ namespace Markov_Test
 
       virtual MultipleTests classInvariant()const;
 
-      Abstract_Named_Object_Test(std::set<const Abstract_Named_Object* > objects):
-        Abstract_Object_Test(std::set<const Abstract_Object*>(objects.begin(),objects.end())),
+      Abstract_Named_Object_Test(std::set<std::shared_ptr< Abstract_Named_Object>> objects):
+        Abstract_Object_Test(
+          std::set<std::shared_ptr< Abstract_Object>>(objects.begin(),objects.end())),
         named_objects_(objects){}
 
       virtual~Abstract_Named_Object_Test(){}
@@ -178,7 +182,7 @@ namespace Markov_Test
 
 
     protected:
-       std::set<const Abstract_Named_Object*> named_objects_;
+       std::set<std::shared_ptr< Abstract_Named_Object>> named_objects_;
     };
 
 

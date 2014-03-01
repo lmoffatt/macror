@@ -308,7 +308,7 @@ namespace Markov_Test
   namespace Markov_Object_Test
   {
 
-    MultipleTests isAbelian(const std::set<const QuantityExpression*>& qs)
+    MultipleTests isAbelian(const std::set<std::shared_ptr<QuantityExpression>>& qs)
     {
 
       MultipleTests o("Test if it is an Abelian group",
@@ -317,9 +317,9 @@ namespace Markov_Test
       MultipleTests closure("test for Closure",
                             "For all a, b in A, the result of the operation a • b is also in A");
       //Closure
-      for (const QuantityExpression* q:qs)
+      for (auto q:qs)
         {
-          for (const QuantityExpression* q2:qs)
+          for (auto q2:qs)
             {
               closure.push_back(TEST_EQ_xi_xj(q->ToString(),
                                               q2->ToString(),
@@ -335,11 +335,11 @@ namespace Markov_Test
                                   "For all a, b and c in A, the equation (a • b) • c = a • (b • c) holds.");
 
       //Associativity
-      for (const QuantityExpression* q:qs)
+      for (auto q:qs)
         {
-          for (const QuantityExpression* q2:qs)
+          for (auto q2:qs)
             {
-              for (const QuantityExpression* q3:qs)
+              for (auto q3:qs)
                 {
                   associativity.push_back(TEST_EQ_xi_xj_xk(q->ToString(),
                                                            q2->ToString(),
@@ -353,7 +353,7 @@ namespace Markov_Test
       MultipleTests identity("Identity element",
                              "There exists an element e in A, such that for all elements a in A, the equation e • a = a • e = a holds.");
 
-      for (const QuantityExpression* q:qs)
+      for (auto q:qs)
         {
           identity.push_back(TEST_EQ_xi(q->ToString(),
                                         (*q).ToString(),
@@ -371,7 +371,7 @@ namespace Markov_Test
                             "For each a in A, there exists an element b in A such"
                             "that a • b = b • a = e, where e is the identity element.");
 
-      for (const QuantityExpression* q:qs)
+      for (auto q:qs)
         {
           Inverse.push_back(TEST_EQ_xi(q->ToString(),
                                        (*q+*q*-1).ToString(),
@@ -386,9 +386,9 @@ namespace Markov_Test
 
       MultipleTests Commutativity("Commutativity",
                                   "For all a, b in A, a • b = b • a.");
-      for (const QuantityExpression* q:qs)
+      for (auto q:qs)
         {
-          for (const QuantityExpression* q1:qs)
+          for (auto q1:qs)
             {
               Commutativity.push_back(TEST_EQ_xi_xj(q->ToString(),
                                                     q1->ToString(),
@@ -421,7 +421,7 @@ namespace Markov_Test
 
 
     QuantityExpression_Test::QuantityExpression_Test
-    (const std::set<const QuantityExpression *> &object):
+    (const std::set<std::shared_ptr<QuantityExpression> > &object):
       Abstract_Object_Test({object.begin(),object.end()}),
       qe_(object){}
 

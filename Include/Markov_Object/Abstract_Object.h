@@ -287,6 +287,7 @@ namespace  Markov_IO {
 
   std::string ToString(decltype (nullptr) const& x);
   std::string ToString(Markov_Object::Abstract_Object*const & x);
+  std::string ToString(std::shared_ptr<Markov_Object::Abstract_Object const> & x);
 
 
 }
@@ -304,7 +305,7 @@ namespace Markov_Test
 
       virtual MultipleTests classInvariant()const;
 
-      Abstract_Object_Test(const std::set<const Abstract_Object *> &objects);
+      Abstract_Object_Test(const std::set<std::shared_ptr< Abstract_Object>> &objects);
 
       virtual~Abstract_Object_Test();
       static std::string TestName();
@@ -313,7 +314,7 @@ namespace Markov_Test
 
 
     protected:
-      std::set<const Abstract_Object*> objects_;
+      std::set<std::shared_ptr< Abstract_Object>> objects_;
     };
 
 

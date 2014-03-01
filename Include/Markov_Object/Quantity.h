@@ -94,7 +94,7 @@ namespace Markov_Test
 
       virtual MultipleTests classInvariant()const;
 
-      Quantity_Test(const std::set<const Quantity*>& object);
+      Quantity_Test(const std::set<std::shared_ptr<Quantity >> &object);
 
       virtual~Quantity_Test(){}
       static std::string TestName()
@@ -109,7 +109,7 @@ namespace Markov_Test
 
 
     protected:
-      std::set<const Quantity*> qe_;
+      std::set<std::shared_ptr< Quantity>> qe_;
     };
 
 

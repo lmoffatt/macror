@@ -42,12 +42,12 @@ int main()
 */
 
   using Markov_Object::Quantity;
-  Quantity* L=new Quantity(&e,"L","L","longitude","dimension of distance and length");
-  Quantity* T=new Quantity(&e,"T","T","time","dimension of time");
-  Quantity* M=new Quantity(&e,"M","M","mass","dimension of mass");
-  Quantity* V=new Quantity(&e,"VELOCITY","L*T^-1","velocity","derivative of space over time");
-  Quantity* A=new Quantity(&e,"ASCELERATION","VELOCITY*T^-1","asceleration","second derivative of space over time");
-  Quantity* F=new Quantity(&e,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time");
+  std::shared_ptr<Quantity> L=std::make_shared<Quantity>(&e,"L","L","longitude","dimension of distance and length");
+  std::shared_ptr<Quantity> T=std::make_shared<Quantity>(&e,"T","T","time","dimension of time");
+  std::shared_ptr<Quantity> M=std::make_shared<Quantity>(&e,"M","M","mass","dimension of mass");
+  std::shared_ptr<Quantity> V=std::make_shared<Quantity>(&e,"VELOCITY","L*T^-1","velocity","derivative of space over time");
+  std::shared_ptr<Quantity> A=std::make_shared<Quantity>(&e,"ASCELERATION","VELOCITY*T^-1","asceleration","second derivative of space over time");
+  std::shared_ptr<Quantity> F=std::make_shared<Quantity>(&e,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time");
 
 
   e.add(L);  e.add(T);  e.add(V); e.add(A); e.add(F); e.add(M);

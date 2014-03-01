@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include <set>
-
+#include <memory>
 
 
 namespace Markov_Object {
@@ -19,10 +19,13 @@ class Measurement_Unit;
 class Environment
 {
 public:
-  const Abstract_Named_Object* idN(const std::string& variablename)const;
+  std::shared_ptr<const Abstract_Named_Object> idN(const std::string& variablename)const;
+  std::shared_ptr<Abstract_Named_Object> idN(const std::string& variablename);
+
+
   const Measurement_Unit* U(const std::string& unitAbreviation)const;
   const Abstract_Variable_Object* V(const std::string& variablename)const;
-  const Quantity* Q(const std::string& quantityName)const;
+  std::shared_ptr<Quantity> Q(const std::string& quantityName)const;
 
 
 
@@ -33,7 +36,7 @@ public:
   std::set<std::string> Magnitudes()const;
 
 
-  void add(Abstract_Named_Object* n);
+  void add(std::shared_ptr<Abstract_Named_Object> n);
 
 
   Abstract_Object* create(std::string classname);
@@ -50,7 +53,7 @@ public:
   ~Environment();
 
 private:
-  std::map<std::string,Abstract_Named_Object*> idNames_;  //only owner
+  std::map<std::string,std::shared_ptr<Abstract_Named_Object>> idNames_;  //only owner
 
   std::map<std::string,Abstract_Object*> classes_;
 

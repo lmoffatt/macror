@@ -18,11 +18,11 @@ namespace Markov_Object {
     auto it=idNames_.find(unitAbreviation);
     if (it!=idNames_.end())
         if (it->second->myClassInfo().superClasses.count(Measurement_Unit::ClassName())!=0)
-          return dynamic_cast<const Measurement_Unit*> (it->second);
+          return dynamic_cast<const Measurement_Unit*> (it->second.get());
     return nullptr;
   }
 
-  const Abstract_Named_Object *Environment::idN(const std::string &variablename) const
+  std::shared_ptr< Abstract_Named_Object> Environment::idN(const std::string &variablename)
   {
     auto it=idNames_.find(variablename);
     if (it!=idNames_.end())
@@ -30,22 +30,32 @@ namespace Markov_Object {
     else return nullptr;
 
   }
+  std::shared_ptr<const Abstract_Named_Object> Environment::idN(const std::string &variablename) const
+  {
+    auto it=idNames_.find(variablename);
+    if (it!=idNames_.end())
+      return std::move(it->second);
+    else return nullptr;
+
+  }
+
+
 
   const Abstract_Variable_Object *Environment::V(const std::string &variablename) const
   {
     auto it=idNames_.find(variablename);
     if (it!=idNames_.end())
         if (it->second->belongsTo(Abstract_Variable_Object::ClassName()))
-          return dynamic_cast<const Abstract_Variable_Object*> (it->second);
+          return dynamic_cast<const Abstract_Variable_Object*> (it->second.get());
     return nullptr;
   }
 
-  const Quantity *Environment::Q(const std::string &quantityName) const
+  std::shared_ptr<Quantity> Environment::Q(const std::string &quantityName) const
   {
     auto it=idNames_.find(quantityName);
     if (it!=idNames_.end())
         if (it->second->belongsTo(Quantity::ClassName()))
-          return dynamic_cast<const Quantity*> (it->second);
+          return std::dynamic_pointer_cast<Quantity> (it->second);
     return nullptr;
 
   }
@@ -86,15 +96,8 @@ namespace Markov_Object {
 
   }
 
-  void Environment::add(Abstract_Named_Object *u)
+  void Environment::add(std::shared_ptr<Abstract_Named_Object> u)
   {
-    auto it=idNames_.find(u->idName());
-    if(it!=idNames_.end())
-      {
-        if (it->second==u)
-          return;
-        delete it->second;
-      }
     idNames_[u->idName()]=u;
   }
 
@@ -183,8 +186,6 @@ namespace Markov_Object {
 
   Environment::~Environment()
   {
-    for (auto it:idNames_)
-      delete it.second;
     for (auto it:classes_)
       delete it.second;
   }

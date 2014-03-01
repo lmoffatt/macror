@@ -111,7 +111,7 @@ namespace  Markov_Object {
     if (getEnvironment()==nullptr)
       return false;
     else
-      return getEnvironment()->idN(idName())==this;
+      return getEnvironment()->idN(idName()).get()==this;
   }
 
   bool Abstract_Named_Object::refersToValidObjects() const
@@ -152,7 +152,7 @@ namespace  Markov_Object {
     if (getEnvironment()==nullptr)
       return false;
     else
-      return (getEnvironment()->idN(idName())!=nullptr)&&(getEnvironment()->idN(idName())!=this);
+      return (getEnvironment()->idN(idName()).get()!=nullptr)&&(getEnvironment()->idN(idName()).get()!=this);
 
   }
 
@@ -392,6 +392,16 @@ namespace  Markov_IO {
 
   std::string ToString(Markov_Object::Environment*const & x);
 
+  std::string ToString(const std::shared_ptr<Markov_Object::Abstract_Named_Object> &x)
+  {
+
+      std::stringstream ss;
+      ss<<x;
+      std::string str=ss.str();
+      return str;
+
+  }
+
 
 }
 
@@ -416,11 +426,11 @@ namespace Markov_Test
 
       if (o->isReferenced())
         M.push_back(TEST_EQ("the environment returns a reference to this",
-                            o->getEnvironment()->idN(o->idName())
+                            o->getEnvironment()->idN(o->idName()).get()
                             ,o));
       else
         M.push_back(TEST_NEQ("the environment returns not a reference to this",
-                             o->getEnvironment()->idN(o->idName())
+                             o->getEnvironment()->idN(o->idName()).get()
                              ,o));
       return M;
 
@@ -428,7 +438,7 @@ namespace Markov_Test
 
 
 
-    MultipleTests idNameInvariant(const Abstract_Named_Object* o,Environment* E)
+    MultipleTests idNameInvariant(std::shared_ptr<Abstract_Named_Object> o,Environment* E)
     {
       std::string environmentclass;
 
@@ -486,7 +496,7 @@ namespace Markov_Test
         }
 
       // now test on to object and generation of duplicates
-      Abstract_Named_Object* no=o->create();
+      std::shared_ptr<Abstract_Named_Object> no(o->create());
       std::size_t n=0;
       bool isno=no->ToObject(E,o->ToString(),n);
 
@@ -557,7 +567,7 @@ namespace Markov_Test
 
               M.push_back(M3);
               // add a duplicate
-              Abstract_Named_Object* no2=o->create();
+              std::shared_ptr<Abstract_Named_Object> no2(o->create());
               std::size_t n2=0;
               MultipleTests M4("we create a second copy in the Environment",
                                "postconditions of this operation");
@@ -600,7 +610,7 @@ namespace Markov_Test
     }
 
 
-    MultipleTests getToStringToObjectInvariants(const Abstract_Named_Object* object_,
+    MultipleTests getToStringToObjectInvariants(std::shared_ptr<Abstract_Named_Object> object_,
                                                 Environment* E)
     {
 
@@ -704,10 +714,10 @@ namespace Markov_Test
                   auto ref=object_->referencedObjects();
                   for (auto s:ref)
                     {
-                      const Abstract_Named_Object* rob=object_->getEnvironment()->idN(s);
+                     std::shared_ptr<const Abstract_Named_Object> rob=object_->getEnvironment()->idN(s);
                       if (rob!=nullptr)
                         {
-                          Abstract_Named_Object* oo=rob->create();
+                          std::shared_ptr<Abstract_Named_Object> oo(rob->create());
                           std::string strrob=rob->ToString();
                           if (oo->ToObject(E,strrob))
                             E->add(oo);

@@ -540,6 +540,16 @@ namespace  Markov_IO {
   {
     return "nullptr";
   }
+
+  std::string ToString(std::shared_ptr<const Markov_Object::Abstract_Object> &x)
+  {
+    std::stringstream ss;
+    ss<<x;
+    std::string str=ss.str();
+    return str;
+
+  }
+
   
   
   
@@ -563,7 +573,7 @@ namespace Markov_Test
     using namespace Markov_Object;
     
     
-    MultipleTests getClassInfoInvariants(const Abstract_Object* object_)
+    MultipleTests getClassInfoInvariants(std::shared_ptr<Abstract_Object> object_)
     {
       Environment E;
       
@@ -581,7 +591,7 @@ namespace Markov_Test
       
     }
     
-    MultipleTests getcreateInvariants(const Abstract_Object* object_)
+    MultipleTests getcreateInvariants(std::shared_ptr<Abstract_Object> object_)
     
     {
       MultipleTests createI("create() method ",
@@ -610,7 +620,7 @@ namespace Markov_Test
     }
     
     
-    MultipleTests getToStringToObjectInvariants(const Abstract_Object* object_)
+    MultipleTests getToStringToObjectInvariants(std::shared_ptr<Abstract_Object> object_)
     {
 
       MultipleTests M("To String/ ToObject"," invariants");
@@ -694,7 +704,7 @@ namespace Markov_Test
     }
 
       Abstract_Object_Test::Abstract_Object_Test
-      (const std::set<const Abstract_Object* >& objects)
+      (const std::set<std::shared_ptr<Abstract_Object> > &objects)
         :
           objects_(objects)
       {}
