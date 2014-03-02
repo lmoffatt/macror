@@ -58,7 +58,7 @@ namespace Markov_Object {
     virtual bool isCreateable()const;
     virtual SimpleVariable<T>* create()const;
 
-    SimpleVariable(const std::shared_ptr<Environment> &e);
+    SimpleVariable( Environment*  e);
 
 
     SimpleVariable();
@@ -78,7 +78,7 @@ namespace Markov_Object {
     SimpleVariable(std::string name,
                    T defaultValue,
                    std::string unit,
-                   const std::shared_ptr<Environment>&,
+                   Environment* E,
                    std::string tip,
                    std::string whatthis);
     ~SimpleVariable();

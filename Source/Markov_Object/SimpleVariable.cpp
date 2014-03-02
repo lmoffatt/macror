@@ -81,12 +81,12 @@ namespace Markov_Object {
   SimpleVariable<T>::SimpleVariable(std::string name,
                                     T defaultValue,
                                     std::string unit,
-                                    const std::shared_ptr<Environment>& e,
+                                    Environment*  E,
                                     std::string tip,
                                     std::string whatthis)
     :
       Abstract_Object(),
-      Abstract_Variable_Object(e,name,tip,whatthis),
+      Abstract_Variable_Object(E,name,tip,whatthis),
       defautValue_(defaultValue),
       unitId_(unit)
    {
@@ -94,7 +94,7 @@ namespace Markov_Object {
   }
 
   template<typename T>
-  SimpleVariable<T>::SimpleVariable(const std::shared_ptr<Environment>& e)
+  SimpleVariable<T>::SimpleVariable(Environment*  e)
     :
       Abstract_Object(),
       Abstract_Variable_Object(e),

@@ -61,7 +61,7 @@ public:
 
   // new implemented virtual methods
 // Environment
-  virtual std::shared_ptr<Environment> getEnvironment()const;
+  virtual Environment* getEnvironment()const;
 
 
   /// identifier of the object
@@ -77,8 +77,8 @@ public:
 
 
   // new helper methods
-  virtual bool ToObject(const std::shared_ptr<Environment>& E,const std::string& text, std::size_t &cursor);
-  virtual bool ToObject(const std::shared_ptr<Environment>& E,const std::string& text);
+  virtual bool ToObject(Environment*  E,const std::string& text, std::size_t &cursor);
+  virtual bool ToObject(Environment*  E,const std::string& text);
 
 
  //Tip and whatthis
@@ -110,12 +110,12 @@ public:
 /// constructors and destructor
 
   virtual ~Abstract_Named_Object();
-  Abstract_Named_Object(const std::shared_ptr<Environment> &e,
+  Abstract_Named_Object( Environment*  e,
                std::string variablename,
                std::string tip,
                std::string whatthis);
 
-  Abstract_Named_Object(const std::shared_ptr<Environment>& e);
+  Abstract_Named_Object(Environment*  e);
 
   Abstract_Named_Object();
 
@@ -123,11 +123,13 @@ public:
 
   Abstract_Named_Object(const Abstract_Named_Object& other);
 
+  friend class Environment;
+
 protected:
-  virtual void setEnvironment(const std::shared_ptr<Environment> &E);
+  virtual void setEnvironment(Environment *E);
 
 private:
-  std::weak_ptr<Environment> E_;
+  Environment* E_;
   std::string variableName_;
   std::string tip_;
   std::string whatThis_;

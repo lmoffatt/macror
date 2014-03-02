@@ -48,10 +48,10 @@ namespace  Markov_Object {
     return dynamic_cast<const Abstract_Named_Object*>(o);
   }
 
-  std::shared_ptr<Environment>
+ Environment*
   Abstract_Named_Object::getEnvironment() const
   {
-    return E_.lock();
+    return E_;
   }
 
   Abstract_Named_Object::~Abstract_Named_Object()
@@ -63,10 +63,9 @@ namespace  Markov_Object {
     tip_(other.tip_),
     whatThis_(other.whatThis_){}
 
-  void Abstract_Named_Object::setEnvironment(const std::shared_ptr<Environment>& E)
+  void Abstract_Named_Object::setEnvironment( Environment *E)
   {
     E_=E;
-   // E->add(this);
   }
 
 
@@ -84,14 +83,14 @@ namespace  Markov_Object {
     return s;
   }
 
-  bool Abstract_Named_Object::ToObject(const std::shared_ptr<Environment>& E,
+  bool Abstract_Named_Object::ToObject(Environment*  E,
                                        const std::string &text)
   {
     std::size_t n=0;
     return ToObject(E,text,n);
   }
 
-  bool Abstract_Named_Object::ToObject(const std::shared_ptr<Environment>& E,
+  bool Abstract_Named_Object::ToObject(Environment*  E,
                                        const std::string &text,
                                        std::size_t &cursor)
   {
@@ -144,7 +143,7 @@ namespace  Markov_Object {
 
   bool Abstract_Named_Object::empty() const
   {
-    return (E_.expired()&&
+    return (E_==nullptr&&
             idName().empty()&&
             Tip().empty()&&
             WhatThis().empty());
@@ -243,7 +242,7 @@ namespace  Markov_Object {
 
 
 
-  Abstract_Named_Object::Abstract_Named_Object(const std::shared_ptr<Environment>& e,
+  Abstract_Named_Object::Abstract_Named_Object(Environment*  e,
                                                std::string variablename,
                                                std::string tip,
                                                std::string whatthis)
@@ -256,7 +255,7 @@ namespace  Markov_Object {
   }
 
 
-  Abstract_Named_Object::Abstract_Named_Object(const std::shared_ptr<Environment> &e)
+  Abstract_Named_Object::Abstract_Named_Object( Environment*  e)
     :
       Abstract_Object(),
       E_{e},variableName_{},tip_{},whatThis_{}{
@@ -462,7 +461,7 @@ namespace Markov_Test
 
 
     MultipleTests idNameInvariant(std::shared_ptr<Abstract_Named_Object> o,
-                                  const std::shared_ptr<Environment>& E)
+                                  Environment*  E)
     {
       std::string environmentclass;
 
@@ -636,7 +635,7 @@ namespace Markov_Test
 
     MultipleTests getToStringToObjectInvariants(
         std::shared_ptr<Abstract_Named_Object> object_,
-       const std::shared_ptr<Environment>& E)
+       Environment*  E)
     {
 
       std::string environmentclass;
@@ -798,9 +797,9 @@ namespace Markov_Test
       for (auto n:named_objects_)
         {
           MultipleTests MM("testing "+n->idName(),"class invariants");
-          std::shared_ptr<Environment> E=std::make_shared<Environment>();
-          MM.push_back(idNameInvariant(n,E));
-          MM.push_back(getToStringToObjectInvariants(n,E));
+         Environment E=Environment();
+          MM.push_back(idNameInvariant(n,&E));
+          MM.push_back(getToStringToObjectInvariants(n,&E));
           if (n->getEnvironment())
             {
               MM.push_back(idNameInvariant(n,n->getEnvironment()));

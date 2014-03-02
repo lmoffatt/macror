@@ -98,7 +98,7 @@ namespace Markov_Object {
 
 
     virtual std::string ToString()const;
-    virtual bool ToObject(const std::shared_ptr<Environment>& e,
+    virtual bool ToObject(Environment*  e,
                           const std::string& multipleLines,std::size_t& pos);
 
 
@@ -115,11 +115,11 @@ namespace Markov_Object {
     Measurement_Unit(std::string fullname,
                      std::string name,
                      std::string terms,
-                     const std::shared_ptr<Environment> &e,
+                      Environment*  e,
                      std::string tip,
                      std::string whatthis);
 
-    Measurement_Unit(const std::shared_ptr<Environment> &e);
+    Measurement_Unit( Environment*  e);
 
 
   private:

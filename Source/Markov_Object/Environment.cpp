@@ -99,6 +99,7 @@ namespace Markov_Object {
   void Environment::add(std::shared_ptr<Abstract_Named_Object> u)
   {
     idNames_[u->idName()]=u;
+    u->setEnvironment(this);
   }
 
 

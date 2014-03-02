@@ -31,7 +31,9 @@ int main(int argc, char **argv)
 
 int main()
 {
-  std::shared_ptr<Markov_Object::Environment> e=std::make_shared<Markov_Object::Environment>();
+  Markov_Object::Environment env=Markov_Object::Environment();
+  Markov_Object::Environment* e=&env;
+
  /*
   Markov_Object::QuantityExpression qe({{"L",1},{"M",-2}});
   Markov_Object::QuantityExpression qe2({{"L",-1},{"MN",2}});
