@@ -25,7 +25,8 @@ namespace Markov_Object {
     virtual bool empty() const override;
     virtual bool invalid() const override;
 
-    virtual bool ToObject(const std::string &text, std::size_t &cursor) override;
+    virtual Quantity*
+    CreateObject(const std::string &text, std::size_t &cursor)const  override;
 
     /// checks for the existance of all refered objects
     std::set<std::string> referencedObjects() const override;
@@ -63,6 +64,11 @@ namespace Markov_Object {
              std::string quatityDefinition,
              std::string longName,
              std::string whatthis);
+
+  protected:
+    virtual Quantity*
+    ToObject(const std::string &text, std::size_t &cursor)  override;
+
 
   private:
     QuantityExpression baseDefinition(std::set<std::string> upstream) const;

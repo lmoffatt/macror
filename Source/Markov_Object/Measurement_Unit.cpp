@@ -116,11 +116,10 @@ namespace Markov_Object {
     return out;
   }
 
-  bool Measurement_Unit::ToObject(Environment*  e,
-                                  const std::string& multipleLines,std::size_t& pos)
+  Measurement_Unit* Measurement_Unit::ToObject(const std::string& multipleLines, std::size_t& pos)
   {
     std::size_t pos0=pos;
-    if (!Abstract_Named_Object::ToObject( e,multipleLines,pos))
+    if (!Abstract_Named_Object::ToObject(multipleLines,pos))
       {
         pos=pos0;
 

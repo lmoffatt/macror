@@ -44,7 +44,16 @@ namespace Markov_Object {
     virtual std::string myUnit()const ;
 
     virtual std::string ToString()const override;
-    virtual bool ToObject(const std::string& multipleLines,std::size_t& pos) override;
+    virtual SimpleVariable<T>*
+    CreateObject(const std::string& text,std::size_t& cursor) const override
+    {
+      auto tmp=create();
+      auto out=tmp->ToObject(text,cursor);
+      if (out==nullptr)
+        delete tmp;
+      return out;
+    }
+
 
     virtual SimpleVariableValue<T>* defaultValue()const override;
 
@@ -82,6 +91,11 @@ namespace Markov_Object {
                    std::string tip,
                    std::string whatthis);
     ~SimpleVariable();
+  protected:
+    virtual SimpleVariable<T>*
+    ToObject(const std::string& multipleLines,std::size_t& pos) override;
+
+
   private:
     T defautValue_;
     std::string unitId_;

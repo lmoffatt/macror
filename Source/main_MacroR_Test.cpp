@@ -54,9 +54,11 @@ int main()
 
   e->add(L);  e->add(T);  e->add(V); e->add(A); e->add(F); e->add(M);
 
-  Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
-  std::cout<<test.classInvariant().VerboseLevel(true);
-  std::cout<<test.classInvariant().VerboseLevel(false);
+  std::cout<<L->ToString();
+
+  //Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
+  //std::cout<<test.classInvariant().VerboseLevel(true);
+  //std::cout<<test.classInvariant().VerboseLevel(false);
 
   /*Markov_Object::Measurement_Unit* u=new Markov_Object::Measurement_Unit("ms","milisecond",&e,"time","scale of time");
   std::cout<<u->ToString();

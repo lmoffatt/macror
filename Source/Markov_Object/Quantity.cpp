@@ -66,10 +66,19 @@ namespace Markov_Object {
     return Abstract_Named_Object::invalid()||
         (Abstract_Named_Object::empty()&&(!def_.empty()));
   }
+
+  Quantity *Quantity::CreateObject(const std::string &text, std::size_t &cursor) const
+  {
+    auto tmp=create();
+    auto out=tmp->ToObject(text,cursor);
+    if (out==nullptr)
+      delete tmp;
+    return out;
+  }
   
   
   
-  bool Quantity::ToObject(const std::string &text, std::size_t &cursor)
+  Quantity *Quantity::ToObject(const std::string &text, std::size_t &cursor)
   {
     std::size_t cursor0=cursor;
     Abstract_Named_Object::skipSpaces(text,cursor);
@@ -81,12 +90,16 @@ namespace Markov_Object {
         cursor+=clsnms;
         if (Abstract_Named_Object::ToObject(text,cursor))
           {
-            if (def_.ToObject(text,cursor))
-              return true;
+            auto tmp=def_.CreateObject(text,cursor);
+            if (tmp!=nullptr)
+              {
+                def_=std::move(*tmp);
+                return this;
+              }
           }
       }
     cursor=cursor0;
-    return false;
+    return nullptr;
     
   }
   
@@ -190,7 +203,7 @@ namespace Markov_Object {
   
 }
 
-
+/*
 
 #ifdef MACRO_TEST
 
@@ -300,4 +313,4 @@ namespace Markov_Test
 }
 
 #endif //MACRO_TEST
-
+*/

@@ -98,8 +98,15 @@ namespace Markov_Object {
 
 
     virtual std::string ToString()const;
-    virtual bool ToObject(Environment*  e,
-                          const std::string& multipleLines,std::size_t& pos);
+    virtual Measurement_Unit *
+    CreateObject(const std::string &text, std::size_t &cursor) const override
+    {
+      auto tmp=create();
+      auto out=tmp->ToObject(text,cursor);
+      if (out==nullptr)
+        delete tmp;
+      return out;
+    }
 
 
     virtual Measurement_Unit* create()const;
@@ -120,6 +127,10 @@ namespace Markov_Object {
                      std::string whatthis);
 
     Measurement_Unit( Environment*  e);
+
+  protected:
+    virtual Measurement_Unit *
+    ToObject(const std::string& multipleLines,std::size_t& pos) override;
 
 
   private:

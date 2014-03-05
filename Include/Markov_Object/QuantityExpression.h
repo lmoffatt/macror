@@ -63,7 +63,15 @@ namespace Markov_Object {
 
     virtual std::string ToString() const override;
 
-    virtual bool ToObject(const std::string &text, std::size_t &cursor) override;
+    virtual QuantityExpression*
+    CreateObject(const std::string &text, std::size_t &cursor) const override
+    {
+      auto tmp=create();
+      auto out=tmp->ToObject(text,cursor);
+      if (out==nullptr)
+        delete tmp;
+      return out;
+    }
 
     QuantityExpression(std::map<std::string,int> expression);
 
@@ -71,6 +79,11 @@ namespace Markov_Object {
     QuantityExpression();
 
     virtual std::map<std::string, int> value()const;
+
+  protected:
+    virtual QuantityExpression*
+    ToObject(const std::string &text, std::size_t &cursor)  override;
+
 
   private:
     std::map<std::string, int> expr_;

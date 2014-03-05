@@ -63,7 +63,7 @@ namespace Markov_Object {
 
 
 
-
+/*
 
 #ifdef MACRO_TEST
 
@@ -150,4 +150,4 @@ namespace Markov_Test
 
 #endif //MACRO_TEST
 
-
+*/

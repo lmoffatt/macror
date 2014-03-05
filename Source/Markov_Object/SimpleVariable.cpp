@@ -155,25 +155,26 @@ namespace Markov_Object {
   }
 
   template<typename T>
-  bool SimpleVariable<T>::ToObject(const std::string& multipleLines, std::size_t &pos)
+  SimpleVariable<T> *SimpleVariable<T>::
+  ToObject(const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
-    if (!Abstract_Named_Object::ToObject(multipleLines,pos))
+    if (Abstract_Named_Object::ToObject(multipleLines,pos)==nullptr)
       {
         pos=pos0;
-        return false;
+        return nullptr;
       }
     std::string line=nextLine(multipleLines,pos);
     if (!SimpleVariableValue<T>::is(line))
       {
         pos=pos0;
-        return false;
+        return nullptr;
       }
      std::size_t posline=0;
     defautValue_=SimpleVariableValue<T>::get(line,&posline);
     unitId_=Measurement_Unit::getUnit(line.substr(posline));
 
-    return true;
+    return this;
   }
 
 

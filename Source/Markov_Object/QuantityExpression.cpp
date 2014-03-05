@@ -1,3 +1,4 @@
+
 #include "Markov_Object/QuantityExpression.h"
 #include "Markov_Object/Quantity.h"
 
@@ -225,13 +226,14 @@ namespace Markov_Object {
     Abstract_Object(),
     expr_(expression){}
 
-  bool QuantityExpression::ToObject(const std::string &text, std::size_t &cursor)
+  QuantityExpression*  QuantityExpression::
+  ToObject(const std::string &text, std::size_t &cursor)
   {
     auto def=getDefinition(text,cursor);
     if (def.find("")!=def.end())
-      return false;
+      return nullptr;
     expr_=def;
-    return true;
+    return this;
   }
 
   QuantityExpression *QuantityExpression::dynamicCast(Abstract_Object*o) const
@@ -295,6 +297,7 @@ namespace Markov_Object {
 
 }
 
+/*
 
 #ifdef MACRO_TEST
 
@@ -435,3 +438,4 @@ namespace Markov_Test
 }
 
 #endif //MACRO_TEST
+*/

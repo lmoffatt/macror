@@ -54,7 +54,18 @@ public:
   virtual bool empty() const override;
 
   virtual std::string ToString()const override;
-  virtual bool ToObject(const std::string& text, std::size_t &cursor) override ;
+
+  virtual Abstract_Named_Object *
+  CreateObject(const std::string &text, std::size_t &cursor) const override
+  {
+    auto tmp=create();
+    auto out=tmp->ToObject(text,cursor);
+    if (out==nullptr)
+      delete tmp;
+    return out;
+  }
+
+
 
 
 
@@ -73,12 +84,6 @@ public:
   /// returns true in case that the proposed idName is already present in the Environment
   /// in this case, the Environment is left unchanged
   virtual bool isDuplicate() const;
-
-
-
-  // new helper methods
-  virtual bool ToObject(Environment*  E,const std::string& text, std::size_t &cursor);
-  virtual bool ToObject(Environment*  E,const std::string& text);
 
 
  //Tip and whatthis
@@ -127,12 +132,16 @@ public:
 
 protected:
   virtual void setEnvironment(Environment *E);
+  // new helper methods: they add the created variable to the environment
+  virtual Abstract_Named_Object* ToObject(const std::string& text, std::size_t &cursor)override;
 
 private:
   Environment* E_;
   std::string variableName_;
   std::string tip_;
   std::string whatThis_;
+
+  // Abstract_Object interface
 };
 
 

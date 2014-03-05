@@ -70,11 +70,6 @@ namespace Markov_Object
   }
   
 
-  bool Abstract_Object::ToObject(const std::string &text)
-  {
-    std::size_t n=0;
-    return ToObject(text,n);
-  }
 
 
 
@@ -555,7 +550,7 @@ namespace  Markov_IO {
   
 }
 
-
+/*
 
 #ifdef MACRO_TEST
 
@@ -733,5 +728,5 @@ namespace Markov_Test
 
 #endif //MACRO_TEST
 
-
+*/
 

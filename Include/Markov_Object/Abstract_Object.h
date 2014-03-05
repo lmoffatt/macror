@@ -56,22 +56,24 @@ namespace Markov_Object
     /// if is an empty object it returns enough information to make another empty object
     virtual std::string ToString()const=0;
 
-    // if the object is not of myClass, it returns false
+    // if the object is not of myClass, it returns nullptr
     // if the object is of myClass, it returns true and it uses the text to
-    // reasign its internal structure accordingly with it
-    virtual bool ToObject(const std::string& text, std::size_t &cursor)=0;
+    // build an object
+     virtual Abstract_Object*
+    CreateObject(const std::string& text, std::size_t &cursor)const =0;
 
 
 //implemented helper methods
     virtual bool belongsTo(const std::string classname)const;
-    virtual bool ToObject(const std::string& text);
-
-
-    //constructors destructors
+        //constructors destructors
 
     Abstract_Object();
 
     virtual ~Abstract_Object();
+
+  protected:
+    virtual Abstract_Object*
+   ToObject(const std::string& text, std::size_t &cursor) =0;
 
 
 

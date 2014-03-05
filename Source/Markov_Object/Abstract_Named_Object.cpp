@@ -83,24 +83,6 @@ namespace  Markov_Object {
     return s;
   }
 
-  bool Abstract_Named_Object::ToObject(Environment*  E,
-                                       const std::string &text)
-  {
-    std::size_t n=0;
-    return ToObject(E,text,n);
-  }
-
-  bool Abstract_Named_Object::ToObject(Environment*  E,
-                                       const std::string &text,
-                                       std::size_t &cursor)
-  {
-    if (ToObject(text,cursor))
-      {
-        setEnvironment(E);
-        return true;
-      }
-    return false;
-  }
 
 
 
@@ -219,7 +201,8 @@ namespace  Markov_Object {
     return out;
   }
 
-  bool Abstract_Named_Object::ToObject(const std::string& text, std::size_t& cursor)
+  Abstract_Named_Object*
+  Abstract_Named_Object::ToObject(const std::string& text, std::size_t& cursor)
   {
     std::size_t c0=cursor;
     std::string name=getName(text,cursor);
@@ -228,16 +211,20 @@ namespace  Markov_Object {
     if (name.empty()&&tip.empty()&&whatthis.empty())
       {
         cursor=c0;
-        return false;
+        return nullptr;
       }
 
+
     if (!name.empty())
-      this->variableName_=name;
+      {
+     variableName_=name;
     if (!tip.empty())
-      this->setTip(tip);
+      setTip(tip);
     if(!whatthis.empty())
-      this->setWhatThis(whatthis);
-    return true;
+      setWhatThis(whatthis);
+    return this;
+      }
+    else return nullptr;
   }
 
 
@@ -384,7 +371,7 @@ namespace  Markov_Object {
 }
 
 
-
+/*
 
 #ifdef MACRO_TEST
 
@@ -819,4 +806,4 @@ namespace Markov_Test
 #endif //MACRO_TEST
 
 
-
+*/
