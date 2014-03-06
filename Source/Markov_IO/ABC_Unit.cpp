@@ -117,54 +117,6 @@ namespace Markov_IO
   }
 
 
-  int abbrToN(char c)
-  {
-    switch (c)
-      {
-      case 'P':
-        return 15;
-        break;
-      case 'T':
-        return 12;
-        break;
-      case 'G':
-        return 9;
-        break;
-      case 'M':
-        return 6;
-        break;
-      case 'k':
-        return 3;
-        break;
-      case 'd':
-        return -1;
-        break;
-      case 'c':
-        return -2;
-        break;
-      case 'm':
-        return -3;
-        break;
-      case 'u':
-        return -6;
-        break;
-      case 'n':
-        return -9;
-        break;
-      case 'p':
-        return -12;
-        break;
-      case 'f':
-        return -15;
-        break;
-      case 'a':
-        return -18;
-        break;
-
-      default:
-        return 0;
-      }
-  }
 
 
 

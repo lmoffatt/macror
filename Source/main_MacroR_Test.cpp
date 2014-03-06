@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <qdebug.h>
 
+#include <memory>
 #include "Markov_IO/ABFFile.h"
 #include "Markov_IO/PulsesProgram.h"
 
@@ -44,21 +45,33 @@ int main()
 */
 
   using Markov_Object::Quantity;
+
   std::shared_ptr<Quantity> L=std::make_shared<Quantity>(e,"L","L","longitude","dimension of distance and length");
   std::shared_ptr<Quantity> T=std::make_shared<Quantity>(e,"T","T","time","dimension of time");
   std::shared_ptr<Quantity> M=std::make_shared<Quantity>(e,"M","M","mass","dimension of mass");
   std::shared_ptr<Quantity> V=std::make_shared<Quantity>(e,"VELOCITY","L*T^-1","velocity","derivative of space over time");
   std::shared_ptr<Quantity> A=std::make_shared<Quantity>(e,"ASCELERATION","VELOCITY*T^-1","asceleration","second derivative of space over time");
   std::shared_ptr<Quantity> F=std::make_shared<Quantity>(e,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time");
+ std::shared_ptr<Markov_Object::Measurement_Unit> kg=
+     std::make_shared<Markov_Object::Measurement_Unit>
+     (e,"kg",1.0,"kg","M","kilogram","standard Unit of mass");
+ std::shared_ptr<Markov_Object::Measurement_Unit> second=
+     std::make_shared<Markov_Object::Measurement_Unit>
+     (e,"s",1.0,"s","T","second","standard Unit of time");
+ std::shared_ptr<Markov_Object::Measurement_Unit> newton=
+     std::make_shared< Markov_Object::Measurement_Unit >
+     (e,"N",1.0,"kg*m*s^-2","FORCE","Newton","derived standard Unit of Force");
+
+ std::cout<<kg->ToString();
 
 
   e->add(L);  e->add(T);  e->add(V); e->add(A); e->add(F); e->add(M);
 
   std::cout<<L->ToString();
 
-  //Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
-  //std::cout<<test.classInvariant().VerboseLevel(true);
-  //std::cout<<test.classInvariant().VerboseLevel(false);
+  Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
+ // std::cout<<test.classInvariant().VerboseLevel(true);
+ // std::cout<<test.classInvariant().VerboseLevel(false);
 
   /*Markov_Object::Measurement_Unit* u=new Markov_Object::Measurement_Unit("ms","milisecond",&e,"time","scale of time");
   std::cout<<u->ToString();

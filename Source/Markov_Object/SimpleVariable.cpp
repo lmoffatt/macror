@@ -2,6 +2,7 @@
 #include "Markov_Object/SimpleVariable.h"
 #include "Markov_Object/Measurement_Unit.h"
 #include "Markov_Object/Environment.h"
+#include "Markov_Object/IdentifierName.h"
 
 namespace Markov_Object {
   template<typename T>
@@ -172,7 +173,7 @@ namespace Markov_Object {
       }
      std::size_t posline=0;
     defautValue_=SimpleVariableValue<T>::get(line,&posline);
-    unitId_=Measurement_Unit::getUnit(line.substr(posline));
+    unitId_=IdentifierName::get(line.substr(posline));
 
     return this;
   }

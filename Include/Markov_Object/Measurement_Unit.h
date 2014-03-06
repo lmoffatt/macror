@@ -1,36 +1,24 @@
 #ifndef MEASUREMENT_UNIT_H
 #define MEASUREMENT_UNIT_H
 #include "Markov_Object/Abstract_Named_Object.h"
+#include "Markov_Object/ScaledExpression.h"
 
 namespace Markov_Object {
 
 
-
-  class ElementaryUnit;
-  struct UnitCompare
-  {
-    bool operator()(const ElementaryUnit* one, const ElementaryUnit* two);
-  };
-
-  int abbrToN(char c);
-  char nToAbbr(int n);
-  char multiplicationSymbol();
-
-  std::string nToFullName(int n);
-
-
-
-
-
-  template<typename T>
+ template<typename T>
   class Measurement;
-
 
   class Measurement_Unit:public Abstract_Named_Object
   {
   public:
-    static std::string getUnit(const std::string& singleLine, std::size_t& cursor);
-    static std::string getUnit(const std::string& singleLine);
+    static
+    int abbrToN(char c);
+    static
+    std::string nToFullName(int n);
+
+    static char nToAbbr(int n);
+
 
     static std::string ClassName();
     static Class_info classInfo();
@@ -47,57 +35,47 @@ namespace Markov_Object {
     virtual const Measurement_Unit * dynamicCast(const Abstract_Object* o)const override;
 
 
-    virtual std::string fullName()const;
-
-    virtual Measurement_Unit *pow(int exponent) const;
-    virtual std::pair<Measurement_Unit  *,double> times(const Measurement_Unit *other) const
+    virtual std::string myQuantity()const
     {
-
-    }
-    virtual int numericPrefixDigits() const
-    {
-
+      return idQuantity_;
     }
 
-
-   virtual bool empty()const override
+    ScaledExpression self()const
     {
-      return Abstract_Named_Object::empty()&&
-          idMagnitude_.empty()&&
-          longName_.empty()&&
-          terms_.empty();
+      return ScaledExpression(1.0,QuantityExpression({{idName(),1}}));
+    }
+
+    virtual ScaledExpression definition()const
+    {
+      return def_;
+    }
+
+
+    virtual ScaledExpression BaseDefinition()const
+    {
+      return baseDefinition({});
+    }
+
+
+    virtual bool empty()const override
+    {
+
     }
 
     virtual bool invalid()const override
-     {
-       return !empty()&&
-           (Abstract_Named_Object::empty()||
-            idMagnitude_.empty()||
-            longName_.empty()||
-            terms_.empty());
+    {
 
-     }
-
-
+    }
 
     ///
     virtual double conversionFactor(const Measurement_Unit *other)const
     {
 
-    }
-
-
-
-    virtual std::map<Measurement_Unit *, int, UnitCompare> elementaryTerms() const{
 
     }
 
+    virtual std::string ToString()const override;
 
-
-    virtual bool sameAs(const Measurement_Unit* other)const{}
-
-
-    virtual std::string ToString()const;
     virtual Measurement_Unit *
     CreateObject(const std::string &text, std::size_t &cursor) const override
     {
@@ -109,21 +87,21 @@ namespace Markov_Object {
     }
 
 
-    virtual Measurement_Unit* create()const;
+    virtual Measurement_Unit* create()const override;
 
-    virtual std::set<std::string> referencedObjects()const;
+    virtual std::set<std::string> referencedObjects()const override;
 
 
-    virtual std::size_t numFields()const;
 
     Measurement_Unit();
 
 
-    Measurement_Unit(std::string fullname,
-                     std::string name,
-                     std::string terms,
-                      Environment*  e,
-                     std::string tip,
+    Measurement_Unit(Environment* E,
+                     std::string idName,
+                     double scaleFactor,
+                     std::string definition,
+                     std::string idQuantity,
+                     std::string fullname,
                      std::string whatthis);
 
     Measurement_Unit( Environment*  e);
@@ -134,15 +112,9 @@ namespace Markov_Object {
 
 
   private:
-    std::string idMagnitude_;
-    std::string longName_;
-    std::map<std::string,int> terms_;
-
-    // Abstract_Object interface
-
-    // Abstract_Named_Object interface
-
-    // Abstract_Object interface
+    std::string idQuantity_;
+    ScaledExpression def_;
+    ScaledExpression baseDefinition(std::set<std::string> upstream) const;
   };
 
 

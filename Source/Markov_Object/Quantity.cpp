@@ -1,4 +1,5 @@
 #include "Markov_Object/Quantity.h"
+#include "Markov_Object/IdentifierName.h"
 
 
 namespace Markov_Object {
@@ -81,7 +82,7 @@ namespace Markov_Object {
   Quantity *Quantity::ToObject(const std::string &text, std::size_t &cursor)
   {
     std::size_t cursor0=cursor;
-    Abstract_Named_Object::skipSpaces(text,cursor);
+    IdentifierName::skipSpaces(text,cursor);
     auto clsnms=ClassName().size();
     
     // it should have the classname
@@ -132,6 +133,8 @@ namespace Markov_Object {
   }
   
   
+
+
   
   Quantity::Quantity():
     Abstract_Object(),
@@ -183,7 +186,7 @@ namespace Markov_Object {
       {
         for (auto t:def_.value())
           {
-            std::shared_ptr<Quantity> q=getEnvironment()->Q(t.first);
+            std::shared_ptr<const Quantity> q=getEnvironment()->Q(t.first);
             if (q==nullptr)
               return QuantityExpression();
             else if (upstream.count(q->idName())!=0)
@@ -203,7 +206,7 @@ namespace Markov_Object {
   
 }
 
-/*
+
 
 #ifdef MACRO_TEST
 
@@ -313,4 +316,3 @@ namespace Markov_Test
 }
 
 #endif //MACRO_TEST
-*/

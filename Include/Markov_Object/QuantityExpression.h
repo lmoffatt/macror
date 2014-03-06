@@ -14,9 +14,9 @@ namespace Markov_Object {
   public:
     static const char pow='^';
     static  const char mult='*';
-    static  const char div='*';
+    static  const char div='/';
 
-    static constexpr const char* allowed="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static constexpr const char* allowed="abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static constexpr const char* numeric="1234567890+-";
 
     static  std::string legal();
@@ -47,7 +47,7 @@ namespace Markov_Object {
     QuantityExpression &operator+=(const QuantityExpression& other);
     QuantityExpression& operator*=(int n);
 
-    bool operator<(const QuantityExpression& other);
+    bool operator<(const QuantityExpression& other)const;
 
 
     // Abstract_Object interface

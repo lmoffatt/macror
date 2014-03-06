@@ -17,6 +17,7 @@ namespace Markov_Object {
     virtual Class_info myClassInfo()const override;
 
     static std::set<std::string> SuperClasses();
+
     virtual ~Abstract_Variable_Object();
     /// cast an Abstract_Object to Abstract_Variable_Object
     virtual Abstract_Variable_Object * dynamicCast(Abstract_Object* o)const override;

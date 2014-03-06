@@ -1,4 +1,4 @@
-
+#include "Markov_Object/IdentifierName.h"
 #include "Markov_Object/QuantityExpression.h"
 #include "Markov_Object/Quantity.h"
 
@@ -17,9 +17,7 @@ namespace Markov_Object {
 
   std::string QuantityExpression::getName(const std::string text,std::size_t& cursor)
   {
-    Abstract_Named_Object::skipSpaces(text,cursor);
-
-
+    IdentifierName::skipSpaces(text,cursor);
     auto start=text.find_first_of(allowed,cursor);
     cursor=text.find_first_not_of(allowed,start);
 
@@ -37,7 +35,7 @@ namespace Markov_Object {
     std::size_t cursor0=cursor;
 
     std::map<std::string,int> out;
-    Abstract_Named_Object::skipSpaces(defs,cursor);
+    IdentifierName::skipSpaces(defs,cursor);
 
     auto final=defs.find_first_of(separator,cursor);
 
@@ -153,7 +151,7 @@ namespace Markov_Object {
 
 
 
-  bool QuantityExpression::operator<(const QuantityExpression &other)
+  bool QuantityExpression::operator<(const QuantityExpression &other)const
   {
     auto it=expr_.begin();
     auto itOther=other.expr_.begin();
@@ -193,7 +191,7 @@ namespace Markov_Object {
     auto m=expr_.begin();
     while ((m!=expr_.end())&&(m->second==0)) ++m;
     auto m0=m;
-    for (m;m!=expr_.end();++m)
+    for (m=m0;m!=expr_.end();++m)
       {
         if (m->second!=0)
           {
@@ -209,6 +207,7 @@ namespace Markov_Object {
       }
     return o;
   }
+
 
 
   QuantityExpression::QuantityExpression():
@@ -297,7 +296,7 @@ namespace Markov_Object {
 
 }
 
-/*
+
 
 #ifdef MACRO_TEST
 
@@ -438,4 +437,4 @@ namespace Markov_Test
 }
 
 #endif //MACRO_TEST
-*/
+

@@ -89,8 +89,8 @@ namespace Markov_Object {
   bool SimpleVariableValue<T>::invalid() const
   {
     bool validVariableId=!variableId_.empty()&&
-        (variableId_==Abstract_Named_Object::getName(variableId_));
-    bool validUnit=!unitId_.empty()&&(unitId_==Measurement_Unit::getUnit(unitId_));
+        (variableId_==IdentifierName::get(variableId_));
+    bool validUnit=!unitId_.empty()&&(unitId_==IdentifierName::get(unitId_));
     return validUnit&&validVariableId;
   }
 
@@ -263,7 +263,7 @@ namespace Markov_Object {
   ToObject(const std::string& multipleLines, std::size_t &pos)
   {
     std::size_t pos0=pos;
-    variableId_=Abstract_Named_Object::getName(multipleLines,pos);
+    variableId_=IdentifierName::get(multipleLines,pos);
     ++pos;
     std::string line=Abstract_Named_Object::nextLine(multipleLines,pos);
     if (!SimpleVariableValue<T>::is(line))
@@ -273,7 +273,7 @@ namespace Markov_Object {
       }
     std::size_t posline=0;
     value_=SimpleVariableValue<T>::get(line,&posline);
-    unitId_=Measurement_Unit::getUnit(line.substr(posline));
+    unitId_=IdentifierName::get(line.substr(posline));
     return this;
   }
 

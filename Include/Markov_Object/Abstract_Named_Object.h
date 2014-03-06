@@ -3,7 +3,9 @@
 #include <memory>
 
 #include "Markov_Object/Abstract_Object.h"
+
 #include "Markov_Object/Environment.h"
+#include "IdentifierName.h"
 
 
 namespace Markov_Object {
@@ -14,19 +16,15 @@ class Abstract_Named_Object:public virtual Abstract_Object
 {
 public:
 // static helper methods
-  static std::string getName(const std::string& multiplelines, std::size_t& pos);
   static std::string getTip(const std::string& multiplelines, std::size_t& pos);
   static std::string getWhatThis(const std::string& multiplelines,std::size_t& pos);
 
-  static std::string getName(const std::string& multiplelines);
   static std::string getTip(const std::string& multiplelines);
   static std::string getWhatThis(const std::string& multiplelines);
 
 
   static std::string nextLine(const std::string& lines,std::size_t& n);
   static std::string removeInitialSpaces(const std::string& line);
-
-  static void skipSpaces(const std::string& line,std::size_t& n);
 
   // reflection statics
   static std::string ClassName();
@@ -65,6 +63,16 @@ public:
     return out;
   }
 
+// new method insert in environment
+  virtual std::string
+  InsertObject(Environment* E,const std::string &text, std::size_t &cursor) const
+  {
+    std::unique_ptr<Abstract_Named_Object> out(CreateObject(text,cursor));
+    out->setEnvironment(E);
+    E->add(std::move(out));
+    return out->idName();
+  }
+
 
 
 
@@ -72,7 +80,9 @@ public:
 
   // new implemented virtual methods
 // Environment
-  virtual Environment* getEnvironment()const;
+  virtual Environment* getEnvironment();
+
+  virtual Environment const * getEnvironment()const;
 
 
   /// identifier of the object

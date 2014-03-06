@@ -98,6 +98,18 @@ QMAKE_CXXFLAGS_RELEASE +=-O3
 
 
 HEADERS += \
+    Include/Markov_Object/Measurement_Unit.h \
+    Include/Markov_Object/Abstract_Object.h \
+    Include/Markov_Object/Environment.h \
+    Include/Markov_Object/Abstract_Named_Object.h \
+    Include/Markov_Object/SimpleVariable.h \
+    Include/Markov_Object/Abstract_Value_Object.h \
+    Include/Markov_Object/Abstract_Variable_Object.h \
+    Include/Markov_Object/SimpleVariableValue.h \
+    Include/Markov_Object/Measurement.h \
+    Include/Markov_Object/Quantity.h \
+    Include/Markov_Object/QuantityExpression.h \
+    Include/Markov_Object/ScaledExpression.h\
     Include/Markov_Bay/MarkovOptim.h \
     Include/Markov_Bay/MarkovLikelihood.h \
     Include/Markov_Bay/MacroRStep.h \
@@ -264,6 +276,8 @@ HEADERS += \
     Include/Markov_IO/ABC_Unit.h
 
 SOURCES += \
+    Source/Markov_Object/Measurement_Unit.cpp \
+    Source/Markov_Object/ScaledExpression.cpp\
     Source/Markov_Object/QuantityExpression.cpp\
     Source/Markov_Object/QuantityExpression.cpp\
     Source/Markov_Object/Quantity.cpp\
@@ -271,12 +285,10 @@ SOURCES += \
     Source/Markov_Object/Environment.cpp \
     Source/Markov_Object/Abstract_Named_Object.cpp \
     Source/Markov_Object/SimpleVariable.cpp \
-    Source/Markov_Object/Measurement_Unit.cpp \
     Source/Markov_Object/Abstract_Value_Object.cpp \
     Source/Markov_Object/Abstract_Variable_Object.cpp \
     Source/Markov_Object/SimpleVariableValue.cpp \
     Source/Markov_Object/Measurement.cpp \
-    Source/Markov_Object/Magnitude.cpp \
     Source/Markov_IO/ABC_Unit.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
@@ -483,22 +495,12 @@ HEADERS += \
     Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
     Include/Markov_IO/A_Variable.h \
-    Include/Markov_Object/Abstract_Object.h \
-    Include/Markov_Object/Environment.h \
-    Include/Markov_Object/Abstract_Named_Object.h \
-    Include/Markov_Object/SimpleVariable.h \
-    Include/Markov_Object/Measurement_Unit.h \
-    Include/Markov_Object/Abstract_Value_Object.h \
-    Include/Markov_Object/Abstract_Variable_Object.h \
-    Include/Markov_Object/SimpleVariableValue.h \
-    Include/Markov_Object/Measurement.h \
-    Include/Markov_Object/Magnitude.h \
-    Include/Markov_Object/Quantity.h \
-    Include/Markov_Object/QuantityExpression.h
+    Include/Markov_Object/IdentifierName.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp
+    Source/Markov_Console/BayesianAutocomplete.cpp \
+    Source/Markov_Object/IdentifierName.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

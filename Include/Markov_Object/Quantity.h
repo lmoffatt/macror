@@ -12,6 +12,8 @@ namespace Markov_Object {
   public:
     // static methods
 
+    static constexpr char* allowed="abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 
     static std::string ClassName();
     static Class_info classInfo();

@@ -5,7 +5,7 @@
 #include "Markov_Object/Measurement_Unit.h"
 
 namespace Markov_Object {
-/*
+
   template<typename T>
   class Measurement: public virtual Abstract_Object
   {
@@ -80,6 +80,6 @@ namespace Markov_Object {
     T value_;
     const std::string unitId_;
   };
-*/
+
 }
 #endif // MEASUREMENT_H

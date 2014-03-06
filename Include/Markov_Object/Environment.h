@@ -27,6 +27,10 @@ public:
   std::shared_ptr<Abstract_Variable_Object > V(const std::string& variablename);
   std::shared_ptr<Quantity> Q(const std::string& quantityName);
 
+  std::shared_ptr<const Measurement_Unit > U(const std::string& unitAbreviation)const;
+  std::shared_ptr<const Abstract_Variable_Object > V(const std::string& variablename)const;
+  std::shared_ptr<const Quantity > Q(const std::string& quantityName)const;
+
 
 
 

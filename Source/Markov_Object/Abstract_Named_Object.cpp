@@ -3,6 +3,7 @@
 #include "Markov_Object/Measurement_Unit.h"
 
 #include "Markov_Object/Environment.h"
+#include "Markov_Object/IdentifierName.h"
 
 namespace  Markov_Object {
 
@@ -49,7 +50,12 @@ namespace  Markov_Object {
   }
 
  Environment*
-  Abstract_Named_Object::getEnvironment() const
+  Abstract_Named_Object::getEnvironment()
+  {
+    return E_;
+  }
+ Environment const*
+  Abstract_Named_Object::getEnvironment()const
   {
     return E_;
   }
@@ -115,7 +121,7 @@ namespace  Markov_Object {
 
   bool Abstract_Named_Object::invalid() const
   {
-    bool inValidName=variableName_!=Abstract_Named_Object::getName(variableName_);
+    bool inValidName=variableName_!=IdentifierName::get(variableName_);
 
     return   !empty()&&(
           getEnvironment()==nullptr||
@@ -205,7 +211,7 @@ namespace  Markov_Object {
   Abstract_Named_Object::ToObject(const std::string& text, std::size_t& cursor)
   {
     std::size_t c0=cursor;
-    std::string name=getName(text,cursor);
+    std::string name=IdentifierName::get(text,cursor);
     std::string tip=getTip(text,cursor);
     std::string whatthis=getWhatThis(text,cursor);
     if (name.empty()&&tip.empty()&&whatthis.empty())
@@ -261,30 +267,7 @@ namespace  Markov_Object {
   }
 
 
-  std::string Abstract_Named_Object::getName(const std::string& multiplelines,std::size_t& pos)
-
-  {
-    if (multiplelines.empty())
-      return multiplelines;
-    std::size_t pos0=pos;
-    // skip spaces
-    pos=multiplelines.find_first_not_of(" \t",pos);
-    std::size_t i=multiplelines.find_first_of("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",pos);
-    if (i==pos)
-      {
-        pos=multiplelines.find_first_not_of("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-                                            i);
-        std::string name=multiplelines.substr(i,pos-i);
-        return name;
-      }
-    else
-      {
-        pos=pos0;
-        return "";
-      }
-  }
-
-  std::string Abstract_Named_Object::getTip(const std::string& multiplelines, std::size_t &pos)
+   std::string Abstract_Named_Object::getTip(const std::string& multiplelines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     std::size_t i=multiplelines.find("//",pos);
@@ -313,18 +296,9 @@ namespace  Markov_Object {
       return line.substr(n);
   }
 
-  void Abstract_Named_Object::skipSpaces(const std::string &line, std::size_t &n)
-  {
-    n=line.find_last_not_of(" \t",n);
-
-  }
 
 
-  std::string Abstract_Named_Object::getName(const std::string &multiplelines)
-  {
-    std::size_t n=0;
-    return getName(multiplelines,n);
-  }
+
 
   std::string Abstract_Named_Object::getTip(const std::string &multiplelines)
   {
@@ -371,7 +345,7 @@ namespace  Markov_Object {
 }
 
 
-/*
+
 
 #ifdef MACRO_TEST
 
@@ -506,9 +480,9 @@ namespace Markov_Test
         }
 
       // now test on to object and generation of duplicates
-      std::shared_ptr<Abstract_Named_Object> no(o->create());
       std::size_t n=0;
-      bool isno=no->ToObject(E,o->ToString(),n);
+      std::shared_ptr<Abstract_Named_Object> no(o->CreateObject(o->ToString(),n));
+      bool isno=no.get()!=nullptr;
 
       // operations on empty objects produce nothing
 
@@ -577,12 +551,12 @@ namespace Markov_Test
 
               M.push_back(M3);
               // add a duplicate
-              std::shared_ptr<Abstract_Named_Object> no2(o->create());
               std::size_t n2=0;
+              std::shared_ptr<Abstract_Named_Object> no2(o->CreateObject(o->ToString(),n2));
               MultipleTests M4("we create a second copy in the Environment",
                                "postconditions of this operation");
 
-              bool isno2=no2->ToObject(E,o->ToString(),n2);
+              bool isno2=no2.get()!=nullptr;
               M4.push_back(ElementaryTest("succesfully created",
                                           "no2->ToObject(E,o->ToString())==true",
                                           isno2));
@@ -656,15 +630,13 @@ namespace Markov_Test
                                object_->ToString(),
                                std::string("")));
 
-          Abstract_Named_Object* o=object_->create();
-          bool isToObject=o->ToObject(E,object_->ToString());
+          std::size_t n=0;
+          std::unique_ptr<Abstract_Named_Object> o(object_->CreateObject(object_->ToString(),n));
+          bool isToObject=o.get()!=nullptr;
 
           M.push_back(ElementaryTest("ToObject on invalid string returns false",
                                      "ToString(ToObject(" "))==false ",
                                      isToObject==false));
-          M.push_back(ElementaryTest("ToObject do not set the environment",
-                                     "getEnvironment==nullptr",
-                                     o->getEnvironment()==nullptr));
 
 
 
@@ -676,8 +648,10 @@ namespace Markov_Test
                                      "isinternallyvalid!=empty()",
                                      !object_->empty()));
 
-          Abstract_Named_Object* o=object_->create();
-          bool isToObject=o->ToObject(E,object_->ToString());
+          std::size_t n=0;
+          std::shared_ptr<Abstract_Named_Object> o(object_->CreateObject(object_->ToString(),n));
+
+          bool isToObject=o.get()!=nullptr;
 
 
           MultipleTests M2("applying o->ToObject on o->ToString",
@@ -728,9 +702,11 @@ namespace Markov_Test
                      std::shared_ptr<const Abstract_Named_Object> rob=object_->getEnvironment()->idN(s);
                       if (rob!=nullptr)
                         {
-                          std::shared_ptr<Abstract_Named_Object> oo(rob->create());
+                          std::size_t n=0;
                           std::string strrob=rob->ToString();
-                          if (oo->ToObject(E,strrob))
+                          std::shared_ptr<Abstract_Named_Object> oo(rob->CreateObject(strrob,n));
+
+                          if (oo.get()!=nullptr)
                             E->add(oo);
 
 
@@ -805,5 +781,3 @@ namespace Markov_Test
 
 #endif //MACRO_TEST
 
-
-*/

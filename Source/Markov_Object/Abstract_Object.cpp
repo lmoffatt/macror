@@ -550,7 +550,7 @@ namespace  Markov_IO {
   
 }
 
-/*
+
 
 #ifdef MACRO_TEST
 
@@ -591,14 +591,14 @@ namespace Markov_Test
     {
       MultipleTests createI("create() method ",
                             "o=object_->create()");
-      Abstract_Object* o=object_->create();
+      std::shared_ptr<Abstract_Object> o(object_->create());
       
       createI.push_back(ElementaryTest(" does not return a null pointer",
                                        "create()!=nullptr",
-                                       o!=nullptr));
+                                       o.get()!=nullptr));
       
       
-      if (o!=nullptr)
+      if (o.get()!=nullptr)
         {
           createI.push_back(TEST_EQ("created pointer empty",
                                     o->empty(),true));
@@ -609,7 +609,6 @@ namespace Markov_Test
                                     o->myClass()));
           
         }
-      delete o;
       return createI;
       
     }
@@ -620,18 +619,19 @@ namespace Markov_Test
 
       MultipleTests M("To String/ ToObject"," invariants");
 
-      Abstract_Object* o=object_->create();
+      std::shared_ptr<Abstract_Object> o(object_->create());
       if (object_->empty())
         {
           M.push_back(TEST_EQ("empty objects returns empty strings",
                               object_->ToString(),
                               std::string("")));
 
-          bool isToObject=o->ToObject(object_->ToString());
+          std::size_t n=0;
+          std::shared_ptr<Abstract_Object> oc(o->CreateObject(object_->ToString(),n));
 
-          M.push_back(ElementaryTest("ToObject on empty string returns false",
-                                     "ToString(ToObject(" "))==false ",
-                                     isToObject==false));
+          M.push_back(ElementaryTest("CreateObject on empty string returns nullptr",
+                                     "CreateObject(ToObject(" "))==nullptr ",
+                                     oc.get()==nullptr));
         }
       else if (object_->invalid())
         {
@@ -639,15 +639,17 @@ namespace Markov_Test
                                object_->ToString(),
                                std::string("")));
 
-          bool isToObject=o->ToObject(object_->ToString());
+          std::size_t n=0;
+          std::shared_ptr<Abstract_Object> oc(o->CreateObject(object_->ToString(),n));
 
           M.push_back(ElementaryTest("ToObject on invalid generated string returns false",
-                                     "ToString(ToObject(invalid ))==false ",
-                                     isToObject==false));
+                                     "CreateObject(ToObject(invalid ))==nullptr ",
+                                     oc.get()==nullptr));
         }
       else
         {
-          bool isToObject=o->ToObject(object_->ToString());
+          std::size_t n=0;
+          std::shared_ptr<Abstract_Object> co(o->CreateObject(object_->ToString(),n));
 
 
           MultipleTests M2("applying o->ToObject on o->ToString",
@@ -656,22 +658,21 @@ namespace Markov_Test
 
 
           M2.push_back(ElementaryTest("ToObject  returns true",
-                                      "ToString(ToObject(ToString))==true ",
-                                      isToObject));
+                                      "CreateObject((o.ToString))!=nullptr ",
+                                      co.get()!=nullptr));
 
           M2.push_back(TEST_EQ("myClass is recovered",
                                object_->myClass(),
-                               o->myClass()));
+                               co->myClass()));
 
           M2.push_back(TEST_EQ("ToString is recovered",
                                object_->ToString(),
-                               o->ToString()));
+                               co->ToString()));
 
 
           M.push_back(M2);
 
         }
-      delete o;
       return M;
     }
 
@@ -728,5 +729,5 @@ namespace Markov_Test
 
 #endif //MACRO_TEST
 
-*/
+
 

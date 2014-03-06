@@ -63,7 +63,7 @@ namespace Markov_Object {
 
 
 
-/*
+
 
 #ifdef MACRO_TEST
 
@@ -105,12 +105,13 @@ namespace Markov_Test
       MultipleTests M("unknown() method",
                       "postconditions");
 
-      Abstract_Value_Object* u=o->unKnownValue();
+      std::shared_ptr<Abstract_Value_Object> u(o->unKnownValue());
       M.push_back(ElementaryTest("unknownValue it is, actually",
                                  "unKnownValue()->isUnknown()==true",
                                  u->isUnknown()==true));
-      Abstract_Value_Object* ou=u->create();
-      bool isu=ou->ToObject(u->ToString());
+      std::size_t n=0;
+      std::shared_ptr<Abstract_Object> ou(u->CreateObject(u->ToString(),n));
+      bool isu=ou.get()!=nullptr;
       M.push_back(ElementaryTest("serialize unknown value",
                                  "ToObject(unknownValue)==true",
                                  isu==true));
@@ -150,4 +151,4 @@ namespace Markov_Test
 
 #endif //MACRO_TEST
 
-*/
+
