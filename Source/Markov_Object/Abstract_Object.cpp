@@ -5,6 +5,7 @@
 #include "Markov_Object/Abstract_Object.h"
 #include "Markov_Object/Measurement_Unit.h"
 #include "Markov_Object/Abstract_Variable_Object.h"
+#include "Markov_Object/Environment.h"
 
 
 namespace Markov_Object
@@ -54,7 +55,44 @@ namespace Markov_Object
     return myClassInfo().superClasses.count(classname)!=0;
   }
 
+  const Environment *Abstract_Object::getEnvironment() const
+  {
+    return E_;
+  }
 
+  Environment *Abstract_Object::getEnvironment()
+  {
+    return E_;
+  }
+
+
+  std::string Abstract_Object::contextToString() const
+  {
+    std::string s;
+    for (auto r : referencedObjects())
+      {
+        auto v=getEnvironment()->idN(r);
+        if (v!=nullptr)
+          s+=v->ToString();
+
+      }
+    return s;
+  }
+
+  Abstract_Object::Abstract_Object( Environment *E):
+    E_(E){}
+
+  bool Abstract_Object::refersToValidObjects() const
+  {
+    if (getEnvironment()==nullptr)
+      return false;
+    for (auto o:referencedObjects())
+      {
+        if (getEnvironment()->idN(o)==nullptr)
+          return false;
+      }
+    return true;
+  }
 
 
   
@@ -73,13 +111,19 @@ namespace Markov_Object
 
 
 
-  Abstract_Object::Abstract_Object()
+  Abstract_Object::Abstract_Object():
+    E_{nullptr}
   {}
   
 
   
   Abstract_Object::~Abstract_Object()
   {}
+
+  void Abstract_Object::setEnvironment(Environment *E)
+  {
+    E_=E;
+  }
 
 
   
@@ -573,7 +617,9 @@ namespace Markov_Test
       Environment E;
       
       MultipleTests classInfoI("classInfo",
-                               "invariants");
+                               "invariants",
+      {Abstract_Object::ClassName()},
+      {"Abstract_Object::myClassInfo()"});
       object_->myClassInfo();
       E.getSuperClasses(object_->myClass());
       
@@ -590,7 +636,14 @@ namespace Markov_Test
     
     {
       MultipleTests createI("create() method ",
-                            "o=object_->create()");
+                            "o=object_->create()",
+      {"Abstract_Object"},
+      {"Abstract_Object::create()",
+       "Abstract_Object::empty()",
+       "Abstract_Object::ToString()",
+       "Abstract_Object::invalid()",
+       "Abstract_Object::myClass()",
+       "Abstract_Object::getEnvironment()"});
       std::shared_ptr<Abstract_Object> o(object_->create());
       
       createI.push_back(ElementaryTest(" does not return a null pointer",
@@ -603,23 +656,39 @@ namespace Markov_Test
           createI.push_back(TEST_EQ("created pointer empty",
                                     o->empty(),true));
 
-          
+          createI.push_back(TEST_EQ("created pointer return empty string",
+                                    o->ToString(),""));
+
+          createI.push_back(TEST_EQ("created pointer not invalid",
+                                    o->invalid(),false));
+
           createI.push_back(TEST_EQ("match class",
                                     object_->myClass(),
                                     o->myClass()));
-          
+
+          createI.push_back(TEST_EQ("empty environment",
+                                    o->getEnvironment(),
+                                    nullptr));
+
+
         }
       return createI;
       
     }
     
     
-    MultipleTests getToStringToObjectInvariants(std::shared_ptr<Abstract_Object> object_)
+    MultipleTests getToStringCreateObjectInvariants(std::shared_ptr<Abstract_Object> object_)
     {
 
-      MultipleTests M("To String/ ToObject"," invariants");
+      MultipleTests M("To String/ CreateObject"," invariants",
+      {"Abstract_Object"},
+      {"Abstract_Object::CreateObject()",
+       "Abstract_Object::empty()",
+       "Abstract_Object::ToString()",
+       "Abstract_Object::invalid()",
+       "Abstract_Object::myClass()",
+       "Abstract_Object::getEnvironment()"});
 
-      std::shared_ptr<Abstract_Object> o(object_->create());
       if (object_->empty())
         {
           M.push_back(TEST_EQ("empty objects returns empty strings",
@@ -627,7 +696,7 @@ namespace Markov_Test
                               std::string("")));
 
           std::size_t n=0;
-          std::shared_ptr<Abstract_Object> oc(o->CreateObject(object_->ToString(),n));
+          std::shared_ptr<Abstract_Object> oc(object_->CreateObject(object_->ToString(),n));
 
           M.push_back(ElementaryTest("CreateObject on empty string returns nullptr",
                                      "CreateObject(ToObject(" "))==nullptr ",
@@ -640,7 +709,7 @@ namespace Markov_Test
                                std::string("")));
 
           std::size_t n=0;
-          std::shared_ptr<Abstract_Object> oc(o->CreateObject(object_->ToString(),n));
+          std::shared_ptr<Abstract_Object> oc(object_->CreateObject(object_->ToString(),n));
 
           M.push_back(ElementaryTest("ToObject on invalid generated string returns false",
                                      "CreateObject(ToObject(invalid ))==nullptr ",
@@ -649,10 +718,10 @@ namespace Markov_Test
       else
         {
           std::size_t n=0;
-          std::shared_ptr<Abstract_Object> co(o->CreateObject(object_->ToString(),n));
+          std::shared_ptr<Abstract_Object> co(object_->CreateObject(object_->ToString(),n));
 
 
-          MultipleTests M2("applying o->ToObject on o->ToString",
+          MultipleTests M2("applying o->CreateObject on o->ToString",
                            "invariants");
 
 
@@ -669,12 +738,19 @@ namespace Markov_Test
                                object_->ToString(),
                                co->ToString()));
 
+          M2.push_back(TEST_EQ("No Environment is recovered",
+                               co->getEnvironment(),
+                               nullptr));
 
           M.push_back(M2);
 
         }
       return M;
     }
+
+
+
+
 
     MultipleTests Abstract_Object_Test::classInvariant()const
     {
@@ -684,14 +760,14 @@ namespace Markov_Test
       for (auto o:objects_)
         {
 
-          MultipleTests MM("case"+o->ToString(),"class invariants");
+          MultipleTests MM("case "+o->ToString(),"class invariants");
 
           MM.push_back(getClassInfoInvariants(o));
 
           MM.push_back(getcreateInvariants(o));
 
 
-          MM.push_back(getToStringToObjectInvariants(o));
+          MM.push_back(getToStringCreateObjectInvariants(o));
 
           M.push_back(MM);
 
@@ -699,33 +775,33 @@ namespace Markov_Test
       return M;
     }
 
-      Abstract_Object_Test::Abstract_Object_Test
-      (const std::set<std::shared_ptr<Abstract_Object> > &objects)
-        :
-          objects_(objects)
-      {}
+    Abstract_Object_Test::Abstract_Object_Test
+    (const std::set<std::shared_ptr<Abstract_Object> > &objects)
+      :
+        objects_(objects)
+    {}
 
-      Abstract_Object_Test::~Abstract_Object_Test()
-      {
-
-      }
-
-      std::string Abstract_Object_Test::TestName()
-      {
-        return "Abstract_Object_Test";
-      }
-
-      std::string Abstract_Object_Test::myTest()const
-      {
-        return TestName();
-      }
-
-
-
-
+    Abstract_Object_Test::~Abstract_Object_Test()
+    {
 
     }
+
+    std::string Abstract_Object_Test::TestName()
+    {
+      return "Abstract_Object_Test";
+    }
+
+    std::string Abstract_Object_Test::myTest()const
+    {
+      return TestName();
+    }
+
+
+
+
+
   }
+}
 
 #endif //MACRO_TEST
 

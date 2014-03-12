@@ -208,6 +208,34 @@ namespace Markov_Object {
 
   }
 
+  Measurement_Unit Measurement_Unit::DerivedUnit(Environment *E,
+                                                 std::string idName,
+                                                 double scale,
+                                                 std::string definition,
+                                                 std::string fullname,
+                                                 std::string whatthis)
+  {
+    ScaledExpression sc(E,scale,definition);
+    QuantityExpression q=sc.QuantityDefinition();
+    return Measurement_Unit(E,idName,sc,q,fullname,whatthis);
+}
+
+
+  ScaledExpression Measurement_Unit::self() const
+  {
+    return ScaledExpression(1.0,QuantityExpression(const_cast<Environment*>(getEnvironment()),{{idName(),1}}));
+  }
+
+  ScaledExpression Measurement_Unit::definition() const
+  {
+    return def_;
+  }
+
+  ScaledExpression Measurement_Unit::baseDefinition() const
+  {
+    return baseDefinition({});
+  }
+
 
 
 
@@ -222,20 +250,129 @@ namespace Markov_Object {
     return std::set<std::string>();
   }
 
+
+
+  std::shared_ptr<const Quantity> Measurement_Unit::getQuantity() const
+  {
+    return getEnvironment()->Qd(qdef_);
+  }
+
+  QuantityExpression Measurement_Unit::getQuantityDefinition() const
+  {
+    return qdef_;
+  }
+
+  Measurement_Unit Measurement_Unit::operator /(const Measurement_Unit &rh) const
+
+  {
+    if (getEnvironment()!=rh.getEnvironment())
+      return {};
+    else
+      {
+        auto def=baseDefinition()+rh.baseDefinition()*-1;
+        auto res=getEnvironment()->Ud(def);
+        if (res)
+          return *res;
+        else
+          {
+            std::string name;
+            std::string longname;
+            name=idName()+"_per_"+rh.idName();
+            longname=Tip()+" per "+rh.Tip();
+            auto q=getQuantity();
+            auto qrh=rh.getQuantity();
+            Quantity qres=(*q)/(*qrh);
+
+            //  Environment* e=lh.getEnvironment();
+            return Measurement_Unit(nullptr,name,def,qres.definition(),longname,"");
+
+          }
+
+      }
+
+
+  }
+
+
+  Measurement_Unit Measurement_Unit::operator *(const Measurement_Unit &rh) const
+  {
+    if (getEnvironment()!=rh.getEnvironment())
+      return {};
+    else
+      {
+        auto def=baseDefinition()+rh.baseDefinition();
+        auto res=getEnvironment()->Ud(def);
+        if (res)
+          return *res;
+        else
+          {
+            std::string name;
+            std::string longname;
+            if (*this<rh)
+              {
+                name=idName()+"_"+rh.idName();
+                longname=Tip()+" times "+rh.Tip();
+              }
+            else
+              {
+                name=rh.idName()+"_"+idName();
+                longname=rh.Tip()+" times "+Tip();
+
+              }
+            auto q=getQuantity();
+            auto qrh=rh.getQuantity();
+            if (qrh==nullptr)
+              return{};
+            else
+              {
+                Quantity qres=(*q)*(*qrh);
+
+                //  Environment* e=lh.getEnvironment();
+                return Measurement_Unit(nullptr,name,def,qres.definition(),longname,"");
+              }
+          }
+
+      }
+
+
+  }
+
+  bool Measurement_Unit::operator<(const Measurement_Unit &rh) const
+  {
+    return idName()<rh.idName();
+  }
+
+
   Measurement_Unit::Measurement_Unit():
     Abstract_Named_Object(),
-    idQuantity_(),
-    def_(){}
+    qdef_{},
+    def_{}{}
   
 
   
 
   std::string Measurement_Unit::ToString()const
   {
-    std::string out=Abstract_Named_Object::ToString();
-    out+=myQuantity()+"\n";
-    out+=definition().ToString()+"\n";
+    if (!empty())
+      {
+        std::string out=Abstract_Named_Object::ToString();
+        out+=definition().ToString()+"\n";
+        out+=getQuantityDefinition().ToString()+"\n";
 
+        return out;
+      }
+    else
+      {
+        return "";
+      }
+  }
+
+  Measurement_Unit *Measurement_Unit::CreateObject(const std::string &text, std::size_t &cursor) const
+  {
+    auto tmp=create();
+    auto out=tmp->ToObject(text,cursor);
+    if (out==nullptr)
+      delete tmp;
     return out;
   }
 
@@ -248,12 +385,6 @@ namespace Markov_Object {
 
         return nullptr;
       }
-    idQuantity_=IdentifierName::get(multipleLines,pos,Quantity::allowed);
-    if (idQuantity_.empty())
-      {
-        pos=pos0;
-        return nullptr;
-      }
     auto d=def_.CreateObject(multipleLines,pos);
     if (d==nullptr)
       {
@@ -261,46 +392,55 @@ namespace Markov_Object {
         return nullptr;
       }
     def_=*d;
-
-   return this;
+    delete d;
+    auto q=qdef_.CreateObject(multipleLines,pos);
+    if (q==nullptr)
+      {
+        pos=pos0;
+        return nullptr;
+      }
+    qdef_=*q;
+    delete q;
+    return this;
 
   }
 
   ScaledExpression Measurement_Unit::baseDefinition(std::set<std::string> upstream) const
-{    upstream.insert(idName());
-    ScaledExpression out;
-     int n0=0,n;
+  {    upstream.insert(idName());
+       ScaledExpression out;
+          int n0=0,n=0;
 
-    if (getEnvironment()!=nullptr)
-      {
-        for (auto t:def_.value())
-          {
-            std::shared_ptr<const Measurement_Unit> q=getEnvironment()->U(t.first);
-            if (q==nullptr)
-              {
-                n=0;
-                if (!t.first.empty())
-                n=abbrToN(t.first[0]);
-                if (n!=0)
-                q=getEnvironment()->U(t.first.substr(1));
-              }
-              if (q==nullptr)
-              return ScaledExpression();
-            else if (upstream.count(q->idName())!=0)
-              return self();
-            else
-              {
-                ScaledExpression defq=q->baseDefinition(upstream)*t.second;
-                out+=defq;
-                n0+=n*t.second;
-              }
+             if (getEnvironment()!=nullptr)
+               {
+                 for (auto t:def_.value())
+                   {
+                     std::shared_ptr<const Measurement_Unit> q=getEnvironment()->U(t.first);
+                     if (q==nullptr)
+                       {
+                         n=0;
+                         if (!t.first.empty())
+                           n=abbrToN(t.first[0]);
+                         if (n!=0)
+                           q=getEnvironment()->U(t.first.substr(1));
+                       }
+                     if (q==nullptr)
+                       return ScaledExpression();
+                     else if (upstream.count(q->idName())!=0)
+                       return self();
+                     else
+                       {
+                         ScaledExpression defq=q->baseDefinition(upstream)*t.second;
+                         out+=defq;
+                         n0+=n*t.second;
+                       }
 
-          }
-      }
-    double scale=def_.scale()*std::pow(10.0,n);
-    out.setScale(scale);
-    return out;
+                   }
+               }
+             double scale=def_.scale()*std::pow(10.0,n);
+                out.setScale(scale);
+                   return out;
   }
+
 
 
 
@@ -308,17 +448,210 @@ namespace Markov_Object {
 
   Measurement_Unit::Measurement_Unit(Environment*  E,
                                      std::string idName,
-                                     double scaleFactor,
-                                     std::string definition,
-                                     std::string idQuantity,
+                                     ScaledExpression definition,
+                                     QuantityExpression qdefinition,
                                      std::string fullname,
                                      std::string whatthis)
     :
+      Abstract_Object(E),
       Abstract_Named_Object(E,idName,fullname,whatthis),
-      idQuantity_(idQuantity),
-      def_(scaleFactor,QuantityExpression(QuantityExpression::getDefinition(definition)))
+      qdef_(qdefinition),
+      def_(definition)
+  {}
+
+  Measurement_Unit::Measurement_Unit(Environment *E,
+                                     std::string idName,
+                                     double scale,
+                                     std::string definition,
+                                     std::string qdefinition,
+                                     std::string fullname,
+                                     std::string whatthis)
+    :
+      Abstract_Object(E),
+      Abstract_Named_Object(E,idName,fullname,whatthis),
+      qdef_{E,qdefinition},
+      def_{E,scale,definition}
   {}
 
 
-
 }
+
+
+
+
+
+#ifdef MACRO_TEST
+
+
+#include "Tests/MultipleTests.h"
+#include "Tests/TESTS.h"
+#include "Tests/ElementaryTest.h"
+#include "Markov_IO/auxiliarIO.h"
+
+
+
+
+namespace Markov_Test
+{
+  namespace Markov_Object_Test
+  {
+
+
+    MultipleTests isreferenced(const std::set<std::shared_ptr<Measurement_Unit>>&  qs)
+    {
+      MultipleTests M("is-Referenced",
+                      "poscondition");
+
+      for (std::shared_ptr<Measurement_Unit> o:qs)
+        {
+          if (o->isReferenced())
+            M.push_back(TEST_EQ("the environment returns a reference to this",
+                                o->getEnvironment()->U(o->idName())
+                                ,o));
+          else
+            M.push_back(TEST_NEQ("the environment returns not a reference to this",
+                                 o->getEnvironment()->U(o->idName())
+                                 ,o));
+        }
+      return M;
+
+    }
+
+
+    MultipleTests TestDefinition(const std::set<std::shared_ptr<Measurement_Unit>>& qs)
+    {
+      MultipleTests O("check invariants over definition object",
+                      "test classInvariants",
+      {"Quantity"},
+      {"Quantity::definition()"});
+      std::set<std::shared_ptr<ScaledExpression> > qe;
+      for (std::shared_ptr<Measurement_Unit> q:qs)
+        {
+          qe.insert(std::make_shared<ScaledExpression>(q->definition()));
+        }
+      ScaledExpression_Test t(qe);
+      O.push_back(t.classInvariant());
+      return O;
+
+    }
+
+
+    MultipleTests BaseDefinitionInvariant(const std::set<std::shared_ptr<Measurement_Unit>>& qs)
+    {
+
+      MultipleTests O("test for Distributivity of baseDefinition","compare both ways");
+      MultipleTests M("test for Distributivity of baseDefinition over multiplication",
+                      "For all qa, qb  in A,"
+                      "qa.baseDefinition+qb.baseDefinition==(qa+qb).baseDefinition",
+      {"Quantity","QuantityExpression"},
+      {"Quantity::baseDefinition()",
+       "Quantity::definition()",
+       "QuantityExpression::ToString()",
+       "operator+(const QuantityExpression&,const QuantityExpression&)"});
+      for (auto q:qs)
+        {
+          for (auto q2:qs)
+            {
+              if (q->getEnvironment()==q2->getEnvironment())
+                {
+                  Measurement_Unit qbase_q2base(q->getEnvironment(),
+                                                q->idName()+"_TIMES_"+q2->idName(),
+                                                q->definition()+q2->definition(),
+                                                q->getQuantityDefinition()+q2->getQuantityDefinition(),
+                                                "lonname","");
+
+                  Measurement_Unit qperq2(q->getEnvironment(),q->idName()+"PER2"+q2->idName(),
+                                          q->baseDefinition()+q2->baseDefinition(),
+                                          q->getQuantityDefinition().baseDefinition()+
+                                          q2->getQuantityDefinition().baseDefinition(),
+                                          "lonname","");
+
+
+
+                  M.push_back(TEST_EQ(q->idName()+"*"+q2->idName(),
+                                      qbase_q2base.baseDefinition().ToString(),
+                                      qperq2.definition().ToString() ));
+                }
+            }
+        }
+
+
+      MultipleTests D("test for Distributivity of baseDefinition over division",
+                      "For all qa, qb  in A,"
+                      "qa.baseDefinition+qb.baseDefinition*-1==(qa+qb*-1).baseDefinition",
+      {"Measurement_Unit","ScaledExpression"},
+      {"Measurement_Unit::baseDefinition()",
+       "Measurement_Unit::definition()",
+       "ScaledExpression::operator *=(int)",
+       "ScaledExpression::ToString()",
+       "operator+(const QuantityExpression&,const QuantityExpression&)"});
+      for (std::shared_ptr<Measurement_Unit> q:qs)
+        {
+          for (std::shared_ptr<Measurement_Unit> q2:qs)
+            {
+              if (q->getEnvironment()==q2->getEnvironment())
+                {
+                  Measurement_Unit qbase_q2base(q->getEnvironment(),
+                                                q->idName()+"_DIV_"+q2->idName(),
+                                                q->definition()+q2->definition()*(-1),
+                                                q->getQuantityDefinition()+q2->getQuantityDefinition()*(-1),
+                                                "lonname","");
+
+                  Measurement_Unit qperq2(q->getEnvironment(),q->idName()+"_DIV_"+q2->idName(),
+                                          q->baseDefinition()+q2->baseDefinition()*(-1),
+                                          q->getQuantityDefinition().baseDefinition()+
+                                          q2->getQuantityDefinition().baseDefinition()*-1,
+                                          "lonname","");
+
+
+
+                  D.push_back(TEST_EQ(q->idName()+"/"+q2->idName(),
+                                      qbase_q2base.baseDefinition().ToString(),
+                                      qperq2.definition().ToString() ));
+                }
+            }
+        }
+
+
+
+      O.push_back(M);
+      O.push_back(D);
+
+      return O;
+
+    }
+
+
+
+
+    MultipleTests Measurement_Unit_Test::classInvariant() const
+    {
+      MultipleTests M("Quantity Tests",
+                      "interface invariants");
+
+      M.push_back(Abstract_Named_Object_Test::classInvariant());
+      M.push_back(BaseDefinitionInvariant(mue_));
+      M.push_back(TestDefinition(mue_));
+
+
+
+      return M;
+
+    }
+
+
+    Measurement_Unit_Test::Measurement_Unit_Test(const std::set<std::shared_ptr<Measurement_Unit >> &object):
+      Abstract_Named_Object_Test(
+        std::set<std::shared_ptr<Abstract_Named_Object>>(object.begin(),object.end())),
+      mue_(object){}
+
+
+
+
+
+
+
+  }
+}
+
+#endif //MACRO_TEST

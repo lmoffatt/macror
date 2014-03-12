@@ -12,6 +12,7 @@
 
 
 #include "Markov_IO/ABC_Object.h"
+#include "Markov_LA/Matrix.h"
 
 
 
@@ -46,8 +47,14 @@ namespace Markov_IO
 @brief Displays in a String the contents of the class T.
 */
     template <class T>
-    std::string ToString(const T& x);
+    std::string ToString(const T& x)
+    {
+      std::stringstream ss;
+      ss<<x;
+      std::string str=ss.str();
+      return str;
 
+    }
 
     template <class T>
     std::string ToString(const T* o )
@@ -58,6 +65,11 @@ namespace Markov_IO
       return str;
     }
 
+    template<>
+    inline std::string ToString(decltype (nullptr) const& )
+    {
+      return "nullptr";
+    }
 
 
 
@@ -75,6 +87,7 @@ namespace Markov_IO
          s.pop_back();
        return s;
     }
+
 
     /**
 

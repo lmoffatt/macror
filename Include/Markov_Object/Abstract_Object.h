@@ -27,17 +27,19 @@ namespace Markov_Object
     bool isValued;
   };
 
+  class Environment;
+
   class Abstract_Object
   {
   public:
 
-     // static
+    // static
     static std::string ClassName();
     static Class_info classInfo();
     static std::set<std::string> SuperClasses();
 
 
- //virtual implemented reflection
+    //virtual implemented reflection
     virtual Class_info myClassInfo()const;
     virtual std::string myClass()const;
     /// cast an Abstract_Object to myClass
@@ -46,7 +48,7 @@ namespace Markov_Object
 
 
 
-   // virtual abstract
+    // virtual abstract
     virtual bool empty()const=0;
     virtual bool invalid()const=0;
 
@@ -61,79 +63,113 @@ namespace Markov_Object
     // if the object is not of myClass, it returns nullptr
     // if the object is of myClass, it returns true and it uses the text to
     // build an object
-     virtual Abstract_Object*
+    virtual Abstract_Object*
     CreateObject(const std::string& text, std::size_t &cursor)const =0;
 
 
-//implemented helper methods
+    //implemented helper methods
     virtual bool belongsTo(const std::string classname)const;
-        //constructors destructors
+    //constructors destructors
+
+
+    // new implemented virtual methods
+    // Environment
+    virtual Environment* getEnvironment();
+
+    virtual Environment const * getEnvironment()const;
+
+    // new abstract method, gives the list of objects referenced
+    // for this object to has meaning
+    virtual std::set<std::string> referencedObjects() const=0;
+
+
+    //Helper methods for checking the referenced objects
+    virtual bool refersToValidObjects()const;
+
+
+    /// returns a string representation of the referenced objects
+    virtual std::string contextToString()const;
+
+    Abstract_Object(const Abstract_Object& other ):
+      E_(other.E_){}
+
+
+    Abstract_Object(Environment *E);
 
     Abstract_Object();
 
     virtual ~Abstract_Object();
+friend class Environment;
 
   protected:
     virtual Abstract_Object*
-   ToObject(const std::string& text, std::size_t &cursor) =0;
+    ToObject(const std::string& text, std::size_t &cursor) =0;
+
+    virtual void setEnvironment(Environment *E);
+
+
+
+  private:
+    Environment* E_;
+
 
 
 
   };
+
 
 
 
   class Measurement_Unit;
 
-  class Abstract_Valued_Object:public virtual Abstract_Object
+  class Abstract_Valued_Object//:public virtual Abstract_Object
   {
   public:
     static std::string ClassName();
-    virtual std::string myClass()const override;
+    virtual std::string myClass()const ;
     static Class_info classInfo();
-    virtual Class_info myClassInfo()const override;
+    virtual Class_info myClassInfo()const ;
 
     static std::set<std::string> SuperClasses() ;
     /// cast an Abstract_Object to Abstract_Valued_Object
-    virtual Abstract_Valued_Object * dynamicCast(Abstract_Object* o)const override;
-    virtual const Abstract_Valued_Object * dynamicCast(const Abstract_Object* o)const override;
+    virtual Abstract_Valued_Object * dynamicCast(Abstract_Object* o)const ;
+    virtual const Abstract_Valued_Object * dynamicCast(const Abstract_Object* o)const ;
 
     virtual std::string myUnit()const=0;
     virtual ~Abstract_Valued_Object();
 
-    Abstract_Valued_Object():
-      Abstract_Object(){}
+    Abstract_Valued_Object(){}
 
 
 
   };
 
 
-//  class FieldVariable: public Abstract_Variable_Object
-//  {
-//    // Abstract_Variable_Object interface
-//  public:
+  //  class FieldVariable: public Abstract_Variable_Object
+  //  {
+  //    // Abstract_Variable_Object interface
+  //  public:
 
-//    virtual std::string ToString()const override;
-//    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
-//    virtual Abstract_Variable_Object const * variable()const;
+  //    virtual std::string ToString()const override;
+  //    virtual bool ToObject(Environment* e,const std::string& multipleLines,std::size_t& pos) override;
+  //    virtual Abstract_Variable_Object const * variable()const;
 
-//    virtual Abstract_Variable_Object  * variable();
-
-
-//    virtual bool setField(Abstract_Object*  o);
+  //    virtual Abstract_Variable_Object  * variable();
 
 
-//    FieldVariable(Environment* e,
-//                  Abstract_Variable_Object* var,
-//                  std::string name,
-//                  std::string tip,
-//                  std::string whatthis);
+  //    virtual bool setField(Abstract_Object*  o);
 
-//  private:
-//    Abstract_Variable_Object * var_;
 
-//  };
+  //    FieldVariable(Environment* e,
+  //                  Abstract_Variable_Object* var,
+  //                  std::string name,
+  //                  std::string tip,
+  //                  std::string whatthis);
+
+  //  private:
+  //    Abstract_Variable_Object * var_;
+
+  //  };
 
 
 
@@ -287,15 +323,7 @@ namespace Markov_Object
 #ifdef MACRO_TEST
 
 
-namespace  Markov_IO {
 
-  std::string ToString(decltype (nullptr) const& x);
-  std::string ToString(Markov_Object::Abstract_Object*const & x);
-  std::string ToString(std::shared_ptr<Markov_Object::Abstract_Object const> & x);
-
-
-
-}
 #include "Tests/MultipleTests.h"
 namespace Markov_Test
 {

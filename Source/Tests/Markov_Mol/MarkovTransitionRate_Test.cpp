@@ -99,9 +99,9 @@ using namespace Markov_LA;
 			  "check each eigenvector");
 	for(std::size_t i=0; i<nrows(Qx_->V);++i)
 	    ppV.push_back(ElementaryTest(
-			      Markov_IO::ToString(i)+"th vector",
-                              "check it \n"
-                              "Qrun*V(:,i)\n"+
+			      std::to_string(i)+"th vector",
+			      std::string("check it \n"
+			      "Qrun*V(:,i)\n")+
                               Markov_IO::ToString(Qx_->Qrun * Qx_->V(":",i))+
                               "landa[i]*V(:,i)\n"+
                               Markov_IO::ToString(Qx_->landa[i]*Qx_->V(":",i))+"\n",

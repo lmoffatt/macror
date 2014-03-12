@@ -4,7 +4,7 @@
 #include "Markov_Object/Environment.h"
 
 namespace Markov_Object {
-  /*
+/*
   template<typename T>
   std::string Measurement<T>::ClassName()
   {
@@ -32,49 +32,17 @@ namespace Markov_Object {
   
 
   
-  template<typename T>
-  bool Measurement<T>::empty() const
-  {
-    return !unitId_.empty();
-  }
-  
 
   template<typename T>
   std::string Measurement<T>::ToString() const
   {
     std::string out;
-    out=std::to_string(value())+" "+unit()+"\n";
+    out=std::to_string(value())+" "+unit();
     return out;
   }
 
 
-  template<typename T>
-  std::string Measurement<T>::ToString(const Measurement_Unit *other) const
-  {
-    double f=unit()->conversionFactor(other);
-    if (f!=0)
-      {
-        std::string out;
-        T newval=value()*f;
-        out=std::to_string(newval)+" "+other->ToString()+"\n";
-        return out;
-      }
-    else return "";
-  }
 
-  template<typename T>
-  bool Measurement<T>::changeUnit(const Measurement_Unit *otherUnit)
-  {
-    double f=unit()->conversionFactor(otherUnit);
-    if (f!=0)
-      {
-        value_=value_*f;
-        unitId_=otherUnit->idName();
-        return true;
-      }
-    else
-      return false;
-  }
 
   template<typename T>
   bool Measurement<T>::ToObject(const std::string &text, std::size_t &cursor)
@@ -237,9 +205,9 @@ namespace Markov_Object {
 
 
 
+
+  
   */
-  
-  
   
   
   

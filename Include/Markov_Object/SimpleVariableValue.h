@@ -3,13 +3,14 @@
 
 #include "Markov_Object/Abstract_Value_Object.h"
 
-namespace Markov_Object {
+namespace Markov_Object
+{
 
   template<typename T>
   class SimpleVariable;
 
   template<typename T>
-  class SimpleVariableValue: public Abstract_Value_Object,public Abstract_Valued_Object
+  class SimpleVariableValue: public Abstract_Object,public Abstract_Value_Object,public Abstract_Valued_Object
   {
   public:
 
@@ -59,6 +60,14 @@ namespace Markov_Object {
 
      virtual bool invalid()const override;
 
+     virtual std::set<std::string> referencedObjects() const
+    {
+       std::set<std::string> out;
+       out.insert(variableId_);
+       out.insert(unitId_);
+       return out;
+
+    }
 
     
     
@@ -77,6 +86,7 @@ namespace Markov_Object {
     std::string variableId_;
      std::string unitId_;
      T value_;
+
 
   };
 

@@ -12,10 +12,5 @@
 namespace Markov_LA
 {
 
-    template<typename T>
-    std::istream& operator>> (std::istream& s, M_Matrix<T>& A);
-
-    template<typename T>
-    std::ostream& operator<< (std::ostream& s,const M_Matrix<T>& A);
 }
 #endif // MATRIXIO_H

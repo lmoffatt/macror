@@ -5,11 +5,10 @@
 #include "Markov_Object/Measurement_Unit.h"
 
 namespace Markov_Object {
-
+/*
   template<typename T>
-  class Measurement: public virtual Abstract_Object
+  class Measurement: public  Abstract_Object
   {
-
     // Abstract_Object interface
   public:
 
@@ -20,16 +19,6 @@ namespace Markov_Object {
     virtual Class_info myClassInfo() const override;
     virtual std::string myClass() const override;
 
-    virtual bool empty() const override;
-    virtual bool refersToValidObjects() const override;
-    virtual bool invalid() const
-    {
-      return refersToValidObjects();
-    }
-    virtual std::set<std::string> referencedObjects() const override
-    {
-      return {unitId_};
-    }
     virtual Measurement *create() const override
     {
       return new Measurement;
@@ -44,42 +33,47 @@ namespace Markov_Object {
 
     }
     virtual std::string ToString() const override;
+
     virtual std::string ToString(const Measurement_Unit * other) const override;
 
     virtual bool changeUnit(const Measurement_Unit* otherUnit);
-
-
 
     virtual T value()const override;
     virtual std::string unit()const override;
 
 
-    virtual Measurement* pow(int n) const;
+    Measurement& pow(int n);
 
-    virtual Measurement* times(const Measurement* other)const;
+    Measurement& operator*= (const Measurement& other);
 
-    virtual Measurement* over(const Measurement* other)const;
+    Measurement& operator+= (const Measurement& other);
+
+    Measurement& operator/= (const Measurement& other);
+
 
     virtual bool isUnknown() const;
 
 
     static
     bool is(const std::string &singleLine);
+
     static
     T get(const std::string &singleLine, std::size_t *pos);
 
 
     static T unknownValue();
 
+
     Measurement(T value, std::string unit);
 
-
+protected:
     bool ToObject(const std::string &text, std::size_t &cursor);
   private:
 
     T value_;
+
     const std::string unitId_;
   };
-
+*/
 }
 #endif // MEASUREMENT_H

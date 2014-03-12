@@ -1,5 +1,6 @@
 #include "Markov_Object/Quantity.h"
 #include "Markov_Object/IdentifierName.h"
+#include "Markov_Object/Environment.h"
 
 
 namespace Markov_Object {
@@ -36,6 +37,16 @@ namespace Markov_Object {
     mySC.insert(ClassName());
     return mySC;
     
+  }
+
+  const Quantity *Quantity::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<Quantity const *>(o);
+  }
+
+  Quantity *Quantity::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast<Quantity*>(o);
   }
   
   Quantity *Quantity::create() const
@@ -129,55 +140,167 @@ namespace Markov_Object {
   
   QuantityExpression Quantity::self() const
   {
-    return QuantityExpression({{idName(),1}});
+    return QuantityExpression(const_cast<Environment*>(getEnvironment()),{{idName(),1}});
   }
-  
-  
+
+  Quantity Quantity::pow(int n) const
+  {
+
+    auto def=baseDefinition()*n;
+    auto res=getEnvironment()->Qd(def);
+    if (res)
+      return *res;
+    else
+      {
+        std::string name;
+        std::string longname;
+        if (n<0)
+          {
+            name="PER_";
+            longname=name;
+          }
+        if (std::abs(n)==1)
+          {
+            name+=idName();
+            longname+=Tip();
+          }
+        else if(std::abs(n)==2)
+          {
+            name+="square_"+idName();
+            longname+="square_"+Tip();
+          }
+        else if (std::abs(n)==3)
+          {
+            name+="cubic_"+idName();
+            longname+="cubic_"+Tip();
+          }
+        else if (std::abs(n)==4) {
+            name+="cuartic_"+idName();
+            longname+="cuartic_"+Tip();
+          }
+        else if (std::abs(n)==5) {
+            name+="quintic_"+idName();
+            longname+="quintic_"+Tip();
+          }
+        else
+          {
+            name+=std::to_string(std::abs(n))+"_power_"+idName();
+            longname+=std::to_string(std::abs(n))+"_power_"+Tip();
+          }
+        return Quantity(nullptr,name,def,longname,"");
+
+      }
+
+  }
 
 
-  
+
+  Quantity Quantity::operator *( const Quantity &rh)const
+  {
+    if (getEnvironment()!=rh.getEnvironment())
+      return {};
+    else
+      {
+        auto def=baseDefinition()+rh.baseDefinition();
+        auto res=getEnvironment()->Qd(def);
+        if (res)
+          return *res;
+        else
+          {
+            std::string name;
+            std::string longname;
+            if (*this<rh)
+              {
+                name=idName()+"_"+rh.idName();
+                longname=Tip()+" times "+rh.Tip();
+              }
+            else
+              {
+                name=rh.idName()+"_"+idName();
+                longname=rh.Tip()+" times "+Tip();
+
+              }
+            //  Environment* e=lh.getEnvironment();
+            return Quantity(nullptr,name,def,longname,"");
+
+          }
+
+      }
+
+
+  }
+
+
+  Quantity Quantity::operator /( const Quantity &rh)const
+  {
+    if (getEnvironment()!=rh.getEnvironment())
+      return {};
+    else
+      {
+        auto def=baseDefinition()+rh.baseDefinition()*-1;
+        auto res=getEnvironment()->Qd(def);
+        if (res)
+          return *res;
+        else
+          {
+            std::string name;
+            std::string longname;
+            name=idName()+"_per_"+rh.idName();
+            longname=Tip()+" per "+rh.Tip();
+            //  Environment* e=lh.getEnvironment();
+            return Quantity(nullptr,name,def,longname,"");
+
+          }
+
+      }
+
+
+  }
+
+
+
   Quantity::Quantity():
     Abstract_Object(),
     Abstract_Named_Object(){}
-  
+
   Quantity::Quantity(Environment*  e):
-    Abstract_Object(),
+    Abstract_Object(e),
     Abstract_Named_Object(e){}
 
   Quantity::Quantity(Environment*  e,
                      std::string quantityAbreviation,
                      QuantityExpression quatityDefinition,
                      std::string longName, std::string whatthis)
- :
-    Abstract_Object(),
-    Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-    def_(quatityDefinition)
+    :
+      Abstract_Object(e),
+      Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
+      def_(quatityDefinition)
   {
 
   }
-  
+
   Quantity::Quantity(Environment*  e,
                      std::string quantityAbreviation,
                      std::map<std::string, int> quatityDefinition,
                      std::string longName,
                      std::string whatthis)
     :
-      Abstract_Object(),
+      Abstract_Object(e),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(quatityDefinition)
+      def_(e,quatityDefinition)
   {}
-  
+
   Quantity::Quantity( Environment*  e,
-                     std::string quantityAbreviation,
-                     std::string quatityDefinition,
-                     std::string longName,
-                     std::string whatthis)
+                      std::string quantityAbreviation,
+                      std::string quatityDefinition,
+                      std::string longName,
+                      std::string whatthis)
     :
-      Abstract_Object(),
+      Abstract_Object(e),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(QuantityExpression::getDefinition(quatityDefinition))
+      def_(e,QuantityExpression::getDefinition(quatityDefinition))
   {}
-  
+
   QuantityExpression Quantity::baseDefinition(std::set<std::string> upstream) const
   {
     upstream.insert(idName());
@@ -196,14 +319,21 @@ namespace Markov_Object {
                 auto defq=q->baseDefinition(upstream)*t.second;
                 out+=defq;
               }
-            
+
           }
       }
     return out;
   }
-  
-  
-  
+
+
+  bool Quantity::operator<( const Quantity &rh)const
+  {
+    return idName()<rh.idName();
+  }
+
+
+
+
 }
 
 
@@ -214,19 +344,72 @@ namespace Markov_Object {
 #include "Tests/MultipleTests.h"
 #include "Tests/TESTS.h"
 #include "Tests/ElementaryTest.h"
+#include "Markov_IO/auxiliarIO.h"
+
+namespace  Markov_IO {
+
+  template std::string ToString(std::shared_ptr< const Markov_Object::Quantity> const&x);
+
+}
+
 
 namespace Markov_Test
 {
   namespace Markov_Object_Test
   {
     
+
+    MultipleTests isreferenced(const std::set<std::shared_ptr<Quantity>>&  qs)
+    {
+      MultipleTests M("is-Referenced",
+                      "poscondition");
+
+      for (std::shared_ptr<Quantity> o:qs)
+        {
+          if (o->isReferenced())
+            M.push_back(TEST_EQ("the environment returns a reference to this",
+                                o->getEnvironment()->Q(o->idName())
+                                ,o));
+          else
+            M.push_back(TEST_NEQ("the environment returns not a reference to this",
+                                 o->getEnvironment()->Q(o->idName())
+                                 ,o));
+        }
+      return M;
+
+    }
+
+
+    MultipleTests TestDefinition(const std::set<std::shared_ptr<Quantity>>& qs)
+    {
+      MultipleTests O("check invariants over definition object",
+                      "test classInvariants",
+      {"Quantity"},
+      {"Quantity::definition()"});
+      std::set<std::shared_ptr<QuantityExpression> > qe;
+      for (auto q:qs)
+        {
+          qe.insert(std::make_shared<QuantityExpression>(q->definition()));
+        }
+      QuantityExpression_Test t(qe);
+      O.push_back(t.classInvariant());
+      return O;
+
+    }
+
+
     MultipleTests BaseDefinitionInvariant(const std::set<std::shared_ptr<Quantity>>& qs)
     {
       
-
+      MultipleTests O("test for Distributivity of baseDefinition","compare both ways");
       MultipleTests M("test for Distributivity of baseDefinition over multiplication",
-                            "For all qa, qb  in A,"
-                            "qa.baseDefinition+qb.baseDefinition==(qa+qb).baseDefinition");
+                      "For all qa, qb  in A,"
+                      "qa.baseDefinition+qb.baseDefinition==(qa+qb).baseDefinition",
+      {"Quantity","QuantityExpression"},
+      {"Quantity::baseDefinition()",
+       "Quantity::definition()",
+       "QuantityExpression::ToString()",
+       "operator+(const QuantityExpression&,const QuantityExpression&)"});
       for (auto q:qs)
         {
           for (auto q2:qs)
@@ -235,7 +418,7 @@ namespace Markov_Test
                 {
                   Quantity qbase_q2base(q->getEnvironment(),
                                         q->idName()+"_TIMES_"+q2->idName(),
-                              q->definition()+q2->definition(),
+                                        q->definition()+q2->definition(),
                                         "lonname","");
                   
                   Quantity qperq2(q->getEnvironment(),q->idName()+"PER2"+q2->idName(),
@@ -244,16 +427,22 @@ namespace Markov_Test
                   
                   
                   M.push_back(TEST_EQ(q->idName()+"*"+q2->idName(),
-                                                  qbase_q2base.baseDefinition().ToString(),
-                                                  qperq2.definition().ToString() ));
+                                      qbase_q2base.baseDefinition().ToString(),
+                                      qperq2.definition().ToString() ));
                 }
             }
         }
       
 
       MultipleTests D("test for Distributivity of baseDefinition over division",
-                            "For all qa, qb  in A,"
-                            "qa.baseDefinition+qb.baseDefinition*-1==(qa+qb*-1).baseDefinition");
+                      "For all qa, qb  in A,"
+                      "qa.baseDefinition+qb.baseDefinition*-1==(qa+qb*-1).baseDefinition",
+      {"Quantity","QuantityExpression"},
+      {"Quantity::baseDefinition()",
+       "Quantity::definition()",
+       "QuantityExpression::operator *=(int)",
+       "QuantityExpression::ToString()",
+       "operator+(const QuantityExpression&,const QuantityExpression&)"});
       for (std::shared_ptr<Quantity> q:qs)
         {
           for (std::shared_ptr<Quantity> q2:qs)
@@ -262,7 +451,7 @@ namespace Markov_Test
                 {
                   Quantity qbase_q2base(q->getEnvironment(),
                                         q->idName()+"_DIV_"+q2->idName(),
-                              q->definition()+q2->definition()*(-1),
+                                        q->definition()+q2->definition()*(-1),
                                         "lonname","");
 
                   Quantity qperq2(q->getEnvironment(),q->idName()+"_DIV_"+q2->idName(),
@@ -270,18 +459,19 @@ namespace Markov_Test
 
 
 
-                  M.push_back(TEST_EQ(q->idName()+"/"+q2->idName(),
-                                                  qbase_q2base.baseDefinition().ToString(),
-                                                  qperq2.definition().ToString() ));
+                  D.push_back(TEST_EQ(q->idName()+"/"+q2->idName(),
+                                      qbase_q2base.baseDefinition().ToString(),
+                                      qperq2.definition().ToString() ));
                 }
             }
         }
 
       
 
-
+      O.push_back(M);
+      O.push_back(D);
       
-      return M;
+      return O;
       
     }
     
@@ -295,6 +485,9 @@ namespace Markov_Test
       
       M.push_back(Abstract_Named_Object_Test::classInvariant());
       M.push_back(BaseDefinitionInvariant(qe_));
+      M.push_back(TestDefinition(qe_));
+
+
       
       return M;
       
@@ -303,7 +496,7 @@ namespace Markov_Test
     
     Quantity_Test::Quantity_Test(const std::set<std::shared_ptr<Quantity >> &object):
       Abstract_Named_Object_Test(std::set<std::shared_ptr<Abstract_Named_Object>>(
-                                   object.begin(),object.end())),
+                                                                                   object.begin(),object.end())),
       qe_(object){}
     
     

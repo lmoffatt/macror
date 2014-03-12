@@ -6,6 +6,8 @@
 #include <set>
 #include <memory>
 
+#include "Markov_Object/ScaledExpression.h"
+
 
 namespace Markov_Object {
 
@@ -20,7 +22,7 @@ class Environment
 {
 public:
   std::shared_ptr<const Abstract_Named_Object> idN(const std::string& variablename)const;
-  std::shared_ptr<Abstract_Named_Object> idN(const std::string& variablename);
+  std::shared_ptr<Abstract_Named_Object> idN(const std::string& variablename, const std::string &className);
 
 
   std::shared_ptr<Measurement_Unit> U(const std::string& unitAbreviation);
@@ -30,6 +32,12 @@ public:
   std::shared_ptr<const Measurement_Unit > U(const std::string& unitAbreviation)const;
   std::shared_ptr<const Abstract_Variable_Object > V(const std::string& variablename)const;
   std::shared_ptr<const Quantity > Q(const std::string& quantityName)const;
+
+  std::shared_ptr< Measurement_Unit > Ud(const ScaledExpression& definition);
+  std::shared_ptr< Quantity > Qd(const QuantityExpression& definition);
+
+  std::shared_ptr<const Measurement_Unit > Ud(const ScaledExpression& definition)const;
+  std::shared_ptr<const Quantity > Qd(const QuantityExpression& definition)const;
 
 
 
@@ -41,6 +49,14 @@ public:
 
 
   void add(std::shared_ptr<Abstract_Named_Object> n);
+
+  void add(std::shared_ptr<Quantity> q);
+  void add(std::shared_ptr<Measurement_Unit> u);
+
+
+  bool addDef(std::shared_ptr<Quantity> q);
+  bool addDef(std::shared_ptr<Measurement_Unit> u);
+
 
 
   Abstract_Object* create(std::string classname);
@@ -57,7 +73,13 @@ public:
   ~Environment();
 
 private:
-  std::map<std::string,std::shared_ptr<Abstract_Named_Object>> idNames_;  //only owner
+  std::map<std::string,std::shared_ptr<Abstract_Variable_Object>> V_;  //only owner
+  std::map<std::string,std::shared_ptr<Quantity>> Q_;  //only owner
+  std::map<std::string,std::shared_ptr<Measurement_Unit>> U_;  //only owner
+
+  std::map<QuantityExpression,std::shared_ptr<Quantity>> QQ_;  //only owner
+  std::map<ScaledExpression,std::shared_ptr<Measurement_Unit>> SU_;  //only owner
+
 
   std::map<std::string,Abstract_Object*> classes_;
 

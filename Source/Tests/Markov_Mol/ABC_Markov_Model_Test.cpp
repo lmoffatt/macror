@@ -646,7 +646,7 @@ namespace Markov_Test
 
       results.push_back(ElementaryTest(
                           "Equilibrium equation",
-                          "Peq*Qx(x)==0 \n"+
+                            "Peq*Qx(x)==0 \n"+
                           Markov_IO::ToString(1.0+Peq*Qx_avg.Qrun)+"==0\n",
                           1000.0+Peq*Qx_avg.Qrun==1000.0)
                         );

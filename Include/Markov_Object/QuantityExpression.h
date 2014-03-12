@@ -3,13 +3,12 @@
 
 #include <cstring>
 #include "Markov_Object/Abstract_Named_Object.h"
-#include "Markov_Object/Environment.h"
 
 namespace Markov_Object {
   class Quantity;
+  class Environment;
 
-
-  class QuantityExpression: public virtual Abstract_Object
+  class QuantityExpression: public  Abstract_Object
   {
   public:
     static const char pow='^';
@@ -33,7 +32,7 @@ namespace Markov_Object {
     static
     std::map<std::string,int> getDefinition(const std::string& defs);
 
-    static
+
     QuantityExpression dimensionless();
 
 
@@ -64,28 +63,28 @@ namespace Markov_Object {
     virtual std::string ToString() const override;
 
     virtual QuantityExpression*
-    CreateObject(const std::string &text, std::size_t &cursor) const override
-    {
-      auto tmp=create();
-      auto out=tmp->ToObject(text,cursor);
-      if (out==nullptr)
-        delete tmp;
-      return out;
-    }
+    CreateObject(const std::string &text, std::size_t &cursor) const override;
 
-    QuantityExpression(std::map<std::string,int> expression);
+    virtual std::set<std::string> referencedObjects() const;
 
+
+    QuantityExpression(Environment*e,std::map<std::string,int> expression);
+    QuantityExpression(Environment*e,std::string exp);
+
+    QuantityExpression(Environment*e);
 
     QuantityExpression();
 
     virtual std::map<std::string, int> value()const;
 
+    virtual QuantityExpression baseDefinition() const;
   protected:
     virtual QuantityExpression*
     ToObject(const std::string &text, std::size_t &cursor)  override;
 
 
   private:
+
     std::map<std::string, int> expr_;
 
 
@@ -95,6 +94,7 @@ namespace Markov_Object {
 
 
   QuantityExpression operator+(const QuantityExpression& one,const QuantityExpression& other);
+
 }
 
 

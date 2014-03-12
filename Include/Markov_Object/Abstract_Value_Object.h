@@ -8,7 +8,7 @@ namespace Markov_Object {
   class Abstract_Variable_Object;
 
 
-  class Abstract_Value_Object: public  virtual Abstract_Object
+  class Abstract_Value_Object//: public  virtual Abstract_Object
   {
   public:
     //static
@@ -19,10 +19,10 @@ namespace Markov_Object {
 
 
   // virtual overrides from Abstract_Object
-    virtual std::string myClass()const override;
-    virtual Class_info myClassInfo()const override;
-    virtual Abstract_Value_Object * dynamicCast(Abstract_Object* o)const override;
-    virtual const Abstract_Value_Object * dynamicCast(const Abstract_Object* o)const override;
+    virtual std::string myClass()const ;
+    virtual Class_info myClassInfo()const ;
+    virtual Abstract_Value_Object * dynamicCast(Abstract_Object* o)const ;
+    virtual const Abstract_Value_Object * dynamicCast(const Abstract_Object* o)const ;
 
 
 
@@ -32,8 +32,7 @@ namespace Markov_Object {
     virtual bool isUnknown()const=0;
     virtual std::string variable()const=0;
 
-    Abstract_Value_Object():
-      Abstract_Object(){}
+    Abstract_Value_Object(){}
     virtual ~Abstract_Value_Object();
 
 

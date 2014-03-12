@@ -1,7 +1,7 @@
 #include "Markov_Object/IdentifierName.h"
 #include "Markov_Object/QuantityExpression.h"
 #include "Markov_Object/Quantity.h"
-
+#include "Markov_Object/Environment.h"
 
 
 namespace Markov_Object {
@@ -32,96 +32,109 @@ namespace Markov_Object {
 
   std::map<std::string, int> QuantityExpression::getDefinition(const std::string &defs, std::size_t &cursor)
   {
-    std::size_t cursor0=cursor;
-
-    std::map<std::string,int> out;
-    IdentifierName::skipSpaces(defs,cursor);
-
-    auto final=defs.find_first_of(separator,cursor);
-
-    std::string candidate=defs.substr(cursor,final-cursor);
-    auto nfin=candidate.find_first_not_of(legal());
-
-    bool validformat=!candidate.empty()&&(nfin==candidate.npos);
-    std::size_t pos=0;
-    if(validformat)
+    if (defs.empty())
       {
-        while (pos<=candidate.size())
-          {
-
-            std::string current=getName(candidate,pos);
-            if (current.empty())
-              break;
-
-            char op;
-            if (pos==candidate.npos)
-              op=0;
-            else
-              op=candidate[pos];
-            int exponent=1;
-            if (op==pow)
-              {
-                ++pos;
-                std::size_t npos=0;
-                if (pos>=candidate.size())
-                  {
-                    validformat=false;
-                    break;
-                  }
-                try
-                {
-                  exponent=std::stoi(candidate.substr(pos),&npos);
-                }
-                catch (std::exception& e)
-                {
-                  validformat=false;
-                  break;
-                }
-                pos+=npos;
-                while (pos<candidate.size()-1&&candidate[pos]==' ')
-                  ++pos;
-                op=candidate[pos];
-              }
-            if ((op==mult)||
-                (op==div)||
-                (op==0)||
-                (std::string(separator).find(op)!=std::string::npos))
-              {
-                if (out.find(current)!=out.end())
-                  {
-                    if (op==div)
-                    out[current]-=exponent;
-                    else
-                      out[current]+=exponent;
-
-                  }
-                else
-                  {
-                    out[current]=exponent;
-                  }
-                if ((op!=mult)&&(op!=div))
-                  break;
-              }
-            else
-              {
-                validformat=false;
-                break;
-              }
-          }
-      }
-
-    if (validformat)
-      {
-        cursor=final;
-        return out;
+        return {};
       }
     else
       {
-        cursor=cursor0;
-        return std::map<std::string,int>();
+        std::size_t cursor0=cursor;
+
+        std::map<std::string,int> out;
+        IdentifierName::skipSpaces(defs,cursor);
+        if (cursor==defs.npos)
+          {
+            cursor=cursor0;
+            return {};
+          }
+        else
+          {
+            auto final=defs.find_first_of(separator,cursor);
+
+            std::string candidate=defs.substr(cursor,final-cursor);
+            auto nfin=candidate.find_first_not_of(legal());
+
+            bool validformat=!candidate.empty()&&(nfin==candidate.npos);
+            std::size_t pos=0;
+            if(validformat)
+              {
+                while (pos<=candidate.size())
+                  {
+
+                    std::string current=getName(candidate,pos);
+                    if (current.empty())
+                      break;
+
+                    char op;
+                    if (pos==candidate.npos)
+                      op=0;
+                    else
+                      op=candidate[pos];
+                    int exponent=1;
+                    if (op==pow)
+                      {
+                        ++pos;
+                        std::size_t npos=0;
+                        if (pos>=candidate.size())
+                          {
+                            validformat=false;
+                            break;
+                          }
+                        try
+                        {
+                          exponent=std::stoi(candidate.substr(pos),&npos);
+                        }
+                        catch (std::exception& e)
+                        {
+                          validformat=false;
+                          break;
+                        }
+                        pos+=npos;
+                        while (pos<candidate.size()-1&&candidate[pos]==' ')
+                          ++pos;
+                        op=candidate[pos];
+                      }
+                    if ((op==mult)||
+                        (op==div)||
+                        (op==0)||
+                        (std::string(separator).find(op)!=std::string::npos))
+                      {
+                        if (out.find(current)!=out.end())
+                          {
+                            if (op==div)
+                              out[current]-=exponent;
+                            else
+                              out[current]+=exponent;
+
+                          }
+                        else
+                          {
+                            out[current]=exponent;
+                          }
+                        if ((op!=mult)&&(op!=div))
+                          break;
+                      }
+                    else
+                      {
+                        validformat=false;
+                        break;
+                      }
+                  }
+              }
+
+            if (validformat)
+              {
+                cursor=final;
+                return out;
+              }
+            else
+              {
+                cursor=cursor0;
+                return std::map<std::string,int>();
+              }
+          }
       }
   }
-
 
   QuantityExpression &QuantityExpression::operator+=(const QuantityExpression &other)
   {
@@ -146,7 +159,7 @@ namespace Markov_Object {
 
   QuantityExpression QuantityExpression::dimensionless()
   {
-    return QuantityExpression();
+    return QuantityExpression(getEnvironment(),"");
   }
 
 
@@ -155,11 +168,18 @@ namespace Markov_Object {
   {
     auto it=expr_.begin();
     auto itOther=other.expr_.begin();
-    while ((it->first==itOther->first)&&(it!=expr_.end())&&(itOther!=other.expr_.end()))
+    while ((it!=expr_.end())&&
+           (itOther!=other.expr_.end())&&
+           (it->first==itOther->first))
       {
-        ++it; ++itOther;
+        ++it;
+        ++itOther;
       }
-    return it->first<itOther->first;
+    if (it!=expr_.end()&&itOther!=other.expr_.end())
+      return it->first<itOther->first;
+    else if ((itOther!=other.expr_.end()))
+      return true;
+    else return false;
   }
 
 
@@ -170,7 +190,7 @@ namespace Markov_Object {
         if ((t.first.empty())|| (t.first!=getName(t.first)))
           return true;
       }
-   return false;
+    return false;
 
   }
 
@@ -208,6 +228,29 @@ namespace Markov_Object {
     return o;
   }
 
+  QuantityExpression *QuantityExpression::CreateObject(const std::string &text, std::size_t &cursor) const
+  {
+    auto tmp=create();
+    auto out=tmp->ToObject(text,cursor);
+    if (out==nullptr)
+      delete tmp;
+    return out;
+  }
+
+  std::set<std::string> QuantityExpression::referencedObjects() const
+  {
+    std::set<std::string> out;
+    for (auto t:value())
+      {
+        out.insert(t.first);
+      }
+    return out;
+  }
+
+  QuantityExpression::QuantityExpression(Environment *e):
+    Abstract_Object(e),
+    expr_{}{}
+
 
 
   QuantityExpression::QuantityExpression():
@@ -221,9 +264,15 @@ namespace Markov_Object {
 
 
 
-  QuantityExpression::QuantityExpression(std::map<std::string, int> expression):
-    Abstract_Object(),
+  QuantityExpression::QuantityExpression(Environment *e,std::map<std::string, int> expression):
+    Abstract_Object(e),
     expr_(expression){}
+
+  QuantityExpression::QuantityExpression(Environment *e, std::string exp)
+    :
+      Abstract_Object(e),
+      expr_(getDefinition(exp)){}
+
 
   QuantityExpression*  QuantityExpression::
   ToObject(const std::string &text, std::size_t &cursor)
@@ -233,6 +282,27 @@ namespace Markov_Object {
       return nullptr;
     expr_=def;
     return this;
+  }
+
+  QuantityExpression QuantityExpression::baseDefinition()const
+  {
+    QuantityExpression out(const_cast<Environment*>(getEnvironment()));
+    if (getEnvironment()!=nullptr)
+      {
+        for (auto t:value())
+          {
+            std::shared_ptr<const Quantity> q=getEnvironment()->Q(t.first);
+            if (q==nullptr)
+              return QuantityExpression();
+            else
+              {
+                auto defq=q->baseDefinition()*t.second;
+                out+=defq;
+              }
+
+          }
+      }
+    return out;
   }
 
   QuantityExpression *QuantityExpression::dynamicCast(Abstract_Object*o) const
@@ -310,6 +380,9 @@ namespace Markov_Test
   namespace Markov_Object_Test
   {
 
+
+
+
     MultipleTests isAbelian(const std::set<std::shared_ptr<QuantityExpression>>& qs)
     {
 
@@ -317,7 +390,10 @@ namespace Markov_Test
                       "true for all the properties");
 
       MultipleTests closure("test for Closure",
-                            "For all a, b in A, the result of the operation a • b is also in A");
+                            "For all a, b in A, the result of the operation a • b is also in A",
+      {"QuantityExpression"},
+      {"QuantityExpression::invalid()",
+       "operator+(QuantityExpression&,QuantityExpression&)"});
       //Closure
       for (auto q:qs)
         {
@@ -334,7 +410,10 @@ namespace Markov_Test
 
 
       MultipleTests associativity("Associativity",
-                                  "For all a, b and c in A, the equation (a • b) • c = a • (b • c) holds.");
+                                  "For all a, b and c in A, the equation (a • b) • c = a • (b • c) holds.",
+      {"QuantityExpression"},
+      {"operator+(QuantityExpression&,QuantityExpression&)"});
+
 
       //Associativity
       for (auto q:qs)
@@ -371,7 +450,11 @@ namespace Markov_Test
 
       MultipleTests Inverse("Inverse element",
                             "For each a in A, there exists an element b in A such"
-                            "that a • b = b • a = e, where e is the identity element.");
+                            "that a • b = b • a = e, where e is the identity element.",
+      {"QuantityExpression"},
+      {"QuantityExpression::dimensionless()",
+       "QuantityExpression::operator *=(int)",
+       "operator+(QuantityExpression&,QuantityExpression&)"});
 
       for (auto q:qs)
         {
@@ -387,7 +470,10 @@ namespace Markov_Test
 
 
       MultipleTests Commutativity("Commutativity",
-                                  "For all a, b in A, a • b = b • a.");
+                                  "For all a, b in A, a • b = b • a.",
+      {"QuantityExpression"},
+      {"operator+(QuantityExpression&,QuantityExpression&)"});
+
       for (auto q:qs)
         {
           for (auto q1:qs)
@@ -426,12 +512,6 @@ namespace Markov_Test
     (const std::set<std::shared_ptr<QuantityExpression> > &object):
       Abstract_Object_Test({object.begin(),object.end()}),
       qe_(object){}
-
-
-
-
-
-
 
   }
 }

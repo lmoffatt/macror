@@ -49,45 +49,18 @@ namespace  Markov_Object {
     return dynamic_cast<const Abstract_Named_Object*>(o);
   }
 
- Environment*
-  Abstract_Named_Object::getEnvironment()
-  {
-    return E_;
-  }
- Environment const*
-  Abstract_Named_Object::getEnvironment()const
-  {
-    return E_;
-  }
 
   Abstract_Named_Object::~Abstract_Named_Object()
   {}
 
   Abstract_Named_Object::Abstract_Named_Object(const Abstract_Named_Object &other):
-    Abstract_Object(),
+    Abstract_Object(other),
     variableName_(other.variableName_),
     tip_(other.tip_),
     whatThis_(other.whatThis_){}
 
-  void Abstract_Named_Object::setEnvironment( Environment *E)
-  {
-    E_=E;
-  }
 
 
-
-  std::string Abstract_Named_Object::contextToString() const
-  {
-    std::string s;
-    for (auto r : referencedObjects())
-      {
-        auto v=getEnvironment()->idN(r);
-        if (v!=nullptr)
-          s+=v->ToString();
-
-      }
-    return s;
-  }
 
 
 
@@ -105,17 +78,6 @@ namespace  Markov_Object {
       return getEnvironment()->idN(idName()).get()==this;
   }
 
-  bool Abstract_Named_Object::refersToValidObjects() const
-  {
-    if (getEnvironment()==nullptr)
-      return false;
-    for (auto o:referencedObjects())
-      {
-        if (getEnvironment()->idN(o)==nullptr)
-          return false;
-      }
-    return true;
-  }
 
 
 
@@ -131,7 +93,7 @@ namespace  Markov_Object {
 
   bool Abstract_Named_Object::empty() const
   {
-    return (E_==nullptr&&
+    return (getEnvironment()==nullptr&&
             idName().empty()&&
             Tip().empty()&&
             WhatThis().empty());
@@ -240,8 +202,7 @@ namespace  Markov_Object {
                                                std::string tip,
                                                std::string whatthis)
     :
-      Abstract_Object(),
-      E_{e},
+      Abstract_Object(e),
       variableName_{variablename},tip_{tip},whatThis_{whatthis}
 
   {
@@ -250,15 +211,15 @@ namespace  Markov_Object {
 
   Abstract_Named_Object::Abstract_Named_Object( Environment*  e)
     :
-      Abstract_Object(),
-      E_{e},variableName_{},tip_{},whatThis_{}{
+      Abstract_Object(e),
+      variableName_{},tip_{},whatThis_{}{
 
   }
 
   Abstract_Named_Object::Abstract_Named_Object()
     :
       Abstract_Object(),
-      E_{},variableName_{},tip_{},whatThis_{}{}
+      variableName_{},tip_{},whatThis_{}{}
 
 
   std::string Abstract_Named_Object::myClass()const
@@ -356,7 +317,7 @@ namespace  Markov_IO {
 
   std::string ToString(Markov_Object::Environment*const & x);
 
-  std::string ToString(const std::shared_ptr<Markov_Object::Abstract_Named_Object> &x)
+  std::string ToString(const std::shared_ptr<const Markov_Object::Abstract_Named_Object> &x)
   {
 
       std::stringstream ss;
@@ -365,7 +326,7 @@ namespace  Markov_IO {
       return str;
 
   }
-  std::string ToString(const std::shared_ptr<Markov_Object::Abstract_Variable_Object> &x)
+  std::string ToString(const std::shared_ptr<const Markov_Object::Abstract_Variable_Object> &x)
   {
 
       std::stringstream ss;
@@ -376,7 +337,7 @@ namespace  Markov_IO {
   }
 
 
-  std::string ToString(const std::shared_ptr<Markov_Object::Environment> &x)
+  std::string ToString(const std::shared_ptr<const Markov_Object::Environment> &x)
   {
     std::stringstream ss;
     ss<<x;
@@ -402,24 +363,8 @@ namespace Markov_Test
 
 
 
-    MultipleTests isreferenced(const Abstract_Named_Object* o)
-    {
-      MultipleTests M("is-Referenced",
-                      "poscondition");
 
-      if (o->isReferenced())
-        M.push_back(TEST_EQ("the environment returns a reference to this",
-                            o->getEnvironment()->idN(o->idName()).get()
-                            ,o));
-      else
-        M.push_back(TEST_NEQ("the environment returns not a reference to this",
-                             o->getEnvironment()->idN(o->idName()).get()
-                             ,o));
-      return M;
-
-    }
-
-
+/* move this to Quantity, Measurment_unit and Abstact_Variable
 
     MultipleTests idNameInvariant(std::shared_ptr<Abstract_Named_Object> o,
                                   Environment*  E)
@@ -442,9 +387,14 @@ namespace Markov_Test
 
             {
               MultipleTests M2("case isValid and not duplicate",
-                               "conditions");
+                               "conditions",
+              {"Abstract_Named_Object",
+                               "Environment"},
+              {Abstract_Named_Object::idName(),
+                               Abstract_Named_Object::ToString(),
+                               Environment::idN()});
               M2.push_back(TEST_EQ("isReferenced",
-                                   o->getEnvironment()->idN(o->idName()),o));
+                                   o->getEnvironment()->idN(o->idName()).get(),o.get()));
               M2.push_back(TEST_EQ("same value",
                                    o->getEnvironment()->idN(o->idName())->ToString(),
                                    o->ToString()));
@@ -458,8 +408,8 @@ namespace Markov_Test
               MultipleTests M2("duplicate Objects ",
                                "the environment has a copy");
               M2.push_back(TEST_NEQ("different address",
-                                    o->getEnvironment()->idN(o->idName()),
-                                    o));
+                                    o->getEnvironment()->idN(o->idName()).get(),
+                                    o.get()));
               M2.push_back(TEST_EQ("same name",
                                    o->getEnvironment()->idN(o->idName())->idName(),
                                    o->idName()));
@@ -744,6 +694,8 @@ namespace Markov_Test
       return M;
     }
 
+*/
+
 
 
 
@@ -757,6 +709,7 @@ namespace Markov_Test
 
       M.push_back(Abstract_Object_Test::classInvariant());
 
+      /*
       for (auto n:named_objects_)
         {
           MultipleTests MM("testing "+n->idName(),"class invariants");
@@ -773,6 +726,7 @@ namespace Markov_Test
 
           M.push_back(MM);
         }
+        */
       return M;
 
     }

@@ -1,82 +1,160 @@
 #ifndef SCALEDEXPRESSION_H
 #define SCALEDEXPRESSION_H
 
-#include "Markov_Object/QuantityExpression.h"
+
 #include <cmath>
+#include "Markov_Object/QuantityExpression.h"
 
 namespace Markov_Object {
 
 
 
-class ScaledExpression: public QuantityExpression
-{
-  // Abstract_Object interface
-public:
-  static  std::string ClassName();
- static
-  std::set<std::string> SuperClasses();
-
-  static Class_info classInfo();
-
-//overrides
-
-  virtual Class_info myClassInfo() const override;
-  virtual std::string myClass() const override;
-
-  virtual bool empty() const override;
-  virtual bool invalid() const override;
-  virtual ScaledExpression *create() const override;
-  virtual std::string ToString() const override;
-
-  virtual ScaledExpression *
-  CreateObject(const std::string &text, std::size_t &cursor) const override;
+  class ScaledExpression: public Abstract_Object
+  {
+    // Abstract_Object interface
+  public:
+    static  std::string ClassName();
+    static
+    std::set<std::string> SuperClasses();
 
 
-  //new methods
+    static Class_info classInfo();
 
-   virtual double scale()const;
+    ScaledExpression dimensionless();
 
-   virtual void setScale(double newScale);
+    virtual ScaledExpression* dynamicCast(Abstract_Object *o) const;
+    virtual const ScaledExpression* dynamicCast(const Abstract_Object *o) const;
 
-  // regular methods
-  // new methods non virtual
-   ScaledExpression &operator+=(const ScaledExpression& other);
 
-   ScaledExpression& operator*=(int n);
+    //overrides
 
-   bool operator<(const ScaledExpression& other)const;
+    virtual Class_info myClassInfo() const override;
+    virtual std::string myClass() const override;
+
+    virtual bool empty() const override;
+    virtual bool invalid() const override;
+    virtual ScaledExpression *create() const override;
+    virtual std::string ToString() const override;
+
+    virtual std::set<std::string> referencedObjects() const override;
 
 
 
-
-  // constructors and destructors
-  ScaledExpression();
-
-
-  ScaledExpression(double scale,
-                   QuantityExpression def);
+    virtual ScaledExpression *
+    CreateObject(const std::string &text, std::size_t &cursor) const override;
 
 
-  ~ScaledExpression();
+    //new methods
+
+    virtual double scale()const;
+
+    virtual void setScale(double newScale);
+
+    // regular methods
+    // new methods non virtual
+    ScaledExpression &operator+=(const ScaledExpression& other);
+
+    ScaledExpression& operator*=(int n);
+
+    bool operator<(const ScaledExpression& other)const;
+
+    virtual std::map<std::string, int> value() const;
 
 
-  ScaledExpression(const ScaledExpression& other);
+
+    // constructors and destructors
+    ScaledExpression();
+
+    ScaledExpression(Environment *E);
 
 
-protected:
-  virtual ScaledExpression *ToObject(const std::string &text, std::size_t &cursor) override;
+
+    ScaledExpression(double scale,
+                     QuantityExpression def);
+
+    ScaledExpression(Environment *E,
+                     double scale,
+                     std::string def);
 
 
-private:
-  double scale_;
-
-};
+    ~ScaledExpression();
 
 
-ScaledExpression operator*(const ScaledExpression &one, int n);
+    ScaledExpression(const ScaledExpression& other);
 
-ScaledExpression operator+(const ScaledExpression &one, const ScaledExpression &other);
+
+
+
+    ScaledExpression baseDefinition() const;
+
+    QuantityExpression QuantityDefinition()const;
+  protected:
+    virtual ScaledExpression *ToObject(const std::string &text, std::size_t &cursor) override;
+
+
+  private:
+    QuantityExpression ex_;
+    double scale_;
+  };
+
+
+  ScaledExpression operator*(const ScaledExpression &one, int n);
+
+  ScaledExpression operator+(const ScaledExpression &one, const ScaledExpression &other);
 
 }
+
+
+
+#ifdef MACRO_TEST
+
+
+#include "Tests/MultipleTests.h"
+namespace Markov_Test
+{
+  namespace Markov_Object_Test
+  {
+
+    using namespace Markov_Object;
+
+
+
+    class ScaledExpression_Test:public QuantityExpression_Test
+    {
+    public:
+
+      virtual MultipleTests classInvariant()const;
+
+      ScaledExpression_Test(const std::set<std::shared_ptr<ScaledExpression>>& object);
+
+      virtual~ScaledExpression_Test(){}
+      static std::string TestName()
+      {
+        return "ScaledExpression_Test";
+      }
+
+      virtual std::string myTest()const
+      {
+        return TestName();
+      }
+
+
+    protected:
+      std::set<std::shared_ptr<ScaledExpression> > se_;
+    };
+
+
+
+
+
+  }
+}
+
+#endif //MACRO_TEST
+
+
+
+
+
 
 #endif // SCALEDEXPRESSION_H

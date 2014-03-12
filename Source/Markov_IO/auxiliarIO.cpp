@@ -206,11 +206,11 @@ namespace Markov_IO
 @post It should be the case that x==stringToClass(ToString(x))
 
 */
-  template <class T>
-  std::string ToString(const T& x)
+  template <>
+  std::string ToString(const double& x)
   {
     std::stringstream ss;
-    ss.precision(std::numeric_limits<T>::digits10);
+    ss.precision(std::numeric_limits<double>::digits10);
     ss<<x;
     std::string str=ss.str();
     return str;

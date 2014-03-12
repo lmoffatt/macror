@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 #include "Tests/ABC_Test.h"
 
 namespace Markov_Test
@@ -25,6 +26,12 @@ public:
 
 
     MultipleTests(const std::string& functionalityUnderTest, const std::string& expected);
+
+    MultipleTests(const std::string& functionalityUnderTest,
+                  const std::string& expected,
+                  std::set<std::string>&& classes,
+                  std::set<std::string>&& methods);
+
 
 
     virtual std::size_t numSubTests()const;
@@ -54,6 +61,9 @@ public:
 
 private:
     bool result_;
+    std::set<std::string> testedClasses_;
+    std::set<std::string> testedMethods_;
+
     std::string functionality_;
     std::string rationale_;
 

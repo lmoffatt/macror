@@ -2,7 +2,6 @@
 #define QUANTITY_H
 #include <cstring>
 #include "Markov_Object/Abstract_Named_Object.h"
-#include "Markov_Object/Environment.h"
 #include "Markov_Object/QuantityExpression.h"
 
 namespace Markov_Object {
@@ -18,6 +17,10 @@ namespace Markov_Object {
     static std::string ClassName();
     static Class_info classInfo();
     static std::set<std::string> SuperClasses();
+
+
+    virtual Quantity* dynamicCast(Abstract_Object *o) const;
+    virtual const Quantity *dynamicCast(const Abstract_Object *o) const;
 
     // virtual methods
     virtual std::string myClass()const override;
@@ -44,6 +47,15 @@ namespace Markov_Object {
 
 
 
+    Quantity operator /(const Quantity &rh) const;
+    Quantity operator *(const Quantity &rh) const;
+
+    Quantity pow(int n)const;
+
+    bool operator<(const Quantity& rh)const;
+
+
+
     Quantity();
 
     Quantity( Environment*  e);
@@ -67,6 +79,7 @@ namespace Markov_Object {
              std::string longName,
              std::string whatthis);
 
+
   protected:
     virtual Quantity*
     ToObject(const std::string &text, std::size_t &cursor)  override;
@@ -80,11 +93,18 @@ namespace Markov_Object {
 
 
 
+
+
 }
 
 
 #ifdef MACRO_TEST
 
+namespace  Markov_IO {
+
+
+
+}
 
 #include "Tests/MultipleTests.h"
 namespace Markov_Test

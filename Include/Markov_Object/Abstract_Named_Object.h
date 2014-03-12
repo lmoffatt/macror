@@ -4,13 +4,12 @@
 
 #include "Markov_Object/Abstract_Object.h"
 
-#include "Markov_Object/Environment.h"
 #include "IdentifierName.h"
 
 
 namespace Markov_Object {
 
-
+class Environment;
 
 class Abstract_Named_Object:public virtual Abstract_Object
 {
@@ -63,27 +62,6 @@ public:
     return out;
   }
 
-// new method insert in environment
-  virtual std::string
-  InsertObject(Environment* E,const std::string &text, std::size_t &cursor) const
-  {
-    std::unique_ptr<Abstract_Named_Object> out(CreateObject(text,cursor));
-    out->setEnvironment(E);
-    E->add(std::move(out));
-    return out->idName();
-  }
-
-
-
-
-
-
-  // new implemented virtual methods
-// Environment
-  virtual Environment* getEnvironment();
-
-  virtual Environment const * getEnvironment()const;
-
 
   /// identifier of the object
   virtual std::string idName()const ;
@@ -108,15 +86,6 @@ public:
 
 
 
-// new abstract method, gives the list of objects referenced
-  // for this object to has meaning
-  virtual std::set<std::string> referencedObjects() const=0;
-
-
-  //Helper methods for checking the referenced objects
-  virtual bool refersToValidObjects()const;
-  /// returns a string representation of the referenced objects
-  virtual std::string contextToString()const;
 
 
 
@@ -138,15 +107,12 @@ public:
 
   Abstract_Named_Object(const Abstract_Named_Object& other);
 
-  friend class Environment;
 
 protected:
-  virtual void setEnvironment(Environment *E);
   // new helper methods: they add the created variable to the environment
   virtual Abstract_Named_Object* ToObject(const std::string& text, std::size_t &cursor)override;
 
 private:
-  Environment* E_;
   std::string variableName_;
   std::string tip_;
   std::string whatThis_;
@@ -164,10 +130,6 @@ private:
 
 namespace  Markov_IO {
 
-  std::string ToString(Markov_Object::Abstract_Named_Object*const & x);
-  std::string ToString(const std::shared_ptr< Markov_Object::Abstract_Named_Object> &x);
-  std::string ToString(const std::shared_ptr< Markov_Object::Environment> &x);
-  std::string ToString(const std::shared_ptr<Markov_Object::Abstract_Variable_Object> &x);
 
 
 

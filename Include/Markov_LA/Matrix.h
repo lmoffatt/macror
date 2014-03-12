@@ -194,6 +194,11 @@ namespace Markov_LA
     template<typename T>
     bool operator!=(const M_Matrix<T>& x, const M_Matrix<T>& y);
 
+    template<typename T>
+    std::istream& operator>> (std::istream& s, M_Matrix<T>& A);
+
+    template<typename T>
+    std::ostream& operator<< (std::ostream& s,const M_Matrix<T>& A);
 
 
 }//namespace Markov_LA

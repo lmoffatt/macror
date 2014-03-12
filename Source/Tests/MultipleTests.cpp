@@ -8,8 +8,16 @@ namespace Markov_Test
   {
     tests_.push_back(aTest.clone());
 
+    const MultipleTests * o=dynamic_cast<MultipleTests const*>(&aTest);
+    if (o!=nullptr)
+      {
+        testedClasses_.insert(o->testedClasses_.begin(),o->testedClasses_.end());
+        testedMethods_.insert(o->testedMethods_.begin(),o->testedMethods_.end());
+
+      }
     numElemTests_+=aTest.numElementayTests();
     numElemFailures_+=aTest.numElementayFailures();
+
 
     if (this->result())
       result_=aTest.result();
@@ -42,6 +50,33 @@ namespace Markov_Test
   {
     s<<"--------------------------------------------------------------------------------\n";
     s<<"Functionality under test:     \t"<<functionalityUnderTest()<<"\n";
+
+    if (testedClasses_.size()==1)
+      {
+        s<<"Tested class                  \t"<<*testedClasses_.begin()<<"\n";
+      }
+    else if (testedClasses_.size()>1)
+      {
+        s<<"Tested classes                \n";
+        for (std::string c:testedClasses_)
+          {
+   s<<"                                \t"<<c<<"\n";
+          }
+
+      }
+    if (testedMethods_.size()==1)
+      {
+        s<<"Tested method                 \t"<<*testedMethods_.begin()<<"\n";
+      }
+    else if (testedMethods_.size()>1)
+      {
+        s<<"Tested methods                \n";
+        for (std::string c:testedMethods_)
+          {
+            s<<"                             \t"<<c<<"\n";
+          }
+
+      }
 
     s<<"Test rationale:               \t "<<Rationale()<<"\n";
 
@@ -120,6 +155,24 @@ namespace Markov_Test
     verboseLevel_(false)
   {}
 
+  MultipleTests::MultipleTests(const std::string &functionalityUnderTest,
+                               const std::string &expected,
+                               std::set<std::string> &&classes,
+                               std::set<std::string> &&methods):
+    testedClasses_(classes),
+    testedMethods_(methods),
+    result_(true),
+    functionality_(functionalityUnderTest),
+    rationale_(expected),
+    tests_(std::vector<ABC_Test*>()),
+    numFailures_(0),
+    numElemTests_(0),
+    numElemFailures_(0),
+    verboseLevel_(false)
+  {
+
+  }
+
   MultipleTests::MultipleTests():
     result_(true),
     functionality_(),
@@ -139,6 +192,8 @@ namespace Markov_Test
       }
   }
   MultipleTests::MultipleTests(const MultipleTests& other):
+    testedClasses_(other.testedClasses_),
+    testedMethods_(other.testedMethods_),
     result_(other.result_),
     functionality_(other.functionality_),
     rationale_(other.rationale_),
@@ -165,6 +220,8 @@ namespace Markov_Test
 
   void swap(MultipleTests& one, MultipleTests & two){
 
+    std::swap(one.testedMethods_,two.testedMethods_);
+    std::swap(one.testedClasses_,two.testedClasses_);
     std::swap(one.result_,two.result_);
     std::swap(one.functionality_, two.functionality_);
     std::swap(one.rationale_, two.rationale_);

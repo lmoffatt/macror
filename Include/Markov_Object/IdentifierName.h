@@ -3,7 +3,6 @@
 
 #include <cstring>
 #include "Markov_Object/Abstract_Object.h"
-#include "Markov_Object/Environment.h"
 
 namespace Markov_Object
 {
@@ -14,7 +13,7 @@ namespace Markov_Object
     static constexpr const char* allowed="abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static constexpr const char* allowedR="_0123456789abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    static constexpr const char* separator=" \t\n";
+    static constexpr const char* separator=" \t\n/";
 
     static void skipSpaces(const std::string& line,
                            std::size_t& n,

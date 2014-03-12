@@ -81,20 +81,6 @@ namespace Markov_Test
     using namespace Markov_Object;
 
 
-     MultipleTests variableMethodPostConditions(const Abstract_Value_Object* o)
-    {
-      MultipleTests M("variable() method",
-                      "postconditions");
-
-      if (o->invalid())
-        {
-          M.push_back(TEST_NEQ("returns a non empty string",
-                               o->variable().empty(),
-                               false));
-        }
-
-      return M;
-      }
 
 
 
@@ -110,15 +96,6 @@ namespace Markov_Test
                                  "unKnownValue()->isUnknown()==true",
                                  u->isUnknown()==true));
       std::size_t n=0;
-      std::shared_ptr<Abstract_Object> ou(u->CreateObject(u->ToString(),n));
-      bool isu=ou.get()!=nullptr;
-      M.push_back(ElementaryTest("serialize unknown value",
-                                 "ToObject(unknownValue)==true",
-                                 isu==true));
-
-      M.push_back(TEST_EQ("same string",
-                              u->ToString(),
-                          ou->ToString()));
 
       return M;
 
@@ -137,8 +114,7 @@ namespace Markov_Test
                       "interface invariants");
       M.push_back(Abstract_Object_Test::classInvariant());
 
-      M.push_back(variableMethodPostConditions(this->value_object_));
-     // M.push_back(unknownMethodPostConditions(this->value_object_));
+      // M.push_back(unknownMethodPostConditions(this->value_object_));
 
       return M;
 

@@ -6,7 +6,7 @@
 namespace Markov_Object {
 
 
- template<typename T>
+  template<typename T>
   class Measurement;
 
   class Measurement_Unit:public Abstract_Named_Object
@@ -35,35 +35,36 @@ namespace Markov_Object {
     virtual const Measurement_Unit * dynamicCast(const Abstract_Object* o)const override;
 
 
-    virtual std::string myQuantity()const
-    {
-      return idQuantity_;
-    }
-
-    ScaledExpression self()const
-    {
-      return ScaledExpression(1.0,QuantityExpression({{idName(),1}}));
-    }
-
-    virtual ScaledExpression definition()const
-    {
-      return def_;
-    }
+    static
+    Measurement_Unit DerivedUnit(Environment*  E,
+                                 std::string idName,
+                                 double scale,
+                                 std::string definition,
+                                 std::string fullname,
+                                 std::string whatthis);
 
 
-    virtual ScaledExpression BaseDefinition()const
-    {
-      return baseDefinition({});
-    }
+
+    ScaledExpression self()const;
+
+    virtual ScaledExpression definition()const;
+
+
+    virtual ScaledExpression baseDefinition()const;
 
 
     virtual bool empty()const override
     {
+      return  Abstract_Named_Object::empty()&&def_.empty();
 
     }
 
     virtual bool invalid()const override
     {
+      return Abstract_Named_Object::invalid()||def_.invalid()||
+          (Abstract_Named_Object::empty()&&!def_.empty())||
+          (!Abstract_Named_Object::empty()&&def_.empty());
+
 
     }
 
@@ -72,19 +73,14 @@ namespace Markov_Object {
     {
 
 
+
+
     }
 
     virtual std::string ToString()const override;
 
     virtual Measurement_Unit *
-    CreateObject(const std::string &text, std::size_t &cursor) const override
-    {
-      auto tmp=create();
-      auto out=tmp->ToObject(text,cursor);
-      if (out==nullptr)
-        delete tmp;
-      return out;
-    }
+    CreateObject(const std::string &text, std::size_t &cursor) const override;
 
 
     virtual Measurement_Unit* create()const override;
@@ -92,17 +88,39 @@ namespace Markov_Object {
     virtual std::set<std::string> referencedObjects()const override;
 
 
+    virtual std::shared_ptr<const Quantity> getQuantity()const;
+
+    virtual QuantityExpression getQuantityDefinition()const;
+
+    Measurement_Unit operator /(const Measurement_Unit &rh) const;
+    Measurement_Unit operator *(const Measurement_Unit &rh) const;
+
+    Measurement_Unit pow(int n)const;
+
+    bool operator<(const Measurement_Unit& rh)const;
+
+
+
 
     Measurement_Unit();
 
 
-    Measurement_Unit(Environment* E,
+
+    Measurement_Unit(Environment*  E,
                      std::string idName,
-                     double scaleFactor,
-                     std::string definition,
-                     std::string idQuantity,
+                     ScaledExpression definition,
+                     QuantityExpression qdefinition,
                      std::string fullname,
                      std::string whatthis);
+
+    Measurement_Unit(Environment*  E,
+                     std::string idName,
+                     double scale,
+                     std::string definition,
+                     std::string qdefinition,
+                     std::string fullname,
+                     std::string whatthis);
+
 
     Measurement_Unit( Environment*  e);
 
@@ -112,8 +130,9 @@ namespace Markov_Object {
 
 
   private:
-    std::string idQuantity_;
+    QuantityExpression qdef_;
     ScaledExpression def_;
+
     ScaledExpression baseDefinition(std::set<std::string> upstream) const;
   };
 
@@ -124,9 +143,61 @@ namespace Markov_Object {
 
 
 
-
-
-
 }
+
+
+
+
+
+
+
+
+#ifdef MACRO_TEST
+
+#include "Tests/MultipleTests.h"
+namespace Markov_Test
+{
+  namespace Markov_Object_Test
+  {
+
+    using namespace Markov_Object;
+
+
+
+    class Measurement_Unit_Test:public Abstract_Named_Object_Test
+    {
+    public:
+
+      virtual MultipleTests classInvariant()const;
+
+      Measurement_Unit_Test(const std::set<std::shared_ptr<Measurement_Unit >> &object);
+
+      virtual~Measurement_Unit_Test(){}
+      static std::string TestName()
+      {
+        return "Measurement_Unit_Test";
+      }
+
+      virtual std::string myTest()const
+      {
+        return TestName();
+      }
+
+
+    protected:
+      std::set<std::shared_ptr< Measurement_Unit>> mue_;
+    };
+
+
+
+
+
+  }
+}
+
+#endif //MACRO_TEST
+
+
+
 
 #endif // MEASUREMENT_UNIT_H
