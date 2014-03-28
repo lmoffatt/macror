@@ -60,11 +60,6 @@ namespace Markov_Object {
 
     }
 
-    virtual TestResult test()const override
-    {
-
-
-    }
 
     ///
     /// \brief ToString

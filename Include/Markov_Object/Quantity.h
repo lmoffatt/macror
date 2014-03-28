@@ -36,10 +36,6 @@ namespace Markov_Object {
 
 
 
-    virtual TestResult test()const override
-    {
-      TestResult res=Abstract_Named_Object::test();
-    }
 
     virtual Quantity*
     CreateObject(const std::string &text, std::size_t &cursor)const  override;

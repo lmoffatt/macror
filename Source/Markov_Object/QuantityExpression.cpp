@@ -191,28 +191,6 @@ namespace Markov_Object {
   }
 
 
-  TestResult QuantityExpression::test() const
-  {
-    TestResult res=Abstract_Object::test();
-    std::string  termsTest;
-    for (auto t:expr_)
-      {
-        if (t.first.empty())
-          {
-            termsTest+="has Empty term; ";
-          }
-        else if (t.first!=getName(t.first))
-          {
-            termsTest+="invalid Name. term"""+t.first+"""differs from """+getName(t.first)+"""";
-          }
-      }
-    if (termsTest.empty())
-      res.addTest("QuantityExpression::terms",true);
-    else
-      res.addTest("QuantityExpression::terms",termsTest);
-
-    return res;
-  }
 
 
   QuantityExpression *QuantityExpression::create() const

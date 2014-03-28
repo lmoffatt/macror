@@ -31,16 +31,6 @@ namespace Markov_Object {
 
     virtual bool empty() const override;
     virtual bool isValid() const override;
-    virtual TestResult test()const override
-    {
-      TestResult res=Abstract_Object::test();
-      res+=ex_.test();
-      if (scale()>0)
-        res.addTest("ScaledExpression::positiveScale",true);
-      else
-        res.addTest("ScaledExpression::positiveScale","found value="+std::to_string(scale()));
-      return res;
-    }
     virtual ScaledExpression *create() const override;
     virtual std::string ToString() const override;
 

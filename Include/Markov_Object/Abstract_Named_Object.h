@@ -49,7 +49,6 @@ public:
   /// if it is an unreferenced value without any referenced objects it returns a nullptr.
 
   // implemented overrides
-  virtual TestResult test()const override;
   virtual bool empty() const override;
 
   virtual std::string ToString()const override;

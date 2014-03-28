@@ -74,7 +74,6 @@ namespace Markov_Object {
     {
       return true;
     }
-    virtual TestResult test()const override;
 
 
     virtual QuantityExpression *create() const override;

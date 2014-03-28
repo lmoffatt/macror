@@ -63,22 +63,6 @@ namespace  Markov_Object {
 
 
 
-  TestResult Abstract_Named_Object::test() const
-  {
-    TestResult res=Abstract_Object::test();
-
-    bool ValidName=variableName_==IdentifierName::get(variableName_);
-
-    if (idName().empty())
-      res.addTest("validName","emptyName");
-    else if (ValidName)
-      res.addTest("validName",true);
-    else
-      res.addTest("validName","Invalid. Stored value """+variableName_+
-                  """ processed value"""+IdentifierName::get(variableName_));
-
-    return res;
-  }
 
   bool Abstract_Named_Object::empty() const
   {
