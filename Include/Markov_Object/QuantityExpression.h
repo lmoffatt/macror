@@ -6,7 +6,6 @@
 
 namespace Markov_Object {
   class Quantity;
-  class Environment;
 
   class QuantityExpression: public  Abstract_Object
   {
@@ -69,20 +68,16 @@ namespace Markov_Object {
     CreateObject(const std::string &text, std::size_t &cursor) const override;
 
 
-    virtual std::set<std::string> referencedObjects() const;
 
+    QuantityExpression(std::map<std::string,int> expression);
+    QuantityExpression(std::string exp);
 
-    QuantityExpression(Environment*e,std::map<std::string,int> expression);
-    QuantityExpression(Environment*e,std::string exp);
-
-    QuantityExpression(Environment*e);
 
     QuantityExpression();
 
     virtual std::map<std::string, int> value()const;
 
-    virtual QuantityExpression baseDefinition() const;
-  protected:
+   protected:
     virtual QuantityExpression*
     ToObject(const std::string &text, std::size_t &cursor)  override;
 
@@ -108,6 +103,8 @@ namespace Markov_Object {
 
 
 #include "Tests/MultipleTests.h"
+
+/*
 namespace Markov_Test
 {
   namespace Markov_Object_Test
@@ -148,6 +145,8 @@ namespace Markov_Test
   }
 }
 
+
+*/
 #endif //MACRO_TEST
 
 

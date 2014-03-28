@@ -30,7 +30,6 @@ namespace Markov_Object {
     virtual ScaledExpression *create() const override;
     virtual std::string ToString() const override;
 
-    virtual std::set<std::string> referencedObjects() const override;
 
 
 
@@ -60,15 +59,13 @@ namespace Markov_Object {
     // constructors and destructors
     ScaledExpression();
 
-    ScaledExpression(Environment *E);
 
 
 
     ScaledExpression(double scale,
                      QuantityExpression def);
 
-    ScaledExpression(Environment *E,
-                     double scale,
+    ScaledExpression(double scale,
                      std::string def);
 
 
@@ -80,9 +77,7 @@ namespace Markov_Object {
 
 
 
-    ScaledExpression baseDefinition() const;
 
-    QuantityExpression QuantityDefinition()const;
   protected:
     virtual ScaledExpression *ToObject(const std::string &text, std::size_t &cursor) override;
 
@@ -105,6 +100,8 @@ namespace Markov_Object {
 
 
 #include "Tests/MultipleTests.h"
+/*
+
 namespace Markov_Test
 {
   namespace Markov_Object_Test
@@ -145,6 +142,8 @@ namespace Markov_Test
   }
 }
 
+
+*/
 #endif //MACRO_TEST
 
 

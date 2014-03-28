@@ -55,7 +55,6 @@ namespace Markov_Object
 
 
 
-  class Environment;
 
   class Abstract_Object
   {
@@ -95,43 +94,15 @@ namespace Markov_Object
     //constructors destructors
 
 
-    // new implemented virtual methods
-    // Environment
-    virtual Environment* getEnvironment();
-
-    virtual Environment const * getEnvironment()const;
-
-    // new abstract method, gives the list of objects referenced
-    // for this object to has meaning
-    virtual std::set<std::string> referencedObjects() const=0;
 
 
-    //Helper methods for checking the referenced objects
-    virtual bool refersToValidObjects()const;
-
-
-    /// returns a string representation of the referenced objects
-    virtual std::string contextToString()const;
-
-    Abstract_Object(const Abstract_Object& other ):
-      E_(other.E_){}
-
-
-    Abstract_Object(Environment *E);
-
-    Abstract_Object();
 
     virtual ~Abstract_Object();
-friend class Environment;
 
   protected:
     virtual Abstract_Object*
     ToObject(const std::string& text, std::size_t &cursor) =0;
 
-    virtual void setEnvironment(Environment *E);
-
-  private:
-    Environment* E_;
 
 
 

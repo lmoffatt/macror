@@ -15,7 +15,7 @@ namespace Markov_Object {
 
 
   std::shared_ptr< Abstract_Named_Object> Environment::idN(const std::string &variablename,
-                                                           const std::string & className)
+                                                           const std::string & className)const
   {
     if (className==Quantity::ClassName())
       {
@@ -65,7 +65,7 @@ namespace Markov_Object {
   {
     auto it=U_.find(unitAbreviation);
     if (it!=U_.end())
-      if (it->second->mySuperClasses().superClasses.count(Measurement_Unit::ClassName())!=0)
+      if (it->second->mySuperClasses().count(Measurement_Unit::ClassName())!=0)
         return it->second;
     return nullptr;
   }
@@ -75,7 +75,7 @@ namespace Markov_Object {
   {
     auto it=U_.find(unitAbreviation);
     if (it!=U_.end())
-      if (it->second->mySuperClasses().superClasses.count(Measurement_Unit::ClassName())!=0)
+      if (it->second->mySuperClasses().count(Measurement_Unit::ClassName())!=0)
         return it->second;
     return nullptr;
   }
@@ -288,29 +288,6 @@ namespace Markov_Object {
 
 
 
-  std::set<std::string> Environment::getSuperClasses(const std::string &classname)
-  {
-    // concrete classes
-    Abstract_Object* o=create(classname);
-    std::set<std::string> s;
-    for (auto it:classes_)
-      {
-        const Abstract_Object* v=it.second;
-        if (v->dynamicCast(o))
-          s.insert(it.first);
-      }
-    // Abstract classes one by one
-    if (dynamic_cast<const Abstract_Object*>(o)!=nullptr)
-      s.insert(Abstract_Object::ClassName());
-    if (dynamic_cast<const Abstract_Value_Object*>(o)!=nullptr)
-      s.insert(Abstract_Value_Object::ClassName());
-    if (dynamic_cast<const Abstract_Variable_Object*>(o)!=nullptr)
-      s.insert(Abstract_Variable_Object::ClassName());
-    if (dynamic_cast<const Abstract_Named_Object*>(o)!=nullptr)
-      s.insert(Abstract_Named_Object::ClassName());
-
-    return s;
-  }
 
   bool Environment::empty() const
   {

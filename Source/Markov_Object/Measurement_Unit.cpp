@@ -196,15 +196,15 @@ namespace Markov_Object {
                                                  std::string fullname,
                                                  std::string whatthis)
   {
-    ScaledExpression sc(E,scale,definition);
-    QuantityExpression q=sc.QuantityDefinition();
+    ScaledExpression sc(scale,definition);
+    QuantityExpression q;
     return Measurement_Unit(E,idName,sc,q,fullname,whatthis);
 }
 
 
   ScaledExpression Measurement_Unit::self() const
   {
-    return ScaledExpression(1.0,QuantityExpression(const_cast<Environment*>(getEnvironment()),{{idName(),1}}));
+    return ScaledExpression(1.0,QuantityExpression({idName(),1}));
   }
 
   ScaledExpression Measurement_Unit::definition() const
@@ -436,7 +436,6 @@ namespace Markov_Object {
                                      std::string fullname,
                                      std::string whatthis)
     :
-      Abstract_Object(E),
       Abstract_Named_Object(E,idName,fullname,whatthis),
       qdef_(qdefinition),
       def_(definition)
@@ -450,10 +449,9 @@ namespace Markov_Object {
                                      std::string fullname,
                                      std::string whatthis)
     :
-      Abstract_Object(E),
       Abstract_Named_Object(E,idName,fullname,whatthis),
-      qdef_{E,qdefinition},
-      def_{E,scale,definition}
+      qdef_{qdefinition},
+      def_{scale,definition}
   {}
 
 
@@ -472,7 +470,7 @@ namespace Markov_Object {
 #include "Markov_IO/auxiliarIO.h"
 
 
-
+/*
 
 namespace Markov_Test
 {
@@ -541,18 +539,7 @@ namespace Markov_Test
                                                 q->getQuantityDefinition()+q2->getQuantityDefinition(),
                                                 "lonname","");
 
-                  Measurement_Unit qperq2(q->getEnvironment(),q->idName()+"PER2"+q2->idName(),
-                                          q->baseDefinition()+q2->baseDefinition(),
-                                          q->getQuantityDefinition().baseDefinition()+
-                                          q2->getQuantityDefinition().baseDefinition(),
-                                          "lonname","");
-
-
-
-                  M.push_back(TEST_EQ(q->idName()+"*"+q2->idName(),
-                                      qbase_q2base.baseDefinition().ToString(),
-                                      qperq2.definition().ToString() ));
-                }
+                      }
             }
         }
 
@@ -578,18 +565,10 @@ namespace Markov_Test
                                                 q->getQuantityDefinition()+q2->getQuantityDefinition()*(-1),
                                                 "lonname","");
 
-                  Measurement_Unit qperq2(q->getEnvironment(),q->idName()+"_DIV_"+q2->idName(),
-                                          q->baseDefinition()+q2->baseDefinition()*(-1),
-                                          q->getQuantityDefinition().baseDefinition()+
-                                          q2->getQuantityDefinition().baseDefinition()*-1,
-                                          "lonname","");
 
 
 
-                  D.push_back(TEST_EQ(q->idName()+"/"+q2->idName(),
-                                      qbase_q2base.baseDefinition().ToString(),
-                                      qperq2.definition().ToString() ));
-                }
+                 }
             }
         }
 
@@ -635,4 +614,5 @@ namespace Markov_Test
   }
 }
 
+*/
 #endif //MACRO_TEST

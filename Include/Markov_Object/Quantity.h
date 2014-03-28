@@ -110,6 +110,7 @@ namespace  Markov_IO {
 }
 
 #include "Tests/MultipleTests.h"
+/*
 namespace Markov_Test
 {
   namespace Markov_Object_Test
@@ -149,7 +150,7 @@ namespace Markov_Test
 
   }
 }
-
+*/
 #endif //MACRO_TEST
 
 

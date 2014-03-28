@@ -92,14 +92,14 @@ namespace Markov_Object {
     Abstract_Named_Object(){}
 
   Category::Category(Environment*  e):
-    Abstract_Object(e),
+    Abstract_Object(),
     Abstract_Named_Object(e){}
 
   Category::Category(Environment*  e,
                      std::string CategoryName,
                      std::string tip, std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       Abstract_Named_Object(e,CategoryName,tip,whatthis)
   {
 

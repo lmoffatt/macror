@@ -52,14 +52,7 @@ public:
   virtual std::string ToString()const override;
 
   virtual Abstract_Named_Object *
-  CreateObject(const std::string &text, std::size_t &cursor) const override
-  {
-    auto tmp=create();
-    auto out=tmp->ToObject(text,cursor);
-    if (out==nullptr)
-      delete tmp;
-    return out;
-  }
+  CreateObject(const std::string &text, std::size_t &cursor) const override;
 
 
   /// identifier of the object
@@ -77,7 +70,23 @@ public:
 
 
 
+  // new implemented virtual methods
+  // Environment
+  virtual Environment* getEnvironment() const;
 
+
+
+  // new abstract method, gives the list of objects referenced
+  // for this object to has meaning
+  virtual std::set<std::string> referencedObjects() const=0;
+
+
+  //Helper methods for checking the referenced objects
+  virtual bool refersToValidObjects()const;
+
+
+  /// returns a string representation of the referenced objects
+  virtual std::string contextToString()const;
 
 
 
@@ -98,13 +107,16 @@ public:
 
 
   Abstract_Named_Object(const Abstract_Named_Object& other);
+  friend class Environment;
 
 
 protected:
   // new helper methods: they add the created variable to the environment
   virtual Abstract_Named_Object* ToObject(const std::string& text, std::size_t &cursor)override;
+  virtual void setEnvironment(Environment *E);
 
 private:
+  Environment* E_;
   std::string variableName_;
   std::string tip_;
   std::string whatThis_;
@@ -127,6 +139,7 @@ namespace  Markov_IO {
 
 }
 #include "Tests/MultipleTests.h"
+/*
 namespace Markov_Test
 {
   namespace Markov_Object_Test
@@ -169,7 +182,7 @@ namespace Markov_Test
 
   }
 }
-
+*/
 #endif //MACRO_TEST
 
 

@@ -119,7 +119,7 @@ namespace Markov_Object {
 
   QuantityExpression Quantity::self() const
   {
-    return QuantityExpression(const_cast<Environment*>(getEnvironment()),{{idName(),1}});
+    return QuantityExpression({idName(),1});
   }
 
   Quantity Quantity::pow(int n) const
@@ -226,7 +226,7 @@ namespace Markov_Object {
             std::string longname;
             name=idName()+"/"+rh.idName();
             longname=Tip()+"/"+rh.Tip();
-             Environment* e=lh.getEnvironment();
+             Environment* e=this->getEnvironment();
             return Quantity(e,name,def,longname,"");
 
           }
@@ -242,16 +242,13 @@ namespace Markov_Object {
     Abstract_Object(),
     Abstract_Named_Object(){}
 
-  Quantity::Quantity(Environment*  e):
-    Abstract_Object(e),
-    Abstract_Named_Object(e){}
 
   Quantity::Quantity(Environment*  e,
                      std::string quantityAbreviation,
                      QuantityExpression quatityDefinition,
                      std::string longName, std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
       def_(quatityDefinition)
   {
@@ -264,9 +261,9 @@ namespace Markov_Object {
                      std::string longName,
                      std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(e,quatityDefinition)
+      def_(quatityDefinition)
   {}
 
   Quantity::Quantity( Environment*  e,
@@ -275,9 +272,9 @@ namespace Markov_Object {
                       std::string longName,
                       std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(e,QuantityExpression::getDefinition(quatityDefinition))
+      def_(QuantityExpression::getDefinition(quatityDefinition))
   {}
 
   QuantityExpression Quantity::baseDefinition(std::set<std::string> upstream,
@@ -335,7 +332,7 @@ namespace  Markov_IO {
   template std::string ToString(std::shared_ptr< const Markov_Object::Quantity> const&x);
 
 }
-
+/*
 
 namespace Markov_Test
 {
@@ -350,15 +347,10 @@ namespace Markov_Test
 
       for (std::shared_ptr<Quantity> o:qs)
         {
-          if (o->isReferenced())
             M.push_back(TEST_EQ("the environment returns a reference to this",
                                 o->getEnvironment()->Q(o->idName())
                                 ,o));
-          else
-            M.push_back(TEST_NEQ("the environment returns not a reference to this",
-                                 o->getEnvironment()->Q(o->idName())
-                                 ,o));
-        }
+            }
       return M;
 
     }
@@ -491,5 +483,7 @@ namespace Markov_Test
 
   }
 }
+
+*/
 
 #endif //MACRO_TEST

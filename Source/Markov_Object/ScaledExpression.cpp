@@ -53,10 +53,6 @@ namespace Markov_Object {
       return "";
   }
 
-  std::set<std::string> ScaledExpression::referencedObjects() const
-  {
-    return {};
-  }
 
   ScaledExpression *ScaledExpression::CreateObject(const std::string &text, std::size_t &cursor) const
   {
@@ -108,21 +104,15 @@ namespace Markov_Object {
     return ex_.value();
   }
 
-  ScaledExpression::ScaledExpression(Environment *E):
-    Abstract_Object(E),
-    scale_(0),
-    ex_(E){}
 
   ScaledExpression::ScaledExpression(double scale, QuantityExpression def):
-    Abstract_Object(def.getEnvironment()),
     ex_(def),
     scale_(scale)
   {}
 
-  ScaledExpression::ScaledExpression(Environment *E, double scale, std::string def)
+  ScaledExpression::ScaledExpression( double scale, std::string def)
     :
-      Abstract_Object(E),
-      ex_(E,def),
+      ex_(def),
       scale_(scale)
   {
 
@@ -136,66 +126,8 @@ namespace Markov_Object {
     ex_(other.ex_),
     scale_(other.scale_){}
 
-  ScaledExpression ScaledExpression::baseDefinition()const
-  {
-    ScaledExpression out(const_cast<Environment*>(getEnvironment()));
-    int n0=0,n=0;
 
-    if (getEnvironment()!=nullptr)
-      {
-        for (auto t:value())
-          {
-            std::shared_ptr<const Measurement_Unit> mu=getEnvironment()->U(t.first);
-            if (mu==nullptr)
-              {
-                n=0;
-                if (!t.first.empty())
-                  n=Measurement_Unit::abbrToN(t.first[0]);
-                if (n!=0)
-                  mu=getEnvironment()->U(t.first.substr(1));
-              }
-            if (mu==nullptr)
-              return ScaledExpression();
-            else
-              {
-                ScaledExpression defq=mu->baseDefinition()*t.second;
-                out+=defq;
-                n0+=n*t.second;
-              }
-
-          }
-      }
-    double sc=scale()*std::pow(10.0,n0);
-    out.setScale(sc);
-    return out;
-  }
-
-  QuantityExpression ScaledExpression::QuantityDefinition() const
-  {
-    QuantityExpression out(const_cast<Environment*>(getEnvironment()));
-    for (auto t:ex_.value())
-      {
-        auto mu=getEnvironment()->U(t.first);
-        if (mu==nullptr)
-          {
-            int n=0;
-            if (!t.first.empty())
-              n=Measurement_Unit::abbrToN(t.first[0]);
-            if (n!=0)
-              mu=getEnvironment()->U(t.first.substr(1));
-          }
-        if (mu!=nullptr)
-          {
-            out+=(mu->getQuantityDefinition())*t.second;
-          }
-
-        else
-          return {};
-      }
-    return out;
-  }
-
-  ScaledExpression *ScaledExpression::ToObject(const std::string &text, std::size_t &cursor)
+   ScaledExpression *ScaledExpression::ToObject(const std::string &text, std::size_t &cursor)
   {
     std::size_t cursor0=cursor;
     std::size_t n;
@@ -268,7 +200,7 @@ namespace Markov_Object {
 #include "Tests/MultipleTests.h"
 #include "Tests/TESTS.h"
 #include "Tests/ElementaryTest.h"
-
+/*
 namespace Markov_Test
 {
   namespace Markov_Object_Test
@@ -290,11 +222,7 @@ namespace Markov_Test
         {
           for (auto q2:qs)
             {
-              closure.push_back(TEST_EQ_xi_xj(q->ToString(),
-                                              q2->ToString(),
-                                              (*q+*q2).invalid(),
-                                              q->invalid()&&q2->invalid()));
-            }
+             }
         }
 
       o.push_back(closure);
@@ -404,7 +332,7 @@ namespace Markov_Test
       std::set<std::shared_ptr<QuantityExpression> > out;
       for (std::shared_ptr<ScaledExpression> t:object)
         {
-          out.insert(std::make_shared<QuantityExpression>(t->getEnvironment(),t->value()));
+          out.insert(std::make_shared<QuantityExpression>(t->value()));
         }
       return out;
 
@@ -418,6 +346,9 @@ namespace Markov_Test
 
   }
 }
+*/
+
+
 
 #endif //MACRO_TEST
 

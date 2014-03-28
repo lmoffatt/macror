@@ -23,7 +23,7 @@ class Environment
 {
 public:
   std::shared_ptr<const Abstract_Named_Object> idN(const std::string& variablename)const;
-  std::shared_ptr<Abstract_Named_Object> idN(const std::string& variablename, const std::string &className);
+  std::shared_ptr<Abstract_Named_Object> idN(const std::string& variablename, const std::string &className) const;
 
 
   std::shared_ptr<Measurement_Unit> U(const std::string& unitAbreviation);
@@ -67,9 +67,6 @@ public:
   Abstract_Object* create(std::string classname);
 
 
-  bool doesDynCast(const Abstract_Object* o,std::string classname);
-
-  std::set<std::string> getSuperClasses(const std::string& classname);
 
   bool empty()const;
 

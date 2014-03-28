@@ -51,7 +51,7 @@ namespace Markov_Object {
 #include "Tests/ElementaryTest.h"
 
 
-
+/*
 
 namespace Markov_Test
 {
@@ -105,6 +105,8 @@ namespace Markov_Test
   }
 }
 
+
+*/
 #endif //MACRO_TEST
 
 

@@ -24,12 +24,6 @@ namespace Markov_Object {
     virtual std::set<std::string> mySuperClasses() const override;
     virtual std::string myClass() const override;
     virtual bool empty() const override;
-    virtual std::string selfInvariant()const override
-    {
-      std::string out="";
-
-
-    }
     virtual Unit_System *create() const override;
     virtual std::string ToString() const override;
     virtual Unit_System *CreateObject(const std::string &text, std::size_t &cursor) const override;

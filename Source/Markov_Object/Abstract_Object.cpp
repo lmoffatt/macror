@@ -44,61 +44,17 @@ namespace Markov_Object
     return mySuperClasses().count(classname)!=0;
   }
 
-  const Environment *Abstract_Object::getEnvironment() const
-  {
-    return E_;
-  }
-
-  bool Abstract_Object::refersToValidObjects() const
-  {
-    for (auto o:this->referencedObjects())
-      {
-        auto getEnvironment()->idN(o);
-      }
-
-  }
-
-  Environment *Abstract_Object::getEnvironment()
-  {
-    return E_;
-  }
-
-
-  std::string Abstract_Object::contextToString() const
-  {
-    std::string s;
-    for (auto r : referencedObjects())
-      {
-        auto v=getEnvironment()->idN(r);
-        if (v!=nullptr)
-          s+=v->ToString();
-
-      }
-    return s;
-  }
-
-  Abstract_Object::Abstract_Object( Environment *E):
-    E_(E){}
 
 
 
-  
-  
 
 
-  Abstract_Object::Abstract_Object():
-    E_{nullptr}
-  {}
-  
 
   
   Abstract_Object::~Abstract_Object()
   {}
 
-  void Abstract_Object::setEnvironment(Environment *E)
-  {
-    E_=E;
-  }
+ }
 
 
   
@@ -170,14 +126,14 @@ namespace Markov_Object
   //    std::string fieldname=Named_Object::getName(singleLine,pos);
   //    return fieldname;
   //  }
-  
+  /*
   static Abstract_Variable_Object* getFieldValue(const std::string multipleLines,std::size_t& pos)
   {
     std::string line=Abstract_Named_Object::nextLine(multipleLines,pos);
     
   }
   
-  
+  */
   
   
   
@@ -465,7 +421,7 @@ namespace Markov_Object
 
 
   
-}
+
 
 #include <sstream>
 
@@ -527,7 +483,7 @@ namespace  Markov_IO {
 #include "Tests/ElementaryTest.h"
 
 
-
+/*
 
 namespace Markov_Test
 {
@@ -549,7 +505,7 @@ namespace Markov_Test
       E.getSuperClasses(object_->myClass());
       
       SuperClassesI.push_back(TEST_EQ("mySuperClasses.SuperClasses method",
-                                   object_->mySuperClasses().superClasses,
+                                   object_->mySuperClasses(),
                                    E.getSuperClasses(object_->myClass())));
       
       return SuperClassesI;
@@ -725,7 +681,7 @@ namespace Markov_Test
 
   }
 }
-
+*/
 #endif //MACRO_TEST
 
 

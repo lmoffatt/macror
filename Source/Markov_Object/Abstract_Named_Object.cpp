@@ -42,6 +42,37 @@ namespace  Markov_Object {
 
 
 
+  Environment *Abstract_Named_Object::getEnvironment()const
+  {
+    return E_;
+  }
+
+
+
+
+  bool Abstract_Named_Object::refersToValidObjects() const
+  {
+    for (auto o:this->referencedObjects())
+      {
+        auto v =getEnvironment()->idN(o);
+        if (v==nullptr)
+          return false;
+      }
+return true;
+  }
+
+  std::string Abstract_Named_Object::contextToString() const
+  {
+    std::string s;
+    for (auto r : referencedObjects())
+      {
+        auto v=getEnvironment()->idN(r);
+        if (v!=nullptr)
+          s+=v->ToString();
+
+      }
+    return s;
+  }
 
 
 
@@ -65,14 +96,6 @@ namespace  Markov_Object {
 
   }
 
-  bool Abstract_Named_Object::isDuplicate() const
-  {
-    if (getEnvironment()==nullptr)
-      return false;
-    else
-      return (getEnvironment()->idN(idName()).get()!=nullptr)&&(getEnvironment()->idN(idName()).get()!=this);
-
-  }
 
 
 
@@ -134,6 +157,15 @@ namespace  Markov_Object {
     return out;
   }
 
+  Abstract_Named_Object *Abstract_Named_Object::CreateObject(const std::string &text, std::size_t &cursor) const
+  {
+    auto tmp=create();
+    auto out=tmp->ToObject(text,cursor);
+    if (out==nullptr)
+      delete tmp;
+    return out;
+  }
+
   Abstract_Named_Object*
   Abstract_Named_Object::ToObject(const std::string& text, std::size_t& cursor)
   {
@@ -161,6 +193,11 @@ namespace  Markov_Object {
       return nullptr;
   }
 
+  void Abstract_Named_Object::setEnvironment(Environment *E)
+  {
+    E_=E;
+  }
+
 
 
   Abstract_Named_Object::Abstract_Named_Object(Environment*  e,
@@ -168,7 +205,7 @@ namespace  Markov_Object {
                                                std::string tip,
                                                std::string whatthis)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       variableName_{variablename},tip_{tip},whatThis_{whatthis}
 
   {
@@ -177,7 +214,7 @@ namespace  Markov_Object {
 
   Abstract_Named_Object::Abstract_Named_Object( Environment*  e)
     :
-      Abstract_Object(e),
+      Abstract_Object(),
       variableName_{},tip_{},whatThis_{}{
 
   }
@@ -316,7 +353,7 @@ namespace  Markov_IO {
 }
 
 
-
+/*
 
 namespace Markov_Test
 {
@@ -665,7 +702,7 @@ namespace Markov_Test
 
 
 
-
+/*
     MultipleTests Abstract_Named_Object_Test::classInvariant() const
     {
 
@@ -693,11 +730,16 @@ namespace Markov_Test
           M.push_back(MM);
         }
         */
+/*
       return M;
 
     }
   }
 }
+
+
+
+*/
 
 #endif //MACRO_TEST
 

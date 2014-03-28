@@ -26,8 +26,6 @@ namespace Markov_Object {
 
 
 
-
-  }
   template<typename T>
   std::set<std::string> SimpleVariable<T>::mySuperClasses() const
   {
@@ -47,22 +45,11 @@ namespace Markov_Object {
 
   }
 
-  template<typename T>
-  SimpleVariable<T> *SimpleVariable<T>::dynamicCast(Abstract_Object *o) const
-  {
-    return dynamic_cast< SimpleVariable<T> *>(o);
-  }
-
-  template<typename T>
-  const SimpleVariable<T> *SimpleVariable<T>::dynamicCast(const Abstract_Object *o) const
-  {
-    return dynamic_cast< const SimpleVariable<T> *>(o);
-  }
 
 
   template<typename T>
-   std::string SimpleVariable<T>::myUnit()const{
-     return unitId_;
+  std::string SimpleVariable<T>::myUnit()const{
+    return unitId_;
   }
 
 
@@ -78,7 +65,7 @@ namespace Markov_Object {
       Abstract_Variable_Object(E,name,tip,whatthis),
       defautValue_(defaultValue),
       unitId_(unit)
-   {
+  {
 
   }
 
@@ -159,7 +146,7 @@ namespace Markov_Object {
         pos=pos0;
         return nullptr;
       }
-     std::size_t posline=0;
+    std::size_t posline=0;
     defautValue_=SimpleVariableValue<T>::get(line,&posline);
     unitId_=IdentifierName::get(line.substr(posline));
 
