@@ -30,15 +30,6 @@ namespace Markov_Object {
 
   }
 
-  const Category *Category::dynamicCast(const Abstract_Object *o) const
-  {
-    return dynamic_cast<Category const *>(o);
-  }
-
-  Category *Category::dynamicCast(Abstract_Object *o) const
-  {
-    return dynamic_cast<Category*>(o);
-  }
 
   Category *Category::create() const
   {

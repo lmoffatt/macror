@@ -31,9 +31,6 @@ namespace Markov_Object {
     virtual std::string myClass()const override;
     virtual std::set<std::string> mySuperClasses()const override;
 
-    /// cast an Abstract_Object to Base_Unit
-    virtual Measurement_Unit * dynamicCast(Abstract_Object* o)const override;
-    virtual const Measurement_Unit * dynamicCast(const Abstract_Object* o)const override;
 
 
     static

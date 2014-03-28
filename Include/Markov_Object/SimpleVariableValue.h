@@ -25,9 +25,6 @@ namespace Markov_Object
     virtual SimpleVariableValue<T> *create() const override;
     virtual std::set<std::string> mySuperClasses()const override;
 
-    /// cast an Abstract_Object to SimpleVariableValue<T>
-    virtual SimpleVariableValue<T> * dynamicCast(Abstract_Object* o)const override;
-    virtual const SimpleVariableValue<T> * dynamicCast(const Abstract_Object* o)const override;
 
     virtual std::string myUnit()const ;
 

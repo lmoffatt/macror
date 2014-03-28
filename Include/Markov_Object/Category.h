@@ -17,8 +17,6 @@ namespace Markov_Object {
     static std::set<std::string> SuperClasses();
 
 
-    virtual Category* dynamicCast(Abstract_Object *o) const override;
-    virtual const Category *dynamicCast(const Abstract_Object *o) const override;
 
     // virtual methods
     virtual std::string myClass()const override;

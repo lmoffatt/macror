@@ -198,10 +198,6 @@ namespace Markov_Object {
     return new QuantityExpression;
   }
 
-  const QuantityExpression *QuantityExpression::dynamicCast(const Abstract_Object*o) const
-  {
-    return dynamic_cast<const QuantityExpression*>(o);
-  }
 
   std::string QuantityExpression::ToString() const
   {
@@ -301,10 +297,6 @@ QuantityExpression QuantityExpression::baseDefinition()const
   return out;
 }
 
-QuantityExpression *QuantityExpression::dynamicCast(Abstract_Object*o) const
-{
-  return dynamic_cast<QuantityExpression*>(o);
-}
 
 bool QuantityExpression::empty() const
 {

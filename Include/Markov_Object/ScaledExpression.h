@@ -20,9 +20,6 @@ namespace Markov_Object {
 
     ScaledExpression dimensionless();
 
-    virtual ScaledExpression* dynamicCast(Abstract_Object *o) const;
-    virtual const ScaledExpression* dynamicCast(const Abstract_Object *o) const;
-
 
     //overrides
 

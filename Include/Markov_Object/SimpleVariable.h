@@ -18,10 +18,6 @@ namespace Markov_Object {
 
     static std::set<std::string> SuperClasses();
 
-    /// cast an Abstract_Object to SimpleVariable<T>
-    virtual SimpleVariable<T> * dynamicCast(Abstract_Object* o)const override;
-    virtual const SimpleVariable<T> * dynamicCast(const Abstract_Object* o)const override;
-
 
     virtual bool empty()const override
      {

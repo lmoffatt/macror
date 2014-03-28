@@ -25,15 +25,6 @@ namespace Markov_Object {
     return mySC;
   }
 
-  Abstract_Value_Object *Abstract_Value_Object::dynamicCast(Abstract_Object*o) const
-  {
-    return dynamic_cast<Abstract_Value_Object*> (o);
-  }
-
-  const Abstract_Value_Object *Abstract_Value_Object::dynamicCast(const Abstract_Object*o) const
-  {
-    return dynamic_cast<const Abstract_Value_Object*> (o);
-  }
 
 
   Abstract_Value_Object::~Abstract_Value_Object(){}

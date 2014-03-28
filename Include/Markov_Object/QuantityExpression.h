@@ -77,8 +77,6 @@ namespace Markov_Object {
 
 
     virtual QuantityExpression *create() const override;
-    virtual QuantityExpression *dynamicCast(Abstract_Object*o) const override;
-    virtual const QuantityExpression *dynamicCast(const Abstract_Object* o) const override;
 
     virtual std::string ToString() const override;
 

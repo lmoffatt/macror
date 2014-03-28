@@ -28,15 +28,6 @@ namespace Markov_Object {
 
   Abstract_Variable_Object::~Abstract_Variable_Object(){}
 
-  Abstract_Variable_Object *Abstract_Variable_Object::dynamicCast(Abstract_Object *o) const
-  {
-    return dynamic_cast<Abstract_Variable_Object *>(o);
-  }
-
-  const Abstract_Variable_Object *Abstract_Variable_Object::dynamicCast(const Abstract_Object *o) const
-  {
-    return dynamic_cast<const Abstract_Variable_Object *>(o);
-  }
 
 
 

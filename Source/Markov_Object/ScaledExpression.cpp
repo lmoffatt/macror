@@ -24,18 +24,6 @@ namespace Markov_Object {
     return ScaledExpression{1.0,ex_.dimensionless()};
   }
 
-  ScaledExpression *ScaledExpression::dynamicCast(Abstract_Object *o) const
-  {
-    return dynamic_cast<ScaledExpression*>(o) ;
-
-  }
-
-  const ScaledExpression *ScaledExpression::dynamicCast(const Abstract_Object *o) const
-  {
-   return dynamic_cast<const ScaledExpression*>(o) ;
-
-  }
-
   std::set<std::string> ScaledExpression::mySuperClasses() const
   {
     return SuperClasses();

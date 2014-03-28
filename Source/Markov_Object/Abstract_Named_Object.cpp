@@ -27,15 +27,7 @@ namespace  Markov_Object {
     return "Named_Object";
   }
 
-  Abstract_Named_Object *Abstract_Named_Object::dynamicCast(Abstract_Object *o) const
-  {
-    return dynamic_cast<Abstract_Named_Object*>(o);
-  }
 
-  const Abstract_Named_Object *Abstract_Named_Object::dynamicCast(const Abstract_Object *o) const
-  {
-    return dynamic_cast<const Abstract_Named_Object*>(o);
-  }
 
 
   Abstract_Named_Object::~Abstract_Named_Object()

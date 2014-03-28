@@ -277,26 +277,6 @@ namespace Markov_Object {
   }
 
 
-  bool Environment::doesDynCast(const Abstract_Object*o, std::string classname)
-  {
-    // concrete classes
-    auto it=classes_.find(classname);
-    if (it!=classes_.end())
-      {
-        const Abstract_Object* c=it->second;
-        return c->dynamicCast(o)!=nullptr;
-      }
-    else
-      // Abstract classes one by one
-      if (classname==Abstract_Object::ClassName())
-        return dynamic_cast<const Abstract_Object*>(o)!=nullptr;
-      else if (classname==Abstract_Value_Object::ClassName())
-        return dynamic_cast<const Abstract_Value_Object*>(o)!=nullptr;
-      else if (classname==Abstract_Variable_Object::ClassName())
-        return dynamic_cast<const Abstract_Variable_Object*>(o)!=nullptr;
-      else return false;
-
-  }
 
   std::set<std::string> Environment::getSuperClasses(const std::string &classname)
   {

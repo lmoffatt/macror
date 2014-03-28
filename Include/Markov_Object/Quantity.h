@@ -20,9 +20,6 @@ namespace Markov_Object {
     static std::set<std::string> SuperClasses();
 
 
-    virtual Quantity* dynamicCast(Abstract_Object *o) const;
-    virtual const Quantity *dynamicCast(const Abstract_Object *o) const;
-
     // virtual methods
     virtual std::string myClass()const override;
     virtual std::set<std::string> mySuperClasses()const override;

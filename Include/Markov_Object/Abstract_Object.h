@@ -71,8 +71,6 @@ namespace Markov_Object
     virtual std::set<std::string> mySuperClasses()const;
     virtual std::string myClass()const;
     /// cast an Abstract_Object to myClass
-    virtual Abstract_Object* dynamicCast(Abstract_Object* o)const;
-    virtual const Abstract_Object* dynamicCast(const Abstract_Object* o)const;
 
 
 
@@ -80,8 +78,7 @@ namespace Markov_Object
     virtual bool empty()const=0;
     virtual bool isValid()const
     {
-      return test().error().empty();
-    }
+     }
 
 
     /// creates a object of current Class

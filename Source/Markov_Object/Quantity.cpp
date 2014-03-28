@@ -30,15 +30,7 @@ namespace Markov_Object {
     
   }
 
-  const Quantity *Quantity::dynamicCast(const Abstract_Object *o) const
-  {
-    return dynamic_cast<Quantity const *>(o);
-  }
 
-  Quantity *Quantity::dynamicCast(Abstract_Object *o) const
-  {
-    return dynamic_cast<Quantity*>(o);
-  }
   
   Quantity *Quantity::create() const
   {

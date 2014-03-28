@@ -187,17 +187,7 @@ namespace Markov_Object {
   }
 
 
-  Measurement_Unit *Measurement_Unit::dynamicCast(Abstract_Object*o) const
-  {
-    return dynamic_cast<Measurement_Unit*>(o);
 
-  }
-
-  const Measurement_Unit *Measurement_Unit::dynamicCast(const Abstract_Object*o) const
-  {
-    return dynamic_cast<const Measurement_Unit*>(o);
-
-  }
 
   Measurement_Unit Measurement_Unit::DerivedUnit(Environment *E,
                                                  std::string idName,
@@ -497,12 +487,10 @@ namespace Markov_Test
 
       for (std::shared_ptr<Measurement_Unit> o:qs)
         {
-          if (o->isReferenced())
             M.push_back(TEST_EQ("the environment returns a reference to this",
                                 o->getEnvironment()->U(o->idName())
                                 ,o));
-          else
-            M.push_back(TEST_NEQ("the environment returns not a reference to this",
+      M.push_back(TEST_NEQ("the environment returns not a reference to this",
                                  o->getEnvironment()->U(o->idName())
                                  ,o));
         }
