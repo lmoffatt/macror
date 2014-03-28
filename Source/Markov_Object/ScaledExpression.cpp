@@ -60,10 +60,9 @@ namespace Markov_Object {
     return ex_.empty() && (scale_==0);
   }
 
-  bool ScaledExpression::invalid() const
+  bool ScaledExpression::isValid() const
   {
-    return ex_.invalid()||(
-          !empty()&&(ex_.empty()|| (scale_==0)));
+    return scale()>0;
   }
 
   ScaledExpression *ScaledExpression::create() const
@@ -81,7 +80,7 @@ namespace Markov_Object {
 
   std::set<std::string> ScaledExpression::referencedObjects() const
   {
-    return ex_.referencedObjects();
+    return {};
   }
 
   ScaledExpression *ScaledExpression::CreateObject(const std::string &text, std::size_t &cursor) const

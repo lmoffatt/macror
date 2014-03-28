@@ -237,9 +237,6 @@ namespace Markov_Object {
   }
 
 
-
-
-
   Measurement_Unit* Measurement_Unit::create()const
   {
     return new Measurement_Unit;
@@ -247,7 +244,12 @@ namespace Markov_Object {
   
   std::set<std::string> Measurement_Unit::referencedObjects() const
   {
-    return std::set<std::string>();
+    std::set<std::string> out;
+    for (auto t:def_.value())
+      {
+        out.insert(Measurement_Unit::ClassName()+"::"+t.first);
+      }
+    return out;
   }
 
 
@@ -367,7 +369,7 @@ namespace Markov_Object {
       }
   }
 
-  Measurement_Unit *Measurement_Unit::CreateObject(const std::string &text, std::size_t &cursor) const
+  Measurement_Unit *Measurement_Unit:: CreateObject(const std::string &text, std::size_t &cursor) const
   {
     auto tmp=create();
     auto out=tmp->ToObject(text,cursor);

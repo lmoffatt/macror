@@ -16,6 +16,7 @@ class Abstract_Object;
 class Abstract_Named_Object;
 class Abstract_Variable_Object;
 class Measurement_Unit;
+class Unit_System;
 
 
 class Environment
@@ -58,6 +59,16 @@ public:
   bool addDef(std::shared_ptr<Measurement_Unit> u);
 
 
+  Unit_System* getUnit_System()
+  {
+    return us_;
+  }
+
+  const Unit_System* getUnit_System()const
+  {
+    return us_;
+  }
+
 
   Abstract_Object* create(std::string classname);
 
@@ -82,6 +93,7 @@ private:
 
 
   std::map<std::string,Abstract_Object*> classes_;
+  Unit_System* us_;
 
 };
 }

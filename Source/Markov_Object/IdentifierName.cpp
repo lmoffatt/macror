@@ -14,6 +14,28 @@ namespace Markov_Object {
     if (n==line.size()) n=line.npos;
   }
 
+  std::string IdentifierName::get(const std::string &multiplelines, std::string myAllowedR, std::string myAllowed, std::string mySeparator)
+  {
+    std::size_t pos=0;
+    return get(multiplelines,
+               pos,
+               myAllowedR,
+               myAllowed,
+               mySeparator);
+  }
+
+  std::set<std::string> IdentifierName::getSet(const std::string &singleLine, std::string myAllowedR, std::string myAllowed, std::string mySeparator)
+  {
+    std::size_t pos=0;
+    std::set<std::string> out;
+    while (pos<singleLine.size())
+      {
+        std::string id=get(singleLine,pos,myAllowedR,myAllowed,mySeparator);
+        out.insert(id);
+      }
+    return out;
+  }
+
   std::string IdentifierName::get(const std::string &text,
                                   std::size_t &pos,
                                   std::string myAllowedR,
@@ -56,17 +78,29 @@ namespace Markov_Object {
   }
 
 
-  std::string IdentifierName::get(const std::string &multiplelines,
-                                  std::string myAllowedR,
-                                  std::string myAllowed,
-                                  std::string mySeparator)
+
+
+  std::vector<std::string> IdentifierName::getVector(const std::string &singleLine, std::size_t &pos, std::string myAllowedR, std::string myAllowed, std::string mySeparator)
+  {
+    std::vector<std::string> out;
+    while (pos<singleLine.size())
+      {
+        std::string id=get(singleLine,pos,myAllowedR,myAllowed,mySeparator);
+        out.push_back(id);
+      }
+    return out;
+  }
+
+  std::vector<std::string> IdentifierName::getVector(const std::string &singleLine, std::string myAllowedR, std::string myAllowed, std::string mySeparator)
   {
     std::size_t pos=0;
-    return get(multiplelines,
-               pos,
-               myAllowedR,
-               myAllowed,
-               mySeparator);
+    std::vector<std::string> out;
+    while (pos<singleLine.size())
+      {
+        std::string id=get(singleLine,pos,myAllowedR,myAllowed,mySeparator);
+        out.push_back(id);
+      }
+    return out;
   }
 
   IdentifierName::IdentifierName():

@@ -25,6 +25,8 @@ public:
   static std::string nextLine(const std::string& lines,std::size_t& n);
   static std::string removeInitialSpaces(const std::string& line);
 
+
+
   // reflection statics
   static std::string ClassName();
   static Class_info classInfo();
@@ -47,7 +49,7 @@ public:
   /// if it is an unreferenced value without any referenced objects it returns a nullptr.
 
   // implemented overrides
-  virtual bool invalid() const override;
+  virtual TestResult test()const override;
   virtual bool empty() const override;
 
   virtual std::string ToString()const override;
@@ -65,13 +67,6 @@ public:
 
   /// identifier of the object
   virtual std::string idName()const ;
-
-  /// it checks for the environment to reference this object
-  virtual bool isReferenced()const;
-
-  /// returns true in case that the proposed idName is already present in the Environment
-  /// in this case, the Environment is left unchanged
-  virtual bool isDuplicate() const;
 
 
  //Tip and whatthis

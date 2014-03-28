@@ -27,6 +27,43 @@ namespace Markov_Object
     bool isValued;
   };
 
+  class TestResult
+  {
+  public:
+
+    std::string error()const
+    {
+      std::string out;
+      for (auto t:tests_)
+        if (t.second!="OK")
+           out+=t.first+": "+t.second;
+      return out;
+     }
+
+    void addTest(const std::string& test, const std::string& result)
+    {
+      tests_[test]=result;
+    }
+    void addTest(const std::string& test, bool result)
+    {
+      if (result)
+      tests_[test]="OK";
+      else
+        tests_[test]="FAIL";
+    }
+    TestResult& operator+=(const TestResult& other)
+    {
+      tests_.insert(other.tests_.begin(),other.tests_.end());
+      return *this;
+    }
+
+  private:
+    std::map<std::string,std::string> tests_;
+
+  };
+
+
+
   class Environment;
 
   class Abstract_Object
@@ -50,7 +87,22 @@ namespace Markov_Object
 
     // virtual abstract
     virtual bool empty()const=0;
-    virtual bool invalid()const=0;
+    virtual bool isValid()const
+    {
+      return test().error().empty();
+    }
+
+    virtual TestResult test()const
+    {
+      TestResult res;
+      if (getEnvironment()!=nullptr)
+        res.addTest("hasEnvironment",true);
+      else
+        res.addTest("hasEnvironment",false);
+
+      return res;
+
+    }
 
     /// creates a object of current Class
     virtual Abstract_Object* create()const=0;
@@ -107,8 +159,6 @@ friend class Environment;
 
     virtual void setEnvironment(Environment *E);
 
-
-
   private:
     Environment* E_;
 
@@ -122,27 +172,6 @@ friend class Environment;
 
   class Measurement_Unit;
 
-  class Abstract_Valued_Object//:public virtual Abstract_Object
-  {
-  public:
-    static std::string ClassName();
-    virtual std::string myClass()const ;
-    static Class_info classInfo();
-    virtual Class_info myClassInfo()const ;
-
-    static std::set<std::string> SuperClasses() ;
-    /// cast an Abstract_Object to Abstract_Valued_Object
-    virtual Abstract_Valued_Object * dynamicCast(Abstract_Object* o)const ;
-    virtual const Abstract_Valued_Object * dynamicCast(const Abstract_Object* o)const ;
-
-    virtual std::string myUnit()const=0;
-    virtual ~Abstract_Valued_Object();
-
-    Abstract_Valued_Object(){}
-
-
-
-  };
 
 
   //  class FieldVariable: public Abstract_Variable_Object

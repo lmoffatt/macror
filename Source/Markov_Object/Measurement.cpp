@@ -29,6 +29,22 @@ namespace Markov_Object {
     return ClassName();
     
   }
+
+  Measurement *Measurement::create() const
+  {
+    return new Measurement;
+  }
+
+  const Measurement *Measurement::dynamicCast(const Abstract_Object *o) const
+  {
+    return dynamic_cast<const Measurement*>(o);
+
+  }
+
+  Measurement *Measurement::dynamicCast(Abstract_Object *o) const
+  {
+    return dynamic_cast<Measurement*>(o);
+  }
   
 
   
@@ -207,12 +223,12 @@ namespace Markov_Object {
 
 
   
-  */
+
   
   
   
   
   
-  
+*/
   
 }

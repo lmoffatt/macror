@@ -74,10 +74,12 @@ int main()
   e->add(kg); e->add(meter);  e->add(second); e->add(newton);
   e->addDef(kg); e->addDef(meter);  e->addDef(second); e->addDef(newton);
 
-  Markov_Object::ScaledExpression a(e,1.0,"pm*Ms^-1");
+  Markov_Object::ScaledExpression a(e,1.0,"pm*Ms^-1*us^-1*N^-1");
   std::cout<<a.ToString()<<"\n";
   std::cout<<a.baseDefinition().ToString()<<"\n";
   std::cout<<a.QuantityDefinition().ToString()<<"\n";
+  std::cout<<a.QuantityDefinition().baseDefinition().ToString()<<"\n";
+
 
   std::cout<<kg->ToString();
  auto N2=(*kg)*(*meter)/(*second)/(*second);

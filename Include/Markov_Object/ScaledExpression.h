@@ -16,8 +16,6 @@ namespace Markov_Object {
     static  std::string ClassName();
     static
     std::set<std::string> SuperClasses();
-
-
     static Class_info classInfo();
 
     ScaledExpression dimensionless();
@@ -32,11 +30,22 @@ namespace Markov_Object {
     virtual std::string myClass() const override;
 
     virtual bool empty() const override;
-    virtual bool invalid() const override;
+    virtual bool isValid() const override;
+    virtual TestResult test()const override
+    {
+      TestResult res=Abstract_Object::test();
+      res+=ex_.test();
+      if (scale()>0)
+        res.addTest("ScaledExpression::positiveScale",true);
+      else
+        res.addTest("ScaledExpression::positiveScale","found value="+std::to_string(scale()));
+      return res;
+    }
     virtual ScaledExpression *create() const override;
     virtual std::string ToString() const override;
 
     virtual std::set<std::string> referencedObjects() const override;
+
 
 
 

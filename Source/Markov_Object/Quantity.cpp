@@ -1,7 +1,7 @@
 #include "Markov_Object/Quantity.h"
 #include "Markov_Object/IdentifierName.h"
 #include "Markov_Object/Environment.h"
-
+#include "Markov_Object/Unit_System.h"
 
 namespace Markov_Object {
   
@@ -73,11 +73,13 @@ namespace Markov_Object {
   
   
   /// if the definition is valid and the definition is empty is valid
-  bool Quantity::invalid() const
+  bool Quantity::isValid() const
   {
-    return Abstract_Named_Object::invalid()||
+    return Abstract_Named_Object::isValid()||
         (Abstract_Named_Object::empty()&&(!def_.empty()));
   }
+
+
 
   Quantity *Quantity::CreateObject(const std::string &text, std::size_t &cursor) const
   {
@@ -122,7 +124,7 @@ namespace Markov_Object {
     std::set<std::string> out;
     for (auto t:def_.value())
       {
-        out.insert(t.first);
+        out.insert(Quantity::ClassName()+"::"+t.first);
       }
     return out;
   }
@@ -132,12 +134,12 @@ namespace Markov_Object {
     return def_;
   }
   
-  QuantityExpression Quantity::baseDefinition() const
+  QuantityExpression Quantity::baseDefinition(Unit_System *us) const
   {
-    auto o=baseDefinition({});
+    auto o=baseDefinition({},us);
     return o;
   }
-  
+
   QuantityExpression Quantity::self() const
   {
     return QuantityExpression(const_cast<Environment*>(getEnvironment()),{{idName(),1}});
@@ -245,10 +247,10 @@ namespace Markov_Object {
           {
             std::string name;
             std::string longname;
-            name=idName()+"_per_"+rh.idName();
-            longname=Tip()+" per "+rh.Tip();
-            //  Environment* e=lh.getEnvironment();
-            return Quantity(nullptr,name,def,longname,"");
+            name=idName()+"/"+rh.idName();
+            longname=Tip()+"/"+rh.Tip();
+             Environment* e=lh.getEnvironment();
+            return Quantity(e,name,def,longname,"");
 
           }
 
@@ -301,8 +303,12 @@ namespace Markov_Object {
       def_(e,QuantityExpression::getDefinition(quatityDefinition))
   {}
 
-  QuantityExpression Quantity::baseDefinition(std::set<std::string> upstream) const
+  QuantityExpression Quantity::baseDefinition(std::set<std::string> upstream,
+                                              Unit_System* us) const
+
   {
+    if (us==nullptr)
+      us=getEnvironment()->getUnit_System();
     upstream.insert(idName());
     QuantityExpression out;
     if (getEnvironment()!=nullptr)
@@ -312,11 +318,12 @@ namespace Markov_Object {
             std::shared_ptr<const Quantity> q=getEnvironment()->Q(t.first);
             if (q==nullptr)
               return QuantityExpression();
-            else if (upstream.count(q->idName())!=0)
+            else if (us->isStdQuantity(q->idName())||
+                       upstream.count(q->idName())!=0)
               return self();
             else
               {
-                auto defq=q->baseDefinition(upstream)*t.second;
+                auto defq=q->baseDefinition(upstream,us)*t.second;
                 out+=defq;
               }
 
@@ -357,7 +364,7 @@ namespace Markov_Test
 {
   namespace Markov_Object_Test
   {
-    
+
 
     MultipleTests isreferenced(const std::set<std::shared_ptr<Quantity>>&  qs)
     {
@@ -400,7 +407,7 @@ namespace Markov_Test
 
     MultipleTests BaseDefinitionInvariant(const std::set<std::shared_ptr<Quantity>>& qs)
     {
-      
+
       MultipleTests O("test for Distributivity of baseDefinition","compare both ways");
       MultipleTests M("test for Distributivity of baseDefinition over multiplication",
                       "For all qa, qb  in A,"
@@ -420,19 +427,19 @@ namespace Markov_Test
                                         q->idName()+"_TIMES_"+q2->idName(),
                                         q->definition()+q2->definition(),
                                         "lonname","");
-                  
+
                   Quantity qperq2(q->getEnvironment(),q->idName()+"PER2"+q2->idName(),
                                   q->baseDefinition()+q2->baseDefinition(),"lonname","");
-                  
-                  
-                  
+
+
+
                   M.push_back(TEST_EQ(q->idName()+"*"+q2->idName(),
                                       qbase_q2base.baseDefinition().ToString(),
                                       qperq2.definition().ToString() ));
                 }
             }
         }
-      
+
 
       MultipleTests D("test for Distributivity of baseDefinition over division",
                       "For all qa, qb  in A,"
@@ -466,45 +473,45 @@ namespace Markov_Test
             }
         }
 
-      
+
 
       O.push_back(M);
       O.push_back(D);
-      
+
       return O;
-      
+
     }
-    
-    
-    
-    
+
+
+
+
     MultipleTests Quantity_Test::classInvariant() const
     {
       MultipleTests M("Quantity Tests",
                       "interface invariants");
-      
+
       M.push_back(Abstract_Named_Object_Test::classInvariant());
       M.push_back(BaseDefinitionInvariant(qe_));
       M.push_back(TestDefinition(qe_));
 
 
-      
+
       return M;
-      
+
     }
-    
-    
+
+
     Quantity_Test::Quantity_Test(const std::set<std::shared_ptr<Quantity >> &object):
       Abstract_Named_Object_Test(std::set<std::shared_ptr<Abstract_Named_Object>>(
                                                                                    object.begin(),object.end())),
       qe_(object){}
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
   }
 }
 

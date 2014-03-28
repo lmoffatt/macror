@@ -19,19 +19,9 @@ namespace Markov_Object {
     virtual Class_info myClassInfo() const override;
     virtual std::string myClass() const override;
 
-    virtual Measurement *create() const override
-    {
-      return new Measurement;
-    }
-    virtual Measurement *dynamicCast(Abstract_Object *o) const override
-    {
-      return dynamic_cast<Measurement*>(o);
-    }
-    virtual const Measurement *dynamicCast(const Abstract_Object *o) const override
-    {
-      return dynamic_cast<const Measurement*>(o);
-
-    }
+    virtual Measurement *create() const override;
+    virtual Measurement *dynamicCast(Abstract_Object *o) const override;
+    virtual const Measurement *dynamicCast(const Abstract_Object *o) const override;
     virtual std::string ToString() const override;
 
     virtual std::string ToString(const Measurement_Unit * other) const override;
@@ -74,6 +64,7 @@ protected:
 
     const std::string unitId_;
   };
-*/
+
+  */
 }
 #endif // MEASUREMENT_H

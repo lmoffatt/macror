@@ -7,7 +7,7 @@
 namespace Markov_Object {
 
   template<typename T>
-  class SimpleVariable: public Abstract_Variable_Object,public Abstract_Valued_Object
+  class SimpleVariable: public Abstract_Variable_Object
   {
   public:
 
@@ -31,7 +31,7 @@ namespace Markov_Object {
 
      }
 
-     virtual bool invalid()const override
+     virtual bool isValid()const override
       {
         return !empty()&&
             (Abstract_Variable_Object::empty()||
@@ -75,7 +75,6 @@ namespace Markov_Object {
     SimpleVariable(const SimpleVariable<T>& other):
       Abstract_Object(),
       Abstract_Variable_Object(other),
-      Abstract_Valued_Object(),
       defautValue_(other.defautValue_),
       unitId_(other.unitId_){}
 

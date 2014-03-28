@@ -50,8 +50,6 @@ namespace Markov_Object {
     //Variable_Object,public Valued_Object,public Named_Object
     auto vo=Abstract_Variable_Object::SuperClasses();
 
-    auto va=Abstract_Valued_Object::SuperClasses();
-    vo.insert(va.begin(),va.end());
 
 
     vo.insert(ClassName());

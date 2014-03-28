@@ -60,6 +60,15 @@ namespace Markov_Object
     return E_;
   }
 
+  bool Abstract_Object::refersToValidObjects() const
+  {
+    for (auto o:this->referencedObjects())
+      {
+        auto getEnvironment()->idN(o);
+      }
+
+  }
+
   Environment *Abstract_Object::getEnvironment()
   {
     return E_;
@@ -82,17 +91,6 @@ namespace Markov_Object
   Abstract_Object::Abstract_Object( Environment *E):
     E_(E){}
 
-  bool Abstract_Object::refersToValidObjects() const
-  {
-    if (getEnvironment()==nullptr)
-      return false;
-    for (auto o:referencedObjects())
-      {
-        if (getEnvironment()->idN(o)==nullptr)
-          return false;
-      }
-    return true;
-  }
 
 
   
@@ -141,57 +139,7 @@ namespace Markov_Object
   
   
   
-  Abstract_Valued_Object::~Abstract_Valued_Object(){}
-  
-  
-  std::string Abstract_Valued_Object::ClassName()
-  {
-    return "Valued_Object";
-  }
-  
-  std::string Abstract_Valued_Object::myClass()const
-  {
-    return ClassName();
-  }
-  std::set<std::string> Abstract_Valued_Object::SuperClasses()
-  {
-    std::set<std::string> sc=Abstract_Object::SuperClasses();
-    sc.insert(ClassName());
-    return sc;
-    
-  }
-  Class_info Abstract_Valued_Object::classInfo()
-  {
-    return Class_info
-    {
-        {ClassName()},
-        {SuperClasses()},
-        true,
-        false,
-        false
-      };
-    
-  }
-  
-  Class_info Abstract_Valued_Object::myClassInfo() const
-  {
-    return classInfo();
-  }
-  
-  
 
-  Abstract_Valued_Object* Abstract_Valued_Object::dynamicCast(Abstract_Object* o) const
-  {
-    return dynamic_cast<Abstract_Valued_Object*>(o);
-  }
-  
-  const Abstract_Valued_Object* Abstract_Valued_Object::dynamicCast(const Abstract_Object* o) const
-  {
-    return dynamic_cast<const Abstract_Valued_Object*>(o);
-  }
-
-
-  
   
   
   
@@ -660,7 +608,7 @@ namespace Markov_Test
                                     o->ToString(),""));
 
           createI.push_back(TEST_EQ("created pointer not invalid",
-                                    o->invalid(),false));
+                                    o->isValid(),false));
 
           createI.push_back(TEST_EQ("match class",
                                     object_->myClass(),
@@ -702,7 +650,7 @@ namespace Markov_Test
                                      "CreateObject(ToObject(" "))==nullptr ",
                                      oc.get()==nullptr));
         }
-      else if (object_->invalid())
+      else if (object_->isValid())
         {
           M.push_back(TEST_NEQ("invalid objects returns nonempty strings",
                                object_->ToString(),

@@ -14,6 +14,10 @@ namespace Markov_Object {
     static const char pow='^';
     static  const char mult='*';
     static  const char div='/';
+   // static  const char lb='(';
+   // static  const char rb=')';
+
+
 
     static constexpr const char* allowed="abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static constexpr const char* numeric="1234567890+-";
@@ -33,16 +37,27 @@ namespace Markov_Object {
     std::map<std::string,int> getDefinition(const std::string& defs);
 
 
-    QuantityExpression dimensionless();
-
-
 
     static std::string ClassName();
     static Class_info classInfo();
     static std::set<std::string> SuperClasses();
 
+    QuantityExpression dimensionless();
 
-   // new methods non virtual
+
+    QuantityExpression& removeUnitTerms()
+    {
+      for (auto it=expr_.begin(); it!=expr_.end();)
+        if (it->second==0)
+          {
+            expr_.erase(it++);
+          }
+        else
+          ++it;
+      return *this;
+    }
+
+    // new methods non virtual
     QuantityExpression &operator+=(const QuantityExpression& other);
     QuantityExpression& operator*=(int n);
 
@@ -55,7 +70,13 @@ namespace Markov_Object {
 
     virtual bool empty() const override;
 
-    virtual bool invalid() const override;
+    virtual bool isValid() const override
+    {
+      return true;
+    }
+    virtual TestResult test()const override;
+
+
     virtual QuantityExpression *create() const override;
     virtual QuantityExpression *dynamicCast(Abstract_Object*o) const override;
     virtual const QuantityExpression *dynamicCast(const Abstract_Object* o) const override;
@@ -64,6 +85,7 @@ namespace Markov_Object {
 
     virtual QuantityExpression*
     CreateObject(const std::string &text, std::size_t &cursor) const override;
+
 
     virtual std::set<std::string> referencedObjects() const;
 
@@ -84,7 +106,6 @@ namespace Markov_Object {
 
 
   private:
-
     std::map<std::string, int> expr_;
 
 

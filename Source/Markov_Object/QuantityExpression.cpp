@@ -170,28 +170,48 @@ namespace Markov_Object {
     auto itOther=other.expr_.begin();
     while ((it!=expr_.end())&&
            (itOther!=other.expr_.end())&&
-           (it->first==itOther->first))
+           (it->first==itOther->first)&&
+           (it->second==itOther->second))
       {
         ++it;
         ++itOther;
       }
     if (it!=expr_.end()&&itOther!=other.expr_.end())
-      return it->first<itOther->first;
+      {
+        if (it->first!=itOther->first)
+            return it->first<itOther->first;
+        else
+          return it->second<itOther->second;
+      }
+
     else if ((itOther!=other.expr_.end()))
       return true;
-    else return false;
+    else
+      return false;
   }
 
 
-  bool QuantityExpression::invalid() const
+  TestResult QuantityExpression::test() const
   {
+    TestResult res=Abstract_Object::test();
+    std::string  termsTest;
     for (auto t:expr_)
       {
-        if ((t.first.empty())|| (t.first!=getName(t.first)))
-          return true;
+        if (t.first.empty())
+          {
+            termsTest+="has Empty term; ";
+          }
+        else if (t.first!=getName(t.first))
+          {
+            termsTest+="invalid Name. term"""+t.first+"""differs from """+getName(t.first)+"""";
+          }
       }
-    return false;
+    if (termsTest.empty())
+      res.addTest("QuantityExpression::terms",true);
+    else
+      res.addTest("QuantityExpression::terms",termsTest);
 
+    return res;
   }
 
 
@@ -208,157 +228,155 @@ namespace Markov_Object {
   std::string QuantityExpression::ToString() const
   {
     std::string o;
-    auto m=expr_.begin();
-    while ((m!=expr_.end())&&(m->second==0)) ++m;
-    auto m0=m;
-    for (m=m0;m!=expr_.end();++m)
+    auto m0=expr_.begin();
+    for (auto m=m0;m!=expr_.end();++m)
       {
-        if (m->second!=0)
+        if (m!=m0)
+          o+=mult;
+        o+=m->first;
+        if (m->second==0)
           {
-            if (m!=m0)
-              o+=mult;
-            o+=m->first;
-            if (m->second!=1)
-              {
-                o+=pow+std::to_string(m->second);
-              }
+            o+=div+m->first;
           }
-
+        else if (m->second!=1)
+          {
+            o+=pow+std::to_string(m->second);
+          }
       }
     return o;
-  }
+}
 
-  QuantityExpression *QuantityExpression::CreateObject(const std::string &text, std::size_t &cursor) const
-  {
-    auto tmp=create();
-    auto out=tmp->ToObject(text,cursor);
-    if (out==nullptr)
-      delete tmp;
-    return out;
-  }
+QuantityExpression *QuantityExpression::CreateObject(const std::string &text, std::size_t &cursor) const
+{
+  auto tmp=create();
+  auto out=tmp->ToObject(text,cursor);
+  if (out==nullptr)
+    delete tmp;
+  return out;
+}
 
-  std::set<std::string> QuantityExpression::referencedObjects() const
-  {
-    std::set<std::string> out;
-    for (auto t:value())
-      {
-        out.insert(t.first);
-      }
-    return out;
-  }
+std::set<std::string> QuantityExpression::referencedObjects() const
+{
+  std::set<std::string> out;
+ for (auto q:expr_)
+   {
+     out.insert(Quantity::ClassName()+"::"+q.first);
+   }
+ return out;
+}
 
-  QuantityExpression::QuantityExpression(Environment *e):
+QuantityExpression::QuantityExpression(Environment *e):
+  Abstract_Object(e),
+  expr_{}{}
+
+
+
+QuantityExpression::QuantityExpression():
+  Abstract_Object(),
+  expr_(){}
+
+std::map<std::string, int> QuantityExpression::value() const
+{
+  return expr_;
+}
+
+
+
+QuantityExpression::QuantityExpression(Environment *e,std::map<std::string, int> expression):
+  Abstract_Object(e),
+  expr_(expression){}
+
+QuantityExpression::QuantityExpression(Environment *e, std::string exp)
+  :
     Abstract_Object(e),
-    expr_{}{}
+    expr_(getDefinition(exp)){}
 
 
+QuantityExpression*  QuantityExpression::
+ToObject(const std::string &text, std::size_t &cursor)
+{
+  auto def=getDefinition(text,cursor);
+  if (def.find("")!=def.end())
+    return nullptr;
+  expr_=def;
+  return this;
+}
 
-  QuantityExpression::QuantityExpression():
-    Abstract_Object(),
-    expr_(){}
+QuantityExpression QuantityExpression::baseDefinition()const
+{
+  QuantityExpression out(const_cast<Environment*>(getEnvironment()));
+  if (getEnvironment()!=nullptr)
+    {
+      for (auto t:value())
+        {
+          std::shared_ptr<const Quantity> q=getEnvironment()->Q(t.first);
+          if (q==nullptr)
+            return QuantityExpression();
+          else
+            {
+              auto defq=q->baseDefinition()*t.second;
+              out+=defq;
+            }
 
-  std::map<std::string, int> QuantityExpression::value() const
-  {
-    return expr_;
-  }
+        }
+    }
+  return out;
+}
 
+QuantityExpression *QuantityExpression::dynamicCast(Abstract_Object*o) const
+{
+  return dynamic_cast<QuantityExpression*>(o);
+}
 
-
-  QuantityExpression::QuantityExpression(Environment *e,std::map<std::string, int> expression):
-    Abstract_Object(e),
-    expr_(expression){}
-
-  QuantityExpression::QuantityExpression(Environment *e, std::string exp)
-    :
-      Abstract_Object(e),
-      expr_(getDefinition(exp)){}
-
-
-  QuantityExpression*  QuantityExpression::
-  ToObject(const std::string &text, std::size_t &cursor)
-  {
-    auto def=getDefinition(text,cursor);
-    if (def.find("")!=def.end())
-      return nullptr;
-    expr_=def;
-    return this;
-  }
-
-  QuantityExpression QuantityExpression::baseDefinition()const
-  {
-    QuantityExpression out(const_cast<Environment*>(getEnvironment()));
-    if (getEnvironment()!=nullptr)
-      {
-        for (auto t:value())
-          {
-            std::shared_ptr<const Quantity> q=getEnvironment()->Q(t.first);
-            if (q==nullptr)
-              return QuantityExpression();
-            else
-              {
-                auto defq=q->baseDefinition()*t.second;
-                out+=defq;
-              }
-
-          }
-      }
-    return out;
-  }
-
-  QuantityExpression *QuantityExpression::dynamicCast(Abstract_Object*o) const
-  {
-    return dynamic_cast<QuantityExpression*>(o);
-  }
-
-  bool QuantityExpression::empty() const
-  {
-    return expr_.empty();
-  }
+bool QuantityExpression::empty() const
+{
+  return expr_.empty();
+}
 
 
-  std::string QuantityExpression::myClass() const
-  {
-    return ClassName();
-  }
+std::string QuantityExpression::myClass() const
+{
+  return ClassName();
+}
 
-  Class_info QuantityExpression::myClassInfo() const
-  {
-    return classInfo();
-  }
+Class_info QuantityExpression::myClassInfo() const
+{
+  return classInfo();
+}
 
-  std::set<std::string> QuantityExpression::SuperClasses()
-  {
-    auto out=Abstract_Object::SuperClasses();
-    out.insert(ClassName());
-    return out;
-  }
+std::set<std::string> QuantityExpression::SuperClasses()
+{
+  auto out=Abstract_Object::SuperClasses();
+  out.insert(ClassName());
+  return out;
+}
 
-  Class_info QuantityExpression::classInfo()
-  {
-    return {ClassName(),
-            SuperClasses(),
-            true,
-            false,
-            false};
+Class_info QuantityExpression::classInfo()
+{
+  return {ClassName(),
+          SuperClasses(),
+          true,
+          false,
+          false};
 
-  }
+}
 
-  std::string QuantityExpression::ClassName()
-  {
-    return "QuantityExpression";
-  }
+std::string QuantityExpression::ClassName()
+{
+  return "QuantityExpression";
+}
 
-  QuantityExpression operator*(const QuantityExpression &one, int n)
-  {
-    QuantityExpression out(one);
-    return out*=n;
-  }
+QuantityExpression operator*(const QuantityExpression &one, int n)
+{
+  QuantityExpression out(one);
+  return out*=n;
+}
 
-  QuantityExpression operator+(const QuantityExpression &one, const QuantityExpression &other)
-  {
-    QuantityExpression out(one);
-    return out+=other;
-  }
+QuantityExpression operator+(const QuantityExpression &one, const QuantityExpression &other)
+{
+  QuantityExpression out(one);
+  return out+=other;
+}
 
 
 

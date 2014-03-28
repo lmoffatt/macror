@@ -12,19 +12,21 @@ namespace Markov_Object {
   public:
 
     static std::string ClassName();
-    virtual std::string myClass()const override;
     static Class_info classInfo();
-    virtual Class_info myClassInfo()const override;
-
     static std::set<std::string> SuperClasses();
 
-    virtual ~Abstract_Variable_Object();
-    /// cast an Abstract_Object to Abstract_Variable_Object
+
+    virtual Class_info myClassInfo()const override;
+    virtual std::string myClass()const override;
     virtual Abstract_Variable_Object * dynamicCast(Abstract_Object* o)const override;
     virtual const Abstract_Variable_Object * dynamicCast(const Abstract_Object* o)const override;
 
 
-    virtual Abstract_Variable_Object* create() const=0;
+    virtual ~Abstract_Variable_Object();
+    /// cast an Abstract_Object to Abstract_Variable_Object
+
+
+    virtual Abstract_Variable_Object* create() const override=0;
 
 
     virtual Abstract_Value_Object* defaultValue()const=0;
@@ -36,11 +38,13 @@ namespace Markov_Object {
 
 
 
+
+
     Abstract_Variable_Object(Environment*  e,
                              std::string variablename,
                              std::string tip,
                              std::string whatthis)
-      : Abstract_Object(),
+      : Abstract_Object(e),
         Abstract_Named_Object(e,variablename,tip,whatthis)
     {}
 
@@ -51,7 +55,7 @@ namespace Markov_Object {
     Abstract_Variable_Object(){}
 
     Abstract_Variable_Object(const Abstract_Variable_Object& other):
-      Abstract_Object(),
+      Abstract_Object(other),
       Abstract_Named_Object(other)
     {}
 

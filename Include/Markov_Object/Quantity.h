@@ -5,6 +5,7 @@
 #include "Markov_Object/QuantityExpression.h"
 
 namespace Markov_Object {
+  class Unit_System;
 
   class Quantity: public Abstract_Named_Object
   {
@@ -28,7 +29,17 @@ namespace Markov_Object {
     virtual Quantity *create() const override;
     virtual std::string ToString() const override;
     virtual bool empty() const override;
-    virtual bool invalid() const override;
+    virtual bool isValid() const override
+    {
+      return !empty();
+    }
+
+
+
+    virtual TestResult test()const override
+    {
+      TestResult res=Abstract_Named_Object::test();
+    }
 
     virtual Quantity*
     CreateObject(const std::string &text, std::size_t &cursor)const  override;
@@ -37,11 +48,12 @@ namespace Markov_Object {
     std::set<std::string> referencedObjects() const override;
 
 
+
     // new methods
 
 
     QuantityExpression definition()const;
-    QuantityExpression baseDefinition()const;
+    QuantityExpression baseDefinition(Unit_System* us=nullptr)const;
 
     QuantityExpression self()const;
 
@@ -86,7 +98,9 @@ namespace Markov_Object {
 
 
   private:
-    QuantityExpression baseDefinition(std::set<std::string> upstream) const;
+    QuantityExpression baseDefinition(std::set<std::string> upstream,
+                                      Unit_System *us=nullptr) const;
+
     QuantityExpression def_;
 
   };

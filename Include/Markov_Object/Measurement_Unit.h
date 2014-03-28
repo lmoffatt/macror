@@ -21,6 +21,7 @@ namespace Markov_Object {
 
 
     static std::string ClassName();
+
     static Class_info classInfo();
 
     static std::set<std::string> SuperClasses();
@@ -59,23 +60,18 @@ namespace Markov_Object {
 
     }
 
-    virtual bool invalid()const override
+    virtual TestResult test()const override
     {
-      return Abstract_Named_Object::invalid()||def_.invalid()||
-          (Abstract_Named_Object::empty()&&!def_.empty())||
-          (!Abstract_Named_Object::empty()&&def_.empty());
 
 
     }
 
     ///
-    virtual double conversionFactor(const Measurement_Unit *other)const
-    {
-
-
-
-
-    }
+    /// \brief ToString
+    /// \return
+    ///
+    ///
+    ///
 
     virtual std::string ToString()const override;
 
@@ -98,6 +94,7 @@ namespace Markov_Object {
     Measurement_Unit pow(int n)const;
 
     bool operator<(const Measurement_Unit& rh)const;
+
 
 
 

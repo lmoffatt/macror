@@ -47,11 +47,18 @@ namespace Markov_Object {
 
   std::shared_ptr<const Abstract_Named_Object> Environment::idN(const std::string &variablename) const
   {
-    auto it=V_.find(variablename);
-    if (it!=V_.end())
-      return it->second;
-    else return std::shared_ptr<const Abstract_Named_Object>();
-
+    auto n= variablename.find("::");
+    if (n!=variablename.npos)
+      {
+        return idN(variablename.substr(0,n),variablename.substr(n+1));
+      }
+    else
+      {
+        auto it=V_.find(variablename);
+        if (it!=V_.end())
+          return it->second;
+        else return std::shared_ptr<const Abstract_Named_Object>();
+      }
   }
 
   std::shared_ptr<Measurement_Unit> Environment::U(const std::string &unitAbreviation)
@@ -107,7 +114,7 @@ namespace Markov_Object {
     if (it!=SU_.end())
       return it->second;
     return nullptr;
-    }
+  }
 
 
   std::shared_ptr<const Quantity> Environment::Qd(const QuantityExpression &definition) const
@@ -133,7 +140,7 @@ namespace Markov_Object {
     if (it!=SU_.end())
       return it->second;
     return nullptr;
-    }
+  }
 
 
 
@@ -194,13 +201,13 @@ namespace Markov_Object {
     if (u->belongsTo(Quantity::ClassName()))
       {
         std::shared_ptr<Quantity> q=std::dynamic_pointer_cast<Quantity>(u);
-       add(q);
+        add(q);
 
       }
     else if (u->belongsTo(Measurement_Unit::ClassName()))
       {
         std::shared_ptr<Measurement_Unit> mu=std::dynamic_pointer_cast<Measurement_Unit>(u);
-       add(mu);
+        add(mu);
       }
     else{
         V_[u->idName()]=std::dynamic_pointer_cast<Abstract_Variable_Object>(u);
@@ -283,8 +290,6 @@ namespace Markov_Object {
       // Abstract classes one by one
       if (classname==Abstract_Object::ClassName())
         return dynamic_cast<const Abstract_Object*>(o)!=nullptr;
-      else if (classname==Abstract_Valued_Object::ClassName())
-        return dynamic_cast<const Abstract_Valued_Object*>(o)!=nullptr;
       else if (classname==Abstract_Value_Object::ClassName())
         return dynamic_cast<const Abstract_Value_Object*>(o)!=nullptr;
       else if (classname==Abstract_Variable_Object::ClassName())
@@ -307,8 +312,6 @@ namespace Markov_Object {
     // Abstract classes one by one
     if (dynamic_cast<const Abstract_Object*>(o)!=nullptr)
       s.insert(Abstract_Object::ClassName());
-    if (dynamic_cast<const Abstract_Valued_Object*>(o)!=nullptr)
-      s.insert(Abstract_Valued_Object::ClassName());
     if (dynamic_cast<const Abstract_Value_Object*>(o)!=nullptr)
       s.insert(Abstract_Value_Object::ClassName());
     if (dynamic_cast<const Abstract_Variable_Object*>(o)!=nullptr)

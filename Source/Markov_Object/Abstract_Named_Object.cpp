@@ -70,25 +70,26 @@ namespace  Markov_Object {
     return variableName_;
   }
 
-  bool Abstract_Named_Object::isReferenced() const
+
+
+
+
+
+  TestResult Abstract_Named_Object::test() const
   {
-    if (getEnvironment()==nullptr)
-      return false;
+    TestResult res=Abstract_Object::test();
+
+    bool ValidName=variableName_==IdentifierName::get(variableName_);
+
+    if (idName().empty())
+      res.addTest("validName","emptyName");
+    else if (ValidName)
+      res.addTest("validName",true);
     else
-      return getEnvironment()->idN(idName()).get()==this;
-  }
+      res.addTest("validName","Invalid. Stored value """+variableName_+
+                  """ processed value"""+IdentifierName::get(variableName_));
 
-
-
-
-  bool Abstract_Named_Object::invalid() const
-  {
-    bool inValidName=variableName_!=IdentifierName::get(variableName_);
-
-    return   !empty()&&(
-          getEnvironment()==nullptr||
-          variableName_.empty()||
-          inValidName);
+    return res;
   }
 
   bool Abstract_Named_Object::empty() const
@@ -185,14 +186,15 @@ namespace  Markov_Object {
 
     if (!name.empty())
       {
-     variableName_=name;
-    if (!tip.empty())
-      setTip(tip);
-    if(!whatthis.empty())
-      setWhatThis(whatthis);
-    return this;
+        variableName_=name;
+        if (!tip.empty())
+          setTip(tip);
+        if(!whatthis.empty())
+          setWhatThis(whatthis);
+        return this;
       }
-    else return nullptr;
+    else
+      return nullptr;
   }
 
 
@@ -228,7 +230,7 @@ namespace  Markov_Object {
   }
 
 
-   std::string Abstract_Named_Object::getTip(const std::string& multiplelines, std::size_t &pos)
+  std::string Abstract_Named_Object::getTip(const std::string& multiplelines, std::size_t &pos)
   {
     std::size_t pos0=pos;
     std::size_t i=multiplelines.find("//",pos);
@@ -320,19 +322,19 @@ namespace  Markov_IO {
   std::string ToString(const std::shared_ptr<const Markov_Object::Abstract_Named_Object> &x)
   {
 
-      std::stringstream ss;
-      ss<<x;
-      std::string str=ss.str();
-      return str;
+    std::stringstream ss;
+    ss<<x;
+    std::string str=ss.str();
+    return str;
 
   }
   std::string ToString(const std::shared_ptr<const Markov_Object::Abstract_Variable_Object> &x)
   {
 
-      std::stringstream ss;
-      ss<<x;
-      std::string str=ss.str();
-      return str;
+    std::stringstream ss;
+    ss<<x;
+    std::string str=ss.str();
+    return str;
 
   }
 
@@ -364,7 +366,7 @@ namespace Markov_Test
 
 
 
-/* move this to Quantity, Measurment_unit and Abstact_Variable
+    /* move this to Quantity, Measurment_unit and Abstact_Variable
 
     MultipleTests idNameInvariant(std::shared_ptr<Abstract_Named_Object> o,
                                   Environment*  E)

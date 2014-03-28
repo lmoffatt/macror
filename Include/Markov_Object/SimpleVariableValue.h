@@ -10,7 +10,7 @@ namespace Markov_Object
   class SimpleVariable;
 
   template<typename T>
-  class SimpleVariableValue: public Abstract_Object,public Abstract_Value_Object,public Abstract_Valued_Object
+  class SimpleVariableValue: public Abstract_Value_Object
   {
   public:
 
@@ -28,7 +28,8 @@ namespace Markov_Object
     /// cast an Abstract_Object to SimpleVariableValue<T>
     virtual SimpleVariableValue<T> * dynamicCast(Abstract_Object* o)const override;
     virtual const SimpleVariableValue<T> * dynamicCast(const Abstract_Object* o)const override;
-    virtual std::string myUnit()const override;
+
+    virtual std::string myUnit()const ;
 
     virtual std::string variable()const override;
 
@@ -58,7 +59,7 @@ namespace Markov_Object
 
      }
 
-     virtual bool invalid()const override;
+     virtual bool isValid()const override;
 
      virtual std::set<std::string> referencedObjects() const
     {
@@ -83,7 +84,7 @@ namespace Markov_Object
 
 
   private:
-    std::string variableId_;
+     std::string variableId_;
      std::string unitId_;
      T value_;
 

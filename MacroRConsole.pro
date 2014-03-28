@@ -495,12 +495,16 @@ HEADERS += \
     Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
     Include/Markov_IO/A_Variable.h \
-    Include/Markov_Object/IdentifierName.h
+    Include/Markov_Object/IdentifierName.h \
+    Include/Markov_Object/Category.h \
+    Include/Markov_Object/Unit_System.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
     Source/Markov_Console/BayesianAutocomplete.cpp \
-    Source/Markov_Object/IdentifierName.cpp
+    Source/Markov_Object/IdentifierName.cpp \
+    Source/Markov_Object/Category.cpp \
+    Source/Markov_Object/Unit_System.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

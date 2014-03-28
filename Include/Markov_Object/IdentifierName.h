@@ -34,6 +34,26 @@ namespace Markov_Object
                     std::string mySeparator=separator);
 
 
+    static
+    std::set<std::string> getSet(const std::string& singleLine,
+                                 std::string myAllowedR=allowedR,
+                                 std::string myAllowed=allowed,
+                                 std::string mySeparator=separator);
+
+    static
+    std::vector<std::string> getVector(const std::string& singleLine,
+                                 std::string myAllowedR=allowedR,
+                                 std::string myAllowed=allowed,
+                                 std::string mySeparator=separator);
+
+    static
+    std::vector<std::string> getVector(const std::string& singleLine,
+                                    std::size_t& pos,
+                                 std::string myAllowedR=allowedR,
+                                 std::string myAllowed=allowed,
+                                 std::string mySeparator=separator);
+
+
     IdentifierName(const std::string &text,
                    std::size_t &cursor,
                    std::string myAllowedR=allowedR,

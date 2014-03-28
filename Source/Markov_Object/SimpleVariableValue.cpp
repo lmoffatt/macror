@@ -33,8 +33,6 @@ namespace Markov_Object {
     //Variable_Object,public Valued_Object,public Named_Object
     auto vo=Abstract_Value_Object::SuperClasses();
 
-    auto va=Abstract_Valued_Object::SuperClasses();
-    vo.insert(va.begin(),va.end());
 
 
     vo.insert(ClassName());
@@ -86,7 +84,7 @@ namespace Markov_Object {
   }
 
   template<typename T>
-  bool SimpleVariableValue<T>::invalid() const
+  bool SimpleVariableValue<T>::isValid() const
   {
     bool validVariableId=!variableId_.empty()&&
         (variableId_==IdentifierName::get(variableId_));
