@@ -70,15 +70,9 @@ namespace Markov_Object
     //virtual implemented reflection
     virtual std::set<std::string> mySuperClasses()const;
     virtual std::string myClass()const;
-    /// cast an Abstract_Object to myClass
-
-
 
     // virtual abstract
     virtual bool empty()const=0;
-    virtual bool isValid()const
-    {
-     }
 
 
     /// creates a object of current Class

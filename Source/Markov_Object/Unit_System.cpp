@@ -34,11 +34,6 @@ namespace Markov_Object {
         q2Us_.empty();
   }
 
-  bool Unit_System::isValid() const
-  {
-    return Abstract_Named_Object::isValid()||
-        (!empty()&&(Abstract_Named_Object::empty()||stdQ_.empty()||q2Us_.empty()));
-  }
 
   Unit_System *Unit_System::create() const
   {

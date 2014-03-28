@@ -27,7 +27,6 @@ namespace Markov_Object {
     virtual std::string myClass() const override;
 
     virtual bool empty() const override;
-    virtual bool isValid() const override;
     virtual ScaledExpression *create() const override;
     virtual std::string ToString() const override;
 

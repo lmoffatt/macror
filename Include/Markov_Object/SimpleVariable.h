@@ -27,13 +27,6 @@ namespace Markov_Object {
 
      }
 
-     virtual bool isValid()const override
-      {
-        return !empty()&&
-            (Abstract_Variable_Object::empty()||
-             unitId_.empty());
-
-      }
 
 
 

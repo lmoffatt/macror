@@ -45,17 +45,7 @@ namespace Markov_Object {
     QuantityExpression dimensionless();
 
 
-    QuantityExpression& removeUnitTerms()
-    {
-      for (auto it=expr_.begin(); it!=expr_.end();)
-        if (it->second==0)
-          {
-            expr_.erase(it++);
-          }
-        else
-          ++it;
-      return *this;
-    }
+    QuantityExpression& removeUnitTerms();
 
     // new methods non virtual
     QuantityExpression &operator+=(const QuantityExpression& other);
@@ -69,11 +59,6 @@ namespace Markov_Object {
     virtual std::string myClass() const override;
 
     virtual bool empty() const override;
-
-    virtual bool isValid() const override
-    {
-      return true;
-    }
 
 
     virtual QuantityExpression *create() const override;

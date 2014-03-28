@@ -261,6 +261,16 @@ namespace Markov_Object {
 
   }
 
+  const Unit_System *Environment::getUnit_System() const
+  {
+    return us_;
+  }
+
+  Unit_System *Environment::getUnit_System()
+  {
+    return us_;
+  }
+
 
 
 

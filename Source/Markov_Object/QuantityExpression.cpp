@@ -162,6 +162,18 @@ namespace Markov_Object {
     return QuantityExpression(getEnvironment(),"");
   }
 
+  QuantityExpression &QuantityExpression::removeUnitTerms()
+  {
+    for (auto it=expr_.begin(); it!=expr_.end();)
+      if (it->second==0)
+        {
+          expr_.erase(it++);
+        }
+      else
+        ++it;
+    return *this;
+  }
+
 
 
   bool QuantityExpression::operator<(const QuantityExpression &other)const

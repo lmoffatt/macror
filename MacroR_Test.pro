@@ -22,6 +22,7 @@ SOURCES -=Source/main_MacroConsole_Test.cpp
 
 HEADERS = $$unique(HEADERS)
 
+
 SOURCES =  $$unique(SOURCES)
 
 DEFINES = $$unique(DEFINES)

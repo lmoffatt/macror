@@ -39,10 +39,6 @@ namespace Markov_Object {
     return ex_.empty() && (scale_==0);
   }
 
-  bool ScaledExpression::isValid() const
-  {
-    return scale()>0;
-  }
 
   ScaledExpression *ScaledExpression::create() const
   {

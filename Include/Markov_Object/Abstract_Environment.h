@@ -1,5 +1,5 @@
-#ifndef ENVIRONMENT_H
-#define ENVIRONMENT_H
+#ifndef ABSTRACT_ENVIRONMENT_H
+#define ABSTRACT_ENVIRONMENT_H
 
 #include <string>
 #include <map>
@@ -19,7 +19,7 @@ class Measurement_Unit;
 class Unit_System;
 
 
-class Environment
+class Abstract_Environment:public Abstract_Named_Object
 {
 public:
   std::shared_ptr<const Abstract_Named_Object> idN(const std::string& variablename)const;
@@ -77,20 +77,10 @@ public:
 
   ~Environment();
 
-private:
-  std::map<std::string,std::shared_ptr<Abstract_Variable_Object>> V_;  //only owner
-  std::map<std::string,std::shared_ptr<Quantity>> Q_;  //only owner
-  std::map<std::string,std::shared_ptr<Measurement_Unit>> U_;  //only owner
-
-  std::map<QuantityExpression,std::shared_ptr<Quantity>> QQ_;  //only owner
-  std::map<ScaledExpression,std::shared_ptr<Measurement_Unit>> SU_;  //only owner
-
-
-  std::map<std::string,Abstract_Object*> classes_;
-  Unit_System* us_;
 
 };
 }
 
 
-#endif // ENVIRONMENT_H
+
+#endif // ABSTRACT_ENVIRONMENT_H

@@ -41,7 +41,7 @@ namespace Markov_Object
 
   bool Abstract_Object::belongsTo(const std::string classname) const
   {
-    return mySuperClasses().superClasses.count(classname)!=0;
+    return mySuperClasses().count(classname)!=0;
   }
 
   const Environment *Abstract_Object::getEnvironment() const
@@ -584,8 +584,6 @@ namespace Markov_Test
           createI.push_back(TEST_EQ("created pointer return empty string",
                                     o->ToString(),""));
 
-          createI.push_back(TEST_EQ("created pointer not invalid",
-                                    o->isValid(),false));
 
           createI.push_back(TEST_EQ("match class",
                                     object_->myClass(),

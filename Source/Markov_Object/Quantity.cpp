@@ -55,12 +55,6 @@ namespace Markov_Object {
   }
   
   
-  /// if the definition is valid and the definition is empty is valid
-  bool Quantity::isValid() const
-  {
-    return Abstract_Named_Object::isValid()||
-        (Abstract_Named_Object::empty()&&(!def_.empty()));
-  }
 
 
 

@@ -56,7 +56,6 @@ namespace Markov_Object
 
      }
 
-     virtual bool isValid()const override;
 
      virtual std::set<std::string> referencedObjects() const
     {

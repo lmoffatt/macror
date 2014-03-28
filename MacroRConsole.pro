@@ -98,6 +98,7 @@ QMAKE_CXXFLAGS_RELEASE +=-O3
 
 
 HEADERS += \
+    Include/Markov_Object/Abstract_Environment.h\
     Include/Markov_Object/Measurement_Unit.h \
     Include/Markov_Object/Abstract_Object.h \
     Include/Markov_Object/Environment.h \

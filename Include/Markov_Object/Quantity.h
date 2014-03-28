@@ -26,10 +26,6 @@ namespace Markov_Object {
     virtual Quantity *create() const override;
     virtual std::string ToString() const override;
     virtual bool empty() const override;
-    virtual bool isValid() const override
-    {
-      return !empty();
-    }
 
 
 
