@@ -11,22 +11,11 @@ namespace Markov_Object {
     return ClassName();
   }
 
-  Class_info Abstract_Variable_Object::classInfo()
-  {
-    return Class_info
-    {
-        {ClassName()},
-        {SuperClasses()},
-        false,
-        false,
-        false
-      };
 
-  }
 
-  Class_info Abstract_Variable_Object::myClassInfo() const
+  std::set<std::string> Abstract_Variable_Object::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
 
 

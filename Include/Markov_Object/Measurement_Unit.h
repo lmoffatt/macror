@@ -22,14 +22,14 @@ namespace Markov_Object {
 
     static std::string ClassName();
 
-    static Class_info classInfo();
+
 
     static std::set<std::string> SuperClasses();
 
 
 
     virtual std::string myClass()const override;
-    virtual Class_info myClassInfo()const override;
+    virtual std::set<std::string> mySuperClasses()const override;
 
     /// cast an Abstract_Object to Base_Unit
     virtual Measurement_Unit * dynamicCast(Abstract_Object* o)const override;

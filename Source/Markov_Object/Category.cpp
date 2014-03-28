@@ -15,20 +15,11 @@ namespace Markov_Object {
     return ClassName();
   }
 
-  Class_info Category::classInfo()
-  {
-    return {
-        ClassName(),
-            SuperClasses(),
-            true,
-            true,
-            false
-      };
-  }
 
-  Class_info Category::myClassInfo() const
+
+  std::set<std::string> Category::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
 
   std::set<std::string> Category::SuperClasses()

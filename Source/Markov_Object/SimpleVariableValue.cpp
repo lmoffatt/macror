@@ -42,23 +42,12 @@ namespace Markov_Object {
 
 
 
-  template<typename T>
-  Class_info SimpleVariableValue<T>::classInfo()
-  {
-    return Class_info
-    {
-        {ClassName()},
-        {SuperClasses()},
-        true,
-        false,
-        false
-      };
 
   }
   template<typename T>
-  Class_info SimpleVariableValue<T>::myClassInfo() const
+  std::set<std::string> SimpleVariableValue<T>::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
 
 

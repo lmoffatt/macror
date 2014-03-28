@@ -16,7 +16,7 @@ namespace Markov_Object {
 
 
     static std::string ClassName();
-    static Class_info classInfo();
+
     static std::set<std::string> SuperClasses();
 
 
@@ -25,7 +25,7 @@ namespace Markov_Object {
 
     // virtual methods
     virtual std::string myClass()const override;
-    virtual Class_info myClassInfo()const override;
+    virtual std::set<std::string> mySuperClasses()const override;
     virtual Quantity *create() const override;
     virtual std::string ToString() const override;
     virtual bool empty() const override;

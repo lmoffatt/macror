@@ -18,22 +18,11 @@ namespace Markov_Object
     return "Abstract_Object";
   }
 
-  Class_info Abstract_Object::classInfo()
-  {
-    return Class_info
-    {
-        {ClassName()},
-        {ClassName()},
-        false,
-        false,
-        false
-      };
-    
-  }
+
   
-  Class_info Abstract_Object::myClassInfo() const
+  std::set<std::string> Abstract_Object::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
   
   std::string Abstract_Object::myClass() const
@@ -52,7 +41,7 @@ namespace Markov_Object
 
   bool Abstract_Object::belongsTo(const std::string classname) const
   {
-    return myClassInfo().superClasses.count(classname)!=0;
+    return mySuperClasses().superClasses.count(classname)!=0;
   }
 
   const Environment *Abstract_Object::getEnvironment() const
@@ -560,22 +549,22 @@ namespace Markov_Test
     using namespace Markov_Object;
     
     
-    MultipleTests getClassInfoInvariants(std::shared_ptr<Abstract_Object> object_)
+    MultipleTests getSuperClassesInvariants(std::shared_ptr<Abstract_Object> object_)
     {
       Environment E;
       
-      MultipleTests classInfoI("classInfo",
+      MultipleTests SuperClassesI("SuperClasses",
                                "invariants",
       {Abstract_Object::ClassName()},
-      {"Abstract_Object::myClassInfo()"});
-      object_->myClassInfo();
+      {"Abstract_Object::mySuperClasses()"});
+      object_->mySuperClasses();
       E.getSuperClasses(object_->myClass());
       
-      classInfoI.push_back(TEST_EQ("myClassInfo.SuperClasses method",
-                                   object_->myClassInfo().superClasses,
+      SuperClassesI.push_back(TEST_EQ("mySuperClasses.SuperClasses method",
+                                   object_->mySuperClasses().superClasses,
                                    E.getSuperClasses(object_->myClass())));
       
-      return classInfoI;
+      return SuperClassesI;
       
       
     }
@@ -710,7 +699,7 @@ namespace Markov_Test
 
           MultipleTests MM("case "+o->ToString(),"class invariants");
 
-          MM.push_back(getClassInfoInvariants(o));
+          MM.push_back(getSuperClassesInvariants(o));
 
           MM.push_back(getcreateInvariants(o));
 

@@ -16,7 +16,7 @@ namespace Markov_Object {
     static  std::string ClassName();
     static
     std::set<std::string> SuperClasses();
-    static Class_info classInfo();
+
 
     ScaledExpression dimensionless();
 
@@ -26,7 +26,7 @@ namespace Markov_Object {
 
     //overrides
 
-    virtual Class_info myClassInfo() const override;
+    virtual std::set<std::string> mySuperClasses() const override;
     virtual std::string myClass() const override;
 
     virtual bool empty() const override;

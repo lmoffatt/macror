@@ -39,7 +39,7 @@ namespace Markov_Object {
 
 
     static std::string ClassName();
-    static Class_info classInfo();
+
     static std::set<std::string> SuperClasses();
 
     QuantityExpression dimensionless();
@@ -65,7 +65,7 @@ namespace Markov_Object {
 
 
     // Abstract_Object interface
-    virtual Class_info myClassInfo() const override;
+    virtual std::set<std::string> mySuperClasses() const override;
     virtual std::string myClass() const override;
 
     virtual bool empty() const override;

@@ -18,15 +18,6 @@
 namespace Markov_Object
 {
 
-  struct Class_info
-  {
-    std::string ClassName;
-    std::set<std::string> superClasses;
-    bool refersEnvironment;
-    bool hasIdName;
-    bool isValued;
-  };
-
   class TestResult
   {
   public:
@@ -72,12 +63,12 @@ namespace Markov_Object
 
     // static
     static std::string ClassName();
-    static Class_info classInfo();
+
     static std::set<std::string> SuperClasses();
 
 
     //virtual implemented reflection
-    virtual Class_info myClassInfo()const;
+    virtual std::set<std::string> mySuperClasses()const;
     virtual std::string myClass()const;
     /// cast an Abstract_Object to myClass
     virtual Abstract_Object* dynamicCast(Abstract_Object* o)const;

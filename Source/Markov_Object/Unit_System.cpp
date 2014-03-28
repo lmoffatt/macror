@@ -8,17 +8,6 @@ namespace Markov_Object {
     return "Unit_System";
   }
 
-  Class_info Unit_System::classInfo()
-  {
-    return Class_info
-    {
-        {ClassName()},
-        {SuperClasses()},
-        false,
-        true,
-        false
-      };
-  }
 
   std::set<std::string> Unit_System::SuperClasses()
   {
@@ -28,9 +17,9 @@ namespace Markov_Object {
 
   }
 
-  Class_info Unit_System::myClassInfo() const
+  std::set<std::string> Unit_System::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
 
   std::string Unit_System::myClass() const

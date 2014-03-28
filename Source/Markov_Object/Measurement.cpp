@@ -12,15 +12,15 @@ namespace Markov_Object {
   }
   
   template<typename T>
-  Class_info Measurement<T>::classInfo()
+  std::set<std::string> Measurement<T>::SuperClasses()
   {
     return {ClassName(),SuperClasses(),true,false,true};
   }
   
   template<typename T>
-  Class_info Measurement<T>::myClassInfo() const
+  std::set<std::string> Measurement<T>::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
   
   template<typename T>

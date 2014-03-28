@@ -15,20 +15,11 @@ namespace Markov_Object {
     return ClassName();
   }
   
-  Class_info Quantity::classInfo()
-  {
-    return {
-        ClassName(),
-            SuperClasses(),
-            true,
-            true,
-            false
-      };
-  }
+
   
-  Class_info Quantity::myClassInfo() const
+  std::set<std::string> Quantity::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
   
   std::set<std::string> Quantity::SuperClasses()

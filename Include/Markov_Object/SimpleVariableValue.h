@@ -17,13 +17,13 @@ namespace Markov_Object
     static T get(const std::string &singleLine,std::size_t* pos);
     static bool is(const std::string& singleLine);
     static std::string ClassName();
-    static Class_info classInfo();
+
     static std::set<std::string> SuperClasses();
     static T unknownValue();
 
     virtual std::string myClass()const override;
     virtual SimpleVariableValue<T> *create() const override;
-    virtual Class_info myClassInfo()const override;
+    virtual std::set<std::string> mySuperClasses()const override;
 
     /// cast an Abstract_Object to SimpleVariableValue<T>
     virtual SimpleVariableValue<T> * dynamicCast(Abstract_Object* o)const override;

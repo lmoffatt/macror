@@ -65,7 +65,7 @@ namespace Markov_Object {
   {
     auto it=U_.find(unitAbreviation);
     if (it!=U_.end())
-      if (it->second->myClassInfo().superClasses.count(Measurement_Unit::ClassName())!=0)
+      if (it->second->mySuperClasses().superClasses.count(Measurement_Unit::ClassName())!=0)
         return it->second;
     return nullptr;
   }
@@ -75,7 +75,7 @@ namespace Markov_Object {
   {
     auto it=U_.find(unitAbreviation);
     if (it!=U_.end())
-      if (it->second->myClassInfo().superClasses.count(Measurement_Unit::ClassName())!=0)
+      if (it->second->mySuperClasses().superClasses.count(Measurement_Unit::ClassName())!=0)
         return it->second;
     return nullptr;
   }

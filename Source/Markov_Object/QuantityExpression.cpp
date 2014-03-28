@@ -339,9 +339,9 @@ std::string QuantityExpression::myClass() const
   return ClassName();
 }
 
-Class_info QuantityExpression::myClassInfo() const
+std::set<std::string> QuantityExpression::mySuperClasses() const
 {
-  return classInfo();
+  return SuperClasses();
 }
 
 std::set<std::string> QuantityExpression::SuperClasses()
@@ -351,15 +351,7 @@ std::set<std::string> QuantityExpression::SuperClasses()
   return out;
 }
 
-Class_info QuantityExpression::classInfo()
-{
-  return {ClassName(),
-          SuperClasses(),
-          true,
-          false,
-          false};
 
-}
 
 std::string QuantityExpression::ClassName()
 {

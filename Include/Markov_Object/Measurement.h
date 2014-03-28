@@ -14,9 +14,9 @@ namespace Markov_Object {
 
     static std::string ClassName();
 
-    static Class_info classInfo();
 
-    virtual Class_info myClassInfo() const override;
+
+    virtual std::set<std::string> mySuperClasses() const override;
     virtual std::string myClass() const override;
 
     virtual Measurement *create() const override;

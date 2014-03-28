@@ -18,15 +18,6 @@ namespace Markov_Object {
     return out;
   }
 
-  Class_info ScaledExpression::classInfo()
-  {
-    return {ClassName(),
-            SuperClasses(),
-            true,
-            false,
-            false};
-
-  }
 
   ScaledExpression ScaledExpression::dimensionless()
   {
@@ -45,9 +36,9 @@ namespace Markov_Object {
 
   }
 
-  Class_info ScaledExpression::myClassInfo() const
+  std::set<std::string> ScaledExpression::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
 
   std::string ScaledExpression::myClass() const

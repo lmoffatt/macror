@@ -15,22 +15,10 @@ namespace  Markov_Object {
     return mySC;
   }
 
-  Class_info Abstract_Named_Object::classInfo()
-  {
-    return Class_info
-    {
-        {ClassName()},
-        {SuperClasses()},
-        false,
-        true,
-        false
-      };
 
-  }
-
-  Class_info Abstract_Named_Object::myClassInfo() const
+  std::set<std::string> Abstract_Named_Object::mySuperClasses() const
   {
-    return classInfo();
+    return SuperClasses();
   }
 
 
@@ -631,7 +619,7 @@ namespace Markov_Test
                                        "getEnvironment==&E",
                                        o->getEnvironment()==E));
 
-          if (!object_->myClassInfo().refersEnvironment)
+          if (!object_->mySuperClasses().refersEnvironment)
             {
               M33.push_back(ElementaryTest("refersToValidObjects true",
                                            "In a new environment if it does not refer to anyone,"

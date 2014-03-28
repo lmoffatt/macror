@@ -176,23 +176,14 @@ namespace Markov_Object {
     return mySC;
   }
 
-  Class_info Measurement_Unit::classInfo()
+
+
+
+
+
+  std::set<std::string> Measurement_Unit::mySuperClasses() const
   {
-    return Class_info
-    {
-        {ClassName()},
-        {SuperClasses()},
-        false,
-        true,
-        false
-      };
-
-  }
-
-
-  Class_info Measurement_Unit::myClassInfo() const
-  {
-    return classInfo();
+    return SuperClasses();
   }
 
 
