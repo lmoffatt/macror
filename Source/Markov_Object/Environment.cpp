@@ -6,6 +6,7 @@
 #include "Markov_Object/SimpleVariable.h"
 #include "Markov_Object/SimpleVariableValue.h"
 #include "Markov_Object/Quantity.h"
+#include "Markov_Object/Unit_System.h"
 
 
 namespace Markov_Object {
@@ -303,7 +304,8 @@ namespace Markov_Object {
       U_{},
       QQ_{},
       SU_{},
-      classes_{}
+      classes_{},
+      us_{new Unit_System}
   {
     classes_[Measurement_Unit::ClassName()]=new Measurement_Unit;
     classes_[SimpleVariable<double>::ClassName()]=new SimpleVariable<double>;
@@ -343,6 +345,8 @@ namespace Markov_Object {
   {
     for (auto it:classes_)
       delete it.second;
+    delete  us_;
+
   }
 
 
