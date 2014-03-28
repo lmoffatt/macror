@@ -83,17 +83,6 @@ namespace Markov_Object
       return test().error().empty();
     }
 
-    virtual TestResult test()const
-    {
-      TestResult res;
-      if (getEnvironment()!=nullptr)
-        res.addTest("hasEnvironment",true);
-      else
-        res.addTest("hasEnvironment",false);
-
-      return res;
-
-    }
 
     /// creates a object of current Class
     virtual Abstract_Object* create()const=0;
