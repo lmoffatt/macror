@@ -7,7 +7,7 @@
 namespace Markov_Object {
   class Quantity;
 
-  class QuantityExpression: public  Abstract_Object
+  class QuantityExpression: public  Abstract_Refers_Environment
   {
   public:
     static const char pow='^';
@@ -69,8 +69,10 @@ namespace Markov_Object {
 
 
 
-    QuantityExpression(std::map<std::string,int> expression);
-    QuantityExpression(std::string exp);
+    QuantityExpression(Environment* e,std::map<std::string,int> expression);
+    QuantityExpression(Environment* e,std::string exp);
+
+
 
 
     QuantityExpression();

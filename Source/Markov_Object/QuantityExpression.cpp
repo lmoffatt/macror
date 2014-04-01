@@ -159,7 +159,7 @@ namespace Markov_Object {
 
   QuantityExpression QuantityExpression::dimensionless()
   {
-    return QuantityExpression("");
+    return QuantityExpression(getEnvironment(),"");
   }
 
   QuantityExpression &QuantityExpression::removeUnitTerms()
@@ -246,7 +246,7 @@ namespace Markov_Object {
 
 
   QuantityExpression::QuantityExpression():
-    Abstract_Object(),
+    Abstract_Refers_Environment(),
     expr_(){}
 
   std::map<std::string, int> QuantityExpression::value() const
@@ -256,11 +256,12 @@ namespace Markov_Object {
 
 
 
-  QuantityExpression::QuantityExpression(std::map<std::string, int> expression):
+  QuantityExpression::QuantityExpression(Environment* e,std::map<std::string, int> expression):
+    Abstract_Refers_Environment(e),
     expr_(expression){}
 
-  QuantityExpression::QuantityExpression(std::string exp)
-    :
+  QuantityExpression::QuantityExpression(Environment* e,std::string exp)
+    :Abstract_Refers_Environment(e),
       expr_(getDefinition(exp)){}
 
 

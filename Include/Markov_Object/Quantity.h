@@ -28,10 +28,7 @@ namespace Markov_Object {
     virtual bool empty() const override;
 
 
-
-
-    virtual Quantity*
-    CreateObject(const std::string &text, std::size_t &cursor)const  override;
+    virtual Quantity* CreateObject(const std::string &text, std::size_t &cursor)const  override;
 
     /// checks for the existance of all refered objects
     std::set<std::string> referencedObjects() const override;
@@ -46,12 +43,6 @@ namespace Markov_Object {
 
     QuantityExpression self()const;
 
-
-
-    Quantity operator /(const Quantity &rh) const;
-    Quantity operator *(const Quantity &rh) const;
-
-    Quantity pow(int n)const;
 
     bool operator<(const Quantity& rh)const;
 

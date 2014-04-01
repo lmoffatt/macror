@@ -34,7 +34,7 @@ namespace  Markov_Object {
   {}
 
   Abstract_Named_Object::Abstract_Named_Object(const Abstract_Named_Object &other):
-    Abstract_Object(other),
+    Abstract_Refers_Environment(other.getEnvironment()),
     variableName_(other.variableName_),
     tip_(other.tip_),
     whatThis_(other.whatThis_){}
@@ -42,10 +42,6 @@ namespace  Markov_Object {
 
 
 
-  Environment *Abstract_Named_Object::getEnvironment()const
-  {
-    return E_;
-  }
 
 
 
@@ -58,7 +54,7 @@ namespace  Markov_Object {
         if (v==nullptr)
           return false;
       }
-return true;
+    return true;
   }
 
   std::string Abstract_Named_Object::contextToString() const
@@ -120,10 +116,6 @@ return true;
     whatThis_=whatthis;
 
   }
-
-
-
-
 
 
   std::string Abstract_Named_Object::ToString()const
@@ -193,10 +185,6 @@ return true;
       return nullptr;
   }
 
-  void Abstract_Named_Object::setEnvironment(Environment *E)
-  {
-    E_=E;
-  }
 
 
 
@@ -205,24 +193,19 @@ return true;
                                                std::string tip,
                                                std::string whatthis)
     :
-      Abstract_Object(),
+      Abstract_Refers_Environment(e),
       variableName_{variablename},tip_{tip},whatThis_{whatthis}
 
   {
   }
 
 
-  Abstract_Named_Object::Abstract_Named_Object( Environment*  e)
+   Abstract_Named_Object::Abstract_Named_Object()
     :
-      Abstract_Object(),
-      variableName_{},tip_{},whatThis_{}{
-
-  }
-
-  Abstract_Named_Object::Abstract_Named_Object()
-    :
-      Abstract_Object(),
-      variableName_{},tip_{},whatThis_{}{}
+      Abstract_Refers_Environment(),
+      variableName_{},
+      tip_{},
+      whatThis_{}{}
 
 
   std::string Abstract_Named_Object::myClass()const

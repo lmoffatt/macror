@@ -21,7 +21,7 @@ namespace Markov_Object {
 
   ScaledExpression ScaledExpression::dimensionless()
   {
-    return ScaledExpression{1.0,ex_.dimensionless()};
+    return ScaledExpression{getEnvironment(),1.0,ex_.dimensionless()};
   }
 
   std::set<std::string> ScaledExpression::mySuperClasses() const
@@ -105,14 +105,16 @@ namespace Markov_Object {
   }
 
 
-  ScaledExpression::ScaledExpression(double scale, QuantityExpression def):
+  ScaledExpression::ScaledExpression(Environment* e,double scale, QuantityExpression def):
+    Abstract_Refers_Environment(e),
     ex_(def),
     scale_(scale)
   {}
 
-  ScaledExpression::ScaledExpression( double scale, std::string def)
+  ScaledExpression::ScaledExpression( Environment* e,double scale, std::string def)
     :
-      ex_(def),
+    Abstract_Refers_Environment(e),
+    ex_(e,def),
       scale_(scale)
   {
 
@@ -122,7 +124,7 @@ namespace Markov_Object {
   ScaledExpression::~ScaledExpression(){}
 
   ScaledExpression::ScaledExpression(const ScaledExpression &other):
-    Abstract_Object(other),
+    Abstract_Refers_Environment(other.getEnvironment()),
     ex_(other.ex_),
     scale_(other.scale_){}
 
@@ -156,7 +158,7 @@ namespace Markov_Object {
   }
 
   ScaledExpression::ScaledExpression():
-    Abstract_Object(),
+    Abstract_Refers_Environment(nullptr),
     ex_(),
     scale_(0){}
 

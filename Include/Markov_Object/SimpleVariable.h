@@ -56,14 +56,12 @@ namespace Markov_Object {
     virtual bool isCreateable()const;
     virtual SimpleVariable<T>* create()const;
 
-    SimpleVariable( Environment*  e);
 
 
     SimpleVariable();
 
     SimpleVariable(const SimpleVariable<T>& other):
-      Abstract_Object(),
-      Abstract_Variable_Object(other),
+       Abstract_Variable_Object(other),
       defautValue_(other.defautValue_),
       unitId_(other.unitId_){}
 

@@ -89,13 +89,11 @@ namespace Markov_Object
     CreateObject(const std::string& text, std::size_t &cursor)const =0;
 
 
+
+
     //implemented helper methods
     virtual bool belongsTo(const std::string classname)const;
     //constructors destructors
-
-
-
-
 
     virtual ~Abstract_Object();
 
@@ -103,14 +101,10 @@ namespace Markov_Object
     virtual Abstract_Object*
     ToObject(const std::string& text, std::size_t &cursor) =0;
 
-
-
-
-
   };
 
 
-
+  
 
   class Measurement_Unit;
 

@@ -196,7 +196,7 @@ namespace Markov_Object {
                                                  std::string fullname,
                                                  std::string whatthis)
   {
-    ScaledExpression sc(scale,definition);
+    ScaledExpression sc(E,scale,definition);
     QuantityExpression q;
     return Measurement_Unit(E,idName,sc,q,fullname,whatthis);
 }
@@ -204,7 +204,7 @@ namespace Markov_Object {
 
   ScaledExpression Measurement_Unit::self() const
   {
-    return ScaledExpression(1.0,QuantityExpression({idName(),1}));
+    return ScaledExpression(getEnvironment(),1.0,QuantityExpression(getEnvironment(),{idName(),1}));
   }
 
   ScaledExpression Measurement_Unit::definition() const
@@ -216,8 +216,14 @@ namespace Markov_Object {
   {
     return baseDefinition({});
   }
-
-
+  
+  bool Measurement_Unit::empty() const
+  {
+    return  Abstract_Named_Object::empty()&&def_.empty();
+    
+  }
+  
+  
   Measurement_Unit* Measurement_Unit::create()const
   {
     return new Measurement_Unit;
@@ -245,81 +251,7 @@ namespace Markov_Object {
     return qdef_;
   }
 
-  Measurement_Unit Measurement_Unit::operator /(const Measurement_Unit &rh) const
-
-  {
-    if (getEnvironment()!=rh.getEnvironment())
-      return {};
-    else
-      {
-        auto def=baseDefinition()+rh.baseDefinition()*-1;
-        auto res=getEnvironment()->Ud(def);
-        if (res)
-          return *res;
-        else
-          {
-            std::string name;
-            std::string longname;
-            name=idName()+"_per_"+rh.idName();
-            longname=Tip()+" per "+rh.Tip();
-            auto q=getQuantity();
-            auto qrh=rh.getQuantity();
-            Quantity qres=(*q)/(*qrh);
-
-            //  Environment* e=lh.getEnvironment();
-            return Measurement_Unit(nullptr,name,def,qres.definition(),longname,"");
-
-          }
-
-      }
-
-
-  }
-
-
-  Measurement_Unit Measurement_Unit::operator *(const Measurement_Unit &rh) const
-  {
-    if (getEnvironment()!=rh.getEnvironment())
-      return {};
-    else
-      {
-        auto def=baseDefinition()+rh.baseDefinition();
-        auto res=getEnvironment()->Ud(def);
-        if (res)
-          return *res;
-        else
-          {
-            std::string name;
-            std::string longname;
-            if (*this<rh)
-              {
-                name=idName()+"_"+rh.idName();
-                longname=Tip()+" times "+rh.Tip();
-              }
-            else
-              {
-                name=rh.idName()+"_"+idName();
-                longname=rh.Tip()+" times "+Tip();
-
-              }
-            auto q=getQuantity();
-            auto qrh=rh.getQuantity();
-            if (qrh==nullptr)
-              return{};
-            else
-              {
-                Quantity qres=(*q)*(*qrh);
-
-                //  Environment* e=lh.getEnvironment();
-                return Measurement_Unit(nullptr,name,def,qres.definition(),longname,"");
-              }
-          }
-
-      }
-
-
-  }
-
+ 
   bool Measurement_Unit::operator<(const Measurement_Unit &rh) const
   {
     return idName()<rh.idName();
@@ -450,8 +382,8 @@ namespace Markov_Object {
                                      std::string whatthis)
     :
       Abstract_Named_Object(E,idName,fullname,whatthis),
-      qdef_{qdefinition},
-      def_{scale,definition}
+      qdef_{E,qdefinition},
+      def_{E,scale,definition}
   {}
 
 

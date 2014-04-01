@@ -119,127 +119,16 @@ namespace Markov_Object {
 
   QuantityExpression Quantity::self() const
   {
-    return QuantityExpression({idName(),1});
+    return QuantityExpression(getEnvironment(),{idName(),1});
   }
 
-  Quantity Quantity::pow(int n) const
-  {
-
-    auto def=baseDefinition()*n;
-    auto res=getEnvironment()->Qd(def);
-    if (res)
-      return *res;
-    else
-      {
-        std::string name;
-        std::string longname;
-        if (n<0)
-          {
-            name="PER_";
-            longname=name;
-          }
-        if (std::abs(n)==1)
-          {
-            name+=idName();
-            longname+=Tip();
-          }
-        else if(std::abs(n)==2)
-          {
-            name+="square_"+idName();
-            longname+="square_"+Tip();
-          }
-        else if (std::abs(n)==3)
-          {
-            name+="cubic_"+idName();
-            longname+="cubic_"+Tip();
-          }
-        else if (std::abs(n)==4) {
-            name+="cuartic_"+idName();
-            longname+="cuartic_"+Tip();
-          }
-        else if (std::abs(n)==5) {
-            name+="quintic_"+idName();
-            longname+="quintic_"+Tip();
-          }
-        else
-          {
-            name+=std::to_string(std::abs(n))+"_power_"+idName();
-            longname+=std::to_string(std::abs(n))+"_power_"+Tip();
-          }
-        return Quantity(nullptr,name,def,longname,"");
-
-      }
-
-  }
+  
 
 
-
-  Quantity Quantity::operator *( const Quantity &rh)const
-  {
-    if (getEnvironment()!=rh.getEnvironment())
-      return {};
-    else
-      {
-        auto def=baseDefinition()+rh.baseDefinition();
-        auto res=getEnvironment()->Qd(def);
-        if (res)
-          return *res;
-        else
-          {
-            std::string name;
-            std::string longname;
-            if (*this<rh)
-              {
-                name=idName()+"_"+rh.idName();
-                longname=Tip()+" times "+rh.Tip();
-              }
-            else
-              {
-                name=rh.idName()+"_"+idName();
-                longname=rh.Tip()+" times "+Tip();
-
-              }
-            //  Environment* e=lh.getEnvironment();
-            return Quantity(nullptr,name,def,longname,"");
-
-          }
-
-      }
-
-
-  }
-
-
-  Quantity Quantity::operator /( const Quantity &rh)const
-  {
-    if (getEnvironment()!=rh.getEnvironment())
-      return {};
-    else
-      {
-        auto def=baseDefinition()+rh.baseDefinition()*-1;
-        auto res=getEnvironment()->Qd(def);
-        if (res)
-          return *res;
-        else
-          {
-            std::string name;
-            std::string longname;
-            name=idName()+"/"+rh.idName();
-            longname=Tip()+"/"+rh.Tip();
-             Environment* e=this->getEnvironment();
-            return Quantity(e,name,def,longname,"");
-
-          }
-
-      }
-
-
-  }
-
-
+  
+  
 
   Quantity::Quantity():
-    Abstract_Object(),
     Abstract_Named_Object(){}
 
 
@@ -248,7 +137,6 @@ namespace Markov_Object {
                      QuantityExpression quatityDefinition,
                      std::string longName, std::string whatthis)
     :
-      Abstract_Object(),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
       def_(quatityDefinition)
   {
@@ -261,9 +149,8 @@ namespace Markov_Object {
                      std::string longName,
                      std::string whatthis)
     :
-      Abstract_Object(),
       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(quatityDefinition)
+      def_(e,quatityDefinition)
   {}
 
   Quantity::Quantity( Environment*  e,
@@ -272,9 +159,8 @@ namespace Markov_Object {
                       std::string longName,
                       std::string whatthis)
     :
-      Abstract_Object(),
-      Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(QuantityExpression::getDefinition(quatityDefinition))
+       Abstract_Named_Object(e,quantityAbreviation,longName,whatthis),
+      def_(e,QuantityExpression::getDefinition(quatityDefinition))
   {}
 
   QuantityExpression Quantity::baseDefinition(std::set<std::string> upstream,

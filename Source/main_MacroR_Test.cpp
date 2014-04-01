@@ -74,19 +74,11 @@ int main()
   e->add(kg); e->add(meter);  e->add(second); e->add(newton);
   e->addDef(kg); e->addDef(meter);  e->addDef(second); e->addDef(newton);
 
-  Markov_Object::ScaledExpression a(1.0,"pm*Ms^-1*us^-1*N^-1");
+  Markov_Object::ScaledExpression a(e,1.0,"pm*Ms^-1*us^-1*N^-1");
   std::cout<<a.ToString()<<"\n";
 
   std::cout<<kg->ToString();
- auto N2=(*kg)*(*meter)/(*second)/(*second);
-
- std::cout<<N2.ToString();
-
-  std::cout<<L->ToString();
-  auto F2=(*M)*(*V)/(*T);
-
-  std::cout<<"\n"<<F2.ToString();
-  //Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
+ //Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
  //std::cout<<test.classInvariant().VerboseLevel(true);
 // std::cout<<test.classInvariant().VerboseLevel(false);
 

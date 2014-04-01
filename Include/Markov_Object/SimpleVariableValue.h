@@ -26,7 +26,7 @@ namespace Markov_Object
     virtual std::set<std::string> mySuperClasses()const override;
 
 
-    virtual std::string myUnit()const ;
+    virtual std::string myUnit()const ; 
 
     virtual std::string variable()const override;
 
@@ -34,40 +34,16 @@ namespace Markov_Object
     virtual std::string ToString()const override;
 
     virtual SimpleVariableValue<T> *
-    CreateObject(const std::string &text, std::size_t &cursor) const override
-    {
-      auto tmp=create();
-      auto out=tmp->ToObject(text,cursor);
-      if (out==nullptr)
-        delete tmp;
-      return out;
-    }
+    CreateObject(const std::string &text, std::size_t &cursor) const override;
 
     virtual bool isUnknown()const override;
 
 
     virtual T value() const;
 
-    virtual bool empty()const override
-     {
-       return variableId_.empty()&&
-           unitId_.empty()&&
-           value_==T();
-
-     }
+    virtual bool empty()const override;
 
 
-     virtual std::set<std::string> referencedObjects() const
-    {
-       std::set<std::string> out;
-       out.insert(variableId_);
-       out.insert(unitId_);
-       return out;
-
-    }
-
-    
-    
     SimpleVariableValue();
     SimpleVariableValue(std::string variablename,
                         T defaultValue,

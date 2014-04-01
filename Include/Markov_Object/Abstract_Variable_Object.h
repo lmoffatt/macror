@@ -21,7 +21,6 @@ namespace Markov_Object {
 
 
     virtual ~Abstract_Variable_Object();
-    /// cast an Abstract_Object to Abstract_Variable_Object
 
 
     virtual Abstract_Variable_Object* create() const override=0;
@@ -31,30 +30,19 @@ namespace Markov_Object {
 
     virtual Abstract_Value_Object* unKnownValue()const=0;
 
-
     virtual bool isValidValue(const Abstract_Value_Object* v)const=0;
-
-
-
 
 
     Abstract_Variable_Object(Environment*  e,
                              std::string variablename,
                              std::string tip,
-                             std::string whatthis)
-      : Abstract_Object(),
-        Abstract_Named_Object(e,variablename,tip,whatthis)
-    {}
+                             std::string whatthis);
 
-    Abstract_Variable_Object(Environment*  e)
-      :
-        Abstract_Named_Object(e){}
+    Abstract_Variable_Object(Environment*  e);
 
     Abstract_Variable_Object(){}
 
-    Abstract_Variable_Object(const Abstract_Variable_Object& other):
-      Abstract_Named_Object(other)
-    {}
+    Abstract_Variable_Object(const Abstract_Variable_Object& other);
 
 
    };

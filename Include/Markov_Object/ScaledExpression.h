@@ -9,7 +9,7 @@ namespace Markov_Object {
 
 
 
-  class ScaledExpression: public Abstract_Object
+  class ScaledExpression: public Abstract_Refers_Environment
   {
     // Abstract_Object interface
   public:
@@ -62,10 +62,10 @@ namespace Markov_Object {
 
 
 
-    ScaledExpression(double scale,
+    ScaledExpression(Environment* e,double scale,
                      QuantityExpression def);
 
-    ScaledExpression(double scale,
+    ScaledExpression(Environment*e,double scale,
                      std::string def);
 
 

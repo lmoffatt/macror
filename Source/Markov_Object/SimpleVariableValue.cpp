@@ -211,7 +211,16 @@ namespace Markov_Object {
   T SimpleVariableValue<T>::value()const{
     return value_;
   }
-
+  
+  template<typename T>
+  bool SimpleVariableValue<T>::empty() const
+  {
+    return variableId_.empty()&&
+        unitId_.empty()&&
+        value_==T();
+    
+  }
+  
   template<typename T>
   std::string SimpleVariableValue<T>::ToString()const
   {
@@ -222,8 +231,18 @@ namespace Markov_Object {
     out+=unitId_+"\n";
     return out;
   }
-
-
+  
+  template<typename T>
+  SimpleVariableValue<T> *SimpleVariableValue<T>::CreateObject(const std::string &text, std::size_t &cursor) const
+  {
+    auto tmp=create();
+    auto out=tmp->ToObject(text,cursor);
+    if (out==nullptr)
+      delete tmp;
+    return out;
+  }
+  
+  
   template<typename T>
   SimpleVariableValue<T> *SimpleVariableValue<T>::
   ToObject(const std::string& multipleLines, std::size_t &pos)

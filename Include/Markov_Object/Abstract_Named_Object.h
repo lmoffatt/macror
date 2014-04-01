@@ -2,7 +2,7 @@
 #define ABSTRACT_NAMED_OBJECT_H
 #include <memory>
 
-#include "Markov_Object/Abstract_Object.h"
+#include "Markov_Object/Abstract_Refers_Environment.h"
 
 #include "IdentifierName.h"
 
@@ -11,7 +11,7 @@ namespace Markov_Object {
 
 class Environment;
 
-class Abstract_Named_Object:public virtual Abstract_Object
+class Abstract_Named_Object:public Abstract_Refers_Environment
 {
 public:
 // static helper methods
@@ -68,12 +68,10 @@ public:
   virtual void setTip(const std::string& newTip) ;
   virtual void setWhatThis(const std::string &whatthis) ;
 
+  
+  
 
-
-  // new implemented virtual methods
-  // Environment
-  virtual Environment* getEnvironment() const;
-
+  
 
 
   // new abstract method, gives the list of objects referenced
@@ -89,9 +87,6 @@ public:
   virtual std::string contextToString()const;
 
 
-
-
-
 /// constructors and destructor
 
   virtual ~Abstract_Named_Object();
@@ -99,8 +94,6 @@ public:
                std::string variablename,
                std::string tip,
                std::string whatthis);
-
-  Abstract_Named_Object(Environment*  e);
 
   Abstract_Named_Object();
 
@@ -113,10 +106,8 @@ public:
 protected:
   // new helper methods: they add the created variable to the environment
   virtual Abstract_Named_Object* ToObject(const std::string& text, std::size_t &cursor)override;
-  virtual void setEnvironment(Environment *E);
-
+ 
 private:
-  Environment* E_;
   std::string variableName_;
   std::string tip_;
   std::string whatThis_;

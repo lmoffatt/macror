@@ -51,11 +51,7 @@ namespace Markov_Object {
     virtual ScaledExpression baseDefinition()const;
 
 
-    virtual bool empty()const override
-    {
-      return  Abstract_Named_Object::empty()&&def_.empty();
-
-    }
+    virtual bool empty()const override;
 
 
     ///
@@ -80,11 +76,7 @@ namespace Markov_Object {
 
     virtual QuantityExpression getQuantityDefinition()const;
 
-    Measurement_Unit operator /(const Measurement_Unit &rh) const;
-    Measurement_Unit operator *(const Measurement_Unit &rh) const;
-
-    Measurement_Unit pow(int n)const;
-
+    
     bool operator<(const Measurement_Unit& rh)const;
 
 

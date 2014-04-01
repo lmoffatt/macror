@@ -61,27 +61,18 @@ namespace Markov_Object {
                                     std::string tip,
                                     std::string whatthis)
     :
-      Abstract_Object(),
-      Abstract_Variable_Object(E,name,tip,whatthis),
+       Abstract_Variable_Object(E,name,tip,whatthis),
       defautValue_(defaultValue),
       unitId_(unit)
   {
 
   }
 
-  template<typename T>
-  SimpleVariable<T>::SimpleVariable(Environment*  e)
-    :
-      Abstract_Object(),
-      Abstract_Variable_Object(e),
-      defautValue_{T()},
-      unitId_{}
-  {}
+
 
   template<typename T>
   SimpleVariable<T>::SimpleVariable()
     :
-      Abstract_Object(),
       Abstract_Variable_Object(),
       defautValue_{T()},
       unitId_{}

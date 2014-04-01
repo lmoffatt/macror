@@ -29,6 +29,15 @@ namespace Markov_Object {
   Abstract_Variable_Object::~Abstract_Variable_Object(){}
 
 
+  Abstract_Variable_Object::Abstract_Variable_Object(const Abstract_Variable_Object &other):
+    Abstract_Named_Object(other)
+  {}
+
+  Abstract_Variable_Object::Abstract_Variable_Object(Environment *e, std::string variablename, std::string tip, std::string whatthis)
+    :  Abstract_Named_Object(e,variablename,tip,whatthis)
+  {}
+
+
 
 
 
