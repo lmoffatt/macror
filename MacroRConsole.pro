@@ -98,6 +98,7 @@ QMAKE_CXXFLAGS_RELEASE +=-O3
 
 
 HEADERS += \
+    Include/macror_console/Macror_Application.h \
     Include/Markov_Object/Abstract_Environment.h\
     Include/Markov_Object/Measurement_Unit.h \
     Include/Markov_Object/Abstract_Object.h \
@@ -277,6 +278,7 @@ HEADERS += \
     Include/Markov_IO/ABC_Unit.h
 
 SOURCES += \
+    Source/Macror_Var/Matrix.cpp\
     Source/Markov_Object/Measurement_Unit.cpp \
     Source/Markov_Object/ScaledExpression.cpp\
     Source/Markov_Object/QuantityExpression.cpp\
@@ -499,14 +501,20 @@ HEADERS += \
     Include/Markov_Object/IdentifierName.h \
     Include/Markov_Object/Category.h \
     Include/Markov_Object/Unit_System.h \
-    Include/Markov_Object/Abstract_Refers_Environment.h
+    Include/Markov_Object/Abstract_Refers_Environment.h \
+    Include/macror_console/Macror_Program.h \
+    Include/Macror_Mol/Abstract_Patch_Model.h \
+    Include/Macror_Mol/Q_Markov_Model.h \
+    Include/Macror_Var/Matrix.h \
+    Include/Macror_Var/Macror_Matrix.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
     Source/Markov_Console/BayesianAutocomplete.cpp \
     Source/Markov_Object/IdentifierName.cpp \
     Source/Markov_Object/Category.cpp \
-    Source/Markov_Object/Unit_System.cpp
+    Source/Markov_Object/Unit_System.cpp \
+    Source/Macror_Var/Macror_Matrix.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt
