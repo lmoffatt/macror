@@ -1,15 +1,70 @@
 #ifndef Q_MARKOV_MODEL_H
 #define Q_MARKOV_MODEL_H
 
+#include "Macror_Var/Macror_Matrix.h"
 
 
 namespace MacroR_Mol {
+  using Macror_Var::Matrix;
+  
+  
+  class Variable
+  {
+  public:
+    class Data
+    {
+
+    };
+  };
+
+
+  
+  class Q_Transition_rate 
+  {
+    public:
+        
+    
+        M_Matrix<double> Qrun;// transition rate matrix at time zero
+        M_Matrix<double> V;// eigenvector of Qrun
+        M_Matrix<double> W;// eigenvector of Qrun
+        M_Matrix<double> landa; // eigenvalues
+    
+        M_Matrix<double> Wg;
+        M_Matrix<double> WgV;
+    
+        Markov_Transition_rate(const M_Matrix<double>& Qrun_,
+                               const M_Matrix<double>& V_,
+                               const M_Matrix<double>& W_,
+                               const M_Matrix<double>& landa_);
+    
+        Markov_Transition_rate(const M_Matrix<double>& Qrun_,
+                               const M_Matrix<double>& V_,
+                               const M_Matrix<double>& W_,
+                               const M_Matrix<double>& landa_,
+                               const M_Matrix<double>& Wg_,
+                               const M_Matrix<double>& WgV_);
+    
+        Markov_Transition_rate& operator=(const Markov_Transition_rate& other);
+    
+        friend void swap(Markov_Transition_rate& one, Markov_Transition_rate& other);
+    
+        explicit Markov_Transition_rate(std::size_t n, bool is_averaging);
+    
+        Markov_Transition_rate();
+    
+    };
+    
+    
+  };
+  
+  
+  
   class Q_Markov_Model
       {
       public:
 
-        virtual const M_Matrix<double>& Q() const;
-        virtual const M_Matrix<double>& Q0() const;
+        virtual const DoubleMatrixVal* Q() const;
+        virtual const Matrix<double>& Q0() const;
         virtual const M_Matrix<double>& Q1() const;
 
         virtual const M_Matrix<size_t>& n_bound_agonists() const;

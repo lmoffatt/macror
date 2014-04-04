@@ -8,13 +8,13 @@
 #include "Markov_IO/ABFFile.h"
 #include "Markov_IO/PulsesProgram.h"
 
-#include "Markov_Object/Abstract_Object.h"
-#include "Markov_Object/Environment.h"
-#include "Markov_Object/Measurement_Unit.h"
-#include "Markov_Object/SimpleVariableValue.h"
+#include "Macror_Var/Abstract_Object.h"
+#include "Macror_Var/Environment.h"
+#include "Macror_Var/Measurement_Unit.h"
+#include "Macror_Var/SimpleVariableValue.h"
 
-#include "Markov_Object/SimpleVariable.h"
-#include "Markov_Object/Quantity.h"
+#include "Macror_Var/SimpleVariable.h"
+#include "Macror_Var/Quantity.h"
 
 
 /*
@@ -32,19 +32,19 @@ int main(int argc, char **argv)
 
 int main()
 {
-  Markov_Object::Environment env=Markov_Object::Environment();
-  Markov_Object::Environment* e=&env;
+  Macror_Var::Environment env=Macror_Var::Environment();
+  Macror_Var::Environment* e=&env;
 
  /*
-  Markov_Object::QuantityExpression qe({{"L",1},{"M",-2}});
-  Markov_Object::QuantityExpression qe2({{"L",-1},{"MN",2}});
+  Macror_Var::QuantityExpression qe({{"L",1},{"M",-2}});
+  Macror_Var::QuantityExpression qe2({{"L",-1},{"MN",2}});
   std::cout<<qe.ToString();std::cout<<q.ToString();
-  Markov_Test::Markov_Object_Test::QuantityExpression_Test test1({&qe,&qe2});
+  Markov_Test::Macror_Var_Test::QuantityExpression_Test test1({&qe,&qe2});
   std::cout<<test1.classInvariant().VerboseLevel(false);
 
 */
 
-  using Markov_Object::Quantity;
+  using Macror_Var::Quantity;
 
   std::shared_ptr<Quantity> L=std::make_shared<Quantity>(e,"L","L","longitude","dimension of distance and length");
   std::shared_ptr<Quantity> T=std::make_shared<Quantity>(e,"T","T","time","dimension of time");
@@ -52,17 +52,17 @@ int main()
   std::shared_ptr<Quantity> V=std::make_shared<Quantity>(e,"VELOCITY","L*T^-1","velocity","derivative of space over time");
   std::shared_ptr<Quantity> A=std::make_shared<Quantity>(e,"ASCELERATION","VELOCITY*T^-1","asceleration","second derivative of space over time");
   std::shared_ptr<Quantity> F=std::make_shared<Quantity>(e,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time");
- std::shared_ptr<Markov_Object::Measurement_Unit> kg=
-     std::make_shared<Markov_Object::Measurement_Unit>
+ std::shared_ptr<Macror_Var::Measurement_Unit> kg=
+     std::make_shared<Macror_Var::Measurement_Unit>
      (e,"kg",1.0,"kg","M","kilogram","standard Unit of mass");
- std::shared_ptr<Markov_Object::Measurement_Unit> second=
-     std::make_shared<Markov_Object::Measurement_Unit>
+ std::shared_ptr<Macror_Var::Measurement_Unit> second=
+     std::make_shared<Macror_Var::Measurement_Unit>
      (e,"s",1.0,"s","T","second","standard Unit of time");
- std::shared_ptr<Markov_Object::Measurement_Unit> newton=
-     std::make_shared< Markov_Object::Measurement_Unit >
+ std::shared_ptr<Macror_Var::Measurement_Unit> newton=
+     std::make_shared< Macror_Var::Measurement_Unit >
      (e,"N",1.0,"kg*m*s^-2","FORCE","Newton","derived standard Unit of Force");
- std::shared_ptr<Markov_Object::Measurement_Unit> meter=
-     std::make_shared<Markov_Object::Measurement_Unit>
+ std::shared_ptr<Macror_Var::Measurement_Unit> meter=
+     std::make_shared<Macror_Var::Measurement_Unit>
      (e,"m",1.0,"m","L","meter","standard Unit of distance");
 
 
@@ -74,23 +74,23 @@ int main()
   e->add(kg); e->add(meter);  e->add(second); e->add(newton);
   e->addDef(kg); e->addDef(meter);  e->addDef(second); e->addDef(newton);
 
-  Markov_Object::ScaledExpression a(e,1.0,"pm*Ms^-1*us^-1*N^-1");
+  Macror_Var::ScaledExpression a(e,1.0,"pm*Ms^-1*us^-1*N^-1");
   std::cout<<a.ToString()<<"\n";
 
   std::cout<<kg->ToString();
- //Markov_Test::Markov_Object_Test::Quantity_Test test({L,T,V,A,F,M});
+ //Markov_Test::Macror_Var_Test::Quantity_Test test({L,T,V,A,F,M});
  //std::cout<<test.classInvariant().VerboseLevel(true);
 // std::cout<<test.classInvariant().VerboseLevel(false);
 
-// Markov_Test::Markov_Object_Test::Measurement_Unit_Test test2({kg,meter,second,newton});
+// Markov_Test::Macror_Var_Test::Measurement_Unit_Test test2({kg,meter,second,newton});
 //std::cout<<test.classInvariant().VerboseLevel(true);
 //std::cout<<test2.classInvariant().VerboseLevel(false);
 
 
 
-  /*Markov_Object::Measurement_Unit* u=new Markov_Object::Measurement_Unit("ms","milisecond",&e,"time","scale of time");
+  /*Macror_Var::Measurement_Unit* u=new Macror_Var::Measurement_Unit("ms","milisecond",&e,"time","scale of time");
   std::cout<<u->ToString();
-  Markov_Object::Measurement_Unit* u2=new Markov_Object::Measurement_Unit(&e);
+  Macror_Var::Measurement_Unit* u2=new Macror_Var::Measurement_Unit(&e);
   std::size_t n=0;
   u2->ToObject(&e,u->ToString(),n);
   std::cout<<u2->ToString();
@@ -98,8 +98,8 @@ int main()
 
   e.addUnit(u);
 
-  Markov_Object::SimpleVariable<std::size_t> c("milisecond_number",10.0,"ms",&e,"delay","time to reach maximum");
-  Markov_Object::SimpleVariable<std::size_t>*c2=new Markov_Object::SimpleVariable<std::size_t>(&e);
+  Macror_Var::SimpleVariable<std::size_t> c("milisecond_number",10.0,"ms",&e,"delay","time to reach maximum");
+  Macror_Var::SimpleVariable<std::size_t>*c2=new Macror_Var::SimpleVariable<std::size_t>(&e);
   n=0;
   c2->ToObject(&e,c.ToString(),n);
 
@@ -109,11 +109,11 @@ int main()
 
 
 
-  Markov_Object::SimpleVariable<double> *d=
-      new Markov_Object::SimpleVariable<double> ("milisecond_number_real",0.0,"ms",&e,
+  Macror_Var::SimpleVariable<double> *d=
+      new Macror_Var::SimpleVariable<double> ("milisecond_number_real",0.0,"ms",&e,
                                                  "delay","time to reach maximum");
   e.add(d);
-  Markov_Object::SimpleVariable<double> * d2= new Markov_Object::SimpleVariable<double>;
+  Macror_Var::SimpleVariable<double> * d2= new Macror_Var::SimpleVariable<double>;
   n=0;
   c2->ToObject(&e,d->ToString(),n);
 
@@ -123,32 +123,32 @@ int main()
   std::cout<<c.unKnownValue()->ToString();
 
 
-  Markov_Object::SimpleVariableValue<double> dd("milisecond_number_real",9.345,"ms",&e);
-  Markov_Object::SimpleVariableValue<double> d3("milisecond_number_real",9.345,"ms",&e);
+  Macror_Var::SimpleVariableValue<double> dd("milisecond_number_real",9.345,"ms",&e);
+  Macror_Var::SimpleVariableValue<double> d3("milisecond_number_real",9.345,"ms",&e);
 
   std::cout << dd.ToString();
   std::cout << "context \n"<<dd.contextToString();
 
 
 
-  Markov_Test::Markov_Object_Test::Abstract_Value_Test test(&dd);
+  Markov_Test::Macror_Var_Test::Abstract_Value_Test test(&dd);
   std::cout<<test.classInvariant().VerboseLevel(false);
 
 
-  Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test2(d);
+  Markov_Test::Macror_Var_Test::Abstract_Named_Object_Test test2(d);
 
   std::cout<<test2.classInvariant().VerboseLevel(false);
 
   auto cp=&c;
 
-  Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test3(cp);
+  Markov_Test::Macror_Var_Test::Abstract_Named_Object_Test test3(cp);
   std::cout<<test3.classInvariant().VerboseLevel(false);
 
-  Markov_Test::Markov_Object_Test::Abstract_Named_Object_Test test4(d2);
+  Markov_Test::Macror_Var_Test::Abstract_Named_Object_Test test4(d2);
   std::cout<<test4.classInvariant().VerboseLevel(false);
 
 
-  //  Markov_Object::Composite_Variable m(&e,"model","un modelo1","la puta digo");
+  //  Macror_Var::Composite_Variable m(&e,"model","un modelo1","la puta digo");
   //  m.push_back("Q",&d);
   //  m.push_back("g",&d);
 

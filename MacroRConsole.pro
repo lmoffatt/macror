@@ -99,19 +99,6 @@ QMAKE_CXXFLAGS_RELEASE +=-O3
 
 HEADERS += \
     Include/macror_console/Macror_Application.h \
-    Include/Markov_Object/Abstract_Environment.h\
-    Include/Markov_Object/Measurement_Unit.h \
-    Include/Markov_Object/Abstract_Object.h \
-    Include/Markov_Object/Environment.h \
-    Include/Markov_Object/Abstract_Named_Object.h \
-    Include/Markov_Object/SimpleVariable.h \
-    Include/Markov_Object/Abstract_Value_Object.h \
-    Include/Markov_Object/Abstract_Variable_Object.h \
-    Include/Markov_Object/SimpleVariableValue.h \
-    Include/Markov_Object/Measurement.h \
-    Include/Markov_Object/Quantity.h \
-    Include/Markov_Object/QuantityExpression.h \
-    Include/Markov_Object/ScaledExpression.h\
     Include/Markov_Bay/MarkovOptim.h \
     Include/Markov_Bay/MarkovLikelihood.h \
     Include/Markov_Bay/MacroRStep.h \
@@ -278,20 +265,6 @@ HEADERS += \
     Include/Markov_IO/ABC_Unit.h
 
 SOURCES += \
-    Source/Macror_Var/Matrix.cpp\
-    Source/Markov_Object/Measurement_Unit.cpp \
-    Source/Markov_Object/ScaledExpression.cpp\
-    Source/Markov_Object/QuantityExpression.cpp\
-    Source/Markov_Object/QuantityExpression.cpp\
-    Source/Markov_Object/Quantity.cpp\
-    Source/Markov_Object/Abstract_Object.cpp \
-    Source/Markov_Object/Environment.cpp \
-    Source/Markov_Object/Abstract_Named_Object.cpp \
-    Source/Markov_Object/SimpleVariable.cpp \
-    Source/Markov_Object/Abstract_Value_Object.cpp \
-    Source/Markov_Object/Abstract_Variable_Object.cpp \
-    Source/Markov_Object/SimpleVariableValue.cpp \
-    Source/Markov_Object/Measurement.cpp \
     Source/Markov_IO/ABC_Unit.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
@@ -498,23 +471,51 @@ HEADERS += \
     Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
     Include/Markov_IO/A_Variable.h \
-    Include/Markov_Object/IdentifierName.h \
-    Include/Markov_Object/Category.h \
-    Include/Markov_Object/Unit_System.h \
-    Include/Markov_Object/Abstract_Refers_Environment.h \
     Include/macror_console/Macror_Program.h \
     Include/Macror_Mol/Abstract_Patch_Model.h \
     Include/Macror_Mol/Q_Markov_Model.h \
     Include/Macror_Var/Matrix.h \
-    Include/Macror_Var/Macror_Matrix.h
+    Include/Macror_Var/Macror_Matrix.h \
+    Include/Macror_Var/Unit_System.h \
+    Include/Macror_Var/SimpleVariableValue.h \
+    Include/Macror_Var/SimpleVariable.h \
+    Include/Macror_Var/ScaledExpression.h \
+    Include/Macror_Var/Quantity.h \
+    Include/Macror_Var/QuantityExpression.h \
+    Include/Macror_Var/Measurement_Unit.h \
+    Include/Macror_Var/Measurement.h \
+    Include/Macror_Var/IdentifierName.h \
+    Include/Macror_Var/Environment.h \
+    Include/Macror_Var/Category.h \
+    Include/Macror_Var/Abstract_Variable_Object.h \
+    Include/Macror_Var/Abstract_Value_Object.h \
+    Include/Macror_Var/Abstract_Refers_Environment.h \
+    Include/Macror_Var/Abstract_Object.h \
+    Include/Macror_Var/Abstract_Named_Object.h \
+    Include/Macror_Var/Abstract_Environment.h\
+    Include/Macror_Var/Implement_Value_Object.h \
+    Include/Macror_Var/Implement_Named_Object.h \
+    Include/Macror_Var/Implement_Refer_Environment.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
     Source/Markov_Console/BayesianAutocomplete.cpp \
-    Source/Markov_Object/IdentifierName.cpp \
-    Source/Markov_Object/Category.cpp \
-    Source/Markov_Object/Unit_System.cpp \
-    Source/Macror_Var/Macror_Matrix.cpp
+    Source/Macror_Var/Macror_Matrix.cpp \
+    Source/Macror_Var/Unit_System.cpp \
+    Source/Macror_Var/SimpleVariableValue.cpp \
+    Source/Macror_Var/SimpleVariable.cpp \
+    Source/Macror_Var/ScaledExpression.cpp \
+    Source/Macror_Var/QuantityExpression.cpp \
+    Source/Macror_Var/Quantity.cpp \
+    Source/Macror_Var/Measurement_Unit.cpp \
+    Source/Macror_Var/Measurement.cpp \
+    Source/Macror_Var/IdentifierName.cpp \
+    Source/Macror_Var/Environment.cpp \
+    Source/Macror_Var/Category.cpp \
+    Source/Macror_Var/Abstract_Variable_Object.cpp \
+    Source/Macror_Var/Abstract_Value_Object.cpp \
+    Source/Macror_Var/Abstract_Named_Object.cpp \
+    Source/Macror_Var/Implement_Named_Object.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt
