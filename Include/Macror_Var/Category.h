@@ -17,9 +17,6 @@ namespace Macror_Var {
     static std::string ClassName();
 
     static std::set<std::string> SuperClasses();
-
-
-
     // virtual methods
     virtual std::string myClass()const override;
     virtual std::set<std::string> mySuperClasses()const override;

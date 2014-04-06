@@ -66,10 +66,7 @@ namespace Macror_Var {
       const std::map<std::string, int>& value()const;
 
       double scale()const;
-      void setScale(double x)
-       {
-        scale_=x;
-      }
+      void setScale(double x);
 
 
       Expression &operator+=(const Expression& other);
@@ -154,18 +151,12 @@ namespace Macror_Var {
 
     Measurement_Unit( Environment*  e);
 
-    Environment* getEnvironment()const override
-    {
-      return def_.getEnvironment();
-    }
+    Environment* getEnvironment()const override;
+    void setEnvironment(Environment* E);
 
   protected:
     virtual Measurement_Unit *
     ToObject(const std::string& multipleLines,std::size_t& pos) override;
-    void setEnvironment(Environment* E)
-    {
-      def_.setEnvironment(E);
-    }
 
  private:
     Expression def_;

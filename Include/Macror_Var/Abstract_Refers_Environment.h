@@ -44,7 +44,6 @@ namespace Macror_Var {
     virtual ~Abstract_Refers_Environment(){}
 
     friend class Environment;
- protected:
     virtual void setEnvironment(Environment *E)=0;
 
 

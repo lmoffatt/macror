@@ -16,7 +16,6 @@ namespace Macror_Var {
     Implement_Refer_Environment():
       E_(nullptr){}
     virtual ~Implement_Refer_Environment(){}
-  protected:
     virtual void setEnvironment(Environment *E)override;
 
   private:

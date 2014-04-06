@@ -38,11 +38,11 @@ namespace Macror_Var {
 
   std::string Category::ToString() const
   {
-    if (Abstract_Named_Object::idName().empty())
+    if (Implement_Named_Object::idName().empty())
       return "";
     else
       {
-        std::string o=ClassName()+" "+ Abstract_Named_Object::ToString();
+        std::string o=ClassName()+" "+ Implement_Named_Object::ToString();
         return o;
       }
   }
@@ -68,7 +68,7 @@ namespace Macror_Var {
     if ((!text.empty())&&(text.substr(cursor,clsnms)==ClassName()))
       {
         cursor+=clsnms;
-        if (Abstract_Named_Object::ToObject(text,cursor))
+        if (Implement_Named_Object::ToObject(text,cursor))
           {
                 return this;
           }

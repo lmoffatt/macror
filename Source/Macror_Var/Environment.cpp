@@ -218,14 +218,14 @@ namespace Macror_Var {
   void Environment::add(std::shared_ptr<Quantity> q)
   {
     Q_[q->idName()]=q;
-    q->Abstract_Refers_Environment::setEnvironment(this);
+    q->setEnvironment(this);
 
   }
 
   void Environment::add(std::shared_ptr<Measurement_Unit> m)
   {
     U_[m->idName()]=m;
-    m->Abstract_Refers_Environment::setEnvironment(this);
+    m->setEnvironment(this);
 
   }
 

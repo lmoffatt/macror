@@ -144,12 +144,12 @@ namespace Macror_Var {
 
 
 
+    virtual void setEnvironment(Environment* E);
 
   protected:
     virtual Quantity*
     ToObject(const std::string &text, std::size_t &cursor)  override;
 
-    virtual void setEnvironment(Environment* E);
 
   private:
     Expression baseDefinition(std::set<std::string> upstream,

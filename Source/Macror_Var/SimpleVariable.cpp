@@ -362,6 +362,17 @@ namespace Macror_Var {
   }
 
   template<typename T>
+  typename SimpleVariable<T>::Data *SimpleVariable<T>::Data::CreateObject(
+      const std::string &text, std::size_t &cursor) const
+  {
+    auto tmp=create();
+    auto out=tmp->ToObject(text,cursor);
+    if (out==nullptr)
+      delete tmp;
+    return out;
+  }
+
+  template<typename T>
   std::string SimpleVariable<T>::Data::variableName() const
   {
     return varName_;
@@ -422,6 +433,7 @@ namespace Macror_Var {
 
   template
   class SimpleVariable<double>;
+
 
 
 

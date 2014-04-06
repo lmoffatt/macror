@@ -243,7 +243,7 @@ namespace Macror_Var {
   {
     if (!empty())
       {
-        std::string out=Abstract_Named_Object::ToString();
+        std::string out=Implement_Named_Object::ToString();
         out+=definition().ToString()+"\n";
         return out;
       }
@@ -265,7 +265,7 @@ namespace Macror_Var {
   Measurement_Unit* Measurement_Unit::ToObject(const std::string& multipleLines, std::size_t& pos)
   {
     std::size_t pos0=pos;
-    if (!Abstract_Named_Object::ToObject(multipleLines,pos))
+    if (!Implement_Named_Object::ToObject(multipleLines,pos))
       {
         pos=pos0;
         return nullptr;
@@ -280,6 +280,11 @@ namespace Macror_Var {
     delete d;
     return this;
 
+  }
+
+  void Measurement_Unit::setEnvironment(Environment *E)
+  {
+    def_.setEnvironment(E);
   }
 
   Measurement_Unit::Expression Measurement_Unit::baseDefinition(std::set<std::string> upstream) const
@@ -343,6 +348,11 @@ namespace Macror_Var {
       def_{E,definition,scale}
   {}
 
+  Environment *Measurement_Unit::getEnvironment() const
+  {
+    return def_.getEnvironment();
+  }
+
 
 
 
@@ -404,6 +414,16 @@ namespace Macror_Var {
   const std::map<std::string, int> &Measurement_Unit::Expression::value() const
   {
     return ep_.value();
+  }
+
+  double Measurement_Unit::Expression::scale() const
+  {
+    return scale_;
+  }
+
+  void Measurement_Unit::Expression::setScale(double x)
+  {
+    scale_=x;
   }
 
   Measurement_Unit::Expression &Measurement_Unit::Expression::operator+=(const Measurement_Unit::Expression &other)
