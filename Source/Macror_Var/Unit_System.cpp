@@ -42,11 +42,11 @@ namespace Macror_Var {
 
   std::string Unit_System::ToString() const
   {
-    if (Abstract_Named_Object::idName().empty())
+    if (Implement_Named_Object::idName().empty())
       return "";
     else
       {
-        std::string o=ClassName()+" "+ Abstract_Named_Object::ToString();
+        std::string o=ClassName()+" "+ Implement_Named_Object::ToString();
         o+="Standard Quantities\n";
         for (auto q:stdQuantities())
           o+=q+"  ";
@@ -124,14 +124,16 @@ namespace Macror_Var {
   }
 
   Unit_System::Unit_System():
-    Abstract_Named_Object(),
+    Implement_Named_Object(),
+    Implement_Refer_Environment(),
     stdQ_(),
     q2Us_()
   {}
 
   Unit_System::Unit_System(Environment *e, const std::string &name, const std::set<std::string> &stdQuantities, const std::map<std::string, std::vector<std::string> > &quantity2Units)
     :
-      Abstract_Named_Object(e,name,"",""),
+      Implement_Named_Object(name,"",""),
+      Implement_Refer_Environment(e),
       stdQ_(stdQuantities),
       q2Us_(quantity2Units){}
 
@@ -145,9 +147,9 @@ namespace Macror_Var {
     if ((!text.empty())&&(text.substr(cursor,clsnms)==ClassName()))
       {
         cursor+=clsnms;
-        if (Abstract_Named_Object::ToObject(text,cursor))
+        if (Implement_Named_Object::ToObject(text,cursor))
           {
-            std::string line=Abstract_Named_Object::nextLine(text,cursor);
+            std::string line=nextLine(text,cursor);
             if (line=="Standard Quantities")
               {
                 std::string stdLine=nextLine(text,cursor);
@@ -160,7 +162,7 @@ namespace Macror_Var {
             else
               return nullptr;
             std::map<std::string,std::vector<std::string>> q2u;
-            line=Abstract_Named_Object::nextLine(text,cursor);
+            line=nextLine(text,cursor);
             while (!line.empty())
               {
                 std::size_t pos=0;

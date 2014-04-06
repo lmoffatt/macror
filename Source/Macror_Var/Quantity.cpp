@@ -79,7 +79,7 @@ namespace Macror_Var {
     if ((!text.empty())&&(text.substr(cursor,clsnms)==ClassName()))
       {
         cursor+=clsnms;
-        if (Abstract_Named_Object::ToObject(text,cursor))
+        if (Implement_Named_Object::ToObject(text,cursor)!=nullptr)
           {
             auto tmp=def_.CreateObject(text,cursor);
             if (tmp!=nullptr)
@@ -92,6 +92,11 @@ namespace Macror_Var {
     cursor=cursor0;
     return nullptr;
     
+  }
+
+  void Quantity::setEnvironment(Environment *E)
+  {
+    def_.setEnvironment(E);
   }
   
   
@@ -106,20 +111,20 @@ namespace Macror_Var {
     return out;
   }
   
-  QuantityExpression Quantity::definition() const
+  Quantity::Expression Quantity::definition() const
   {
     return def_;
   }
   
-  QuantityExpression Quantity::baseDefinition(Unit_System *us) const
+  Quantity::Expression Quantity::baseDefinition(Unit_System *us) const
   {
     auto o=baseDefinition({},us);
     return o;
   }
 
-  QuantityExpression Quantity::self() const
+  Quantity::Expression Quantity::self() const
   {
-    return QuantityExpression(getEnvironment(),{idName(),1});
+    return Quantity::Expression(getEnvironment(),{idName(),1});
   }
 
   
@@ -129,15 +134,16 @@ namespace Macror_Var {
   
 
   Quantity::Quantity():
-    Implement_Named_Object(){}
+    Implement_Named_Object(),
+    def_(){}
 
 
-  Quantity::Quantity(Environment*  e,
+  Quantity::Quantity(Quantity::Expression quatityDefinition,
                      std::string quantityAbreviation,
-                     QuantityExpression quatityDefinition,
-                     std::string longName, std::string whatthis)
+                     std::string longName,
+                     std::string whatthis)
     :
-      Implement_Named_Object(e,quantityAbreviation,longName,whatthis),
+      Implement_Named_Object(quantityAbreviation,longName,whatthis),
       def_(quatityDefinition)
   {
 
@@ -149,8 +155,8 @@ namespace Macror_Var {
                      std::string longName,
                      std::string whatthis)
     :
-      Implement_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(e,quatityDefinition)
+      Implement_Named_Object(quantityAbreviation,longName,whatthis),
+      def_{e,quatityDefinition}
   {}
 
   Quantity::Quantity( Environment*  e,
@@ -159,27 +165,28 @@ namespace Macror_Var {
                       std::string longName,
                       std::string whatthis)
     :
-       Implement_Named_Object(e,quantityAbreviation,longName,whatthis),
-      def_(e,QuantityExpression::getDefinition(quatityDefinition))
+      Implement_Named_Object(quantityAbreviation,longName,whatthis),
+      def_{e,quatityDefinition}
+
   {}
 
-  QuantityExpression Quantity::baseDefinition(std::set<std::string> upstream,
-                                              Unit_System* us) const
+  Quantity::Expression Quantity::baseDefinition(std::set<std::string> upstream,
+                                                Unit_System* us) const
 
   {
     if (us==nullptr)
       us=getEnvironment()->getUnit_System();
     upstream.insert(idName());
-    QuantityExpression out;
+    Expression out;
     if (getEnvironment()!=nullptr)
       {
         for (auto t:def_.value())
           {
             std::shared_ptr<const Quantity> q=getEnvironment()->Q(t.first);
             if (q==nullptr)
-              return QuantityExpression();
+              return Expression();
             else if (us->isStdQuantity(q->idName())||
-                       upstream.count(q->idName())!=0)
+                     upstream.count(q->idName())!=0)
               return self();
             else
               {
@@ -201,7 +208,126 @@ namespace Macror_Var {
 
 
 
+
+  std::string Quantity::Expression::ClassName()
+  {
+    return "Quantity::Expression";
+  }
+
+  std::set<std::string> Quantity::Expression::SuperClasses()
+  {
+    auto out=Implement_Refer_Environment::SuperClasses();
+    out.insert(ClassName());
+    return out;
+  }
+
+  std::set<std::string> Quantity::Expression::mySuperClasses() const
+  {
+    return SuperClasses();
+
+  }
+
+  std::string Quantity::Expression::myClass() const
+  {
+    return ClassName();
+  }
+
+  Quantity::Expression *Quantity::Expression::CreateObject(const std::string &text, std::size_t &cursor) const
+  {
+    Expression * out=create();
+    auto res=out->ToObject(text,cursor);
+    if (res!=nullptr)
+      return res;
+    else
+      {
+        delete out;
+        return res;
+      }
+  }
+
+
+  Quantity::Expression Quantity::Expression::dimensionless()
+  {
+    return Expression(getEnvironment(),"");
+  }
+
+  Quantity::Expression &Quantity::Expression::removeUnitTerms()
+  {
+    ExpressionProduct::removeUnitTerms();
+    return *this;
+  }
+
+  std::map<std::string, int> &Quantity::Expression::value()
+  {
+    return ExpressionProduct::value();
+  }
+
+  const std::map<std::string, int> &Quantity::Expression::value() const
+  {
+    return ExpressionProduct::value();
+  }
+
+  Quantity::Expression &Quantity::Expression::operator+=(const Quantity::Expression &other)
+  {
+    ExpressionProduct::operator+=(other);
+    return *this;
+  }
+
+  Quantity::Expression &Quantity::Expression::operator*=(int n)
+  {
+    ExpressionProduct::operator *=(n);
+    return *this;
+  }
+
+  bool Quantity::Expression::operator<(const Quantity::Expression &other) const
+  {
+    return ExpressionProduct::operator <(other);
+  }
+
+  Quantity::Expression::Expression(Environment *e, std::map<std::string, int> expression):
+    Implement_Refer_Environment(e),
+    ExpressionProduct(expression){}
+
+  Quantity::Expression::Expression(Environment *e, std::string exp):
+    Implement_Refer_Environment(e),
+    ExpressionProduct(exp){}
+
+  Quantity::Expression::Expression(const Quantity::Expression &E):
+    Implement_Refer_Environment(E.getEnvironment()),
+    ExpressionProduct(E){}
+
+  Quantity::Expression::Expression():
+    Implement_Refer_Environment(),
+    ExpressionProduct(){}
+
+  Quantity::Expression *Quantity::Expression::ToObject(const std::string &text, std::size_t &cursor)
+  {
+    if (ExpressionProduct::ToObject(text,cursor)!=nullptr)
+      return this;
+    else
+      return nullptr;
+  }
+
+  bool Quantity::Expression::empty() const
+  {
+    return ExpressionProduct::empty();
+  }
+
+  std::string Quantity::Expression::ToString() const
+  {
+    return ExpressionProduct::ToString();
+  }
+
+  Quantity::Expression *Quantity::Expression::create() const
+  {
+    return new Expression;
+  }
+
+
+
+
 }
+
 
 
 

@@ -1,8 +1,8 @@
 #ifndef MARKOV_COMMANDMANAGERTEST_H
 #define MARKOV_COMMANDMANAGERTEST_H
-#include "Markov_Console/Markov_CommandManager.h"
-#include "Tests/All_Tests.h"
-#include "Tests/MultipleTests.h"
+#include "Include/Markov_Console/Markov_CommandManager.h"
+#include "Include/Tests/All_Tests.h"
+#include "Include/Tests/MultipleTests.h"
 
 namespace Markov_Console
 {

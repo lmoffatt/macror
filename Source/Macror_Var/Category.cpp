@@ -88,17 +88,18 @@ namespace Macror_Var {
 
 
  Category::Category():
-    Abstract_Named_Object(){}
+    Implement_Named_Object(),
+   Implement_Refer_Environment(){}
 
 
   Category::Category(Environment*  e,
                      std::string CategoryName,
-                     std::string tip, std::string whatthis)
+                     std::string tip,
+                     std::string whatthis)
     :
-      Abstract_Named_Object(e,CategoryName,tip,whatthis)
-  {
-
-  }
+      Implement_Named_Object(CategoryName,tip,whatthis),
+      Implement_Refer_Environment(e)
+  {}
 
 
 

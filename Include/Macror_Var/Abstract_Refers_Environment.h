@@ -4,7 +4,7 @@
 
 namespace Macror_Var {
   class Environment;
-  class Abstract_Refers_Environment: public Abstract_Object
+  class Abstract_Refers_Environment: public virtual Abstract_Object
   {
 
 

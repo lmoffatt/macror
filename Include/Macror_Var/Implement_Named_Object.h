@@ -3,7 +3,7 @@
 #include "Abstract_Named_Object.h"
 
 namespace Macror_Var {
-  class Implement_Named_Object : public Abstract_Named_Object
+  class Implement_Named_Object : public virtual Abstract_Named_Object
   {
   public:
 
@@ -21,6 +21,9 @@ namespace Macror_Var {
 
 
 
+
+
+
     Implement_Named_Object(const Implement_Named_Object &other);
 
 
@@ -32,7 +35,7 @@ namespace Macror_Var {
     std::string ToString() const;
 
 
-    Implement_Named_Object(Environment *e, std::string variablename, std::string tip, std::string whatthis);
+    Implement_Named_Object(std::string variablename, std::string tip, std::string whatthis);
 
 
     Implement_Named_Object();
@@ -40,7 +43,7 @@ namespace Macror_Var {
     Implement_Named_Object *ToObject(const std::string &text, std::size_t &cursor);
 
   private:
-   std::string   variableName_;
+   std::string idName_;
    std::string tip_;
    std::string whatThis_;
 

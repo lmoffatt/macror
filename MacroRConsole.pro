@@ -97,7 +97,24 @@ QMAKE_CXXFLAGS_RELEASE -=-O2
 QMAKE_CXXFLAGS_RELEASE +=-O3
 
 
-HEADERS += \
+HEADERS +=\
+    Include/Macror_Var/Macror_Matrix.h \
+    Include/Macror_Var/Unit_System.h \
+    Include/Macror_Var/SimpleVariable.h \
+    Include/Macror_Var/Quantity.h \
+    Include/Macror_Var/Measurement_Unit.h \
+    Include/Macror_Var/Measurement.h \
+    Include/Macror_Var/IdentifierName.h \
+    Include/Macror_Var/Environment.h \
+    Include/Macror_Var/Category.h \
+    Include/Macror_Var/Abstract_Variable_Object.h \
+    Include/Macror_Var/Abstract_Refers_Environment.h \
+    Include/Macror_Var/Abstract_Object.h \
+    Include/Macror_Var/Abstract_Named_Object.h \
+    Include/Macror_Var/Abstract_Environment.h\
+    Include/Macror_Var/Implement_Value_Object.h \
+    Include/Macror_Var/Implement_Named_Object.h \
+    Include/Macror_Var/Implement_Refer_Environment.h \
     Include/macror_console/Macror_Application.h \
     Include/Markov_Bay/MarkovOptim.h \
     Include/Markov_Bay/MarkovLikelihood.h \
@@ -264,8 +281,21 @@ HEADERS += \
     Include/Markov_IO/ABC_Y_dt.h \
     Include/Markov_IO/ABC_Unit.h
 
-SOURCES += \
+SOURCES +=\
+    Source/Macror_Var/Quantity.cpp \
+    Source/Macror_Var/Abstract_Named_Object.cpp \
+    Source/Macror_Var/Implement_Named_Object.cpp \
+    Source/Macror_Var/Implement_Refer_Environment.cpp \
+    Source/Macror_Var/ExpressionProduct.cpp\
     Source/Markov_IO/ABC_Unit.cpp\
+    Source/Macror_Var/Macror_Matrix.cpp \
+    Source/Macror_Var/Unit_System.cpp \
+    Source/Macror_Var/SimpleVariable.cpp \
+    Source/Macror_Var/Measurement_Unit.cpp \
+    Source/Macror_Var/Measurement.cpp \
+    Source/Macror_Var/IdentifierName.cpp \
+    Source/Macror_Var/Environment.cpp \
+    Source/Macror_Var/Category.cpp  \
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
     Source/Markov_IO/Object.cpp \
@@ -392,6 +422,8 @@ SOURCES += \
     Source/Markov_IO/ABFFile.cpp \
     Source/Markov_IO/ABF1_Headers.cpp \
     Source/Markov_Console/CommandHistory.cpp
+
+
 win32{
     LIBS += -L$$PWD/lib -lcygblas \
             -L$$PWD/lib -lcyglapack
@@ -474,49 +506,10 @@ HEADERS += \
     Include/macror_console/Macror_Program.h \
     Include/Macror_Mol/Abstract_Patch_Model.h \
     Include/Macror_Mol/Q_Markov_Model.h \
-    Include/Macror_Var/Matrix.h \
-    Include/Macror_Var/Macror_Matrix.h \
-    Include/Macror_Var/Unit_System.h \
-    Include/Macror_Var/SimpleVariableValue.h \
-    Include/Macror_Var/SimpleVariable.h \
-    Include/Macror_Var/ScaledExpression.h \
-    Include/Macror_Var/Quantity.h \
-    Include/Macror_Var/QuantityExpression.h \
-    Include/Macror_Var/Measurement_Unit.h \
-    Include/Macror_Var/Measurement.h \
-    Include/Macror_Var/IdentifierName.h \
-    Include/Macror_Var/Environment.h \
-    Include/Macror_Var/Category.h \
-    Include/Macror_Var/Abstract_Variable_Object.h \
-    Include/Macror_Var/Abstract_Value_Object.h \
-    Include/Macror_Var/Abstract_Refers_Environment.h \
-    Include/Macror_Var/Abstract_Object.h \
-    Include/Macror_Var/Abstract_Named_Object.h \
-    Include/Macror_Var/Abstract_Environment.h\
-    Include/Macror_Var/Implement_Value_Object.h \
-    Include/Macror_Var/Implement_Named_Object.h \
-    Include/Macror_Var/Implement_Refer_Environment.h
-
+    Include/Macror_Var/ExpressionProduct.h
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp \
-    Source/Macror_Var/Macror_Matrix.cpp \
-    Source/Macror_Var/Unit_System.cpp \
-    Source/Macror_Var/SimpleVariableValue.cpp \
-    Source/Macror_Var/SimpleVariable.cpp \
-    Source/Macror_Var/ScaledExpression.cpp \
-    Source/Macror_Var/QuantityExpression.cpp \
-    Source/Macror_Var/Quantity.cpp \
-    Source/Macror_Var/Measurement_Unit.cpp \
-    Source/Macror_Var/Measurement.cpp \
-    Source/Macror_Var/IdentifierName.cpp \
-    Source/Macror_Var/Environment.cpp \
-    Source/Macror_Var/Category.cpp \
-    Source/Macror_Var/Abstract_Variable_Object.cpp \
-    Source/Macror_Var/Abstract_Value_Object.cpp \
-    Source/Macror_Var/Abstract_Named_Object.cpp \
-    Source/Macror_Var/Implement_Named_Object.cpp
-
+    Source/Markov_Console/BayesianAutocomplete.cpp
 OTHER_FILES += \
     help_files/plan_aheadd.txt
 

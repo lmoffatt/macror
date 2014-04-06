@@ -6,7 +6,6 @@
 #include <set>
 #include <memory>
 
-#include "Macror_Var/ScaledExpression.h"
 
 
 namespace Macror_Var {

@@ -1,12 +1,13 @@
 #ifndef UNIT_SYSTEM_H
 #define UNIT_SYSTEM_H
 
-#include "Macror_Var/Abstract_Named_Object.h"
+
 #include "Macror_Var/Quantity.h"
 
 namespace Macror_Var {
 
-  class Unit_System: public Abstract_Named_Object
+  class Unit_System: public Implement_Named_Object,
+      public Implement_Refer_Environment
   {
 
 

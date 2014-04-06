@@ -14,14 +14,14 @@
 #include <sstream>
 #include <algorithm>
 
-#include "Markov_IO/ABC_IO.h"
-#include "Markov_Mol/ABC_MarkovModel.h"
-#include "Markov_Mol/ExperimentSimulation.h"
+#include "Include/Markov_IO/ABC_IO.h"
+#include "Include/Markov_Mol/ABC_MarkovModel.h"
+#include "Include/Markov_Mol/ExperimentSimulation.h"
 
-#include "Markov_IO/ABC_Options.h"
+#include "Include/Markov_IO/ABC_Options.h"
 
 
-#include "Markov_Console/ABC_Command.h"
+#include "Include/Markov_Console/ABC_Command.h"
 #include "Markov_Console/CommandHistory.h"
 #include "Markov_Console/Autocomplete.h"
 

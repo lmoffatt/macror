@@ -2,12 +2,14 @@
 #define CATEGORY_H
 
 
-#include "Macror_Var/Abstract_Named_Object.h"
-#include "Macror_Var/QuantityExpression.h"
+#include "Macror_Var/Implement_Named_Object.h"
+#include "Macror_Var/Quantity.h"
 
 namespace Macror_Var {
 
-  class Category: public Abstract_Named_Object
+  class Category: public Implement_Named_Object,
+      public Implement_Refer_Environment
+
   {
   public:
     // static methods
@@ -39,7 +41,6 @@ namespace Macror_Var {
 
     Category();
 
-    Category( Environment*  e);
 
 
     Category(Environment*  e,

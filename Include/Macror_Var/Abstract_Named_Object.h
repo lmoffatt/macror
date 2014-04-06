@@ -11,7 +11,7 @@ namespace Macror_Var {
 
 class Environment;
 
-class Abstract_Named_Object:public Abstract_Refers_Environment
+class Abstract_Named_Object:public virtual Abstract_Refers_Environment
 {
 public:
 
@@ -36,7 +36,7 @@ public:
 
 
   virtual Abstract_Named_Object *
-  CreateObject(const std::string &text, std::size_t &cursor) const override=0;
+  CreateObject(const std::string &text, std::size_t &cursor) const ;
 
 
   /// identifier of the object
@@ -73,73 +73,19 @@ public:
   virtual ~Abstract_Named_Object()
   {}
 
-  bool empty() const override;
+  virtual bool empty() const override;
 
 
 
   // Abstract_Object interface
+
+  // Abstract_Object interface
+protected:
+  virtual Abstract_Named_Object *ToObject(const std::string &text, std::size_t &cursor)=0;
 };
 
 
 }
-
-
-
-#ifdef MACRO_TEST
-
-
-namespace  Markov_IO {
-
-
-
-
-}
-#include "Tests/MultipleTests.h"
-/*
-namespace Markov_Test
-{
-  namespace Macror_Var_Test
-  {
-
-    using namespace Macror_Var;
-
-
-
-    class Abstract_Named_Object_Test:public Abstract_Object_Test
-    {
-    public:
-
-      virtual MultipleTests classInvariant()const;
-
-      Abstract_Named_Object_Test(std::set<std::shared_ptr< Abstract_Named_Object>> objects):
-        Abstract_Object_Test(
-          std::set<std::shared_ptr< Abstract_Object>>(objects.begin(),objects.end())),
-        named_objects_(objects){}
-
-      virtual~Abstract_Named_Object_Test(){}
-      static std::string TestName()
-      {
-        return "Abstract_Named_Object_Test";
-      }
-
-      virtual std::string myTest()const
-      {
-        return TestName();
-      }
-
-
-    protected:
-       std::set<std::shared_ptr< Abstract_Named_Object>> named_objects_;
-    };
-
-
-
-
-
-  }
-}
-*/
-#endif //MACRO_TEST
 
 
 

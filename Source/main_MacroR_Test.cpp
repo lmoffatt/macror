@@ -11,7 +11,6 @@
 #include "Macror_Var/Abstract_Object.h"
 #include "Macror_Var/Environment.h"
 #include "Macror_Var/Measurement_Unit.h"
-#include "Macror_Var/SimpleVariableValue.h"
 
 #include "Macror_Var/SimpleVariable.h"
 #include "Macror_Var/Quantity.h"
@@ -54,16 +53,16 @@ int main()
   std::shared_ptr<Quantity> F=std::make_shared<Quantity>(e,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time");
  std::shared_ptr<Macror_Var::Measurement_Unit> kg=
      std::make_shared<Macror_Var::Measurement_Unit>
-     (e,"kg",1.0,"kg","M","kilogram","standard Unit of mass");
+     (e,"kg",1.0,"kg","kilogram","standard Unit of mass");
  std::shared_ptr<Macror_Var::Measurement_Unit> second=
      std::make_shared<Macror_Var::Measurement_Unit>
-     (e,"s",1.0,"s","T","second","standard Unit of time");
+     (e,"s",1.0,"s","second","standard Unit of time");
  std::shared_ptr<Macror_Var::Measurement_Unit> newton=
      std::make_shared< Macror_Var::Measurement_Unit >
-     (e,"N",1.0,"kg*m*s^-2","FORCE","Newton","derived standard Unit of Force");
+     (e,"N",1.0,"kg*m*s^-2","Newton","derived standard Unit of Force");
  std::shared_ptr<Macror_Var::Measurement_Unit> meter=
      std::make_shared<Macror_Var::Measurement_Unit>
-     (e,"m",1.0,"m","L","meter","standard Unit of distance");
+     (e,"m",1.0,"m","meter","standard Unit of distance");
 
 
 
@@ -74,7 +73,7 @@ int main()
   e->add(kg); e->add(meter);  e->add(second); e->add(newton);
   e->addDef(kg); e->addDef(meter);  e->addDef(second); e->addDef(newton);
 
-  Macror_Var::ScaledExpression a(e,1.0,"pm*Ms^-1*us^-1*N^-1");
+  Macror_Var::Measurement_Unit::Expression a(e,"pm*Ms^-1*us^-1*N^-1",1.0);
   std::cout<<a.ToString()<<"\n";
 
   std::cout<<kg->ToString();

@@ -1,15 +1,12 @@
 #ifndef MEASUREMENT_UNIT_H
 #define MEASUREMENT_UNIT_H
-#include "Macror_Var/Abstract_Named_Object.h"
-#include "Macror_Var/ScaledExpression.h"
+#include "Macror_Var/Implement_Named_Object.h"
+#include "Macror_Var/Implement_Refer_Environment.h"
+#include "ExpressionProduct.h"
 
 namespace Macror_Var {
 
-
-  template<typename T>
-  class Measurement;
-
-  class Measurement_Unit:public Abstract_Named_Object
+  class Measurement_Unit:public Implement_Named_Object
   {
   public:
     static
@@ -22,8 +19,6 @@ namespace Macror_Var {
 
     static std::string ClassName();
 
-
-
     static std::set<std::string> SuperClasses();
 
 
@@ -33,22 +28,87 @@ namespace Macror_Var {
 
 
 
-    static
-    Measurement_Unit DerivedUnit(Environment*  E,
-                                 std::string idName,
-                                 double scale,
-                                 std::string definition,
-                                 std::string fullname,
-                                 std::string whatthis);
+    class Expression: public Implement_Refer_Environment
+    {
+    public:
+
+      static std::string ClassName();
+
+      static std::set<std::string> SuperClasses();
 
 
 
-    ScaledExpression self()const;
+      // Abstract_Object interface
+      virtual std::set<std::string> mySuperClasses() const override;
+      virtual std::string myClass() const override;
 
-    virtual ScaledExpression definition()const;
+      virtual bool empty() const override;
+      virtual std::string ToString() const override;
 
 
-    virtual ScaledExpression baseDefinition()const;
+      virtual Expression *create() const override;
+
+
+      virtual Expression*
+      CreateObject(const std::string &text, std::size_t &cursor) const override;
+
+      // new methods non virtual
+
+      Expression dimensionless();
+
+
+      Expression& removeUnitTerms();
+
+
+      std::map<std::string, int>& value();
+
+
+      const std::map<std::string, int>& value()const;
+
+      double scale()const;
+      void setScale(double x)
+       {
+        scale_=x;
+      }
+
+
+      Expression &operator+=(const Expression& other);
+
+      Expression& operator*=(int n);
+
+      bool operator<(const Expression& other)const;
+
+      Expression(Environment* e,std::map<std::string,int> expression,double sc);
+      Expression(Environment* e,std::string exp, double sc);
+
+
+      Expression(const Expression& E);
+
+
+      Expression();
+
+
+     protected:
+      virtual Expression*
+      ToObject(const std::string &text, std::size_t &cursor)  override;
+      friend class Measurement_Unit;
+
+
+
+
+    private:
+      ExpressionProduct ep_;
+      double scale_;
+
+    };
+
+
+    Expression self()const;
+
+    virtual Expression definition()const;
+
+
+    virtual Expression baseDefinition()const;
 
 
     virtual bool empty()const override;
@@ -72,25 +132,15 @@ namespace Macror_Var {
     virtual std::set<std::string> referencedObjects()const override;
 
 
-    virtual std::shared_ptr<const Quantity> getQuantity()const;
-
-    virtual QuantityExpression getQuantityDefinition()const;
-
-    
     bool operator<(const Measurement_Unit& rh)const;
-
-
-
 
 
     Measurement_Unit();
 
 
 
-    Measurement_Unit(Environment*  E,
-                     std::string idName,
-                     ScaledExpression definition,
-                     QuantityExpression qdefinition,
+    Measurement_Unit(std::string idName,
+                     Expression definition,
                      std::string fullname,
                      std::string whatthis);
 
@@ -98,32 +148,60 @@ namespace Macror_Var {
                      std::string idName,
                      double scale,
                      std::string definition,
-                     std::string qdefinition,
                      std::string fullname,
                      std::string whatthis);
 
 
     Measurement_Unit( Environment*  e);
 
+    Environment* getEnvironment()const override
+    {
+      return def_.getEnvironment();
+    }
+
   protected:
     virtual Measurement_Unit *
     ToObject(const std::string& multipleLines,std::size_t& pos) override;
+    void setEnvironment(Environment* E)
+    {
+      def_.setEnvironment(E);
+    }
+
+ private:
+    Expression def_;
+
+    Expression baseDefinition(std::set<std::string> upstream) const;
+  };
 
 
-  private:
-    QuantityExpression qdef_;
-    ScaledExpression def_;
+inline  Measurement_Unit::Expression
+  operator*(const Measurement_Unit::Expression& one,
+            int n)
+  {
+    Measurement_Unit::Expression out(one);
+    out*=n;
+    return out;
+  }
 
-    ScaledExpression baseDefinition(std::set<std::string> upstream) const;
+ inline Measurement_Unit::Expression
+  operator+(const Measurement_Unit::Expression& one,
+            const Measurement_Unit::Expression& two)
+  {
+    Measurement_Unit::Expression out(one);
+    out+=two;
+    return out;
+  }
+
+  class Measurement_Unit_Expression: public Measurement_Unit::Expression
+  {
+  public:
+    Measurement_Unit_Expression(const Measurement_Unit::Expression& one):
+    Measurement_Unit::Expression(one){}
   };
 
 
 
 
-
-
-
-
 }
 
 
@@ -133,51 +211,6 @@ namespace Macror_Var {
 
 
 
-#ifdef MACRO_TEST
-
-#include "Tests/MultipleTests.h"
-/*
-namespace Markov_Test
-{
-  namespace Macror_Var_Test
-  {
-
-    using namespace Macror_Var;
-
-
-
-    class Measurement_Unit_Test:public Abstract_Named_Object_Test
-    {
-    public:
-
-      virtual MultipleTests classInvariant()const;
-
-      Measurement_Unit_Test(const std::set<std::shared_ptr<Measurement_Unit >> &object);
-
-      virtual~Measurement_Unit_Test(){}
-      static std::string TestName()
-      {
-        return "Measurement_Unit_Test";
-      }
-
-      virtual std::string myTest()const
-      {
-        return TestName();
-      }
-
-
-    protected:
-      std::set<std::shared_ptr< Measurement_Unit>> mue_;
-    };
-
-
-
-
-
-  }
-}
-*/
-#endif //MACRO_TEST
 
 
 

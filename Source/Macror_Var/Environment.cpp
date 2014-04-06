@@ -4,7 +4,6 @@
 #include "Macror_Var/Abstract_Value_Object.h"
 #include "Macror_Var/Measurement_Unit.h"
 #include "Macror_Var/SimpleVariable.h"
-#include "Macror_Var/SimpleVariableValue.h"
 #include "Macror_Var/Quantity.h"
 #include "Macror_Var/Unit_System.h"
 
@@ -109,7 +108,7 @@ namespace Macror_Var {
 
   }
 
-  std::shared_ptr<Measurement_Unit> Environment::Ud(const ScaledExpression &definition)
+  std::shared_ptr<Measurement_Unit> Environment::Ud(const Measurement_Unit_Expression &definition)
   {
     auto it=SU_.find(definition);
     if (it!=SU_.end())
@@ -118,7 +117,7 @@ namespace Macror_Var {
   }
 
 
-  std::shared_ptr<const Quantity> Environment::Qd(const QuantityExpression &definition) const
+  std::shared_ptr<const Quantity> Environment::Qd(const Quantity_Expression &definition) const
   {
     auto it=QQ_.find(definition);
     if (it!=QQ_.end())
@@ -127,7 +126,7 @@ namespace Macror_Var {
 
   }
 
-  std::shared_ptr< Quantity> Environment::Qd(const QuantityExpression &definition)
+  std::shared_ptr< Quantity> Environment::Qd(const Quantity_Expression &definition)
   {
     auto it=QQ_.find(definition);
     if (it!=QQ_.end())
@@ -135,7 +134,7 @@ namespace Macror_Var {
     return nullptr;
 
   }
-  std::shared_ptr<const Measurement_Unit> Environment::Ud(const ScaledExpression &definition)const
+  std::shared_ptr<const Measurement_Unit> Environment::Ud(const Measurement_Unit_Expression &definition)const
   {
     auto it=SU_.find(definition);
     if (it!=SU_.end())
@@ -219,14 +218,14 @@ namespace Macror_Var {
   void Environment::add(std::shared_ptr<Quantity> q)
   {
     Q_[q->idName()]=q;
-    q->setEnvironment(this);
+    q->Abstract_Refers_Environment::setEnvironment(this);
 
   }
 
   void Environment::add(std::shared_ptr<Measurement_Unit> m)
   {
     U_[m->idName()]=m;
-    m->setEnvironment(this);
+    m->Abstract_Refers_Environment::setEnvironment(this);
 
   }
 
@@ -310,11 +309,11 @@ namespace Macror_Var {
     classes_[Measurement_Unit::ClassName()]=new Measurement_Unit;
     classes_[SimpleVariable<double>::ClassName()]=new SimpleVariable<double>;
     classes_[SimpleVariable<std::size_t>::ClassName()]=new SimpleVariable<std::size_t>;
-    classes_[SimpleVariableValue<double>::ClassName()]=new SimpleVariableValue<double>;
-    classes_[SimpleVariableValue<std::size_t>::ClassName()]=new SimpleVariableValue<std::size_t>;
+    classes_[SimpleVariable<double>::Data::ClassName()]=new SimpleVariable<double>::Data;
+    classes_[SimpleVariable<std::size_t>::Data::ClassName()]=new SimpleVariable<std::size_t>::Data;
     classes_[Quantity::ClassName()]=new Quantity;
-    classes_[ScaledExpression::ClassName()]=new ScaledExpression;
-    classes_[QuantityExpression::ClassName()]=new QuantityExpression;
+    classes_[Measurement_Unit::Expression::ClassName()]=new Measurement_Unit::Expression;
+    classes_[Quantity::Expression::ClassName()]=new Quantity::Expression;
 
 
     add(std::make_shared<Quantity>(
@@ -331,11 +330,11 @@ namespace Macror_Var {
     add(std::make_shared<Quantity>(
           this,"FORCE","M*ASCELERATION","asceleration","second derivative of space over time"));
     add(std::make_shared<Macror_Var::Measurement_Unit>(
-          this,"kg",1.0,"kg","M","kilogram","standard Unit of mass"));
+          this,"kg",1.0,"kg","kilogram","standard Unit of mass"));
     add(std::make_shared<Macror_Var::Measurement_Unit>
-        (this,"s",1.0,"s","T","second","standard Unit of time"));
+        (this,"s",1.0,"s","second","standard Unit of time"));
     add(std::make_shared< Macror_Var::Measurement_Unit >
-        (this,"N",1.0,"kg*m*s^-2","FORCE","Newton","derived standard Unit of Force"));
+        (this,"N",1.0,"kg*m*s^-2","Newton","derived standard Unit of Force"));
 
 
 

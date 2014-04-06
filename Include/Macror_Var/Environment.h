@@ -5,17 +5,20 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <sstream>
 
-#include "Macror_Var/ScaledExpression.h"
 
 
 namespace Macror_Var {
 
 class Quantity;
+class Quantity_Expression;
+
 class Abstract_Object;
 class Abstract_Named_Object;
 class Abstract_Variable_Object;
 class Measurement_Unit;
+class Measurement_Unit_Expression;
 class Unit_System;
 
 
@@ -34,11 +37,11 @@ public:
   std::shared_ptr<const Abstract_Variable_Object > V(const std::string& variablename)const;
   std::shared_ptr<const Quantity > Q(const std::string& quantityName)const;
 
-  std::shared_ptr< Measurement_Unit > Ud(const ScaledExpression& definition);
-  std::shared_ptr< Quantity > Qd(const QuantityExpression& definition);
+  std::shared_ptr< Measurement_Unit > Ud(const Measurement_Unit_Expression& definition);
+  std::shared_ptr< Quantity > Qd(const Quantity_Expression& definition);
 
-  std::shared_ptr<const Measurement_Unit > Ud(const ScaledExpression& definition)const;
-  std::shared_ptr<const Quantity > Qd(const QuantityExpression& definition)const;
+  std::shared_ptr<const Measurement_Unit > Ud(const Measurement_Unit_Expression& definition)const;
+  std::shared_ptr<const Quantity > Qd(const Quantity_Expression& definition)const;
 
 
 
@@ -74,13 +77,25 @@ public:
 
   ~Environment();
 
+   template<typename T>
+   std::string ToString(const T& x)
+   {
+     std::stringstream ss;
+     ss<<x;
+     std::string str=ss.str();
+     return str;
+
+   }
+
+
+
 private:
   std::map<std::string,std::shared_ptr<Abstract_Variable_Object>> V_;  //only owner
   std::map<std::string,std::shared_ptr<Quantity>> Q_;  //only owner
   std::map<std::string,std::shared_ptr<Measurement_Unit>> U_;  //only owner
 
-  std::map<QuantityExpression,std::shared_ptr<Quantity>> QQ_;  //only owner
-  std::map<ScaledExpression,std::shared_ptr<Measurement_Unit>> SU_;  //only owner
+  std::map<Quantity_Expression,std::shared_ptr<Quantity>> QQ_;  //only owner
+  std::map<Measurement_Unit_Expression,std::shared_ptr<Measurement_Unit>> SU_;  //only owner
 
 
   std::map<std::string,Abstract_Object*> classes_;

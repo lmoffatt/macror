@@ -1,7 +1,10 @@
+
 #include "Macror_Var/Measurement_Unit.h"
 #include "Macror_Var/Environment.h"
 #include "Macror_Var/IdentifierName.h"
 #include "Macror_Var/Quantity.h"
+#include <cmath>
+
 namespace Macror_Var {
 
   int Measurement_Unit::abbrToN(char c)
@@ -162,7 +165,7 @@ namespace Macror_Var {
 
 
   std::string Measurement_Unit::ClassName(){
-    return "Base_Unit";
+    return "Measurement_Unit";
 
   }
   std::string Measurement_Unit::myClass()const{
@@ -171,15 +174,10 @@ namespace Macror_Var {
 
   std::set<std::string> Measurement_Unit:: SuperClasses()
   {
-    auto mySC=Abstract_Named_Object::SuperClasses();
+    auto mySC=Implement_Named_Object::SuperClasses();
     mySC.insert(ClassName());
     return mySC;
   }
-
-
-
-
-
 
   std::set<std::string> Measurement_Unit::mySuperClasses() const
   {
@@ -189,30 +187,18 @@ namespace Macror_Var {
 
 
 
-  Measurement_Unit Measurement_Unit::DerivedUnit(Environment *E,
-                                                 std::string idName,
-                                                 double scale,
-                                                 std::string definition,
-                                                 std::string fullname,
-                                                 std::string whatthis)
-  {
-    ScaledExpression sc(E,scale,definition);
-    QuantityExpression q;
-    return Measurement_Unit(E,idName,sc,q,fullname,whatthis);
-}
 
-
-  ScaledExpression Measurement_Unit::self() const
+  Measurement_Unit::Expression Measurement_Unit::self() const
   {
-    return ScaledExpression(getEnvironment(),1.0,QuantityExpression(getEnvironment(),{idName(),1}));
+    return Expression(getEnvironment(),{idName(),1},1.0);
   }
 
-  ScaledExpression Measurement_Unit::definition() const
+  Measurement_Unit::Expression Measurement_Unit::definition() const
   {
     return def_;
   }
 
-  ScaledExpression Measurement_Unit::baseDefinition() const
+  Measurement_Unit::Expression Measurement_Unit::baseDefinition() const
   {
     return baseDefinition({});
   }
@@ -240,18 +226,6 @@ namespace Macror_Var {
   }
 
 
-
-  std::shared_ptr<const Quantity> Measurement_Unit::getQuantity() const
-  {
-    return getEnvironment()->Qd(qdef_);
-  }
-
-  QuantityExpression Measurement_Unit::getQuantityDefinition() const
-  {
-    return qdef_;
-  }
-
- 
   bool Measurement_Unit::operator<(const Measurement_Unit &rh) const
   {
     return idName()<rh.idName();
@@ -260,7 +234,6 @@ namespace Macror_Var {
 
   Measurement_Unit::Measurement_Unit():
     Abstract_Named_Object(),
-    qdef_{},
     def_{}{}
   
 
@@ -272,8 +245,6 @@ namespace Macror_Var {
       {
         std::string out=Abstract_Named_Object::ToString();
         out+=definition().ToString()+"\n";
-        out+=getQuantityDefinition().ToString()+"\n";
-
         return out;
       }
     else
@@ -297,7 +268,6 @@ namespace Macror_Var {
     if (!Abstract_Named_Object::ToObject(multipleLines,pos))
       {
         pos=pos0;
-
         return nullptr;
       }
     auto d=def_.CreateObject(multipleLines,pos);
@@ -308,21 +278,13 @@ namespace Macror_Var {
       }
     def_=*d;
     delete d;
-    auto q=qdef_.CreateObject(multipleLines,pos);
-    if (q==nullptr)
-      {
-        pos=pos0;
-        return nullptr;
-      }
-    qdef_=*q;
-    delete q;
     return this;
 
   }
 
-  ScaledExpression Measurement_Unit::baseDefinition(std::set<std::string> upstream) const
+  Measurement_Unit::Expression Measurement_Unit::baseDefinition(std::set<std::string> upstream) const
   {    upstream.insert(idName());
-       ScaledExpression out;
+       Expression out;
           int n0=0,n=0;
 
              if (getEnvironment()!=nullptr)
@@ -339,12 +301,12 @@ namespace Macror_Var {
                            q=getEnvironment()->U(t.first.substr(1));
                        }
                      if (q==nullptr)
-                       return ScaledExpression();
+                       return Measurement_Unit::Expression();
                      else if (upstream.count(q->idName())!=0)
                        return self();
                      else
                        {
-                         ScaledExpression defq=q->baseDefinition(upstream)*t.second;
+                         Expression defq=q->baseDefinition(upstream)*t.second;
                          out+=defq;
                          n0+=n*t.second;
                        }
@@ -361,15 +323,12 @@ namespace Macror_Var {
 
 
 
-  Measurement_Unit::Measurement_Unit(Environment*  E,
-                                     std::string idName,
-                                     ScaledExpression definition,
-                                     QuantityExpression qdefinition,
+  Measurement_Unit::Measurement_Unit(std::string idName,
+                                     Expression definition,
                                      std::string fullname,
                                      std::string whatthis)
     :
-      Abstract_Named_Object(E,idName,fullname,whatthis),
-      qdef_(qdefinition),
+      Implement_Named_Object(idName,fullname,whatthis),
       def_(definition)
   {}
 
@@ -377,17 +336,177 @@ namespace Macror_Var {
                                      std::string idName,
                                      double scale,
                                      std::string definition,
-                                     std::string qdefinition,
                                      std::string fullname,
                                      std::string whatthis)
     :
-      Abstract_Named_Object(E,idName,fullname,whatthis),
-      qdef_{E,qdefinition},
-      def_{E,scale,definition}
+      Implement_Named_Object(idName,fullname,whatthis),
+      def_{E,definition,scale}
   {}
 
 
+
+
+
+
+  std::string Measurement_Unit::Expression::ClassName()
+  {
+    return "Measurement_Unit::Expression";
+  }
+
+  std::set<std::string> Measurement_Unit::Expression::SuperClasses()
+  {
+    auto out=Implement_Refer_Environment::SuperClasses();
+    out.insert(ClassName());
+    return out;
+  }
+
+  std::set<std::string> Measurement_Unit::Expression::mySuperClasses() const
+  {
+    return SuperClasses();
+
+  }
+
+  std::string Measurement_Unit::Expression::myClass() const
+  {
+    return ClassName();
+  }
+
+  Measurement_Unit::Expression *Measurement_Unit::Expression::CreateObject(const std::string &text, std::size_t &cursor) const
+  {
+    Expression * out=create();
+    auto res=out->ToObject(text,cursor);
+    if (res!=nullptr)
+      return res;
+    else
+      {
+        delete out;
+        return res;
+      }
+  }
+
+
+  Measurement_Unit::Expression Measurement_Unit::Expression::dimensionless()
+  {
+    return Expression(getEnvironment(),"",1.0);
+  }
+
+  Measurement_Unit::Expression &Measurement_Unit::Expression::removeUnitTerms()
+  {
+    ep_.removeUnitTerms();
+    return *this;
+  }
+
+  std::map<std::string, int> &Measurement_Unit::Expression::value()
+  {
+    return ep_.value();
+  }
+
+  const std::map<std::string, int> &Measurement_Unit::Expression::value() const
+  {
+    return ep_.value();
+  }
+
+  Measurement_Unit::Expression &Measurement_Unit::Expression::operator+=(const Measurement_Unit::Expression &other)
+  {
+    ep_+=other.ep_;
+    scale_*=other.scale_;
+    return *this;
+  }
+
+  Measurement_Unit::Expression &Measurement_Unit::Expression::operator*=(int n)
+  {
+    ep_*=n;
+    scale_=std::pow(scale_,n);
+    return *this;
+  }
+
+  bool Measurement_Unit::Expression::operator<(const Measurement_Unit::Expression &other) const
+  {
+    if (ep_<other.ep_)
+      return true;
+    else if (other.ep_<ep_)
+      return false;
+    else
+      return scale()<other.scale();
+  }
+
+  Measurement_Unit::Expression::Expression(Environment *e,
+                                           std::map<std::string, int> expression,
+                                           double sc)
+    :
+      Implement_Refer_Environment(e),
+      ep_(expression),
+      scale_(sc){}
+
+  Measurement_Unit::Expression::Expression(Environment *e, std::string exp,double sc):
+    Implement_Refer_Environment(e),
+    ep_(exp),
+    scale_(sc){}
+
+  Measurement_Unit::Expression::Expression(const Measurement_Unit::Expression &E):
+    Implement_Refer_Environment(E.getEnvironment()),
+    ep_(E.ep_),
+    scale_(E.scale_)
+  {}
+
+  Measurement_Unit::Expression::Expression():
+    Implement_Refer_Environment(),
+    ep_(),
+    scale_(){}
+
+  Measurement_Unit::Expression *Measurement_Unit::Expression::ToObject(const std::string &text, std::size_t &cursor)
+  {
+    std::size_t cursor0=cursor;
+    std::size_t n;
+    try
+    {
+      scale_=std::stod(text.substr(cursor),&n);
+    }
+    catch (...)
+    {
+      return nullptr;
+    }
+    cursor+=n;
+    auto q=ep_.CreateObject(text,cursor);
+    if (q==nullptr)
+      {
+        cursor=cursor0;
+        return nullptr;
+      }
+    else
+      {
+        ep_=*q;
+        delete q;
+        return this;
+      }
+
+  }
+
+
+  bool Measurement_Unit::Expression::empty() const
+  {
+    return (getEnvironment()==nullptr)&& value().empty() && scale()==0;
+  }
+
+  std::string Measurement_Unit::Expression::ToString() const
+  {
+    if (!empty())
+      return getEnvironment()->ToString(scale())+ExpressionProduct::mult+ep_.ToString();
+    else
+      return "";
+  }
+
+  Measurement_Unit::Expression *Measurement_Unit::Expression::create() const
+  {
+    return new Expression;
+  }
+
+
+
+
 }
+
+
 
 
 

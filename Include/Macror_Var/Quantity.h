@@ -2,16 +2,17 @@
 #define QUANTITY_H
 //#include <cstring>
 #include "Macror_Var/Implement_Named_Object.h"
-#include "Macror_Var/QuantityExpression.h"
+#include "Macror_Var/Implement_Refer_Environment.h"
+
+#include "Macror_Var/ExpressionProduct.h"
 
 namespace Macror_Var {
   class Unit_System;
 
-  class Quantity: public Abstract_Named_Object,
-      public Implement_Named_Object
+  class Quantity: public Implement_Named_Object
   {
   public:
-    // static methods
+      // static methods
 
     static constexpr char* allowed="abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -34,15 +35,85 @@ namespace Macror_Var {
     /// checks for the existance of all refered objects
     std::set<std::string> referencedObjects() const override;
 
+  // nested classes
+
+    class Expression: public Implement_Refer_Environment,
+        private ExpressionProduct
+    {
+    public:
+
+
+      static std::string ClassName();
+
+      static std::set<std::string> SuperClasses();
+
+
+
+      // Abstract_Object interface
+      virtual std::set<std::string> mySuperClasses() const override;
+      virtual std::string myClass() const override;
+
+      virtual bool empty() const override;
+      virtual std::string ToString() const override;
+
+
+      virtual Expression *create() const override;
+
+
+      virtual Expression*
+      CreateObject(const std::string &text, std::size_t &cursor) const override;
+
+      // new methods non virtual
+
+      Expression dimensionless();
+
+
+      Expression& removeUnitTerms();
+
+
+      std::map<std::string, int>& value();
+
+      const std::map<std::string, int>& value()const;
+
+      Expression &operator+=(const Expression& other);
+
+      Expression& operator*=(int n);
+
+      bool operator<(const Expression& other)const;
+
+      Expression(Environment* e,std::map<std::string,int> expression);
+      Expression(Environment* e,std::string exp);
+
+
+      Expression(const Expression& E);
+
+
+      Expression();
+
+
+     protected:
+      virtual Expression*
+      ToObject(const std::string &text, std::size_t &cursor)  override;
+      friend class Quantity;
+
+
+
+
+       };
+
+    virtual Environment* getEnvironment()const
+    {
+      return def_.getEnvironment();
+    }
 
 
     // new methods
 
 
-    QuantityExpression definition()const;
-    QuantityExpression baseDefinition(Unit_System* us=nullptr)const;
+    Expression definition()const;
+    Expression baseDefinition(Unit_System* us=nullptr)const;
 
-    QuantityExpression self()const;
+    Expression self()const;
 
 
     bool operator<(const Quantity& rh)const;
@@ -54,10 +125,9 @@ namespace Macror_Var {
     Quantity( Environment*  e);
 
 
-    Quantity(Environment*  e,
+    Quantity(Expression quatityDefinition,
              std::string quantityAbreviation,
-             QuantityExpression quatityDefinition,
-             std::string longName,
+                          std::string longName,
              std::string whatthis);
 
     Quantity(Environment*  e,
@@ -73,18 +143,47 @@ namespace Macror_Var {
              std::string whatthis);
 
 
+
+
   protected:
     virtual Quantity*
     ToObject(const std::string &text, std::size_t &cursor)  override;
 
+    virtual void setEnvironment(Environment* E);
 
   private:
-    QuantityExpression baseDefinition(std::set<std::string> upstream,
+    Expression baseDefinition(std::set<std::string> upstream,
                                       Unit_System *us=nullptr) const;
 
-    QuantityExpression def_;
+    Expression def_;
 
   };
+
+
+
+  class Quantity_Expression: public Quantity::Expression
+  {
+  public:
+   Quantity_Expression(const Quantity::Expression& one):
+                      Quantity::Expression(one){}
+  };
+
+
+inline
+  Quantity::Expression operator*(const Quantity::Expression& one,int n)
+  {
+    Quantity::Expression out(one);
+    out*=n;
+    return out;
+  }
+
+inline
+  Quantity::Expression operator+(const Quantity::Expression& one,const Quantity::Expression& other)
+{
+  Quantity::Expression out(one);
+  out+=other;
+  return out;
+}
 
 
 

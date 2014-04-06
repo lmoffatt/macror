@@ -1,7 +1,7 @@
 #ifndef TESTCOMMAND_H
 #define TESTCOMMAND_H
-#include "Markov_Console/ABC_Command.h"
-#include "Markov_Console/Markov_CommandManagerTest.h"
+#include "Include/Markov_Console/ABC_Command.h"
+#include "Include/Markov_Console/Markov_CommandManagerTest.h"
 #include <vector>
 
 namespace Markov_Console

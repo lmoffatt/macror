@@ -8,14 +8,13 @@ namespace  Macror_Var {
 
 
   Implement_Named_Object::Implement_Named_Object(const Implement_Named_Object &other):
-    Abstract_Refers_Environment(other.getEnvironment()),
-    variableName_(other.variableName_),
+    idName_(other.idName_),
     tip_(other.tip_),
     whatThis_(other.whatThis_){}
 
   std::string Implement_Named_Object::idName()const
   {
-    return variableName_;
+    return idName_;
   }
 
   /// hint about of the class nature
@@ -90,7 +89,7 @@ namespace  Macror_Var {
 
     if (!name.empty())
       {
-        variableName_=name;
+        idName_=name;
         if (!tip.empty())
           setTip(tip);
         if(!whatthis.empty())
@@ -104,13 +103,13 @@ namespace  Macror_Var {
 
 
 
-  Implement_Named_Object::Implement_Named_Object(Environment*  e,
-                                               std::string variablename,
+  Implement_Named_Object::Implement_Named_Object(std::string variablename,
                                                std::string tip,
                                                std::string whatthis)
     :
-      Abstract_Refers_Environment(e),
-      variableName_{variablename},tip_{tip},whatThis_{whatthis}
+      idName_{variablename},
+      tip_{tip},
+      whatThis_{whatthis}
 
   {
   }
@@ -118,8 +117,7 @@ namespace  Macror_Var {
 
    Implement_Named_Object::Implement_Named_Object()
     :
-      Abstract_Refers_Environment(),
-      variableName_{},
+      idName_{},
       tip_{},
       whatThis_{}{}
 

@@ -85,7 +85,7 @@ namespace Macror_Var
 
 
   
-
+}
 
 
 #endif // ABSTRACT_OBJECT_H

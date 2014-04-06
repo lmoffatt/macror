@@ -1,12 +1,12 @@
 #include "Include/Markov_Console/TestCommand.h"
-#include "Markov_IO/Object.h"
+#include "Include/Markov_IO/Object.h"
 
-#include "Markov_IO/auxiliarIO.h"
+#include "Include/Markov_IO/auxiliarIO.h"
 
-#include "Tests/Markov_LA/Markov_LA_Tests.h"
-#include "Tests/Markov_Mol/Markov_Mol_Tests.h"
-#include "Tests/Markov_Bay/Markov_Bay_Test.h"
-#include "Tests/MersenneTwister_Test.h"
+#include "Include/Tests/Markov_LA/Markov_LA_Tests.h"
+#include "Include/Tests/Markov_Mol/Markov_Mol_Tests.h"
+#include "Include/Tests/Markov_Bay/Markov_Bay_Test.h"
+#include "Include/Tests/MersenneTwister_Test.h"
 #include "Include/Markov_Console/Autocomplete.h"
 #include "Include/Markov_Console/BayesianAutocomplete.h"
 #include "Include/Markov_Console/Markov_CommandManager.h"

@@ -1,8 +1,8 @@
 #include <string>
 #include "Macror_Var/Abstract_Named_Object.h"
+#include "Macror_Var/Environment.h"
 #include "Macror_Var/Measurement_Unit.h"
 
-#include "Macror_Var/Environment.h"
 #include "Macror_Var/IdentifierName.h"
 
 namespace  Macror_Var {
@@ -76,14 +76,4 @@ namespace  Macror_Var {
 
 
 
-
-#ifdef MACRO_TEST
-
-#include "Tests/TESTS.h"
-#include "Tests/ElementaryTest.h"
-
-
-
-
-#endif //MACRO_TEST
 
