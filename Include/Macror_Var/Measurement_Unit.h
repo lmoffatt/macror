@@ -11,12 +11,8 @@ namespace Macror_Var {
   public:
     static
     int abbrToN(char c);
-    static
-    std::string nToFullName(int n);
-
+    static std::string nToFullName(int n);
     static char nToAbbr(int n);
-
-
     static std::string ClassName();
 
     static std::set<std::string> SuperClasses();
@@ -44,6 +40,8 @@ namespace Macror_Var {
 
       virtual bool empty() const override;
       virtual std::string ToString() const override;
+    virtual std::deque<Token> toTokens() const override;
+
 
 
       virtual Expression *create() const override;
@@ -88,10 +86,6 @@ namespace Macror_Var {
      protected:
       virtual Expression*
       ToObject(const std::string &text, std::size_t &cursor)  override;
-      friend class Measurement_Unit;
-
-
-
 
     private:
       ExpressionProduct ep_;
@@ -109,14 +103,6 @@ namespace Macror_Var {
 
 
     virtual bool empty()const override;
-
-
-    ///
-    /// \brief ToString
-    /// \return
-    ///
-    ///
-    ///
 
     virtual std::string ToString()const override;
 
@@ -162,26 +148,21 @@ namespace Macror_Var {
     Expression def_;
 
     Expression baseDefinition(std::set<std::string> upstream) const;
+
+
+    // Implement_Named_Object interface
+  protected:
+    virtual std::deque<Token> BodyTokens() const;
   };
 
 
-inline  Measurement_Unit::Expression
+ Measurement_Unit::Expression
   operator*(const Measurement_Unit::Expression& one,
-            int n)
-  {
-    Measurement_Unit::Expression out(one);
-    out*=n;
-    return out;
-  }
+            int n);
 
- inline Measurement_Unit::Expression
+ Measurement_Unit::Expression
   operator+(const Measurement_Unit::Expression& one,
-            const Measurement_Unit::Expression& two)
-  {
-    Measurement_Unit::Expression out(one);
-    out+=two;
-    return out;
-  }
+            const Measurement_Unit::Expression& two);
 
   class Measurement_Unit_Expression: public Measurement_Unit::Expression
   {

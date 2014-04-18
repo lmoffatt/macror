@@ -14,7 +14,7 @@ namespace Macror_Var {
   public:
       // static methods
 
-    static constexpr char* allowed="abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static constexpr char allowed[]="abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
     static std::string ClassName();
@@ -55,6 +55,7 @@ namespace Macror_Var {
 
       virtual bool empty() const override;
       virtual std::string ToString() const override;
+    virtual std::deque<Token> toTokens() const override;
 
 
       virtual Expression *create() const override;
@@ -101,10 +102,7 @@ namespace Macror_Var {
 
        };
 
-    virtual Environment* getEnvironment()const
-    {
-      return def_.getEnvironment();
-    }
+    virtual Environment* getEnvironment()const;
 
 
     // new methods
@@ -149,6 +147,8 @@ namespace Macror_Var {
   protected:
     virtual Quantity*
     ToObject(const std::string &text, std::size_t &cursor)  override;
+    virtual std::deque<Token> BodyTokens() const override;
+
 
 
   private:

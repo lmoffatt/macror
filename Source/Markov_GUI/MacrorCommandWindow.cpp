@@ -4,7 +4,7 @@
   #include <QLabel>
   #include <QString>
 
-  #include "Markov_Console/Autocomplete.h"
+  #include "Markov_Console/Autocomplete_old.h"
   #include "Markov_GUI/MacrorCommandWindow.h"
   #include "Markov_GUI/MacrorMainWindow.h"
 

@@ -1,0 +1,4 @@
+load macror
+simulate mbj1 ebj1
+optimize mySimulation mbj1 sbj1
+save

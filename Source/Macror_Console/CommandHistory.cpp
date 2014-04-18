@@ -1,9 +1,9 @@
-#include "Markov_Console/CommandHistory.h"
+#include "Macror_Console/CommandHistory.h"
 
 #include <fstream>
 #include "Markov_IO/auxiliarIO.h"
 
-namespace Markov_Console
+namespace Macror_Console
 {
 
   CommandHistory::CommandHistory(const std::string& filename)
@@ -49,7 +49,7 @@ namespace Markov_Console
     std::string commandLine;
     for (std::size_t i=0;i<tokens.size(); i++)
       {
-        commandLine+=tokens[i].get_tokenString();
+        //commandLine+=tokens[i].get_tokenString();
       }
     push_back(commandLine);
   }
@@ -128,5 +128,6 @@ namespace Markov_Console
   }
 
 }
+
 
 

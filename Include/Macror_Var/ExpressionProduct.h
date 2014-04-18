@@ -50,6 +50,8 @@ namespace Macror_Var {
     virtual ExpressionProduct *create() const override;
 
     virtual std::string ToString() const override;
+    virtual std::deque<Token> toTokens() const override;
+
 
     virtual ExpressionProduct*
     CreateObject(const std::string &text, std::size_t &cursor) const override;
@@ -82,6 +84,9 @@ namespace Macror_Var {
   private:
     std::map<std::string, int> expr_;
 
+
+    // Abstract_Object interface
+  public:
   };
 
 }

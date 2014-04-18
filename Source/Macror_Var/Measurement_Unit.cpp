@@ -3,6 +3,7 @@
 #include "Macror_Var/Environment.h"
 #include "Macror_Var/IdentifierName.h"
 #include "Macror_Var/Quantity.h"
+#include "Macror_Var/Expression.h"
 #include <cmath>
 
 namespace Macror_Var {
@@ -253,6 +254,14 @@ namespace Macror_Var {
       }
   }
 
+  std::deque<Token> Measurement_Unit::BodyTokens() const
+  {
+    return definition().toTokens();
+
+  }
+
+
+
   Measurement_Unit *Measurement_Unit:: CreateObject(const std::string &text, std::size_t &cursor) const
   {
     auto tmp=create();
@@ -322,6 +331,7 @@ namespace Macror_Var {
                 out.setScale(scale);
                    return out;
   }
+
 
 
 
@@ -516,10 +526,33 @@ namespace Macror_Var {
       return "";
   }
 
+  std::deque<Token> Measurement_Unit::Expression::toTokens() const
+  {
+     return (Expressions (ep_.toTokens())<<
+             std::deque<Token>({{ExpressionProduct::mult},{scale()}})
+             ).toTokens();
+
+  }
+
   Measurement_Unit::Expression *Measurement_Unit::Expression::create() const
   {
     return new Expression;
   }
+
+  Measurement_Unit::Expression operator*(const Measurement_Unit::Expression &one, int n)
+  {
+    Measurement_Unit::Expression out(one);
+    out*=n;
+    return out;
+  }
+
+  Measurement_Unit::Expression operator+(const Measurement_Unit::Expression &one, const Measurement_Unit::Expression &two)
+  {
+    Measurement_Unit::Expression out(one);
+    out+=two;
+    return out;
+  }
+
 
 
 

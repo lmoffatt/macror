@@ -1,7 +1,7 @@
 #ifndef BAYESIANAUTOCOMPLETE_H
 #define BAYESIANAUTOCOMPLETE_H
 
-#include "Include/Markov_Console/Autocomplete.h"
+#include "Include/Markov_Console/Autocomplete_old.h"
 
 namespace  Markov_Console {
 

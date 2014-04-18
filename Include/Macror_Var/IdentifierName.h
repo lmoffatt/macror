@@ -1,8 +1,10 @@
 #ifndef IDENTIFIERNAME_H
 #define IDENTIFIERNAME_H
 #include <string>
+#include <set>
+#include <vector>
 //#include <cstring>
-#include "Macror_Var/Abstract_Object.h"
+
 
 namespace Macror_Var
 {
@@ -11,7 +13,8 @@ namespace Macror_Var
   {
   public:
     static constexpr const char* allowed="abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    static constexpr const char* allowedR="_0123456789abcdefghijklmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static constexpr const char* allowedR="_:0123456789abcdefghijklmopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     static constexpr const char* separator=" \t\n/";
 

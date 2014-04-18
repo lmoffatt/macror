@@ -1,5 +1,5 @@
-#ifndef TOKEN_H
-#define TOKEN_H
+#ifndef TOKEN_OLDH
+#define TOKEN_OLDH
 #include <string>
 #include <istream>
 #include <map>
@@ -96,4 +96,4 @@ private:
 std::istream& operator>>(std::istream& stream,Token& token);
 }
 
-#endif // TOKEN_H
+#endif // TOKEN_OLDH

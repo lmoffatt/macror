@@ -57,7 +57,7 @@
 
 
 #include <Markov_Console/Markov_Script.h>
-#include "Markov_Console/Token.h"
+#include "Markov_Console/Token_old.h"
 
 
 #include "Markov_Bay/YfitLikelihoodEvaluation.h"

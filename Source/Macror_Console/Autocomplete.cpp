@@ -1,8 +1,8 @@
 #include <string>
-#include "Include/Markov_Console/Autocomplete.h"
+#include "Include/Macror_Console/Autocomplete.h"
 #include "Include/Markov_LA/auxiliarRelational.h"
 
-namespace  Markov_Console {
+namespace  Macror_Console {
 
 
   Autocomplete::Autocomplete(std::vector<std::string> itemslist):
@@ -91,10 +91,10 @@ std::string Autocomplete::suggestedCharacters(const std::vector<std::string>& li
 #include "Tests/Markov_IO/ABC_Put_Test.h"
 namespace Markov_Test
 {
-  namespace Markov_MacroConsele_Test
+  namespace Macror_MacroConsele_Test
   {
 
-    using namespace Markov_Console;
+    using namespace Macror_Console;
      std::string Autocomplete_Test::TestName()
     {
       return "Autocomplete_Test";

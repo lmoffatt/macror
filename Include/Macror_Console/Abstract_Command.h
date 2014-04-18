@@ -1,5 +1,5 @@
-#ifndef ABC_COMMAND_H
-#define ABC_COMMAND_H
+#ifndef ABSTRACT_COMMAND_H
+#define ABSTRACT_COMMAND_H
 
 #include <deque>
 #include <vector>
@@ -8,39 +8,45 @@
 
 #include <Markov_Console/Token_old.h>
 
+#include <Macror_Var/Implement_Named_Object.h>
 
 
-namespace Markov_Console
+
+
+namespace Macror_Console
 {
-  class Markov_CommandManager;
+  class Macror_CommandManager;
 
-  class ABC_Command
+  struct argument
+  {
+    std::string name;
+    std::string type;
+    bool mandatory;
+  };
+  
+  
+  class Abstract_Command: public Macror_Var::Abstract_Named_Object
   {
   public:
-    struct variable
-    {
-      std::string name;
-      std::string type;
-      bool mandatory;
-    };
+    
+    virtual void run(const std::vector<std::string> &InputValue,
+                     const std::vector<std::string> &OutputValue);
 
-    virtual ~ABC_Command();
+    virtual  void  reRun();
+    
+    virtual std::string result()const;
+    
+    
+    virtual ~Abstract_Command();
     /// virtual formated output
-    virtual std::ostream& put(std::ostream& s) const;
-
-    virtual bool operator==(const ABC_Command& other)const;
-
-    /// hint about of the class nature
-    virtual std::string Tip()const;
-
-    /// a short description of the class
-    virtual std::string WhatThis()const;
 
 
-
+   
+    
+    
    // TODO: constructor based on vector of tuples
 
-    ABC_Command(Markov_CommandManager* cm,
+    Abstract_Command(Markov_CommandManager* cm,
                 const std::string& commandName,
                 const std::vector<std::string> &inputNames,
                 const std::vector<std::string> &inputTypes,
@@ -50,10 +56,10 @@ namespace Markov_Console
                 const std::vector<bool> &outputIsMandatory);
 
 
-    ABC_Command(Markov_CommandManager* cm,
+    Abstract_Command(Markov_CommandManager* cm,
                 const std::string& commandName,
-                const std::vector<variable > &inputs,
-                const std::vector<variable > &outputs);
+                const std::vector<argument > &inputs,
+                const std::vector<argument > &outputs);
 
 
 
@@ -61,16 +67,7 @@ namespace Markov_Console
     ABC_Command(){}
 
 
-
-    virtual std::string commandName()const;
-
-
-    //
-    /// returns the Markov_CommandManager
-    virtual Markov_CommandManager* getCommandManager();
-
-
-    virtual const Markov_CommandManager* getCommandManager()const ;
+    virtual void  run(std::deque<Token> &tokenList);
 
 
     /// printed output, empty string if command fails
@@ -94,9 +91,8 @@ namespace Markov_Console
     virtual std::string errorMessage()const;
 
 
-    virtual std::vector<std::string> complete(const std::string &hint, const std::deque<Token>& tokenList);
-
-
+    virtual std::vector<std::string> complete(const std::string &hint,
+                                              const std::deque<Token>& tokenList);
 
     virtual std::string check(const std::deque<Token>& tokenList);
 
@@ -108,31 +104,15 @@ namespace Markov_Console
    // virtual bool run( std::deque<Token>& tokenList){}
 
     virtual bool run(const std::vector<std::string>& InputValue,
-                     const std::vector<std::string>& OutputValue){return InputValue==OutputValue;}
-
-
-    static std::string directory();
-
-    static std::string varName();
-
-    static std::string typeName();
-
-    static std::string fileName();
-
-    static std::string testName();
+                     const std::vector<std::string>& OutputValue);
 
 
 
   protected:
     virtual void errorMessage(const std::string& errmsg);
-
-
-    Markov_CommandManager* cm_;
-    std::string commandName_;
     std::vector<std::string> inputNames_;
     std::vector<std::string> inputTypes_;
     std::vector<bool> inputMandatory_;
-
     std::string output_;
     std::string errorMessage_;
 
@@ -140,13 +120,9 @@ namespace Markov_Console
     std::vector<std::string> outputNames_;
     std::vector<std::string> outputTypes_;
     std::vector<bool> outputMandatory_;
-
-
-
-
   };
 
 }
 
 
-#endif // ABC_COMMAND_H
+#endif // ABSTRACT_COMMAND_H

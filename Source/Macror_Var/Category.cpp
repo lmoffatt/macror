@@ -47,6 +47,11 @@ namespace Macror_Var {
       }
   }
 
+  std::deque<Token> Category::BodyTokens() const
+  {
+    return {};
+  }
+
   Category *Category::CreateObject(const std::string &text, std::size_t &cursor) const
   {
     auto tmp=create();

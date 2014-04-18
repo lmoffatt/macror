@@ -7,7 +7,7 @@
 #include  "Include/Tests/Markov_LA/ToleranceComparison_Test.h"
 #include  "Include/Tests/Markov_Mol/Markov_Mol_Tests.h"
 #include "Include/Tests/MersenneTwister_Test.h"
-#include "Include/Markov_Console/Autocomplete.h"
+#include "Include/Markov_Console/Autocomplete_old.h"
 #include "Include/Markov_Console/BayesianAutocomplete.h"
 
 namespace Markov_Console

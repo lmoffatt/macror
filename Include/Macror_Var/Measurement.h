@@ -23,6 +23,7 @@ namespace Macror_Var {
     virtual Measurement *dynamicCast(Abstract_Object *o) const override;
     virtual const Measurement *dynamicCast(const Abstract_Object *o) const override;
     virtual std::string ToString() const override;
+    virtual std::deque<Token> toTokens() const override;
 
     virtual std::string ToString(const Measurement_Unit * other) const override;
 

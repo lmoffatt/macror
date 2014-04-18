@@ -48,6 +48,11 @@ namespace Macror_Var {
         return o;
       }
   }
+
+  std::deque<Token> Quantity::BodyTokens() const
+  {
+  return def_.toTokens();
+  }
   
   bool Quantity::empty() const
   {
@@ -109,6 +114,11 @@ namespace Macror_Var {
         out.insert(Quantity::ClassName()+"::"+t.first);
       }
     return out;
+  }
+
+  Environment *Quantity::getEnvironment() const
+  {
+    return def_.getEnvironment();
   }
   
   Quantity::Expression Quantity::definition() const
@@ -316,6 +326,11 @@ namespace Macror_Var {
   std::string Quantity::Expression::ToString() const
   {
     return ExpressionProduct::ToString();
+  }
+
+  std::deque<Token> Quantity::Expression::toTokens() const
+  {
+    return ExpressionProduct::toTokens();
   }
 
   Quantity::Expression *Quantity::Expression::create() const

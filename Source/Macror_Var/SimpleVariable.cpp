@@ -131,6 +131,18 @@ namespace Macror_Var {
   }
 
   template<typename T>
+  std::deque<Token> SimpleVariable<T>::BodyTokens() const
+  {
+    return std::deque<Token> ({
+                                {"DefaultValue"},{":"},{defautValue_},{"\n"},
+                                {"Quantity"},{":"},{quantityId_},{"\n"}
+                              });
+
+  }
+
+
+
+  template<typename T>
   SimpleVariable<T> *SimpleVariable<T>::CreateObject(const std::string &text, std::size_t &cursor) const
   {
     auto tmp=create();
@@ -276,6 +288,12 @@ namespace Macror_Var {
     return out+d;
   }
 
+  template<typename T>
+  std::deque<Token> SimpleVariable<T>::Data::toTokens() const
+  {
+    return {{variableName()},{":"},{printData()}};
+
+  }
 
 
 
@@ -433,6 +451,8 @@ namespace Macror_Var {
 
   template
   class SimpleVariable<double>;
+
+
 
 
 

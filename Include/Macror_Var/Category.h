@@ -55,6 +55,10 @@ namespace Macror_Var {
     virtual std::string ToString() const;
 
     // Abstract_Object interface
+
+    // Implement_Named_Object interface
+  protected:
+    virtual std::deque<Token> BodyTokens() const;
   };
 
 

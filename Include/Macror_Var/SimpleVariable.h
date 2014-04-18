@@ -40,6 +40,7 @@ namespace Macror_Var {
       virtual bool empty() const override;
       virtual Data *create() const override;
       virtual std::string ToString() const override;
+    virtual std::deque<Token> toTokens() const override;
 
       virtual Data *CreateObject(const std::string &text, std::size_t &cursor) const override;
 
@@ -88,6 +89,8 @@ namespace Macror_Var {
     virtual std::string myQuantity()const ;
 
     virtual std::string ToString()const override;
+
+
     virtual SimpleVariable<T>*
     CreateObject(const std::string& text,std::size_t& cursor) const;
 
@@ -131,6 +134,8 @@ namespace Macror_Var {
   protected:
     virtual SimpleVariable<T>*
     ToObject(const std::string& multipleLines,std::size_t& pos) override;
+
+    virtual std::deque<Token> BodyTokens()const override;
 
 
   private:

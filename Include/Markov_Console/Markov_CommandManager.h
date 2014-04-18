@@ -22,8 +22,8 @@
 
 
 #include "Include/Markov_Console/ABC_Command.h"
-#include "Markov_Console/CommandHistory.h"
-#include "Markov_Console/Autocomplete.h"
+#include "Markov_Console/CommandHistory_old.h"
+#include "Markov_Console/Autocomplete_old.h"
 
 #include "Markov_IO/FileDir.h"
 

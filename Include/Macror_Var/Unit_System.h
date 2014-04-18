@@ -53,10 +53,16 @@ namespace Macror_Var {
 
 
 
+
+
   private:
     std::set<std::string> stdQ_;
     std::map<std::string,std::vector<std::string>> q2Us_;
 
+
+    // Implement_Named_Object interface
+  protected:
+    virtual std::deque<Token> BodyTokens() const;
   };
 
 }

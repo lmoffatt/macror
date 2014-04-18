@@ -45,6 +45,9 @@ namespace  Macror_Var {
 
   bool Abstract_Named_Object::empty() const
   {
+
+    Abstract_Object const* o=this;
+    const_abstract_cast<Abstract_Named_Object>(o);
     return (getEnvironment()==nullptr&&
             idName().empty()&&
             Tip().empty()&&

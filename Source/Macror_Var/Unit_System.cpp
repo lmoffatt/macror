@@ -1,4 +1,5 @@
 #include "Macror_Var/Unit_System.h"
+#include "Macror_Var/Expression.h"
 //#include <string>
 
 namespace Macror_Var {
@@ -61,6 +62,27 @@ namespace Macror_Var {
           }
         return o;
       }
+  }
+
+
+  std::deque<Token> Unit_System::BodyTokens() const
+  {
+    Expressions o({{"Standard_Quantities"},{":"},{"\n"}});
+    for (auto q:stdQuantities())
+      o.push_back(q);
+    o<<Expressions({{'\n'},{"Unit_List_for_each_Quantity"},{"begin"},{':'},{'\n'}});
+
+    for (auto qu:q2Us_)
+      {
+        o<<Expressions({{qu.first},{':'}});
+        for (auto u:qu.second)
+          o.push_back(u);
+        o.push_back('\n');
+
+      }
+    o<<Expressions({{"Unit_List_for_each_Quantity"},{"end"},{"\n"}});
+    return o.toTokens();
+
   }
 
   Unit_System *Unit_System::CreateObject(const std::string &text, std::size_t &cursor) const
@@ -194,6 +216,8 @@ namespace Macror_Var {
     return nullptr;
 
   }
+
+
 
 
 

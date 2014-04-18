@@ -25,6 +25,12 @@ int getUnbufChar(void)
     return ch; /*return received char */
 }
 
+int newInputArise()
+{
+
+}
+
+
 #endif
 
 

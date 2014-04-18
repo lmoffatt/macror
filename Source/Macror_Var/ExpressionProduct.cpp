@@ -212,6 +212,31 @@ namespace Macror_Var {
     return o;
   }
 
+  std::deque<Token> ExpressionProduct::toTokens() const
+  {
+    std::deque<Token> o;
+    auto m0=expr_.begin();
+    for (auto m=m0;m!=expr_.end();++m)
+      {
+        if (m!=m0)
+          o.push_back({mult});
+        o.push_back(m->first);
+        if (m->second==0)
+          {
+            o.push_back(div);
+            o.push_back(m->first);
+         //   o+=div+m->first;
+          }
+        else if (m->second!=1)
+          {
+            o.push_back(pow);
+            o.push_back(m->second);
+          }
+      }
+    return o;
+
+  }
+
   ExpressionProduct *ExpressionProduct::CreateObject(const std::string &text, std::size_t &cursor) const
   {
     auto tmp=create();

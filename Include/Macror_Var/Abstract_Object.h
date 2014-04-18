@@ -10,6 +10,8 @@
 
 
 #include <limits>
+#include "Macror_Var/Token.h"
+#include "Macror_Var/IdentifierName.h"
 
 //#include "Markov_LA/Matrix.h"
 
@@ -36,6 +38,12 @@ namespace Macror_Var
     }
 
 
+    static std::string getClassName(const std::string& text, std::size_t cursor)
+    {
+      return IdentifierName::get(text,cursor);
+    }
+
+
     //virtual implemented reflection
     virtual std::set<std::string> mySuperClasses()const
     {
@@ -56,6 +64,9 @@ namespace Macror_Var
 
     /// returns enough information to make an InternallyValid copy of the object.
     /// if is an empty object it returns enough information to make another empty object
+
+    virtual std::deque<Token> toTokens()const=0;
+
     virtual std::string ToString()const=0;
 
     // if the object is not of myClass, it returns nullptr
@@ -65,6 +76,12 @@ namespace Macror_Var
     CreateObject(const std::string& text, std::size_t &cursor)const =0;
 
 
+
+    virtual bool
+    isObject(const std::string& text, std::size_t cursor)const
+    {
+       return getClassName(text,cursor)==myClass();
+    }
 
 
     //implemented helper methods
@@ -77,12 +94,29 @@ namespace Macror_Var
     virtual ~Abstract_Object()
     {}
 
+
   protected:
     virtual Abstract_Object*
     ToObject(const std::string& text, std::size_t &cursor) =0;
 
   };
 
+  template<class Inherits_Abstract_Object>
+  Inherits_Abstract_Object * abstract_cast(Abstract_Object* o)
+  {
+    if (o->belongsTo(Inherits_Abstract_Object::ClassName()))
+      return reinterpret_cast<Inherits_Abstract_Object*>(o);
+    else
+      return nullptr;
+  }
+  template<class Inherits_Abstract_Object>
+  Inherits_Abstract_Object const* const_abstract_cast(Abstract_Object const *o)
+  {
+    if (o->belongsTo(Inherits_Abstract_Object::ClassName()))
+      return reinterpret_cast<Inherits_Abstract_Object const*>(o);
+    else
+      return nullptr;
+  }
 
   
 }

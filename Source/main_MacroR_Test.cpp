@@ -1,3 +1,4 @@
+#include "Macror_Var/Token.h"
 #include "Markov_GUI/MacrorMainWindow.h"
 #include "Markov_Console/Markov_CommandManagerTest.h"
 
@@ -29,8 +30,30 @@ int main(int argc, char **argv)
 
 */
 
+#include "Macror_Console/KeyEvent.h"
+
 int main()
 {
+
+
+
+  Macror_Console::KeyEvent k;
+  double sum=0;
+
+  while (false)
+    {
+      if (k.check())
+        {
+        std::cerr<<k.getKey()<<"  ";
+        std::cerr<<sum<<"  ";
+
+        }
+      for (std::size_t i=0; i<10; i++)
+        sum+=1e-3;
+    //  std::cerr<<sum;
+
+    }
+
   Macror_Var::Environment env=Macror_Var::Environment();
   Macror_Var::Environment* e=&env;
 
@@ -77,6 +100,12 @@ int main()
   std::cout<<a.ToString()<<"\n";
 
   std::cout<<kg->ToString();
+
+  auto t=a.toTokens();
+
+  for (Macror_Var::Token to:t)
+    std::cout<<to.ToString()<<" ";
+
  //Markov_Test::Macror_Var_Test::Quantity_Test test({L,T,V,A,F,M});
  //std::cout<<test.classInvariant().VerboseLevel(true);
 // std::cout<<test.classInvariant().VerboseLevel(false);

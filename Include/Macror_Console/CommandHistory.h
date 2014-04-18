@@ -3,9 +3,10 @@
 #include <string>
 #include <vector>
 #include <deque>
-#include "Markov_Console/Token.h"
-namespace Markov_Console
+#include "Macror_Var/Token.h"
+namespace Macror_Console
 {
+  using Macror_Var::Token;
 class CommandHistory
 {
 public:
@@ -27,14 +28,11 @@ public:
 private:
   std::string filename_;
   std::size_t pos;
-
   std::vector<std::string> lines;
 
 };
 
 
 }
-
-
 
 #endif // COMMANDHISTORY_H

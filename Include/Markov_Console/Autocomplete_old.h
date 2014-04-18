@@ -1,5 +1,6 @@
-#ifndef AUTOCOMPLETE_H
-#define AUTOCOMPLETE_H
+#ifndef AUTOCOMPLETE_OLD_H
+#define AUTOCOMPLETE_OLD_H
+
 #include <vector>
 #include <string>
 #include <set>
@@ -74,38 +75,5 @@ namespace  Markov_Console {
 
 }
 
-#ifdef MACRO_TEST
 
-
-#include "Tests/MultipleTests.h"
-#include "Tests/Markov_IO/ABC_Put_Test.h"
-namespace Markov_Test
-{
-  namespace Markov_MacroConsele_Test
-  {
-
-    using namespace Markov_Console;
-
-
-    class Autocomplete_Test: public All_Tests
-    {
-    public:
-      virtual std::string testedClass()const;
-
-      virtual MultipleTests classInvariant()const;
-      virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm,
-                                     const std::string varNameTested);
-      virtual ~Autocomplete_Test(){}
-      static std::string TestName();
-      virtual std::string myTest()const;
-
-
-    };
-
-  }
-}
-
-#endif //MACRO_TEST
-
-
-#endif // AUTOCOMPLETE_H
+#endif // AUTOCOMPLETE_OLD_H

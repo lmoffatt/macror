@@ -70,8 +70,7 @@ public:
 
 /// constructors and destructor
 
-  virtual ~Abstract_Named_Object()
-  {}
+  virtual ~Abstract_Named_Object(){}
 
   virtual bool empty() const override;
 

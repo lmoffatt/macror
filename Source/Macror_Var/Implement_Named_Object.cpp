@@ -4,6 +4,9 @@
 #include "Macror_Var/Environment.h"
 #include "Macror_Var/IdentifierName.h"
 
+#include "Macror_Var/Token.h"
+#include "Macror_Var/Expression.h"
+
 namespace  Macror_Var {
 
 
@@ -71,6 +74,26 @@ namespace  Macror_Var {
     return out;
   }
 
+  std::deque<Token> Implement_Named_Object::BeginTokens() const
+  {
+    return std::deque<Token>({{idName()},{":"},{myClass()},{"begin"},
+                              {"Tip"},{":"},{Tip()},
+                              {"WhatsThis"},{":"},{WhatThis()}});
+  }
+  std::deque<Token> Implement_Named_Object::EndTokens() const
+  {
+    return std::deque<Token>({{myClass()},{"end"}});
+  }
+  std::deque<Token> Implement_Named_Object::toTokens() const
+  {
+    auto b=Expressions(BeginTokens());
+    auto bo=BodyTokens();
+    auto en=EndTokens();
+    return (b<<bo<<en).toTokens();
+  }
+
+
+
 
 
   Implement_Named_Object*
@@ -104,8 +127,8 @@ namespace  Macror_Var {
 
 
   Implement_Named_Object::Implement_Named_Object(std::string variablename,
-                                               std::string tip,
-                                               std::string whatthis)
+                                                 std::string tip,
+                                                 std::string whatthis)
     :
       idName_{variablename},
       tip_{tip},
@@ -115,7 +138,7 @@ namespace  Macror_Var {
   }
 
 
-   Implement_Named_Object::Implement_Named_Object()
+  Implement_Named_Object::Implement_Named_Object()
     :
       idName_{},
       tip_{},

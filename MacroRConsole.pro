@@ -115,7 +115,7 @@ HEADERS +=\
     Include/Macror_Var/Implement_Value_Object.h \
     Include/Macror_Var/Implement_Named_Object.h \
     Include/Macror_Var/Implement_Refer_Environment.h \
-    Include/macror_console/Macror_Application.h \
+    Include/Macror_Console/Macror_Application.h \
     Include/Markov_Bay/MarkovOptim.h \
     Include/Markov_Bay/MarkovLikelihood.h \
     Include/Markov_Bay/MacroRStep.h \
@@ -210,7 +210,6 @@ HEADERS +=\
     Include/Markov_IO/ParametersMoments.h \
     Include/Markov_Bay/ABC_ParametricDistributable.h \
     Include/Markov_Bay/NormalDistributed.h \
-    Include/Markov_Console/Token.h \
     Include/Markov_doxygen/ABC_DescriptibleRegular.h \
     Include/Markov_IO/ABC_Object.h \
     Include/Markov_IO/Object.h \
@@ -276,17 +275,17 @@ HEADERS +=\
     Include/Markov_IO/ABF1_Headers.h \
     Include/Markov_IO/ABF2_Headers.h \
     Include/Markov_Bay/OptimizationDistributionResults.h \
-    Include/Markov_Console/CommandHistory.h \
     Include/Borrowed/MersenneTwister.h \
     Include/Markov_IO/ABC_Y_dt.h \
     Include/Markov_IO/ABC_Unit.h
 
 SOURCES +=\
-    Source/Macror_Var/Quantity.cpp \
-    Source/Macror_Var/Abstract_Named_Object.cpp \
     Source/Macror_Var/Implement_Named_Object.cpp \
     Source/Macror_Var/Implement_Refer_Environment.cpp \
+    Source/Macror_Var/Quantity.cpp \
+    Source/Macror_Var/Abstract_Named_Object.cpp \
     Source/Macror_Var/ExpressionProduct.cpp\
+    Source/Macror_Console/Macror_CommandManager.cpp\
     Source/Markov_IO/ABC_Unit.cpp\
     Source/Macror_Var/Macror_Matrix.cpp \
     Source/Macror_Var/Unit_System.cpp \
@@ -361,7 +360,6 @@ SOURCES +=\
     Source/Markov_Mol/ABC_Noise.cpp \
     Source/Markov_Mol/ABC_MarkovModel.cpp \
     Source/main_MacroConsole.cpp \
-    Source/Markov_Console/Token.cpp \
     Source/Markov_IO/Options.cpp \
     Source/Markov_Mol/SimulationOptions.cpp \
     Source/Markov_IO/ABC_Options.cpp \
@@ -420,8 +418,7 @@ SOURCES +=\
     Source/Markov_Console/Average_Command.cpp \
     Source/Markov_IO/ExperimentalData.cpp \
     Source/Markov_IO/ABFFile.cpp \
-    Source/Markov_IO/ABF1_Headers.cpp \
-    Source/Markov_Console/CommandHistory.cpp
+    Source/Markov_IO/ABF1_Headers.cpp
 
 
 win32{
@@ -499,19 +496,42 @@ message ("MacroRConsole end here")
 }
 
 HEADERS += \
-    Include/Markov_Console/Autocomplete.h \
     Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
-    Include/Markov_IO/A_Variable.h \
-    Include/macror_console/Macror_Program.h \
+    Include/Macror_Console/Macror_Program.h \
     Include/Macror_Mol/Abstract_Patch_Model.h \
     Include/Macror_Mol/Q_Markov_Model.h \
-    Include/Macror_Var/ExpressionProduct.h
+    Include/Macror_Var/ExpressionProduct.h \
+    Include/Macror_Console/KeyEvent.h \
+    Include/Macror_Console/Base_Event.h \
+    Include/Macror_Console/Macror_CommandManager.h \
+    Include/Macror_Console/Macror_Console.h \
+    Include/Macror_Console/Autocomplete.h \
+    Include/Macror_Console/Abstract_Command.h \
+    Include/Markov_Console/CommandHistory_old.h \
+    Include/Macror_Console/CommandHistory.h \
+    Include/Markov_Console/Token_old.h \
+    Include/Macror_Var/Token.h \
+    Include/Markov_Console/Autocomplete_old.h \
+    Include/Macror_Var/Expression.h \
+    Include/Macror_Console/Command_Line_Manager.h
 SOURCES += \
-    Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp
+    Source/Markov_Console/BayesianAutocomplete.cpp \
+    Source/Macror_Console/KeyEvent.cpp \
+    Source/Macror_Console/Macror_Application.cpp \
+    Source/Macror_Console/Macror_Console.cpp \
+    Source/Macror_Console/Autocomplete.cpp \
+    Source/Macror_Console/Abstract_Command.cpp \
+    Source/Markov_Console/CommandHistory_old.cpp \
+    Source/Macror_Console/CommandHistory.cpp \
+    Source/Macror_Var/Token.cpp \
+    Source/Markov_Console/Token_old.cpp \
+    Source/Markov_Console/Autocomplete_old.cpp \
+    Source/Macror_Console/Command_Line_Manager.cpp
 OTHER_FILES += \
-    help_files/plan_aheadd.txt
+    help_files/plan_aheadd.txt \
+    Configuration_files/macror.txt \
+    Configuration_files/script.txt
 
 
 

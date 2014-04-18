@@ -34,6 +34,8 @@ namespace Macror_Var {
     void setWhatThis(const std::string &whatthis);
     std::string ToString() const;
 
+    virtual std::deque<Token> toTokens()const;
+
 
     Implement_Named_Object(std::string variablename, std::string tip, std::string whatthis);
 
@@ -41,6 +43,10 @@ namespace Macror_Var {
     Implement_Named_Object();
   protected:
     Implement_Named_Object *ToObject(const std::string &text, std::size_t &cursor);
+    virtual std::deque<Token> BeginTokens()const;
+    virtual std::deque<Token> BodyTokens()const=0;
+    virtual std::deque<Token> EndTokens()const;
+
 
   private:
    std::string idName_;
