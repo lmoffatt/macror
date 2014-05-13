@@ -13,6 +13,7 @@ int main(int argc, char **argv)
 {
  QApplication app(argc, argv);
    Markov_Console::Markov_CommandManagerTest* cm=new Markov_Console::Markov_CommandManagerTest();
+
    MacrorMainWindow mainWin(0,cm);
    mainWin.resize(800, 608);
     mainWin.show();

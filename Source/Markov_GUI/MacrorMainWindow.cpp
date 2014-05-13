@@ -24,7 +24,8 @@ MacrorMainWindow::MacrorMainWindow(QWidget *parent,
     modelsWindow(new MacrorModelsWindow(cm,parent)),
     patchsWindow(new MacrorPatchsWindow(cm,parent)),
     experimentsWindow(new MacrorExperimentsWindow(cm,parent)),
-    graphWindows()
+    graphWindows(),
+    cm_(cm)
 {
     createActions();
     createMenus();

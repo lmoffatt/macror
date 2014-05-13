@@ -38,6 +38,10 @@ public:
 
     void createGraph(Markov_Plot::GraphWindow *graph);
 
+    virtual ~MacrorMainWindow()
+    {
+      delete cm_;
+    }
 
 private slots:
     void open();
@@ -159,6 +163,7 @@ private:
 
     QList<Markov_Plot::GraphWindow*> graphWindows;
 
+    Markov_Console::Markov_CommandManager* cm_;
 
 
 
