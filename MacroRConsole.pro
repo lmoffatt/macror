@@ -116,11 +116,9 @@ HEADERS += \
     Include/Markov_IO/PulsesProgram.h \
     Include/Markov_IO/Pulse.h \
     Include/Markov_IO/Parameters.h \
-    Include/Markov_IO/Markov_IO.h \
     Include/Markov_IO/Markov_ABC.h \
     Include/Markov_IO/FileDir.h \
     Include/Markov_IO/ExperimentAverage.h \
-    Include/Markov_IO/experiment2.h \
     Include/Markov_IO/ClassDescription.h \
     Include/Markov_IO/auxiliarIO.h \
     Include/Markov_IO/ABC_Trace.h \
@@ -198,7 +196,6 @@ HEADERS += \
     Include/Markov_IO/Object.h \
     Include/Markov_IO/Options.h \
     Include/Markov_Mol/SimulationOptions.h \
-    Include/Markov_IO/Matlab_IO.h \
     Include/Markov_Mol/ABC_PatchModel.h \
     Include/Markov_IO/Experiment.h \
     Include/Markov_IO/Trace.h \
@@ -468,14 +465,11 @@ message ("MacroRConsole end here")
 HEADERS += \
     Include/Markov_Console/Autocomplete.h \
     Include/Markov_Console/BayesianAutocomplete.h \
-    Include/Markov_IO/ABFExperiment.h \
-    Include/Markov_IO/A_Variable.h \
-    Include/Markov_Object/Abstract_Object.h
+    Include/Markov_IO/ABFExperiment.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp \
-    Source/Markov_Object/Abstract_Object.cpp
+    Source/Markov_Console/BayesianAutocomplete.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt
