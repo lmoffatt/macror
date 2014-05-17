@@ -168,8 +168,10 @@ void MacrorMainWindow::newOption()
 
 void MacrorMainWindow::changeDir(QString newDir)
 {
-    commandWindow->addCommandLine(QString("cd \"").append(newDir).append("\""));
+  commandWindow->addCommandLine(QString("cd \"").append(newDir).append("\""));
 }
+
+
 
 void MacrorMainWindow::clear()
 {
@@ -365,6 +367,8 @@ void MacrorMainWindow::createToolBars()
 
      dirToolBar->addWidget(dirBox);
      connect(dirBox,SIGNAL(changeDirectory(QString)),this,SLOT(changeDir(QString)));
+
+     connect(this,SIGNAL(DirHasChanged(QString)),dirBox,SLOT(setDirectory(QString)));
 
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->addAction(editAction);

@@ -24,6 +24,7 @@ public:
     enum Value {
         IDENTIFIER,
         STRING,
+        PATH,
         NUMBER,
 
         EOL='\n',

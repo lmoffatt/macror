@@ -56,6 +56,13 @@ bool CdCommand::run(std::deque<Token> & tokenList)
         tokenList.pop_front();
         return run(dirName);
         break;
+
+      case Token::PATH:
+          dirName=tokenList.front().Path();
+          tokenList.pop_front();
+          return run(dirName);
+          break;
+
     default:
         output_.clear();
         errorMessage_="unexpected Token; expected NAME or PATH, found "+
@@ -89,6 +96,7 @@ bool CdCommand::run(const std::string& dirName)
         errorMessage_.clear();
         return true;
     }
+
 }
 
 

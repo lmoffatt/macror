@@ -61,7 +61,6 @@ namespace Markov_Console
   Markov_CommandManager::Markov_CommandManager():
     io_(nullptr),
     dir_{Markov_IO::getWorkingPath()},
-    autoCmptDir{},
     units{},
     cmds{},
     cmdsl{},
@@ -80,7 +79,6 @@ namespace Markov_Console
 
   {
     auto dirs=Markov_IO::getSubDirs(dir_);
-    autoCmptDir=Autocomplete(dirs);
     filesl=LoadFiles(getDir());
     autoCmptByKind[ABC_Command::directory()]=Autocomplete(dirs);
     autoCmptByKind[ABC_Command::fileName()]=LoadFiles(getDir());
@@ -874,7 +872,7 @@ namespace Markov_Console
     if (!Markov_IO::IsDir(dir))
       return false;
     dir_=dir;
-    autoCmptDir=Autocomplete(Markov_IO::getSubDirs(dir));
+    autoCmptByKind[ABC_Command::directory()]=Autocomplete(Markov_IO::getSubDirs(dir));
     filesl=LoadFiles(dir);
     return true;
   }

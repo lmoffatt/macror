@@ -71,6 +71,8 @@ namespace Markov_Console
         return identifier_value;
       case STRING:
         return path_value;
+      case PATH:
+        return path_value;
       case NUMBER:
         return std::to_string(Number());
       default:
@@ -128,7 +130,6 @@ namespace Markov_Console
       case '^':
 
       case ':':
-      case '.':
       case ';':
 
       case '(':
@@ -190,6 +191,22 @@ namespace Markov_Console
           {
             stream.putback(ch);
             curr_tok=GTR;
+            return stream;
+          }
+
+      case '.':
+        stream.get(ch);
+        if (ch=='.')
+          {
+            path_value="..";
+            curr_tok=PATH;
+
+            return stream;
+          }
+        else
+          {
+            stream.putback(ch);
+            curr_tok=DOT;
             return stream;
           }
 

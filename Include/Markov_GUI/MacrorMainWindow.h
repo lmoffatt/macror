@@ -43,6 +43,10 @@ public:
       delete cm_;
     }
 
+signals:
+    void DirHasChanged(QString newDir);
+
+
 private slots:
     void open();
     void save();
@@ -68,11 +72,13 @@ private slots:
 
     void changeDir(QString newDir);
 
+
     void setCurrentFile(const QString& fileName) ;
 
 
 
 private:
+
     void createActions();
     void createMenus();
     void createToolBars();

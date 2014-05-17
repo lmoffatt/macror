@@ -50,6 +50,8 @@ virtual void putError(const std::string &);
     virtual QString getDir()const;
 protected:
 
+
+
     Markov_Console::Markov_CommandManager* MarkovCommand();
     const Markov_Console::Markov_CommandManager* MarkovCommand()const;
     virtual void	keyPressEvent ( QKeyEvent * e );

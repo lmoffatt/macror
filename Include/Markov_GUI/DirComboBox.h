@@ -21,11 +21,15 @@ class DirComboBox:public QWidget
 public:
     DirComboBox(QDir initDir, QString label, QWidget *parent = 0);
 
+public slots:
+    void setDirectory(QString newDir);
+
 private slots:
     void browse();
 
 signals:
     void changeDirectory(QString newDir);
+
 
 private:
     QComboBox *directoryComboBox;

@@ -14,6 +14,8 @@ message(MacroR.pro here)
        message( "MacroRConsole.pro not found" )
 }
 
+DEFINES+=MACRO_GUI
+
 QT+= core gui
 QT += widgets
 
@@ -102,7 +104,11 @@ message ("MacroR ends here")
 }
 
 HEADERS += \
-    Include/Markov_Plot/PlotCommand.h
+    Include/Markov_Plot/PlotCommand.h \
+    Include/Markov_GUI/CdCommandGUI.h \
+    Include/Markov_GUI/MyInputDialog.h
 
 SOURCES += \
-    Source/Markov_Plot/PlotCommand.cpp
+    Source/Markov_Plot/PlotCommand.cpp \
+    Source/Markov_GUI/CdCommandGUI.cpp \
+    Source/Markov_GUI/MyInputDialog.cpp

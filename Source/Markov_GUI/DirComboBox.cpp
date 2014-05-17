@@ -29,18 +29,24 @@ DirComboBox::DirComboBox(QDir initDir,QString label, QWidget *parent)
     setLayout(mainLayout);
     connect(directoryComboBox,SIGNAL(currentIndexChanged(QString)),this,SIGNAL(changeDirectory(QString)));
 
- }
+}
+
 
 void DirComboBox::browse()
 {
     QString directory = QFileDialog::getExistingDirectory(this,
                                tr("Working directory"), currentDir.absolutePath());
 
-    if (!directory.isEmpty()) {
-        if (directoryComboBox->findText(directory) == -1)
-            directoryComboBox->addItem(directory);
-        directoryComboBox->setCurrentIndex(directoryComboBox->findText(directory));
-        currentDir=QDir(directory);
+   setDirectory(directory);
+}
+
+void DirComboBox::setDirectory(QString directory)
+{
+  if (!directory.isEmpty()) {
+      if (directoryComboBox->findText(directory) == -1)
+          directoryComboBox->addItem(directory);
+      directoryComboBox->setCurrentIndex(directoryComboBox->findText(directory));
+      currentDir=QDir(directory);
     }
 }
 

@@ -160,9 +160,6 @@ protected:
 
     std::string dir_;
 
-    Autocomplete autoCmptDir;
-
-
     std::map<std::string, Markov_IO::ABC_Unit*> units;
     std::map<std::string, ABC_Command*> cmds;
     Autocomplete cmdsl;
