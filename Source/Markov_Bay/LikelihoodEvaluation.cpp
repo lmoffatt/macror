@@ -6,20 +6,20 @@ namespace Markov_Bay
 {
 
 
-/// copy constructors
-LikelihoodEvaluation* LikelihoodEvaluation::clone() const
-{
+  /// copy constructors
+  LikelihoodEvaluation* LikelihoodEvaluation::clone() const
+  {
     return new LikelihoodEvaluation(*this);
-}
+  }
 
 
-/// default constructors
-LikelihoodEvaluation* LikelihoodEvaluation::create() const{
+  /// default constructors
+  LikelihoodEvaluation* LikelihoodEvaluation::create() const{
     return new LikelihoodEvaluation();
-}
+  }
 
-Markov_IO::ClassDescription LikelihoodEvaluation::GetDescription()const
-{
+  Markov_IO::ClassDescription LikelihoodEvaluation::GetDescription()const
+  {
 
     Markov_IO::ClassDescription desc(myClass(),mySuperClass());;
     desc.push_back("name",myName());
@@ -42,166 +42,177 @@ Markov_IO::ClassDescription LikelihoodEvaluation::GetDescription()const
 
     return desc;
 
-}
+  }
 
-bool LikelihoodEvaluation::LoadFromDescription(const Markov_IO::ClassDescription& classDes)
+  bool LikelihoodEvaluation::LoadFromDescription(const Markov_IO::ClassDescription& classDes)
 
-{
+  {
     if (classDes.ClassName()!=myClass())
-	return false;
+      return false;
     std::string name;
     if (!ToValue(classDes["name"],name))
-	return false;
+      return false;
 
     double Log_Likelihood;
     if (!ToValue(classDes["Log_Likelihood"],Log_Likelihood))
-	return false;
+      return false;
 
     double Expected_Log_Likelihood;
     if (!ToValue(classDes["Expected_Log_Likelihood"],Expected_Log_Likelihood))
-	return false;
+      return false;
 
     std::size_t Number_of_samples;
     if (!ToValue(classDes["Number_of_samples"],Number_of_samples))
-	return false;
+      return false;
 
     double Variance_of_partial_Log_Likelihood;
     if (!ToValue(classDes["Variance_of_partial_Log_Likelihood"],
-		 Variance_of_partial_Log_Likelihood))
-	return false;
+                 Variance_of_partial_Log_Likelihood))
+      return false;
 
 
     *this=LikelihoodEvaluation(name,
-			       Log_Likelihood,
-			       Expected_Log_Likelihood,
-			       Number_of_samples,
-			       Variance_of_partial_Log_Likelihood
-			       );
+                               this->experiment(),
+                               Log_Likelihood,
+                               Expected_Log_Likelihood,
+                               Number_of_samples,
+                               Variance_of_partial_Log_Likelihood
+                               );
 
     return true;
-}
+  }
 
-std::string LikelihoodEvaluation::ClassName()
-{
+  std::string LikelihoodEvaluation::ClassName()
+  {
     return "Likelihood_Evaluation";
-}
-std::string LikelihoodEvaluation::myName()const
-{
+  }
+  std::string LikelihoodEvaluation::myName()const
+  {
     return this->name_;
-}
-std::string LikelihoodEvaluation::myClass()const
-{
+  }
+
+  const Markov_IO::ABC_Experiment *LikelihoodEvaluation::experiment() const
+  {
+    return e_;
+  }
+  std::string LikelihoodEvaluation::myClass()const
+  {
     return ClassName();
 
-}
+  }
 
 
 
 
 
 
-double LikelihoodEvaluation::logL()const
-{
+  double LikelihoodEvaluation::logL()const
+  {
     return this->logL_;
-}
+  }
 
 
-double LikelihoodEvaluation::elogL()const
-{
+  double LikelihoodEvaluation::elogL()const
+  {
 
     return elogL_;
-}
+  }
 
-std::size_t LikelihoodEvaluation::nsamples()const
-{
+  std::size_t LikelihoodEvaluation::nsamples()const
+  {
 
     return nsamples_;
-}
+  }
 
-double LikelihoodEvaluation::s2logL()const
-{
+  double LikelihoodEvaluation::s2logL()const
+  {
     return s2logL_;
 
-}
+  }
 
 
 
 
- double LikelihoodEvaluation::zScore()const
- {
-     return (logL()-elogL())/std::sqrt(nsamples()/2);
- }
+  double LikelihoodEvaluation::zScore()const
+  {
+    return (logL()-elogL())/std::sqrt(nsamples()/2);
+  }
 
- double LikelihoodEvaluation::pzScore()const
- {
-     return 1-erf(std::abs(zScore()/std::sqrt(2.)));
- }
+  double LikelihoodEvaluation::pzScore()const
+  {
+    return 1-erf(std::abs(zScore()/std::sqrt(2.)));
+  }
 
- double LikelihoodEvaluation::zs2Score()const
- {
- //    return (2.*s2logL()-nsamples())/std::sqrt(2.*nsamples());
-     return (std::sqrt(4.*s2logL())-std::sqrt(2*nsamples()-1));
-  //   return std::pow((2.*s2logL()/nsamples()),1./3.)-
-  //           (1.-2./(9.0*nsamples()))/(2./(9.*nsamples()));
- }
+  double LikelihoodEvaluation::zs2Score()const
+  {
+    //    return (2.*s2logL()-nsamples())/std::sqrt(2.*nsamples());
+    return (std::sqrt(4.*s2logL())-std::sqrt(2*nsamples()-1));
+    //   return std::pow((2.*s2logL()/nsamples()),1./3.)-
+    //           (1.-2./(9.0*nsamples()))/(2./(9.*nsamples()));
+  }
 
- double LikelihoodEvaluation::pzs2Score()const
- {
-     return 1.-erf(std::abs(zs2Score()/std::sqrt(2.)));
- }
+  double LikelihoodEvaluation::pzs2Score()const
+  {
+    return 1.-erf(std::abs(zs2Score()/std::sqrt(2.)));
+  }
 
 
-LikelihoodEvaluation& LikelihoodEvaluation::operator=(const LikelihoodEvaluation& other)
-{
+  LikelihoodEvaluation& LikelihoodEvaluation::operator=(const LikelihoodEvaluation& other)
+  {
     if (this!=&other)
-    {
-	LikelihoodEvaluation tmp(other);
-	swap(*this, tmp);
-    }
+      {
+        LikelihoodEvaluation tmp(other);
+        swap(*this, tmp);
+      }
     return *this;
-}
+  }
 
-void swap(LikelihoodEvaluation& one, LikelihoodEvaluation& other)
-{
+  void swap(LikelihoodEvaluation& one, LikelihoodEvaluation& other)
+  {
     std::swap(one.name_,other.name_);
+    std::swap(one.e_,other.e_);
     std::swap(one.logL_,other.logL_);
     std::swap(one.elogL_,other.elogL_);
     std::swap(one.nsamples_,other.nsamples_);
     std::swap(one.s2logL_,other.s2logL_);
 
     return;
-}
+  }
 
 
-LikelihoodEvaluation::LikelihoodEvaluation():
+  LikelihoodEvaluation::LikelihoodEvaluation():
     name_(),
+    e_(nullptr),
     logL_(0),
     elogL_(0),
     nsamples_(0),
     s2logL_(0)
-{
-}
+  {
+  }
 
-LikelihoodEvaluation::LikelihoodEvaluation(const LikelihoodEvaluation &other):
+  LikelihoodEvaluation::LikelihoodEvaluation(const LikelihoodEvaluation &other):
     name_(other.name_),
+    e_(other.e_),
     logL_(other.logL_),
     elogL_(other.elogL_),
     nsamples_(other.nsamples_),
     s2logL_(other.s2logL_)
 
-{}
+  {}
 
 
-LikelihoodEvaluation::LikelihoodEvaluation(const std::string &name,
-					   double logL,
-					   double elogL,
-					   std::size_t ns,
-					   double s2logL):
+  LikelihoodEvaluation::LikelihoodEvaluation(const std::string &name,
+                                             const Markov_IO::ABC_Experiment *e,
+                                             double logL,
+                                             double elogL,
+                                             std::size_t ns,
+                                             double s2logL):
     name_(name),
+    e_(e),
     logL_(logL),
     elogL_(elogL),
     nsamples_(ns),
     s2logL_(s2logL)
-{
-}
+  {
+  }
 }

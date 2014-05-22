@@ -9,6 +9,9 @@
 #include "Markov_LA/Matrix.h"
 #include "Markov_IO/ABC_Experiment.h"
 
+namespace Markov_IO {
+  class YfitLikelihoodEvaluation;
+}
 namespace Markov_Plot
 {
 class GraphView: public QGraphicsView
@@ -29,6 +32,9 @@ public:
 
     friend GraphView* aplot(QWidget* parent, const Markov_IO::ABC_trace& trace);
     friend GraphView* aplot(QWidget* parent, const Markov_IO::ABC_Experiment& experiment);
+
+    friend GraphView* aplot(QWidget* parent, const Markov_IO::YfitLikelihoodEvaluation& experiment);
+
 
 public slots:
     void redraw();
@@ -60,6 +66,10 @@ private:
                          const Markov_LA::M_Matrix<double>& y);
 
  GraphView* aplot(QWidget* parent, const Markov_IO::ABC_trace& trace);
+
+ GraphView* aplot(QWidget* parent, const Markov_IO::YfitLikelihoodEvaluation& experiment);
+
+
 
 }
 

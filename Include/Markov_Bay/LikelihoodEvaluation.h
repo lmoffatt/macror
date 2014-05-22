@@ -27,6 +27,8 @@ public:
     static std::string ClassName();
 
     virtual std::string myName()const;
+    virtual const Markov_IO::ABC_Experiment *experiment()const;
+
 	virtual std::string myClass()const;
 
 
@@ -48,6 +50,7 @@ public:
 	LikelihoodEvaluation(const LikelihoodEvaluation& other);
 	LikelihoodEvaluation();
 	LikelihoodEvaluation(const std::string& name,
+			     const Markov_IO::ABC_Experiment* e,
 			     double logL,
 			     double elogL,
 			     std::size_t ns,
@@ -59,6 +62,8 @@ public:
 
 protected:
 	std::string name_;
+	const Markov_IO::ABC_Experiment* e_;
+
 	double logL_;
 	double elogL_;
 	std::size_t nsamples_;

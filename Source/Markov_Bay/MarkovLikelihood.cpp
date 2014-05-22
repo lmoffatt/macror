@@ -236,7 +236,7 @@ namespace Markov_Bay
               };
           };
 
-        return LikelihoodEvaluation(name_,logL,elogL,ns,s2logL);
+        return LikelihoodEvaluation(name_,E_A,logL,elogL,ns,s2logL);
 
       }
     else
@@ -281,7 +281,7 @@ namespace Markov_Bay
               };
           };
 
-        return LikelihoodEvaluation(name_,logL,elogL,ns,s2logL);
+        return LikelihoodEvaluation(name_,E_A,logL,elogL,ns,s2logL);
 
       }
 
@@ -295,7 +295,7 @@ namespace Markov_Bay
     double s2logL=0;
     //  std::cerr<<"inside run \n"<<patch();
 
-    return LikelihoodEvaluation(name_,logL,elogL,ns,s2logL);
+    return LikelihoodEvaluation(name_,E_A,logL,elogL,ns,s2logL);
 
 
   }

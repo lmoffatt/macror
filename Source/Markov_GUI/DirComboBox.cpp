@@ -37,7 +37,12 @@ void DirComboBox::browse()
     QString directory = QFileDialog::getExistingDirectory(this,
                                tr("Working directory"), currentDir.absolutePath());
 
-   setDirectory(directory);
+    if (!directory.isEmpty()) {
+        if (directoryComboBox->findText(directory) == -1)
+            directoryComboBox->addItem(directory);
+        directoryComboBox->setCurrentIndex(directoryComboBox->findText(directory));
+        currentDir=QDir(directory);
+      }
 }
 
 void DirComboBox::setDirectory(QString directory)
@@ -45,7 +50,9 @@ void DirComboBox::setDirectory(QString directory)
   if (!directory.isEmpty()) {
       if (directoryComboBox->findText(directory) == -1)
           directoryComboBox->addItem(directory);
+      disconnect(directoryComboBox,SIGNAL(currentIndexChanged(QString)),this,SIGNAL(changeDirectory(QString)));
       directoryComboBox->setCurrentIndex(directoryComboBox->findText(directory));
+      connect(directoryComboBox,SIGNAL(currentIndexChanged(QString)),this,SIGNAL(changeDirectory(QString)));
       currentDir=QDir(directory);
     }
 }

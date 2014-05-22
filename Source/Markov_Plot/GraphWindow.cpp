@@ -15,6 +15,7 @@ namespace Markov_Plot
     }
 
 
+
      GraphWindow* plot(QWidget* parent,
                            const Markov_LA::M_Matrix<double>& x)
      {
@@ -110,6 +111,12 @@ namespace Markov_Plot
 
      }
 
+     GraphWindow *Markov_Plot::GraphWindow::plot(QWidget *parent, const Markov_IO::YfitLikelihoodEvaluation &experiment)
+     {
+
+
+
+     }
 
 
 

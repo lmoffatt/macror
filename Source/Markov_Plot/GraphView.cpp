@@ -4,6 +4,7 @@
 
 #include <QtDebug>
 #include "Markov_Plot/GraphView.h"
+#include "Markov_Bay/YfitLikelihoodEvaluation.h"
 
 namespace Markov_Plot
 {
@@ -272,6 +273,111 @@ namespace Markov_Plot
       {
          QGraphicsView::resizeEvent(event);
          fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
+     }
+
+     GraphView *aplot(QWidget *parent, const Markov_Bay::YfitLikelihoodEvaluation &experiment)
+
+     {
+
+            GraphView* g=  new GraphView(parent,
+                                    900,900);
+
+             double axisLength=900;
+             double axisWidth=300;
+
+
+             Scale* tAxis=new Scale(experiment.[0].t(),
+                                    trace[trace.num_measures()-1].t(),
+                                    Scale::xAxis,
+                                    "t",
+                                    "s",
+                                    axisLength,
+                                    axisWidth,
+                                    Scale::LinearScale);
+
+             Markov_LA::M_Matrix<double> tx=trace.t_x();
+
+             Markov_LA::M_Matrix<double> ty=trace.t_y();
+             bool hasY=trace.num_replicates()>0;
+
+
+             Scale* xAxis=new Scale(Markov_LA::min(tx(":",1)),
+                                    Markov_LA::max(tx(":",1)),
+                                    Scale::yAxis,
+                                    "x",
+                                    "units",
+                                    axisLength/3.0,
+                                    axisWidth,
+                                    Scale::LinearScale);
+
+
+
+             Scale* yAxis;
+
+
+             XY_Plot* px=new XY_Plot(new Markov_LA::M_Matrix<double> (tx),
+                                    0,
+                                    "Plot",tAxis,xAxis);
+             g->xAxes_.push_back(tAxis);
+             g->plot_.push_back(px);
+
+
+             g->gscene_->addItem(tAxis);
+             g->gscene_->addItem(xAxis);
+             g->gscene_->addItem(px);
+
+              tAxis->setPos(axisWidth,(1./3)*axisLength);
+              xAxis->setPos(0,0);
+
+              px->setPos(axisWidth,0);
+
+              if (hasY)
+              {
+
+                  int numtraces=Markov_LA::ncols(ty)-1;
+
+                  double miny=Markov_LA::min(ty(":",1));
+                  double maxy=Markov_LA::max(ty(":",1));
+
+                  for (int itrace=1; itrace<numtraces; itrace++)
+                  {
+                      miny=std::min(miny,Markov_LA::min(ty(":",itrace+1)));
+                      maxy=std::max(maxy,Markov_LA::max(ty(":",itrace+1)));
+                  }
+
+                  yAxis=new Scale(miny,
+                                  maxy,
+                                  Scale::yAxis,
+                                  "y",
+                                  "units",
+                                  axisLength,
+                                  axisWidth,
+                                  Scale::LinearScale);
+
+
+                  for (int itrace=0; itrace<numtraces; itrace++)
+                  {
+
+                      XY_Plot* py=new XY_Plot(new Markov_LA::M_Matrix<double> (ty),
+                                              0,
+                                              "Plot",tAxis,yAxis,itrace);
+                      g->plot_.push_back(py);
+                      g->gscene_->addItem(py);
+                      py->setPos(axisWidth,axisLength/3+0.05*axisLength);
+
+                  }
+                  g->yAxes_.push_back(yAxis);
+                  g->gscene_->addItem(yAxis);
+                  yAxis->setPos(0,axisLength/3+0.05*axisLength);
+                  tAxis->setPos(axisWidth,(1.+1./3)*axisLength+0.05*axisLength);
+
+
+              }
+
+              g->gscene_->setSceneRect(QRectF());
+
+      g->redraw();
+      return g;
      }
 
 

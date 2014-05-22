@@ -64,10 +64,22 @@ void MacrorCommandWindow::commandLine(const QString& line)
 
 void MacrorCommandWindow::addCommandLine(const QString& line)
 {
+  moveCursor(QTextCursor::End);
   insertPlainText(line);
-  appendPlainText("");
-  this->update();
 
+  cmdLine=line;
+
+  textCursor().movePosition(QTextCursor::EndOfLine);
+
+  textCursor().insertText("\n");
+
+  commandLine(cmdLine);
+  put(">>");
+  cm_->clear_tokens();
+  cmdLine.clear();
+  cmdWord.clear();
+  tail.clear();
+  cm_->getH().reset();
 }
 
 
@@ -176,7 +188,6 @@ void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
     moveCursor(QTextCursor::End);
   QTextCursor c=textCursor();
   auto p=c.position();
-  QString line;
 
   switch(e->key())
     {
