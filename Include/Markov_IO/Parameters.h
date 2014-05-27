@@ -120,7 +120,7 @@ name_map_build(const std::vector<std::string>& names);
 
 std::istream& operator>>(std::istream& s,Parameters*& p);
 
-//std::ostream& operator<<(std::ostream& stream, const Parameters&  E );
+std::ostream& operator<<(std::ostream& stream, const Parameters&  E );
 
 bool LoadFromDescription(Parameters*& p,
 			 const Markov_IO::ClassDescription& classDes);

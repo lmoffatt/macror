@@ -14,6 +14,8 @@
 
 #include "Markov_Bay/YfitLikelihoodEvaluation.h"
 
+#include "Markov_IO/ABC_Environment.h"
+
 namespace Markov_Bay
 {
 
@@ -31,9 +33,9 @@ public:
     virtual bool operator==(const Markov_Likelihood& other)const;
 
 
-    virtual const Markov_IO::ABC_Experiment& experiment()const;
+    virtual const Markov_IO::ABC_Experiment* experiment()const;
 
-    virtual const Markov_Mol::ABC_PatchModel& patch()const;
+    virtual const Markov_Mol::ABC_PatchModel* patch()const;
 
     virtual const Markov_Mol::ABC_Markov_Model& model()const;
 
@@ -79,9 +81,10 @@ public:
 
 
 
-    Markov_Likelihood(const Markov_Mol::ABC_PatchModel& P,
-		      const Markov_IO::ABC_Experiment& E,
-		      const Markov_IO::ABC_Options& O);
+    Markov_Likelihood(Markov_IO::ABC_Environment* e,
+                      const std::string patch,
+                      const std::string experiment,
+                      const Markov_IO::ABC_Options& O);
 
 
 
@@ -115,8 +118,12 @@ public:
     };
 
 
-private:
+    private:
+
     std::string name_;
+    Markov_IO::ABC_Environment* E_;
+    std::string experimentName_;
+    std::string patchName_;
     ABC_Markov_Likelihood_step* L_A;
     const Markov_IO::ABC_Experiment* E_A;
     Options Options_;

@@ -53,7 +53,7 @@ bool LoadFromDescription(ABC_PatchModel*& model,
 			 const Markov_IO::ClassDescription& classDes)
 {
     if (create(model,classDes.ClassName()))
-	return model->LoadFromDescription(classDes);
+        return model->LoadFromDescription(classDes);
     return false;
 }
 

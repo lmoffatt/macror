@@ -425,8 +425,7 @@ std::string Pulses_trace::myName()const
 }
 
 
-bool Pulses_trace::LoadFromDescription(
-    const ClassDescription& classDes)
+bool Pulses_trace::LoadFromDescription(const ClassDescription& classDes)
 {
     if (classDes.ClassName()!=myClass())
 	return false;

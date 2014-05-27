@@ -271,9 +271,10 @@ namespace Markov_Console
       {
         par=new Markov_IO::Parameters(p->get_parameters());
       }
-    Markov_Bay::SimpleOptimization Opt("esta",
-                                       *p,
-                                       *e,
+    Markov_Bay::SimpleOptimization Opt(cm_,
+                                       "esta",
+                                       patch_in,
+                                       experiment_in,
                                        *o,
                                        cm_->getIO());
 

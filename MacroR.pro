@@ -29,7 +29,6 @@ TEMPLATE = app
 
 HEADERS += \
     Include/Markov_Remote/Markov_Remote.h \
-    Include/Markov_Plot/abc_plotable.h \
     Include/Markov_Plot/ABC_PlotData.h \
     Include/Markov_GUI/MacrorMainWindow.h \
     Include/Markov_GUI/MacrorCommandWindow.h \
@@ -60,7 +59,6 @@ HEADERS += \
 SOURCES -=Source/main_MacroConsole.cpp
 
 SOURCES += \
-    Source/Markov_Plot/abc_plotable.cpp \
     Source/main_MacroR.cpp \
   #  Source/Markov_Console/Markov_CommandManagerGui.cpp \
     Source/Markov_GUI/MacrorMainWindow.cpp \

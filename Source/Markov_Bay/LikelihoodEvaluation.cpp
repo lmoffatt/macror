@@ -21,8 +21,14 @@ namespace Markov_Bay
   Markov_IO::ClassDescription LikelihoodEvaluation::GetDescription()const
   {
 
-    Markov_IO::ClassDescription desc(myClass(),mySuperClass());;
+    Markov_IO::ClassDescription desc(myClass(),mySuperClass());
+    desc.setEnvironment(getEnvironment());
+
+
+    desc.setEnvironment(getEnvironment());
     desc.push_back("name",myName());
+
+    desc.push_back("Experiment",experimentName());
 
     desc.push_back("Log_Likelihood",logL());
 
@@ -53,6 +59,11 @@ namespace Markov_Bay
     if (!ToValue(classDes["name"],name))
       return false;
 
+    std::string nameExperiment;
+    if (!ToValue(classDes["Experiment"],nameExperiment))
+      return false;
+
+
     double Log_Likelihood;
     if (!ToValue(classDes["Log_Likelihood"],Log_Likelihood))
       return false;
@@ -71,8 +82,9 @@ namespace Markov_Bay
       return false;
 
 
-    *this=LikelihoodEvaluation(name,
-                               this->experiment(),
+    *this=LikelihoodEvaluation(classDes.getEnvironment(),
+                               name,
+                               nameExperiment,
                                Log_Likelihood,
                                Expected_Log_Likelihood,
                                Number_of_samples,
@@ -93,8 +105,14 @@ namespace Markov_Bay
 
   const Markov_IO::ABC_Experiment *LikelihoodEvaluation::experiment() const
   {
-    return e_;
+    if (E_!=nullptr)
+      return dynamic_cast<Markov_IO::ABC_Experiment const*>(E_->getVar(experimentName_));
+    else
+      return nullptr;
   }
+
+
+
   std::string LikelihoodEvaluation::myClass()const
   {
     return ClassName();
@@ -167,10 +185,15 @@ namespace Markov_Bay
     return *this;
   }
 
+  Markov_IO::ABC_Environment *LikelihoodEvaluation::getEnvironment() const
+  {
+    return E_;
+  }
+
   void swap(LikelihoodEvaluation& one, LikelihoodEvaluation& other)
   {
     std::swap(one.name_,other.name_);
-    std::swap(one.e_,other.e_);
+    std::swap(one.experimentName_,other.experimentName_);
     std::swap(one.logL_,other.logL_);
     std::swap(one.elogL_,other.elogL_);
     std::swap(one.nsamples_,other.nsamples_);
@@ -182,7 +205,7 @@ namespace Markov_Bay
 
   LikelihoodEvaluation::LikelihoodEvaluation():
     name_(),
-    e_(nullptr),
+    experimentName_(),
     logL_(0),
     elogL_(0),
     nsamples_(0),
@@ -190,9 +213,11 @@ namespace Markov_Bay
   {
   }
 
-  LikelihoodEvaluation::LikelihoodEvaluation(const LikelihoodEvaluation &other):
+  LikelihoodEvaluation::LikelihoodEvaluation(Markov_IO::ABC_Environment* E,
+                                             const LikelihoodEvaluation &other):
+    E_(E),
     name_(other.name_),
-    e_(other.e_),
+    experimentName_(other.experimentName_),
     logL_(other.logL_),
     elogL_(other.elogL_),
     nsamples_(other.nsamples_),
@@ -201,14 +226,16 @@ namespace Markov_Bay
   {}
 
 
-  LikelihoodEvaluation::LikelihoodEvaluation(const std::string &name,
-                                             const Markov_IO::ABC_Experiment *e,
+  LikelihoodEvaluation::LikelihoodEvaluation(Markov_IO::ABC_Environment* e,
+                                             const std::string &name,
+                                             std::string experimentName,
                                              double logL,
                                              double elogL,
                                              std::size_t ns,
                                              double s2logL):
+    E_(e),
     name_(name),
-    e_(e),
+    experimentName_(experimentName),
     logL_(logL),
     elogL_(elogL),
     nsamples_(ns),

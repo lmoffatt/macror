@@ -159,6 +159,7 @@ namespace Markov_Console
                    varnames.end()))
                 {
                   Markov_IO::ClassDescription des;
+                  des.setEnvironment(getCommandManager());
                   if (f>>des)
                     {
                       Markov_IO::ABC_Saveable* s;
@@ -260,6 +261,8 @@ namespace Markov_Console
                            varnames.end()))
                         {
                           Markov_IO::ClassDescription des;
+                          des.setEnvironment(getCommandManager());
+
                           if (f>>des)
                             {
                               Markov_IO::ABC_Saveable* s;

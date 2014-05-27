@@ -119,7 +119,6 @@ public:
 
     virtual Markov_IO::ClassDescription GetDescription()const=0;
 
-    virtual bool LoadFromDescription(const Markov_IO::ClassDescription& classDes)=0;
     virtual bool LoadFromStringDescription(const Markov_IO::ClassDescription& classDes)=0;
 
 

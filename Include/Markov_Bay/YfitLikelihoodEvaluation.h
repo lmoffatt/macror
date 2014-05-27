@@ -32,7 +32,9 @@ namespace Markov_Bay
 	   ~YfitLikelihoodEvaluation();
 	   YfitLikelihoodEvaluation& operator=(const YfitLikelihoodEvaluation& other);
 
-	   YfitLikelihoodEvaluation(const std::string& name,
+	   YfitLikelihoodEvaluation(Markov_IO::ABC_Environment *e,
+				    const std::string& name,
+				    const std::string& experimentName,
 				    double Log_Likelihood,
 				    double expectedLogLikelihood,
 				    double varianceLogLikelihood,

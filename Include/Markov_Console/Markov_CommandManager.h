@@ -47,11 +47,11 @@ namespace Markov_Console
   */
 
 
-class Markov_CommandManager
+class Markov_CommandManager: public Markov_IO::ABC_Environment
 {
 public:
     Markov_CommandManager();
-    ~Markov_CommandManager();
+    virtual ~Markov_CommandManager();
 
     virtual std::string build()const;
     virtual std::string buildDate()const;

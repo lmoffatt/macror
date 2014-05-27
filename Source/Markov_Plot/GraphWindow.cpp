@@ -111,10 +111,10 @@ namespace Markov_Plot
 
      }
 
-     GraphWindow *Markov_Plot::GraphWindow::plot(QWidget *parent, const Markov_IO::YfitLikelihoodEvaluation &experiment)
+
+
+     GraphWindow *plot(QWidget *parent, const Markov_IO::YfitLikelihoodEvaluation &experiment)
      {
-
-
 
      }
 

@@ -1625,8 +1625,7 @@ namespace Markov_Mol
 
 
 
-  bool Q_Markov_Model::LoadFromDescription(
-      const ClassDescription& classDes)
+  bool Q_Markov_Model::LoadFromDescription(const ClassDescription& classDes)
   {
     if (classDes.ClassName()!=myClass())
       {

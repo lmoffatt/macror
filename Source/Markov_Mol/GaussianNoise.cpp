@@ -223,8 +223,7 @@ std::string gaussian_noise::myClass()const
 
 
 
-bool gaussian_noise::LoadFromDescription(
-    const Markov_IO::ClassDescription& classDes)
+bool gaussian_noise::LoadFromDescription(const Markov_IO::ClassDescription& classDes)
 {
     if (classDes.ClassName()!=myClass())
 	return false;

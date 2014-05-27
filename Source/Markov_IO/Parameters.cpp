@@ -415,6 +415,7 @@ std::istream& operator>> (std::istream& stream,Parameters*& x)
 }
 
 
+
 bool Parameters::isValid()const
 {
   for (std::size_t i=0; i<values_vec.size(); i++)

@@ -240,7 +240,8 @@ Experiment_simulation PatchModel::run(const Markov_IO::ABC_Experiment& x,
     return ES;
 }
 
-bool LoadFromDescription(PatchModel*& p,
+bool LoadFromDescription(ABC_Environment*e,
+    PatchModel*& p,
 			 const Markov_IO::ClassDescription& classDes)
 {
     p=new PatchModel();

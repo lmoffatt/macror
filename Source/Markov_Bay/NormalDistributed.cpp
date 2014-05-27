@@ -77,8 +77,7 @@ Markov_IO::ClassDescription NormalDistributed::GetDescription()const
 
 }
 
-bool NormalDistributed::LoadFromDescription(
-    const Markov_IO::ClassDescription &classDes)
+bool NormalDistributed::LoadFromDescription(const Markov_IO::ClassDescription &classDes)
 {
     return false;
 }

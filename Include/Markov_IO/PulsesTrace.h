@@ -70,7 +70,8 @@ public:
 
     virtual ClassDescription GetDescription() const;
 
-    virtual bool LoadFromDescription(const ClassDescription &classDes);
+    virtual bool LoadFromDescription(
+                                     const ClassDescription &classDes);
     static std::string ClassName();
 
     virtual std::string myName()const;

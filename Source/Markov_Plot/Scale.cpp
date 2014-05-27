@@ -319,38 +319,176 @@ void Scale::drawLabels(QPainter *painter)
     }
 }
 
+Scale::AxisType Scale::toAxisType(std::string a)
+{
+  if (a=="xAxis")
+    return xAxis;
+  else if (a=="yAxis")
+    return yAxis;
+  else return xAxis;
+
+}
+
+std::string Scale::toString(Scale::AxisType a)
+{
+  switch (a) {
+    case xAxis:
+      return "xAxis";
+      break;
+    case yAxis:
+      return "yAxis";
+      break;
+    }
+}
+
+Scale::Type Scale::toType(std::string a)
+{
+  if (a=="LogScale")
+    return LogScale;
+  else if (a=="LinearScale")
+    return LinearScale;
+  else return LinearScale;
+
+}
+
+std::string Scale::toString(Scale::Type a)
+{
+  switch (a) {
+    case LogScale:
+      return "LogScale";
+      break;
+    case LinearScale:
+      return "LinearScale";
+      break;
+    default:
+      return "LinearScale";
+    }
+}
+
+Scale::RangeCalculation Scale::toRangeCalculation(std::string a)
+{
+  if (a=="ExactRange")
+    return ExactRange;
+  else if (a=="Pad5PercentRange")
+    return Pad5PercentRange;
+  else if (a=="NearestTickRange")
+    return NearestTickRange;
+  else return ExactRange;
+
+}
+
+std::string Scale::toString(Scale::RangeCalculation a){
+  switch (a) {
+    case Pad5PercentRange:
+      return "Pad5PercentRange";
+      break;
+    case NearestTickRange:
+      return "NearestTickRange";
+      break;
+    case ExactRange:
+      return "ExactRange";
+      break;
+    default:
+      return "ExactRange";
+    }
+}
+
+std::string Scale::myClass() const
+{
+  return ClassName();
+}
+
+std::string Scale::mySuperClass() const
+{
+  return ClassName();
+}
+
+std::string Scale::ClassName()
+{
+  return "Scale";
+}
+
+Markov_IO::ClassDescription Scale::GetDescription() const
+
+{
+  Markov_IO::ClassDescription desc(myClass(),mySuperClass());
+  double max;
+  AxisType axis;
+  QString title;
+  QString units;
+  double length;
+  double width;
+  Type scaletype;
+
+  desc.push_back("name",this->myName());
+  desc.push_back("min",
+                 this->min(),
+                 "[mininum]",
+                 "minimum value of the scale");
+  desc.push_back("max",
+                 this->max(),
+                 "[maximum]",
+                 "maximum value of the scale");
+  desc.push_back("Axis_Type",
+                 this->toString(axis_),
+                 "[axisType]",
+                 "x axis or y axis ");
+  desc.push_back("Title",
+                 this->Title().toStdString(),
+                 "[title]",
+                 "axis title");
+  desc.push_back("Units",
+                 this->units_.toStdString(),
+                 "[units]",
+                 "units");
+
+
+
+  return desc;
+}
+
+bool Scale::LoadFromDescription(const Markov_IO::ClassDescription &classDes)
+{
+
+}
+
+std::string Scale::myName() const
+{
+  return name_;
+}
+
 void Scale::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                   QWidget *widget)
 {
 
-    painter->setFont(scene()->font());
+  painter->setFont(scene()->font());
 
-    penWidth_=painter->pen().widthF();
-    buildLabelPos(painter);
-    painter->drawLine(axisLine_);
-    painter->drawLines(tickLines_);
-    drawTitle(painter);
-    drawLabels(painter);
-    //painter->drawRect(this->boundingRect());
+  penWidth_=painter->pen().widthF();
+  buildLabelPos(painter);
+  painter->drawLine(axisLine_);
+  painter->drawLines(tickLines_);
+  drawTitle(painter);
+  drawLabels(painter);
+  //painter->drawRect(this->boundingRect());
 
- }
+}
 
 void Scale::buildLines()
 {
-    tickLines_.clear();
-    switch(getAxisType())
+  tickLines_.clear();
+  switch(getAxisType())
     {
     case Scale::xAxis:
-        axisLine_ =QLineF(0.0,0.0,Length(),0.0);
-        for (int i=0;i<ticksPosition_.size();++i )
+      axisLine_ =QLineF(0.0,0.0,Length(),0.0);
+      for (int i=0;i<ticksPosition_.size();++i )
         {
-            tickLines_.push_back(QLineF(ticksPosition_.at(i),0.0,
-                                        ticksPosition_.at(i),tickLength_));
+          tickLines_.push_back(QLineF(ticksPosition_.at(i),0.0,
+                                      ticksPosition_.at(i),tickLength_));
         }
-        break;
+      break;
     case Scale::yAxis:
-        axisLine_=QLineF(Width(),0.0,Width(),Length());
-        for (int i=0;i<ticksPosition_.size();++i )
+      axisLine_=QLineF(Width(),0.0,Width(),Length());
+      for (int i=0;i<ticksPosition_.size();++i )
         {
             tickLines_.push_back(QLineF(Width(),ticksPosition_.at(i),
                                         Width()-tickLength_,ticksPosition_.at(i)));

@@ -465,11 +465,14 @@ message ("MacroRConsole end here")
 HEADERS += \
     Include/Markov_Console/Autocomplete.h \
     Include/Markov_Console/BayesianAutocomplete.h \
-    Include/Markov_IO/ABFExperiment.h
+    Include/Markov_IO/ABFExperiment.h \
+    Include/Markov_IO/ABC_Environment.h \
+    Include/Markov_IO/ABC_Var.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp
+    Source/Markov_Console/BayesianAutocomplete.cpp \
+    Source/Markov_IO/ABC_Var.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

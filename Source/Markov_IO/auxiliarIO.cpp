@@ -323,7 +323,7 @@ bool ToValue(const std::string& str,T*& value)
       }
 
   }
-  bool ToObject(const std::string& s,ABC_Object*& o)
+  bool ToObject(const std::string& s, ABC_Object*& o)
   {
     if (o->myClass()==Object<double>::ClassName())
       {

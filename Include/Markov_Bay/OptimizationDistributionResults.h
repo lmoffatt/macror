@@ -21,7 +21,8 @@ public:
 
     virtual Markov_IO::ClassDescription GetDescription()const;
 
-    virtual bool LoadFromDescription(const Markov_IO::ClassDescription& classDes);
+    virtual bool LoadFromDescription(Markov_IO::
+                                     const Markov_IO::ClassDescription& classDes);
 
     static std::string ClassName();
 

@@ -31,10 +31,12 @@ namespace Markov_Bay
 
   Markov_Likelihood::~Markov_Likelihood() {}
 
-  const Markov_IO::ABC_Experiment& Markov_Likelihood::experiment()const
+  const Markov_IO::ABC_Experiment* Markov_Likelihood::experiment()const
   {
-    return *E_A;
+
+    return dynamic_cast<const Markov_IO::ABC_Experiment*>(E_->getVar(experimentName_));
   }
+
 
 
   LikelihoodEvaluation Markov_Likelihood::run(const Markov_IO::Parameters& beta)
@@ -83,29 +85,29 @@ namespace Markov_Bay
     LikelihoodEvaluation L_0=run(p);
 
     if (Markov_LA::isFinite(L_0.logL()))
-    {
-#pragma omp parallel for
-    for (std::size_t i=0; i<beta.size();++i)
       {
-        Markov_IO::Parameters beta_i(beta);
-        Markov_LA::M_Matrix<double> x(beta.transformed_values());
-        dxx=dx;
-        while(dxx>0)
+#pragma omp parallel for
+        for (std::size_t i=0; i<beta.size();++i)
           {
-            x[i]+=dxx;
-            beta_i.transformed_values(x);
-            LikelihoodEvaluation L_i=run(beta_i);
-
-            if (Markov_LA::isFinite(L_i.logL()))
+            Markov_IO::Parameters beta_i(beta);
+            Markov_LA::M_Matrix<double> x(beta.transformed_values());
+            dxx=dx;
+            while(dxx>0)
               {
-                G[i]=(L_i.logL()-L_0.logL())/dxx;
-                break;
+                x[i]+=dxx;
+                beta_i.transformed_values(x);
+                LikelihoodEvaluation L_i=run(beta_i);
+
+                if (Markov_LA::isFinite(L_i.logL()))
+                  {
+                    G[i]=(L_i.logL()-L_0.logL())/dxx;
+                    break;
+                  }
+                else
+                  dxx/=2;
               }
-            else
-              dxx/=2;
           }
       }
-    }
     return G;
   }
 
@@ -182,8 +184,8 @@ namespace Markov_Bay
     for (std::size_t i=0; i<beta.size();++i)
       for (std::size_t j=0; j<beta.size();++j)
         for (std::size_t k=0; k<pL_0.nsamples();++k)
-            Hy(i,j)+= (Dy(k,i)*Dy(k,j)/pL_0.s2()(k,0))
-                +(Ds2(k,i)*Ds2(k,j)/pL_0.s2()(k,0)/pL_0.s2()(k,0)/2.0);
+          Hy(i,j)+= (Dy(k,i)*Dy(k,j)/pL_0.s2()(k,0))
+              +(Ds2(k,i)*Ds2(k,j)/pL_0.s2()(k,0)/pL_0.s2()(k,0)/2.0);
 
 
 
@@ -202,6 +204,7 @@ namespace Markov_Bay
     std::size_t ns=0;
     double s2logL=0;
     //  std::cerr<<"inside run \n"<<patch();
+    E_A=experiment();
 
     if (!Options_.boolean("run_Approximation"))
       {
@@ -236,7 +239,7 @@ namespace Markov_Bay
               };
           };
 
-        return LikelihoodEvaluation(name_,E_A,logL,elogL,ns,s2logL);
+        return LikelihoodEvaluation(E_,name_,experimentName_,logL,elogL,ns,s2logL);
 
       }
     else
@@ -281,7 +284,7 @@ namespace Markov_Bay
               };
           };
 
-        return LikelihoodEvaluation(name_,E_A,logL,elogL,ns,s2logL);
+        return LikelihoodEvaluation(E_,name_,experimentName_,logL,elogL,ns,s2logL);
 
       }
 
@@ -295,7 +298,7 @@ namespace Markov_Bay
     double s2logL=0;
     //  std::cerr<<"inside run \n"<<patch();
 
-    return LikelihoodEvaluation(name_,E_A,logL,elogL,ns,s2logL);
+    return LikelihoodEvaluation(E_,name_,experimentName_,logL,elogL,ns,s2logL);
 
 
   }
@@ -306,6 +309,7 @@ namespace Markov_Bay
     double logL=0;
     double elogL=0;
     double s2logL=0;
+    E_A=experiment();
     Markov_LA::M_Matrix<double> pLogL(E_A->total_samples(),1);
     std::size_t i_run=0;
     for (std::size_t i_r=0; i_r<E_A->num_replicates(); i_r++)
@@ -340,13 +344,14 @@ namespace Markov_Bay
           };
       };
 
-    return PartialLikelihoodEvaluation(name_,logL,elogL,s2logL,pLogL);
+    return PartialLikelihoodEvaluation(E_,name_,experimentName_,logL,elogL,s2logL,pLogL);
 
   }
 
 
   YfitLikelihoodEvaluation Markov_Likelihood::run(const std::string& , const std::string&)
   {
+    E_A=experiment();
     double logL=0;
     double elogL=0;
     double s2logL=0;
@@ -391,34 +396,46 @@ namespace Markov_Bay
           };
       };
 
-    return YfitLikelihoodEvaluation(name_,logL,elogL,s2logL,pLogL,yfit,y,s2);
+    return YfitLikelihoodEvaluation(E_,name_,experimentName_,logL,elogL,s2logL,pLogL,yfit,y,s2);
 
   }
 
 
 
-  Markov_Likelihood::Markov_Likelihood(const Markov_Mol::ABC_PatchModel &P,
-                                       const Markov_IO::ABC_Experiment &E,
+  Markov_Likelihood::Markov_Likelihood(Markov_IO::ABC_Environment* e,
+                                       const std::string patch,
+                                       const std::string myExperiment,
                                        const Markov_IO::ABC_Options &O):
-    name_(P.myName()+"_on_"+E.myName()+"_with_"+O.myName()),
+    name_(),
+    E_(e),
+    experimentName_(myExperiment),
+    patchName_(patch),
     L_A(0),
-    E_A(&E),
+    E_A(0),
     Options_(O)
   {
+    E_A=experiment();
+
+    const Markov_Mol::ABC_PatchModel* P=
+        dynamic_cast<const Markov_Mol::ABC_PatchModel*>(E_->getVar(patchName_));
+
+
+    name_=std::string(P->myName()+"_on_"+E_A->myName()+"_with_"+O.myName());
+
     std::string alg=Options_.name("Likelihood_Algorithm");
     if (Options_.name("Likelihood_Algorithm")=="MacroNR")
       {
-        this->L_A= new Macro_NR_step(P,Options_.boolean("Is_Averaging"));
+        this->L_A= new Macro_NR_step(*P,Options_.boolean("Is_Averaging"));
       }
     else if (Options_.name("Likelihood_Algorithm")=="MacroR")
       {
-        this->L_A= new Macro_R_step(P,
+        this->L_A= new Macro_R_step(*P,
                                     Options_.boolean("Is_Averaging"),
                                     Options_.boolean("Use_Zero_Guard"));
       }
     else if (Options_.name("Likelihood_Algorithm")=="MacroDR")
       {
-        this->L_A= new Macro_DR_step(P,
+        this->L_A= new Macro_DR_step(*P,
                                      Options_.boolean("Use_Zero_Guard"));
       }
 
@@ -455,6 +472,9 @@ namespace Markov_Bay
   }
   void swap(Markov_Likelihood& x,Markov_Likelihood& y){
     std::swap(x.name_,y.name_);
+    std::swap(x.experimentName_,y.experimentName_);
+    std::swap(x.name_,y.name_);
+
     std::swap(x.L_A,y.L_A);
     std::swap(x.E_A,y.E_A);
     swap(x.Options_,y.Options_);
@@ -467,9 +487,9 @@ namespace Markov_Bay
     return L_A->model();
   }
 
-  const Markov_Mol::ABC_PatchModel& Markov_Likelihood::patch()const
+  const Markov_Mol::ABC_PatchModel *Markov_Likelihood::patch()const
   {
-    return L_A->patch();
+    return &L_A->patch();
   }
 
 
@@ -558,7 +578,7 @@ namespace Markov_Bay
   {
     s<<name_;
     s<<"\n"<<*L_A;
-    s<<"\nExperiment name \t"<<E_A->myName();
+    s<<"\nExperiment name \t"<<experimentName_;
     s<<"\n Options\n"<<Options_;
     return s;
   }

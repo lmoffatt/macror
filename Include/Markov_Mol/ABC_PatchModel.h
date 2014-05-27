@@ -80,8 +80,8 @@ public:
 bool operator==(const ABC_PatchModel& x,const ABC_PatchModel& y);
 
 
-bool LoadFromDescription(ABC_PatchModel*& x,
-			 const Markov_IO::ClassDescription& classDes);
+bool LoadFromDescription( ABC_PatchModel*& x,
+                         const Markov_IO::ClassDescription& classDes);
 //bool LoadFromStringDescription(ABC_PatchModel*& x,
 //			 const Markov_IO::ClassDescription& classDes);
 

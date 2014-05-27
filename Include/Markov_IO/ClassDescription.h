@@ -6,6 +6,7 @@
 
 #include "Markov_IO/ABC_Object.h"
 #include "Markov_LA/Matrix.h"
+#include "Markov_IO/ABC_Environment.h"
 //#include "Markov_IO/ABC_Saveable.h"
 
 namespace Markov_IO
@@ -142,7 +143,10 @@ public:
     friend void swap(ClassDescription& one, ClassDescription& other);
 
 
+    void setEnvironment(ABC_Environment *e);
+    ABC_Environment *getEnvironment() const;
 private:
+    ABC_Environment* E_;
     std::string className_;
     std::string superClass_;
     std::vector<ABC_Object*> values_; //owned

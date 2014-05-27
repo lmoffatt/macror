@@ -356,8 +356,7 @@ Random_Pulses* Random_Pulses::clone() const
      return ClassName();
  }
 
- bool Random_Pulses::LoadFromDescription(
-     const Markov_IO::ClassDescription& classDes)
+ bool Random_Pulses::LoadFromDescription(const Markov_IO::ClassDescription& classDes)
  {
      if (classDes.ClassName()!=myClass())
 	 return false;

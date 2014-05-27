@@ -8,17 +8,15 @@
 
 #include "Markov_LA/Matrix.h"
 #include "Markov_IO/ABC_Experiment.h"
+#include "Markov_Bay/YfitLikelihoodEvaluation.h"
 
-namespace Markov_IO {
-  class YfitLikelihoodEvaluation;
-}
 namespace Markov_Plot
 {
-class GraphView: public QGraphicsView
-{
-   Q_OBJECT
+  class GraphView: public QGraphicsView
+  {
+    Q_OBJECT
 
-public:
+  public:
     GraphView(QWidget* parent=0);
 
     GraphView(QWidget *parent, qreal width, qreal height);
@@ -28,47 +26,51 @@ public:
 
     friend GraphView* aplot(QWidget* parent, const Markov_LA::M_Matrix<double>& x);
     friend GraphView* aplot(QWidget* parent, const Markov_LA::M_Matrix<double>& x,
-                             const Markov_LA::M_Matrix<double>& y);
+                            const Markov_LA::M_Matrix<double>& y);
 
     friend GraphView* aplot(QWidget* parent, const Markov_IO::ABC_trace& trace);
     friend GraphView* aplot(QWidget* parent, const Markov_IO::ABC_Experiment& experiment);
 
-    friend GraphView* aplot(QWidget* parent, const Markov_IO::YfitLikelihoodEvaluation& experiment);
+    friend GraphView* aplot(QWidget* parent,
+                            const Markov_Bay::YfitLikelihoodEvaluation& yfit,
+                            std::size_t itrace);
 
 
-public slots:
+  public slots:
     void redraw();
 
-protected:
+  protected:
     void resizeEvent(QResizeEvent *event);
 
 
 
 
-private:
+  private:
 
-  QGraphicsScene* gscene_;
+    QGraphicsScene* gscene_;
 
-  qreal height_;
-  qreal width_;
+    qreal height_;
+    qreal width_;
 
-  std::vector<Scale*> xAxes_;
-  std::vector<Scale*> yAxes_;
-  std::vector<XY_Plot*> plot_;
+    std::vector<Scale*> xAxes_;
+    std::vector<Scale*> yAxes_;
+    std::vector<XY_Plot*> plot_;
 
-  QVector<QColor> lineColors_;
+    QVector<QColor> lineColors_;
 
 
-};
+  };
 
- GraphView* aplot(QWidget* parent, const Markov_LA::M_Matrix<double>& x);
- GraphView* aplot(QWidget* parent, const Markov_LA::M_Matrix<double>& x,
-                         const Markov_LA::M_Matrix<double>& y);
+  GraphView* aplot(QWidget* parent, const Markov_LA::M_Matrix<double>& x);
+  GraphView* aplot(QWidget* parent, const Markov_LA::M_Matrix<double>& x,
+                   const Markov_LA::M_Matrix<double>& y);
 
- GraphView* aplot(QWidget* parent, const Markov_IO::ABC_trace& trace);
+  GraphView* aplot(QWidget* parent, const Markov_IO::ABC_trace& trace);
 
- GraphView* aplot(QWidget* parent, const Markov_IO::YfitLikelihoodEvaluation& experiment);
 
+ GraphView* aplot(QWidget* parent,
+                          const Markov_Bay::YfitLikelihoodEvaluation& yfit,
+                          std::size_t itrace);
 
 
 }

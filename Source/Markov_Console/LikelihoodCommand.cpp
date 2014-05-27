@@ -185,7 +185,7 @@ namespace Markov_Console
     else
       o=new Markov_Bay::Markov_Likelihood::Options();
 
-    Markov_Bay::Markov_Likelihood ml(*p,*e,*o);
+    Markov_Bay::Markov_Likelihood ml(cm_,patch_in,experiment_in,*o);
 
 
     if (!o->boolean("show_partialLikelihood"))

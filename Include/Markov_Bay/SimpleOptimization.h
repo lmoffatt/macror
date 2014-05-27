@@ -16,9 +16,9 @@
 namespace Markov_Bay
 {
 
-class SimpleOptimization: public Markov_IO::ABC_Use_Options
-{
-public:
+  class SimpleOptimization: public Markov_IO::ABC_Use_Options
+  {
+  public:
     virtual SimpleOptimization* clone() const;
 
     virtual SimpleOptimization* create() const;
@@ -42,13 +42,14 @@ public:
     virtual SingleOptimizationResult run(const Markov_IO::Parameters& beta);
 
     virtual OptimizationResult run(const Markov_Mol::PatchModelNormalDistribution& betaDist,
-                                         std::size_t numStarts);
+                                   std::size_t numStarts);
 
 
-    SimpleOptimization(const std::string& name,
-                       const Markov_Mol::ABC_PatchModel& P,
-		      const Markov_IO::ABC_Experiment& E,
-              const Markov_IO::ABC_Options& O,
+    SimpleOptimization(Markov_IO::ABC_Environment *e,
+                       const std::string& name,
+                       const std::string& P,
+                       const std::string& E,
+                       const Markov_IO::ABC_Options& O,
                        Markov_IO::ABC_IO* io);
 
 
@@ -60,26 +61,26 @@ public:
     class Options:public Markov_IO::BaseOptions
     {
     public:
-	Options();
-	Options(const std::string& name);
-	Options(const Markov_IO::ABC_Options& options);
+      Options();
+      Options(const std::string& name);
+      Options(const Markov_IO::ABC_Options& options);
 
-	Options(const Options& other);
-	Options& operator=(const Options& other);
+      Options(const Options& other);
+      Options& operator=(const Options& other);
 
-	friend void swap(Options& x,Options& y);
+      friend void swap(Options& x,Options& y);
 
-	Options(const std::string& myname,
-		const std::string& HessianUpdate,
-		const std::string& Termination,
-		std::size_t maxEval,
-		std::size_t maxIter,
-		const Markov_IO::ABC_Options& likelihoodOptions,
-		const Markov_IO::ABC_Options& stepOptions,
-		const Markov_IO::ABC_Options& terminationOptions
-		);
-	virtual std::string myClass()const;
-	static std::string ClassName();
+      Options(const std::string& myname,
+              const std::string& HessianUpdate,
+              const std::string& Termination,
+              std::size_t maxEval,
+              std::size_t maxIter,
+              const Markov_IO::ABC_Options& likelihoodOptions,
+              const Markov_IO::ABC_Options& stepOptions,
+              const Markov_IO::ABC_Options& terminationOptions
+              );
+      virtual std::string myClass()const;
+      static std::string ClassName();
 
     };
     virtual const Options& getOptions()const;
@@ -87,7 +88,7 @@ public:
 
 
 
-private:
+  private:
     std::string name_;
     Markov_IO::Parameters par_;
     Markov_Likelihood ML_;
@@ -96,7 +97,7 @@ private:
     std::size_t maxiter_;
     Markov_IO::ABC_IO* io_;
 
-   };
+  };
 
 
 

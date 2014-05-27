@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "Markov_IO/ABC_Object.h"
+#include "Markov_IO/ABC_Environment.h"
 
 
 
@@ -60,7 +61,7 @@ namespace Markov_IO
     template<class T>
     bool ToValue(const ABC_Object* o,T& value);
 
-    bool ToObject(const std::string& s,ABC_Object*& o);
+    bool ToObject(const std::string& s, ABC_Object*& o);
 
     std::istream& extract_NaN_safe(std::istream&, double& value);
 

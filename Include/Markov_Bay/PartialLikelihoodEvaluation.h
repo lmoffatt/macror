@@ -27,7 +27,9 @@ namespace Markov_Bay
 	   virtual const Markov_LA::M_Matrix<double>& plogL()const;
 
 
-	   PartialLikelihoodEvaluation(const std::string& name,
+	   PartialLikelihoodEvaluation(Markov_IO::ABC_Environment *e,
+				       const std::string& name,
+				       const std::string& experimentName,
 				       double Log_Likelihood,
 				       double expectedLogLikelihood,
 				       double varianceLogLikelihood,
