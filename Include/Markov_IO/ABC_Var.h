@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
+#include <deque>
 
 #include <limits>
 namespace  Markov_IO {
@@ -17,6 +18,91 @@ namespace  Markov_IO {
 
   class ABC_Environment_Var;
 
+
+
+  class Token_New
+  {
+  public:
+    static bool isNameChar(char ch);
+    static bool isSpaceChar(char ch);
+
+    enum Value {
+      IDENTIFIER,
+      STRING,
+      PATH,
+      NUMBER,
+      INVALID,
+
+      EOL='\n',
+      PLUS='+',
+      MINUS='-',
+      MUL='*',
+      DIV='/',
+      EXPONENT='^',
+
+      DOT='.',
+      COLON=':',
+      COMMA=',',
+      SEMICOLON=';',
+      ASSIGN='=',
+
+      LP='(',
+      RP=')',
+      LSB='[',
+      RSB=']',
+
+      NOT='~',
+      AND='&',
+      OR='|',
+      LSS='<',
+      GTR='>',
+
+      LEQ,// <=
+      EQ, //==
+      NEQ, //~=
+      GEQ, // >=
+
+      WHILE, //while
+      DO,  //do
+      IF, //if
+      THEN, // then
+      BEGIN, //begin
+      END, // end
+      ELSE, // else
+      SWITCH, //switch
+      CASE   // case
+    };
+
+
+
+    std::istream& get(std::istream& stream);
+
+    std::string str()const
+    {
+      return identifier_;
+    }
+
+    double num()const
+    {
+      return number_;
+    }
+
+    Value tok()const
+    {
+      return curr_tok;
+    }
+
+    static Value toKeyword(std::string identifier);
+
+
+
+  private:
+    Value curr_tok;
+    double number_;
+    std::string identifier_;
+
+    std::map<std::string,Value> keywords_;
+  };
 
 
   class ABC_Var
@@ -365,7 +451,7 @@ namespace  Markov_IO {
     }
     virtual ABC_Var* getVarId(const std::string& name, const std::string &myKind) override
     {
-       ABC_Var* out=getVarId(name);
+      ABC_Var* out=getVarId(name);
       if ((out!=nullptr)&&(out->myKindId()==myKind))
         return out;
       else      return nullptr;

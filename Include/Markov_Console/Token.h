@@ -23,8 +23,8 @@ public:
 
     enum Value {
         IDENTIFIER,
-        STRING,
         PATH,
+        STRING,
         NUMBER,
 
         EOL='\n',

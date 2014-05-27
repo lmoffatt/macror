@@ -272,6 +272,216 @@ ABC_Var *Implements_Simple_Var<T>::create() const
       delete id.second;
   }
 
+  bool Token_New::isNameChar(char ch)
+  {
+    const std::string NameChar="abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "1234567890_"; return
+        NameChar.find_first_of(ch)!=std::string::npos;
+
+  }
+
+  bool Token_New::isSpaceChar(char ch)
+  {
+    const std::string spaceChar=" \t"; return
+        spaceChar.find_first_of(ch)!=std::string::npos;
+
+  }
+
+  std::istream &Token_New::get(std::istream &stream)
+
+  {
+    identifier_.clear();
+    char ch;
+
+    do {	// skip whitespace except '\en'
+        if(!stream.get(ch))
+          {
+            curr_tok = END;
+            return stream;
+          }
+      } while (isSpaceChar(ch));
+
+    switch (ch) {
+      case '\n':
+        curr_tok=EOL;
+        return stream;
+        break;
+      case '+':
+      case '-':
+      case '*':
+      case '/':
+      case '^':
+
+      case ':':
+      case ';':
+
+      case '(':
+      case ')':
+      case '[':
+      case ']':
+      case '&':
+      case '|':
+        curr_tok=Value(ch);
+        return stream;
+
+      case '=':
+        stream.get(ch);
+        if (ch=='=')
+          {
+            curr_tok=EQ;
+            return stream;
+          }
+        else
+          {
+            stream.putback(ch);
+            curr_tok=ASSIGN;
+            return stream;
+          }
+      case '~':
+        stream.get(ch);
+        if (ch=='=')
+          {
+            curr_tok=NEQ;
+            return stream;
+          }
+        else
+          {
+            stream.putback(ch);
+            curr_tok=NOT;
+            return stream;
+          }
+      case '<':
+        stream.get(ch);
+        if (ch=='=')
+          {
+            curr_tok=LEQ;
+            return stream;
+          }
+        else
+          {
+            stream.putback(ch);
+            curr_tok=LSS;
+            return stream;
+          }
+      case '>':
+        stream.get(ch);
+        if (ch=='=')
+          {
+            curr_tok=GEQ;
+            return stream;
+          }
+        else
+          {
+            stream.putback(ch);
+            curr_tok=GTR;
+            return stream;
+          }
+
+      case '.':
+        stream.get(ch);
+        if (ch=='.')
+          {
+            identifier_="..";
+            curr_tok=PATH;
+
+            return stream;
+          }
+        else
+          {
+            stream.putback(ch);
+            curr_tok=DOT;
+            return stream;
+          }
+
+      case '0': case '1': case '2': case '3': case '4':
+      case '5': case '6': case '7': case '8': case '9':
+        stream.putback(ch);
+        stream >> number_;
+        curr_tok=NUMBER;
+        return stream;
+
+      case '"':
+        while (stream.get(ch)&& (ch!='"'))
+          identifier_.push_back(ch);
+        if (ch!='"')
+          {
+            //error("missing `""` ");
+            curr_tok=STRING;
+            stream.setstate(stream.rdstate() | std::ios_base::failbit);
+            return stream;
+          }
+        else
+          curr_tok=STRING;
+        return stream;
+
+      default:			// NAME, NAME=, or error
+        if (isalpha(ch))
+          {
+            identifier_ = ch;
+            while (stream.get(ch) && isNameChar(ch))
+              identifier_.push_back(ch);
+            if (!isNameChar(ch))
+              stream.putback(ch);
+
+            curr_tok=toKeyword(identifier_);
+            stream.clear();
+            return stream;
+          }
+        else
+          {
+            //error("bad token");
+            curr_tok=INVALID;
+            stream.setstate(stream.rdstate() | std::ios_base::failbit);
+            return stream;
+          }
+
+      }
+  }
+
+  Token_New::Value Token_New::toKeyword(std::string identifier)
+  {
+
+    if(identifier=="do")
+      {
+        return DO;
+      }
+    else if(identifier=="then")
+      {
+        return THEN;
+      }
+    else if(identifier=="while")
+      {
+        return WHILE;
+      }
+    else if(identifier=="if")
+      {
+        return IF;
+      }
+    else if(identifier=="else")
+      {
+        return ELSE;
+      }
+    else if(identifier=="begin")
+      {
+        return BEGIN;
+      }
+    else if(identifier=="end")
+      {
+        return END;
+      }
+    else if(identifier=="switch")
+      {
+        return SWITCH;
+      }
+    else if(identifier=="case")
+      {
+        return CASE;
+      }
+
+    else return IDENTIFIER;
+
+  }
+
 
   /*
 ABC_Var *ABC_Var::getFromString(const std::string& text, std::size_t &pos)
