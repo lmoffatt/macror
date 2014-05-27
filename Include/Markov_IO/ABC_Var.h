@@ -228,7 +228,9 @@ namespace  Markov_IO {
 
     virtual bool addVar(ABC_Var* var)=0;
 
-    virtual ABC_Environment_Var* getEnvironment()const=0;
+    virtual const ABC_Environment_Var* getEnvironment()const=0;
+    virtual ABC_Environment_Var* getEnvironment()=0;
+
     virtual ABC_Complex_Var* clone()const=0;
 
     virtual ~ABC_Complex_Var(){}
@@ -237,7 +239,7 @@ namespace  Markov_IO {
 
 
 
-  class ABC_Environment_Var:public ABC_Complex_Var
+  class ABC_Environment_Var:virtual public ABC_Complex_Var
   {
   public:
     virtual std::size_t numClasses()const=0;
@@ -245,9 +247,8 @@ namespace  Markov_IO {
     virtual  const ABC_Var* getClassId(std::string name)const=0;
     virtual   ABC_Var* getClassId(std::string name)=0;
 
-    virtual  std::string varKindId(std::size_t i)const=0;
-    virtual  const ABC_Var* getKind(std::string name)const=0;
-    virtual   ABC_Var* getKind(std::string name)=0;
+    virtual bool addClass(ABC_Var* var,const std::string& className="")=0;
+
     virtual ABC_Environment_Var* clone()const=0;
 
   };
@@ -285,7 +286,7 @@ namespace  Markov_IO {
 
     virtual Implements_VarId* clone()const
     {
-      return new Implements_VarId(nullptr,id(),myClass());
+      return new Implements_VarId(nullptr,"",myClass());
     }
 
     virtual ~Implements_VarId(){}
@@ -389,7 +390,7 @@ namespace  Markov_IO {
   };
 
 
-  class Implements_Complex_Var:public ABC_Complex_Var, public Implements_VarId
+  class Implements_Complex_Var:virtual public ABC_Complex_Var, public Implements_VarId
   {
 
     // ABC_Var interface
@@ -398,10 +399,6 @@ namespace  Markov_IO {
     static std::string ClassName()
     {
       return "Complex_Var";
-    }
-    virtual std::string myClass()const
-    {
-      return class_;
     }
 
     virtual std::size_t numChildVars() const;
@@ -455,7 +452,10 @@ namespace  Markov_IO {
 
     virtual bool addVar(ABC_Var *var);
 
-    virtual ABC_Environment_Var* getEnvironment()const;
+    virtual const ABC_Environment_Var* getEnvironment()const;
+
+    virtual  ABC_Environment_Var* getEnvironment();
+
 
     Implements_Complex_Var(ABC_Complex_Var* parent,
                            const std::string& id,
@@ -469,6 +469,12 @@ namespace  Markov_IO {
     virtual Implements_Complex_Var* clone() const
     {
       Implements_Complex_Var* out=new Implements_Complex_Var(nullptr,"",myClass(),{});
+       return makingClone(out);
+    }
+
+  protected:
+    virtual Implements_Complex_Var* makingClone(Implements_Complex_Var* out)const
+    {
       out->ids_=ids_;
       for (std::pair<std::string,ABC_Var*> e:vars_)
         {
@@ -477,8 +483,6 @@ namespace  Markov_IO {
       return out;
     }
 
-  private:
-    std::string class_;
     std::vector<std::string> ids_;
     std::map<std::string,ABC_Var*> vars_;
 
@@ -538,6 +542,99 @@ namespace  Markov_IO {
 
   };
 
+  class Implement_Environment_Var:public ABC_Environment_Var, public Implements_Complex_Var
+  {
+  public:
+    virtual std::size_t numClasses()const
+    {
+      return idsClass_.size();
+    }
+    virtual  std::string classId(std::size_t i)const
+    {
+      return idsClass_[i];
+    }
+    virtual  const ABC_Var* getClassId(std::string name)const
+    {
+     auto it=classKinds_.find(name);
+     if(it!=classKinds_.end())
+       return it->second;
+     else return nullptr;
+    }
+    virtual   ABC_Var* getClassId(std::string name)
+    {
+      auto it=classKinds_.find(name);
+      if(it!=classKinds_.end())
+        return it->second;
+      else return nullptr;
+
+    }
+    virtual bool addClass(ABC_Var* var,const std::string& className="")
+    {
+      if (var==nullptr)
+          return false;
+      std::string cl=className;
+      if (cl.empty())
+          cl=var->myClass();
+       var->setParent(this);
+
+        if (std::find (idsClass_.begin(),idsClass_.end(),cl)==idsClass_.end())
+          {
+            idsClass_.push_back(cl);
+            classKinds_[cl]=var;
+            return true;
+          }
+        else
+          {
+            delete  classKinds_[cl];
+            classKinds_[cl]=var;
+            return false;
+          }
+      }
+
+     Implement_Environment_Var()=default;
+     Implement_Environment_Var(ABC_Environment_Var* parent,
+                            const std::string& name,
+                            const std::string classN):
+       Implements_Complex_Var(parent,name,classN,{}),
+       idsClass_{},classKinds_{}{}
+
+    virtual const Implement_Environment_Var* getEnvironment()const
+    {
+      return this;
+    }
+
+    virtual Implement_Environment_Var* clone()const
+     {
+       Implement_Environment_Var* e=new Implement_Environment_Var(0,"",myClass());
+       return makingClone(e);
+     }
+
+     virtual ~Implement_Environment_Var()
+     {
+       for (std::pair<std::string,ABC_Var*> e:classKinds_)
+         {
+            delete e.second;
+         }
+
+     }
+
+  protected:
+     virtual Implement_Environment_Var* makingClone(Implement_Environment_Var* out)const
+     {
+       Implements_Complex_Var::makingClone(out);
+       out->idsClass_=idsClass_;
+       for (std::pair<std::string,ABC_Var*> e:classKinds_)
+         {
+            out->classKinds_[e.first]=e.second->clone();
+         }
+       return out;
+     }
+
+    std::vector<std::string> idsClass_;
+    std::map<std::string,ABC_Var*> classKinds_;
+
+
+  };
 
 
   inline std::ostream& operator<<(std::ostream& os, std::vector<std::string> data )

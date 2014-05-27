@@ -311,10 +311,16 @@ namespace Markov_IO {
   }
 
 
-  ABC_Environment_Var *Implements_Complex_Var::getEnvironment() const
+  const ABC_Environment_Var *Implements_Complex_Var::getEnvironment() const
   {
-    return Implements_VarId::parentVar()->getEnvironment();
+    return parentVar()->getEnvironment();
   }
+
+  ABC_Environment_Var *Implements_Complex_Var::getEnvironment()
+  {
+    return parentVar()->getEnvironment();
+  }
+
 
   Implements_Complex_Var::Implements_Complex_Var(ABC_Complex_Var *parent,
                                                  const std::string &id,
