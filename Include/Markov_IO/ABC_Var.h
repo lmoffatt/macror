@@ -452,6 +452,10 @@ namespace  Markov_IO {
 
     virtual bool addVar(ABC_Var *var);
 
+
+
+
+
     virtual const ABC_Environment_Var* getEnvironment()const;
 
     virtual  ABC_Environment_Var* getEnvironment();
@@ -494,6 +498,11 @@ namespace  Markov_IO {
                                       std::size_t pos);
   };
 
+
+
+  template<>
+  std::string Implements_Simple_Var<std::vector<std::string>>::ClassName();
+
   class Categorical_Options: public Implements_Simple_Var<std::vector<std::string> >
   {
     // ABC_Var interface
@@ -503,7 +512,6 @@ namespace  Markov_IO {
       return "Categorical_Options";
     }
 
-    virtual std::string toString()  const;
 
     Categorical_Options(ABC_Complex_Var* parent,
                         std::string id,
@@ -516,11 +524,15 @@ namespace  Markov_IO {
     virtual ~Categorical_Options(){}
 
 
+
   };
 
 
+  template<>
+  std::string Implements_Simple_Var<std::string>::ClassName();
 
-  class Categorical_Data: public Implements_Simple_Var<std::string>
+
+  class Categorical_Data: public Implements_Simple_Var<int>
   {
     // ABC_Var interface
   public:
@@ -531,9 +543,10 @@ namespace  Markov_IO {
 
 
     Categorical_Data(ABC_Complex_Var* parent,
-                     std::string categoricalClass,
-                     std::string id):
-      Implements_Simple_Var<std::string>(parent,id,id){}
+                     std::string categoricalData,
+                     int ind,
+                     std::string catclass):
+      Implements_Simple_Var<int>(parent,categoricalData,ind,catclass){}
 
     Categorical_Data();
 

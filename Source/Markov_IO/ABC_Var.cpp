@@ -6,9 +6,27 @@
 namespace Markov_IO {
 
   template<>
+  std::string Implements_Simple_Var<std::string>::ClassName()
+  {
+    return "Simple_name_var";
+  }
+
+  template<>
   std::string Implements_Simple_Var<double>::ClassName()
   {
     return "Simple_real_var";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<int>::ClassName()
+  {
+    return "Simple_integer_var";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::vector<std::string>>::ClassName()
+  {
+    return "Simple_string_vector_var";
   }
 
 
@@ -72,6 +90,38 @@ namespace Markov_IO {
       }
   }
 
+
+  template<>
+  std::size_t Implements_Simple_Var<int>::toValue(const std::deque<Token_New> &tok,
+                                                     int &val,
+                                                     std::size_t i)
+  {
+    if (tok.at(i).tok()!=Token_New::NUMBER)
+      return i;
+    else
+      {
+        val=tok.at(i).num();
+        return i+1;
+      }
+  }
+
+
+
+  template<>
+  std::size_t Implements_Simple_Var<std::string>::toValue(const std::deque<Token_New> &tok,
+                                                     std::string &val,
+                                                     std::size_t i)
+  {
+    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
+      return i;
+    else
+      {
+        val=tok.at(i).str();
+        return i+1;
+      }
+  }
+
+
   template<>
   std::size_t Implements_Simple_Var<std::vector<std::string>>::
   toValue(const std::deque<Token_New> &tok,
@@ -113,7 +163,14 @@ namespace Markov_IO {
   template
   class Implements_Simple_Var<double>;
 
+  template
+  class Implements_Simple_Var<std::string>;
 
+  template
+  class Implements_Simple_Var<std::vector<std::string>>;
+
+  template
+  class Implements_Simple_Var<int>;
 
 
   std::string Implements_VarId::id() const

@@ -509,7 +509,8 @@ Scale::Scale(double min,
              double width,
              Type scaletype
              ):
-    axis_(axis),
+  Markov_IO::Implements_Complex_Var(this,title.toStdString(),"scale",{}),
+  axis_(axis),
     type_(scaletype),
     rangeCalc_(Scale::Pad5PercentRange),
     length_(length),
@@ -533,6 +534,27 @@ Scale::Scale(double min,
    {
     reset();
     setAcceptHoverEvents(true);
+
+    addVar(new Markov_IO::Implements_Simple_Var<double>(this,"min",min));
+    addVar(new Markov_IO::Implements_Simple_Var<double>(this,"max",max));
+    addVar(new Markov_IO::Implements_Simple_Var<double>(this,"length",length));
+    addVar(new Markov_IO::Implements_Simple_Var<double>(this,"width",width));
+    addVar(new Markov_IO::Implements_Simple_Var<std::string>(
+             this,"title",title.toStdString()));
+    addVar(new Markov_IO::Implements_Simple_Var<std::string>(
+             this,"units",units.toStdString()));
+    addVar(new Markov_IO::Categorical_Options(this,"AxisType",{{"xaxis"},{"yaxis"}}));
+    addVar(new Markov_IO::Categorical_Options(
+             this,"ScaleType",{{"LinearScale"},{"LogScale"}}));
+    addVar(new Markov_IO::Categorical_Data(
+             this,"axis",static_cast<int>(axis),"AxisType"));
+    addVar(new Markov_IO::Categorical_Data(
+             this,"saletype",static_cast<int>(scaletype),"ScaleType"));
+
+
+
+
+
 
 }
 
