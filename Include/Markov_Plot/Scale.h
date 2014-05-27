@@ -182,10 +182,7 @@ public:
     {
       return new Scale(min(),max(),axis_,Title(),units_,Length(),Width(),type_);
     }
-    virtual Scale *create() const
-    {
-      return new Scale;
-    }
+
 };
 
 

@@ -5,57 +5,6 @@
 
 namespace Markov_IO {
 
-  std::string ABC_Var::alfaChars()
-  {
-    return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  }
-
-  std::string ABC_Var::alfaNumChars()
-  {
-    return alfaChars()+"_0123456789";
-  }
-
-  std::string ABC_Var::spaceChars()
-  {
-    return "\t ";
-  }
-
-  std::string ABC_Var::numChars()
-  {
-    return "0123456789";
-  }
-
-  std::string ABC_Var::numRChars()
-  {
-    return "0123456789.eE+-";
-  }
-
-  bool ABC_Var::isValidId(const std::string &idC)
-  {
-    if (alfaChars().find_first_not_of(idC[0])!=alfaChars().npos)
-      return false;
-    if (idC.find_first_not_of(alfaNumChars())!=idC.npos)
-      return false;
-    else
-      return true;
-
-  }
-
-  std::string ABC_Var::getId(const std::string &text, std::size_t &pos)
-  {
-    std::size_t pos0=text.find_first_not_of(spaceChars(),pos);
-    if (alfaChars().find(text[pos0])==alfaChars().npos)
-      {
-        std::string error="invalid starting char for identifier: "+text[pos];
-        throw std::logic_error(error);
-      }
-    pos=text.find_first_not_of(alfaNumChars(),pos0);
-    return text.substr(pos0,pos-pos0);
-  }
-
-
-
-
   template<>
   std::string Implements_Simple_Var<double>::ClassName()
   {
@@ -63,13 +12,37 @@ namespace Markov_IO {
   }
 
 
+
+
   template<typename T>
-  std::string Implements_Simple_Var<T>::toString() const
+  std::deque<Token_New> Implements_Simple_Var<T>::toTokens() const
   {
-    std::stringstream ss;
-    ss<<Implements_VarId::id()<<" : "<<this->myKindId()<<" = ";
-    ss<<std::setprecision(std::numeric_limits<double>::digits10)<<value()<"\n";
-    return ss.str();
+    auto out=Implements_VarId::toTokens();
+    out<<value()<<"\n";
+    return out;
+  }
+
+  template<typename T>
+  std::size_t Implements_Simple_Var<T>::
+  processTokens(const std::deque<Token_New>& t,
+                std::size_t pos)
+  {
+    auto p=Implements_VarId::processTokens(t,pos);
+    if (p<pos+3)
+      return pos;
+    else
+      {
+
+        T val;
+        p=toValue(t,val,p);
+        if (p==pos+3)
+          return p;
+        else
+          {
+            value_=val;
+            return p;
+          }
+      }
   }
 
   template<typename T>
@@ -79,47 +52,69 @@ namespace Markov_IO {
   }
 
   template<typename T>
-
   void Implements_Simple_Var<T>::setValue(T val)
   {
     value_=val;
   }
 
-  /*
-template<typename T>
-ABC_Var *Implements_Simple_Var<T>::create() const
-{
-  return new Implements_Simple_Var<T>;
-}
-*/
+
+  template<>
+  std::size_t Implements_Simple_Var<double>::toValue(const std::deque<Token_New> &tok,
+                                                     double &val,
+                                                     std::size_t i)
+  {
+    if (tok.at(i).tok()!=Token_New::NUMBER)
+      return i;
+    else
+      {
+        val=tok.at(i).num();
+        return i+1;
+      }
+  }
+
+  template<>
+  std::size_t Implements_Simple_Var<std::vector<std::string>>::
+  toValue(const std::deque<Token_New> &tok,
+          std::vector<std::string> &val,
+          std::size_t i)
+  {
+    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
+      return i;
+    else
+      {
+        while ((i<tok.size())&&(tok.at(i).tok()!=Token_New::IDENTIFIER))
+          {
+            val.push_back(tok.at(i).str());
+            ++i;
+          }
+        return i;
+      }
+  }
+
+  template<>
+  std::deque<Token_New> Implements_Simple_Var<double>::toToken(const double& val)
+  {
+    return {{val}};
+  }
+
+
+
   template<typename T>
   Implements_Simple_Var<T>::
   Implements_Simple_Var(ABC_Complex_Var *parent,
                         std::string id,
                         T val,
-                        std::string kindName):
-    Implements_VarId(parent,kindName,id),
+                        std::string className):
+    Implements_VarId(parent,id,className),
     value_(val){}
 
-  template<typename T>
-  Implements_Simple_Var<T>::Implements_Simple_Var():
-    Implements_VarId(),
-    value_{}{}
 
 
   template
   class Implements_Simple_Var<double>;
 
 
-  std::string ABC_Complex_Var::BeginLabel() const
-  {
-    return "Begin "+myKindId();
-  }
 
-  std::string ABC_Complex_Var::EndLabel() const
-  {
-    return "End "+myKindId();
-  }
 
   std::string Implements_VarId::id() const
   {
@@ -153,18 +148,15 @@ ABC_Var *Implements_Simple_Var<T>::create() const
 
 
   Implements_VarId::Implements_VarId(ABC_Complex_Var *parent,
-                                     const std::string &kindName,
-                                     const std::string &name)
+                                     const std::string &name, const std::string className)
     :
-      kind_(isValidId(kindName)?kindName:""),
       id_(ABC_Var::isValidId(name)?name:""),
-      p_(parent)
-  {
-  }
+      class_(ABC_Var::isValidId(className)?className:""),
+      p_(parent){}
 
   Implements_VarId::Implements_VarId():
-    kind_{},
     id_{},
+    class_{},
     p_(nullptr){}
 
   void Implements_VarId::setParent(ABC_Complex_Var *par)
@@ -172,23 +164,31 @@ ABC_Var *Implements_Simple_Var<T>::create() const
     p_=par;
   }
 
-  std::string Implements_Refer_Var::RefLabel() const
+  std::deque<Token_New> Implements_VarId::toTokens() const
   {
-    return std::string("Refers ")+ myKindId();
+    return {{id()},{":"},{myClass()}};
+
+  }
+
+  std::size_t Implements_VarId::processTokens(const std::deque<Token_New> &t,
+                                              std::size_t pos)
+  {
+    if ((!pos+2<t.size())
+        ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
+        ||(t.at(pos+1).tok()!=Token_New::COLON)
+        ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER))
+      return pos;
+    else
+      {
+        id_=t.at(pos).str();
+        class_=t.at(pos+2).str();
+        return pos+3;
+      }
   }
 
 
-  std::string Implements_Refer_Var::toString() const
-  {
-    std::stringstream ss;
-    ss<<id()<<" : ";
-    ss<<RefLabel();
-    if (!refId().empty())
-      ss<<"="<<refId();
-    ss<<"\n";
-    return ss.str();
 
-  }
+
 
   std::string Implements_Refer_Var::refId() const
   {
@@ -197,29 +197,92 @@ ABC_Var *Implements_Simple_Var<T>::create() const
 
   ABC_Var *Implements_Refer_Var::refVar()
   {
-    return parentVar()->getVarId(refId(),myKindId());
+    return parentVar()->getVarId(refId(),myClass());
   }
 
   const ABC_Var *Implements_Refer_Var::refVar() const
   {
-    return parentVar()->getVarId(refId(),myKindId());
+    return parentVar()->getVarId(refId(),myClass());
   }
 
-  Implements_Refer_Var::Implements_Refer_Var(ABC_Complex_Var *parent, std::string idName, std::string refKind, std::string refName):
-    Implements_VarId(parent,refKind,idName),
+  Implements_Refer_Var::Implements_Refer_Var(ABC_Complex_Var *parent,
+                                             std::string idName,
+                                             std::string refClass,
+                                             std::string refName):
+    Implements_VarId(parent,idName,refClass),
     refId_(refName){}
 
-  std::string Implements_Complex_Var::toString() const
+  std::deque<Token_New> Implements_Refer_Var::toTokens() const
   {
-    std::stringstream ss;
-    ss<<id()<<" : ";
-    ss<<BeginLabel()<<"\n";
+    auto out=Implements_VarId::toTokens();
+    out<<"="<<"*"<<refId()<<"\n";
+    return out;
+  }
+
+  std::size_t Implements_Refer_Var::processTokens(const std::deque<Token_New> &t, std::size_t pos)
+  {
+    auto p=Implements_VarId::processTokens(t,pos);
+    if (p<pos+3)
+      return pos;
+    else  if ((!pos+6<t.size())
+              ||(t.at(pos+3).tok()!=Token_New::EQ)
+              ||(t.at(pos+4).tok()!=Token_New::MUL)
+              ||(t.at(pos+5).tok()!=Token_New::IDENTIFIER)
+              ||(t.at(pos+6).tok()!=Token_New::EOL)
+              )
+      return pos;
+    else
+      {
+        id_=t.at(pos).str();
+        class_=t.at(pos+2).str();
+        refId_=t.at(pos+5).str();
+        return pos+7;
+      }
+  }
+
+
+  std::deque<Token_New> Implements_Complex_Var::toTokens() const
+  {
+    auto out=Implements_VarId::toTokens();
+    out<<"begin"<<"\n";
     for (std::size_t i=0; i<numChildVars(); i++)
       {
-        ss<<getVarId(ith_Var(i))->toString();
+        out<<getVarId(ith_Var(i))->toTokens();
       }
-    ss<<EndLabel()<<"\n";
-    return ss.str();
+    out<<myClass()<<"end"<<"\n";
+    return out;
+  }
+
+  std::size_t Implements_Complex_Var::processTokens(
+      const std::deque<Token_New> &t,
+      std::size_t pos)
+  {
+    auto p=Implements_VarId::processTokens(t,pos);
+    if (p<pos+3)
+      return pos;
+    else
+      {
+        if ( (!pos+4<t.size())
+             ||(t.at(pos+3).tok()!=Token_New::BEGIN)
+             ||(t.at(pos+4).tok()!=Token_New::EOL))
+          return pos;
+        else
+          {
+            std::size_t p=pos+5;
+            while ((p+1<t.size())&&
+                   (!(t.at(p).str()==myClass())&&
+                    (t.at(p+1).tok()==Token_New::END)))
+              {
+                if (! addVar(getFromTokens(this,t,p)))
+                  return pos;
+              }
+            if (t.at(p+1).tok()!=Token_New::END)
+              return pos;
+            else
+              return p+2;
+          }
+      }
+
   }
 
   std::size_t Implements_Complex_Var::numChildVars() const
@@ -229,6 +292,8 @@ ABC_Var *Implements_Simple_Var<T>::create() const
 
   bool Implements_Complex_Var::addVar(ABC_Var *var)
   {
+    if (var==nullptr)
+      return false;
     var->setParent(this);
 
     if (std::find (ids_.begin(),ids_.end(),var->id())==ids_.end())
@@ -252,10 +317,10 @@ ABC_Var *Implements_Simple_Var<T>::create() const
   }
 
   Implements_Complex_Var::Implements_Complex_Var(ABC_Complex_Var *parent,
-                                                 const std::string& kindId,
                                                  const std::string &id,
+                                                 const std::string className,
                                                  const std::vector<ABC_Var *> &childs):
-    Implements_VarId(parent,kindId,id),
+    Implements_VarId(parent,id,className),
     ids_(),vars_{}
   {
     for (ABC_Var* v:childs)
@@ -271,6 +336,7 @@ ABC_Var *Implements_Simple_Var<T>::create() const
     for (auto id:vars_)
       delete id.second;
   }
+
 
   bool Token_New::isNameChar(char ch)
   {
@@ -290,7 +356,7 @@ ABC_Var *Implements_Simple_Var<T>::create() const
   std::istream &Token_New::get(std::istream &stream)
 
   {
-    identifier_.clear();
+    str_.clear();
     char ch;
 
     do {	// skip whitespace except '\en'
@@ -303,6 +369,7 @@ ABC_Var *Implements_Simple_Var<T>::create() const
 
     switch (ch) {
       case '\n':
+        str_=ch;
         curr_tok=EOL;
         return stream;
         break;
@@ -321,6 +388,7 @@ ABC_Var *Implements_Simple_Var<T>::create() const
       case ']':
       case '&':
       case '|':
+        str_=ch;
         curr_tok=Value(ch);
         return stream;
 
@@ -328,11 +396,13 @@ ABC_Var *Implements_Simple_Var<T>::create() const
         stream.get(ch);
         if (ch=='=')
           {
+            str_="==";
             curr_tok=EQ;
             return stream;
           }
         else
           {
+            str_="=";
             stream.putback(ch);
             curr_tok=ASSIGN;
             return stream;
@@ -341,12 +411,14 @@ ABC_Var *Implements_Simple_Var<T>::create() const
         stream.get(ch);
         if (ch=='=')
           {
+            str_="~=";
             curr_tok=NEQ;
             return stream;
           }
         else
           {
             stream.putback(ch);
+            str_="~";
             curr_tok=NOT;
             return stream;
           }
@@ -354,11 +426,13 @@ ABC_Var *Implements_Simple_Var<T>::create() const
         stream.get(ch);
         if (ch=='=')
           {
+            str_="<=";
             curr_tok=LEQ;
             return stream;
           }
         else
           {
+            str_="<";
             stream.putback(ch);
             curr_tok=LSS;
             return stream;
@@ -367,12 +441,14 @@ ABC_Var *Implements_Simple_Var<T>::create() const
         stream.get(ch);
         if (ch=='=')
           {
+            str_=">=";
             curr_tok=GEQ;
             return stream;
           }
         else
           {
             stream.putback(ch);
+            str_=">";
             curr_tok=GTR;
             return stream;
           }
@@ -381,7 +457,7 @@ ABC_Var *Implements_Simple_Var<T>::create() const
         stream.get(ch);
         if (ch=='.')
           {
-            identifier_="..";
+            str_="..";
             curr_tok=PATH;
 
             return stream;
@@ -389,6 +465,7 @@ ABC_Var *Implements_Simple_Var<T>::create() const
         else
           {
             stream.putback(ch);
+            str_=".";
             curr_tok=DOT;
             return stream;
           }
@@ -402,7 +479,7 @@ ABC_Var *Implements_Simple_Var<T>::create() const
 
       case '"':
         while (stream.get(ch)&& (ch!='"'))
-          identifier_.push_back(ch);
+          str_.push_back(ch);
         if (ch!='"')
           {
             //error("missing `""` ");
@@ -417,13 +494,13 @@ ABC_Var *Implements_Simple_Var<T>::create() const
       default:			// NAME, NAME=, or error
         if (isalpha(ch))
           {
-            identifier_ = ch;
+            str_ = ch;
             while (stream.get(ch) && isNameChar(ch))
-              identifier_.push_back(ch);
+              str_.push_back(ch);
             if (!isNameChar(ch))
               stream.putback(ch);
 
-            curr_tok=toKeyword(identifier_);
+            curr_tok=toKeyword(str_);
             stream.clear();
             return stream;
           }
@@ -482,110 +559,79 @@ ABC_Var *Implements_Simple_Var<T>::create() const
 
   }
 
-
-  /*
-ABC_Var *ABC_Var::getFromString(const std::string& text, std::size_t &pos)
-
-{
-  std::size_t pos0=pos;
-  std::string idN=getId(text,pos);
-  ABC_Var* out=nullptr;
-
-  if (idN.empty())
-  return nullptr;
-
-  pos=text.find_first_not_of(spaceChars(),pos);
-
-  if (!(text.size()>pos ))
-    return false;
-
-  // colon or equal?
-
-  std::size_t pos1=pos;
-  if (text[pos]!='=')
-    {
-     // we know it is a simple var
-     pos=text.find_first_not_of(spaceChars(),pos);
-     char f=text[pos];
-     if (alfaChars().find(f)!=alfaChars().npos)
-       { // it is not a number
-
-       }
-     else if ((f=='-')||(f=='+')||(numChars().find(f)!=numChars().npos))
-       {// it is a number
-         pos=text.find_first_of(spaceChars(),pos1);
-         std::string numC=text.substr(pos1,pos-pos1);
-         if (numC.find_first_not_of(numRChars())!=numC.npos)
-           {
-             std::string error="invalid number: "+numC;
-             throw std::logic_error(error);
-           }
-         // it is a scalar or a vector or matrix?
-         // check the next thing
-         std::size_t posn=text.find_first_not_of(spaceChars(),pos);
-         char fn=text[posn];
-         if (alfaChars().find(fn)!=alfaChars().npos)
-                { // it is not a number
-
-                }
-
-
-         if (numC.find('.')!=numC.npos)
-           {
-             // not an integer
-
-
-
-           }
-
-
-
-         if (f=='-')  // signed
-
-
-       }
-
-
-
-    }
-    return false;
-  pos++;
-
-  // check the class begin
-
- std::string beginN=getId(text,pos);
- std::string classN=getId(text,pos);
-
-
-
-
-
-
-
-
-  pos=text.find_first_not_of(spaceChars(),pos);
-  pos1=pos;
-  pos=text.find_first_not_of(numRChars(),pos);
-  std::string num=text.substr(pos1,pos-pos1);
-  double d;
-  try
+  std::string Token_New::toString(Token_New::Value identifier)
   {
-    d=std::stod(num);
+
+    if(identifier==DO)
+      {
+        return "do";
+      }
+    else if(identifier==THEN)
+      {
+        return "then";
+      }
+    else if(identifier==WHILE)
+      {
+        return "while";
+      }
+    else if(identifier==IF)
+      {
+        return "if";
+      }
+    else if(identifier==ELSE)
+      {
+        return "else";
+      }
+    else if(identifier==BEGIN)
+      {
+        return "begin";
+      }
+    else if(identifier==END)
+      {
+        return "end";
+      }
+    else if(identifier==SWITCH)
+      {
+        return "switch";
+      }
+    else if(identifier==CASE)
+      {
+        return "case";
+      }
+
+    else return {};
+
   }
-  catch (std::invalid_argument)
+
+  std::string ABC_Var::toString() const
   {
-    pos=pos0;
-    return false;
+    std::string out;
+    auto t=toTokens();
+    for (Token_New i:t)
+      {
+        out+=i.toString()+" ";
+      }
+    return out;
   }
-  // if we got here, we have id and value rights
-  id_=idN;
-  real_=d;
-  return true;
-}
 
-*/
+  ABC_Var *ABC_Var::getFromTokens(ABC_Complex_Var* parent,
+                         const std::deque<Token_New> &t,
+                         std::size_t &pos)
+  {
+    Implements_VarId n;
+    auto p=n.processTokens(t,pos);
+    if (p==pos+3)
+      {
+        ABC_Var* out=parent->getEnvironment()->getClassId(n.myClass())->clone();
+        auto pos0=pos;
+        pos=out->processTokens(t,pos0);
+        if (pos>pos0)
+          return out;
+        else
+          return nullptr;
+      }
+    else
+      return nullptr;
 
-
-
-
+  }
 }

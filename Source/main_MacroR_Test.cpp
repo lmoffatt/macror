@@ -11,7 +11,8 @@
 
 int main(int argc, char **argv)
 {
-  Markov_IO::Implements_Simple_Var<double> d(nullptr,"df",89.4,"velocity");
+  Markov_IO::Implements_Simple_Var<double> d(nullptr,"df",89.4);
+  auto t= d.toTokens();
 
  QApplication app(argc, argv);
    Markov_Console::Markov_CommandManagerTest* cm=new Markov_Console::Markov_CommandManagerTest();
