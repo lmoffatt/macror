@@ -39,13 +39,15 @@ void XY_Plot::setSymbol(XY_Plot::Symbol symbol)
 
 
 
-XY_Plot::XY_Plot(const Markov_LA::M_Matrix<double>* x,
+XY_Plot::XY_Plot(Markov_IO::ABC_Complex_Var* e,
+                 const Markov_LA::M_Matrix<double>* x,
                  const Markov_LA::M_Matrix<double>* y,
                  QString title,
                  Scale* xAxis,
                  Scale* yAxis,
                  int col):
-    xAxis_(xAxis),
+  Implements_Complex_Var(e,"","XY_plot",{}),
+  xAxis_(xAxis),
     yAxis_(yAxis),
 
     penWidth_(0),

@@ -4,12 +4,15 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Markov_IO/ABC_Var.h"
+
+
 namespace  Markov_IO {
 
   class ABC_Saveable;
 
 
-  class ABC_Environment
+  class ABC_Environment:public Implement_Environment_Var
   {
   public:
     ~ABC_Environment(){}

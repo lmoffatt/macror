@@ -109,7 +109,7 @@ bool MacrorCommandWindow::plot(const QString& line)
     {
       Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
             MarkovCommand()->getVar(line.toStdString()));
-      Markov_Plot::GraphWindow* g=Markov_Plot::plot(0,*e);
+      Markov_Plot::GraphWindow* g=Markov_Plot::plot(0,MarkovCommand(),*e);
       mw_->createGraph(g);
 
 

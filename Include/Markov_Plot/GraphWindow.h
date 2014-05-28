@@ -3,6 +3,7 @@
 #include <QWidget>
 
 #include "Markov_Plot/GraphView.h"
+#include "Markov_IO/ABC_Var.h"
 
 namespace Markov_IO {
   class YfitLikelihoodEvaluation;
@@ -21,25 +22,37 @@ public:
     virtual ~GraphWindow();
 
 
-    friend GraphWindow* plot(QWidget* parent, const Markov_LA::M_Matrix<double>& x);
-    friend GraphWindow* plot(QWidget* parent, const Markov_LA::M_Matrix<double>& x,
+    friend GraphWindow* plot(QWidget* parent,Markov_IO::ABC_Complex_Class* e,
+                             const Markov_LA::M_Matrix<double>& x);
+    friend GraphWindow* plot(QWidget* parent,Markov_IO::ABC_Complex_Class* e,
+                             const Markov_LA::M_Matrix<double>& x,
                              const Markov_LA::M_Matrix<double>& y);
 
-    friend GraphWindow* plot(QWidget* parent, const Markov_IO::ABC_trace& trace);
-    friend GraphWindow* plot(QWidget* parent, const Markov_IO::ABC_Experiment& experiment);
+    friend GraphWindow* plot(QWidget* parent,
+                             Markov_IO::ABC_Complex_Class* e,
+                             const Markov_IO::ABC_trace& trace);
+    friend GraphWindow* plot(QWidget* parent,
+                             Markov_IO::ABC_Complex_Class* e,
+                             const Markov_IO::ABC_Experiment& experiment);
 
-    friend GraphWindow* plot(QWidget* parent, const Markov_IO::YfitLikelihoodEvaluation& experiment);
+    friend GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Complex_Class* e,
+                             const Markov_IO::YfitLikelihoodEvaluation& experiment);
 
 };
 
- GraphWindow* plot(QWidget* parent, const Markov_LA::M_Matrix<double>& x);
- GraphWindow* plot(QWidget* parent, const Markov_LA::M_Matrix<double>& x,
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Complex_Class* e,
+                   const Markov_LA::M_Matrix<double>& x);
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Complex_Class* e,
+                   const Markov_LA::M_Matrix<double>& x,
                          const Markov_LA::M_Matrix<double>& y);
 
- GraphWindow* plot(QWidget* parent, const Markov_IO::ABC_trace& trace);
- GraphWindow* plot(QWidget* parent, const Markov_IO::ABC_Experiment& experiment);
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Complex_Class* e,
+                   const Markov_IO::ABC_trace& trace);
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Complex_Class* e,
+                   const Markov_IO::ABC_Experiment& experiment);
 
- GraphWindow* plot(QWidget* parent, const Markov_IO::YfitLikelihoodEvaluation& experiment);
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Complex_Class* e,
+                   const Markov_IO::YfitLikelihoodEvaluation& experiment);
 
 }
 

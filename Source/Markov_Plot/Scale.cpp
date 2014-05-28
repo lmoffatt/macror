@@ -500,7 +500,8 @@ void Scale::buildLines()
 
 
 
-Scale::Scale(double min,
+Scale::Scale(ABC_Complex_Var *e,
+             double min,
              double max,
              AxisType axis,
              QString title,
@@ -509,7 +510,7 @@ Scale::Scale(double min,
              double width,
              Type scaletype
              ):
-  Markov_IO::Implements_Complex_Var(this,title.toStdString(),"scale",{}),
+  Markov_IO::Implements_Complex_Var(e,title.toStdString(),"scale",{}),
   axis_(axis),
     type_(scaletype),
     rangeCalc_(Scale::Pad5PercentRange),
@@ -551,8 +552,37 @@ Scale::Scale(double min,
     addVar(new Markov_IO::Categorical_Data(
              this,"saletype",static_cast<int>(scaletype),"ScaleType"));
 
+    std::string out=Implements_Complex_Var::toString();
+
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<double>,
+                               Markov_IO::Implements_Simple_Var<double>::ClassName());
+
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<std::string>,
+                               Markov_IO::Implements_Simple_Var<std::string>::ClassName());
+
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<std::vector<std::string>>,
+                               Markov_IO::Implements_Simple_Var<std::vector<std::string>>::ClassName());
+
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<int>,
+                               Markov_IO::Implements_Simple_Var<int>::ClassName());
+
+    getEnvironment()->addClass(new Markov_IO::Categorical_Options,
+                               Markov_IO::Categorical_Options::ClassName());
+
+    getEnvironment()->addClass(new Markov_IO::Categorical_Data,
+                               Markov_IO::Categorical_Data::ClassName());
+    getEnvironment()->addClass(new Scale,
+                               Scale::ClassName());
+
+    std::cerr<<out;
 
 
+    std::deque<Markov_IO::Token_New> t;
+    t<<out;
+    std::size_t pos=0;
+    auto d =Markov_IO::ABC_Var::getFromTokens(this,t,pos);
+
+    std::cerr<<d->toString();
 
 
 

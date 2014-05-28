@@ -58,7 +58,8 @@ public:
     Type getType()const;
     void setType(Type scaleType);
 
-    Scale(double min,
+    Scale(Markov_IO::ABC_Complex_Var* e,
+          double min,
           double max,
           AxisType axis,
           QString title,
@@ -67,7 +68,8 @@ public:
           double width,
           Type scaletype);
 
-    Scale(){}
+    Scale():
+      Implements_Complex_Var(0,"","Scale",{}){}
 
 
 
@@ -178,9 +180,12 @@ public:
 
     // ABC_Put interface
 public:
-    virtual Scale *clone() const
+    virtual Scale *getTemplate() const
     {
-      return new Scale(min(),max(),axis_,Title(),units_,Length(),Width(),type_);
+      Scale* out=new Scale;
+      out->setParentVar(parentVar());
+
+      return out  ;
     }
 
 };

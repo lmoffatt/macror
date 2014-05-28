@@ -61,7 +61,7 @@ bool PlotCommand::run(const std::string& varName)
       {
         Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
               getCommandManager()->getVar(varName));
-        Markov_Plot::GraphWindow* g=plot(0,*e);
+        Markov_Plot::GraphWindow* g=plot(0,getCommandManager(),*e);
         mw_->createGraph(g);
 
 

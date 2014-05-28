@@ -58,6 +58,8 @@ namespace Markov_IO {
         else
           {
             value_=val;
+            if (t.at(p).tok()==Token_New::EOL)
+              ++p;
             return p;
           }
       }
@@ -132,11 +134,12 @@ namespace Markov_IO {
       return i;
     else
       {
-        while ((i<tok.size())&&(tok.at(i).tok()!=Token_New::IDENTIFIER))
+        while ((i<tok.size())&&(tok.at(i).tok()==Token_New::IDENTIFIER))
           {
             val.push_back(tok.at(i).str());
             ++i;
           }
+
         return i;
       }
   }
@@ -216,7 +219,7 @@ namespace Markov_IO {
     class_{},
     p_(nullptr){}
 
-  void Implements_VarId::setParent(ABC_Complex_Var *par)
+  void Implements_VarId::setParentVar(ABC_Complex_Var *par)
   {
     p_=par;
   }
@@ -230,7 +233,7 @@ namespace Markov_IO {
   std::size_t Implements_VarId::processTokens(const std::deque<Token_New> &t,
                                               std::size_t pos)
   {
-    if ((!pos+2<t.size())
+    if ((!(pos+2<t.size()))
         ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
         ||(t.at(pos+1).tok()!=Token_New::COLON)
         ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER))
@@ -319,7 +322,7 @@ namespace Markov_IO {
       return pos;
     else
       {
-        if ( (!pos+4<t.size())
+        if ( (!(pos+4<t.size()))
              ||(t.at(pos+3).tok()!=Token_New::BEGIN)
              ||(t.at(pos+4).tok()!=Token_New::EOL))
           return pos;
@@ -327,8 +330,8 @@ namespace Markov_IO {
           {
             std::size_t p=pos+5;
             while ((p+1<t.size())&&
-                   (!(t.at(p).str()==myClass())&&
-                    (t.at(p+1).tok()==Token_New::END)))
+                   (!((t.at(p).str()==myClass())&&
+                    (t.at(p+1).tok()==Token_New::END))))
               {
                 if (! addVar(getFromTokens(this,t,p)))
                   return pos;
@@ -347,11 +350,52 @@ namespace Markov_IO {
     return ids_.size();
   }
 
+  std::string Implements_Complex_Var::ith_Var(std::size_t i) const
+  {
+    return ids_[i];
+  }
+
+  const ABC_Var *Implements_Complex_Var::getVarId(const std::string &name) const
+  {
+    auto it=vars_.find(name);
+    if (it!=vars_.end())
+      return it->second;
+    else
+      return nullptr;
+  }
+
+  ABC_Var *Implements_Complex_Var::getVarId(const std::string &name)
+  {
+    auto it=vars_.find(name);
+    if (it!=vars_.end())
+      return it->second;
+    else
+      return nullptr;
+  }
+
+  const ABC_Var *Implements_Complex_Var::getVarId(const std::string &name, const std::string &myclass) const
+  {
+    const ABC_Var* out=getVarId(name);
+    if ((out!=nullptr)&&(out->myClass()==myclass))
+      return out;
+    else
+      return nullptr;
+  }
+
+  ABC_Var *Implements_Complex_Var::getVarId(const std::string &name, const std::string &myclass)
+  {
+    ABC_Var* out=getVarId(name);
+    if ((out!=nullptr)&&(out->myClass()==myclass))
+      return out;
+    else
+      return nullptr;
+  }
+
   bool Implements_Complex_Var::addVar(ABC_Var *var)
   {
     if (var==nullptr)
       return false;
-    var->setParent(this);
+    var->setParentVar(this);
 
     if (std::find (ids_.begin(),ids_.end(),var->id())==ids_.end())
       {
@@ -368,18 +412,26 @@ namespace Markov_IO {
   }
 
 
-  const ABC_Environment_Var *Implements_Complex_Var::getEnvironment() const
+  const ABC_Complex_Class *Implements_Complex_Var::getEnvironment() const
   {
-    return parentVar()->getEnvironment();
+    ABC_Complex_Var* p=parentVar();
+    const ABC_Complex_Class* e=dynamic_cast<const ABC_Complex_Class *>(p);
+    if (e!=nullptr)
+      return e;
+    else return p->getEnvironment();
   }
 
-  ABC_Environment_Var *Implements_Complex_Var::getEnvironment()
+  ABC_Complex_Class *Implements_Complex_Var::getEnvironment()
   {
-    return parentVar()->getEnvironment();
+    ABC_Complex_Var* p=parentVar();
+    ABC_Complex_Class* e=dynamic_cast<ABC_Complex_Class*>(p);
+    if (e!=nullptr)
+      return e;
+    else return p->getEnvironment();
   }
 
 
-  Implements_Complex_Var::Implements_Complex_Var(ABC_Complex_Var *parent,
+  Implements_Complex_Var::Implements_Complex_Var( ABC_Complex_Var *parent,
                                                  const std::string &id,
                                                  const std::string className,
                                                  const std::vector<ABC_Var *> &childs):
@@ -388,7 +440,7 @@ namespace Markov_IO {
   {
     for (ABC_Var* v:childs)
       {
-        v->setParent(this);
+        v->setParentVar(this);
         ids_.push_back(v->id());
         vars_[v->id()]=v;
       }
@@ -685,7 +737,7 @@ namespace Markov_IO {
     auto p=n.processTokens(t,pos);
     if (p==pos+3)
       {
-        ABC_Var* out=parent->getEnvironment()->getClassId(n.myClass())->clone();
+        ABC_Var* out=parent->getEnvironment()->getClassId(n.myClass())->getTemplate();
         auto pos0=pos;
         pos=out->processTokens(t,pos0);
         if (pos>pos0)

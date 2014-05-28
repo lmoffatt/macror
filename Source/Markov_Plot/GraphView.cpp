@@ -8,7 +8,11 @@
 
 namespace Markov_Plot
 {
-  GraphView::GraphView(QWidget* parent,qreal width,qreal height):
+  GraphView::GraphView(QWidget* parent,
+                       Markov_IO::ABC_Complex_Class* e,
+                       qreal width,
+                       qreal height):
+    Markov_IO::Implements_Complex_Var(e,"","GraphView",{}),
     QGraphicsView(parent),
     gscene_(new QGraphicsScene(0.0,0.0,width,height,parent)),
     height_(height),
@@ -51,13 +55,14 @@ namespace Markov_Plot
   }
 
 
-  GraphView* aplot(QWidget* parent,
+  GraphView* aplot(QWidget* parent,Markov_IO::ABC_Complex_Class* e,
                    const Markov_LA::M_Matrix<double>& x)
   {
-    GraphView* g=  new GraphView(parent,
+    GraphView* g=  new GraphView(parent,e,
                                  1000,1000);
 
-    Scale* xAxis=new Scale(Markov_LA::min(x(":",0)),
+    Scale* xAxis=new Scale(e,
+                           Markov_LA::min(x(":",0)),
                            Markov_LA::max(x(":",0)),
                            Scale::xAxis,
                            "x",
@@ -67,7 +72,8 @@ namespace Markov_Plot
                            Scale::LinearScale);
 
 
-    Scale* yAxis=new Scale(Markov_LA::min(x(":",1)),
+    Scale* yAxis=new Scale(e,
+                           Markov_LA::min(x(":",1)),
                            Markov_LA::max(x(":",1)),
                            Scale::yAxis,
                            "x",
@@ -76,7 +82,8 @@ namespace Markov_Plot
                            200,
                            Scale::LinearScale);
 
-    XY_Plot* p=new XY_Plot(new Markov_LA::M_Matrix<double> (x),
+    XY_Plot* p=new XY_Plot(e,
+                           new Markov_LA::M_Matrix<double> (x),
                            0,
                            "Plot",xAxis,yAxis);
 
@@ -96,14 +103,14 @@ namespace Markov_Plot
   }
 
 
-  GraphView* aplot(QWidget* parent,
+  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Complex_Class *e,
                    const Markov_LA::M_Matrix<double>& x,
                    const Markov_LA::M_Matrix<double>& y)
   {
-    GraphView* g=  new GraphView(parent,
+    GraphView* g=  new GraphView(parent,e,
                                  1000,1000);
 
-    Scale* xAxis=new Scale(Markov_LA::min(x),
+    Scale* xAxis=new Scale(g,Markov_LA::min(x),
                            Markov_LA::max(x),
                            Scale::xAxis,
                            "x",
@@ -113,7 +120,7 @@ namespace Markov_Plot
                            Scale::LinearScale);
 
 
-    Scale* yAxis=new Scale(Markov_LA::min(y),
+    Scale* yAxis=new Scale(g,Markov_LA::min(y),
                            Markov_LA::max(y),
                            Scale::yAxis,
                            "x",
@@ -122,7 +129,7 @@ namespace Markov_Plot
                            200,
                            Scale::LinearScale);
 
-    XY_Plot* p=new XY_Plot(new Markov_LA::M_Matrix<double> (x),
+    XY_Plot* p=new XY_Plot(g,new Markov_LA::M_Matrix<double> (x),
                            new Markov_LA::M_Matrix<double> (y),
                            "Plot",xAxis,yAxis);
 
@@ -157,19 +164,19 @@ namespace Markov_Plot
 
 
 
-  GraphView* aplot(QWidget* parent,const Markov_IO::ABC_trace& trace)
+  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Complex_Class *e, const Markov_IO::ABC_trace& trace)
   {
 
 
 
-    GraphView* g=  new GraphView(parent,
+    GraphView* g=  new GraphView(parent,e,
                                  900,900);
 
     double axisLength=900;
     double axisWidth=300;
 
 
-    Scale* tAxis=new Scale(trace[0].t(),
+    Scale* tAxis=new Scale(g,trace[0].t(),
         trace[trace.num_measures()-1].t(),
         Scale::xAxis,
         "t",
@@ -184,7 +191,7 @@ namespace Markov_Plot
     bool hasY=trace.num_replicates()>0;
 
 
-    Scale* xAxis=new Scale(Markov_LA::min(tx(":",1)),
+    Scale* xAxis=new Scale(g,Markov_LA::min(tx(":",1)),
                            Markov_LA::max(tx(":",1)),
                            Scale::yAxis,
                            "x",
@@ -198,7 +205,7 @@ namespace Markov_Plot
     Scale* yAxis;
 
 
-    XY_Plot* px=new XY_Plot(new Markov_LA::M_Matrix<double> (tx),
+    XY_Plot* px=new XY_Plot(g,new Markov_LA::M_Matrix<double> (tx),
                             0,
                             "Plot",tAxis,xAxis);
     g->xAxes_.push_back(tAxis);
@@ -228,7 +235,7 @@ namespace Markov_Plot
             maxy=std::max(maxy,Markov_LA::max(ty(":",itrace+1)));
           }
 
-        yAxis=new Scale(miny,
+        yAxis=new Scale(g,miny,
                         maxy,
                         Scale::yAxis,
                         "y",
@@ -241,7 +248,7 @@ namespace Markov_Plot
         for (int itrace=0; itrace<numtraces; itrace++)
           {
 
-            XY_Plot* py=new XY_Plot(new Markov_LA::M_Matrix<double> (ty),
+            XY_Plot* py=new XY_Plot(g,new Markov_LA::M_Matrix<double> (ty),
                                     0,
                                     "Plot",tAxis,yAxis,itrace);
             g->plot_.push_back(py);
@@ -275,7 +282,7 @@ namespace Markov_Plot
     fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
   }
 
-  GraphView* aplot(QWidget* parent,
+  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Complex_Class *e,
                    const Markov_Bay::YfitLikelihoodEvaluation& yfit,
                    std::size_t itrace)
   {
@@ -283,7 +290,7 @@ namespace Markov_Plot
     qreal graphheight=900;
     qreal graphWidth=900;
 
-    GraphView* g=  new GraphView(parent,
+    GraphView* g=  new GraphView(parent,e,
                                  graphWidth,graphheight);
 
     double axisLength=900;
@@ -294,7 +301,7 @@ namespace Markov_Plot
     double tmax=trace[trace.num_measures()-1].t();
 
 
-    Scale* tAxis=new Scale(tmin,
+    Scale* tAxis=new Scale(g,tmin,
                            tmax,
                            Scale::xAxis,
                            "t",
@@ -309,7 +316,7 @@ namespace Markov_Plot
     bool hasY=trace.num_replicates()>0;
 
 
-    Scale* xAxis=new Scale(Markov_LA::min(tx(":",1)),
+    Scale* xAxis=new Scale(g,Markov_LA::min(tx(":",1)),
                            Markov_LA::max(tx(":",1)),
                            Scale::yAxis,
                            "x",
@@ -323,7 +330,7 @@ namespace Markov_Plot
     Scale* yAxis;
 
 
-    XY_Plot* px=new XY_Plot(new Markov_LA::M_Matrix<double> (tx),
+    XY_Plot* px=new XY_Plot(g,new Markov_LA::M_Matrix<double> (tx),
                             0,
                             "Plot",tAxis,xAxis);
     g->xAxes_.push_back(tAxis);
@@ -353,7 +360,7 @@ namespace Markov_Plot
             maxy=std::max(maxy,Markov_LA::max(ty(":",itrace+1)));
           }
 
-        yAxis=new Scale(miny,
+        yAxis=new Scale(g,miny,
                         maxy,
                         Scale::yAxis,
                         "y",
@@ -366,7 +373,7 @@ namespace Markov_Plot
         for (int itrace=0; itrace<numtraces; itrace++)
           {
 
-            XY_Plot* py=new XY_Plot(new Markov_LA::M_Matrix<double> (ty),
+            XY_Plot* py=new XY_Plot(g,new Markov_LA::M_Matrix<double> (ty),
                                     0,
                                     "Plot",tAxis,yAxis,itrace);
             g->plot_.push_back(py);
