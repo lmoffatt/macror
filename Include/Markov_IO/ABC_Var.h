@@ -199,6 +199,16 @@ namespace  Markov_IO {
 
     virtual void setParentVar(ABC_Complex_Var* par)=0;
 
+    virtual std::string ith_Var(std::size_t i)const=0;
+
+    virtual const ABC_Var* getVarId(const std::string& name)const=0;
+    virtual ABC_Var* getVarId(const std::string &name)=0;
+
+    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const=0;
+    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind) =0;
+
+    virtual bool addVar(ABC_Var* var)=0;
+
     virtual ~ABC_Var(){}
     virtual bool isInDomain(const ABC_Var* value)const=0;
     virtual ABC_Var* varTemplate()const=0;
@@ -222,38 +232,65 @@ namespace  Markov_IO {
     }
 
 
-    virtual std::string ith_Var(std::size_t i)const=0;
-
-    virtual const ABC_Var* getVarId(const std::string& name)const=0;
-    virtual ABC_Var* getVarId(const std::string &name)=0;
-
-    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const=0;
-    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind) =0;
-
-    virtual bool addVar(ABC_Var* var)=0;
-
     virtual ~ABC_Complex_Var(){}
 
   };
 
 
-   class Implements_VarId: virtual public ABC_Var
+  class Implements_VarId: virtual public ABC_Var
   { // ABC_Var interface
   public:
-    virtual std::string myClass() const override
-    {
-      return class_;
-    }
-
-  public:
+    virtual std::string myClass() const override;
     virtual std::deque<Token_New> toTokens() const override;
     virtual bool processTokens(const std::deque<Token_New> &t,
                                std::size_t& pos) override;
 
     virtual std::string id()const override;
     virtual void setId(const std::string& IdName)override;
-    virtual std::size_t numChildVars() const override;
     virtual ABC_Complex_Var *parentVar()const override;
+
+    virtual std::size_t numChildVars() const override;
+    virtual std::string ith_Var(std::size_t i) const override
+    {
+      if (parentVar()!=nullptr)
+        return parentVar()->ith_Var(i);
+      else return{};
+    }
+
+    virtual const ABC_Var* getVarId(const std::string& name)const
+    {
+      if (parentVar()!=nullptr)
+        return parentVar()->getVarId(name);
+      else return nullptr;
+    }
+    virtual ABC_Var* getVarId(const std::string &name)
+    {
+      if (parentVar()!=nullptr)
+        return parentVar()->getVarId(name);
+      else return nullptr;
+    }
+    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const
+    {
+      if (parentVar()!=nullptr)
+        return parentVar()->getVarId(name,kind);
+      else return nullptr;
+    }
+    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind)
+    {
+      if (parentVar()!=nullptr)
+        return parentVar()->getVarId(name,kind);
+      else return nullptr;
+    }
+
+
+    virtual bool addVar(ABC_Var *var) override
+    {
+      if (parentVar()!=nullptr)
+        return parentVar()->addVar(var);
+    }
+
+
+
 
     virtual std::string refId()const override;
 
@@ -261,22 +298,8 @@ namespace  Markov_IO {
 
     virtual const ABC_Var* refVar() const override;
 
-    virtual ABC_Var* motherClass()
-    {
-      if (parentVar()!=nullptr)
-        return parentVar()->getVarId(myClass());
-      else
-        return nullptr;
-
-    }
-     virtual const ABC_Var* motherClass() const
-     {
-       if (parentVar()!=nullptr)
-         return parentVar()->getVarId(myClass());
-       else
-         return nullptr;
-
-     }
+    virtual ABC_Var* motherClass();
+    virtual const ABC_Var* motherClass() const;
     Implements_VarId(ABC_Complex_Var* parent,
                      const std::string& name,
                      const std::string className);
@@ -284,24 +307,8 @@ namespace  Markov_IO {
     Implements_VarId();
 
     virtual void setParentVar(ABC_Complex_Var *par)override;
-    virtual bool isInDomain(const ABC_Var* value)const
-    {
-      auto p= motherClass();
-      if (p!=nullptr)
-        return p->isInDomain(value);
-      else
-        return false;
-
-    }
-    virtual ABC_Var* varTemplate()const
-    {
-      auto p= motherClass();
-      if (p!=nullptr)
-        return p->varTemplate();
-      else
-        return nullptr;
-
-    }
+    virtual bool isInDomain(const ABC_Var* value)const;
+    virtual ABC_Var* varTemplate()const;
 
     virtual ~Implements_VarId(){}
   protected:
@@ -309,6 +316,8 @@ namespace  Markov_IO {
     std::string id_;
     std::string class_;
     ABC_Complex_Var* p_;
+
+
   };
 
 
@@ -591,8 +600,52 @@ namespace  Markov_IO {
                                std::size_t& pos)override;
 
 
+    virtual std::string ith_Var(std::size_t i)const
+    {
+      if (refVar()!=nullptr)
+        return refVar()->ith_Var(i);
+      else return {};
+    }
+
+    virtual const ABC_Var* getVarId(const std::string& name)const
+    {
+      if (refVar()!=nullptr)
+        return refVar()->getVarId(name);
+      else return {};
+    }
+    virtual ABC_Var* getVarId(const std::string &name)
+    {
+      if (refVar()!=nullptr)
+        return refVar()->getVarId(name);
+      else return {};
+    }
+
+    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const
+    {
+      if (refVar()!=nullptr)
+        return refVar()->getVarId(name,kind);
+      else return {};
+    }
+    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind)
+    {
+      if (refVar()!=nullptr)
+        return refVar()->getVarId(name,kind);
+      else return {};
+    }
+
+
+    virtual bool addVar(ABC_Var* var)
+    {
+      if (refVar()!=nullptr)
+        return refVar()->addVar(var);
+      else return {};
+    }
+
+
+
 
   };
+
 
 
   class Implements_Complex_Var:virtual public ABC_Complex_Var, public Implements_VarId

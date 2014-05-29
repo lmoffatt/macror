@@ -210,6 +210,24 @@ namespace Markov_IO {
     return this;
   }
 
+  ABC_Var *Implements_VarId::motherClass()
+  {
+    if (parentVar()!=nullptr)
+      return parentVar()->getVarId(myClass());
+    else
+      return nullptr;
+
+  }
+
+  const ABC_Var *Implements_VarId::motherClass() const
+  {
+    if (parentVar()!=nullptr)
+      return parentVar()->getVarId(myClass());
+    else
+      return nullptr;
+
+  }
+
 
   Implements_VarId::Implements_VarId(ABC_Complex_Var *parent,
                                      const std::string &name, const std::string className)
@@ -226,6 +244,30 @@ namespace Markov_IO {
   void Implements_VarId::setParentVar(ABC_Complex_Var *par)
   {
     p_=par;
+  }
+
+  bool Implements_VarId::isInDomain(const ABC_Var *value) const
+  {
+    auto p= motherClass();
+    if (p!=nullptr)
+      return p->isInDomain(value);
+    else
+      return false;
+
+  }
+
+  ABC_Var *Implements_VarId::varTemplate() const
+  {
+    auto p= motherClass();
+    if (p!=nullptr)
+      return p->varTemplate();
+    else
+      return nullptr;
+  }
+
+  std::string Implements_VarId::myClass() const
+  {
+    return class_;
   }
 
   std::deque<Token_New> Implements_VarId::toTokens() const
