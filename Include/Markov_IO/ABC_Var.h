@@ -17,10 +17,6 @@ namespace  Markov_IO {
 
   class ABC_Complex_Var;
 
-  class ABC_Environment_Var;
-
-
-
   class Token_New
   {
   public:
@@ -184,7 +180,10 @@ namespace  Markov_IO {
 
     virtual std::set<std::string> mySuperClasses();
 
-    virtual const ABC_Class* motherClass()const=0;
+    virtual const ABC_Var* motherClass()const=0;
+
+    virtual ABC_Var* motherClass()=0;
+
 
     virtual std::deque<Token_New> toTokens()const=0;
 
@@ -205,28 +204,6 @@ namespace  Markov_IO {
     virtual ABC_Var* varTemplate()const=0;
 
   };
-
-
-  class ABC_Class: virtual public ABC_Var
-  {
-  public:
-    static std::string ClassName()
-    {
-      return "ABC_Class";
-    }
-
-    static std::set<std::string> SuperClasses()
-    {
-      return ABC_Var::SuperClasses()+ClassName();
-    }
-
-    virtual std::set<std::string> mySuperClasses() override
-    {
-      return SuperClasses();
-    }
-
-  };
-
 
 
 
@@ -255,52 +232,12 @@ namespace  Markov_IO {
 
     virtual bool addVar(ABC_Var* var)=0;
 
-    virtual const ABC_Environment_Var* getEnvironment()const=0;
-    virtual ABC_Environment_Var* getEnvironment()=0;
-
     virtual ~ABC_Complex_Var(){}
 
   };
 
 
-  class ABC_Environment_Var: virtual public ABC_Complex_Var
-  {
-  public:
-
-    static std::string ClassName()
-    {
-      return "ABC_Environment_Var";
-    }
-
-    static std::set<std::string> SuperClasses()
-    {
-      return ABC_Class::SuperClasses()+ABC_Complex_Var::SuperClasses()+ClassName();
-    }
-
-
-    virtual std::set<std::string> mySuperClasses() override
-    {
-      return SuperClasses();
-    }
-
-    virtual std::size_t numChildClass()const=0;
-
-    virtual std::string ith_Class(std::size_t i)const=0;
-
-    virtual const ABC_Class* getClassId(const std::string& name)const=0;
-
-    virtual ABC_Class* getClassId(const std::string &name)=0;
-
-
-    virtual bool addClass(ABC_Class* var)=0;
-
-    virtual ~ABC_Environment_Var(){}
-  };
-
-
-
-
-  class Implements_VarId: virtual public ABC_Var
+   class Implements_VarId: virtual public ABC_Var
   { // ABC_Var interface
   public:
     virtual std::string myClass() const override
@@ -324,15 +261,22 @@ namespace  Markov_IO {
 
     virtual const ABC_Var* refVar() const override;
 
-    virtual const ABC_Class* motherClass()const
+    virtual ABC_Var* motherClass()
     {
-      if ((parentVar()!=nullptr)&&(parentVar()->getEnvironment()!=nullptr))
-        return parentVar()->getEnvironment()->getClassId(myClass());
+      if (parentVar()!=nullptr)
+        return parentVar()->getVarId(myClass());
       else
         return nullptr;
 
     }
+     virtual const ABC_Var* motherClass() const
+     {
+       if (parentVar()!=nullptr)
+         return parentVar()->getVarId(myClass());
+       else
+         return nullptr;
 
+     }
     Implements_VarId(ABC_Complex_Var* parent,
                      const std::string& name,
                      const std::string className);
@@ -367,24 +311,6 @@ namespace  Markov_IO {
     ABC_Complex_Var* p_;
   };
 
-  class Implements_ClassId: virtual public ABC_Class,public Implements_VarId
-  {
-  public:
-    virtual std::deque<Token_New> toTokens() const override;
-    virtual bool processTokens(const std::deque<Token_New> &t,
-                               std::size_t& pos) override;
-
-
-    Implements_ClassId(ABC_Complex_Var* parent,
-                       const std::string& name,
-                       const std::string className):
-      Implements_VarId(parent,name,className){}
-
-    Implements_ClassId():
-      Implements_VarId(){}
-
-    virtual ~Implements_ClassId(){}
-  };
 
 
 
@@ -420,9 +346,9 @@ namespace  Markov_IO {
 
     virtual const Implements_Simple_Class<T>* motherClass()const
     {
-      if ((parentVar()!=nullptr)&&(parentVar()->getEnvironment()!=nullptr))
+      if (parentVar()!=nullptr)
         {
-          auto p=parentVar()->getEnvironment()->getClassId(myClass());
+          auto p=parentVar()->getVarId(myClass());
           return dynamic_cast<const Implements_Simple_Class<T>*>(p);
         }
       else
@@ -455,7 +381,7 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  class Implements_Simple_Class: public Implements_ClassId
+  class Implements_Simple_Class: public Implements_VarId
   {
     // ABC_Var interface
   public:
@@ -463,7 +389,7 @@ namespace  Markov_IO {
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Class::SuperClasses()<<ClassName();
+      return ABC_Var::SuperClasses()<<ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()
@@ -518,7 +444,7 @@ namespace  Markov_IO {
 
     virtual std::deque<Token_New> toTokens() const override
     {
-      auto out=Implements_ClassId::toTokens();
+      auto out=Implements_VarId::toTokens();
 
       out<<"\n"<<"default"<<"="<<toToken(defaultValue());
       if (minValue()!=emptyValue())
@@ -534,7 +460,7 @@ namespace  Markov_IO {
     virtual bool processTokens(const std::deque<Token_New>& t,
                                std::size_t& pos)override
     {
-      if (!Implements_ClassId::processTokens(t,pos))
+      if (!Implements_VarId::processTokens(t,pos))
         return false;
 
       else if ((!pos+2<t.size())
@@ -691,11 +617,6 @@ namespace  Markov_IO {
 
 
     virtual bool addVar(ABC_Var *var) override;
-
-    virtual const ABC_Environment_Var* getEnvironment()const override;
-
-    virtual  ABC_Environment_Var* getEnvironment() override;
-
 
     Implements_Complex_Var(ABC_Complex_Var *parent,
                            const std::string& id,
@@ -858,92 +779,6 @@ namespace  Markov_IO {
     virtual ~Categorical_Data(){}
 
 
-  };
-
-  class Implement_Environment_Var:public ABC_Environment_Var,
-      public Implements_Complex_Var
-  {
-  public:
-
-    static std::string ClassName()
-    {
-      return   "Implement_Complex_Class";
-    }
-
-    virtual std::size_t numChildClass()const override
-    {
-      return idsClass_.size();
-    }
-    virtual  std::string ith_Class(std::size_t i)const override
-    {
-      return idsClass_[i];
-    }
-    virtual  const ABC_Class* getClassId(const std::string& name)const override
-    {
-      auto it=classKinds_.find(name);
-      if(it!=classKinds_.end())
-        return it->second;
-      else return nullptr;
-    }
-    virtual   ABC_Class* getClassId(const std::string& name) override
-    {
-      auto it=classKinds_.find(name);
-      if(it!=classKinds_.end())
-        return it->second;
-      else return nullptr;
-
-    }
-    virtual bool addClass(ABC_Class* var) override
-    {
-      if (var==nullptr)
-        return false;
-      var->setParentVar(this);
-
-      if (std::find (idsClass_.begin(),idsClass_.end(),var->id())==idsClass_.end())
-        {
-          idsClass_.push_back(var->id());
-          classKinds_[var->id()]=var;
-          return true;
-        }
-      else
-        {
-          delete  classKinds_[var->id()];
-          classKinds_[var->id()]=var;
-          return false;
-        }
-    }
-
-    Implement_Environment_Var():
-      Implements_Complex_Var(this,"",ClassName(),{}){}
-
-
-    Implement_Environment_Var(ABC_Environment_Var* parent,
-                              const std::string& name,
-                              const std::string classN):
-      Implements_Complex_Var(parent,name,classN,{}),
-      idsClass_{},classKinds_{}{}
-
-    virtual  Implement_Environment_Var* getEnvironment()const override
-    {
-      return const_cast<Implement_Environment_Var*>(this);
-    }
-
-    virtual ~Implement_Environment_Var()
-    {
-      for (std::pair<std::string,ABC_Var*> e:classKinds_)
-        {
-          delete e.second;
-        }
-
-    }
-
-
-
-  protected:
-
-
-    std::vector<std::string> idsClass_;
-    std::map<std::string,ABC_Class*> classKinds_;
   };
 
 

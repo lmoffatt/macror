@@ -251,29 +251,6 @@ namespace Markov_IO {
       }
   }
 
-  std::deque<Token_New> Implements_ClassId::toTokens() const
-  {
-    return {{id()},{"::"},{myClass()}};
-
-  }
-
-  bool Implements_ClassId::processTokens(const std::deque<Token_New> &t,
-                                         std::size_t &pos)
-  {
-    if ((!(pos+2<t.size()))
-        ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
-        ||(t.at(pos+1).tok()!=Token_New::DCOLON)
-        ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER))
-      return false;
-    else
-      {
-        id_=t.at(pos).str();
-        class_=t.at(pos+2).str();
-        pos+=3;
-        return true;
-      }
-  }
-
 
 
 
@@ -389,8 +366,9 @@ namespace Markov_IO {
     auto it=vars_.find(name);
     if (it!=vars_.end())
       return it->second;
-    else
-      return nullptr;
+    else if (parentVar()!=nullptr)
+      return parentVar()->getVarId(name);
+    else return nullptr;
   }
 
   ABC_Var *Implements_Complex_Var::getVarId(const std::string &name)
@@ -398,8 +376,9 @@ namespace Markov_IO {
     auto it=vars_.find(name);
     if (it!=vars_.end())
       return it->second;
-    else
-      return nullptr;
+    else if (parentVar()!=nullptr)
+      return parentVar()->getVarId(name);
+    else return nullptr;
   }
 
   const ABC_Var *Implements_Complex_Var::getVarId(const std::string &name, const std::string &myclass) const
@@ -441,23 +420,6 @@ namespace Markov_IO {
   }
 
 
-  const ABC_Environment_Var *Implements_Complex_Var::getEnvironment() const
-  {
-    ABC_Complex_Var* p=parentVar();
-    const ABC_Environment_Var* e=dynamic_cast<const ABC_Environment_Var *>(p);
-    if (e!=nullptr)
-      return e;
-    else return p->getEnvironment();
-  }
-
-  ABC_Environment_Var *Implements_Complex_Var::getEnvironment()
-  {
-    ABC_Complex_Var* p=parentVar();
-    ABC_Environment_Var* e=dynamic_cast<ABC_Environment_Var*>(p);
-    if (e!=nullptr)
-      return e;
-    else return p->getEnvironment();
-  }
 
 
   Implements_Complex_Var::Implements_Complex_Var( ABC_Complex_Var *parent,
@@ -977,7 +939,7 @@ namespace Markov_IO {
     auto p=n.processTokens(t,pos);
     if (p==pos+3)
       {
-        ABC_Var* out=parent->getEnvironment()->getClassId(n.myClass())->varTemplate();
+        ABC_Var* out=parent->getVarId(n.myClass())->varTemplate();
         auto pos0=pos;
         pos=out->processTokens(t,pos0);
         if (pos>pos0)

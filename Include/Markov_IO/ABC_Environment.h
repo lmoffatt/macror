@@ -12,7 +12,7 @@ namespace  Markov_IO {
   class ABC_Saveable;
 
 
-  class ABC_Environment:public Implement_Environment_Var
+  class ABC_Environment:public Implements_Complex_Var
   {
   public:
     ~ABC_Environment(){}
