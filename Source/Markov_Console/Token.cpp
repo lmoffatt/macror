@@ -142,8 +142,12 @@ namespace Markov_Console
         return stream;
 
       case '=':
-        stream.get(ch);
-        if (ch=='=')
+        if(!stream.get(ch))
+          {
+            curr_tok=ASSIGN;
+            return stream;
+          }
+        else if (ch=='=')
           {
             curr_tok=EQ;
             return stream;
@@ -155,21 +159,29 @@ namespace Markov_Console
             return stream;
           }
       case '~':
-        stream.get(ch);
-        if (ch=='=')
+        if(!stream.get(ch))
+          {
+            curr_tok=NOT;
+            return stream;
+          }
+        else if (ch=='=')
           {
             curr_tok=NEQ;
             return stream;
           }
         else
-          {
+          { if (stream)
             stream.putback(ch);
             curr_tok=NOT;
             return stream;
           }
       case '<':
-        stream.get(ch);
-        if (ch=='=')
+        if(!stream.get(ch))
+          {
+            curr_tok=LSS;
+            return stream;
+          }
+        else if (ch=='=')
           {
             curr_tok=LEQ;
             return stream;
@@ -181,8 +193,12 @@ namespace Markov_Console
             return stream;
           }
       case '>':
-        stream.get(ch);
-        if (ch=='=')
+        if(!stream.get(ch))
+          {
+            curr_tok=GTR;
+            return stream;
+          }
+        else if (ch=='=')
           {
             curr_tok=GEQ;
             return stream;
@@ -195,8 +211,12 @@ namespace Markov_Console
           }
 
       case '.':
-        stream.get(ch);
-        if (ch=='.')
+        if(!stream.get(ch))
+          {
+            curr_tok=DOT;
+            return stream;
+          }
+        else if (ch=='.')
           {
             path_value="..";
             curr_tok=PATH;

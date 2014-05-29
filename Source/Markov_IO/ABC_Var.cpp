@@ -42,7 +42,7 @@ namespace Markov_IO {
 
   template<typename T>
   bool Implements_Simple_Var<T>::processTokens(const std::deque<Token_New>& t,
-                std::size_t &pos)
+                                               std::size_t &pos)
   {
     if (!Implements_VarId::processTokens(t,pos))
       return false;
@@ -76,8 +76,8 @@ namespace Markov_IO {
 
   template<>
   bool Implements_Simple_Class<double>::toValue(const std::deque<Token_New> &tok,
-                                                     double &val,
-                                                     std::size_t& i)const
+                                                double &val,
+                                                std::size_t& i)const
   {
     if (tok.at(i).tok()!=Token_New::NUMBER)
       return false;
@@ -92,8 +92,8 @@ namespace Markov_IO {
 
   template<>
   bool Implements_Simple_Class<int>::toValue(const std::deque<Token_New> &tok,
-                                                     int &val,
-                                                     std::size_t& i)const
+                                             int &val,
+                                             std::size_t& i)const
   {
     if (tok.at(i).tok()!=Token_New::NUMBER)
       return false;
@@ -180,7 +180,7 @@ namespace Markov_IO {
     return id_;
   }
 
- void Implements_VarId::setId(const std::string &IdName)
+  void Implements_VarId::setId(const std::string &IdName)
   {
     id_=IdName;
   }
@@ -235,7 +235,7 @@ namespace Markov_IO {
   }
 
   bool Implements_VarId::processTokens(const std::deque<Token_New> &t,
-                                              std::size_t &pos)
+                                       std::size_t &pos)
   {
     if ((!(pos+2<t.size()))
         ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
@@ -258,7 +258,7 @@ namespace Markov_IO {
   }
 
   bool Implements_ClassId::processTokens(const std::deque<Token_New> &t,
-                                              std::size_t &pos)
+                                         std::size_t &pos)
   {
     if ((!(pos+2<t.size()))
         ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
@@ -355,7 +355,7 @@ namespace Markov_IO {
             pos+=2;
             while ((pos+1<t.size())&&
                    (!((t.at(pos).str()==myClass())&&
-                    (t.at(pos+1).tok()==Token_New::END))))
+                      (t.at(pos+1).tok()==Token_New::END))))
               {
                 if (! addVar(getFromTokens(this,t,pos)))
                   return false;
@@ -461,9 +461,9 @@ namespace Markov_IO {
 
 
   Implements_Complex_Var::Implements_Complex_Var( ABC_Complex_Var *parent,
-                                                 const std::string &id,
-                                                 const std::string className,
-                                                 const std::vector<ABC_Var *> &childs):
+                                                  const std::string &id,
+                                                  const std::string className,
+                                                  const std::vector<ABC_Var *> &childs):
     Implements_VarId(parent,id,className),
     ids_(),vars_{}
   {
@@ -497,10 +497,41 @@ namespace Markov_IO {
 
   }
 
+  bool Token_New::isRealNumberChar(char ch)
+  { const std::string NumberChar="1234567890.eE+-";
+    return NumberChar.find_first_of(ch)!=std::string::npos;
+
+
+  }
+
+  std::string Token_New::toString(double number)
+  {
+    std::stringstream ss;
+    ss<<std::setprecision(std::numeric_limits<double>::digits10)<<number;
+    return ss.str();
+  }
+
+  std::string Token_New::toString(int number)
+  {
+    std::stringstream ss;
+    ss<<number;
+    return ss.str();
+  }
+
+  std::string Token_New::toString(std::size_t number)
+  {
+    std::stringstream ss;
+    ss<<number;
+    return ss.str();
+  }
+
   std::istream &Token_New::get(std::istream &stream)
 
   {
     str_.clear();
+    int_=0;
+    size_=0;
+    number_=0;
     char ch;
 
     do {	// skip whitespace except '\en'
@@ -518,7 +549,6 @@ namespace Markov_IO {
         return stream;
         break;
       case '+':
-      case '-':
       case '*':
       case '/':
       case '^':
@@ -536,8 +566,12 @@ namespace Markov_IO {
         return stream;
 
       case ':':
-        stream.get(ch);
-        if (ch==':')
+        if(!stream.get(ch))
+          {
+            curr_tok = COLON;
+            return stream;
+          }
+        else if (ch==':')
           {
             str_="::";
             curr_tok=DCOLON;
@@ -552,8 +586,12 @@ namespace Markov_IO {
           }
 
       case '=':
-        stream.get(ch);
-        if (ch=='=')
+        if(!stream.get(ch))
+          {
+            curr_tok = ASSIGN;
+            return stream;
+          }
+        else if (ch=='=')
           {
             str_="==";
             curr_tok=EQ;
@@ -567,8 +605,12 @@ namespace Markov_IO {
             return stream;
           }
       case '~':
-        stream.get(ch);
-        if (ch=='=')
+        if(!stream.get(ch))
+          {
+            curr_tok = NOT;
+            return stream;
+          }
+        else if (ch=='=')
           {
             str_="~=";
             curr_tok=NEQ;
@@ -582,8 +624,12 @@ namespace Markov_IO {
             return stream;
           }
       case '<':
-        stream.get(ch);
-        if (ch=='=')
+        if(!stream.get(ch))
+          {
+            curr_tok = LSS;
+            return stream;
+          }
+        else if (ch=='=')
           {
             str_="<=";
             curr_tok=LEQ;
@@ -597,8 +643,12 @@ namespace Markov_IO {
             return stream;
           }
       case '>':
-        stream.get(ch);
-        if (ch=='=')
+        if(!stream.get(ch))
+          {
+            curr_tok = GTR;
+            return stream;
+          }
+        else if (ch=='=')
           {
             str_=">=";
             curr_tok=GEQ;
@@ -613,8 +663,12 @@ namespace Markov_IO {
           }
 
       case '.':
-        stream.get(ch);
-        if (ch=='.')
+        if(!stream.get(ch))
+          {
+            curr_tok = DOT;
+            return stream;
+          }
+        else if (ch=='.')
           {
             str_="..";
             curr_tok=PATH;
@@ -628,14 +682,85 @@ namespace Markov_IO {
             curr_tok=DOT;
             return stream;
           }
+      case '-':
+        str_=ch;
+        if(!stream.get(ch))
+          {
+            curr_tok = MINUS;
+            return stream;
+          }
+        else if (!isdigit(ch))
+          {
+            stream.putback(ch);
+            curr_tok=MINUS;
+            return stream;
+          }
 
       case '0': case '1': case '2': case '3': case '4':
       case '5': case '6': case '7': case '8': case '9':
-        stream.putback(ch);
-        stream >> number_;
-        curr_tok=NUMBER;
-        return stream;
+        if (str_=="-")
+          {
+            curr_tok=INTEGER;
+            str_+= ch;
+          }
+        else
+          {
+            curr_tok=UNSIGNED;
+            str_= ch;
+          }
+        while (stream.get(ch) && std::isdigit(ch))
+          str_.push_back(ch);
+        if (ch=='.')
+          {
+            str_.push_back(ch);
+            while (stream.get(ch) && std::isdigit(ch))
+              str_.push_back(ch);
+            if ((ch=='e')||(ch=='E'))
+              {
+                str_.push_back(ch);
+                if ((stream.get(ch)) && ((std::isdigit(ch)||(ch=='-')||(ch=='+'))))
+                  str_.push_back(ch);
+                while (stream.get(ch) && std::isdigit(ch))
+                  str_.push_back(ch);
+              }
+            curr_tok=REAL;
+            try {number_=std::stod(str_);} catch (...){curr_tok=INVALID; return stream;}
+            if (!std::isdigit(ch))
+              stream.putback(ch);
+            return stream;
 
+          }
+        else if ((ch=='e')||(ch=='E'))
+          {
+            str_.push_back(ch);
+            if ((stream.get(ch)) && ((std::isdigit(ch)||(ch=='-')||(ch=='+'))))
+              str_.push_back(ch);
+            while (stream.get(ch) && std::isdigit(ch))
+              str_.push_back(ch);
+            curr_tok=REAL;
+            try{
+              number_=std::stod(str_);
+            }
+            catch (...)
+            {
+              curr_tok=INVALID;
+              return stream;
+            }
+
+            if (!std::isdigit(ch))
+              stream.putback(ch);
+            return stream;
+          }
+        if (curr_tok==INTEGER)
+          try{
+            int_=std::stoi(str_);} catch(...){ curr_tok=INVALID;}
+        else if (curr_tok==UNSIGNED)
+          try{
+            size_=std::stoul(str_);}
+        catch(...){ curr_tok=INVALID;}
+        if (!std::isdigit(ch))
+          stream.putback(ch);
+        return stream;
       case '"':
         while (stream.get(ch)&& (ch!='"'))
           str_.push_back(ch);
@@ -672,6 +797,42 @@ namespace Markov_IO {
           }
 
       }
+  }
+
+  std::string Token_New::str() const
+  {
+    return str_;
+  }
+
+  double Token_New::num() const
+  {
+    return number_;
+  }
+
+  int Token_New::intval() const
+  {
+    return int_;
+  }
+
+  std::size_t Token_New::count() const
+  {
+    return size_;
+  }
+
+  Token_New::Value Token_New::tok() const
+  {
+    return curr_tok;
+  }
+
+  std::string Token_New::toString() const
+  {
+    if (tok()==REAL)
+      return toString(number_);
+    else  if (tok()==INTEGER)
+      return toString(int_);
+    else  if (tok()==UNSIGNED)
+      return toString(size_);
+    else return str_;
   }
 
   Token_New::Value Token_New::toKeyword(std::string identifier)
@@ -763,6 +924,40 @@ namespace Markov_IO {
 
   }
 
+  Token_New::Token_New(double d):
+    curr_tok{REAL},
+    number_(d),
+    int_{},
+    size_{},
+    str_{}{}
+
+  Token_New::Token_New(int n):
+    curr_tok{INTEGER},
+    number_{},
+    int_{n},
+    size_{},
+    str_{}{}
+
+  Token_New::Token_New(std::size_t s):
+    curr_tok{UNSIGNED},
+    number_{},
+    int_{},
+    size_{s},
+    str_{}{}
+
+  Token_New::Token_New(std::string d):
+    curr_tok{},
+    number_{},
+    str_{}{
+    std::stringstream ss(d);
+    get(ss);
+  }
+
+  Token_New::Token_New(Token_New::Value v):
+    curr_tok{v},
+    number_{},
+    str_{toString(v)}{}
+
   std::string ABC_Var::toString() const
   {
     std::string out;
@@ -775,8 +970,8 @@ namespace Markov_IO {
   }
 
   ABC_Var *ABC_Var::getFromTokens(ABC_Complex_Var* parent,
-                         const std::deque<Token_New> &t,
-                         std::size_t &pos)
+                                  const std::deque<Token_New> &t,
+                                  std::size_t &pos)
   {
     Implements_VarId n;
     auto p=n.processTokens(t,pos);
@@ -800,6 +995,21 @@ namespace Markov_IO {
     return Token_New(name).tok()==Token_New::IDENTIFIER;
   }
 
+  std::string ABC_Var::ClassName()
+  {
+    return "ABC_Var";
+  }
+
+  std::set<std::string> ABC_Var::SuperClasses()
+  {
+    return {ClassName()};
+  }
+
+  std::set<std::string> ABC_Var::mySuperClasses()
+  {
+    return SuperClasses();
+  }
+
   std::set<std::string> operator+(std::set<std::string>&& tok1,
                                   std::string &&s)
   {
@@ -813,5 +1023,36 @@ namespace Markov_IO {
     ss1.insert(ss2.begin(),ss2.end());
     return ss1;
   }
+
+  std::deque<Token_New> &operator<<(std::deque<Token_New> &tok1, const std::deque<Token_New> &tok2)
+  {
+    tok1.insert(tok1.end(),tok2.begin(),tok2.end());
+    return tok1;
+  }
+
+  std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, const std::string &text)
+  {
+    std::stringstream ss(text);
+    Token_New t;
+    while (t.get(ss))
+      {
+        tok.push_back(t);
+      }
+
+    return tok;
+  }
+
+  std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, double d)
+  {
+    tok.push_back(Token_New(d));
+    return tok;
+  }
+
+  std::string ABC_Complex_Var::ClassName()
+  {
+    return "ABC_Complex_Var";
+  }
+
+
 
 }

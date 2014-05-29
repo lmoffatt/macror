@@ -26,16 +26,18 @@ namespace  Markov_IO {
   public:
     static bool isNameChar(char ch);
     static bool isSpaceChar(char ch);
-    static std::string toString(double number)
-    {
-      std::stringstream ss;
-      ss<<std::setprecision(std::numeric_limits<double>::digits10)<<number;
-      return ss.str();
-    }
+    static bool isRealNumberChar(char ch);
+
+    static std::string toString(double number);
+    static std::string toString(int number);
+    static std::string toString(std::size_t number);
     enum Value {
       IDENTIFIER,
       STRING,
       PATH,
+      INTEGER,
+      UNSIGNED,
+      REAL,
       NUMBER,
       INVALID,
 
@@ -85,28 +87,17 @@ namespace  Markov_IO {
 
     std::istream& get(std::istream& stream);
 
-    std::string str()const
-    {
-      return str_;
-    }
+    std::string str()const;
 
-    double num()const
-    {
-      return number_;
-    }
+    double num()const;
 
-    Value tok()const
-    {
-      return curr_tok;
-    }
+    int  intval()const;
 
-    std::string toString()const
-    {
-      if (tok()==NUMBER)
-        return toString(number_);
-      else
-        return str_;
-    }
+    std::size_t count()const;
+
+    Value tok()const;
+
+    std::string toString()const;
 
 
     static Value toKeyword(std::string identifier);
@@ -116,55 +107,32 @@ namespace  Markov_IO {
 
     Token_New()=default;
 
-    Token_New(double d):
-      curr_tok{NUMBER},
-      number_(d),
-      str_{}{}
+    Token_New(double d);
 
-    Token_New(std::string d):
-      curr_tok{},
-      number_{},
-      str_{}{
-      std::stringstream ss(d);
-      get(ss);
-    }
-    Token_New(Value v):
-      curr_tok{v},
-      number_{},
-      str_{toString(v)}{}
+    Token_New(int n);
+
+    Token_New(std::size_t s);
+
+    Token_New(std::string d);
+
+    Token_New(Value v);
 
   private:
     Value curr_tok;
     double number_;
+    int int_;
+    std::size_t size_;
     std::string str_;
   };
 
 
   inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok1,
-                                           const std::deque<Token_New>& tok2)
-  {
-    tok1.insert(tok1.end(),tok2.begin(),tok2.end());
-    return tok1;
-  }
+                                           const std::deque<Token_New>& tok2);
 
   inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
-                                           const std::string& text)
-  {
-    std::stringstream ss(text);
-    Token_New t;
-    while (t.get(ss))
-      {
-        tok.push_back(t);
-      }
-
-    return tok;
-  }
+                                           const std::string& text);
   inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
-                                           double d)
-  {
-    tok.push_back(Token_New(d));
-    return tok;
-  }
+                                           double d);
 
   template<typename T>
   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::vector<T> v)
@@ -173,6 +141,10 @@ namespace  Markov_IO {
       tok.push_back(Token_New(e));
     return tok;
   }
+
+
+
+
 
   std::set<std::string> operator+(std::set<std::string>&& tok1,
                                   std::string &&s);
@@ -196,15 +168,9 @@ namespace  Markov_IO {
 
     static bool isValidId(std::string name);
 
-    static std::string ClassName()
-    {
-      return "ABC_Var";
-    }
+    static std::string ClassName();
 
-    static std::set<std::string> SuperClasses()
-    {
-      return {ClassName()};
-    }
+    static std::set<std::string> SuperClasses();
 
 
     virtual std::string id()const=0;
@@ -214,14 +180,9 @@ namespace  Markov_IO {
     virtual const ABC_Var* refVar()const=0;
     virtual ABC_Var* refVar()=0;
 
-
-
     virtual std::string myClass()const=0;
 
-    virtual std::set<std::string> mySuperClasses()
-    {
-      return SuperClasses();
-    }
+    virtual std::set<std::string> mySuperClasses();
 
     virtual const ABC_Class* motherClass()const=0;
 
@@ -272,10 +233,7 @@ namespace  Markov_IO {
   class ABC_Complex_Var:virtual public ABC_Var
   {
   public:
-    static std::string ClassName()
-    {
-      return "ABC_Complex_Var";
-    }
+    static std::string ClassName();
 
     static std::set<std::string> SuperClasses()
     {
