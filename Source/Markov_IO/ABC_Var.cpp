@@ -36,31 +36,27 @@ namespace Markov_IO {
   std::deque<Token_New> Implements_Simple_Var<T>::toTokens() const
   {
     auto out=Implements_VarId::toTokens();
-    out<<value()<<"\n";
+    out<<motherClass()->toToken(value())<<"\n";
     return out;
   }
 
   template<typename T>
-  std::size_t Implements_Simple_Var<T>::
-  processTokens(const std::deque<Token_New>& t,
-                std::size_t pos)
+  bool Implements_Simple_Var<T>::processTokens(const std::deque<Token_New>& t,
+                std::size_t &pos)
   {
-    auto p=Implements_VarId::processTokens(t,pos);
-    if (p<pos+3)
-      return pos;
+    if (!Implements_VarId::processTokens(t,pos))
+      return false;
     else
       {
-
         T val;
-        p=toValue(t,val,p);
-        if (p==pos+3)
-          return p;
+        if (!motherClass()->toValue(t,val,pos))
+          return false;
         else
           {
             value_=val;
-            if (t.at(p).tok()==Token_New::EOL)
-              ++p;
-            return p;
+            if (t.at(pos).tok()==Token_New::EOL)
+              ++pos;
+            return true;
           }
       }
   }
@@ -79,59 +75,62 @@ namespace Markov_IO {
 
 
   template<>
-  std::size_t Implements_Simple_Var<double>::toValue(const std::deque<Token_New> &tok,
+  bool Implements_Simple_Class<double>::toValue(const std::deque<Token_New> &tok,
                                                      double &val,
-                                                     std::size_t i)
+                                                     std::size_t& i)const
   {
     if (tok.at(i).tok()!=Token_New::NUMBER)
-      return i;
+      return false;
     else
       {
         val=tok.at(i).num();
-        return i+1;
+        ++i;
+        return true;
       }
   }
 
 
   template<>
-  std::size_t Implements_Simple_Var<int>::toValue(const std::deque<Token_New> &tok,
+  bool Implements_Simple_Class<int>::toValue(const std::deque<Token_New> &tok,
                                                      int &val,
-                                                     std::size_t i)
+                                                     std::size_t& i)const
   {
     if (tok.at(i).tok()!=Token_New::NUMBER)
-      return i;
+      return false;
     else
       {
         val=tok.at(i).num();
-        return i+1;
+        ++i;
+        return true;
       }
   }
 
 
 
   template<>
-  std::size_t Implements_Simple_Var<std::string>::toValue(const std::deque<Token_New> &tok,
+  bool Implements_Simple_Class<std::string>::toValue(const std::deque<Token_New> &tok,
                                                      std::string &val,
-                                                     std::size_t i)
+                                                     std::size_t& i)const
   {
     if (tok.at(i).tok()!=Token_New::IDENTIFIER)
-      return i;
+      return false;
     else
       {
         val=tok.at(i).str();
-        return i+1;
+        ++i;
+        return true;
       }
   }
 
 
   template<>
-  std::size_t Implements_Simple_Var<std::vector<std::string>>::
+  bool Implements_Simple_Class<std::vector<std::string>>::
   toValue(const std::deque<Token_New> &tok,
           std::vector<std::string> &val,
-          std::size_t i)
+          std::size_t& i)const
   {
     if (tok.at(i).tok()!=Token_New::IDENTIFIER)
-      return i;
+      return false;
     else
       {
         while ((i<tok.size())&&(tok.at(i).tok()==Token_New::IDENTIFIER))
@@ -140,12 +139,12 @@ namespace Markov_IO {
             ++i;
           }
 
-        return i;
+        return true;
       }
   }
 
   template<>
-  std::deque<Token_New> Implements_Simple_Var<double>::toToken(const double& val)
+  std::deque<Token_New> Implements_Simple_Class<double>::toToken(const double& val)const
   {
     return {{val}};
   }
@@ -179,6 +178,11 @@ namespace Markov_IO {
   std::string Implements_VarId::id() const
   {
     return id_;
+  }
+
+ void Implements_VarId::setId(const std::string &IdName)
+  {
+    id_=IdName;
   }
 
   std::size_t Implements_VarId::numChildVars() const
@@ -230,22 +234,45 @@ namespace Markov_IO {
 
   }
 
-  std::size_t Implements_VarId::processTokens(const std::deque<Token_New> &t,
-                                              std::size_t pos)
+  bool Implements_VarId::processTokens(const std::deque<Token_New> &t,
+                                              std::size_t &pos)
   {
     if ((!(pos+2<t.size()))
         ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
         ||(t.at(pos+1).tok()!=Token_New::COLON)
         ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER))
-      return pos;
+      return false;
     else
       {
         id_=t.at(pos).str();
         class_=t.at(pos+2).str();
-        return pos+3;
+        pos+=3;
+        return true;
       }
   }
 
+  std::deque<Token_New> Implements_ClassId::toTokens() const
+  {
+    return {{id()},{"::"},{myClass()}};
+
+  }
+
+  bool Implements_ClassId::processTokens(const std::deque<Token_New> &t,
+                                              std::size_t &pos)
+  {
+    if ((!(pos+2<t.size()))
+        ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
+        ||(t.at(pos+1).tok()!=Token_New::DCOLON)
+        ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER))
+      return false;
+    else
+      {
+        id_=t.at(pos).str();
+        class_=t.at(pos+2).str();
+        pos+=3;
+        return true;
+      }
+  }
 
 
 
@@ -279,24 +306,22 @@ namespace Markov_IO {
     return out;
   }
 
-  std::size_t Implements_Refer_Var::processTokens(const std::deque<Token_New> &t, std::size_t pos)
+  bool Implements_Refer_Var::processTokens(const std::deque<Token_New> &t, std::size_t &pos)
   {
-    auto p=Implements_VarId::processTokens(t,pos);
-    if (p<pos+3)
-      return pos;
-    else  if ((!pos+6<t.size())
-              ||(t.at(pos+3).tok()!=Token_New::EQ)
-              ||(t.at(pos+4).tok()!=Token_New::MUL)
-              ||(t.at(pos+5).tok()!=Token_New::IDENTIFIER)
-              ||(t.at(pos+6).tok()!=Token_New::EOL)
+    if (!Implements_VarId::processTokens(t,pos))
+      return false;
+    else  if ((!pos+3<t.size())
+              ||(t.at(pos).tok()!=Token_New::EQ)
+              ||(t.at(pos+1).tok()!=Token_New::MUL)
+              ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER)
+              ||(t.at(pos+3).tok()!=Token_New::EOL)
               )
-      return pos;
+      return false;
     else
       {
-        id_=t.at(pos).str();
-        class_=t.at(pos+2).str();
-        refId_=t.at(pos+5).str();
-        return pos+7;
+        refId_=t.at(pos+2).str();
+        pos+=4;
+        return true;
       }
   }
 
@@ -313,36 +338,40 @@ namespace Markov_IO {
     return out;
   }
 
-  std::size_t Implements_Complex_Var::processTokens(
+  bool Implements_Complex_Var::processTokens(
       const std::deque<Token_New> &t,
-      std::size_t pos)
+      std::size_t& pos)
   {
-    auto p=Implements_VarId::processTokens(t,pos);
-    if (p<pos+3)
-      return pos;
+    if (!Implements_VarId::processTokens(t,pos))
+      return false;
     else
       {
-        if ( (!(pos+4<t.size()))
-             ||(t.at(pos+3).tok()!=Token_New::BEGIN)
-             ||(t.at(pos+4).tok()!=Token_New::EOL))
-          return pos;
+        if ( (!(pos+1<t.size()))
+             ||(t.at(pos).tok()!=Token_New::BEGIN)
+             ||(t.at(pos+1).tok()!=Token_New::EOL))
+          return false;
         else
           {
-            std::size_t p=pos+5;
-            while ((p+1<t.size())&&
-                   (!((t.at(p).str()==myClass())&&
-                    (t.at(p+1).tok()==Token_New::END))))
+            pos+=2;
+            while ((pos+1<t.size())&&
+                   (!((t.at(pos).str()==myClass())&&
+                    (t.at(pos+1).tok()==Token_New::END))))
               {
-                if (! addVar(getFromTokens(this,t,p)))
-                  return pos;
+                if (! addVar(getFromTokens(this,t,pos)))
+                  return false;
               }
-            if (t.at(p+1).tok()!=Token_New::END)
-              return pos;
+            if ((pos+1<t.size())&&(t.at(pos+1).tok()!=Token_New::END))
+              return true;
             else
-              return p+2;
+              return false;
           }
       }
 
+  }
+
+  std::string Implements_Complex_Var::ClassName()
+  {
+    return "Implements_Complex_Var";
   }
 
   std::size_t Implements_Complex_Var::numChildVars() const
@@ -412,19 +441,19 @@ namespace Markov_IO {
   }
 
 
-  const ABC_Complex_Class *Implements_Complex_Var::getEnvironment() const
+  const ABC_Environment_Var *Implements_Complex_Var::getEnvironment() const
   {
     ABC_Complex_Var* p=parentVar();
-    const ABC_Complex_Class* e=dynamic_cast<const ABC_Complex_Class *>(p);
+    const ABC_Environment_Var* e=dynamic_cast<const ABC_Environment_Var *>(p);
     if (e!=nullptr)
       return e;
     else return p->getEnvironment();
   }
 
-  ABC_Complex_Class *Implements_Complex_Var::getEnvironment()
+  ABC_Environment_Var *Implements_Complex_Var::getEnvironment()
   {
     ABC_Complex_Var* p=parentVar();
-    ABC_Complex_Class* e=dynamic_cast<ABC_Complex_Class*>(p);
+    ABC_Environment_Var* e=dynamic_cast<ABC_Environment_Var*>(p);
     if (e!=nullptr)
       return e;
     else return p->getEnvironment();
@@ -494,7 +523,6 @@ namespace Markov_IO {
       case '/':
       case '^':
 
-      case ':':
       case ';':
 
       case '(':
@@ -506,6 +534,22 @@ namespace Markov_IO {
         str_=ch;
         curr_tok=Value(ch);
         return stream;
+
+      case ':':
+        stream.get(ch);
+        if (ch==':')
+          {
+            str_="::";
+            curr_tok=DCOLON;
+            return stream;
+          }
+        else
+          {
+            str_=":";
+            stream.putback(ch);
+            curr_tok=COLON;
+            return stream;
+          }
 
       case '=':
         stream.get(ch);
@@ -670,6 +714,7 @@ namespace Markov_IO {
         return CASE;
       }
 
+
     else return IDENTIFIER;
 
   }
@@ -737,7 +782,7 @@ namespace Markov_IO {
     auto p=n.processTokens(t,pos);
     if (p==pos+3)
       {
-        ABC_Var* out=parent->getEnvironment()->getClassId(n.myClass())->getTemplate();
+        ABC_Var* out=parent->getEnvironment()->getClassId(n.myClass())->varTemplate();
         auto pos0=pos;
         pos=out->processTokens(t,pos0);
         if (pos>pos0)
@@ -749,4 +794,24 @@ namespace Markov_IO {
       return nullptr;
 
   }
+
+  bool ABC_Var::isValidId(std::string name)
+  {
+    return Token_New(name).tok()==Token_New::IDENTIFIER;
+  }
+
+  std::set<std::string> operator+(std::set<std::string>&& tok1,
+                                  std::string &&s)
+  {
+    tok1.insert(s);
+    return tok1;
+  }
+
+  std::set<std::string> operator+(std::set<std::string> &&ss1,
+                                  std::set<std::string> &&ss2)
+  {
+    ss1.insert(ss2.begin(),ss2.end());
+    return ss1;
+  }
+
 }

@@ -553,9 +553,8 @@ Scale::Scale(ABC_Complex_Var *e,
              this,"saletype",static_cast<int>(scaletype),"ScaleType"));
 
     std::string out=Implements_Complex_Var::toString();
-
-    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<double>,
-                               Markov_IO::Implements_Simple_Var<double>::ClassName());
+/*
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<double>);
 
     getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<std::string>,
                                Markov_IO::Implements_Simple_Var<std::string>::ClassName());
@@ -573,7 +572,7 @@ Scale::Scale(ABC_Complex_Var *e,
                                Markov_IO::Categorical_Data::ClassName());
     getEnvironment()->addClass(new Scale,
                                Scale::ClassName());
-
+*/
     std::cerr<<out;
 
 
