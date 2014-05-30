@@ -1,4 +1,5 @@
 #include <numeric>
+#include <iostream>
 #include "Markov_IO/ABC_Var.h"
 
 
@@ -297,7 +298,7 @@ namespace Markov_IO {
       return false;
     else
       {
-        if (t.at(pos).tok()!=Token_New::EQ)
+        if (t.at(pos).tok()!=Token_New::ASSIGN)
           return false;
         ++pos;
         T val;
@@ -520,6 +521,8 @@ namespace Markov_IO {
   bool Implements_VarId::processTokens(const std::deque<Token_New> &t,
                                        std::size_t &pos)
   {
+    while ((pos<t.size())&&(t.at(pos).tok()==Token_New::EOL))
+      ++pos;
     if ((!(pos+2<t.size()))
         ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
         ||(t.at(pos+1).tok()!=Token_New::COLON)
@@ -576,7 +579,7 @@ namespace Markov_IO {
     if (!Implements_VarId::processTokens(t,pos))
       return false;
     else  if ((!pos+3<t.size())
-              ||(t.at(pos).tok()!=Token_New::EQ)
+              ||(t.at(pos).tok()!=Token_New::ASSIGN)
               ||(t.at(pos+1).tok()!=Token_New::MUL)
               ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER)
               ||(t.at(pos+3).tok()!=Token_New::EOL)
@@ -669,10 +672,11 @@ namespace Markov_IO {
                 if (! addVar(getFromTokens(this,t,pos)))
                   return false;
               }
-            if ((pos+1<t.size())&&(t.at(pos+1).tok()!=Token_New::END))
-              return true;
-            else
+            if ((pos+1>=t.size())||(t.at(pos+1).tok()!=Token_New::END))
+
               return false;
+            pos+=2;
+            return true;
           }
       }
 
@@ -862,7 +866,9 @@ namespace Markov_IO {
       case ':':
         if(!stream.get(ch))
           {
+            str_=ch;
             curr_tok = COLON;
+            stream.clear();
             return stream;
           }
         else if (ch==':')
@@ -882,7 +888,9 @@ namespace Markov_IO {
       case '=':
         if(!stream.get(ch))
           {
+            str_="=";
             curr_tok = ASSIGN;
+            stream.clear();
             return stream;
           }
         else if (ch=='=')
@@ -902,6 +910,7 @@ namespace Markov_IO {
         if(!stream.get(ch))
           {
             curr_tok = NOT;
+            stream.clear();
             return stream;
           }
         else if (ch=='=')
@@ -921,6 +930,7 @@ namespace Markov_IO {
         if(!stream.get(ch))
           {
             curr_tok = LSS;
+            stream.clear();
             return stream;
           }
         else if (ch=='=')
@@ -940,6 +950,7 @@ namespace Markov_IO {
         if(!stream.get(ch))
           {
             curr_tok = GTR;
+            stream.clear();
             return stream;
           }
         else if (ch=='=')
@@ -960,6 +971,7 @@ namespace Markov_IO {
         if(!stream.get(ch))
           {
             curr_tok = DOT;
+            stream.clear();
             return stream;
           }
         else if (ch=='.')
@@ -981,6 +993,7 @@ namespace Markov_IO {
         if(!stream.get(ch))
           {
             curr_tok = MINUS;
+            stream.clear();
             return stream;
           }
         else if (!isdigit(ch))
@@ -1018,7 +1031,8 @@ namespace Markov_IO {
                   str_.push_back(ch);
               }
             curr_tok=REAL;
-            try {number_=std::stod(str_);} catch (...){curr_tok=INVALID; return stream;}
+            std::stringstream ss(str_);
+            ss>>number_;
             if (!std::isdigit(ch))
               stream.putback(ch);
             return stream;
@@ -1117,7 +1131,7 @@ namespace Markov_IO {
       case UNSIGNED:
         return size_;
       case INTEGER:
-          return int_;
+        return int_;
       default:
         return {};
       }
@@ -1146,7 +1160,24 @@ namespace Markov_IO {
       return toString(int_);
     else  if (tok()==UNSIGNED)
       return toString(size_);
-    else return str_;
+    else if ((tok()==IDENTIFIER)||(tok()==STRING))
+      return str_;
+    else return toString(tok());
+  }
+
+  bool Token_New::isReal() const
+  {
+    return (tok()==REAL)||(tok()==INTEGER)||(tok()==UNSIGNED);
+  }
+
+  bool Token_New::isInteger() const
+  {
+    return (tok()==INTEGER)||(tok()==UNSIGNED);
+  }
+
+  bool Token_New::isCount() const
+  {
+    return tok()==UNSIGNED;
   }
 
   Token_New::Value Token_New::toKeyword(std::string identifier)
@@ -1196,45 +1227,62 @@ namespace Markov_IO {
 
   std::string Token_New::toString(Token_New::Value identifier)
   {
+    switch (identifier) {
+      case IDENTIFIER:
+      case STRING:
+      case PATH:
+      case INTEGER:
+      case UNSIGNED:
+      case REAL:
+      case NUMBER:
+      case INVALID:
+        return{};
+      case EOL: return "\n";
+      case PLUS: return "+";
+      case MINUS: return "-";
+      case MUL:   return "*";
+      case DIV:   return "/";
+      case EXPONENT:   return "^";
 
-    if(identifier==DO)
-      {
-        return "do";
-      }
-    else if(identifier==THEN)
-      {
-        return "then";
-      }
-    else if(identifier==WHILE)
-      {
-        return "while";
-      }
-    else if(identifier==IF)
-      {
-        return "if";
-      }
-    else if(identifier==ELSE)
-      {
-        return "else";
-      }
-    else if(identifier==BEGIN)
-      {
-        return "begin";
-      }
-    else if(identifier==END)
-      {
-        return "end";
-      }
-    else if(identifier==SWITCH)
-      {
-        return "switch";
-      }
-    else if(identifier==CASE)
-      {
-        return "case";
+      case DOT:   return ".";
+      case COLON:   return ":";
+      case COMMA:   return ",";
+      case SEMICOLON:   return ";";
+      case ASSIGN:   return  "=";
+
+      case LP:   return "(" ;
+      case RP:   return  ")";
+      case LSB:   return  "[";
+      case RSB:   return  "]";
+
+      case NOT:   return  "~";
+      case AND:   return  "&";
+      case OR:   return  "|";
+      case LSS:   return  "<";
+      case GTR:   return  ">";
+
+
+      case DCOLON:  return  "::";
+      case LEQ:   return  "<=";
+      case EQ:   return  "==";
+      case NEQ:   return  "~=";
+      case GEQ:   return  ">=";
+
+      case WHILE:   return  "while";
+      case DO:   return  "do";
+      case IF:   return  "if";
+      case THEN:   return  "then";
+      case BEGIN:   return  "begin";
+      case END:   return  "end";
+      case ELSE:   return  "else";
+      case SWITCH:   return "switch";
+      case CASE:    return "case";
+
+      default: return {};
+
       }
 
-    else return {};
+
 
   }
 
@@ -1297,7 +1345,7 @@ namespace Markov_IO {
     ABC_Var* out;
     if (!(pos<t.size())) return nullptr;
     Token_New to=t.at(pos);
-    if (to.tok()==Token_New::EQ)
+    if (to.tok()==Token_New::ASSIGN)
       {
         ++pos;
         if (!(pos<t.size())) return nullptr;
@@ -1319,16 +1367,17 @@ namespace Markov_IO {
             switch (to.tok())
               {
               case Token_New::REAL:
-                return new Implements_Simple_Var<double>(parent,n.id(),to.realValue(),n.myClass());
+                out= new Implements_Simple_Var<double>(parent,n.id(),to.realValue(),n.myClass());
+                break;
               case Token_New::INTEGER:
-                return new Implements_Simple_Var<int>(parent,n.id(),to.intval(),n.myClass());
-
+                out= new Implements_Simple_Var<int>(parent,n.id(),to.intval(),n.myClass());
+                break;
               case Token_New::UNSIGNED:
-                return new Implements_Simple_Var<std::size_t>(parent,n.id(),to.count(),n.myClass());
-
+                out= new Implements_Simple_Var<std::size_t>(parent,n.id(),to.count(),n.myClass());
+                break;
               case Token_New::IDENTIFIER:
-                return new Implements_Simple_Var<std::string>(parent,n.id(),t.at(pos).str(),n.myClass());
-
+                out= new Implements_Simple_Var<std::string>(parent,n.id(),t.at(pos).str(),n.myClass());
+                break;
               case Token_New::EOL:
                 // that means it is a matrix, a vector or a map
                 {
@@ -1516,7 +1565,12 @@ namespace Markov_IO {
                             }
                         }
                       else   //vector
-                         { switch (to.tok())
+                        {
+                          if (!(pos<t.size())) return nullptr;
+
+                          to=t.at(pos+1);
+
+                          switch (to.tok())
                             {
                             case Token_New::REAL:
                               out=new Implements_Simple_Var<std::vector<double>>;
@@ -1547,11 +1601,6 @@ namespace Markov_IO {
                     default:
                       return nullptr;
                     }
-                  out->setParentVar(parent);
-                  if (!out->processTokens(t,pos0))
-                    return nullptr;
-                  else
-                    return out;
                 }
               }
           }
@@ -1560,13 +1609,16 @@ namespace Markov_IO {
       {
         // ABC_Complex_Var
         out=new Implements_Complex_Var;
-        out->setParentVar(parent);
-        if (!out->processTokens(t,pos0))
-          return nullptr;
-        else return out;
       }
     else
       return nullptr;
+    out->setParentVar(parent);
+    pos=pos0;
+    if (!out->processTokens(t,pos))
+      return nullptr;
+    else
+      return out;
+
   }
 
 
@@ -1795,6 +1847,64 @@ namespace Markov_IO {
     else
       return false;
   }
+
+  bool toValue(const std::deque<Token_New> &tok, double &val, std::size_t &i)
+  {
+    if (!(i<tok.size())) return false;
+    Token_New t=tok.at(i);
+    if (!t.isReal())
+      return false;
+    else
+      {
+        val=t.realValue();
+        ++i;
+        return true;
+      }
+  }
+
+  bool toValue(const std::deque<Token_New> &tok, int &val, std::size_t &i)
+  {
+    if (!(i<tok.size())) return false;
+    Token_New t=tok.at(i);
+    if (!t.isInteger())
+      return false;
+    else
+      {
+        val=t.intval();
+        ++i;
+        return true;
+      }
+  }
+
+  bool toValue(const std::deque<Token_New> &tok, std::size_t &val, std::size_t &i)
+  {
+    if (!(i<tok.size())) return false;
+    Token_New t=tok.at(i);
+    if (!t.isCount())
+      return false;
+    else
+      {
+        val=t.count();
+        ++i;
+        return true;
+      }
+  }
+
+  bool toValue(const std::deque<Token_New> &tok, std::string &val, std::size_t &i)
+  {
+    if (!(i<tok.size())) return false;
+    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
+      return false;
+    else
+      {
+        val=tok.at(i).str();
+        ++i;
+        return true;
+      }
+  }
+
+
+
 
 
 

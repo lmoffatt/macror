@@ -96,18 +96,9 @@ namespace  Markov_IO {
 
     std::string toString()const;
 
-    bool isReal()const
-    {
-      return (tok()==REAL)||(tok()==INTEGER)||(tok()==UNSIGNED);
-    }
-    bool isInteger()const
-    {
-      return (tok()==INTEGER)||(tok()==UNSIGNED);
-    }
-    bool isCount()const
-    {
-      return tok()==UNSIGNED;
-    }
+    bool isReal()const;
+    bool isInteger()const;
+    bool isCount()const;
 
 
 
@@ -148,15 +139,17 @@ namespace  Markov_IO {
   template<typename T>
   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::vector<T> v)
   {
-    tok<<"[";
+    tok<<"\n[";
     for (T e:v)
       tok<<e;
     tok<<"]"<<"\n";
     return tok;
   }
+
   template<typename T>
   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, Markov_LA::M_Matrix<T> m)
   {
+    tok<<"\n";
     for (std::size_t i=0; i<Markov_LA::nrows(m); ++i)
       {
         for(std::size_t j=0; i<Markov_LA::ncols(m); ++j)
@@ -179,7 +172,7 @@ namespace  Markov_IO {
   template<typename K,typename T>
   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::map<K,T> m)
   {
-    tok<<"[";
+    tok<<"\n[";
     for (std::pair<K,T> e:m)
       tok<<e;
     tok<<"]"<<"\n";
@@ -195,68 +188,21 @@ namespace  Markov_IO {
     return out;
   }
 
-  inline bool toValue(const std::deque<Token_New> &tok,double &val,std::size_t& i)
-  {
-    if (i<tok.size()) return false;
-    Token_New t=tok.at(i);
-    if (!t.isReal())
-      return false;
-    else
-      {
-        val=t.realValue();
-        ++i;
-        return true;
-      }
-  }
+  inline bool toValue(const std::deque<Token_New> &tok,double &val,std::size_t& i);
 
 
   inline bool toValue(const std::deque<Token_New> &tok,
                       int &val,
-                      std::size_t& i)
-  {
-    if (i<tok.size()) return false;
-    Token_New t=tok.at(i);
-    if (!t.isInteger())
-      return false;
-    else
-      {
-        val=t.intval();
-        ++i;
-        return true;
-      }
-  }
+                      std::size_t& i);
 
   inline bool toValue(const std::deque<Token_New> &tok,
                       std::size_t &val,
-                      std::size_t& i)
-  {
-    if (i<tok.size()) return false;
-    Token_New t=tok.at(i);
-    if (!t.isCount())
-      return false;
-    else
-      {
-        val=t.count();
-        ++i;
-        return true;
-      }
-  }
+                      std::size_t& i);
 
 
   inline bool toValue(const std::deque<Token_New> &tok,
                       std::string &val,
-                      std::size_t& i)
-  {
-    if (i<tok.size()) return false;
-    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
-      return false;
-    else
-      {
-        val=tok.at(i).str();
-        ++i;
-        return true;
-      }
-  }
+                      std::size_t& i);
 
 
   template<typename T>
@@ -265,9 +211,11 @@ namespace  Markov_IO {
                       std::size_t& i)
   {
     // checks the initial squarebracket
-    if ((!(i<tok.size()))||(tok.at(i).tok()!=Token_New::LSB))
+    if ((!(i+1<tok.size()))||
+        (tok.at(i).tok()!=Token_New::EOL)||
+        (tok.at(i+1).tok()!=Token_New::LSB))
       return false;
-    ++i;
+    i+=2;
     T val;
     if (!toValue(tok,val,i))
       return false;
@@ -280,6 +228,7 @@ namespace  Markov_IO {
           }
         if ((!(i<tok.size()))||(tok.at(i).tok()!=Token_New::RSB))
           return false;
+        ++i;
         return true;
       }
   }
@@ -289,6 +238,10 @@ namespace  Markov_IO {
                       Markov_LA::M_Matrix<T> &m,
                       std::size_t& i)
   {
+    if ((!(i<tok.size()))||
+        (tok.at(i).tok()!=Token_New::EOL))
+      return false;
+    ++i;
     std::vector<T> v;
     T val;
     if (Markov_LA::size(m)==0)// we have to determine the size ourselves
@@ -344,6 +297,12 @@ namespace  Markov_IO {
                       std::pair<K,T>& p,
                       std::size_t& i)
   {
+    if ((!(i+1<tok.size()))||
+        (tok.at(i).tok()!=Token_New::EOL)||
+        (tok.at(i+1).tok()!=Token_New::LSB))
+      return false;
+    i+=2;
+
     if (!i+2<tok.size())
       return false;
     auto pos0=i;
@@ -389,6 +348,7 @@ namespace  Markov_IO {
           }
         if ((!(i<tok.size()))||(tok.at(i).tok()!=Token_New::RSB))
           return false;
+        ++i;
         return true;
       }
   }
@@ -462,6 +422,7 @@ namespace  Markov_IO {
     virtual ~ABC_Var(){}
     virtual bool isInDomain(const ABC_Var* value)const=0;
     virtual ABC_Var* varTemplate()const=0;
+
 
   };
 
