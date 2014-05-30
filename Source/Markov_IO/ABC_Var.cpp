@@ -1939,52 +1939,54 @@ namespace Markov_IO {
 
   std::string Implements_Categorical::Category() const
   {
-    return categ_;
+    return value();
   }
 
   int Implements_Categorical::Rank() const
   {
-    return value();
+    return rank_;
   }
 
   void Implements_Categorical::updateCat()
   {
     if (motherClass()!=nullptr)
-      categ_=motherClass()->Category(value());
+      setValue(motherClass()->Category(Rank()));
   }
 
   void Implements_Categorical::updateRank()
   {
     if (motherClass()!=nullptr)
-      setValue(motherClass()->Rank(Category()));
+      rank_=motherClass()->Rank(Category());
   }
 
   void Implements_Categorical::setCategory(const std::string &cat)
   {
-    categ_=cat;
+    setValue(cat);
     updateRank();
   }
 
   void Implements_Categorical::setRank(int i)
   {
-    setValue(i);
+    rank_=i;
     updateCat();
   }
 
   Implements_Categorical::Implements_Categorical(ABC_Var *parent,
+                                                 const std::string &idName,
                                                  int i,
                                                  const std::string &categoryClass):
-    Implements_Simple_Var<int>(parent,categoryClass,i,ClassName()),
-    categ_{}
+    Implements_Simple_Var<std::string>(parent,idName,"",categoryClass),
+    rank_{i}
   {
     updateCat();
   }
 
   Implements_Categorical::Implements_Categorical(ABC_Var *parent,
-                                                 const std::string &name,
+                                                 const std::string &idName,
+                                                 const std::string & cat,
                                                  const std::string &categoryClass):
-    Implements_Simple_Var<int>(parent,categoryClass,0,ClassName()),
-    categ_{name}
+    Implements_Simple_Var<std::string>(parent,idName,cat,categoryClass),
+    rank_{}
   {
     updateRank();
   }
@@ -2017,13 +2019,17 @@ namespace Markov_IO {
       return {};
   }
 
-  int Implements_Categorical_Class::defaultRank() const
+  std::string Implements_Categorical_Class::defaultCategory() const
   {
     return default_;
   }
 
-  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent, const std::string &categoryName, std::vector<std::string> categoriesList):
-    Implements_Simple_Var<std::map<std::string,int>>(parent,categoryName,{})
+  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent,
+                                                             const std::string &categoryName,
+                                                             std::vector<std::string> categoriesList,
+                                                             const std::string& defaultCategoryName):
+    Implements_Simple_Var<std::map<std::string,int>>(parent,categoryName,{},ClassName()),
+    default_(defaultCategoryName)
   {
     for (std::size_t i=0; i<categoriesList.size(); ++i)
       {
@@ -2032,8 +2038,12 @@ namespace Markov_IO {
       }
   }
 
-  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent, const std::string &categoryName, std::map<std::string, int> categoriesRank):
-    Implements_Simple_Var<std::map<std::string,int>>(parent,categoryName,categoriesRank,ClassName())
+  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent,
+                                                             const std::string &categoryName,
+                                                             std::map<std::string, int> categoriesRank,
+                                                             const std::string& defaultCategoryName):
+    Implements_Simple_Var<std::map<std::string,int>>(parent,categoryName,categoriesRank,ClassName()),
+    default_(defaultCategoryName)
   {
     for (std::pair<std::string,int> e:value())
       {
@@ -2041,8 +2051,12 @@ namespace Markov_IO {
       }
   }
 
-  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent, const std::string &categoryName, std::map<int, std::string> RankCategories):
+  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent,
+                                                             const std::string &categoryName,
+                                                             std::map<int,std::string> RankCategories,
+                                                             const std::string& defaultCategoryName):
     Implements_Simple_Var<std::map<std::string,int>>(parent,categoryName,{},ClassName()),
+    default_(defaultCategoryName),
     revMap_{RankCategories}
   {
     for (std::pair<int,std::string> e:revMap_)
@@ -2058,11 +2072,13 @@ namespace Markov_IO {
     const Implements_Categorical* p=dynamic_cast<const Implements_Categorical*>(value);
     if (p!=nullptr)
       return refval().find(p->Category())!=refval().end();
+    else
+      return nullptr;
   }
 
   ABC_Var *Implements_Categorical_Class::varTemplate() const
   {
-    return new Implements_Categorical(nullptr,defaultRank(),id());
+    return new Implements_Categorical(nullptr,"",defaultCategory(),id());
   }
 
 

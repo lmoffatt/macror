@@ -297,13 +297,7 @@ namespace  Markov_IO {
                       std::pair<K,T>& p,
                       std::size_t& i)
   {
-    if ((!(i+1<tok.size()))||
-        (tok.at(i).tok()!=Token_New::EOL)||
-        (tok.at(i+1).tok()!=Token_New::LSB))
-      return false;
-    i+=2;
-
-    if (!i+2<tok.size())
+    if (!(i+2<tok.size()))
       return false;
     auto pos0=i;
 
@@ -333,9 +327,11 @@ namespace  Markov_IO {
                       std::size_t& i)
   {
     // checks the initial squarebracket
-    if ((!(i<tok.size()))||(tok.at(i).tok()!=Token_New::LSB))
+    if ((!(i+1<tok.size()))||
+        (tok.at(i).tok()!=Token_New::EOL)||
+        (tok.at(i+1).tok()!=Token_New::LSB))
       return false;
-    ++i;
+    i+=2;
     std::pair<K,T> val;
     if (!toValue(tok,val,i))
       return false;
@@ -694,33 +690,36 @@ namespace  Markov_IO {
 
     virtual int Rank(const std::string name)const;
 
-    int defaultRank()const;
+    std::string defaultCategory()const;
 
     // ABC_Var interface
   public:
 
     Implements_Categorical_Class(ABC_Var* parent,
                                  const std::string& categoryName,
-                                 std::vector<std::string> categoriesList );
+                                 std::vector<std::string> categoriesList ,
+                                 const std::string& defaultCategoryName);
 
     Implements_Categorical_Class(ABC_Var* parent,
                                  const std::string& categoryName,
-                                 std::map<std::string,int> categoriesRank );
+                                 std::map<std::string,int> categoriesRank,
+                                 const std::string& defaultCategoryName);
 
     Implements_Categorical_Class(ABC_Var* parent,
                                  const std::string& categoryName,
-                                 std::map<int,std::string> RankCategories );
+                                 std::map<int,std::string> RankCategories,
+                                 const std::string& defaultCategoryName);
 
 
     virtual bool isInDomain(const ABC_Var *value) const;
     virtual  ABC_Var *varTemplate() const;
   private:
-    int default_;
+    std::string default_;
     std::map<int,std::string> revMap_;
 
   };
 
-  class Implements_Categorical : public Implements_Simple_Var<int>
+  class Implements_Categorical : public Implements_Simple_Var<std::string>
   {
 public:
     static std::string ClassName();
@@ -743,14 +742,14 @@ public:
 
     void setRank(int i);
 
-    Implements_Categorical(ABC_Var* parent, int i, const std::string& categoryClass);
-    Implements_Categorical(ABC_Var* parent, const std::string& name, const std::string& categoryClass);
+    Implements_Categorical(ABC_Var* parent, const std::string& idName,int i, const std::string& categoryClass);
+    Implements_Categorical(ABC_Var* parent, const std::string& idName, const std::string &cat, const std::string& categoryClass);
 
     virtual const Implements_Categorical_Class* motherClass()const;
     virtual Implements_Categorical_Class* motherClass();
 
   private:
-    std::string categ_;
+    int rank_;
   };
 
 

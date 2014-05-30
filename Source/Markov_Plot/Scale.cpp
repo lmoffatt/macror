@@ -544,12 +544,12 @@ Scale::Scale(ABC_Var *e,
              this,"title",title.toStdString()));
     addVar(new Markov_IO::Implements_Simple_Var<std::string>(
              this,"units",units.toStdString()));
-    addVar(new Markov_IO::Categorical_Options(this,"AxisType",{{"xaxis"},{"yaxis"}}));
-    addVar(new Markov_IO::Categorical_Options(
-             this,"ScaleType",{{"LinearScale"},{"LogScale"}}));
-    addVar(new Markov_IO::Categorical_Data(
+    addVar(new Markov_IO::Implements_Categorical_Class(this,"AxisType",{{"xaxis"},{"yaxis"}},"xaxis"));
+    addVar(new Markov_IO::Implements_Categorical_Class(
+             this,"ScaleType",{{"LinearScale"},{"LogScale"}},"LinearScale"));
+    addVar(new Markov_IO::Implements_Categorical(
              this,"axis",static_cast<int>(axis),"AxisType"));
-    addVar(new Markov_IO::Categorical_Data(
+    addVar(new Markov_IO::Implements_Categorical(
              this,"saletype",static_cast<int>(scaletype),"ScaleType"));
 
     std::string out=Implements_Complex_Var::toString();
