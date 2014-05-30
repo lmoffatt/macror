@@ -180,7 +180,7 @@ public:
 
     // ABC_Put interface
 public:
-    virtual Scale *getTemplate() const
+    virtual Scale *getTemplate()
     {
       Scale* out=new Scale;
       out->setParentVar(parentVar());

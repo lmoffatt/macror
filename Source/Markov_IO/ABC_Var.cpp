@@ -339,7 +339,19 @@ namespace Markov_IO {
   }
 
   template<typename T>
-  const Implements_Simple_Class<T> *Implements_Simple_Var<T>::motherClass() const
+  const T &Implements_Simple_Var<T>::refval() const
+  {
+    return value_;
+  }
+
+  template<typename T>
+  T &Implements_Simple_Var<T>::refval()
+  {
+    return value_;
+  }
+
+  template<typename T>
+  const ABC_Var *Implements_Simple_Var<T>::motherClass() const
   {
     if (parentVar()!=nullptr)
       {
@@ -432,11 +444,14 @@ namespace Markov_IO {
       return parentVar()->addVar(var);
   }
 
-  ABC_Var *Implements_VarId::parentVar() const
+  ABC_Var *Implements_VarId::parentVar()
   {
     return p_;
   }
-
+  const ABC_Var *Implements_VarId::parentVar() const
+  {
+    return p_;
+  }
   std::string Implements_VarId::refId() const
   {
     return id();
@@ -498,7 +513,7 @@ namespace Markov_IO {
 
   }
 
-  ABC_Var *Implements_VarId::varTemplate() const
+  ABC_Var *Implements_VarId::varTemplate()const
   {
     auto p= motherClass();
     if (p!=nullptr)
@@ -506,6 +521,8 @@ namespace Markov_IO {
     else
       return nullptr;
   }
+
+
 
   std::string Implements_VarId::myClass() const
   {
@@ -1729,15 +1746,17 @@ namespace Markov_IO {
 
   Implements_Complex_Var *Implements_Complex_Class::varTemplate() const
   {
-    Implements_Complex_Var* out=  new Implements_Complex_Var(parentVar(),"",id(),{});
+    std::vector<ABC_Var*> o;
     for (std::size_t i=0; i<numChildVars(); i++)
       {
         auto v=getVarId(ith_Var(i))->varTemplate();
         v->setId(ith_Var(i));
-        out->addVar(v);
+        o.push_back(v);
       }
+    Implements_Complex_Var* out=  new Implements_Complex_Var(nullptr,"",id(),o);
     return out;
   }
+
 
   void Implements_Complex_Class::push_back(const std::string &idName, const std::string &superclassname, const std::string &classname)
   {
@@ -1828,7 +1847,7 @@ namespace Markov_IO {
   template<typename T>
   Implements_Simple_Var<T> *Implements_Simple_Class<T>::varTemplate() const
   {
-    return new Implements_Simple_Var<T>(this,"",defaultValue(),id());
+    return new Implements_Simple_Var<T>(nullptr,"",defaultValue(),id());
   }
 
 
@@ -1901,6 +1920,149 @@ namespace Markov_IO {
         ++i;
         return true;
       }
+  }
+
+  std::string Implements_Categorical::ClassName()
+  {
+    return "Category";
+  }
+
+  std::set<std::string> Implements_Categorical::SuperClasses()
+  {
+    return Implements_Simple_Var<int>::SuperClasses()+ClassName();
+  }
+
+  std::set<std::string> Implements_Categorical::mySuperClasses()
+  {
+    return SuperClasses();
+  }
+
+  std::string Implements_Categorical::Category() const
+  {
+    return categ_;
+  }
+
+  int Implements_Categorical::Rank() const
+  {
+    return value();
+  }
+
+  void Implements_Categorical::updateCat()
+  {
+    if (motherClass()!=nullptr)
+      categ_=motherClass()->Category(value());
+  }
+
+  void Implements_Categorical::updateRank()
+  {
+    if (motherClass()!=nullptr)
+      setValue(motherClass()->Rank(Category()));
+  }
+
+  void Implements_Categorical::setCategory(const std::string &cat)
+  {
+    categ_=cat;
+    updateRank();
+  }
+
+  void Implements_Categorical::setRank(int i)
+  {
+    setValue(i);
+    updateCat();
+  }
+
+  Implements_Categorical::Implements_Categorical(ABC_Var *parent,
+                                                 int i,
+                                                 const std::string &categoryClass):
+    Implements_Simple_Var<int>(parent,categoryClass,i,ClassName()),
+    categ_{}
+  {
+    updateCat();
+  }
+
+  Implements_Categorical::Implements_Categorical(ABC_Var *parent,
+                                                 const std::string &name,
+                                                 const std::string &categoryClass):
+    Implements_Simple_Var<int>(parent,categoryClass,0,ClassName()),
+    categ_{name}
+  {
+    updateRank();
+  }
+
+  const Implements_Categorical_Class *Implements_Categorical::motherClass() const
+  {
+    return dynamic_cast<const Implements_Categorical_Class*>(parentVar()->getVarId(myClass()));
+  }
+
+  Implements_Categorical_Class *Implements_Categorical::motherClass()
+  {
+    return dynamic_cast<Implements_Categorical_Class*>(parentVar()->getVarId(myClass()));
+  }
+
+  std::string Implements_Categorical_Class::Category(int i) const
+  {
+    auto it=revMap_.find(i);
+    if (it!=revMap_.end())
+      return it->second;
+    else
+      return {};
+  }
+
+  int Implements_Categorical_Class::Rank(const std::string name) const
+  {
+    auto it=refval().find(name);
+    if (it!=refval().end())
+      return it->second;
+    else
+      return {};
+  }
+
+  int Implements_Categorical_Class::defaultRank() const
+  {
+    return default_;
+  }
+
+  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent, const std::string &categoryName, std::vector<std::string> categoriesList):
+    Implements_Simple_Var<std::map<std::string,int>>(parent,categoryName,{})
+  {
+    for (std::size_t i=0; i<categoriesList.size(); ++i)
+      {
+        this->refval()[categoriesList[i]]=i;
+        revMap_[i]=categoriesList[i];
+      }
+  }
+
+  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent, const std::string &categoryName, std::map<std::string, int> categoriesRank):
+    Implements_Simple_Var<std::map<std::string,int>>(parent,categoryName,categoriesRank,ClassName())
+  {
+    for (std::pair<std::string,int> e:value())
+      {
+        revMap_[e.second]=e.first;
+      }
+  }
+
+  Implements_Categorical_Class::Implements_Categorical_Class(ABC_Var *parent, const std::string &categoryName, std::map<int, std::string> RankCategories):
+    Implements_Simple_Var<std::map<std::string,int>>(parent,categoryName,{},ClassName()),
+    revMap_{RankCategories}
+  {
+    for (std::pair<int,std::string> e:revMap_)
+      {
+        refval()[e.second]=e.first;
+      }
+  }
+
+  bool Implements_Categorical_Class::isInDomain(const ABC_Var *value) const
+  {
+    if (value->myClass()!=id())
+      return false;
+    const Implements_Categorical* p=dynamic_cast<const Implements_Categorical*>(value);
+    if (p!=nullptr)
+      return refval().find(p->Category())!=refval().end();
+  }
+
+  ABC_Var *Implements_Categorical_Class::varTemplate() const
+  {
+    return new Implements_Categorical(nullptr,defaultRank(),id());
   }
 
 

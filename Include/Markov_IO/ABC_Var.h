@@ -405,7 +405,8 @@ namespace  Markov_IO {
 
     virtual std::size_t numChildVars()const=0;
 
-    virtual ABC_Var* parentVar()const =0;
+    virtual ABC_Var* parentVar()=0;
+    virtual const ABC_Var* parentVar()const =0;
 
     virtual void setParentVar(ABC_Var* par)=0;
 
@@ -421,6 +422,7 @@ namespace  Markov_IO {
 
     virtual ~ABC_Var(){}
     virtual bool isInDomain(const ABC_Var* value)const=0;
+
     virtual ABC_Var* varTemplate()const=0;
 
 
@@ -437,7 +439,8 @@ namespace  Markov_IO {
                                std::size_t& pos) override;
     virtual std::string id()const override;
     virtual void setId(const std::string& IdName)override;
-    virtual ABC_Var *parentVar()const override;
+    virtual ABC_Var *parentVar() override;
+    virtual const ABC_Var *parentVar() const override;
     virtual std::size_t numChildVars() const override;
     virtual std::string ith_Var(std::size_t i) const override;
     virtual const ABC_Var* getVarId(const std::string& name)const override;
@@ -452,7 +455,7 @@ namespace  Markov_IO {
     virtual const ABC_Var* motherClass() const  override;
     virtual void setParentVar(ABC_Var *par)override;
     virtual bool isInDomain(const ABC_Var* value)const override;
-    virtual ABC_Var* varTemplate()const override;
+    virtual ABC_Var* varTemplate()const  override;
     Implements_VarId(ABC_Var* parent,
                      const std::string& name,
                      const std::string className);
@@ -481,12 +484,14 @@ namespace  Markov_IO {
 
     T value()const;
     void setValue(T val);
+    const T& refval()const;
+    T& refval();
 
 
     // ABC_Var interface
   public:
     // we need a mother class that knows our template type!
-    virtual const Implements_Simple_Class<T>* motherClass()const override;
+    virtual const ABC_Var* motherClass()const override;
 
     virtual std::deque<Token_New> toTokens() const override;
 
@@ -578,7 +583,7 @@ namespace  Markov_IO {
 
 
     virtual ~Implements_Simple_Class(){}
-    virtual Implements_Simple_Var<T>* varTemplate()const  override;
+    virtual  Implements_Simple_Var<T>* varTemplate()const  override;
 
     virtual bool isInDomain(const ABC_Var *value) const  override;
   private:
@@ -649,7 +654,7 @@ namespace  Markov_IO {
                              id_superClass_ClassId);
 
     virtual bool isInDomain(const ABC_Var *value) const  override;
-    virtual Implements_Complex_Var *varTemplate() const override;
+    virtual  Implements_Complex_Var *varTemplate()  const override;
     // ABC_Complex_Var interface
   public:
     virtual void push_back(const std::string& idName,
@@ -659,12 +664,65 @@ namespace  Markov_IO {
 
   };
 
+  class Implements_Categorical;
 
 
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,int>>::ClassName();
+
+
+  class Implements_Categorical_Class : public Implements_Simple_Var<std::map<std::string,int>>
+  {
+  public:
+
+    static std::string ClassName()
+    {
+      return "Category_Class";
+    }
+
+    static std::set<std::string> SuperClasses()
+    {
+      return Implements_Simple_Var<std::map<std::string,int>>::SuperClasses()+ClassName();
+    }
+
+    virtual std::set<std::string> mySuperClasses()override
+    {
+      return SuperClasses();
+    }
+
+    virtual std::string Category(int i)const;
+
+    virtual int Rank(const std::string name)const;
+
+    int defaultRank()const;
+
+    // ABC_Var interface
+  public:
+
+    Implements_Categorical_Class(ABC_Var* parent,
+                                 const std::string& categoryName,
+                                 std::vector<std::string> categoriesList );
+
+    Implements_Categorical_Class(ABC_Var* parent,
+                                 const std::string& categoryName,
+                                 std::map<std::string,int> categoriesRank );
+
+    Implements_Categorical_Class(ABC_Var* parent,
+                                 const std::string& categoryName,
+                                 std::map<int,std::string> RankCategories );
+
+
+    virtual bool isInDomain(const ABC_Var *value) const;
+    virtual  ABC_Var *varTemplate() const;
+  private:
+    int default_;
+    std::map<int,std::string> revMap_;
+
+  };
 
   class Implements_Categorical : public Implements_Simple_Var<int>
   {
-
+public:
     static std::string ClassName();
 
     static std::set<std::string> SuperClasses();
@@ -672,37 +730,29 @@ namespace  Markov_IO {
     virtual std::set<std::string> mySuperClasses()override;
 
 
-
-
-
-
     // ABC_Var interface
   public:
-    virtual std::deque<Token_New> toTokens() const;
-    virtual bool processTokens(const std::deque<Token_New> &tokenList, std::size_t &pos);
+    std::string Category()const;
 
+    int Rank()const;
+
+    void updateCat();
+    void updateRank();
+
+    void setCategory(const std::string& cat);
+
+    void setRank(int i);
+
+    Implements_Categorical(ABC_Var* parent, int i, const std::string& categoryClass);
+    Implements_Categorical(ABC_Var* parent, const std::string& name, const std::string& categoryClass);
+
+    virtual const Implements_Categorical_Class* motherClass()const;
+    virtual Implements_Categorical_Class* motherClass();
+
+  private:
+    std::string categ_;
   };
 
-  class Implements_Categorical_Class : public Implements_Simple_Var<int>
-  {
-
-    static std::string ClassName();
-
-    static std::set<std::string> SuperClasses();
-
-    virtual std::set<std::string> mySuperClasses()override;
-
-
-
-
-
-
-    // ABC_Var interface
-  public:
-    virtual std::deque<Token_New> toTokens() const;
-    virtual bool processTokens(const std::deque<Token_New> &tokenList, std::size_t &pos);
-
-  };
 
 
   template<>
