@@ -24,6 +24,14 @@ namespace Markov_IO {
   }
 
   template<>
+  std::string Implements_Simple_Var<std::size_t>::ClassName()
+  {
+    return "Simple_unsigned_var";
+  }
+
+
+
+  template<>
   std::string Implements_Simple_Var<std::vector<std::string>>::ClassName()
   {
     return "Simple_string_vector_var";
@@ -36,7 +44,7 @@ namespace Markov_IO {
   std::deque<Token_New> Implements_Simple_Var<T>::toTokens() const
   {
     auto out=Implements_VarId::toTokens();
-    out<<motherClass()->toToken(value())<<"\n";
+    out<<"="<<motherClass()->toToken(value())<<"\n";
     return out;
   }
 
@@ -48,6 +56,9 @@ namespace Markov_IO {
       return false;
     else
       {
+        if (t.at(pos).tok()!=Token_New::EQ)
+          return false;
+        ++pos;
         T val;
         if (!motherClass()->toValue(t,val,pos))
           return false;
@@ -62,6 +73,18 @@ namespace Markov_IO {
   }
 
   template<typename T>
+  std::set<std::string> Implements_Simple_Var<T>::SuperClasses()
+  {
+    return ABC_Var::SuperClasses()+ClassName();
+  }
+
+  template<typename T>
+  std::set<std::string> Implements_Simple_Var<T>::mySuperClasses()
+  {
+    return SuperClasses();
+  }
+
+  template<typename T>
   T Implements_Simple_Var<T>::value() const
   {
     return value_;
@@ -71,6 +94,19 @@ namespace Markov_IO {
   void Implements_Simple_Var<T>::setValue(T val)
   {
     value_=val;
+  }
+
+  template<typename T>
+
+  const Implements_Simple_Class<T> *Implements_Simple_Var<T>::motherClass() const
+  {
+    if (parentVar()!=nullptr)
+      {
+        auto p=parentVar()->getVarId(myClass());
+        return dynamic_cast<const Implements_Simple_Class<T>*>(p);
+      }
+    else
+      return nullptr;
   }
 
 
@@ -188,6 +224,18 @@ namespace Markov_IO {
   std::size_t Implements_VarId::numChildVars() const
   {
     return 0;
+  }
+
+  std::string Implements_VarId::ith_Var(std::size_t i) const
+  {
+    return{};
+  }
+
+  const ABC_Var *Implements_VarId::getVarId(const std::string &name) const
+  {
+    if (parentVar()!=nullptr)
+      return parentVar()->getVarId(name);
+    else return nullptr;
   }
 
   ABC_Complex_Var *Implements_VarId::parentVar() const
@@ -343,6 +391,8 @@ namespace Markov_IO {
         return true;
       }
   }
+
+
 
 
   std::deque<Token_New> Implements_Complex_Var::toTokens() const
@@ -977,21 +1027,64 @@ namespace Markov_IO {
                                   const std::deque<Token_New> &t,
                                   std::size_t &pos)
   {
+    auto pos0=pos;
     Implements_VarId n;
-    auto p=n.processTokens(t,pos);
-    if (p==pos+3)
+
+    if (!n.processTokens(t,pos))
+      return nullptr;
+    else
       {
-        ABC_Var* out=parent->getVarId(n.myClass())->varTemplate();
-        auto pos0=pos;
-        pos=out->processTokens(t,pos0);
-        if (pos>pos0)
-          return out;
+        ABC_Var* out;
+        if (t.at(pos).tok()==Token_New::EQ)
+          {
+            ++pos;
+            if (t.at(pos).tok()==Token_New::MUL)
+              {
+                // reference var
+                ++pos;
+                if (t.at(pos).tok()!=Token_New::IDENTIFIER)
+                  return nullptr;
+                else
+                  return new Implements_Refer_Var(parent,n.id(),n.myClass(),t.at(pos).str());
+              }
+            else
+              {
+                //Implements_Simple_Var, lets find out of what
+                switch (t.at(pos).tok())
+                  {
+                  case Token_New::REAL:
+                    return new Implements_Simple_Var<double>(parent,n.id(),t.at(pos).num(),n.myClass());
+                  case Token_New::INTEGER:
+                    return new Implements_Simple_Var<int>(parent,n.id(),t.at(pos).intval(),n.myClass());
+
+                  case Token_New::UNSIGNED:
+                    return new Implements_Simple_Var<std::size_t>(parent,n.id(),
+                                                                  t.at(pos).count(),n.myClass());
+
+                  case Token_New::IDENTIFIER:
+                    return new Implements_Simple_Var<std::string>(parent,n.id(),t.at(pos).str(),n.myClass());
+
+                  case Token_New::EOL:
+                    // that means it is a vector or map
+
+                    return nullptr;
+                  }
+
+              }
+          }
+        else if  (t.at(pos).tok()==Token_New::BEGIN)
+          {
+            // ABC_Complex_Var
+            out=new Implements_Complex_Var;
+            out->setParentVar(parent);
+            if (!out->processTokens(t,pos0))
+              return nullptr;
+            else return out;
+          }
+
         else
           return nullptr;
       }
-    else
-      return nullptr;
-
   }
 
   bool ABC_Var::isValidId(std::string name)
