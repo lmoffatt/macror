@@ -44,7 +44,7 @@ namespace Markov_IO {
   std::deque<Token_New> Implements_Simple_Var<T>::toTokens() const
   {
     auto out=Implements_VarId::toTokens();
-    out<<"="<<motherClass()->toToken(value())<<"\n";
+    out<<"="<<toToken(value())<<"\n";
     return out;
   }
 
@@ -60,7 +60,7 @@ namespace Markov_IO {
           return false;
         ++pos;
         T val;
-        if (!motherClass()->toValue(t,val,pos))
+        if (!toValue(t,val,pos))
           return false;
         else
           {
@@ -97,7 +97,6 @@ namespace Markov_IO {
   }
 
   template<typename T>
-
   const Implements_Simple_Class<T> *Implements_Simple_Var<T>::motherClass() const
   {
     if (parentVar()!=nullptr)
@@ -110,86 +109,12 @@ namespace Markov_IO {
   }
 
 
-  template<>
-  bool Implements_Simple_Class<double>::toValue(const std::deque<Token_New> &tok,
-                                                double &val,
-                                                std::size_t& i)const
-  {
-    if (tok.at(i).tok()!=Token_New::NUMBER)
-      return false;
-    else
-      {
-        val=tok.at(i).num();
-        ++i;
-        return true;
-      }
-  }
-
-
-  template<>
-  bool Implements_Simple_Class<int>::toValue(const std::deque<Token_New> &tok,
-                                             int &val,
-                                             std::size_t& i)const
-  {
-    if (tok.at(i).tok()!=Token_New::NUMBER)
-      return false;
-    else
-      {
-        val=tok.at(i).num();
-        ++i;
-        return true;
-      }
-  }
-
-
-
-  template<>
-  bool Implements_Simple_Class<std::string>::toValue(const std::deque<Token_New> &tok,
-                                                     std::string &val,
-                                                     std::size_t& i)const
-  {
-    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
-      return false;
-    else
-      {
-        val=tok.at(i).str();
-        ++i;
-        return true;
-      }
-  }
-
-
-  template<>
-  bool Implements_Simple_Class<std::vector<std::string>>::
-  toValue(const std::deque<Token_New> &tok,
-          std::vector<std::string> &val,
-          std::size_t& i)const
-  {
-    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
-      return false;
-    else
-      {
-        while ((i<tok.size())&&(tok.at(i).tok()==Token_New::IDENTIFIER))
-          {
-            val.push_back(tok.at(i).str());
-            ++i;
-          }
-
-        return true;
-      }
-  }
-
-  template<>
-  std::deque<Token_New> Implements_Simple_Class<double>::toToken(const double& val)const
-  {
-    return {{val}};
-  }
 
 
 
   template<typename T>
   Implements_Simple_Var<T>::
-  Implements_Simple_Var(ABC_Complex_Var *parent,
+  Implements_Simple_Var(ABC_Var *parent,
                         std::string id,
                         T val,
                         std::string className):
@@ -238,7 +163,34 @@ namespace Markov_IO {
     else return nullptr;
   }
 
-  ABC_Complex_Var *Implements_VarId::parentVar() const
+  ABC_Var *Implements_VarId::getVarId(const std::string &name)
+  {
+    if (parentVar()!=nullptr)
+      return parentVar()->getVarId(name);
+    else return nullptr;
+  }
+
+  const ABC_Var *Implements_VarId::getVarId(const std::string &name, const std::string &kind) const
+  {
+    if (parentVar()!=nullptr)
+      return parentVar()->getVarId(name,kind);
+    else return nullptr;
+  }
+
+  ABC_Var *Implements_VarId::getVarId(const std::string &name, const std::string &kind)
+  {
+    if (parentVar()!=nullptr)
+      return parentVar()->getVarId(name,kind);
+    else return nullptr;
+  }
+
+  bool Implements_VarId::addVar(ABC_Var *var)
+  {
+    if (parentVar()!=nullptr)
+      return parentVar()->addVar(var);
+  }
+
+  ABC_Var *Implements_VarId::parentVar() const
   {
     return p_;
   }
@@ -277,7 +229,7 @@ namespace Markov_IO {
   }
 
 
-  Implements_VarId::Implements_VarId(ABC_Complex_Var *parent,
+  Implements_VarId::Implements_VarId(ABC_Var *parent,
                                      const std::string &name, const std::string className)
     :
       id_(ABC_Var::isValidId(name)?name:""),
@@ -289,7 +241,7 @@ namespace Markov_IO {
     class_{},
     p_(nullptr){}
 
-  void Implements_VarId::setParentVar(ABC_Complex_Var *par)
+  void Implements_VarId::setParentVar(ABC_Var *par)
   {
     p_=par;
   }
@@ -359,7 +311,7 @@ namespace Markov_IO {
     return parentVar()->getVarId(refId(),myClass());
   }
 
-  Implements_Refer_Var::Implements_Refer_Var(ABC_Complex_Var *parent,
+  Implements_Refer_Var::Implements_Refer_Var(ABC_Var *parent,
                                              std::string idName,
                                              std::string refClass,
                                              std::string refName):
@@ -390,6 +342,13 @@ namespace Markov_IO {
         pos+=4;
         return true;
       }
+  }
+
+  bool Implements_Refer_Var::addVar(ABC_Var *var)
+  {
+    if (refVar()!=nullptr)
+      return refVar()->addVar(var);
+    else return {};
   }
 
 
@@ -514,7 +473,7 @@ namespace Markov_IO {
 
 
 
-  Implements_Complex_Var::Implements_Complex_Var( ABC_Complex_Var *parent,
+  Implements_Complex_Var::Implements_Complex_Var( ABC_Var *parent,
                                                   const std::string &id,
                                                   const std::string className,
                                                   const std::vector<ABC_Var *> &childs):
@@ -1023,7 +982,7 @@ namespace Markov_IO {
     return out;
   }
 
-  ABC_Var *ABC_Var::getFromTokens(ABC_Complex_Var* parent,
+  ABC_Var *ABC_Var::getFromTokens(ABC_Var* parent,
                                   const std::deque<Token_New> &t,
                                   std::size_t &pos)
   {
@@ -1145,10 +1104,121 @@ namespace Markov_IO {
     return tok;
   }
 
-  std::string ABC_Complex_Var::ClassName()
+
+
+  Implements_Complex_Class::Implements_Complex_Class(ABC_Var *parent,
+                                                     const std::string &id,
+                                                     const std::string className,
+                                                     const std::map<std::string, std::pair<std::string,
+                                                     std::string> >
+                                                     id_superClass_ClassId):
+    Implements_Complex_Var(parent,id,className,{})
   {
-    return "ABC_Complex_Var";
+    for (auto e:id_superClass_ClassId)
+      {
+        addVar(new Implements_Refer_Var(parentVar(),
+                                               e.first,
+                                               e.second.first,
+                                               e.second.second));
+      }
   }
+
+
+
+
+  bool Implements_Complex_Class::isInDomain(const ABC_Var *value) const
+  {
+    if (value==nullptr)
+      return false;
+    if (value->myClass()!=id())
+      return false;
+    if (numChildVars()!=value->numChildVars())
+      return false;
+    for (std::size_t i=0; i<numChildVars(); ++i)
+      {
+        auto iname=ith_Var(i);
+        auto valueVar=value->getVarId(iname);
+        if (valueVar==nullptr)
+          return false;
+        else if (!getVarId(iname)->isInDomain(valueVar))
+          return false;
+      }
+    return true;
+
+  }
+
+  Implements_Complex_Var *Implements_Complex_Class::varTemplate() const
+  {
+    Implements_Complex_Var* out=  new Implements_Complex_Var(parentVar(),"",id(),{});
+    for (std::size_t i=0; i<numChildVars(); i++)
+      {
+        auto v=getVarId(ith_Var(i))->varTemplate();
+        v->setId(ith_Var(i));
+        out->addVar(v);
+      }
+     return out;
+  }
+
+  template<typename T>
+  std::set<std::string> Implements_Simple_Class<T>::SuperClasses()
+  {
+    return ABC_Var::SuperClasses()<<ClassName();
+  }
+
+  template<typename T>
+  std::set<std::string> Implements_Simple_Class<T>::mySuperClasses()
+  {
+    return SuperClasses();
+  }
+
+  template<typename T>
+  T Implements_Simple_Class<T>::defaultValue() const
+  {
+    return dynamic_cast<Implements_Simple_Var<T>*>(getVarId("default"))->value();
+  }
+
+  template<typename T>
+  T Implements_Simple_Class<T>::minValue() const
+  {
+    return dynamic_cast<Implements_Simple_Var<T>*>(getVarId("min"))->value();
+  }
+
+  template<typename T>
+  T Implements_Simple_Class<T>::maxValue() const
+  {
+    return dynamic_cast<Implements_Simple_Var<T>*>(getVarId("max"))->value();
+  }
+
+  template<typename T>
+  T Implements_Simple_Class<T>::emptyValue() const
+  {
+    return T();
+  }
+
+  template<typename T>
+  T Implements_Simple_Class<T>::unknownValue() const
+  {
+    std::numeric_limits<T>::quiet_NaN();
+  }
+
+  template<typename T>
+  void Implements_Simple_Class<T>::setDefaultValue(T val)
+  {
+    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("default"))->setValue(val);
+  }
+
+  template<typename T>
+  void Implements_Simple_Class<T>::setminValue(T val)
+  {
+    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("min"))->setValue(val);
+  }
+
+  template<typename T>
+  void Implements_Simple_Class<T>::setmaxValue(T val)
+  {
+    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("max"))->setValue(val);
+  }
+
 
 
 

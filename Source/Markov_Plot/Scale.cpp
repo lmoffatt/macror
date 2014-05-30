@@ -500,7 +500,7 @@ void Scale::buildLines()
 
 
 
-Scale::Scale(ABC_Complex_Var *e,
+Scale::Scale(ABC_Var *e,
              double min,
              double max,
              AxisType axis,

@@ -58,7 +58,7 @@ public:
     Type getType()const;
     void setType(Type scaleType);
 
-    Scale(Markov_IO::ABC_Complex_Var* e,
+    Scale(Markov_IO::ABC_Var* e,
           double min,
           double max,
           AxisType axis,

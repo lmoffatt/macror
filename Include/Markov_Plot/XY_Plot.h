@@ -36,7 +36,7 @@ public:
     void setSymbol(Symbol symbol);
 
 
-    XY_Plot(Markov_IO::ABC_Complex_Var* e,
+    XY_Plot(Markov_IO::ABC_Var* e,
             const Markov_LA::M_Matrix<double>* x,
                      const Markov_LA::M_Matrix<double>* y,
                      QString title,
