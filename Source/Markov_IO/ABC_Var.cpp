@@ -37,6 +37,247 @@ namespace Markov_IO {
     return "Simple_string_vector_var";
   }
 
+  template<>
+  std::string Implements_Simple_Var<std::vector<double>>::ClassName()
+  {
+    return "Simple_double_vector_var";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::vector<int>>::ClassName()
+  {
+    return "Simple_int_vector_var";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::vector<std::size_t>>::ClassName()
+  {
+    return "Simple_count_vector_var";
+  }
+
+
+
+  template<>
+  std::string Implements_Simple_Var<Markov_LA::M_Matrix<double>>::ClassName()
+  {
+    return "Simple_double_Matrix_var";
+  }
+  template<>
+  std::string Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t>>::ClassName()
+  {
+    return "Simple_count_Matrix_var";
+  }
+
+
+
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,std::string>>::ClassName()
+  {
+    return "Simple_string_string_map";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::map<double,std::string>>::ClassName()
+  {
+    return "Simple_double_string_map";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<int,std::string>>::ClassName()
+  {
+    return "Simple_int_string_map";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<std::size_t,std::string>>::ClassName()
+  {
+    return "Simple_count_string_map";
+  }
+
+
+
+
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,std::size_t>>::ClassName()
+  {
+    return "Simple_string_count_map";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::map<double,std::size_t>>::ClassName()
+  {
+    return "Simple_double_count_map";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<int,std::size_t>>::ClassName()
+  {
+    return "Simple_int_count_map";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<std::size_t,std::size_t>>::ClassName()
+  {
+    return "Simple_count_count_map";
+  }
+
+
+
+
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,double>>::ClassName()
+  {
+    return "Simple_string_double_map";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::map<double,double>>::ClassName()
+  {
+    return "Simple_double_double_map";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<int,double>>::ClassName()
+  {
+    return "Simple_int_double_map";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<std::size_t,double>>::ClassName()
+  {
+    return "Simple_count_double_map";
+  }
+
+
+
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,int>>::ClassName()
+  {
+    return "Simple_string_int_map";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::map<double,int>>::ClassName()
+  {
+    return "Simple_double_int_map";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<int,int>>::ClassName()
+  {
+    return "Simple_int_int_map";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<std::size_t,int>>::ClassName()
+  {
+    return "Simple_count_int_map";
+  }
+
+
+
+
+
+
+
+
+
+
+
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,std::vector<std::string>>>::ClassName()
+  {
+    return "Simple_string_string_map_of_vectors";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::map<double,std::vector<std::string>>>::ClassName()
+  {
+    return "Simple_double_string_map_of_vectors";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<int,std::vector<std::string>>>::ClassName()
+  {
+    return "Simple_int_string_map_of_vectors";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<std::size_t,std::vector<std::string>>>::ClassName()
+  {
+    return "Simple_count_string_map_of_vectors";
+  }
+
+
+
+
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,std::vector<std::size_t>>>::ClassName()
+  {
+    return "Simple_string_count_map_of_vectors";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::map<double,std::vector<std::size_t>>>::ClassName()
+  {
+    return "Simple_double_count_map_of_vectors";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<int,std::vector<std::size_t>>>::ClassName()
+  {
+    return "Simple_int_count_map_of_vectors";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<std::size_t,std::vector<std::size_t>>>::ClassName()
+  {
+    return "Simple_count_count_map_of_vectors";
+  }
+
+
+
+
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,std::vector<double>>>::ClassName()
+  {
+    return "Simple_string_double_map_of_vectors";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::map<double,std::vector<double>>>::ClassName()
+  {
+    return "Simple_double_double_map_of_vectors";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<int,std::vector<double>>>::ClassName()
+  {
+    return "Simple_int_double_map_of_vectors";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<std::size_t,std::vector<double>>>::ClassName()
+  {
+    return "Simple_count_double_map_of_vectors";
+  }
+
+
+
+  template<>
+  std::string Implements_Simple_Var<std::map<std::string,std::vector<int>>>::ClassName()
+  {
+    return "Simple_string_int_map_of_vectors";
+  }
+
+  template<>
+  std::string Implements_Simple_Var<std::map<double,std::vector<int>>>::ClassName()
+  {
+    return "Simple_double_int_map_of_vectors";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<int,std::vector<int>>>::ClassName()
+  {
+    return "Simple_int_int_map_of_vectors";
+  }
+  template<>
+  std::string Implements_Simple_Var<std::map<std::size_t,std::vector<int>>>::ClassName()
+  {
+    return "Simple_count_int_map_of_vectors";
+  }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -296,6 +537,11 @@ namespace Markov_IO {
 
 
 
+  std::string Implements_Refer_Var::ClassName()
+  {
+    return "Refers_Variable";
+  }
+
   std::string Implements_Refer_Var::refId() const
   {
     return refId_;
@@ -342,6 +588,41 @@ namespace Markov_IO {
         pos+=4;
         return true;
       }
+  }
+
+  std::string Implements_Refer_Var::ith_Var(std::size_t i) const
+  {
+    if (refVar()!=nullptr)
+      return refVar()->ith_Var(i);
+    else return {};
+  }
+
+  const ABC_Var *Implements_Refer_Var::getVarId(const std::string &name) const
+  {
+    if (refVar()!=nullptr)
+      return refVar()->getVarId(name);
+    else return {};
+  }
+
+  ABC_Var *Implements_Refer_Var::getVarId(const std::string &name)
+  {
+    if (refVar()!=nullptr)
+      return refVar()->getVarId(name);
+    else return {};
+  }
+
+  const ABC_Var *Implements_Refer_Var::getVarId(const std::string &name, const std::string &kind) const
+  {
+    if (refVar()!=nullptr)
+      return refVar()->getVarId(name,kind);
+    else return {};
+  }
+
+  ABC_Var *Implements_Refer_Var::getVarId(const std::string &name, const std::string &kind)
+  {
+    if (refVar()!=nullptr)
+      return refVar()->getVarId(name,kind);
+    else return {};
   }
 
   bool Implements_Refer_Var::addVar(ABC_Var *var)
@@ -817,19 +1098,39 @@ namespace Markov_IO {
     return str_;
   }
 
-  double Token_New::num() const
+  double Token_New::realValue() const
   {
-    return number_;
-  }
+    switch (curr_tok) {
+      case UNSIGNED:
+        return size_;
+      case INTEGER:
+        return int_;
+      case REAL:
+        return number_;
+      default:
+        return {};
+      } }
 
   int Token_New::intval() const
   {
-    return int_;
+    switch (curr_tok) {
+      case UNSIGNED:
+        return size_;
+      case INTEGER:
+          return int_;
+      default:
+        return {};
+      }
   }
 
   std::size_t Token_New::count() const
   {
-    return size_;
+    switch (curr_tok) {
+      case UNSIGNED:
+        return size_;
+      default:
+        return {};
+      }
   }
 
   Token_New::Value Token_New::tok() const
@@ -982,6 +1283,8 @@ namespace Markov_IO {
     return out;
   }
 
+
+
   ABC_Var *ABC_Var::getFromTokens(ABC_Var* parent,
                                   const std::deque<Token_New> &t,
                                   std::size_t &pos)
@@ -991,60 +1294,285 @@ namespace Markov_IO {
 
     if (!n.processTokens(t,pos))
       return nullptr;
-    else
+    ABC_Var* out;
+    if (!(pos<t.size())) return nullptr;
+    Token_New to=t.at(pos);
+    if (to.tok()==Token_New::EQ)
       {
-        ABC_Var* out;
-        if (t.at(pos).tok()==Token_New::EQ)
-          {
+        ++pos;
+        if (!(pos<t.size())) return nullptr;
+        to=t.at(pos);
+        if (to.tok()==Token_New::MUL)
+          {  // reference var
+
             ++pos;
-            if (t.at(pos).tok()==Token_New::MUL)
-              {
-                // reference var
-                ++pos;
-                if (t.at(pos).tok()!=Token_New::IDENTIFIER)
-                  return nullptr;
-                else
-                  return new Implements_Refer_Var(parent,n.id(),n.myClass(),t.at(pos).str());
-              }
-            else
-              {
-                //Implements_Simple_Var, lets find out of what
-                switch (t.at(pos).tok())
-                  {
-                  case Token_New::REAL:
-                    return new Implements_Simple_Var<double>(parent,n.id(),t.at(pos).num(),n.myClass());
-                  case Token_New::INTEGER:
-                    return new Implements_Simple_Var<int>(parent,n.id(),t.at(pos).intval(),n.myClass());
-
-                  case Token_New::UNSIGNED:
-                    return new Implements_Simple_Var<std::size_t>(parent,n.id(),
-                                                                  t.at(pos).count(),n.myClass());
-
-                  case Token_New::IDENTIFIER:
-                    return new Implements_Simple_Var<std::string>(parent,n.id(),t.at(pos).str(),n.myClass());
-
-                  case Token_New::EOL:
-                    // that means it is a vector or map
-
-                    return nullptr;
-                  }
-
-              }
-          }
-        else if  (t.at(pos).tok()==Token_New::BEGIN)
-          {
-            // ABC_Complex_Var
-            out=new Implements_Complex_Var;
-            out->setParentVar(parent);
-            if (!out->processTokens(t,pos0))
+            if (!(pos<t.size())) return nullptr;
+            to=t.at(pos);
+            if (to.tok()!=Token_New::IDENTIFIER)
               return nullptr;
-            else return out;
+            else
+              return new Implements_Refer_Var(parent,n.id(),n.myClass(),t.at(pos).str());
           }
-
         else
-          return nullptr;
+          {
+            //Implements_Simple_Var, lets find out of what
+            switch (to.tok())
+              {
+              case Token_New::REAL:
+                return new Implements_Simple_Var<double>(parent,n.id(),to.realValue(),n.myClass());
+              case Token_New::INTEGER:
+                return new Implements_Simple_Var<int>(parent,n.id(),to.intval(),n.myClass());
+
+              case Token_New::UNSIGNED:
+                return new Implements_Simple_Var<std::size_t>(parent,n.id(),to.count(),n.myClass());
+
+              case Token_New::IDENTIFIER:
+                return new Implements_Simple_Var<std::string>(parent,n.id(),t.at(pos).str(),n.myClass());
+
+              case Token_New::EOL:
+                // that means it is a matrix, a vector or a map
+                {
+                  ++pos;
+                  if (!(pos<t.size())) return nullptr;
+                  to=t.at(pos);
+                  if (to.tok()==Token_New::LSB)  // vector or map !!
+                    {
+                      if ((pos+3<t.size())&&(t.at(pos+2).tok()==Token_New::COLON)) //map
+                        {  // it is a simple key map!!
+                          // lets find out the types
+                          to=t.at(pos+1);
+                          Token_New to2=t.at(pos+3);
+                          switch (to.tok())
+                            {
+                            case Token_New::REAL:
+                              switch (to2.tok())
+                                {
+                                case Token_New::REAL:
+                                  out=new Implements_Simple_Var<std::map<double,double>>;
+                                  break;
+                                case Token_New::INTEGER:
+                                  out=new Implements_Simple_Var<std::map<double,int>>;
+                                  break;
+                                case Token_New::UNSIGNED:
+                                  out=new Implements_Simple_Var<std::map<double,std::size_t>>;
+                                  break;
+                                case Token_New::IDENTIFIER:
+                                  out=new Implements_Simple_Var<std::map<double,std::string>>;
+                                  break;
+                                case Token_New::EOL:
+                                  if (!(pos+4<t.size()))
+                                    return nullptr;
+                                  to2=t.at(pos+4);
+                                  switch (to2.tok())
+                                    {
+                                    case Token_New::REAL:
+                                      out=new Implements_Simple_Var<std::map<double,std::vector<double>>>;
+                                      break;
+                                    case Token_New::INTEGER:
+                                      out=new Implements_Simple_Var<std::map<double,std::vector<int>>>;
+                                      break;
+                                    case Token_New::UNSIGNED:
+                                      out=new Implements_Simple_Var<std::map<double,
+                                          std::vector<std::size_t>>>;
+                                      break;
+                                    case Token_New::IDENTIFIER:
+                                      out=new Implements_Simple_Var<std::map<double,
+                                          std::vector<std::string>>>;
+                                      break;
+                                    default:
+                                      return nullptr;
+                                    }
+                                default:
+                                  return nullptr;
+                                }
+                              break;
+
+                            case Token_New::INTEGER:
+                              switch (to2.tok())
+                                {
+                                case Token_New::REAL:
+                                  out=new Implements_Simple_Var<std::map<int,double>>;
+                                  break;
+                                case Token_New::INTEGER:
+                                  out=new Implements_Simple_Var<std::map<int,int>>;
+                                  break;
+                                case Token_New::UNSIGNED:
+                                  out=new Implements_Simple_Var<std::map<int,std::size_t>>;
+                                  break;
+                                case Token_New::IDENTIFIER:
+                                  out=new Implements_Simple_Var<std::map<int,std::string>>;
+                                  break;
+                                case Token_New::EOL:
+                                  if (!(pos+4<t.size()))
+                                    return nullptr;
+                                  to2=t.at(pos+4);
+                                  switch (to2.tok())
+                                    {
+                                    case Token_New::REAL:
+                                      out=new Implements_Simple_Var<std::map<int,std::vector<double>>>;
+                                      break;
+                                    case Token_New::INTEGER:
+                                      out=new Implements_Simple_Var<std::map<int,std::vector<int>>>;
+                                      break;
+                                    case Token_New::UNSIGNED:
+                                      out=new Implements_Simple_Var<std::map<int,
+                                          std::vector<std::size_t>>>;
+                                      break;
+                                    case Token_New::IDENTIFIER:
+                                      out=new Implements_Simple_Var<std::map<int,
+                                          std::vector<std::string>>>;
+                                      break;
+                                    default:
+                                      return nullptr;
+                                    }
+                                default:
+                                  return nullptr;
+                                }
+                              break;
+                            case Token_New::UNSIGNED:
+                              switch (to2.tok())
+                                {
+                                case Token_New::REAL:
+                                  out=new Implements_Simple_Var<std::map<std::size_t,double>>;
+                                  break;
+                                case Token_New::INTEGER:
+                                  out=new Implements_Simple_Var<std::map<std::size_t,int>>;
+                                  break;
+                                case Token_New::UNSIGNED:
+                                  out=new Implements_Simple_Var<std::map<std::size_t,std::size_t>>;
+                                  break;
+                                case Token_New::IDENTIFIER:
+                                  out=new Implements_Simple_Var<std::map<std::size_t,std::string>>;
+                                  break;
+                                case Token_New::EOL:
+                                  switch (to2.tok())
+                                    {
+                                    case Token_New::REAL:
+                                      out=new Implements_Simple_Var<std::map<std::size_t
+                                          ,std::vector<double>>>;
+                                      break;
+                                    case Token_New::INTEGER:
+                                      out=new Implements_Simple_Var<std::map<std::size_t,
+                                          std::vector<int>>>;
+                                      break;
+                                    case Token_New::UNSIGNED:
+                                      out=new Implements_Simple_Var<std::map<std::size_t,
+                                          std::vector<std::size_t>>>;
+                                      break;
+                                    case Token_New::IDENTIFIER:
+                                      out=new Implements_Simple_Var<std::map<std::size_t,
+                                          std::vector<std::string>>>;
+                                      break;
+                                    default:
+                                      return nullptr;
+                                    }
+                                default:
+                                  return nullptr;
+                                }
+                              break;
+                            case Token_New::IDENTIFIER:
+                              switch (to2.tok())
+                                {
+                                case Token_New::REAL:
+                                  out=new Implements_Simple_Var<std::map<std::string,double>>;
+                                  break;
+                                case Token_New::INTEGER:
+                                  out=new Implements_Simple_Var<std::map<std::string,int>>;
+                                  break;
+                                case Token_New::UNSIGNED:
+                                  out=new Implements_Simple_Var<std::map<std::string,std::size_t>>;
+                                  break;
+                                case Token_New::IDENTIFIER:
+                                  out=new Implements_Simple_Var<std::map<std::string,std::string>>;
+                                  break;
+                                case Token_New::EOL:
+                                  switch (to2.tok())
+                                    {
+                                    case Token_New::REAL:
+                                      out=new Implements_Simple_Var<std::map<std::string
+                                          ,std::vector<double>>>;
+                                      break;
+                                    case Token_New::INTEGER:
+                                      out=new Implements_Simple_Var<std::map<std::string,
+                                          std::vector<int>>>;
+                                      break;
+                                    case Token_New::UNSIGNED:
+                                      out=new Implements_Simple_Var<std::map<std::string,
+                                          std::vector<std::size_t>>>;
+                                      break;
+                                    case Token_New::IDENTIFIER:
+                                      out=new Implements_Simple_Var<std::map<std::string,
+                                          std::vector<std::string>>>;
+                                      break;
+                                    default:
+                                      return nullptr;
+                                    }
+                                default:
+                                  return nullptr;
+                                }
+                              break;
+                            default:
+                              return nullptr;
+                            }
+                        }
+                      else   //vector
+                         { switch (to.tok())
+                            {
+                            case Token_New::REAL:
+                              out=new Implements_Simple_Var<std::vector<double>>;
+                              break;
+                            case Token_New::INTEGER:
+                              out=new Implements_Simple_Var<std::vector<int>>;
+                              break;
+                            case Token_New::UNSIGNED:
+                              out=new Implements_Simple_Var<std::vector<std::size_t>>;
+                              break;
+                            case Token_New::IDENTIFIER:
+                              out=new Implements_Simple_Var<std::vector<std::string>>;
+                              break;
+                            default:
+                              return nullptr;
+                            }
+                        }
+
+                    }
+                  else switch (to.tok()) // matrix
+                    {
+                    case Token_New::REAL:
+                      out=new Implements_Simple_Var<Markov_LA::M_Matrix<double>>;
+                      break;
+                    case Token_New::UNSIGNED:
+                      out=new Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t>>;
+                      break;
+                    default:
+                      return nullptr;
+                    }
+                  out->setParentVar(parent);
+                  if (!out->processTokens(t,pos0))
+                    return nullptr;
+                  else
+                    return out;
+                }
+              }
+          }
       }
+    else if  (t.at(pos).tok()==Token_New::BEGIN)
+      {
+        // ABC_Complex_Var
+        out=new Implements_Complex_Var;
+        out->setParentVar(parent);
+        if (!out->processTokens(t,pos0))
+          return nullptr;
+        else return out;
+      }
+    else
+      return nullptr;
   }
+
+
+
+
+
 
   bool ABC_Var::isValidId(std::string name)
   {
@@ -1117,9 +1645,9 @@ namespace Markov_IO {
     for (auto e:id_superClass_ClassId)
       {
         addVar(new Implements_Refer_Var(parentVar(),
-                                               e.first,
-                                               e.second.first,
-                                               e.second.second));
+                                        e.first,
+                                        e.second.first,
+                                        e.second.second));
       }
   }
 
@@ -1156,7 +1684,12 @@ namespace Markov_IO {
         v->setId(ith_Var(i));
         out->addVar(v);
       }
-     return out;
+    return out;
+  }
+
+  void Implements_Complex_Class::push_back(const std::string &idName, const std::string &superclassname, const std::string &classname)
+  {
+    addVar(new Implements_Refer_Var(parentVar(),idName,superclassname, classname));
   }
 
   template<typename T>
@@ -1217,6 +1750,50 @@ namespace Markov_IO {
   void Implements_Simple_Class<T>::setmaxValue(T val)
   {
     dynamic_cast<Implements_Simple_Var<T>*>(getVarId("max"))->setValue(val);
+  }
+
+  template<typename T>
+  Implements_Simple_Class<T>::
+  Implements_Simple_Class(ABC_Var *parent,
+                          std::string id,
+                          T defaultValue,
+                          T minValue,
+                          T maxValue,
+                          std::string className):
+    Implements_Complex_Var(parent,id,className,{})
+  {
+    addVar(new Implements_Simple_Var<T>(this,"default",defaultValue));
+    addVar(new Implements_Simple_Var<T>(this,"min",minValue));
+    addVar(new Implements_Simple_Var<T>(this,"max",maxValue));
+
+  }
+
+  template<typename T>
+  Implements_Simple_Class<T>::Implements_Simple_Class():
+    Implements_VarId(0,ClassName(),ClassName()),
+    default_{}, min_{},max_{}{}
+
+  template<typename T>
+  Implements_Simple_Var<T> *Implements_Simple_Class<T>::varTemplate() const
+  {
+    return new Implements_Simple_Var<T>(this,"",defaultValue(),id());
+  }
+
+
+  template<typename T>
+  bool Implements_Simple_Class<T>::isInDomain(const ABC_Var *value) const
+  {
+    Implements_Simple_Var<T>* p=dynamic_cast<Implements_Simple_Var<T>* > (value);
+    if (p!=nullptr)
+      {
+        if ((minValue()!=emptyValue())&&(p->value()<minValue()))
+          return false;
+        else if ((maxValue()!=emptyValue())&&(p->value()>maxValue()))
+          return false;
+        else return true;
+      }
+    else
+      return false;
   }
 
 

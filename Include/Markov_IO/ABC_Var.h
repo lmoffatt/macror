@@ -13,6 +13,7 @@
 #include <sstream>
 
 #include <limits>
+#include "Markov_LA/Matrix.h"
 namespace  Markov_IO {
 
   class ABC_Var;
@@ -85,7 +86,7 @@ namespace  Markov_IO {
 
     std::string str()const;
 
-    double num()const;
+    double realValue()const;
 
     int  intval()const;
 
@@ -94,6 +95,20 @@ namespace  Markov_IO {
     Value tok()const;
 
     std::string toString()const;
+
+    bool isReal()const
+    {
+      return (tok()==REAL)||(tok()==INTEGER)||(tok()==UNSIGNED);
+    }
+    bool isInteger()const
+    {
+      return (tok()==INTEGER)||(tok()==UNSIGNED);
+    }
+    bool isCount()const
+    {
+      return tok()==UNSIGNED;
+    }
+
 
 
     static Value toKeyword(std::string identifier);
@@ -130,11 +145,47 @@ namespace  Markov_IO {
   inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
                                            double d);
 
-
   template<typename T>
-  inline bool toValue(const std::deque<Token_New> &tok,
-                      T &val,
-                      std::size_t& i=0);
+  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::vector<T> v)
+  {
+    tok<<"[";
+    for (T e:v)
+      tok<<e;
+    tok<<"]"<<"\n";
+    return tok;
+  }
+  template<typename T>
+  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, Markov_LA::M_Matrix<T> m)
+  {
+    for (std::size_t i=0; i<Markov_LA::nrows(m); ++i)
+      {
+        for(std::size_t j=0; i<Markov_LA::ncols(m); ++j)
+          {
+            tok<<m(i,j);
+          }
+        tok<<"\n";
+      }
+    tok<<"\n";
+    return tok;
+  }
+
+  template<typename K,typename T>
+  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::pair<K,T> e)
+  {
+    tok<<e.first<<":"<<e.second;
+    return tok;
+  }
+
+  template<typename K,typename T>
+  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::map<K,T> m)
+  {
+    tok<<"[";
+    for (std::pair<K,T> e:m)
+      tok<<e;
+    tok<<"]"<<"\n";
+    return tok;
+  }
+
 
   template<typename T>
   inline std::deque<Token_New> toToken(const T& val)
@@ -144,66 +195,59 @@ namespace  Markov_IO {
     return out;
   }
 
-
-  template<typename T>
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::vector<T> v)
+  inline bool toValue(const std::deque<Token_New> &tok,double &val,std::size_t& i)
   {
-    for (T e:v)
-      tok.push_back(Token_New(e));
-    return tok;
-  }
-
-  template<>
-  inline bool toValue(const std::deque<Token_New> &tok,double &val,
-               std::size_t& i)
-  {
-    if (tok.at(i).tok()!=Token_New::REAL)
+    if (i<tok.size()) return false;
+    Token_New t=tok.at(i);
+    if (!t.isReal())
       return false;
     else
       {
-        val=tok.at(i).num();
+        val=t.realValue();
         ++i;
         return true;
       }
   }
 
 
-  template<>
   inline bool toValue(const std::deque<Token_New> &tok,
-               int &val,
-               std::size_t& i)
+                      int &val,
+                      std::size_t& i)
   {
-    if (tok.at(i).tok()!=Token_New::INTEGER)
+    if (i<tok.size()) return false;
+    Token_New t=tok.at(i);
+    if (!t.isInteger())
       return false;
     else
       {
-        val=tok.at(i).num();
+        val=t.intval();
         ++i;
         return true;
       }
   }
 
-  template<>
   inline bool toValue(const std::deque<Token_New> &tok,
-               std::size_t &val,
-               std::size_t& i)
+                      std::size_t &val,
+                      std::size_t& i)
   {
-    if (tok.at(i).tok()!=Token_New::UNSIGNED)
+    if (i<tok.size()) return false;
+    Token_New t=tok.at(i);
+    if (!t.isCount())
       return false;
     else
       {
-        val=tok.at(i).num();
+        val=t.count();
         ++i;
         return true;
       }
   }
 
 
-  template<>
   inline bool toValue(const std::deque<Token_New> &tok,
-               std::string &val,
-               std::size_t& i)
+                      std::string &val,
+                      std::size_t& i)
   {
+    if (i<tok.size()) return false;
     if (tok.at(i).tok()!=Token_New::IDENTIFIER)
       return false;
     else
@@ -215,25 +259,139 @@ namespace  Markov_IO {
   }
 
 
-  template<>
+  template<typename T>
   inline bool toValue(const std::deque<Token_New> &tok,
-          std::vector<std::string> &val,
-          std::size_t& i)
+                      std::vector<T> &vec,
+                      std::size_t& i)
   {
-    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
+    // checks the initial squarebracket
+    if ((!(i<tok.size()))||(tok.at(i).tok()!=Token_New::LSB))
+      return false;
+    ++i;
+    T val;
+    if (!toValue(tok,val,i))
       return false;
     else
       {
-        while ((i<tok.size())&&(tok.at(i).tok()==Token_New::IDENTIFIER))
+        vec.push_back(val);
+        while (toValue(tok,val,i))
           {
-            val.push_back(tok.at(i).str());
-            ++i;
+            vec.push_back(val);
           }
-
+        if ((!(i<tok.size()))||(tok.at(i).tok()!=Token_New::RSB))
+          return false;
         return true;
       }
   }
 
+  template<typename T>
+  inline bool toValue(const std::deque<Token_New> &tok,
+                      Markov_LA::M_Matrix<T> &m,
+                      std::size_t& i)
+  {
+    std::vector<T> v;
+    T val;
+    if (Markov_LA::size(m)==0)// we have to determine the size ourselves
+      {
+        std::size_t ncols=0;
+        std::size_t icol=0;
+        std::size_t irow=0;
+        while (toValue(tok,val,i))
+          {
+            ++irow;
+            ++icol;
+            v.push_back(val);
+            while (toValue(tok,val,i))
+              {
+                ++i;
+                icol++;
+                v.push_back(val);
+              }
+            // we consider as candidates all the things until there is and end of line
+            if (ncols==0)
+              ncols=icol;
+            else if (ncols!=icol)
+              return false;
+            icol=0;
+          }
+        m=Markov_LA::M_Matrix<T>(irow,ncols,v);
+        return true;
+        // lets see if there are more things
+      }
+    else
+      {
+        for (std::size_t ii=0; ii<Markov_LA::nrows(m); ++ii)
+          {
+            for (std::size_t j=0; j<Markov_LA::ncols(m); ++j)
+              {
+                if (toValue(tok,val,i))
+                  m(ii,j)=val;
+                else
+                  return false;
+              }
+            if ((i>=tok.size())||(tok.at(i).tok()!=Token_New::EOL))
+              return false;
+            else
+              ++i;
+          }
+        return true;
+      }
+  }
+
+
+  template<typename K,typename T>
+  inline bool toValue(const std::deque<Token_New> &tok,
+                      std::pair<K,T>& p,
+                      std::size_t& i)
+  {
+    if (!i+2<tok.size())
+      return false;
+    auto pos0=i;
+
+    K k;
+    T t;
+    if (tok.at(i+1).tok()!=Token_New::COLON)
+      return false;
+    if (!toValue(tok,k,i))
+      return false;
+    ++i;
+    if (!toValue(tok,t,i))
+      {
+        i=pos0;
+        return false;
+      }
+    else
+      {
+        p.first=k;
+        p.second=t;
+        return true;
+      }
+  }
+
+  template<typename K,typename T>
+  inline bool toValue(const std::deque<Token_New> &tok,
+                      std::map<K,T> &map,
+                      std::size_t& i)
+  {
+    // checks the initial squarebracket
+    if ((!(i<tok.size()))||(tok.at(i).tok()!=Token_New::LSB))
+      return false;
+    ++i;
+    std::pair<K,T> val;
+    if (!toValue(tok,val,i))
+      return false;
+    else
+      {
+        map.insert(val);
+        while (toValue(tok,val,i))
+          {
+            map.insert(val);
+          }
+        if ((!(i<tok.size()))||(tok.at(i).tok()!=Token_New::RSB))
+          return false;
+        return true;
+      }
+  }
 
 
 
@@ -447,46 +605,21 @@ namespace  Markov_IO {
     void setmaxValue(T val);
 
 
-   Implements_Simple_Class(ABC_Var* parent,
+    Implements_Simple_Class(ABC_Var* parent,
                             std::string id,
                             T defaultValue=T(),
                             T minValue=T(),
                             T maxValue=T(),
-                            std::string className=ClassName()):
-      Implements_Complex_Var(parent,id,className,{})
-    {
-      addVar(new Implements_Simple_Var<T>(this,"default",defaultValue));
-      addVar(new Implements_Simple_Var<T>(this,"min",minValue));
-      addVar(new Implements_Simple_Var<T>(this,"max",maxValue));
-
-    }
+                            std::string className=ClassName());
 
 
-    Implements_Simple_Class():
-      Implements_VarId(0,ClassName(),ClassName()),
-      default_{}, min_{},max_{}{}
+    Implements_Simple_Class();
 
 
     virtual ~Implements_Simple_Class(){}
-    virtual Implements_Simple_Var<T>* varTemplate()const  override
-    {
-      return new Implements_Simple_Var<T>(this,"",defaultValue(),id());
-    }
+    virtual Implements_Simple_Var<T>* varTemplate()const  override;
 
-    virtual bool isInDomain(const ABC_Var *value) const  override
-    {
-      Implements_Simple_Var<T>* p=dynamic_cast<Implements_Simple_Var<T>* > (value);
-      if (p!=nullptr)
-        {
-          if ((minValue()!=emptyValue())&&(p->value()<minValue()))
-            return false;
-          else if ((maxValue()!=emptyValue())&&(p->value()>maxValue()))
-            return false;
-          else return true;
-        }
-      else
-        return false;
-    }
+    virtual bool isInDomain(const ABC_Var *value) const  override;
   private:
 
     T default_;
@@ -503,10 +636,7 @@ namespace  Markov_IO {
     // ABC_Var interface
   public:
 
-    static std::string ClassName()
-    {
-      return "Refers_Variable";
-    }
+    static std::string ClassName();
 
     virtual std::string refId()const override;
     virtual ABC_Var* refVar() override;
@@ -530,44 +660,16 @@ namespace  Markov_IO {
                                std::size_t& pos)override;
 
 
-    virtual std::string ith_Var(std::size_t i)const  override
-    {
-      if (refVar()!=nullptr)
-        return refVar()->ith_Var(i);
-      else return {};
-    }
+    virtual std::string ith_Var(std::size_t i)const  override;
 
-    virtual const ABC_Var* getVarId(const std::string& name)const  override
-    {
-      if (refVar()!=nullptr)
-        return refVar()->getVarId(name);
-      else return {};
-    }
-    virtual ABC_Var* getVarId(const std::string &name)  override
-    {
-      if (refVar()!=nullptr)
-        return refVar()->getVarId(name);
-      else return {};
-    }
+    virtual const ABC_Var* getVarId(const std::string& name)const  override;
+    virtual ABC_Var* getVarId(const std::string &name)  override;
 
-    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const  override
-    {
-      if (refVar()!=nullptr)
-        return refVar()->getVarId(name,kind);
-      else return {};
-    }
-    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind)  override
-    {
-      if (refVar()!=nullptr)
-        return refVar()->getVarId(name,kind);
-      else return {};
-    }
+    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const  override;
+    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind)  override;
 
 
     virtual bool addVar(ABC_Var* var) override;
-
-
-
 
   };
 
@@ -587,17 +689,11 @@ namespace  Markov_IO {
 
     virtual bool isInDomain(const ABC_Var *value) const  override;
     virtual Implements_Complex_Var *varTemplate() const override;
-  protected:
-    std::vector<ABC_Var*> getChildVars()const;
-
     // ABC_Complex_Var interface
   public:
     virtual void push_back(const std::string& idName,
                            const std::string& superclassname,
-                           const std::string& classname)
-    {
-      addVar(new Implements_Refer_Var(parentVar(),idName,superclassname, classname));
-    }
+                           const std::string& classname);
 
 
   };
@@ -605,11 +701,45 @@ namespace  Markov_IO {
 
 
 
-  class Implements_Categorical : virtual public ABC_Var, public Implements_VarId
+  class Implements_Categorical : public Implements_Simple_Var<int>
   {
 
+    static std::string ClassName();
+
+    static std::set<std::string> SuperClasses();
+
+    virtual std::set<std::string> mySuperClasses()override;
 
 
+
+
+
+
+    // ABC_Var interface
+  public:
+    virtual std::deque<Token_New> toTokens() const;
+    virtual bool processTokens(const std::deque<Token_New> &tokenList, std::size_t &pos);
+
+  };
+
+  class Implements_Categorical_Class : public Implements_Simple_Var<int>
+  {
+
+    static std::string ClassName();
+
+    static std::set<std::string> SuperClasses();
+
+    virtual std::set<std::string> mySuperClasses()override;
+
+
+
+
+
+
+    // ABC_Var interface
+  public:
+    virtual std::deque<Token_New> toTokens() const;
+    virtual bool processTokens(const std::deque<Token_New> &tokenList, std::size_t &pos);
 
   };
 
