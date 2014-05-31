@@ -260,7 +260,8 @@ HEADERS += \
     Include/Markov_IO/ABC_Y_dt.h \
     Include/Markov_IO/ABC_Unit.h
 
-SOURCES += \
+SOURCES +=  \
+    Source/Markov_IO/ABC_Var.cpp\
     Source/Markov_IO/ABC_Unit.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
@@ -471,8 +472,7 @@ HEADERS += \
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp \
-    Source/Markov_IO/ABC_Var.cpp
+    Source/Markov_Console/BayesianAutocomplete.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

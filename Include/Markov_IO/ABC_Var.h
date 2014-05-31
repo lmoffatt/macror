@@ -421,6 +421,18 @@ namespace  Markov_IO {
 
     virtual ABC_Var* varTemplate()const=0;
 
+    virtual bool unload_ABC_Var()=0;
+    virtual ABC_Var* load_ABC_Var() =0;
+
+    template<typename T>
+    bool getValue(const std::string& name, T& value)const;
+
+    template<typename T>
+    bool setValue(const std::string& name, const T& value);
+
+    bool getCategory(const std::string& name, int& i)const;
+    bool setCategory(const std::string &name, const std::string& categ);
+
 
   };
 
@@ -457,6 +469,11 @@ namespace  Markov_IO {
                      const std::string className);
     Implements_VarId();
     virtual ~Implements_VarId(){}
+
+    virtual bool unload_ABC_Var()override;
+    virtual ABC_Var* load_ABC_Var()override;
+
+
   protected:
     std::string id_;
     std::string class_;
@@ -502,6 +519,8 @@ namespace  Markov_IO {
     Implements_Simple_Var()=default;
     virtual ~Implements_Simple_Var(){}
 
+    virtual Implements_Simple_Var<T>* load_ABC_Var()  override;
+
   private:
     T value_;
   };
@@ -536,6 +555,8 @@ namespace  Markov_IO {
 
     virtual bool processTokens(const std::deque<Token_New> &tokenList,
                                std::size_t &pos) override;
+
+
 
   protected:
     std::vector<std::string> ids_;
@@ -582,6 +603,8 @@ namespace  Markov_IO {
     virtual  Implements_Simple_Var<T>* varTemplate()const  override;
 
     virtual bool isInDomain(const ABC_Var *value) const  override;
+
+
   private:
 
     T default_;
@@ -671,20 +694,11 @@ namespace  Markov_IO {
   {
   public:
 
-    static std::string ClassName()
-    {
-      return "Category_Class";
-    }
+    static std::string ClassName();
 
-    static std::set<std::string> SuperClasses()
-    {
-      return Implements_Simple_Var<std::map<std::string,int>>::SuperClasses()+ClassName();
-    }
+    static std::set<std::string> SuperClasses();
 
-    virtual std::set<std::string> mySuperClasses()override
-    {
-      return SuperClasses();
-    }
+    virtual std::set<std::string> mySuperClasses()override;
 
     virtual std::string Category(int i)const;
 
@@ -748,6 +762,7 @@ public:
     virtual const Implements_Categorical_Class* motherClass()const;
     virtual Implements_Categorical_Class* motherClass();
 
+
   private:
     int rank_;
   };
@@ -757,60 +772,10 @@ public:
   template<>
   std::string Implements_Simple_Var<std::vector<std::string>>::ClassName();
 
-  class Categorical_Options: public Implements_Simple_Var<std::vector<std::string> >
-  {
-    // ABC_Var interface
-  public:
-    static std::string ClassName()
-    {
-      return "Categorical_Options";
-    }
-
-
-
-
-
-    Categorical_Options(ABC_Var* parent,
-                        std::string id,
-                        const std::vector<std::string>& options):
-      Implements_Simple_Var<std::vector<std::string> >(parent,id,options)
-    {}
-
-    Categorical_Options()=default;
-
-    virtual ~Categorical_Options(){}
-
-
-
-  };
-
-
   template<>
   std::string Implements_Simple_Var<std::string>::ClassName();
 
 
-  class Categorical_Data: public Implements_Simple_Var<int>
-  {
-    // ABC_Var interface
-  public:
-    static std::string ClassName()
-    {
-      return "Categorical_Data";
-    }
-
-
-    Categorical_Data(ABC_Var* parent,
-                     std::string categoricalData,
-                     int ind,
-                     std::string catclass):
-      Implements_Simple_Var<int>(parent,categoricalData,ind,catclass){}
-
-    Categorical_Data()=default;
-
-    virtual ~Categorical_Data(){}
-
-
-  };
 
 
   inline std::ostream& operator<<(std::ostream& os, std::vector<std::string> data )
@@ -822,6 +787,33 @@ public:
     return os;
   }
 
+  template<typename T>
+  bool ABC_Var::getValue(const std::string &name, T &value) const
+  {
+    const Implements_Simple_Var<T>* o=dynamic_cast<const Implements_Simple_Var<T>*>(getVarId(name));
+
+    if (o!=nullptr)
+      {
+        value=o->value();
+        return true;
+      }
+    else
+      return false;
+   }
+
+  template<typename T>
+  bool ABC_Var::setValue(const std::string &name, const T &value)
+  {
+    Implements_Simple_Var<T>* o=dynamic_cast<Implements_Simple_Var<T>*>(getVarId(name));
+
+    if (o!=nullptr)
+      {
+        o->setValue(value);
+        return true;
+      }
+    else
+      return false;
+   }
 
 
 

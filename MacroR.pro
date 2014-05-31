@@ -60,7 +60,8 @@ SOURCES -=Source/main_MacroConsole.cpp
 
 SOURCES += \
     Source/main_MacroR.cpp \
-  #  Source/Markov_Console/Markov_CommandManagerGui.cpp \
+  #  Source/Markov_Console/Markov_CommandManagerGui.cpp  \
+    Source/Markov_GUI/ABC_Var_GUI.cpp\
     Source/Markov_GUI/MacrorMainWindow.cpp \
     Source/Markov_GUI/MacrorCommandWindow.cpp \
     Source/Markov_GUI/MacrorCommandHistory.cpp \
@@ -104,7 +105,8 @@ message ("MacroR ends here")
 HEADERS += \
     Include/Markov_Plot/PlotCommand.h \
     Include/Markov_GUI/CdCommandGUI.h \
-    Include/Markov_GUI/MyInputDialog.h
+    Include/Markov_GUI/MyInputDialog.h \
+    Include/Markov_GUI/ABC_Var_GUI.h
 
 SOURCES += \
     Source/Markov_Plot/PlotCommand.cpp \

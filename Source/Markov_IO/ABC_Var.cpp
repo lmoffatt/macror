@@ -376,6 +376,13 @@ namespace Markov_IO {
     value_(val){}
 
 
+  template<typename T>
+  Implements_Simple_Var<T> *Implements_Simple_Var<T>::load_ABC_Var()
+  {
+    return this;
+  }
+
+
 
   template
   class Implements_Simple_Var<double>;
@@ -497,6 +504,44 @@ namespace Markov_IO {
     id_{},
     class_{},
     p_(nullptr){}
+
+  bool Implements_VarId::unload_ABC_Var()
+  {
+    return true;
+  }
+
+  ABC_Var *Implements_VarId::load_ABC_Var()
+  {
+    return this;
+  }
+
+
+  bool ABC_Var::getCategory(const std::string &name, int &i) const
+  {
+    const Implements_Categorical* o=dynamic_cast<const Implements_Categorical*>(getVarId(name));
+
+    if (o!=nullptr)
+      {
+        i=o->Rank();
+        return true;
+      }
+    else
+      return false;
+
+  }
+
+  bool ABC_Var::setCategory(const std::string &name, const std::string& categ)
+  {
+     Implements_Categorical* o=dynamic_cast< Implements_Categorical*>(getVarId(name));
+
+    if (o!=nullptr)
+      {
+        o->setCategory(categ);
+        return true;
+      }
+    else
+      return false;
+  }
 
   void Implements_VarId::setParentVar(ABC_Var *par)
   {
@@ -1999,6 +2044,21 @@ namespace Markov_IO {
   Implements_Categorical_Class *Implements_Categorical::motherClass()
   {
     return dynamic_cast<Implements_Categorical_Class*>(parentVar()->getVarId(myClass()));
+  }
+
+  std::string Implements_Categorical_Class::ClassName()
+  {
+    return "Category_Class";
+  }
+
+  std::set<std::string> Implements_Categorical_Class::SuperClasses()
+  {
+    return Implements_Simple_Var<std::map<std::string,int>>::SuperClasses()+ClassName();
+  }
+
+  std::set<std::string> Implements_Categorical_Class::mySuperClasses()
+  {
+    return SuperClasses();
   }
 
   std::string Implements_Categorical_Class::Category(int i) const

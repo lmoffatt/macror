@@ -408,54 +408,6 @@ std::string Scale::ClassName()
   return "Scale";
 }
 
-Markov_IO::ClassDescription Scale::GetDescription() const
-
-{
-  Markov_IO::ClassDescription desc(myClass(),mySuperClass());
-  double max;
-  AxisType axis;
-  QString title;
-  QString units;
-  double length;
-  double width;
-  Type scaletype;
-
-  desc.push_back("name",this->myName());
-  desc.push_back("min",
-                 this->min(),
-                 "[mininum]",
-                 "minimum value of the scale");
-  desc.push_back("max",
-                 this->max(),
-                 "[maximum]",
-                 "maximum value of the scale");
-  desc.push_back("Axis_Type",
-                 this->toString(axis_),
-                 "[axisType]",
-                 "x axis or y axis ");
-  desc.push_back("Title",
-                 this->Title().toStdString(),
-                 "[title]",
-                 "axis title");
-  desc.push_back("Units",
-                 this->units_.toStdString(),
-                 "[units]",
-                 "units");
-
-
-
-  return desc;
-}
-
-bool Scale::LoadFromDescription(const Markov_IO::ClassDescription &classDes)
-{
-
-}
-
-std::string Scale::myName() const
-{
-  return name_;
-}
 
 void Scale::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                   QWidget *widget)
@@ -536,24 +488,8 @@ Scale::Scale(ABC_Var *e,
     reset();
     setAcceptHoverEvents(true);
 
-    addVar(new Markov_IO::Implements_Simple_Var<double>(this,"min",min));
-    addVar(new Markov_IO::Implements_Simple_Var<double>(this,"max",max));
-    addVar(new Markov_IO::Implements_Simple_Var<double>(this,"length",length));
-    addVar(new Markov_IO::Implements_Simple_Var<double>(this,"width",width));
-    addVar(new Markov_IO::Implements_Simple_Var<std::string>(
-             this,"title",title.toStdString()));
-    addVar(new Markov_IO::Implements_Simple_Var<std::string>(
-             this,"units",units.toStdString()));
-    addVar(new Markov_IO::Implements_Categorical_Class(this,"AxisType",{{"xaxis"},{"yaxis"}},"xaxis"));
-    addVar(new Markov_IO::Implements_Categorical_Class(
-             this,"ScaleType",{{"LinearScale"},{"LogScale"}},"LinearScale"));
-    addVar(new Markov_IO::Implements_Categorical(
-             this,"axis",static_cast<int>(axis),"AxisType"));
-    addVar(new Markov_IO::Implements_Categorical(
-             this,"saletype",static_cast<int>(scaletype),"ScaleType"));
 
-    std::string out=Implements_Complex_Var::toString();
-/*
+   /*
     getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<double>);
 
     getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<std::string>,
@@ -573,11 +509,14 @@ Scale::Scale(ABC_Var *e,
     getEnvironment()->addClass(new Scale,
                                Scale::ClassName());
 */
-    std::cerr<<out;
+
+
+    ABC_Var* a=load_ABC_Var();
+
 
 
     std::deque<Markov_IO::Token_New> t;
-    t<<out;
+    t<<a->toTokens();
     std::size_t pos=0;
     auto d =Markov_IO::ABC_Var::getFromTokens(this,t,pos);
 
