@@ -12,7 +12,7 @@ namespace Markov_Plot
                        Markov_IO::ABC_Var* e,
                        qreal width,
                        qreal height):
-    Markov_IO::Implements_Complex_Var(e,"","GraphView",{}),
+    Markov_IO::Implements_Complex_Var(e,"","GraphView",{},"",""),
     QGraphicsView(parent),
     gscene_(new QGraphicsScene(0.0,0.0,width,height,parent)),
     height_(height),

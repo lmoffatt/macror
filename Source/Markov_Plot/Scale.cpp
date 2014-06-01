@@ -462,7 +462,7 @@ Scale::Scale(ABC_Var *e,
              double width,
              Type scaletype
              ):
-  Markov_IO::Implements_Complex_Var(e,title.toStdString(),"scale",{}),
+  Markov_IO::Implements_Complex_Var(e,title.toStdString(),"scale",{},"a tip","a whats up"),
   axis_(axis),
     type_(scaletype),
     rangeCalc_(Scale::Pad5PercentRange),
@@ -521,6 +521,14 @@ Scale::Scale(ABC_Var *e,
     auto d =Markov_IO::ABC_Var::getFromTokens(this,t,pos);
 
     std::cerr<<d->toString();
+
+    std::string s=d->toString();
+    std::deque<Markov_IO::Token_New> t2;
+    t2<<s;
+    std::size_t pos2=0;
+    auto d2 =Markov_IO::ABC_Var::getFromTokens(this,t2,pos2);
+    std::cerr<<d2->toString();
+
 
 
 

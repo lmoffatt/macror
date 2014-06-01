@@ -371,8 +371,10 @@ namespace Markov_IO {
   Implements_Simple_Var(ABC_Var *parent,
                         std::string id,
                         T val,
-                        std::string className):
-    Implements_VarId(parent,id,className),
+                        std::string className,
+                        const std::string& tip,
+                        const std::string& whatthis):
+    Implements_VarId(parent,id,className,tip,whatthis),
     value_(val){}
 
 
@@ -405,6 +407,26 @@ namespace Markov_IO {
   void Implements_VarId::setId(const std::string &IdName)
   {
     id_=IdName;
+  }
+
+  std::string Implements_VarId::Tip() const
+  {
+    return tip_;
+  }
+
+  std::string Implements_VarId::WhatThis() const
+  {
+    return whatThis_;
+  }
+
+  void Implements_VarId::setTip(const std::string &tip)
+  {
+    tip_=tip;
+  }
+
+  void Implements_VarId::setWhatThis(const std::string &whatThis)
+  {
+    whatThis_=whatThis;
   }
 
   std::size_t Implements_VarId::numChildVars() const
@@ -494,11 +516,16 @@ namespace Markov_IO {
 
 
   Implements_VarId::Implements_VarId(ABC_Var *parent,
-                                     const std::string &name, const std::string className)
+                                     const std::string &name,
+                                     const std::string &className,
+                                     const std::string &tip,
+                                     const std::string &whatthis)
     :
       id_(ABC_Var::isValidId(name)?name:""),
       class_(ABC_Var::isValidId(className)?className:""),
-      p_(parent){}
+      p_(parent),
+      tip_(tip),
+      whatThis_(whatthis){}
 
   Implements_VarId::Implements_VarId():
     id_{},
@@ -532,7 +559,7 @@ namespace Markov_IO {
 
   bool ABC_Var::setCategory(const std::string &name, const std::string& categ)
   {
-     Implements_Categorical* o=dynamic_cast< Implements_Categorical*>(getVarId(name));
+    Implements_Categorical* o=dynamic_cast< Implements_Categorical*>(getVarId(name));
 
     if (o!=nullptr)
       {
@@ -576,13 +603,40 @@ namespace Markov_IO {
 
   std::deque<Token_New> Implements_VarId::toTokens() const
   {
-    return {{id()},{":"},{myClass()}};
+    std::deque<Token_New> out;
+    if (!Tip().empty())
+      out<<"# \""+Tip()+"\"";
+    if (!WhatThis().empty())
+      out<<"## \""+WhatThis()+"\"";
+    if (!(Tip().empty()&&WhatThis().empty()))
+      out<<"\n";
+    out<<id()<<":"<<myClass();
+    return out;
+
 
   }
 
   bool Implements_VarId::processTokens(const std::deque<Token_New> &t,
                                        std::size_t &pos)
   {
+
+    if ((pos+1<t.size())&&
+        (t.at(pos).tok()==Token_New::HASH)&&
+        (t.at(pos+1).tok()==Token_New::STRING)) // tip is present
+      {
+        ++pos;
+        setTip(t.at(pos).str());
+        ++pos;
+      }
+    if ((pos+2<t.size())
+        &&(t.at(pos).tok()==Token_New::HASH)
+        &&(t.at(pos+1).tok()==Token_New::HASH)
+        &&(t.at(pos+2).tok()==Token_New::STRING))
+      {
+        pos+=2;
+        setWhatThis(t.at(pos).str());
+        ++pos;
+      }
     while ((pos<t.size())&&(t.at(pos).tok()==Token_New::EOL))
       ++pos;
     if ((!(pos+2<t.size()))
@@ -595,6 +649,7 @@ namespace Markov_IO {
         id_=t.at(pos).str();
         class_=t.at(pos+2).str();
         pos+=3;
+
         return true;
       }
   }
@@ -623,10 +678,12 @@ namespace Markov_IO {
   }
 
   Implements_Refer_Var::Implements_Refer_Var(ABC_Var *parent,
-                                             std::string idName,
-                                             std::string refClass,
-                                             std::string refName):
-    Implements_VarId(parent,idName,refClass),
+                                             const std::string& idName,
+                                             const std::string &refClass,
+                                             const std::string& refName,
+                                             const std::string &tip,
+                                             const std::string &whatthis):
+    Implements_VarId(parent,idName,refClass,tip,whatthis),
     refId_(refName){}
 
   std::deque<Token_New> Implements_Refer_Var::toTokens() const
@@ -820,11 +877,13 @@ namespace Markov_IO {
 
 
 
-  Implements_Complex_Var::Implements_Complex_Var( ABC_Var *parent,
-                                                  const std::string &id,
-                                                  const std::string className,
-                                                  const std::vector<ABC_Var *> &childs):
-    Implements_VarId(parent,id,className),
+  Implements_Complex_Var::Implements_Complex_Var(ABC_Var *parent,
+                                                 const std::string &id,
+                                                 const std::string className,
+                                                 const std::vector<ABC_Var *> &childs,
+                                                 const std::string&tip,
+                                                 const std::string &whatthis):
+    Implements_VarId(parent,id,className,tip, whatthis),
     ids_(),vars_{}
   {
     for (ABC_Var* v:childs)
@@ -925,6 +984,10 @@ namespace Markov_IO {
         curr_tok=Value(ch);
         return stream;
 
+      case '#':
+        str_=ch;
+        curr_tok=HASH;
+        return stream;
       case ':':
         if(!stream.get(ch))
           {
@@ -1217,13 +1280,15 @@ namespace Markov_IO {
   std::string Token_New::toString() const
   {
     if (tok()==REAL)
-      return toString(number_);
+      return toString(number_)+" ";
     else  if (tok()==INTEGER)
-      return toString(int_);
+      return toString(int_)+" ";
     else  if (tok()==UNSIGNED)
-      return toString(size_);
-    else if ((tok()==IDENTIFIER)||(tok()==STRING))
-      return str_;
+      return toString(size_)+" ";
+    else if (tok()==IDENTIFIER)
+      return str_+" ";
+    else if (tok()==STRING)
+      return "\""+str_+"\" ";
     else return toString(tok());
   }
 
@@ -1305,25 +1370,21 @@ namespace Markov_IO {
       case MUL:   return "*";
       case DIV:   return "/";
       case EXPONENT:   return "^";
-
       case DOT:   return ".";
       case COLON:   return ":";
       case COMMA:   return ",";
       case SEMICOLON:   return ";";
       case ASSIGN:   return  "=";
-
       case LP:   return "(" ;
       case RP:   return  ")";
       case LSB:   return  "[";
       case RSB:   return  "]";
-
       case NOT:   return  "~";
       case AND:   return  "&";
       case OR:   return  "|";
       case LSS:   return  "<";
       case GTR:   return  ">";
-
-
+      case HASH:   return "#";
       case DCOLON:  return  "::";
       case LEQ:   return  "<=";
       case EQ:   return  "==";
@@ -1388,7 +1449,7 @@ namespace Markov_IO {
     auto t=toTokens();
     for (Token_New i:t)
       {
-        out+=i.toString()+" ";
+        out+=i.toString();
       }
     return out;
   }
@@ -1421,7 +1482,8 @@ namespace Markov_IO {
             if (to.tok()!=Token_New::IDENTIFIER)
               return nullptr;
             else
-              return new Implements_Refer_Var(parent,n.id(),n.myClass(),t.at(pos).str());
+              return new Implements_Refer_Var(
+                    parent,n.id(),n.myClass(),t.at(pos).str(),n.Tip(),n.WhatThis());
           }
         else
           {
@@ -1748,20 +1810,23 @@ namespace Markov_IO {
 
 
 
+
   Implements_Complex_Class::Implements_Complex_Class(ABC_Var *parent,
                                                      const std::string &id,
-                                                     const std::string className,
-                                                     const std::map<std::string, std::pair<std::string,
-                                                     std::string> >
-                                                     id_superClass_ClassId):
-    Implements_Complex_Var(parent,id,className,{})
+                                                     const std::string& className,
+                                                     const std::string &tip,
+                                                     const std::string &whatthis,
+                                                     const std::map<std::string,fieldDef> m):
+    Implements_Complex_Var(parent,id,className,{},tip,whatthis)
   {
-    for (auto e:id_superClass_ClassId)
+    for (std::pair<std::string,fieldDef> e:m)
       {
         addVar(new Implements_Refer_Var(parentVar(),
                                         e.first,
-                                        e.second.first,
-                                        e.second.second));
+                                        e.second.superClass,
+                                        e.second.className,
+                                        e.second.tip,
+                                        e.second.whatthis));
       }
   }
 
@@ -1798,14 +1863,14 @@ namespace Markov_IO {
         v->setId(ith_Var(i));
         o.push_back(v);
       }
-    Implements_Complex_Var* out=  new Implements_Complex_Var(nullptr,"",id(),o);
+    Implements_Complex_Var* out=  new Implements_Complex_Var(nullptr,"",id(),o,"","");
     return out;
   }
 
 
-  void Implements_Complex_Class::push_back(const std::string &idName, const std::string &superclassname, const std::string &classname)
+  void Implements_Complex_Class::push_back(const std::string &idName, const std::string &superclassname, const std::string &classname, const std::string& tip, const std::string& whatthis)
   {
-    addVar(new Implements_Refer_Var(parentVar(),idName,superclassname, classname));
+    addVar(new Implements_Refer_Var(parentVar(),idName,superclassname, classname,tip, whatthis));
   }
 
   template<typename T>

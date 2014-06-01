@@ -55,13 +55,12 @@ namespace  Markov_IO {
       RP=')',
       LSB='[',
       RSB=']',
-
       NOT='~',
       AND='&',
       OR='|',
       LSS='<',
       GTR='>',
-
+      HASH, // '#',
 
       DCOLON,//::
       LEQ,// <=
@@ -377,6 +376,12 @@ namespace  Markov_IO {
 
     virtual std::string id()const=0;
     virtual void setId(const std::string& idName)=0;
+
+    virtual std::string Tip()const=0;
+    virtual std::string WhatThis()const=0;
+    virtual void setTip(const std::string& tip)=0;
+    virtual void setWhatThis(const std::string& whatThis)=0;
+
     virtual std::string refId()const=0;
 
     virtual const ABC_Var* refVar()const=0;
@@ -447,6 +452,12 @@ namespace  Markov_IO {
                                std::size_t& pos) override;
     virtual std::string id()const override;
     virtual void setId(const std::string& IdName)override;
+
+    virtual std::string Tip()const override;
+    virtual std::string WhatThis()const override;
+    virtual void setTip(const std::string& tip)override;
+    virtual void setWhatThis(const std::string& whatThis)override;
+
     virtual ABC_Var *parentVar() override;
     virtual const ABC_Var *parentVar() const override;
     virtual std::size_t numChildVars() const override;
@@ -466,7 +477,9 @@ namespace  Markov_IO {
     virtual ABC_Var* varTemplate()const  override;
     Implements_VarId(ABC_Var* parent,
                      const std::string& name,
-                     const std::string className);
+                     const std::string& className,
+                     const std::string &tip,
+                     const std::string &whatthis);
     Implements_VarId();
     virtual ~Implements_VarId(){}
 
@@ -478,6 +491,9 @@ namespace  Markov_IO {
     std::string id_;
     std::string class_;
     ABC_Var* p_;
+    std::string tip_;
+    std::string whatThis_;
+
   };
 
   template<typename T>
@@ -514,7 +530,9 @@ namespace  Markov_IO {
     Implements_Simple_Var(ABC_Var* parent,
                           std::string id,
                           T val,
-                          std::string className=ClassName());
+                          std::string className=ClassName(),
+                          const std::string& tip="",
+                          const std::string& whatthis="");
 
     Implements_Simple_Var()=default;
     virtual ~Implements_Simple_Var(){}
@@ -545,7 +563,9 @@ namespace  Markov_IO {
     Implements_Complex_Var(ABC_Var *parent,
                            const std::string& id,
                            const std::string className,
-                           const std::vector<ABC_Var*>& childs);
+                           const std::vector<ABC_Var*>& childs,
+                           const std::string & tip,
+                           const std::string& whatthis);
 
     Implements_Complex_Var(){}
 
@@ -630,9 +650,9 @@ namespace  Markov_IO {
 
 
     Implements_Refer_Var(ABC_Var* parent,
-                         std::string idName,
-                         std::string refClass,
-                         std::string refName);
+                         const std::string &idName,
+                         const std::string& refClass,
+                         const std::string &refName, const std::string& tip,const std::string& whatthis);
 
     Implements_Refer_Var()=default;
 
@@ -666,11 +686,19 @@ namespace  Markov_IO {
   {
   public:
 
+    struct fieldDef{
+      std::string superClass; std::string className; std::string tip; std::string whatthis;
+
+    };
+
     Implements_Complex_Class(ABC_Var *parent,
-                             const std::string& id,
-                             const std::string className,
-                             const std::map<std::string, std::pair<std::string,std::string>>
-                             id_superClass_ClassId);
+                             const std::string &id,
+                             const std::string &className,
+                             const std::string &tip,
+                             const std::string &whatthis,
+                             const std::map<std::string, fieldDef> m);
+
+
 
     virtual bool isInDomain(const ABC_Var *value) const  override;
     virtual  Implements_Complex_Var *varTemplate()  const override;
@@ -678,10 +706,12 @@ namespace  Markov_IO {
   public:
     virtual void push_back(const std::string& idName,
                            const std::string& superclassname,
-                           const std::string& classname);
+                           const std::string& classname,
+                           const std::string& tip,
+                           const std::string& whatthis);
 
 
-  };
+     };
 
   class Implements_Categorical;
 

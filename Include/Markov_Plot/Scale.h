@@ -69,7 +69,7 @@ public:
           Type scaletype);
 
     Scale():
-      Implements_Complex_Var(0,"","Scale",{}){}
+      Implements_Complex_Var(0,"","Scale",{},"",""){}
 
 
 

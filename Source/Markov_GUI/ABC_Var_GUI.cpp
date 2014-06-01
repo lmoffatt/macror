@@ -26,11 +26,13 @@ namespace Markov_GUI {
   EditWizardField::EditWizardField(QString fieldName,
                                    QStringList modeList,
                                    Markov_IO::ClassDescription* cd,
+                                   Markov_IO::ABC_Var *av,
                                    QWidget *pw):
     QWidget(pw),
     field(fieldName),
     mode(modeList),
-    desc(cd)
+    desc(cd),
+    var_(av)
   {
   }
 
@@ -66,27 +68,28 @@ namespace Markov_GUI {
 
   EditWizardField* EditWizardField::create(QString fieldName,
                                            QStringList modeList,
-                                           Markov_IO::ClassDescription* cd)
+                                           Markov_IO::ClassDescription* cd,
+                                           Markov_IO::ABC_Var* av)
   {
 
     std::size_t i=cd->NameIndex(fieldName.toStdString());
     if (cd->IsComplexObject(i))
-      return new EditWizardSaveable(fieldName,modeList,cd);
+      return new EditWizardSaveable(fieldName,modeList,cd,av);
     else
       {
         const Markov_IO::ABC_Object* o=cd->operator [](fieldName.toStdString());
         if (o->myClass()==Markov_IO::Object<Markov_LA::M_Matrix<double> >::ClassName())
-          return new EditWizardMatrixDoubles(fieldName,modeList,cd);
+          return new EditWizardMatrixDoubles(fieldName,modeList,cd,av);
         else if (o->myClass()==Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> >::ClassName())
-          return new EditWizardMatrixSizes(fieldName,modeList,cd);
+          return new EditWizardMatrixSizes(fieldName,modeList,cd,av);
         else if (o->myClass()==Markov_IO::Object<double >::ClassName())
-          return new EditWizardDouble(fieldName,modeList,cd);
+          return new EditWizardDouble(fieldName,modeList,cd,av);
         else if (o->myClass()==Markov_IO::Object<std::size_t >::ClassName())
-          return new EditWizardSize(fieldName,modeList,cd);
+          return new EditWizardSize(fieldName,modeList,cd,av);
         else if (o->myClass()==Markov_IO::Object<bool>::ClassName())
-          return new EditWizardBool(fieldName,modeList,cd);
+          return new EditWizardBool(fieldName,modeList,cd,av);
         else if (o->myClass()==Markov_IO::Object<std::string>::ClassName())
-          return new EditWizardString(fieldName,modeList,cd);
+          return new EditWizardString(fieldName,modeList,cd,av);
         else return 0;
       }
   }
@@ -94,14 +97,18 @@ namespace Markov_GUI {
 
   EditWizardMatrixDoubles::EditWizardMatrixDoubles(QString fieldName,
                                                    QStringList modeList,
-                                                   Markov_IO::ClassDescription* cd):
-    EditWizardField(fieldName,modeList,cd)
+                                                   Markov_IO::ClassDescription* cd,
+                                                   Markov_IO::ABC_Var* av):
+    EditWizardField(fieldName,modeList,cd,av)
   {
 
     const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
     const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+
     od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
+
     md_=od->Value();
+    av->getValue(field.toStdString(),md_);
 
     table=new QTableView;
 
@@ -418,8 +425,9 @@ namespace Markov_GUI {
 
   EditWizardSaveable::EditWizardSaveable(QString fieldName,
                                          QStringList modeList,
-                                         Markov_IO::ClassDescription* cd ):
-    EditWizardField(fieldName,modeList,cd),
+                                         Markov_IO::ClassDescription* cd ,
+                                         Markov_IO::ABC_Var* av):
+    EditWizardField(fieldName,modeList,cd,av),
     isvalid(false)
   {
     desField=cd->ElementClass(field.toStdString())->GetDescription();
@@ -473,8 +481,8 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardMatrixSizes::EditWizardMatrixSizes(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd):
-    EditWizardField(fieldName,modeList,cd)
+  EditWizardMatrixSizes::EditWizardMatrixSizes(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd, Markov_IO::ABC_Var * av):
+    EditWizardField(fieldName,modeList,cd,av)
   {
 
     const Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > * od;
@@ -524,8 +532,9 @@ namespace Markov_GUI {
 
   EditWizardDouble::EditWizardDouble(QString fieldName,
                                      QStringList modeList,
-                                     Markov_IO::ClassDescription* cd):
-    EditWizardField(fieldName,modeList,cd)
+                                     Markov_IO::ClassDescription* cd,
+                                     Markov_IO::ABC_Var*av):
+    EditWizardField(fieldName,modeList,cd,av)
   {
 
     const Markov_IO::Object<double > * od;
@@ -595,8 +604,9 @@ namespace Markov_GUI {
     lineEdit->updateGeometry();
   }
 
-  EditWizardSize::EditWizardSize(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd):
-    EditWizardField(fieldName,modeList,cd)
+  EditWizardSize::EditWizardSize(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd,
+                                 Markov_IO::ABC_Var* av):
+    EditWizardField(fieldName,modeList,cd,av)
   {
 
     const Markov_IO::Object<std::size_t > * od;
@@ -648,8 +658,9 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardBool::EditWizardBool(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd):
-    EditWizardField(fieldName,modeList,cd)
+  EditWizardBool::EditWizardBool(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd,
+                                 Markov_IO::ABC_Var* av):
+    EditWizardField(fieldName,modeList,cd,av)
   {
 
     const Markov_IO::Object<bool > * od;
@@ -698,8 +709,9 @@ namespace Markov_GUI {
 
   EditWizardString::EditWizardString(QString fieldName,
                                      QStringList modeList,
-                                     Markov_IO::ClassDescription* cd ):
-    EditWizardField(fieldName,modeList,cd)
+                                     Markov_IO::ClassDescription* cd ,
+                                     Markov_IO::ABC_Var* av):
+    EditWizardField(fieldName,modeList,cd,av)
   {
 
     const Markov_IO::Object<std::string > * od;

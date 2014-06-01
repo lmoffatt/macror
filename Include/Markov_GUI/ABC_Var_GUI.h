@@ -16,65 +16,68 @@ class QSpinBox;
 
 
 namespace Markov_GUI {
-class EditWizardField:public QWidget
-{
+  class EditWizardField:public QWidget
+  {
     Q_OBJECT
-public:
+  public:
     enum Constrain
     {
-        NON_ZERO,
-        POSITIVE,
-        Q_Matrix
+      NON_ZERO,
+      POSITIVE,
+      Q_Matrix
     };
 
     static EditWizardField* create(QString fieldName,
                                    QStringList modeList,
-                                   Markov_IO::ClassDescription* cd);
+                                   Markov_IO::ClassDescription* cd,
+                                   Markov_IO::ABC_Var* av);
 
     virtual ~EditWizardField(){}
 
     virtual void setConstraint(Constrain someConstrain){someConstrain;}
- //   virtual void relieveConstrain(Constrain someContrain){}
+    //   virtual void relieveConstrain(Constrain someContrain){}
     virtual bool isValid()const;
 
 
 
- signals:
+  signals:
     void valueChanged();
 
- public slots:
+  public slots:
     virtual void updateValue()=0;
 
     virtual void resetModel(){}
 
 
-protected slots:
+  protected slots:
     virtual void copy(){}
 
 
     virtual void paste(){}
 
-protected:
+  protected:
     virtual void keyPressEvent(QKeyEvent * event);
 
     EditWizardField(QString fieldName,
                     QStringList modeList,
                     Markov_IO::ClassDescription* cd,
+                    Markov_IO::ABC_Var* av,
                     QWidget* pw=0 );
     QString field;
     QStringList mode;
     Markov_IO::ClassDescription* desc;
+    Markov_IO::ABC_Var* var_;
 
-};
+  };
 
-class EditWizardMatrixDoubles: public EditWizardField
-{
+  class EditWizardMatrixDoubles: public EditWizardField
+  {
     Q_OBJECT
-public:
-virtual ~EditWizardMatrixDoubles(){}
+  public:
+    virtual ~EditWizardMatrixDoubles(){}
 
     virtual bool isValid()const;
- public slots:
+  public slots:
     void updateValue();
     void resetModel();
     friend class EditWizardField;
@@ -84,158 +87,160 @@ virtual ~EditWizardMatrixDoubles(){}
     void resetRowCount(int newRowCount);
     void resetColumnCount(int newRowCount);
 
-protected slots:
+  protected slots:
     virtual void copy();
     virtual void paste();
 
 
-protected:
+  protected:
     EditWizardMatrixDoubles(QString fieldName,
                             QStringList modeList,
-                            Markov_IO::ClassDescription* cd);
+                            Markov_IO::ClassDescription* cd,
+                            Markov_IO::ABC_Var *av);
     Markov_LA::M_Matrix<double> md_;
     QTableView *table;
     bool rowsExpandable;
     bool columnExpandable;
 
- };
+  };
 
 
 
 
-class EditWizardSaveable: public EditWizardField
-{
+  class EditWizardSaveable: public EditWizardField
+  {
     Q_OBJECT
-public:
-virtual ~EditWizardSaveable(){}
+  public:
+    virtual ~EditWizardSaveable(){}
     bool isValid()const;
- public slots:
+  public slots:
     void editMe();
     void updateValue();
- friend class EditWizardField;
- protected:
+    friend class EditWizardField;
+  protected:
     EditWizardSaveable(QString fieldName,
                        QStringList modeList,
-                            Markov_IO::ClassDescription* cd);
+                       Markov_IO::ClassDescription* cd, Markov_IO::ABC_Var *av);
 
     Markov_IO::ClassDescription desField;
-private:
+  private:
     bool isvalid;
     QLineEdit *lineEdit;
-};
+  };
 
-class EditWizardMatrixSizes: public EditWizardField
-{
+  class EditWizardMatrixSizes: public EditWizardField
+  {
     Q_OBJECT
-public:
-virtual ~EditWizardMatrixSizes(){}
- public slots:
+  public:
+    virtual ~EditWizardMatrixSizes(){}
+  public slots:
     void updateValue();
-friend class EditWizardField;
-protected slots:
+    friend class EditWizardField;
+  protected slots:
     virtual void copy(){}
 
 
     virtual void paste(){}
 
-protected:
+  protected:
     EditWizardMatrixSizes(QString fieldName,
                           QStringList modeList,
-                            Markov_IO::ClassDescription* cd);
+                          Markov_IO::ClassDescription* cd, Markov_IO::ABC_Var *av);
     Markov_LA::M_Matrix<std::size_t> ms_;
 
- };
+  };
 
-class EditWizardDouble: public EditWizardField
-{
+  class EditWizardDouble: public EditWizardField
+  {
     Q_OBJECT
-public:
-virtual ~EditWizardDouble(){}
+  public:
+    virtual ~EditWizardDouble(){}
 
     bool isValid()const;
- public slots:
+  public slots:
     void updateValue();
-friend class EditWizardField;
+    friend class EditWizardField;
 
-protected:
+  protected:
     EditWizardDouble(QString fieldName,
                      QStringList modeList,
-                            Markov_IO::ClassDescription* cd);
+                     Markov_IO::ClassDescription* cd, Markov_IO::ABC_Var *av);
     QLineEdit* lineEdit;
     double d_;
 
- };
+  };
 
 
-class EditWizardSize: public EditWizardField
-{
+  class EditWizardSize: public EditWizardField
+  {
     Q_OBJECT
-public:
-virtual ~EditWizardSize(){}
-protected slots:
+  public:
+    virtual ~EditWizardSize(){}
+  protected slots:
     virtual void copy(){}
 
 
     virtual void paste(){}
 
- public slots:
+  public slots:
     void updateValue();
-friend class EditWizardField;
-protected:
+    friend class EditWizardField;
+  protected:
     EditWizardSize(QString fieldName,
                    QStringList modeList,
-                            Markov_IO::ClassDescription* cd);
+                   Markov_IO::ClassDescription* cd, Markov_IO::ABC_Var *av);
     QSpinBox* spinBox;
     std::size_t s_;
 
- };
+  };
 
 
-class EditWizardBool: public EditWizardField
-{
+  class EditWizardBool: public EditWizardField
+  {
     Q_OBJECT
-public:
-virtual ~EditWizardBool(){}
-protected slots:
+  public:
+    virtual ~EditWizardBool(){}
+  protected slots:
     virtual void copy(){}
 
 
     virtual void paste(){}
 
- public slots:
+  public slots:
     void updateValue();
-friend class EditWizardField;
-protected:
+    friend class EditWizardField;
+  protected:
     EditWizardBool(QString fieldName,
                    QStringList modeList,
-                            Markov_IO::ClassDescription* cd);
+                   Markov_IO::ClassDescription* cd, Markov_IO::ABC_Var *av);
     QComboBox* comboBox;
     bool b_;
 
- };
+  };
 
 
-class EditWizardString: public EditWizardField
-{
+  class EditWizardString: public EditWizardField
+  {
     Q_OBJECT
-public:
-virtual ~EditWizardString(){}
+  public:
+    virtual ~EditWizardString(){}
     bool isValid()const;
 
- public slots:
+  public slots:
     void updateValue();
-friend class EditWizardField;
-protected slots:
-void browse();
-protected:
+    friend class EditWizardField;
+  protected slots:
+    void browse();
+  protected:
 
     EditWizardString(QString fieldName,
                      QStringList modeList,
-                            Markov_IO::ClassDescription* cd);
+                     Markov_IO::ClassDescription* cd,
+                     Markov_IO::ABC_Var* av);
     std::string str_;
     QLineEdit* lineEdit;
 
- };
+  };
 
 
 
