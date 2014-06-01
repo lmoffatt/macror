@@ -511,10 +511,23 @@ namespace  Markov_IO {
 
     virtual std::set<std::string> mySuperClasses()  override;
 
-    T value()const;
-    void setValue(T val);
-    const T& refval()const;
-    T& refval();
+    T value()const
+    {
+      return value_;
+    }
+
+    void setValue(T val)
+    {
+      value_=val;
+    }
+    const T& refval()const
+    {
+      return value_;
+    }
+    T& refval()
+    {
+      return value_;
+    }
 
 
     // ABC_Var interface

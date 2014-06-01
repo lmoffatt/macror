@@ -102,13 +102,13 @@ namespace Markov_GUI {
     EditWizardField(fieldName,modeList,cd,av)
   {
 
-    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
-    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+//    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
+//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
 
-    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
+//    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
 
-    md_=od->Value();
-    av->getValue(field.toStdString(),md_);
+//    md_=od->Value();
+    var_->getValue(field.toStdString(),md_);
 
     table=new QTableView;
 
@@ -140,21 +140,26 @@ namespace Markov_GUI {
 
 
 
-    int i=desc->NameIndex(field.toStdString());
     QLabel* label=new QLabel(field);
-    label->setToolTip(QString(desc->Tip(i).c_str()));
-    label->setWhatsThis(desc->WhatThis(i).c_str());
+//    int i=desc->NameIndex(field.toStdString());
+   // label->setToolTip(QString(desc->Tip(i).c_str()));
+   // label->setWhatsThis(desc->WhatThis(i).c_str());
+
+    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+
 
 
     QVBoxLayout* myLayout=new QVBoxLayout;
 
     myLayout->addWidget(label);
+    /*
     if (!desc->Unit(i).empty())
       {
         QLabel* units=new QLabel(desc->Unit(i).c_str());
         myLayout->addWidget(units);
       }
-
+*/
     if (!mode.filter("_INDEX",Qt::CaseInsensitive).isEmpty())
       {
         QHBoxLayout* lay=new QHBoxLayout;
@@ -381,18 +386,23 @@ namespace Markov_GUI {
   void EditWizardMatrixDoubles::updateValue()
   {
 
-    Markov_IO::Object<Markov_LA::M_Matrix<double> > od(md_);
-    desc->ReplaceElement(field.toStdString(),od);
+//    Markov_IO::Object<Markov_LA::M_Matrix<double> > od(md_);
+//    desc->ReplaceElement(field.toStdString(),od);
+    var_->setValue(field.toStdString(),md_);
+
     emit valueChanged();
   }
 
 
   void EditWizardMatrixDoubles::resetModel()
   {
-    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
-    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
-    md_=od->Value();
+//    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
+//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+//    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
+//    md_=od->Value();
+
+    var_->getValue(field.toStdString(),md_);
+
     QItemSelectionModel *m = table->selectionModel();
     table->setModel(new ModelMatrix(&md_));
     delete m;
@@ -461,6 +471,7 @@ namespace Markov_GUI {
     if (c->exec()==1)
       {
         desc->ReplaceElement(field.toStdString(),**sptr);
+
         isvalid=true;
         lineEdit->setText(QString(desField.ElementValue(0).c_str()));
         update();
@@ -485,27 +496,36 @@ namespace Markov_GUI {
     EditWizardField(fieldName,modeList,cd,av)
   {
 
-    const Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > * od;
-    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > * > (o);
-    ms_=od->Value();
+//    const Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > * od;
+//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+//    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > * > (o);
+//    ms_=od->Value();
+
+    var_->getValue(field.toStdString(),ms_);
+
 
     QTableView *table=new QTableView;
 
     table->setModel(new ModelMatrix(&ms_));
 
 
-    int i=desc->NameIndex(field.toStdString());
     QLabel* label=new QLabel(field);
     QVBoxLayout* myLayout=new QVBoxLayout;
-    label->setToolTip(QString(desc->Tip(i).c_str()));
-    label->setWhatsThis(desc->WhatThis(i).c_str());
+
+//    int i=desc->NameIndex(field.toStdString());
+//    label->setToolTip(QString(desc->Tip(i).c_str()));
+//    label->setWhatsThis(desc->WhatThis(i).c_str());
+
+    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+
+
     myLayout->addWidget(label);
-    if (!desc->Unit(i).empty())
-      {
-        QLabel* units=new QLabel(desc->Unit(i).c_str());
-        myLayout->addWidget(units);
-      }
+//    if (!desc->Unit(i).empty())
+//      {
+//        QLabel* units=new QLabel(desc->Unit(i).c_str());
+//        myLayout->addWidget(units);
+//      }
     QHBoxLayout* tableLayout=new QHBoxLayout;
 
     tableLayout->addWidget(table);
@@ -524,8 +544,10 @@ namespace Markov_GUI {
   void EditWizardMatrixSizes::updateValue()
   {
 
-    Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > od(ms_);
-    desc->ReplaceElement(field.toStdString(),od);
+//    Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > od(ms_);
+//    desc->ReplaceElement(field.toStdString(),od);
+    var_->setValue(field.toStdString(),ms_);
+
     emit valueChanged();
   }
 
@@ -537,10 +559,12 @@ namespace Markov_GUI {
     EditWizardField(fieldName,modeList,cd,av)
   {
 
-    const Markov_IO::Object<double > * od;
-    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-    od=dynamic_cast<const Markov_IO::Object<double > * > (o);
-    d_=od->Value();
+//    const Markov_IO::Object<double > * od;
+//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+//    od=dynamic_cast<const Markov_IO::Object<double > * > (o);
+//    d_=od->Value();
+
+    var_->getValue(field.toStdString(),d_);
 
     lineEdit=new QLineEdit;
 
@@ -551,26 +575,33 @@ namespace Markov_GUI {
     lineEdit->setText(QString("%1").arg(d_,0,'g',14));
     lineEdit->setAlignment(Qt::AlignRight);
 
-    int i=desc->NameIndex(field.toStdString());
     QLabel* label=new QLabel(field);
-    QString toolt=QString(desc->Tip(i).c_str());
-    label->setToolTip(toolt);
-    label->setWhatsThis(desc->WhatThis(i).c_str());
+
+//    int i=desc->NameIndex(field.toStdString());
+//    QString toolt=QString(desc->Tip(i).c_str());
+//    label->setToolTip(toolt);
+//    label->setWhatsThis(desc->WhatThis(i).c_str());
+
+    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+
+
+
     QHBoxLayout* myLayout=new QHBoxLayout;
     myLayout->addWidget(label);
     myLayout->addStretch();
 
     myLayout->addWidget(lineEdit);
-    if (!desc->Unit(i).empty())
-      {
-        QLabel* units=new QLabel(desc->Unit(i).c_str());
-        myLayout->addWidget(units);
-      }
-    else
-      {
+//    if (!desc->Unit(i).empty())
+//      {
+//        QLabel* units=new QLabel(desc->Unit(i).c_str());
+//        myLayout->addWidget(units);
+//      }
+//    else
+//      {
 
-        myLayout->addStretch();
-      }
+//        myLayout->addStretch();
+//      }
     myLayout->addStretch();
 
     setLayout(myLayout);
@@ -597,8 +628,9 @@ namespace Markov_GUI {
     d_ =label.toDouble(&ok) ;
     if (ok)
       {
-        Markov_IO::Object<double> od(d_);
-        desc->ReplaceElement(field.toStdString(),od);
+//        Markov_IO::Object<double> od(d_);
+//        desc->ReplaceElement(field.toStdString(),od);
+        var_->setValue(field.toStdString(),d_);
         emit valueChanged();
       }
     lineEdit->updateGeometry();
@@ -609,10 +641,12 @@ namespace Markov_GUI {
     EditWizardField(fieldName,modeList,cd,av)
   {
 
-    const Markov_IO::Object<std::size_t > * od;
-    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-    od=dynamic_cast<const Markov_IO::Object<std::size_t > * > (o);
-    s_=od->Value();
+//    const Markov_IO::Object<std::size_t > * od;
+//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+//    od=dynamic_cast<const Markov_IO::Object<std::size_t > * > (o);
+//    s_=od->Value();
+
+    var_->getValue(field.toStdString(),s_);
 
     spinBox=new QSpinBox;
 
@@ -623,16 +657,21 @@ namespace Markov_GUI {
     spinBox->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
 
 
-    int i=desc->NameIndex(field.toStdString());
     QLabel* label=new QLabel(field);
-    label->setToolTip(QString(desc->Tip(i).c_str()));
-    label->setWhatsThis(desc->WhatThis(i).c_str());
+//    int i=desc->NameIndex(field.toStdString());
+//    label->setToolTip(QString(desc->Tip(i).c_str()));
+//    label->setWhatsThis(desc->WhatThis(i).c_str());
+
+    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+
+
     QHBoxLayout* myLayout=new QHBoxLayout;
 
     myLayout->addWidget(label);
     myLayout->addStretch();
     myLayout->addWidget(spinBox);
-    if (!desc->Unit(i).empty())
+/*    if (!desc->Unit(i).empty())
       {
         QLabel* units=new QLabel(desc->Unit(i).c_str());
         myLayout->addWidget(units);
@@ -641,7 +680,7 @@ namespace Markov_GUI {
       {
         myLayout->addStretch();
       }
-    myLayout->addStretch();
+  */  myLayout->addStretch();
 
     setLayout(myLayout);
     connect(spinBox,SIGNAL(editingFinished()),this,SLOT(updateValue()));
@@ -652,8 +691,10 @@ namespace Markov_GUI {
   {
 
     s_=spinBox->value();
-    Markov_IO::Object<std::size_t> od(s_);
-    desc->ReplaceElement(field.toStdString(),od);
+//    Markov_IO::Object<std::size_t> od(s_);
+//    desc->ReplaceElement(field.toStdString(),od);
+    var_->setValue(field.toStdString(),s_);
+
     emit valueChanged();
   }
 
@@ -663,10 +704,11 @@ namespace Markov_GUI {
     EditWizardField(fieldName,modeList,cd,av)
   {
 
-    const Markov_IO::Object<bool > * od;
-    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-    od=dynamic_cast<const Markov_IO::Object<bool > * > (o);
-    b_=od->Value();
+//    const Markov_IO::Object<bool > * od;
+//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+//    od=dynamic_cast<const Markov_IO::Object<bool > * > (o);
+//    b_=od->Value();
+    var_->getValue(field.toStdString(),b_);
 
     comboBox=new QComboBox;
 
@@ -678,10 +720,16 @@ namespace Markov_GUI {
     else
       comboBox->setCurrentIndex(0);
 
-    int i=desc->NameIndex(field.toStdString());
     QLabel* label=new QLabel(field);
-    label->setToolTip(QString(desc->Tip(i).c_str()));
-    label->setWhatsThis(desc->WhatThis(i).c_str());
+
+//    int i=desc->NameIndex(field.toStdString());
+//    label->setToolTip(QString(desc->Tip(i).c_str()));
+//    label->setWhatsThis(desc->WhatThis(i).c_str());
+
+    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+
+
     QHBoxLayout* myLayout=new QHBoxLayout;
 
     myLayout->addWidget(label);
@@ -699,8 +747,10 @@ namespace Markov_GUI {
       b_=false;
     else
       b_=true;
-    Markov_IO::Object<bool> od(b_);
-    desc->ReplaceElement(field.toStdString(),od);
+//    Markov_IO::Object<bool> od(b_);
+//    desc->ReplaceElement(field.toStdString(),od);
+    var_->setValue(field.toStdString(),b_);
+
     emit valueChanged();
   }
 
@@ -714,10 +764,12 @@ namespace Markov_GUI {
     EditWizardField(fieldName,modeList,cd,av)
   {
 
-    const Markov_IO::Object<std::string > * od;
-    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-    od=dynamic_cast<const Markov_IO::Object<std::string > * > (o);
-    str_=od->Value();
+//    const Markov_IO::Object<std::string > * od;
+//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+//    od=dynamic_cast<const Markov_IO::Object<std::string > * > (o);
+//    str_=od->Value();
+
+    var_->getValue(field.toStdString(),str_);
 
     lineEdit=new QLineEdit;
 
@@ -726,12 +778,17 @@ namespace Markov_GUI {
 
     lineEdit->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 
-    int i=desc->NameIndex(field.toStdString());
     QLabel* label=new QLabel(field);
     QHBoxLayout* myLayout=new QHBoxLayout;
 
-    label->setToolTip(QString(desc->Tip(i).c_str()));
-    label->setWhatsThis(desc->WhatThis(i).c_str());
+//    int i=desc->NameIndex(field.toStdString());
+//    label->setToolTip(QString(desc->Tip(i).c_str()));
+//    label->setWhatsThis(desc->WhatThis(i).c_str());
+
+    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+
+
     myLayout->addWidget(label);
     myLayout->addStretch();
 
@@ -773,7 +830,8 @@ namespace Markov_GUI {
                                       extensions).toStdString();
 
     lineEdit->setText(str_.c_str());
-    desc->ReplaceElement(field.toStdString(),str_);
+    //desc->ReplaceElement(field.toStdString(),str_);
+    var_->setValue(field.toStdString(),str_);
     emit valueChanged();
 
   }
@@ -787,7 +845,8 @@ namespace Markov_GUI {
   void EditWizardString::updateValue()
   {
     str_=lineEdit->text().toStdString();
-    desc->ReplaceElement(field.toStdString(),str_);
+    //desc->ReplaceElement(field.toStdString(),str_);
+    var_->setValue(field.toStdString(),str_);
     emit valueChanged();
 
   }

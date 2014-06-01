@@ -326,29 +326,7 @@ namespace Markov_IO {
     return SuperClasses();
   }
 
-  template<typename T>
-  T Implements_Simple_Var<T>::value() const
-  {
-    return value_;
-  }
 
-  template<typename T>
-  void Implements_Simple_Var<T>::setValue(T val)
-  {
-    value_=val;
-  }
-
-  template<typename T>
-  const T &Implements_Simple_Var<T>::refval() const
-  {
-    return value_;
-  }
-
-  template<typename T>
-  T &Implements_Simple_Var<T>::refval()
-  {
-    return value_;
-  }
 
   template<typename T>
   const ABC_Var *Implements_Simple_Var<T>::motherClass() const
