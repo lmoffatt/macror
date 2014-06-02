@@ -830,6 +830,20 @@ public:
     return os;
   }
 
+  template<>
+  bool ABC_Var::getValue(const std::string &name, ABC_Var*& value) const
+  {
+    const ABC_Var* o=getVarId(name);
+    if (o!=nullptr)
+      {
+        value=o->value();
+        return true;
+      }
+    else
+      return false;
+   }
+
+
   template<typename T>
   bool ABC_Var::getValue(const std::string &name, T &value) const
   {
@@ -838,6 +852,20 @@ public:
     if (o!=nullptr)
       {
         value=o->value();
+        return true;
+      }
+    else
+      return false;
+   }
+
+  template<>
+  bool ABC_Var::setValue(const std::string &name, const ABC_Var* &value)
+  {
+    ABC_Var* o=getVarId(name);
+
+    if (o!=nullptr)
+      {
+        o->setValue(value);
         return true;
       }
     else
