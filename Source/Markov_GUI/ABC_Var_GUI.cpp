@@ -74,7 +74,7 @@ namespace Markov_GUI {
 
     std::size_t i=cd->NameIndex(fieldName.toStdString());
     if (cd->IsComplexObject(i))
-      return new EditWizardSaveable(fieldName,modeList,cd,av);
+      return new EditWizard_Complex_Var(fieldName,modeList,cd,av);
     else
       {
         const Markov_IO::ABC_Object* o=cd->operator [](fieldName.toStdString());
@@ -388,7 +388,7 @@ namespace Markov_GUI {
 
 //    Markov_IO::Object<Markov_LA::M_Matrix<double> > od(md_);
 //    desc->ReplaceElement(field.toStdString(),od);
-    var_->setValue(field.toStdString(),md_);
+    var_->addValue(field.toStdString(),md_);
 
     emit valueChanged();
   }
@@ -433,7 +433,7 @@ namespace Markov_GUI {
 
 
 
-  EditWizardSaveable::EditWizardSaveable(QString fieldName,
+  EditWizard_Complex_Var::EditWizard_Complex_Var(QString fieldName,
                                          QStringList modeList,
                                          Markov_IO::ClassDescription* cd ,
                                          Markov_IO::ABC_Var* av):
@@ -461,7 +461,7 @@ namespace Markov_GUI {
   }
 
 
-  void EditWizardSaveable::editMe()
+  void EditWizard_Complex_Var::editMe()
   {
     QString className(desField.ClassName().c_str());
     Markov_IO::ABC_Saveable *s;
@@ -481,12 +481,12 @@ namespace Markov_GUI {
 
 
   }
-  void EditWizardSaveable::updateValue()
+  void EditWizard_Complex_Var::updateValue()
   {
 
   }
 
-  bool EditWizardSaveable::isValid()const
+  bool EditWizard_Complex_Var::isValid()const
   {
     return isvalid;
   }
@@ -546,7 +546,7 @@ namespace Markov_GUI {
 
 //    Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > od(ms_);
 //    desc->ReplaceElement(field.toStdString(),od);
-    var_->setValue(field.toStdString(),ms_);
+    var_->addValue(field.toStdString(),ms_);
 
     emit valueChanged();
   }
@@ -630,7 +630,7 @@ namespace Markov_GUI {
       {
 //        Markov_IO::Object<double> od(d_);
 //        desc->ReplaceElement(field.toStdString(),od);
-        var_->setValue(field.toStdString(),d_);
+        var_->addValue(field.toStdString(),d_);
         emit valueChanged();
       }
     lineEdit->updateGeometry();
@@ -693,7 +693,7 @@ namespace Markov_GUI {
     s_=spinBox->value();
 //    Markov_IO::Object<std::size_t> od(s_);
 //    desc->ReplaceElement(field.toStdString(),od);
-    var_->setValue(field.toStdString(),s_);
+    var_->addValue(field.toStdString(),s_);
 
     emit valueChanged();
   }
@@ -749,7 +749,7 @@ namespace Markov_GUI {
       b_=true;
 //    Markov_IO::Object<bool> od(b_);
 //    desc->ReplaceElement(field.toStdString(),od);
-    var_->setValue(field.toStdString(),b_);
+    var_->addValue(field.toStdString(),b_);
 
     emit valueChanged();
   }
@@ -831,7 +831,7 @@ namespace Markov_GUI {
 
     lineEdit->setText(str_.c_str());
     //desc->ReplaceElement(field.toStdString(),str_);
-    var_->setValue(field.toStdString(),str_);
+    var_->addValue(field.toStdString(),str_);
     emit valueChanged();
 
   }
@@ -846,7 +846,7 @@ namespace Markov_GUI {
   {
     str_=lineEdit->text().toStdString();
     //desc->ReplaceElement(field.toStdString(),str_);
-    var_->setValue(field.toStdString(),str_);
+    var_->addValue(field.toStdString(),str_);
     emit valueChanged();
 
   }

@@ -248,12 +248,16 @@ namespace Markov_Mol
   
   
   /// constructor
-  Q_Markov_Model::Q_Markov_Model(const std::string& model_name_identifier,
+  Q_Markov_Model::Q_Markov_Model(Markov_IO::ABC_Var* parent,
+                                 const std::string& model_name_identifier,
                                  const M_Matrix<double>& Q_matrix,
                                  const M_Matrix<double>& conductance_vector,
                                  const M_Matrix<std::size_t>& agonist_vector,
                                  double unitary_conductance,
-                                 ABC_PatchModel* mypatch):
+                                 ABC_PatchModel* mypatch,
+                                 const std::string& tip,
+                                 const std::string& whatthis):
+    Implements_Complex_Var(parent,model_name_identifier,ClassName(),{},tip,whatthis),
     patch_(mypatch),
     name_(model_name_identifier),
     k_u(nrows(Q_matrix)),
@@ -271,6 +275,7 @@ namespace Markov_Mol
     a_M(agonist_vector),
     parameters_Map()
   {
+    load_ABC_Var();
     Q_to_conn_K_tau_QC();
     QC_to_Q0_Q1();
     buildParameters();
@@ -1602,6 +1607,9 @@ namespace Markov_Mol
                    "the current that goes through each state "
                    "results from multplying the conductance vector by this value");
 
+
+    std::cerr<<toString();
+
     return desc;
 
 
@@ -1653,13 +1661,16 @@ namespace Markov_Mol
       return false;
 
 
-    Q_Markov_Model tmp(name,
+    Q_Markov_Model tmp(parentVar(),
+                       name,
                        Q_matrix,
                        conductance_vector,
                        agonist_vector,
                        unitary_conductance);
 
     swap(*this, tmp);
+    load_ABC_Var();
+    std::cerr<<this->toString();
     return true;
   }
 
@@ -1692,7 +1703,8 @@ namespace Markov_Mol
       return false;
 
 
-    Q_Markov_Model tmp(name,
+    Q_Markov_Model tmp(parentVar(),
+                       name,
                        M_Matrix<double>(Q_matrix),
                        M_Matrix<double>(conductance_vector),
                        M_Matrix<std::size_t>(agonist_vector),

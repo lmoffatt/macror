@@ -107,20 +107,21 @@ namespace Markov_GUI {
 
 
 
-  class EditWizardSaveable: public EditWizardField
+  class EditWizard_Complex_Var: public EditWizardField
   {
     Q_OBJECT
   public:
-    virtual ~EditWizardSaveable(){}
+    virtual ~EditWizard_Complex_Var(){}
     bool isValid()const;
   public slots:
     void editMe();
     void updateValue();
     friend class EditWizardField;
   protected:
-    EditWizardSaveable(QString fieldName,
+    EditWizard_Complex_Var(QString fieldName,
                        QStringList modeList,
-                       Markov_IO::ClassDescription* cd, Markov_IO::ABC_Var *av);
+                       Markov_IO::ClassDescription* cd,
+                           Markov_IO::ABC_Var *av);
 
     Markov_IO::ClassDescription desField;
   private:

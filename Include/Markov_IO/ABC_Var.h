@@ -151,7 +151,7 @@ namespace  Markov_IO {
     tok<<"\n";
     for (std::size_t i=0; i<Markov_LA::nrows(m); ++i)
       {
-        for(std::size_t j=0; i<Markov_LA::ncols(m); ++j)
+        for(std::size_t j=0; j<Markov_LA::ncols(m); ++j)
           {
             tok<<m(i,j);
           }
@@ -201,6 +201,11 @@ namespace  Markov_IO {
 
   inline bool toValue(const std::deque<Token_New> &tok,
                       std::string &val,
+                      std::size_t& i);
+
+
+  inline bool toValue(const std::deque<Token_New> &tok,
+                      bool &val,
                       std::size_t& i);
 
 
@@ -388,6 +393,7 @@ namespace  Markov_IO {
     virtual ABC_Var* refVar()=0;
 
     virtual std::string myClass()const=0;
+    virtual void setClass(const std::string& classname)=0;
 
     virtual std::set<std::string> mySuperClasses();
 
@@ -433,7 +439,13 @@ namespace  Markov_IO {
     bool getValue(const std::string& name, T& value)const;
 
     template<typename T>
-    bool setValue(const std::string& name, const T& value);
+    void addValue(const std::string& name, T value,
+                  const std::string& classname="",
+                  const std::string& tip="",
+                  const std::string & whatthis="");
+
+    template<typename T>
+    bool replaceValue(const std::string& name, const T& value);
 
     bool getCategory(const std::string& name, int& i)const;
     bool setCategory(const std::string &name, const std::string& categ);
@@ -447,6 +459,8 @@ namespace  Markov_IO {
   { // ABC_Var interface
   public:
     virtual std::string myClass() const override;
+    virtual void setClass(const std::string& classname)override;
+
     virtual std::deque<Token_New> toTokens() const override;
     virtual bool processTokens(const std::deque<Token_New> &t,
                                std::size_t& pos) override;
@@ -516,7 +530,7 @@ namespace  Markov_IO {
       return value_;
     }
 
-    void setValue(T val)
+    void addValue(T val)
     {
       value_=val;
     }
@@ -724,7 +738,7 @@ namespace  Markov_IO {
                            const std::string& whatthis);
 
 
-     };
+  };
 
   class Implements_Categorical;
 
@@ -778,7 +792,7 @@ namespace  Markov_IO {
 
   class Implements_Categorical : public Implements_Simple_Var<std::string>
   {
-public:
+  public:
     static std::string ClassName();
 
     static std::set<std::string> SuperClasses();
@@ -818,6 +832,8 @@ public:
   template<>
   std::string Implements_Simple_Var<std::string>::ClassName();
 
+  template<>
+  std::string Implements_Simple_Var<Markov_LA::M_Matrix<double>>::ClassName();
 
 
 
@@ -831,17 +847,17 @@ public:
   }
 
   template<>
-  bool ABC_Var::getValue(const std::string &name, ABC_Var*& value) const
+  inline bool ABC_Var::getValue(const std::string &name, const ABC_Var  *& value) const
   {
     const ABC_Var* o=getVarId(name);
     if (o!=nullptr)
       {
-        value=o->value();
+        value=o;
         return true;
       }
     else
       return false;
-   }
+  }
 
 
   template<typename T>
@@ -856,37 +872,70 @@ public:
       }
     else
       return false;
-   }
+  }
 
-  template<>
-  bool ABC_Var::setValue(const std::string &name, const ABC_Var* &value)
-  {
-    ABC_Var* o=getVarId(name);
-
-    if (o!=nullptr)
-      {
-        o->setValue(value);
-        return true;
-      }
-    else
-      return false;
-   }
 
   template<typename T>
-  bool ABC_Var::setValue(const std::string &name, const T &value)
+  void ABC_Var::addValue(const std::string &name, T value,
+                         const std::string &classname,
+                         const std::string& tip,
+                         const std::string & whatthis)
+  {
+    std::string c=classname;
+    if (c.empty())
+      c=Implements_Simple_Var<T>::ClassName();
+    Implements_Simple_Var<T>* o=new Implements_Simple_Var<T>(this,name,value,c,tip,whatthis);
+    addVar(o);
+  }
+
+
+
+  template<>
+  inline  void ABC_Var::addValue(const std::string &name,
+                                 ABC_Var* value,
+                                 const std::string &classname,
+                                 const std::string& tip,
+                                 const std::string & whatthis)
+
+  {
+    if (value!=nullptr)
+      {
+        if (!name.empty())
+          value->setId(name);
+        if (!classname.empty())
+          value->setClass(classname);
+        if (!tip.empty())
+          value->setTip(tip);
+        if (!whatthis.empty())
+          value->setWhatThis(whatthis);
+        addVar(value);
+
+      }
+  }
+
+  template<typename T>
+  bool ABC_Var::replaceValue(const std::string &name, const T &value)
   {
     Implements_Simple_Var<T>* o=dynamic_cast<Implements_Simple_Var<T>*>(getVarId(name));
 
     if (o!=nullptr)
       {
-        o->setValue(value);
+        o->addValue(value);
         return true;
       }
     else
       return false;
-   }
+  }
 
 
+
+  template<>
+  inline  bool ABC_Var::replaceValue(const std::string &name, ABC_Var* const& value)
+  {
+    if ((value==nullptr)||(value->id()!=name)||(getVarId(name)==nullptr))
+      return false;
+    return addVar(value);
+  }
 
 
 }

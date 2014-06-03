@@ -25,11 +25,16 @@ namespace Markov_IO {
   }
 
   template<>
-  std::string Implements_Simple_Var<std::size_t>::ClassName()
+  std::string Implements_Simple_Var<bool>::ClassName()
   {
-    return "Simple_unsigned_var";
+    return "Simple_boolean_var";
   }
 
+  template<>
+  std::string Implements_Simple_Var<std::size_t>::ClassName()
+  {
+    return "Simple_count_var";
+  }
 
 
   template<>
@@ -377,6 +382,20 @@ namespace Markov_IO {
   class Implements_Simple_Var<int>;
 
 
+  template
+  class Implements_Simple_Var<std::size_t>;
+
+
+  template
+  class Implements_Simple_Var<bool>;
+
+  template
+  class Implements_Simple_Var<Markov_LA::M_Matrix<double>>;
+
+  template
+  class Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t>>;
+
+
   std::string Implements_VarId::id() const
   {
     return id_;
@@ -577,6 +596,10 @@ namespace Markov_IO {
   std::string Implements_VarId::myClass() const
   {
     return class_;
+  }
+
+  void Implements_VarId::setClass(const std::string &classname){
+    class_=classname;
   }
 
   std::deque<Token_New> Implements_VarId::toTokens() const
@@ -1896,19 +1919,19 @@ namespace Markov_IO {
   template<typename T>
   void Implements_Simple_Class<T>::setDefaultValue(T val)
   {
-    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("default"))->setValue(val);
+    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("default"))->addValue(val);
   }
 
   template<typename T>
   void Implements_Simple_Class<T>::setminValue(T val)
   {
-    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("min"))->setValue(val);
+    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("min"))->addValue(val);
   }
 
   template<typename T>
   void Implements_Simple_Class<T>::setmaxValue(T val)
   {
-    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("max"))->setValue(val);
+    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("max"))->addValue(val);
   }
 
   template<typename T>
@@ -2010,6 +2033,49 @@ namespace Markov_IO {
       }
   }
 
+
+  bool toValue(const std::deque<Token_New> &tok, bool &val, std::size_t &i)
+  {
+    if (!(i<tok.size())) return false;
+    if (tok.at(i).tok()==Token_New::IDENTIFIER)
+      {
+        std::string s=tok.at(i).str();
+        if ((s=="false")||(s=="FALSE"))
+          {
+            val=false;
+            ++i;
+            return true;
+          }
+        else if ((s=="true")||(s=="TRUE"))
+          {
+            val=true;
+            ++i;
+            return true;
+          }
+        else return false;
+      }
+    else if (tok.at(i).tok()==Token_New::UNSIGNED)
+      {
+        if (tok.at(i).count()==0)
+          {
+            val=false;
+            ++i;
+            return true;
+          }
+        else if(tok.at(i).count()==1)
+          {
+            val=true;
+            ++i;
+            return true;
+          }
+        else
+          return false;
+      }
+    else
+      return false;
+  }
+
+
   std::string Implements_Categorical::ClassName()
   {
     return "Category";
@@ -2038,7 +2104,7 @@ namespace Markov_IO {
   void Implements_Categorical::updateCat()
   {
     if (motherClass()!=nullptr)
-      setValue(motherClass()->Category(Rank()));
+      addValue(motherClass()->Category(Rank()));
   }
 
   void Implements_Categorical::updateRank()
@@ -2049,7 +2115,7 @@ namespace Markov_IO {
 
   void Implements_Categorical::setCategory(const std::string &cat)
   {
-    setValue(cat);
+    addValue(cat);
     updateRank();
   }
 
