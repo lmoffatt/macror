@@ -820,7 +820,6 @@ namespace Markov_IO {
     Implements_VarId(parent,id,className,tip, whatthis),
     ids_(),vars_{}
   {
-    this->set_Variable_pointers();
   }
 
   Implements_Complex_Var::~Implements_Complex_Var()

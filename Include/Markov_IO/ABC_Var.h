@@ -614,6 +614,7 @@ namespace  Markov_IO {
                           std::string className=ClassName(),
                           const std::string& tip="",
                           const std::string& whatthis=""):
+    Implements_VarId(parent,id,className,tip,whatthis),
       value_(val),
     valPtr_(nullptr){}
 
@@ -624,11 +625,13 @@ namespace  Markov_IO {
                           std::string className=ClassName(),
                           const std::string& tip="",
                           const std::string& whatthis=""):
+    Implements_VarId(parent,id,className,tip,whatthis),
       value_(*pointer),
     valPtr_(pointer){}
 
 
     Implements_Simple_Var():
+      Implements_VarId(),
       value_{},valPtr_(nullptr){}
 
     virtual ~Implements_Simple_Var(){}

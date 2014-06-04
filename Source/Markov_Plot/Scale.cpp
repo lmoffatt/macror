@@ -498,6 +498,7 @@ Scale::Scale(ABC_Var *e,
     tickLines_(),
     axisLine_()
    {
+    set_Variable_pointers();
     reset();
     setAcceptHoverEvents(true);
 
@@ -722,6 +723,12 @@ namespace Markov_IO {
   };
 
   template<>
+  std::string Implements_Categorical<Markov_Plot::Scale::AxisType>::ClassName()
+  {
+    return "Scale_AxisType";
+  }
+
+  template<>
   std::map<std::string,Markov_Plot::Scale::Type> Implements_Categorical<Markov_Plot::Scale::Type>::strToEnum=
   {
 
@@ -729,6 +736,11 @@ namespace Markov_IO {
     {"LogScale",Markov_Plot::Scale::Type::LogScale}
   };
 
+  template<>
+  std::string Implements_Categorical<Markov_Plot::Scale::Type>::ClassName()
+  {
+    return "Scale_Type";
+  }
 
   template<>
   std::map<std::string,Markov_Plot::Scale::RangeCalculation> Implements_Categorical<Markov_Plot::Scale::RangeCalculation>::strToEnum=
@@ -738,6 +750,12 @@ namespace Markov_IO {
     {"Pad5PercentRange",Markov_Plot::Scale::RangeCalculation::Pad5PercentRange},
     {"NearestTickRange",Markov_Plot::Scale::RangeCalculation::NearestTickRange}
   };
+
+  template<>
+  std::string Implements_Categorical<Markov_Plot::Scale::RangeCalculation>::ClassName()
+  {
+    return "Scale_RangeCalculation";
+  }
 
 
 
