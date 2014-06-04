@@ -5,6 +5,7 @@
 #include <QtDebug>
 #include "Markov_Plot/GraphView.h"
 #include "Markov_Bay/YfitLikelihoodEvaluation.h"
+#include "Markov_GUI/ABC_Var_GUI.h"
 
 namespace Markov_Plot
 {
@@ -12,7 +13,7 @@ namespace Markov_Plot
                        Markov_IO::ABC_Var* e,
                        qreal width,
                        qreal height):
-    Markov_IO::Implements_Complex_Var(e,"","GraphView",{},"",""),
+    Markov_IO::Implements_Complex_Var(e,"","GraphView","",""),
     QGraphicsView(parent),
     gscene_(new QGraphicsScene(0.0,0.0,width,height,parent)),
     height_(height),

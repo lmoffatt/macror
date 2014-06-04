@@ -8,7 +8,7 @@
 #include <QPainter>
 
 #include "Markov_IO/ABC_Experiment.h"
-#include "Markov_IO/ABC_Var.h"
+#include "Markov_GUI/ABC_Var_GUI.h"
 
 
 namespace Markov_Plot
@@ -69,7 +69,7 @@ public:
           Type scaletype);
 
     Scale():
-      Implements_Complex_Var(0,"","Scale",{},"",""){}
+      Implements_Complex_Var(0,"","Scale","",""){}
 
 
 
@@ -101,7 +101,7 @@ public:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-
+    void set_Variable_pointers();
 
  private:
     void reset();
@@ -173,56 +173,14 @@ public:
     virtual std::string mySuperClass()const;
     static std::string ClassName();
 
-
-
-    virtual ABC_Var*  load_ABC_Var() override
-    {
-      addVar(new Markov_IO::Implements_Simple_Var<double>(this,"min",min_));
-      addVar(new Markov_IO::Implements_Simple_Var<double>(this,"max",max_));
-      addVar(new Markov_IO::Implements_Simple_Var<double>(this,"length",length_));
-      addVar(new Markov_IO::Implements_Simple_Var<double>(this,"width",width_));
-      addVar(new Markov_IO::Implements_Simple_Var<std::string>(
-               this,"title",title_.toStdString()));
-      addVar(new Markov_IO::Implements_Simple_Var<std::string>(
-               this,"units",units_.toStdString()));
-      addVar(new Markov_IO::Implements_Categorical_Class(this,"AxisType",{{"xaxis"},{"yaxis"}},"xaxis"));
-      addVar(new Markov_IO::Implements_Categorical_Class(
-               this,"ScaleType",{{"LinearScale"},{"LogScale"}},"LinearScale"));
-      addVar(new Markov_IO::Implements_Categorical(
-               this,"axis",static_cast<int>(axis_),"AxisType"));
-      addVar(new Markov_IO::Implements_Categorical(
-               this,"saletype",static_cast<int>(type_),"ScaleType"));
-      return this;
-
-    }
-
-    virtual bool unload_ABC_Var()override
-    {
-      std::string newtitle;
-      std::string newUnits;
-      int newaxis;
-      int newscaletye;
-
-      if (!getValue("min",min_)) return false;
-      if (!getValue("max",max_)) return false;
-      if (!getValue("length",length_)) return false;
-      if (!getValue("width",width_)) return false;
-      if (!getValue("title",newtitle)) return false;
-      if (!getValue("units",newUnits)) return false;
-      if (!getValue("axis",newaxis)) return false;
-      if (!getValue("ScaleType",newscaletye)) return false;
-
-      title_=newtitle.c_str();
-      units_=newUnits.c_str();
-      axis_=static_cast<Scale::AxisType>(newaxis);
-      type_=static_cast<Scale::Type>(newscaletye);
-      return true;
-
-
-    }
-
 };
 
 
+
+
 }
+
+
+
+
 #endif // SCALE_H

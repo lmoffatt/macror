@@ -257,7 +257,7 @@ namespace Markov_Mol
                                  ABC_PatchModel* mypatch,
                                  const std::string& tip,
                                  const std::string& whatthis):
-    Implements_Complex_Var(parent,model_name_identifier,ClassName(),{},tip,whatthis),
+    Implements_Complex_Var(parent,model_name_identifier,ClassName(),tip,whatthis),
     patch_(mypatch),
     name_(model_name_identifier),
     k_u(nrows(Q_matrix)),

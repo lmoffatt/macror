@@ -132,6 +132,11 @@ namespace  Markov_IO {
 
   inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
                                            const std::string& text);
+
+  inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
+                                           const char* text);
+
+
   inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
                                            double d);
 
@@ -444,11 +449,20 @@ namespace  Markov_IO {
                   const std::string& tip="",
                   const std::string & whatthis="");
 
+
+    template<typename T>
+    void addValuePointer(const std::string& name,
+                         T* value,
+                         const std::string& classname="",
+                         const std::string& tip="",
+                         const std::string & whatthis="");
+
+
     template<typename T>
     bool replaceValue(const std::string& name, const T& value);
 
-    bool getCategory(const std::string& name, int& i)const;
-    bool setCategory(const std::string &name, const std::string& categ);
+    template<typename Enum>
+    void addCategoryItemPointer(const std::string & name, Enum* i);
 
 
   };
@@ -517,13 +531,30 @@ namespace  Markov_IO {
   template<typename T>
   class Implements_Simple_Var: public Implements_VarId
   {
-
     // ABC_Var interface
   public:
     static std::string ClassName();
-    static std::set<std::string> SuperClasses();
 
-    virtual std::set<std::string> mySuperClasses()  override;
+    static std::set<std::string> SuperClasses()
+    {
+      return ABC_Var::SuperClasses()+ClassName();
+    }
+
+    virtual std::set<std::string> mySuperClasses()
+    {
+      return SuperClasses();
+    }
+
+    const ABC_Var *motherClass() const override
+    {
+      if (parentVar()!=nullptr)
+        {
+          auto p=parentVar()->getVarId(myClass());
+          return dynamic_cast<const Implements_Simple_Class<T>*>(p);
+        }
+      else
+        return nullptr;
+    }
 
     T value()const
     {
@@ -543,31 +574,89 @@ namespace  Markov_IO {
       return value_;
     }
 
+    std::deque<Token_New> toTokens() const
+    {
+      auto out=Implements_VarId::toTokens();
+      out<<"="<<toToken(value())<<"\n";
+      return out;
+    }
+
+    bool processTokens(const std::deque<Token_New>& t,
+                       std::size_t &pos)
+    {
+      if (!Implements_VarId::processTokens(t,pos))
+        return false;
+      else
+        {
+          if (t.at(pos).tok()!=Token_New::ASSIGN)
+            return false;
+          ++pos;
+          T val;
+          if (!toValue(t,val,pos))
+            return false;
+          else
+            {
+              value_=val;
+              if (t.at(pos).tok()==Token_New::EOL)
+                ++pos;
+              return true;
+            }
+        }
+    }
+
+
 
     // ABC_Var interface
-  public:
-    // we need a mother class that knows our template type!
-    virtual const ABC_Var* motherClass()const override;
-
-    virtual std::deque<Token_New> toTokens() const override;
-
-    virtual bool processTokens(const std::deque<Token_New>& tokenList,
-                               std::size_t& pos)override;
 
     Implements_Simple_Var(ABC_Var* parent,
                           std::string id,
                           T val,
                           std::string className=ClassName(),
                           const std::string& tip="",
-                          const std::string& whatthis="");
+                          const std::string& whatthis=""):
+      value_(val),
+    valPtr_(nullptr){}
 
-    Implements_Simple_Var()=default;
+
+    Implements_Simple_Var(ABC_Var* parent,
+                          std::string id,
+                          T* pointer,
+                          std::string className=ClassName(),
+                          const std::string& tip="",
+                          const std::string& whatthis=""):
+      value_(*pointer),
+    valPtr_(pointer){}
+
+
+    Implements_Simple_Var():
+      value_{},valPtr_(nullptr){}
+
     virtual ~Implements_Simple_Var(){}
 
-    virtual Implements_Simple_Var<T>* load_ABC_Var()  override;
+    virtual Implements_Simple_Var<T>* load_ABC_Var()  override
+    {
+      if (valPtr_!=nullptr)
+        {
+          value_=*valPtr_;
+          return this;
+        }
+      else
+        return nullptr;
+    }
 
+    virtual bool unload_ABC_Var() override
+    {
+      if (valPtr_!=nullptr)
+        {
+          *valPtr_=value_;
+          return true;
+        }
+      else
+        return false;
+    }
   private:
     T value_;
+    T* valPtr_;
   };
 
 
@@ -590,7 +679,6 @@ namespace  Markov_IO {
     Implements_Complex_Var(ABC_Var *parent,
                            const std::string& id,
                            const std::string className,
-                           const std::vector<ABC_Var*>& childs,
                            const std::string & tip,
                            const std::string& whatthis);
 
@@ -605,7 +693,23 @@ namespace  Markov_IO {
 
 
 
+    virtual ABC_Var* load_ABC_Var()override
+    {
+      for (std::size_t i=0; i< numChildVars(); i++)
+        getVarId(ith_Var(i))->load_ABC_Var();
+      return this;
+    }
+    virtual bool unload_ABC_Var()override
+    {
+      for (std::size_t i=0; i< numChildVars(); i++)
+        if (!getVarId(ith_Var(i))->unload_ABC_Var())
+          return false;
+      return true;
+
+    }
+
   protected:
+    virtual void set_Variable_pointers(){}
     std::vector<std::string> ids_;
     std::map<std::string,ABC_Var*> vars_;
 
@@ -740,6 +844,8 @@ namespace  Markov_IO {
 
   };
 
+
+  /*
   class Implements_Categorical;
 
 
@@ -790,7 +896,9 @@ namespace  Markov_IO {
 
   };
 
-  class Implements_Categorical : public Implements_Simple_Var<std::string>
+*/
+  template<typename Enum>
+  class Implements_Categorical: public Implements_Simple_Var<std::string>
   {
   public:
     static std::string ClassName();
@@ -804,24 +912,35 @@ namespace  Markov_IO {
   public:
     std::string Category()const;
 
-    int Rank()const;
+    Enum Rank()const;
 
     void updateCat();
     void updateRank();
 
     void setCategory(const std::string& cat);
 
-    void setRank(int i);
+    void setRank(Enum i);
 
-    Implements_Categorical(ABC_Var* parent, const std::string& idName,int i, const std::string& categoryClass);
-    Implements_Categorical(ABC_Var* parent, const std::string& idName, const std::string &cat, const std::string& categoryClass);
+    Implements_Categorical(ABC_Var* parent, const std::string& idName,Enum i);
+    Implements_Categorical(ABC_Var* parent, const std::string& idName, const std::string &cat);
 
-    virtual const Implements_Categorical_Class* motherClass()const;
-    virtual Implements_Categorical_Class* motherClass();
+    Implements_Categorical(ABC_Var* parent, const std::string& idName,Enum* i);
+    Implements_Categorical(ABC_Var* parent, const std::string& idName, std::string * cat);
 
+
+    virtual const Implements_Categorical* motherClass()const;
+    virtual Implements_Categorical* motherClass();
+
+
+    virtual bool unload_ABC_Var() override;
+
+    virtual Implements_Categorical<Enum> *load_ABC_Var() override;
 
   private:
-    int rank_;
+    static std::map<std::string,Enum> strToEnum;
+    Enum rank_;
+    Enum* rankPtr_;
+
   };
 
 
@@ -889,6 +1008,22 @@ namespace  Markov_IO {
   }
 
 
+  template<typename T>
+  void ABC_Var::addValuePointer(const std::string &name,
+                                T *value,
+                                const std::string &classname,
+                                const std::string& tip,
+                                const std::string & whatthis)
+  {
+    std::string c=classname;
+    if (c.empty())
+      c=Implements_Simple_Var<T>::ClassName();
+    Implements_Simple_Var<T>* o=new Implements_Simple_Var<T>(this,name,value,c,tip,whatthis);
+    addVar(o);
+  }
+
+
+
 
   template<>
   inline  void ABC_Var::addValue(const std::string &name,
@@ -936,6 +1071,158 @@ namespace  Markov_IO {
       return false;
     return addVar(value);
   }
+
+  template<typename Enum>
+  std::string Implements_Categorical<Enum>::ClassName()
+  {
+    return "Category";
+  }
+
+  template<typename Enum>
+  std::set<std::string> Implements_Categorical<Enum>::SuperClasses()
+  {
+    return Implements_Simple_Var<int>::SuperClasses()+ClassName();
+  }
+
+  template<typename Enum>
+  std::set<std::string> Implements_Categorical<Enum>::mySuperClasses()
+  {
+    return SuperClasses();
+  }
+
+  template<typename Enum>
+  std::string Implements_Categorical<Enum>::Category() const
+  {
+    return value();
+  }
+
+  template<typename Enum>
+  Enum Implements_Categorical<Enum>::Rank() const
+  {
+    return rank_;
+  }
+
+  template<typename Enum>
+  void Implements_Categorical<Enum>::updateCat()
+  {
+    for (std::pair<std::string,Enum> p:strToEnum)
+       if (p.second==rank_)
+         {
+           addValue(p.first);
+           break;
+         }
+  }
+
+  template<typename Enum>
+  void Implements_Categorical<Enum>::updateRank()
+  {
+    rank_=strToEnum[value()];
+  }
+
+  template<typename Enum>
+  void Implements_Categorical<Enum>::setCategory(const std::string &cat)
+  {
+    addValue(cat);
+    updateRank();
+  }
+
+  template<typename Enum>
+  void Implements_Categorical<Enum>::setRank(Enum i)
+  {
+    rank_=i;
+    updateCat();
+  }
+
+  template<typename Enum>
+  Implements_Categorical<Enum>::Implements_Categorical(ABC_Var *parent,
+                                                 const std::string &idName,
+                                                 Enum i):
+    Implements_Simple_Var<std::string>(parent,idName,"",ClassName()),
+    rank_{i}, rankPtr_{nullptr}
+  {
+    updateCat();
+  }
+
+  template<typename Enum>
+  Implements_Categorical<Enum>::Implements_Categorical(ABC_Var *parent,
+                                                 const std::string &idName,
+                                                 Enum *i):
+    Implements_Simple_Var<std::string>(parent,idName,"",ClassName()),
+    rank_{*i}, rankPtr_{i}
+  {
+    updateCat();
+  }
+
+  template<typename Enum>
+  Implements_Categorical<Enum>::Implements_Categorical(ABC_Var *parent,
+                                                 const std::string &idName,
+                                                 const std::string & cat):
+    Implements_Simple_Var<std::string>(parent,idName,cat,ClassName()),
+    rank_{}, rankPtr_{nullptr}
+  {
+    updateRank();
+  }
+
+  template<typename Enum>
+  Implements_Categorical<Enum>::Implements_Categorical(ABC_Var *parent,
+                                                 const std::string &idName,
+                                                 std::string * cat):
+    Implements_Simple_Var<std::string>(parent,idName,cat,ClassName()),
+    rank_{},rankPtr_{nullptr}
+  {
+    updateRank();
+  }
+
+  template<typename Enum>
+  const Implements_Categorical<Enum> *Implements_Categorical<Enum>::motherClass() const
+  {
+    return dynamic_cast<const Implements_Categorical<Enum>*>(parentVar()->getVarId(myClass()));
+  }
+
+
+  template<typename Enum>
+  Implements_Categorical<Enum> *Implements_Categorical<Enum>::motherClass()
+  {
+    return dynamic_cast< Implements_Categorical<Enum>*>(parentVar()->getVarId(myClass()));
+  }
+
+  template<typename Enum>
+  bool Implements_Categorical<Enum>::unload_ABC_Var()
+  {
+    if (rankPtr_!=nullptr)
+      {
+        *rankPtr_=rank_;
+        return true;
+      }
+    else  return Implements_Simple_Var<std::string>::unload_ABC_Var();
+  }
+
+  template<typename Enum>
+  Implements_Categorical<Enum> *Implements_Categorical<Enum>::load_ABC_Var()
+  {
+    if (rankPtr_!=nullptr)
+      {
+        rank_=*rankPtr_;
+        updateCat();
+        return this;
+      }
+    else if (Implements_Simple_Var<std::string>::load_ABC_Var()!=nullptr)
+      {
+        updateRank();
+        return this;
+      }
+    else
+      return nullptr;
+  }
+
+  template<typename Enum>
+  void ABC_Var::addCategoryItemPointer(const std::string &name, Enum *i)
+  {
+    addVar(new Implements_Categorical<Enum>(this,name,i));
+
+  }
+
+
 
 
 }

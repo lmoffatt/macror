@@ -287,85 +287,9 @@ namespace Markov_IO {
 
 
 
-  template<typename T>
-  std::deque<Token_New> Implements_Simple_Var<T>::toTokens() const
-  {
-    auto out=Implements_VarId::toTokens();
-    out<<"="<<toToken(value())<<"\n";
-    return out;
-  }
-
-  template<typename T>
-  bool Implements_Simple_Var<T>::processTokens(const std::deque<Token_New>& t,
-                                               std::size_t &pos)
-  {
-    if (!Implements_VarId::processTokens(t,pos))
-      return false;
-    else
-      {
-        if (t.at(pos).tok()!=Token_New::ASSIGN)
-          return false;
-        ++pos;
-        T val;
-        if (!toValue(t,val,pos))
-          return false;
-        else
-          {
-            value_=val;
-            if (t.at(pos).tok()==Token_New::EOL)
-              ++pos;
-            return true;
-          }
-      }
-  }
-
-  template<typename T>
-  std::set<std::string> Implements_Simple_Var<T>::SuperClasses()
-  {
-    return ABC_Var::SuperClasses()+ClassName();
-  }
-
-  template<typename T>
-  std::set<std::string> Implements_Simple_Var<T>::mySuperClasses()
-  {
-    return SuperClasses();
-  }
 
 
 
-  template<typename T>
-  const ABC_Var *Implements_Simple_Var<T>::motherClass() const
-  {
-    if (parentVar()!=nullptr)
-      {
-        auto p=parentVar()->getVarId(myClass());
-        return dynamic_cast<const Implements_Simple_Class<T>*>(p);
-      }
-    else
-      return nullptr;
-  }
-
-
-
-
-
-  template<typename T>
-  Implements_Simple_Var<T>::
-  Implements_Simple_Var(ABC_Var *parent,
-                        std::string id,
-                        T val,
-                        std::string className,
-                        const std::string& tip,
-                        const std::string& whatthis):
-    Implements_VarId(parent,id,className,tip,whatthis),
-    value_(val){}
-
-
-  template<typename T>
-  Implements_Simple_Var<T> *Implements_Simple_Var<T>::load_ABC_Var()
-  {
-    return this;
-  }
 
 
 
@@ -394,6 +318,42 @@ namespace Markov_IO {
 
   template
   class Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t>>;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   std::string Implements_VarId::id() const
@@ -540,32 +500,6 @@ namespace Markov_IO {
   }
 
 
-  bool ABC_Var::getCategory(const std::string &name, int &i) const
-  {
-    const Implements_Categorical* o=dynamic_cast<const Implements_Categorical*>(getVarId(name));
-
-    if (o!=nullptr)
-      {
-        i=o->Rank();
-        return true;
-      }
-    else
-      return false;
-
-  }
-
-  bool ABC_Var::setCategory(const std::string &name, const std::string& categ)
-  {
-    Implements_Categorical* o=dynamic_cast< Implements_Categorical*>(getVarId(name));
-
-    if (o!=nullptr)
-      {
-        o->setCategory(categ);
-        return true;
-      }
-    else
-      return false;
-  }
 
   void Implements_VarId::setParentVar(ABC_Var *par)
   {
@@ -881,18 +815,12 @@ namespace Markov_IO {
   Implements_Complex_Var::Implements_Complex_Var(ABC_Var *parent,
                                                  const std::string &id,
                                                  const std::string className,
-                                                 const std::vector<ABC_Var *> &childs,
                                                  const std::string&tip,
                                                  const std::string &whatthis):
     Implements_VarId(parent,id,className,tip, whatthis),
     ids_(),vars_{}
   {
-    for (ABC_Var* v:childs)
-      {
-        v->setParentVar(this);
-        ids_.push_back(v->id());
-        vars_[v->id()]=v;
-      }
+    this->set_Variable_pointers();
   }
 
   Implements_Complex_Var::~Implements_Complex_Var()
@@ -1803,6 +1731,20 @@ namespace Markov_IO {
     return tok;
   }
 
+
+  std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, const char* text)
+  {
+    std::stringstream ss(text);
+    Token_New t;
+    while (t.get(ss))
+      {
+        tok.push_back(t);
+      }
+
+    return tok;
+  }
+
+
   std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, double d)
   {
     tok.push_back(Token_New(d));
@@ -1818,7 +1760,7 @@ namespace Markov_IO {
                                                      const std::string &tip,
                                                      const std::string &whatthis,
                                                      const std::map<std::string,fieldDef> m):
-    Implements_Complex_Var(parent,id,className,{},tip,whatthis)
+    Implements_Complex_Var(parent,id,className,tip,whatthis)
   {
     for (std::pair<std::string,fieldDef> e:m)
       {
@@ -1857,14 +1799,14 @@ namespace Markov_IO {
 
   Implements_Complex_Var *Implements_Complex_Class::varTemplate() const
   {
-    std::vector<ABC_Var*> o;
+    Implements_Complex_Var* out=  new Implements_Complex_Var(nullptr,"",id(),"","");
     for (std::size_t i=0; i<numChildVars(); i++)
       {
         auto v=getVarId(ith_Var(i))->varTemplate();
         v->setId(ith_Var(i));
-        o.push_back(v);
+        out->addVar(v);
       }
-    Implements_Complex_Var* out=  new Implements_Complex_Var(nullptr,"",id(),o,"","");
+
     return out;
   }
 
@@ -2076,85 +2018,8 @@ namespace Markov_IO {
   }
 
 
-  std::string Implements_Categorical::ClassName()
-  {
-    return "Category";
-  }
 
-  std::set<std::string> Implements_Categorical::SuperClasses()
-  {
-    return Implements_Simple_Var<int>::SuperClasses()+ClassName();
-  }
-
-  std::set<std::string> Implements_Categorical::mySuperClasses()
-  {
-    return SuperClasses();
-  }
-
-  std::string Implements_Categorical::Category() const
-  {
-    return value();
-  }
-
-  int Implements_Categorical::Rank() const
-  {
-    return rank_;
-  }
-
-  void Implements_Categorical::updateCat()
-  {
-    if (motherClass()!=nullptr)
-      addValue(motherClass()->Category(Rank()));
-  }
-
-  void Implements_Categorical::updateRank()
-  {
-    if (motherClass()!=nullptr)
-      rank_=motherClass()->Rank(Category());
-  }
-
-  void Implements_Categorical::setCategory(const std::string &cat)
-  {
-    addValue(cat);
-    updateRank();
-  }
-
-  void Implements_Categorical::setRank(int i)
-  {
-    rank_=i;
-    updateCat();
-  }
-
-  Implements_Categorical::Implements_Categorical(ABC_Var *parent,
-                                                 const std::string &idName,
-                                                 int i,
-                                                 const std::string &categoryClass):
-    Implements_Simple_Var<std::string>(parent,idName,"",categoryClass),
-    rank_{i}
-  {
-    updateCat();
-  }
-
-  Implements_Categorical::Implements_Categorical(ABC_Var *parent,
-                                                 const std::string &idName,
-                                                 const std::string & cat,
-                                                 const std::string &categoryClass):
-    Implements_Simple_Var<std::string>(parent,idName,cat,categoryClass),
-    rank_{}
-  {
-    updateRank();
-  }
-
-  const Implements_Categorical_Class *Implements_Categorical::motherClass() const
-  {
-    return dynamic_cast<const Implements_Categorical_Class*>(parentVar()->getVarId(myClass()));
-  }
-
-  Implements_Categorical_Class *Implements_Categorical::motherClass()
-  {
-    return dynamic_cast<Implements_Categorical_Class*>(parentVar()->getVarId(myClass()));
-  }
-
+/*
   std::string Implements_Categorical_Class::ClassName()
   {
     return "Category_Class";
@@ -2250,7 +2115,7 @@ namespace Markov_IO {
     return new Implements_Categorical(nullptr,"",defaultCategory(),id());
   }
 
-
+*/
 
 
 

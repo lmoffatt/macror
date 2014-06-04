@@ -15,7 +15,52 @@ class QSpinBox;
 
 
 
+namespace Markov_IO {
+
+  inline bool toValue(const std::deque<Token_New> &tok, QString &val, std::size_t &i)
+  {
+    if (!(i<tok.size())) return false;
+    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
+      return false;
+    else
+      {
+        val=tok.at(i).str().c_str();
+        ++i;
+        return true;
+      }
+  }
+
+  inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
+                                           const QString& text)
+  {
+    std::stringstream ss(text.toStdString());
+    Token_New t;
+    while (t.get(ss))
+      {
+        tok.push_back(t);
+      }
+
+    return tok;
+  }
+
+
+  template
+  class Implements_Simple_Var<QString>;
+  template<>
+  inline std::string Implements_Simple_Var<QString>::ClassName()
+  {
+    return "QString";
+  }
+
+}
+
+
 namespace Markov_GUI {
+
+
+
+
+
   class EditWizardField:public QWidget
   {
     Q_OBJECT

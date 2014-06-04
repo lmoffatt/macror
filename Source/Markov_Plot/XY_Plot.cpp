@@ -46,7 +46,7 @@ XY_Plot::XY_Plot(Markov_IO::ABC_Var* e,
                  Scale* xAxis,
                  Scale* yAxis,
                  int col):
-  Implements_Complex_Var(e,"","XY_plot",{},"a tip", "a xy whats up"),
+  Implements_Complex_Var(e,"","XY_plot","a tip", "a xy whats up"),
   xAxis_(xAxis),
     yAxis_(yAxis),
 
