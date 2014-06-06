@@ -145,8 +145,8 @@ namespace Markov_GUI {
    // label->setToolTip(QString(desc->Tip(i).c_str()));
    // label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
 
 
 
@@ -388,7 +388,7 @@ namespace Markov_GUI {
 
 //    Markov_IO::Object<Markov_LA::M_Matrix<double> > od(md_);
 //    desc->ReplaceElement(field.toStdString(),od);
-    var_->addValue(field.toStdString(),md_);
+    var_->push_backVar(field.toStdString(),md_);
 
     emit valueChanged();
   }
@@ -516,8 +516,8 @@ namespace Markov_GUI {
 //    label->setToolTip(QString(desc->Tip(i).c_str()));
 //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
 
 
     myLayout->addWidget(label);
@@ -546,7 +546,7 @@ namespace Markov_GUI {
 
 //    Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > od(ms_);
 //    desc->ReplaceElement(field.toStdString(),od);
-    var_->addValue(field.toStdString(),ms_);
+    var_->push_backVar(field.toStdString(),ms_);
 
     emit valueChanged();
   }
@@ -582,8 +582,8 @@ namespace Markov_GUI {
 //    label->setToolTip(toolt);
 //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
 
 
 
@@ -630,7 +630,7 @@ namespace Markov_GUI {
       {
 //        Markov_IO::Object<double> od(d_);
 //        desc->ReplaceElement(field.toStdString(),od);
-        var_->addValue(field.toStdString(),d_);
+        var_->push_backVar(field.toStdString(),d_);
         emit valueChanged();
       }
     lineEdit->updateGeometry();
@@ -662,8 +662,8 @@ namespace Markov_GUI {
 //    label->setToolTip(QString(desc->Tip(i).c_str()));
 //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
 
 
     QHBoxLayout* myLayout=new QHBoxLayout;
@@ -693,7 +693,7 @@ namespace Markov_GUI {
     s_=spinBox->value();
 //    Markov_IO::Object<std::size_t> od(s_);
 //    desc->ReplaceElement(field.toStdString(),od);
-    var_->addValue(field.toStdString(),s_);
+    var_->push_backVar(field.toStdString(),s_);
 
     emit valueChanged();
   }
@@ -726,8 +726,8 @@ namespace Markov_GUI {
 //    label->setToolTip(QString(desc->Tip(i).c_str()));
 //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
 
 
     QHBoxLayout* myLayout=new QHBoxLayout;
@@ -749,7 +749,7 @@ namespace Markov_GUI {
       b_=true;
 //    Markov_IO::Object<bool> od(b_);
 //    desc->ReplaceElement(field.toStdString(),od);
-    var_->addValue(field.toStdString(),b_);
+    var_->push_backVar(field.toStdString(),b_);
 
     emit valueChanged();
   }
@@ -785,8 +785,8 @@ namespace Markov_GUI {
 //    label->setToolTip(QString(desc->Tip(i).c_str()));
 //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getVarId(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getVarId(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
+    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
 
 
     myLayout->addWidget(label);
@@ -831,7 +831,7 @@ namespace Markov_GUI {
 
     lineEdit->setText(str_.c_str());
     //desc->ReplaceElement(field.toStdString(),str_);
-    var_->addValue(field.toStdString(),str_);
+    var_->push_backVar(field.toStdString(),str_);
     emit valueChanged();
 
   }
@@ -846,7 +846,7 @@ namespace Markov_GUI {
   {
     str_=lineEdit->text().toStdString();
     //desc->ReplaceElement(field.toStdString(),str_);
-    var_->addValue(field.toStdString(),str_);
+    var_->push_backVar(field.toStdString(),str_);
     emit valueChanged();
 
   }

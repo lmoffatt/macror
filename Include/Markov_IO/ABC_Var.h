@@ -372,7 +372,6 @@ namespace  Markov_IO {
   {
   public:
 
-
     static ABC_Var* getFromTokens(ABC_Var* parent,
                                   const std::deque<Token_New>& tokensList,
                                   std::size_t& pos);
@@ -426,13 +425,13 @@ namespace  Markov_IO {
 
     virtual std::string ith_Var(std::size_t i)const=0;
 
-    virtual const ABC_Var* getVarId(const std::string& name)const=0;
-    virtual ABC_Var* getVarId(const std::string &name)=0;
+    virtual const ABC_Var* getChildVar(const std::string& name)const=0;
+    virtual ABC_Var* getChildVar(const std::string &name)=0;
 
-    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const=0;
-    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind) =0;
+    virtual const ABC_Var* getChildVar(const std::string& name,const std::string& kind)const=0;
+    virtual ABC_Var* getChildVar(const std::string &name, const std::string &kind) =0;
 
-    virtual bool addVar(ABC_Var* var)=0;
+    virtual bool addChildVar(ABC_Var* var)=0;
 
     virtual ~ABC_Var(){}
     virtual bool isInDomain(const ABC_Var* value)const=0;
@@ -446,7 +445,7 @@ namespace  Markov_IO {
     bool getValue(const std::string& name, T& value)const;
 
     template<typename T>
-    void addValue(const std::string& name,
+    bool push_backVar(const std::string& name,
                   T value,
                   const std::string& classname="",
                   const std::string& tip="",
@@ -457,7 +456,7 @@ namespace  Markov_IO {
     bool replaceValue(const std::string& name, const T& value);
 
     template<typename Enum>
-    void addCategoryItem(const std::string & name, Enum i);
+    bool push_back_CategoryItem(const std::string & name, Enum i);
   };
 
 
@@ -496,11 +495,11 @@ namespace  Markov_IO {
     const ABC_Var *parentVar() const override;
     virtual std::size_t numChildVars() const override;
     virtual std::string ith_Var(std::size_t i) const override;
-    virtual const ABC_Var* getVarId(const std::string& name)const override;
-    virtual ABC_Var* getVarId(const std::string &name) override;
-    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const  override;
-    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind) override;
-    virtual bool addVar(ABC_Var *var) override;
+    virtual const ABC_Var* getChildVar(const std::string& name)const override;
+    virtual ABC_Var* getChildVar(const std::string &name) override;
+    virtual const ABC_Var* getChildVar(const std::string& name,const std::string& kind)const  override;
+    virtual ABC_Var* getChildVar(const std::string &name, const std::string &kind) override;
+    virtual bool addChildVar(ABC_Var *var) override;
     virtual std::string refId()const override;
     virtual ABC_Var* motherClass() override;
     virtual const ABC_Var* motherClass() const  override;
@@ -571,7 +570,7 @@ namespace  Markov_IO {
     {
       if (parentVar()!=nullptr)
         {
-          auto p=parentVar()->getVarId(myClass());
+          auto p=parentVar()->getChildVar(myClass());
           return dynamic_cast<const Implements_Simple_Class<T>*>(p);
         }
       else
@@ -583,7 +582,7 @@ namespace  Markov_IO {
       return value_;
     }
 
-    void addValue(T val)
+    void setValue(T val)
     {
       value_=val;
     }
@@ -688,12 +687,12 @@ namespace  Markov_IO {
 
     virtual std::size_t numChildVars() const override;
     virtual std::string ith_Var(std::size_t i) const override;
-    virtual const ABC_Var* getVarId(const std::string& name)const override;
-    virtual  ABC_Var* getVarId(const std::string& name)override;
-    virtual const ABC_Var* getVarId(const std::string& name,
+    virtual const ABC_Var* getChildVar(const std::string& name)const override;
+    virtual  ABC_Var* getChildVar(const std::string& name)override;
+    virtual const ABC_Var* getChildVar(const std::string& name,
                                     const std::string &myclass)const override;
-    virtual ABC_Var* getVarId(const std::string& name, const std::string &myclass) override;
-    virtual bool addVar(ABC_Var *var) override;
+    virtual ABC_Var* getChildVar(const std::string& name, const std::string &myclass) override;
+    virtual bool addChildVar(ABC_Var *var) override;
     Implements_Complex_Var(ABC_Var *parent,
                            const std::string& id,
                            const std::string className,
@@ -839,14 +838,14 @@ namespace  Markov_IO {
 
     virtual std::string ith_Var(std::size_t i)const  override;
 
-    virtual const ABC_Var* getVarId(const std::string& name)const  override;
-    virtual ABC_Var* getVarId(const std::string &name)  override;
+    virtual const ABC_Var* getChildVar(const std::string& name)const  override;
+    virtual ABC_Var* getChildVar(const std::string &name)  override;
 
-    virtual const ABC_Var* getVarId(const std::string& name,const std::string& kind)const  override;
-    virtual ABC_Var* getVarId(const std::string &name, const std::string &kind)  override;
+    virtual const ABC_Var* getChildVar(const std::string& name,const std::string& kind)const  override;
+    virtual ABC_Var* getChildVar(const std::string &name, const std::string &kind)  override;
 
 
-    virtual bool addVar(ABC_Var* var) override;
+    virtual bool addChildVar(ABC_Var* var) override;
 
   };
 
@@ -1005,7 +1004,7 @@ namespace  Markov_IO {
   template<>
   inline bool ABC_Var::getValue(const std::string &name, const ABC_Var  *& value) const
   {
-    const ABC_Var* o=getVarId(name);
+    const ABC_Var* o=getChildVar(name);
     if (o!=nullptr)
       {
         value=o;
@@ -1019,7 +1018,7 @@ namespace  Markov_IO {
   template<typename T>
   bool ABC_Var::getValue(const std::string &name, T &value) const
   {
-    const Implements_Simple_Var<T>* o=dynamic_cast<const Implements_Simple_Var<T>*>(getVarId(name));
+    const Implements_Simple_Var<T>* o=dynamic_cast<const Implements_Simple_Var<T>*>(getChildVar(name));
 
     if (o!=nullptr)
       {
@@ -1032,7 +1031,7 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  void ABC_Var::addValue(const std::string &name, T value,
+  bool ABC_Var::push_backVar(const std::string &name, T value,
                          const std::string &classname,
                          const std::string& tip,
                          const std::string & whatthis)
@@ -1041,7 +1040,8 @@ namespace  Markov_IO {
     if (c.empty())
       c=Implements_Simple_Var<T>::ClassName();
     Implements_Simple_Var<T>* o=new Implements_Simple_Var<T>(this,name,value,c,tip,whatthis);
-    addVar(o);
+    return addChildVar(o);
+
   }
 
 
@@ -1049,7 +1049,7 @@ namespace  Markov_IO {
 
 
   template<>
-  inline  void ABC_Var::addValue(const std::string &name,
+  inline  bool ABC_Var::push_backVar(const std::string &name,
                                  ABC_Var* value,
                                  const std::string &classname,
                                  const std::string& tip,
@@ -1066,19 +1066,22 @@ namespace  Markov_IO {
           value->setTip(tip);
         if (!whatthis.empty())
           value->setWhatThis(whatthis);
-        addVar(value);
+        return addChildVar(value);
 
       }
+    else
+      return false;
   }
 
   template<typename T>
   bool ABC_Var::replaceValue(const std::string &name, const T &value)
   {
-    Implements_Simple_Var<T>* o=dynamic_cast<Implements_Simple_Var<T>*>(getVarId(name));
+    ABC_Var*p=getChildVar(name);
+    Implements_Simple_Var<T>* o=dynamic_cast<Implements_Simple_Var<T>*>(p);
 
     if (o!=nullptr)
       {
-        o->addValue(value);
+        o->setValue(value);
         return true;
       }
     else
@@ -1090,9 +1093,9 @@ namespace  Markov_IO {
   template<>
   inline  bool ABC_Var::replaceValue(const std::string &name, ABC_Var* const& value)
   {
-    if ((value==nullptr)||(value->id()!=name)||(getVarId(name)==nullptr))
+    if ((value==nullptr)||(value->id()!=name)||(getChildVar(name)==nullptr))
       return false;
-    return addVar(value);
+    return addChildVar(value);
   }
 
   template<typename Enum>
@@ -1131,7 +1134,7 @@ namespace  Markov_IO {
     for (std::pair<std::string,Enum> p:strToEnum)
        if (p.second==rank_)
          {
-           addValue(p.first);
+           setValue(p.first);
            break;
          }
   }
@@ -1145,7 +1148,7 @@ namespace  Markov_IO {
   template<typename Enum>
   void Implements_Categorical<Enum>::setCategory(const std::string &cat)
   {
-    addValue(cat);
+    push_backVar(cat);
     updateRank();
   }
 
@@ -1182,14 +1185,14 @@ namespace  Markov_IO {
   template<typename Enum>
   const Implements_Categorical<Enum> *Implements_Categorical<Enum>::motherClass() const
   {
-    return dynamic_cast<const Implements_Categorical<Enum>*>(parentVar()->getVarId(myClass()));
+    return dynamic_cast<const Implements_Categorical<Enum>*>(parentVar()->getChildVar(myClass()));
   }
 
 
   template<typename Enum>
   Implements_Categorical<Enum> *Implements_Categorical<Enum>::motherClass()
   {
-    return dynamic_cast< Implements_Categorical<Enum>*>(parentVar()->getVarId(myClass()));
+    return dynamic_cast< Implements_Categorical<Enum>*>(parentVar()->getChildVar(myClass()));
   }
 
   template<typename Enum>
@@ -1203,9 +1206,9 @@ namespace  Markov_IO {
    }
 
   template<typename Enum>
-  void ABC_Var::addCategoryItem(const std::string &name, Enum i)
+  bool ABC_Var::push_back_CategoryItem(const std::string &name, Enum i)
   {
-    addVar(new Implements_Categorical<Enum>(this,name,i));
+    return addChildVar(new Implements_Categorical<Enum>(this,name,i));
 
   }
 

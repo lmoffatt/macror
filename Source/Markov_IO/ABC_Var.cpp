@@ -390,7 +390,7 @@ namespace Markov_IO {
   {
     if (parentVar()==nullptr)
       return false;
-    else   return parentVar()->getVarId(id())==this;
+    else   return parentVar()->getChildVar(id())==this;
   }
 
   std::size_t Implements_VarId::numChildVars() const
@@ -403,38 +403,38 @@ namespace Markov_IO {
     return{};
   }
 
-  const ABC_Var *Implements_VarId::getVarId(const std::string &name) const
+  const ABC_Var *Implements_VarId::getChildVar(const std::string &name) const
   {
     if (parentVar()!=nullptr)
-      return parentVar()->getVarId(name);
+      return parentVar()->getChildVar(name);
     else return nullptr;
   }
 
-  ABC_Var *Implements_VarId::getVarId(const std::string &name)
+  ABC_Var *Implements_VarId::getChildVar(const std::string &name)
   {
     if (parentVar()!=nullptr)
-      return parentVar()->getVarId(name);
+      return parentVar()->getChildVar(name);
     else return nullptr;
   }
 
-  const ABC_Var *Implements_VarId::getVarId(const std::string &name, const std::string &kind) const
+  const ABC_Var *Implements_VarId::getChildVar(const std::string &name, const std::string &kind) const
   {
     if (parentVar()!=nullptr)
-      return parentVar()->getVarId(name,kind);
+      return parentVar()->getChildVar(name,kind);
     else return nullptr;
   }
 
-  ABC_Var *Implements_VarId::getVarId(const std::string &name, const std::string &kind)
+  ABC_Var *Implements_VarId::getChildVar(const std::string &name, const std::string &kind)
   {
     if (parentVar()!=nullptr)
-      return parentVar()->getVarId(name,kind);
+      return parentVar()->getChildVar(name,kind);
     else return nullptr;
   }
 
-  bool Implements_VarId::addVar(ABC_Var *var)
+  bool Implements_VarId::addChildVar(ABC_Var *var)
   {
     if (parentVar()!=nullptr)
-      return parentVar()->addVar(var);
+      return parentVar()->addChildVar(var);
   }
 
   ABC_Var *Implements_VarId::parentVar()
@@ -457,7 +457,7 @@ namespace Markov_IO {
   ABC_Var *Implements_VarId::motherClass()
   {
     if (parentVar()!=nullptr)
-      return parentVar()->getVarId(myClass());
+      return parentVar()->getChildVar(myClass());
     else
       return nullptr;
 
@@ -466,7 +466,7 @@ namespace Markov_IO {
   const ABC_Var *Implements_VarId::motherClass() const
   {
     if (parentVar()!=nullptr)
-      return parentVar()->getVarId(myClass());
+      return parentVar()->getChildVar(myClass());
     else
       return nullptr;
 
@@ -606,7 +606,7 @@ namespace Markov_IO {
   ABC_Var *Implements_Refer_Var::refVar()
   {
     if (parentVar()!=nullptr)
-    return parentVar()->getVarId(refId(),myClass());
+    return parentVar()->getChildVar(refId(),myClass());
     return
         nullptr;
   }
@@ -614,7 +614,7 @@ namespace Markov_IO {
   const ABC_Var *Implements_Refer_Var::refVar() const
   {
     if (parentVar()!=nullptr)
-    return parentVar()->getVarId(refId(),myClass());
+    return parentVar()->getChildVar(refId(),myClass());
     return
         nullptr;
   }
@@ -661,38 +661,38 @@ namespace Markov_IO {
     else return {};
   }
 
-  const ABC_Var *Implements_Refer_Var::getVarId(const std::string &name) const
+  const ABC_Var *Implements_Refer_Var::getChildVar(const std::string &name) const
   {
     if (refVar()!=nullptr)
-      return refVar()->getVarId(name);
+      return refVar()->getChildVar(name);
     else return {};
   }
 
-  ABC_Var *Implements_Refer_Var::getVarId(const std::string &name)
+  ABC_Var *Implements_Refer_Var::getChildVar(const std::string &name)
   {
     if (refVar()!=nullptr)
-      return refVar()->getVarId(name);
+      return refVar()->getChildVar(name);
     else return {};
   }
 
-  const ABC_Var *Implements_Refer_Var::getVarId(const std::string &name, const std::string &kind) const
+  const ABC_Var *Implements_Refer_Var::getChildVar(const std::string &name, const std::string &kind) const
   {
     if (refVar()!=nullptr)
-      return refVar()->getVarId(name,kind);
+      return refVar()->getChildVar(name,kind);
     else return {};
   }
 
-  ABC_Var *Implements_Refer_Var::getVarId(const std::string &name, const std::string &kind)
+  ABC_Var *Implements_Refer_Var::getChildVar(const std::string &name, const std::string &kind)
   {
     if (refVar()!=nullptr)
-      return refVar()->getVarId(name,kind);
+      return refVar()->getChildVar(name,kind);
     else return {};
   }
 
-  bool Implements_Refer_Var::addVar(ABC_Var *var)
+  bool Implements_Refer_Var::addChildVar(ABC_Var *var)
   {
     if (refVar()!=nullptr)
-      return refVar()->addVar(var);
+      return refVar()->addChildVar(var);
     else return {};
   }
 
@@ -705,7 +705,7 @@ namespace Markov_IO {
     out<<"begin"<<"\n";
     for (std::size_t i=0; i<numChildVars(); i++)
       {
-        out<<getVarId(ith_Var(i))->toTokens();
+        out<<getChildVar(ith_Var(i))->toTokens();
       }
     out<<myClass()<<"end"<<"\n";
     return out;
@@ -730,7 +730,7 @@ namespace Markov_IO {
                    (!((t.at(pos).str()==myClass())&&
                       (t.at(pos+1).tok()==Token_New::END))))
               {
-                if (! addVar(getFromTokens(this,t,pos)))
+                if (! addChildVar(getFromTokens(this,t,pos)))
                   return false;
               }
             if ((pos+1>=t.size())||(t.at(pos+1).tok()!=Token_New::END))
@@ -758,45 +758,45 @@ namespace Markov_IO {
     return ids_[i];
   }
 
-  const ABC_Var *Implements_Complex_Var::getVarId(const std::string &name) const
+  const ABC_Var *Implements_Complex_Var::getChildVar(const std::string &name) const
   {
     auto it=vars_.find(name);
     if (it!=vars_.end())
       return it->second;
     else if (parentVar()!=nullptr)
-      return parentVar()->getVarId(name);
+      return parentVar()->getChildVar(name);
     else return nullptr;
   }
 
-  ABC_Var *Implements_Complex_Var::getVarId(const std::string &name)
+  ABC_Var *Implements_Complex_Var::getChildVar(const std::string &name)
   {
     auto it=vars_.find(name);
     if (it!=vars_.end())
       return it->second;
     else if (parentVar()!=nullptr)
-      return parentVar()->getVarId(name);
+      return parentVar()->getChildVar(name);
     else return nullptr;
   }
 
-  const ABC_Var *Implements_Complex_Var::getVarId(const std::string &name, const std::string &myclass) const
+  const ABC_Var *Implements_Complex_Var::getChildVar(const std::string &name, const std::string &myclass) const
   {
-    const ABC_Var* out=getVarId(name);
+    const ABC_Var* out=getChildVar(name);
     if ((out!=nullptr)&&(out->myClass()==myclass))
       return out;
     else
       return nullptr;
   }
 
-  ABC_Var *Implements_Complex_Var::getVarId(const std::string &name, const std::string &myclass)
+  ABC_Var *Implements_Complex_Var::getChildVar(const std::string &name, const std::string &myclass)
   {
-    ABC_Var* out=getVarId(name);
+    ABC_Var* out=getChildVar(name);
     if ((out!=nullptr)&&(out->myClass()==myclass))
       return out;
     else
       return nullptr;
   }
 
-  bool Implements_Complex_Var::addVar(ABC_Var *var)
+  bool Implements_Complex_Var::addChildVar(ABC_Var *var)
   {
     if (var==nullptr)
       return false;
@@ -1770,7 +1770,7 @@ namespace Markov_IO {
   {
     for (std::pair<std::string,fieldDef> e:m)
       {
-        addVar(new Implements_Refer_Var(parentVar(),
+        addChildVar(new Implements_Refer_Var(parentVar(),
                                         e.first,
                                         e.second.superClass,
                                         e.second.className,
@@ -1793,10 +1793,10 @@ namespace Markov_IO {
     for (std::size_t i=0; i<numChildVars(); ++i)
       {
         auto iname=ith_Var(i);
-        auto valueVar=value->getVarId(iname);
+        auto valueVar=value->getChildVar(iname);
         if (valueVar==nullptr)
           return false;
-        else if (!getVarId(iname)->isInDomain(valueVar))
+        else if (!getChildVar(iname)->isInDomain(valueVar))
           return false;
       }
     return true;
@@ -1808,9 +1808,9 @@ namespace Markov_IO {
     Implements_Complex_Var* out=  new Implements_Complex_Var(nullptr,"",id(),"","");
     for (std::size_t i=0; i<numChildVars(); i++)
       {
-        auto v=getVarId(ith_Var(i))->varTemplate();
+        auto v=getChildVar(ith_Var(i))->varTemplate();
         v->setId(ith_Var(i));
-        out->addVar(v);
+        out->addChildVar(v);
       }
 
     return out;
@@ -1819,7 +1819,7 @@ namespace Markov_IO {
 
   void Implements_Complex_Class::push_back(const std::string &idName, const std::string &superclassname, const std::string &classname, const std::string& tip, const std::string& whatthis)
   {
-    addVar(new Implements_Refer_Var(parentVar(),idName,superclassname, classname,tip, whatthis));
+    addChildVar(new Implements_Refer_Var(parentVar(),idName,superclassname, classname,tip, whatthis));
   }
 
   template<typename T>
@@ -1837,19 +1837,19 @@ namespace Markov_IO {
   template<typename T>
   T Implements_Simple_Class<T>::defaultValue() const
   {
-    return dynamic_cast<Implements_Simple_Var<T>*>(getVarId("default"))->value();
+    return dynamic_cast<Implements_Simple_Var<T>*>(getChildVar("default"))->value();
   }
 
   template<typename T>
   T Implements_Simple_Class<T>::minValue() const
   {
-    return dynamic_cast<Implements_Simple_Var<T>*>(getVarId("min"))->value();
+    return dynamic_cast<Implements_Simple_Var<T>*>(getChildVar("min"))->value();
   }
 
   template<typename T>
   T Implements_Simple_Class<T>::maxValue() const
   {
-    return dynamic_cast<Implements_Simple_Var<T>*>(getVarId("max"))->value();
+    return dynamic_cast<Implements_Simple_Var<T>*>(getChildVar("max"))->value();
   }
 
   template<typename T>
@@ -1867,19 +1867,19 @@ namespace Markov_IO {
   template<typename T>
   void Implements_Simple_Class<T>::setDefaultValue(T val)
   {
-    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("default"))->addValue(val);
+    dynamic_cast<Implements_Simple_Var<T>*>(getChildVar("default"))->push_backVar(val);
   }
 
   template<typename T>
   void Implements_Simple_Class<T>::setminValue(T val)
   {
-    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("min"))->addValue(val);
+    dynamic_cast<Implements_Simple_Var<T>*>(getChildVar("min"))->push_backVar(val);
   }
 
   template<typename T>
   void Implements_Simple_Class<T>::setmaxValue(T val)
   {
-    dynamic_cast<Implements_Simple_Var<T>*>(getVarId("max"))->addValue(val);
+    dynamic_cast<Implements_Simple_Var<T>*>(getChildVar("max"))->push_backVar(val);
   }
 
   template<typename T>
@@ -1892,9 +1892,9 @@ namespace Markov_IO {
                           std::string className):
     Implements_Complex_Var(parent,id,className,{})
   {
-    addVar(new Implements_Simple_Var<T>(this,"default",defaultValue));
-    addVar(new Implements_Simple_Var<T>(this,"min",minValue));
-    addVar(new Implements_Simple_Var<T>(this,"max",maxValue));
+    addChildVar(new Implements_Simple_Var<T>(this,"default",defaultValue));
+    addChildVar(new Implements_Simple_Var<T>(this,"min",minValue));
+    addChildVar(new Implements_Simple_Var<T>(this,"max",maxValue));
 
   }
 

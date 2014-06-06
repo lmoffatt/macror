@@ -696,14 +696,14 @@ Markov_IO::ABC_Var *Scale::get_ABC_Var() const
 {
   Markov_IO::Implements_Complex_Var* v=varClone();
 
-   v->addValue("min",min_);
-    v->addValue("max",max_);
-    v->addValue("length",length_);
-    v->addValue("width",width_);
-    v->addValue("title",title_);
-    v->addValue("units",units_);
-    v->addCategoryItem("axis",axis_);
-    v->addCategoryItem("saletype",type_);
+   v->push_backVar("min",min_);
+    v->push_backVar("max",max_);
+    v->push_backVar("length",length_);
+    v->push_backVar("width",width_);
+    v->push_backVar("title",title_);
+    v->push_backVar("units",units_);
+    v->push_back_CategoryItem("axis",axis_);
+    v->push_back_CategoryItem("saletype",type_);
   return v;
   }
 
