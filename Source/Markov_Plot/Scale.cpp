@@ -408,18 +408,6 @@ std::string Scale::ClassName()
   return "Scale";
 }
 
-void Scale::set_Variable_pointers()
-{
-  addValuePointer("min",&min_);
-  addValuePointer("max",&max_);
-  addValuePointer("length",&length_);
-  addValuePointer("width",&width_);
-  addValuePointer("title",&title_);
-  addValuePointer("units",&units_);
-  addCategoryItemPointer("axis",&axis_);
-  addCategoryItemPointer("saletype",&type_);
-
-}
 
 
 void Scale::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -498,7 +486,6 @@ Scale::Scale(ABC_Var *e,
     tickLines_(),
     axisLine_()
    {
-    set_Variable_pointers();
     reset();
     setAcceptHoverEvents(true);
 
@@ -525,7 +512,7 @@ Scale::Scale(ABC_Var *e,
 */
 
 
-    ABC_Var* a=load_ABC_Var();
+    ABC_Var* a=get_ABC_Var();
 
 
 
@@ -705,6 +692,27 @@ void Scale::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 }
 
+Markov_IO::ABC_Var *Scale::get_ABC_Var() const
+{
+  Markov_IO::Implements_Complex_Var* v=varClone();
+
+   v->addValue("min",min_);
+    v->addValue("max",max_);
+    v->addValue("length",length_);
+    v->addValue("width",width_);
+    v->addValue("title",title_);
+    v->addValue("units",units_);
+    v->addCategoryItem("axis",axis_);
+    v->addCategoryItem("saletype",type_);
+  return v;
+  }
+
+
+
+bool Scale::load_from_ABC_Var(const Markov_IO::ABC_Var *source)
+{
+
+}
 
 
 

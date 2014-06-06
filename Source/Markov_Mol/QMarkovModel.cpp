@@ -278,7 +278,6 @@ namespace Markov_Mol
     Q_to_conn_K_tau_QC();
     QC_to_Q0_Q1();
     buildParameters();
-    set_Variable_pointers();
 
   }
   
@@ -607,9 +606,7 @@ namespace Markov_Mol
     Q_to_conn_K_tau_QC();
 
     buildParameters();
-    set_Variable_pointers();
-
-  }
+   }
 
   void swap(Q_Markov_Model& X,Q_Markov_Model& Y)
   {
@@ -1671,8 +1668,7 @@ namespace Markov_Mol
                        unitary_conductance);
 
     swap(*this, tmp);
-    set_Variable_pointers();
-    load_ABC_Var();
+    get_ABC_Var();
     std::cerr<<this->toString();
     return true;
   }

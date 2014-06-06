@@ -386,6 +386,13 @@ namespace Markov_IO {
     whatThis_=whatThis;
   }
 
+  bool Implements_VarId::isRootedVariable() const
+  {
+    if (parentVar()==nullptr)
+      return false;
+    else   return parentVar()->getVarId(id())==this;
+  }
+
   std::size_t Implements_VarId::numChildVars() const
   {
     return 0;
@@ -432,7 +439,10 @@ namespace Markov_IO {
 
   ABC_Var *Implements_VarId::parentVar()
   {
+    if (isRootedVariable())
     return p_;
+    else
+      return nullptr;
   }
   const ABC_Var *Implements_VarId::parentVar() const
   {
@@ -443,15 +453,6 @@ namespace Markov_IO {
     return id();
   }
 
-  ABC_Var *Implements_VarId::refVar()
-  {
-    return this;
-  }
-
-  const ABC_Var *Implements_VarId::refVar() const
-  {
-    return this;
-  }
 
   ABC_Var *Implements_VarId::motherClass()
   {
@@ -489,14 +490,14 @@ namespace Markov_IO {
     class_{},
     p_(nullptr){}
 
-  bool Implements_VarId::unload_ABC_Var()
+  bool Implements_VarId::load_from_ABC_Var(const ABC_Var* source)
   {
     return true;
   }
 
-  ABC_Var *Implements_VarId::load_ABC_Var()
+  ABC_Var *Implements_VarId::get_ABC_Var()const
   {
-    return this;
+    return varClone();
   }
 
 
@@ -604,12 +605,18 @@ namespace Markov_IO {
 
   ABC_Var *Implements_Refer_Var::refVar()
   {
+    if (parentVar()!=nullptr)
     return parentVar()->getVarId(refId(),myClass());
+    return
+        nullptr;
   }
 
   const ABC_Var *Implements_Refer_Var::refVar() const
   {
+    if (parentVar()!=nullptr)
     return parentVar()->getVarId(refId(),myClass());
+    return
+        nullptr;
   }
 
   Implements_Refer_Var::Implements_Refer_Var(ABC_Var *parent,
