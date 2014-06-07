@@ -79,7 +79,7 @@ namespace Markov_GUI {
 
     virtual ~EditWizardField(){}
 
-    virtual void setConstraint(Constrain someConstrain){someConstrain;}
+    virtual void setConstraint(Constrain ){}
     //   virtual void relieveConstrain(Constrain someContrain){}
     virtual bool isValid()const;
 

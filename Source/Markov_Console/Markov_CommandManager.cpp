@@ -61,7 +61,6 @@ namespace Markov_Console
   Markov_CommandManager::Markov_CommandManager():
     io_(nullptr),
     dir_{Markov_IO::getWorkingPath()},
-    units{},
     cmds{},
     cmdsl{},
     vars{},
@@ -233,10 +232,6 @@ namespace Markov_Console
     return 0;
   }
 
-  void Markov_CommandManager::add_unit(Markov_IO::ABC_Unit* u)
-  {
-    units[u->abbr()]=u;
-  }
 
 
 
@@ -355,7 +350,7 @@ namespace Markov_Console
 
 
 
-  void Markov_CommandManager::printErrorMessage(const std::string& errorMessage,ABC_Command* source)
+  void Markov_CommandManager::printErrorMessage(const std::string& errorMessage, ABC_Command* source)
   {
     std::cout<<errorMessage<<"\n";
   }

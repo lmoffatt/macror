@@ -29,10 +29,7 @@
 
 #include "Markov_Bay/ABC_Result.h"
 
-namespace Markov_IO
-{
-  class ABC_Unit;
-}
+
 
 
 namespace Markov_Console
@@ -109,7 +106,6 @@ public:
 
     virtual CommandHistory& getH(){return h;}
 
-    virtual void add_unit(Markov_IO::ABC_Unit* u);
     virtual void add_command(ABC_Command* cmd);
     virtual void add_type(const std::string& name, const Markov_IO::ABC_Saveable *s);
 
@@ -160,7 +156,6 @@ protected:
 
     std::string dir_;
 
-    std::map<std::string, Markov_IO::ABC_Unit*> units;
     std::map<std::string, ABC_Command*> cmds;
     Autocomplete cmdsl;
 

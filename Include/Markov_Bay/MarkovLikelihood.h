@@ -40,7 +40,7 @@ public:
     virtual const Markov_Mol::ABC_Markov_Model& model()const;
 
     virtual const Markov_IO::ABC_Options& getOptions()const;
-    virtual bool setOptions(const Markov_IO::ABC_Options &options);
+    virtual bool setOptions(const Markov_IO::ABC_Options &);
 
     virtual LikelihoodEvaluation run(const Markov_IO::Parameters& beta);
 

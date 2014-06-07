@@ -127,17 +127,17 @@ namespace  Markov_IO {
   };
 
 
-  inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok1,
+  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok1,
                                            const std::deque<Token_New>& tok2);
 
-  inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
+   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
                                            const std::string& text);
 
-  inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
+   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
                                            const char* text);
 
 
-  inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
+   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
                                            double d);
 
   template<typename T>
@@ -192,30 +192,30 @@ namespace  Markov_IO {
     return out;
   }
 
-  inline bool toValue(const std::deque<Token_New> &tok,double &val,std::size_t& i);
+   bool toValue(const std::deque<Token_New> &tok,double &val,std::size_t& i);
 
 
-  inline bool toValue(const std::deque<Token_New> &tok,
+   bool toValue(const std::deque<Token_New> &tok,
                       int &val,
                       std::size_t& i);
 
-  inline bool toValue(const std::deque<Token_New> &tok,
+   bool toValue(const std::deque<Token_New> &tok,
                       std::size_t &val,
                       std::size_t& i);
 
 
-  inline bool toValue(const std::deque<Token_New> &tok,
+ bool toValue(const std::deque<Token_New> &tok,
                       std::string &val,
                       std::size_t& i);
 
 
-  inline bool toValue(const std::deque<Token_New> &tok,
+  bool toValue(const std::deque<Token_New> &tok,
                       bool &val,
                       std::size_t& i);
 
 
   template<typename T>
-  inline bool toValue(const std::deque<Token_New> &tok,
+   bool toValue(const std::deque<Token_New> &tok,
                       std::vector<T> &vec,
                       std::size_t& i)
   {
@@ -1295,6 +1295,63 @@ namespace  Markov_IO {
   {
     return addChildVar(new Implements_Categorical<Enum>(this,name,i));
 
+  }
+
+
+
+
+  inline
+  std::set<std::string> operator+(std::set<std::string>&& tok1,
+                                  std::string &&s)
+  {
+    tok1.insert(s);
+    return tok1;
+  }
+
+  inline std::set<std::string> operator+(std::set<std::string> &&ss1,
+                                  std::set<std::string> &&ss2)
+  {
+    ss1.insert(ss2.begin(),ss2.end());
+    return ss1;
+  }
+
+
+  inline std::deque<Token_New> &operator<<(std::deque<Token_New> &tok1, const std::deque<Token_New> &tok2)
+  {
+    tok1.insert(tok1.end(),tok2.begin(),tok2.end());
+    return tok1;
+  }
+
+   inline std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, const std::string &text)
+  {
+    std::stringstream ss(text);
+    Token_New t;
+    while (t.get(ss))
+      {
+        tok.push_back(t);
+      }
+
+    return tok;
+  }
+
+
+   inline std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, const char* text)
+  {
+    std::stringstream ss(text);
+    Token_New t;
+    while (t.get(ss))
+      {
+        tok.push_back(t);
+      }
+
+    return tok;
+  }
+
+
+    inline std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, double d)
+  {
+    tok.push_back(Token_New(d));
+    return tok;
   }
 
 

@@ -498,7 +498,7 @@ namespace Markov_Bay
   {
     return this->Options_;
   }
-  bool Markov_Likelihood::setOptions(const Markov_IO::ABC_Options &options)
+  bool Markov_Likelihood::setOptions(const Markov_IO::ABC_Options &)
   {
     //Options_(options);
     return true;

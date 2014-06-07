@@ -257,12 +257,11 @@ HEADERS += \
     Include/Markov_Bay/OptimizationDistributionResults.h \
     Include/Markov_Console/CommandHistory.h \
     Include/Borrowed/MersenneTwister.h \
-    Include/Markov_IO/ABC_Y_dt.h \
-    Include/Markov_IO/ABC_Unit.h
+    Include/Markov_IO/ABC_Y_dt.h
+
 
 SOURCES +=  \
     Source/Markov_IO/ABC_Var.cpp\
-    Source/Markov_IO/ABC_Unit.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
     Source/Markov_IO/Object.cpp \

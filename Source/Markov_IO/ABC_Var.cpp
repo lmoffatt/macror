@@ -1726,58 +1726,6 @@ namespace Markov_IO {
     
   }
   
-  std::set<std::string> operator+(std::set<std::string>&& tok1,
-                                  std::string &&s)
-  {
-    tok1.insert(s);
-    return tok1;
-  }
-
-  std::set<std::string> operator+(std::set<std::string> &&ss1,
-                                  std::set<std::string> &&ss2)
-  {
-    ss1.insert(ss2.begin(),ss2.end());
-    return ss1;
-  }
-
-  std::deque<Token_New> &operator<<(std::deque<Token_New> &tok1, const std::deque<Token_New> &tok2)
-  {
-    tok1.insert(tok1.end(),tok2.begin(),tok2.end());
-    return tok1;
-  }
-
-  std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, const std::string &text)
-  {
-    std::stringstream ss(text);
-    Token_New t;
-    while (t.get(ss))
-      {
-        tok.push_back(t);
-      }
-
-    return tok;
-  }
-
-
-  std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, const char* text)
-  {
-    std::stringstream ss(text);
-    Token_New t;
-    while (t.get(ss))
-      {
-        tok.push_back(t);
-      }
-
-    return tok;
-  }
-
-
-  std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, double d)
-  {
-    tok.push_back(Token_New(d));
-    return tok;
-  }
-
 
 
 
