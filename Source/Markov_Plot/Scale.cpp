@@ -512,7 +512,7 @@ Scale::Scale(ABC_Var *e,
 */
 
 
-    ABC_Var* a=get_ABC_Var();
+    ABC_Var* a=to_ComplexVar();
 
 
 
@@ -692,7 +692,7 @@ void Scale::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 }
 
-Markov_IO::ABC_Var *Scale::get_ABC_Var() const
+Markov_IO::ABC_Var *Scale::to_ComplexVar() const
 {
   Markov_IO::Implements_Complex_Var* v=varClone();
 
@@ -709,7 +709,7 @@ Markov_IO::ABC_Var *Scale::get_ABC_Var() const
 
 
 
-bool Scale::load_from_ABC_Var(const Markov_IO::ABC_Var *source)
+bool Scale::processComplexVar(const Markov_IO::ABC_Var *source)
 {
 
 }

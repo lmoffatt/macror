@@ -101,8 +101,8 @@ public:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-    virtual ABC_Var* get_ABC_Var() const override;
-    virtual bool load_from_ABC_Var(const ABC_Var* source)override;
+    virtual ABC_Var* to_ComplexVar() const override;
+    virtual bool processComplexVar(const ABC_Var* source)override;
 
  private:
     void reset();

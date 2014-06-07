@@ -398,49 +398,40 @@ namespace Markov_IO {
     return 0;
   }
 
-  std::string Implements_VarId::ith_Var(std::size_t i) const
+  std::string Implements_VarId::ith_Var(std::size_t ) const
   {
     return{};
   }
 
-  const ABC_Var *Implements_VarId::getChildVar(const std::string &name) const
+  const ABC_Var *Implements_VarId::getChildVar(const std::string &) const
   {
-    if (parentVar()!=nullptr)
-      return parentVar()->getChildVar(name);
-    else return nullptr;
+    return nullptr;
   }
 
-  ABC_Var *Implements_VarId::getChildVar(const std::string &name)
+  ABC_Var *Implements_VarId::getChildVar(const std::string &)
   {
-    if (parentVar()!=nullptr)
-      return parentVar()->getChildVar(name);
-    else return nullptr;
+    return nullptr;
   }
 
-  const ABC_Var *Implements_VarId::getChildVar(const std::string &name, const std::string &kind) const
+  const ABC_Var *Implements_VarId::getChildVar(const std::string &, const std::string &) const
   {
-    if (parentVar()!=nullptr)
-      return parentVar()->getChildVar(name,kind);
-    else return nullptr;
+    return nullptr;
   }
 
-  ABC_Var *Implements_VarId::getChildVar(const std::string &name, const std::string &kind)
+  ABC_Var *Implements_VarId::getChildVar(const std::string &, const std::string &)
   {
-    if (parentVar()!=nullptr)
-      return parentVar()->getChildVar(name,kind);
-    else return nullptr;
+    return nullptr;
   }
 
-  bool Implements_VarId::addChildVar(ABC_Var *var)
+  bool Implements_VarId::addChildVar(ABC_Var *)
   {
-    if (parentVar()!=nullptr)
-      return parentVar()->addChildVar(var);
+    return false;
   }
 
   ABC_Var *Implements_VarId::parentVar()
   {
     if (isRootedVariable())
-    return p_;
+      return p_;
     else
       return nullptr;
   }
@@ -485,17 +476,38 @@ namespace Markov_IO {
       tip_(tip),
       whatThis_(whatthis){}
 
+  Implements_VarId::Implements_VarId(const ABC_Var &other):
+    id_(other.id()),
+    class_(other.myClass()),
+    p_(const_cast<ABC_Var*>(other.parentVar())),
+    tip_(other.Tip()),
+    whatThis_(other.WhatThis())
+  {}
+
   Implements_VarId::Implements_VarId():
     id_{},
     class_{},
-    p_(nullptr){}
+    p_(nullptr),
+    tip_{},
+    whatThis_{}{}
 
-  bool Implements_VarId::load_from_ABC_Var(const ABC_Var* source)
+  bool Implements_VarId::processComplexVar(const ABC_Var* source)
   {
-    return true;
+    if (source!=nullptr)
+      {
+        setId(source->id());
+        setClass(source->myClass());
+        setParentVar(const_cast<ABC_Var*>(source->parentVar()));
+        setTip(source->Tip());
+        setWhatThis(source->WhatThis());
+        return true;
+      }
+    else
+      return false;
+
   }
 
-  ABC_Var *Implements_VarId::get_ABC_Var()const
+  ABC_Var *Implements_VarId::to_ComplexVar()const
   {
     return varClone();
   }
@@ -606,7 +618,7 @@ namespace Markov_IO {
   ABC_Var *Implements_Refer_Var::refVar()
   {
     if (parentVar()!=nullptr)
-    return parentVar()->getChildVar(refId(),myClass());
+      return parentVar()->getChildVar(refId(),myClass());
     return
         nullptr;
   }
@@ -614,7 +626,7 @@ namespace Markov_IO {
   const ABC_Var *Implements_Refer_Var::refVar() const
   {
     if (parentVar()!=nullptr)
-    return parentVar()->getChildVar(refId(),myClass());
+      return parentVar()->getChildVar(refId(),myClass());
     return
         nullptr;
   }
@@ -1661,6 +1673,8 @@ namespace Markov_IO {
                       return nullptr;
                     }
                 }
+              default:
+                break;
               }
           }
       }
@@ -1704,7 +1718,14 @@ namespace Markov_IO {
   {
     return SuperClasses();
   }
-
+  
+  bool ABC_Var::complyClass(const std::string classname)
+  {
+    auto s= mySuperClasses();
+    return s.find(classname)!=s.end();
+    
+  }
+  
   std::set<std::string> operator+(std::set<std::string>&& tok1,
                                   std::string &&s)
   {
@@ -1771,11 +1792,11 @@ namespace Markov_IO {
     for (std::pair<std::string,fieldDef> e:m)
       {
         addChildVar(new Implements_Refer_Var(parentVar(),
-                                        e.first,
-                                        e.second.superClass,
-                                        e.second.className,
-                                        e.second.tip,
-                                        e.second.whatthis));
+                                             e.first,
+                                             e.second.superClass,
+                                             e.second.className,
+                                             e.second.tip,
+                                             e.second.whatthis));
       }
   }
 
@@ -2025,7 +2046,7 @@ namespace Markov_IO {
 
 
 
-/*
+  /*
   std::string Implements_Categorical_Class::ClassName()
   {
     return "Category_Class";

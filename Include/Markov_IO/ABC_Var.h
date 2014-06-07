@@ -398,24 +398,32 @@ namespace  Markov_IO {
 
     virtual std::string refId()const=0;
 
-     virtual std::string myClass()const=0;
+    virtual std::string myClass()const=0;
     virtual void setClass(const std::string& classname)=0;
 
     virtual std::set<std::string> mySuperClasses();
+
+    virtual bool complyClass(const std::string classname);
 
     virtual const ABC_Var* motherClass()const=0;
 
     virtual ABC_Var* motherClass()=0;
 
 
+    virtual std::string toString()const;
+    
+    
     virtual std::deque<Token_New> toTokens()const=0;
 
     virtual bool processTokens(const std::deque<Token_New>& tokenList,
                                std::size_t& pos)=0;
 
-
-    virtual std::string toString()const;
-
+    
+    virtual ABC_Var* to_ComplexVar() const =0;
+    
+    virtual bool processComplexVar(const ABC_Var* source)=0;
+    
+    
     virtual std::size_t numChildVars()const=0;
 
     virtual ABC_Var* parentVar()=0;
@@ -438,25 +446,36 @@ namespace  Markov_IO {
 
     virtual ABC_Var* varTemplate()const=0;
 
-    virtual bool load_from_ABC_Var(const ABC_Var* source)=0;
-    virtual ABC_Var* get_ABC_Var() const =0;
-
+    
     template<typename T>
     bool getValue(const std::string& name, T& value)const;
 
     template<typename T>
     bool push_backVar(const std::string& name,
-                  T value,
-                  const std::string& classname="",
-                  const std::string& tip="",
-                  const std::string & whatthis="");
+                      T value,
+                      const std::string& classname="",
+                      const std::string& tip="",
+                      const std::string & whatthis="");
+
+    bool push_backVarRef(const std::string& name,
+                         const std::string& idRef,
+                         const std::string& classname="",
+                         const std::string& tip="",
+                         const std::string & whatthis="");
+
 
 
     template<typename T>
     bool replaceValue(const std::string& name, const T& value);
 
     template<typename Enum>
-    bool push_back_CategoryItem(const std::string & name, Enum i);
+    bool push_back_CategoryItem(const std::string & name, Enum i,
+                                const std::string& tip="",
+                                const std::string & whatthis="");
+
+
+
+
   };
 
 
@@ -494,12 +513,12 @@ namespace  Markov_IO {
     ABC_Var *parentVar() override;
     const ABC_Var *parentVar() const override;
     virtual std::size_t numChildVars() const override;
-    virtual std::string ith_Var(std::size_t i) const override;
-    virtual const ABC_Var* getChildVar(const std::string& name)const override;
-    virtual ABC_Var* getChildVar(const std::string &name) override;
-    virtual const ABC_Var* getChildVar(const std::string& name,const std::string& kind)const  override;
-    virtual ABC_Var* getChildVar(const std::string &name, const std::string &kind) override;
-    virtual bool addChildVar(ABC_Var *var) override;
+    virtual std::string ith_Var(std::size_t) const override;
+    virtual const ABC_Var* getChildVar(const std::string&)const override;
+    virtual ABC_Var* getChildVar(const std::string &) override;
+    virtual const ABC_Var* getChildVar(const std::string&, const std::string&)const  override;
+    virtual ABC_Var* getChildVar(const std::string &, const std::string &) override;
+    virtual bool addChildVar(ABC_Var *) override;
     virtual std::string refId()const override;
     virtual ABC_Var* motherClass() override;
     virtual const ABC_Var* motherClass() const  override;
@@ -511,6 +530,9 @@ namespace  Markov_IO {
                      const std::string& className,
                      const std::string &tip,
                      const std::string &whatthis);
+
+    Implements_VarId(const ABC_Var& other);
+
     Implements_VarId();
     Implements_VarId(const Implements_VarId& other)=default;
     Implements_VarId& operator=(const Implements_VarId& other)=default;
@@ -520,8 +542,10 @@ namespace  Markov_IO {
 
     virtual ~Implements_VarId(){}
 
-    virtual bool load_from_ABC_Var(const ABC_Var* source)override;
-    virtual ABC_Var* get_ABC_Var() const override;
+    virtual bool processComplexVar(const ABC_Var* source)override;
+    virtual ABC_Var* to_ComplexVar() const override;
+
+
 
 
   protected:
@@ -635,7 +659,7 @@ namespace  Markov_IO {
                           std::string className=ClassName(),
                           const std::string& tip="",
                           const std::string& whatthis=""):
-    Implements_VarId(parent,id,className,tip,whatthis),
+      Implements_VarId(parent,id,className,tip,whatthis),
       value_(val){}
 
 
@@ -653,18 +677,31 @@ namespace  Markov_IO {
 
     virtual ~Implements_Simple_Var(){}
 
-    virtual Implements_Simple_Var<T>* get_ABC_Var()const  override
+    virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
     {
-        return varClone();
+      return varClone();
     }
 
-    virtual bool load_from_ABC_Var(const ABC_Var* source) override
+    virtual bool processComplexVar(const ABC_Var* source) override
     {
-     return false;
+      const ABC_Var* o=source->getChildVar(id(),myClass());
+      if (o!=nullptr)
+        {
+          const Implements_Simple_Var<T>* v=dynamic_cast<const Implements_Simple_Var<T>*> (o);
+          if (v!=nullptr)
+            {
+              setValue(v->value());
+              return true;
+            }
+        }
+      return false;
     }
   private:
     T value_;
   };
+
+
+
 
 
   class Implements_Complex_Var:virtual public ABC_Var, public Implements_VarId
@@ -690,7 +727,7 @@ namespace  Markov_IO {
     virtual const ABC_Var* getChildVar(const std::string& name)const override;
     virtual  ABC_Var* getChildVar(const std::string& name)override;
     virtual const ABC_Var* getChildVar(const std::string& name,
-                                    const std::string &myclass)const override;
+                                       const std::string &myclass)const override;
     virtual ABC_Var* getChildVar(const std::string& name, const std::string &myclass) override;
     virtual bool addChildVar(ABC_Var *var) override;
     Implements_Complex_Var(ABC_Var *parent,
@@ -725,7 +762,7 @@ namespace  Markov_IO {
           *this=Implements_Complex_Var(other);
         }
       return *this;
-      }
+    }
 
 
 
@@ -738,13 +775,39 @@ namespace  Markov_IO {
 
 
 
-    virtual ABC_Var* get_ABC_Var()const override
+    virtual ABC_Var* to_ComplexVar()const override
     {
       return varClone();
     }
-    virtual bool load_from_ABC_Var(const ABC_Var* source)override
+    virtual bool processComplexVar(const ABC_Var* source)override
     {
-          return true;
+       if (numChildVars()<source->numChildVars())
+         {
+           for (std::size_t i=0; i<numChildVars(); i++)
+             {
+               const ABC_Var* v=source->getChildVar(ith_Var(i));
+               if (v!=nullptr)
+                 {
+                   this->addChildVar(v->varClone());
+                 }
+             }
+           return true;
+         }
+       else
+         {
+           for (std::size_t i=0; i<source->numChildVars(); i++)
+             {
+               const ABC_Var* v=source->getChildVar(source->ith_Var(i));
+               if (v!=nullptr)
+                 {
+                   this->addChildVar(v->varClone());
+                 }
+             }
+           return true;
+         }
+
+
+
     }
 
   protected:
@@ -825,9 +888,9 @@ namespace  Markov_IO {
     Implements_Refer_Var()=default;
 
   private:
-     ABC_Var* refVar() ;
+    ABC_Var* refVar() ;
 
-     const ABC_Var* refVar()const ;
+    const ABC_Var* refVar()const ;
     std::string refId_;
     // ABC_Var interface
   public:
@@ -961,8 +1024,13 @@ namespace  Markov_IO {
 
     void setRank(Enum i);
 
-    Implements_Categorical(ABC_Var* parent, const std::string& idName,Enum i);
-    Implements_Categorical(ABC_Var* parent, const std::string& idName, const std::string &cat);
+    Implements_Categorical(ABC_Var* parent, const std::string& idName,Enum i,
+                           const std::string& tip="",
+                           const std::string & whatthis="");
+    Implements_Categorical(ABC_Var* parent, const std::string& idName,
+                           const std::string &cat,
+                           const std::string& tip="",
+                           const std::string & whatthis="");
 
 
 
@@ -970,9 +1038,9 @@ namespace  Markov_IO {
     virtual Implements_Categorical* motherClass();
 
 
-    virtual bool load_from_ABC_Var(const ABC_Var* source) override;
+    virtual bool processComplexVar(const ABC_Var* source) override;
 
-    virtual Implements_Categorical<Enum> *get_ABC_Var() const override;
+    virtual Implements_Categorical<Enum> *to_ComplexVar() const override;
 
   private:
     static std::map<std::string,Enum> strToEnum;
@@ -1032,9 +1100,9 @@ namespace  Markov_IO {
 
   template<typename T>
   bool ABC_Var::push_backVar(const std::string &name, T value,
-                         const std::string &classname,
-                         const std::string& tip,
-                         const std::string & whatthis)
+                             const std::string &classname,
+                             const std::string& tip,
+                             const std::string & whatthis)
   {
     std::string c=classname;
     if (c.empty())
@@ -1050,10 +1118,10 @@ namespace  Markov_IO {
 
   template<>
   inline  bool ABC_Var::push_backVar(const std::string &name,
-                                 ABC_Var* value,
-                                 const std::string &classname,
-                                 const std::string& tip,
-                                 const std::string & whatthis)
+                                     ABC_Var* value,
+                                     const std::string &classname,
+                                     const std::string& tip,
+                                     const std::string & whatthis)
 
   {
     if (value!=nullptr)
@@ -1132,11 +1200,11 @@ namespace  Markov_IO {
   void Implements_Categorical<Enum>::updateCat()
   {
     for (std::pair<std::string,Enum> p:strToEnum)
-       if (p.second==rank_)
-         {
-           setValue(p.first);
-           break;
-         }
+      if (p.second==rank_)
+        {
+          setValue(p.first);
+          break;
+        }
   }
 
   template<typename Enum>
@@ -1161,9 +1229,11 @@ namespace  Markov_IO {
 
   template<typename Enum>
   Implements_Categorical<Enum>::Implements_Categorical(ABC_Var *parent,
-                                                 const std::string &idName,
-                                                 Enum i):
-    Implements_Simple_Var<std::string>(parent,idName,"",ClassName()),
+                                                       const std::string &idName,
+                                                       Enum i,
+                                                       const std::string& tip,
+                                                       const std::string & whatthis):
+    Implements_Simple_Var<std::string>(parent,idName,"",ClassName(),tip,whatthis),
     rank_{i}
   {
     updateCat();
@@ -1172,9 +1242,11 @@ namespace  Markov_IO {
 
   template<typename Enum>
   Implements_Categorical<Enum>::Implements_Categorical(ABC_Var *parent,
-                                                 const std::string &idName,
-                                                 const std::string & cat):
-    Implements_Simple_Var<std::string>(parent,idName,cat,ClassName()),
+                                                       const std::string &idName,
+                                                       const std::string & cat,
+                                                       const std::string& tip,
+                                                       const std::string & whatthis):
+    Implements_Simple_Var<std::string>(parent,idName,cat,ClassName(),tip,whatthis),
     rank_{}
   {
     updateRank();
@@ -1196,17 +1268,30 @@ namespace  Markov_IO {
   }
 
   template<typename Enum>
-  bool Implements_Categorical<Enum>::load_from_ABC_Var(const ABC_Var* source)
+  bool Implements_Categorical<Enum>::processComplexVar(const ABC_Var* source)
   {
-   }
+    const ABC_Var* o=source->getChildVar(id(),myClass());
+    if (o!=nullptr)
+      {
+        const Implements_Categorical<Enum>* v=dynamic_cast<const Implements_Categorical<Enum>*> (o);
+        if (v!=nullptr)
+          {
+            setRank(v->Rank());
+            return true;
+          }
+      }
+    return false;
+  }
 
   template<typename Enum>
-  Implements_Categorical<Enum> *Implements_Categorical<Enum>::get_ABC_Var()const
+  Implements_Categorical<Enum> *Implements_Categorical<Enum>::to_ComplexVar()const
   {
-   }
+  }
 
   template<typename Enum>
-  bool ABC_Var::push_back_CategoryItem(const std::string &name, Enum i)
+  bool ABC_Var::push_back_CategoryItem(const std::string &name, Enum i,
+                                       const std::string& tip,
+                                       const std::string & whatthis)
   {
     return addChildVar(new Implements_Categorical<Enum>(this,name,i));
 

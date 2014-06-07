@@ -1534,6 +1534,25 @@ namespace Markov_Mol
     return  "unitary_conductance";
   }
 
+  bool Q_Markov_Model::processComplexVar(const Markov_IO::ABC_Var *source)
+  {
+    decltype(Q_M) Q;
+    decltype(g0_M) g;
+    decltype(a_M) a;
+    double gamma;
+    bool bQ=source->getValue("Q_matrix",Q);
+    auto bg=source->getValue("conductance_vector",g);
+    bool ba=source->getValue("agonist_vector",a);
+    bool bgamma=source->getValue("unitary_conductance", gamma);
+
+    if (bQ&&bg&&ba&&bgamma)
+      {
+        *this=Q_Markov_Model(parentVar(),source->id(),Q,g,a,gamma);
+        return true;
+      }
+    return false;
+  }
+
   //std::ostream& Q_Markov_Model::put(std::ostream&s) const
   //{
 
@@ -1668,7 +1687,7 @@ namespace Markov_Mol
                        unitary_conductance);
 
     swap(*this, tmp);
-    get_ABC_Var();
+    to_ComplexVar();
     std::cerr<<this->toString();
     return true;
   }
