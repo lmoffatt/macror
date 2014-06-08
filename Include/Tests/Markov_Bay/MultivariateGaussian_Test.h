@@ -26,7 +26,7 @@ public:
     virtual MultipleTests AllTests();
 
     virtual MultipleTests logP_Test(const Markov_LA::M_Matrix<double>& x)const;
-    virtual MultipleTests  P_Test(const Markov_LA::M_Matrix<double>& x)const;
+    virtual MultipleTests  P_Test(const Markov_LA::M_Matrix<double>&)const;
 
     virtual MultipleTests  sample_Test(std::size_t NumSamples,
                                        double p_mean)const;

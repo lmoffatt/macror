@@ -45,7 +45,7 @@ public:
 
     virtual Markov_IO::ClassDescription GetDescription()const;
 
-    virtual bool LoadFromDescription(const Markov_IO::ClassDescription &classDes);
+    virtual bool LoadFromDescription(const Markov_IO::ClassDescription &);
 
     virtual Markov_IO::ABC_Parametrizable* Sample()const;
 
@@ -56,7 +56,7 @@ public:
 
     virtual double Probability(const Markov_IO::ABC_Parametrizable& sample)const;
 
-    virtual double Density(const Markov_IO::ABC_Parametrizable& sample)const;
+    virtual double Density(const Markov_IO::ABC_Parametrizable&)const;
 
 
     NormalDistributed(const Markov_IO::ABC_Parametrizable& sample,

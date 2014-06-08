@@ -68,9 +68,9 @@ public:
 
 
 
-    virtual ClassDescription GetDescription()const{}
+    virtual ClassDescription GetDescription()const{return {};}
 
-    virtual bool LoadFromDescription(const ClassDescription& classDes){}
+    virtual bool LoadFromDescription(const ClassDescription& ){return false;}
 
     static std::string ClassName();
 

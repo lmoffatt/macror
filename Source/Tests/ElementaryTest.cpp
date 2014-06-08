@@ -41,7 +41,7 @@ std::string ElementaryTest::functionalityUnderTest()const
 std::string ElementaryTest::Rationale()const
 {return rationale_;
 }
-const ElementaryTest& ElementaryTest::VerboseLevel(bool verboseLevel) const
+const ElementaryTest& ElementaryTest::VerboseLevel(bool ) const
 {
     return *this;
 }
@@ -98,13 +98,13 @@ std::size_t ElementaryTest::numFailures()const
 	return 1;
 }
 
-const ABC_Test& ElementaryTest::operator[](std::size_t i)const
+const ABC_Test& ElementaryTest::operator[](std::size_t )const
 {
 
     return *this;
 }
 
- ABC_Test& ElementaryTest::operator[](std::size_t i)
+ ABC_Test& ElementaryTest::operator[](std::size_t )
 {
 
     return *this;

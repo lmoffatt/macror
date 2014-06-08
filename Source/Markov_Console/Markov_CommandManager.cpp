@@ -10,7 +10,6 @@
 #include "Markov_Mol/SimulationOptions.h"
 #include "Markov_IO/FileDir.h"
 #include "Markov_IO/Experiment.h"
-#include "Markov_IO/MeasurementUnits.h"
 
 #include "Markov_Bay/YfitLikelihoodEvaluation.h"
 #include "Markov_Bay/MarkovLikelihood.h"
@@ -350,7 +349,7 @@ namespace Markov_Console
 
 
 
-  void Markov_CommandManager::printErrorMessage(const std::string& errorMessage, ABC_Command* source)
+  void Markov_CommandManager::printErrorMessage(const std::string& errorMessage, ABC_Command* )
   {
     std::cout<<errorMessage<<"\n";
   }

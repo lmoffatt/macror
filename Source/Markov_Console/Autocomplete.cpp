@@ -106,7 +106,7 @@ namespace Markov_Test
      }
 
 
-    MultipleTests Autocomplete_Test::AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested)
+    MultipleTests Autocomplete_Test::AllTests(Markov_Console::Markov_CommandManager* , const std::string )
 
     {
       return classInvariant();

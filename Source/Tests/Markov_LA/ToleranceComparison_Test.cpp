@@ -14,7 +14,7 @@ namespace Markov_LA_Test
     using namespace Markov_LA;
 
    MultipleTests ToleranceComparison_Test::AllTests(Markov_Console::Markov_CommandManager* cm,
-                                 const std::string varNameTested)
+                                 const std::string )
    {
      return AllTests();
    }
@@ -221,7 +221,7 @@ MultipleTests ToleranceComparison_Test::isEqual_Test() const
     tol.RelativeTolerance()=std::sqrt(eps);
     double y=x*std::sqrt(eps);
 
-    double relTol=std::sqrt(eps);
+    //double relTol=std::sqrt(eps);
 
     double absTol=x*eps;
 

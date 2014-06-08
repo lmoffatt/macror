@@ -163,8 +163,6 @@ namespace Markov_Console
                   if (f>>des)
                     {
                       Markov_IO::ABC_Saveable* s;
-
-
                       numVar++;
                       bool isVar=false;
                       for (auto tname:cm_->getTypesList())
@@ -216,6 +214,7 @@ namespace Markov_Console
 
           f.close();
         }
+
       }
 
     else
@@ -317,6 +316,7 @@ namespace Markov_Console
 
 
       }
+    return true;
 
   }
 }

@@ -55,7 +55,7 @@ class ModelMatrix: public QAbstractTableModel
 
      QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
+     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int);
      virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
      virtual Qt::ItemFlags flags(const QModelIndex &index) const;

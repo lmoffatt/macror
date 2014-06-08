@@ -98,8 +98,8 @@ QRectF XY_Plot::boundingRect() const
 
 
 void XY_Plot::paint(QPainter *painter,
-                    const QStyleOptionGraphicsItem *option,
-                    QWidget *widget)
+                    const QStyleOptionGraphicsItem *,
+                    QWidget *)
 {
     painter->setClipRect(this->boundingRect());
     drawSymbols(painter);
@@ -131,13 +131,13 @@ void XY_Plot::computexyPos()
     pointLines_.clear();
     if (y_!=0)
     {
-    for (int i=0; i<Markov_LA::nrows(*x_);i++)
+    for (std::size_t i=0; i<Markov_LA::nrows(*x_);i++)
         points_.push_back(QPointF(xAxis_->valueToPos((*x_)(i,0)),
                                   yAxis_->valueToPos((*y_)(i,icol))));
     }
     else
     {
-        for (int i=0; i<Markov_LA::nrows(*x_);i++)
+        for (std::size_t i=0; i<Markov_LA::nrows(*x_);i++)
             points_.push_back(QPointF(xAxis_->valueToPos((*x_)(i,0)),
                                       yAxis_->valueToPos((*x_)(i,1+icol))));
      }
@@ -154,8 +154,6 @@ void XY_Plot::drawSymbols(QPainter* painter)
 {
     switch (symbol_)
     {
-    case XY_Plot::NoSymbol:
-        break;
     case XY_Plot::Circle:
         for (int i=0; i<points_.size(); i++)
         {
@@ -171,6 +169,9 @@ void XY_Plot::drawSymbols(QPainter* painter)
                               points_.at(i).y()+symbolSize_);
         }
         break;
+    case XY_Plot::NoSymbol:
+      default:
+          break;
 
     }
 }

@@ -78,7 +78,7 @@ namespace Markov_MacroConsele_Test
 
 using namespace Markov_Console;
 
-  MultipleTests BayesAutocomplete_Test::AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested)
+  MultipleTests BayesAutocomplete_Test::AllTests(Markov_Console::Markov_CommandManager* , const std::string )
   {
     return classInvariant();
   }

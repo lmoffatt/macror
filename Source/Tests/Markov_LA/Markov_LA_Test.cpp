@@ -66,7 +66,7 @@ Markov_LATest<T>::Markov_LATest(std::size_t size):
     M_(Rand<T>(size,size,0)){}
 
 template<typename T>
-MultipleTests Markov_LATest<T>::AllTests(Markov_Console::Markov_CommandManager* cm,const std::string varNameTested)
+MultipleTests Markov_LATest<T>::AllTests(Markov_Console::Markov_CommandManager* ,const std::string )
 {
   return AllTests();
 }

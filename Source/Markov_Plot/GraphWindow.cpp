@@ -103,7 +103,7 @@ namespace Markov_Plot
                 Markov_Plot::GraphView* g=aplot(gw,e,experiment.trace(i));
                 tab->addTab(g,QString::number(i));
               }
-            Markov_Plot::GraphView* g=aplot(gw,e,experiment.trace(i));
+            //Markov_Plot::GraphView* g=aplot(gw,e,experiment.trace(i));
             tab->addTab(patchtab,QString(patch.c_str()));
 
           }
@@ -119,9 +119,9 @@ namespace Markov_Plot
 
 
 
-  GraphWindow *plot(QWidget *parent, Markov_IO::ABC_Var *e, const Markov_IO::YfitLikelihoodEvaluation &experiment)
+  GraphWindow *plot(QWidget *, Markov_IO::ABC_Var *, const Markov_IO::YfitLikelihoodEvaluation &)
   {
-
+     return nullptr;
   }
 
 

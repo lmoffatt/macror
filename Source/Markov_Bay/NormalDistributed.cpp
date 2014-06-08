@@ -74,10 +74,10 @@ std::string NormalDistributed::myClass()const
 
 Markov_IO::ClassDescription NormalDistributed::GetDescription()const
 {
-
+ return {};
 }
 
-bool NormalDistributed::LoadFromDescription(const Markov_IO::ClassDescription &classDes)
+bool NormalDistributed::LoadFromDescription(const Markov_IO::ClassDescription &)
 {
     return false;
 }
@@ -116,7 +116,7 @@ double NormalDistributed::Probability(const Markov_IO::ABC_Parametrizable& sampl
     return gaussian_.P(p.transformed_values());
 }
 
-double NormalDistributed::Density(const Markov_IO::ABC_Parametrizable& sample)const{
+double NormalDistributed::Density(const Markov_IO::ABC_Parametrizable& )const{
     return 0.0;}
 
 

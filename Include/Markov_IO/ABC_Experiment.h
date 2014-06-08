@@ -36,7 +36,7 @@ public:
     virtual const ABC_Experiment& replicate(std::size_t i)const=0;
 
 
-    virtual const ABC_Experiment& selectPatch(std::string patchLabel)const;
+    virtual const ABC_Experiment& selectPatch(std::string)const;
     virtual std::vector<std::string> getPatchs()const;
     virtual std::string currentPatch()const;
 

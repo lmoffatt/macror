@@ -134,6 +134,7 @@ bool MacrorCommandWindow::edit(const QString& varname)
   MacrorEditWindow* eW=new MacrorEditWindow(varname,cm_);
   eW->show();
   //BUG: does not make sense it does not return nothing
+  return true;
 }
 
 
@@ -289,7 +290,7 @@ void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
               {
 
                 tail=Markov_Console::Autocomplete::suggestedCharacters(res,cmdWord.toStdString()).c_str();
-                auto pp=c.position();
+                //auto pp=c.position();
                 c.insertText(tail);
                 setTextCursor(c);
                 cmdWord+=tail;

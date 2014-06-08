@@ -22,7 +22,7 @@ ModelMatrix::ModelMatrix(Markov_LA::M_Matrix<std::size_t> *matrix,QObject *paren
 
 
 
-int ModelMatrix::rowCount(const QModelIndex &parent) const
+int ModelMatrix::rowCount(const QModelIndex &) const
 {
   if (m)
     return Markov_LA::nrows(*m);
@@ -30,7 +30,7 @@ int ModelMatrix::rowCount(const QModelIndex &parent) const
     return Markov_LA::nrows(*s);
   return -1;
 }
-int ModelMatrix::columnCount(const QModelIndex &parent) const
+int ModelMatrix::columnCount(const QModelIndex &) const
 {
   if (m)
     return Markov_LA::ncols(*m);
@@ -51,13 +51,13 @@ bool ModelMatrix::insertRows(int row, int count, const QModelIndex &parent)
       if (m)
         {
           Markov_LA::M_Matrix<double> newMatrix(rowCount()+count,columnCount());
-          for (std::size_t j=0; j<columnCount();++j)
+          for (int j=0; j<columnCount();++j)
             {
-              for (std::size_t i=0;i<row;++i)
+              for (int i=0;i<row;++i)
                 newMatrix(i,j)=(*m)(i,j);
-              for (std::size_t i=row; i<row+count;++i)
+              for (int i=row; i<row+count;++i)
                 newMatrix(i,j)=0;
-              for (std::size_t i=row; i<rowCount(); ++i)
+              for (int i=row; i<rowCount(); ++i)
                 newMatrix(i+count,j)=(*m)(i,j);
             }
           beginInsertRows(parent,row,row+count-1);
@@ -69,13 +69,13 @@ bool ModelMatrix::insertRows(int row, int count, const QModelIndex &parent)
         {
 
           Markov_LA::M_Matrix<std::size_t> newMatrix(rowCount()+count,columnCount());
-          for (std::size_t j=0; j<columnCount();++j)
+          for (int j=0; j<columnCount();++j)
             {
-              for (std::size_t i=0;i<row;++i)
+              for (int i=0;i<row;++i)
                 newMatrix(i,j)=(*s)(i,j);
-              for (std::size_t i=row; i<row+count;++i)
+              for (int i=row; i<row+count;++i)
                 newMatrix(i,j)=0;
-              for (std::size_t i=row; i<rowCount(); ++i)
+              for (int i=row; i<rowCount(); ++i)
                 newMatrix(i+count,j)=(*s)(i,j);
             }
           beginInsertRows(parent,row,row+count-1);
@@ -100,13 +100,13 @@ bool ModelMatrix::insertColumns(int column, int count, const QModelIndex &parent
       if (m)
         {
           Markov_LA::M_Matrix<double> newMatrix(rowCount(),columnCount()+count);
-          for (std::size_t i=0; i<rowCount();++i)
+          for (int i=0; i<rowCount();++i)
             {
-              for (std::size_t j=0;j<column;++j)
+              for (int j=0;j<column;++j)
                 newMatrix(i,j)=(*m)(i,j);
-              for (std::size_t j=column; j<column+count;++j)
+              for (int j=column; j<column+count;++j)
                 newMatrix(i,j)=0;
-              for (std::size_t j=column; j<columnCount(); ++j)
+              for (int j=column; j<columnCount(); ++j)
                 newMatrix(i,j+count)=(*m)(i,j);
             }
           beginInsertColumns(parent,column,column+count-1);
@@ -117,13 +117,13 @@ bool ModelMatrix::insertColumns(int column, int count, const QModelIndex &parent
       else if (s)
         {
           Markov_LA::M_Matrix<std::size_t> newMatrix(rowCount(),columnCount()+count);
-          for (std::size_t i=0; i<rowCount();++i)
+          for (int i=0; i<rowCount();++i)
             {
-              for (std::size_t j=0;j<column;++j)
+              for (int j=0;j<column;++j)
                 newMatrix(i,j)=(*s)(i,j);
-              for (std::size_t j=column; j<column+count;++j)
+              for (int j=column; j<column+count;++j)
                 newMatrix(i,j)=0;
-              for (std::size_t j=column; j<columnCount(); ++j)
+              for (int j=column; j<columnCount(); ++j)
                 newMatrix(i,j+count)=(*s)(i,j);
             }
           beginInsertColumns(parent,column,column+count-1);
@@ -149,11 +149,11 @@ bool ModelMatrix::removeColumns(int column, int count, const QModelIndex &parent
       if (m)
         {
           Markov_LA::M_Matrix<double> newMatrix(rowCount(),columnCount()-count);
-          for (std::size_t i=0; i<rowCount();++i)
+          for (int i=0; i<rowCount();++i)
             {
-              for (std::size_t j=0;j<column;++j)
+              for (int j=0;j<column;++j)
                 newMatrix(i,j)=(*m)(i,j);
-              for (std::size_t j=column+count; j<columnCount(); ++j)
+              for (int j=column+count; j<columnCount(); ++j)
                 newMatrix(i,j-count)=(*m)(i,j);
             }
           beginRemoveColumns(parent,column,column+count-1);
@@ -164,11 +164,11 @@ bool ModelMatrix::removeColumns(int column, int count, const QModelIndex &parent
       else if (s)
         {
           Markov_LA::M_Matrix<std::size_t> newMatrix(rowCount(),columnCount()-count);
-          for (std::size_t i=0; i<rowCount();++i)
+          for (int i=0; i<rowCount();++i)
             {
-              for (std::size_t j=0;j<column;++j)
+              for (int j=0;j<column;++j)
                 newMatrix(i,j)=(*s)(i,j);
-              for (std::size_t j=column+count; j<columnCount(); ++j)
+              for (int j=column+count; j<columnCount(); ++j)
                 newMatrix(i,j-count)=(*s)(i,j);
             }
           beginRemoveColumns(parent,column,column+count-1);
@@ -196,11 +196,11 @@ bool ModelMatrix::removeRows(int row, int count, const QModelIndex &parent)
       if (m)
         {
           Markov_LA::M_Matrix<double> newMatrix(rowCount()-count,columnCount());
-          for (std::size_t j=0; j<columnCount();++j)
+          for (int j=0; j<columnCount();++j)
             {
-              for (std::size_t i=0;i<row;++i)
+              for (int i=0;i<row;++i)
                 newMatrix(i,j)=(*m)(i,j);
-              for (std::size_t i=row+count; i<rowCount(); ++i)
+              for (int i=row+count; i<rowCount(); ++i)
                 newMatrix(i-count,j)=(*m)(i,j);
             }
           beginRemoveRows(parent,row,row+count-1);
@@ -212,11 +212,11 @@ bool ModelMatrix::removeRows(int row, int count, const QModelIndex &parent)
         {
 
           Markov_LA::M_Matrix<std::size_t> newMatrix(rowCount()-count,columnCount());
-          for (std::size_t j=0; j<columnCount();++j)
+          for (int j=0; j<columnCount();++j)
             {
-              for (std::size_t i=0;i<row;++i)
+              for (int i=0;i<row;++i)
                 newMatrix(i,j)=(*s)(i,j);
-              for (std::size_t i=row+count; i<rowCount(); ++i)
+              for (int i=row+count; i<rowCount(); ++i)
                 newMatrix(i-count,j)=(*s)(i,j);
             }
           beginRemoveRows(parent,row,row+count-1);
@@ -255,7 +255,8 @@ bool  ModelMatrix::setData(const QModelIndex &index, const QVariant &value, int 
   if (role != Qt::EditRole)
     return false;
 
-  if (m &&(index.row()<Markov_LA::nrows(*m))&&(index.column()<Markov_LA::ncols(*m)))
+  if (m &&(index.row()<static_cast<int>(Markov_LA::nrows(*m))
+           )&&(index.column()<static_cast<int>(Markov_LA::ncols(*m))))
     {
       bool ok;
 
@@ -265,7 +266,8 @@ bool  ModelMatrix::setData(const QModelIndex &index, const QVariant &value, int 
 
       return ok;
     }
-  if (s &&(index.row()<Markov_LA::nrows(*s))&&(index.column()<Markov_LA::ncols(*s)))
+  if (s &&(index.row()<static_cast<int>(Markov_LA::nrows(*s)))&&
+      (index.column()<static_cast<int>(Markov_LA::ncols(*s))))
     {
       bool ok;
 
@@ -313,7 +315,7 @@ QVariant ModelMatrix::headerData(int section, Qt::Orientation orientation, int r
 
 
 
-bool ModelMatrix::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
+bool ModelMatrix::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int )
 {
 
   if (orientation==Qt::Vertical)

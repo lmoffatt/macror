@@ -44,7 +44,7 @@ bool MacrorCreateCommand::run(const std::string &typeName,
         QStringList classNames;
         QString className;
         std::vector<std::string> cNs=cm_->getChilds(typeName);
-        for (int i=0; i<cNs.size(); ++i)
+        for (std::size_t i=0; i<cNs.size(); ++i)
             classNames<<cNs[i].c_str();
         Markov_IO::ClassDescription cd;
         Markov_IO::ABC_Saveable *s;

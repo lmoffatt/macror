@@ -18,7 +18,7 @@ namespace Markov_Test
       virtual ElementaryTest* create()const;
       virtual std::ostream& put(std::ostream&) const;
 
-      virtual const ElementaryTest& VerboseLevel(bool verboseLevel)const;
+      virtual const ElementaryTest& VerboseLevel(bool)const;
 
       virtual bool result()const;
 

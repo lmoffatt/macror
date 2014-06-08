@@ -178,7 +178,7 @@ namespace Markov_IO
   template<typename T>
   void extract(std::istream& s, T& data )
   {
-    unsigned int n=sizeof(T);
+    //unsigned int n=sizeof(T);
     char c[sizeof(T)];
     s.read(&c[0],sizeof(T));
     data=*(reinterpret_cast<T*>(&c[0]));
@@ -1031,7 +1031,7 @@ namespace Markov_IO
             sweepDuration_=p.fSecondsPerRun;
             TrialStartToStart_=p.fTrialStartToStart;
             SweepStartToStart_=p.fEpisodeStartToStart;
-            ABF_ADCInfo a=HADC_[0];
+            //ABF_ADCInfo a=HADC_[0];
             SamplingRate_=1.0e6/p.fADCSequenceInterval;
 
 
@@ -1133,7 +1133,7 @@ namespace Markov_IO
 
                     char * D=new char[nTraceSamples_*4*nSignals_];
                     f.read(D,nTraceSamples_*4*nSignals_);
-                    for (int i=0; i< nTraceSamples_; i++)
+                    for (std::size_t i=0; i< nTraceSamples_; i++)
                       for (std::size_t n=0; n<nSignals_;n++)
                         y_[n](i,j)=getValuePos<float>(&D[0],(i*nSignals_+n)*4,"float");
 
@@ -1168,7 +1168,7 @@ namespace Markov_IO
                   {
                     char * D=new char[nTraceSamples_*2*nSignals_];
                     f.read(D,nTraceSamples_*2*nSignals_);
-                    for (int i=0; i< nTraceSamples_; i++)
+                    for (std::size_t i=0; i< nTraceSamples_; i++)
                       for (std::size_t n=0; n<nSignals_;n++)
                         y_[n](i,j)=yScale_[n]*getValuePos<int16_t>(&D[0],(i*nSignals_+n)*2,"short");
 
@@ -1189,7 +1189,7 @@ namespace Markov_IO
                   {
                     char * D=new char[nTraceSamples_*4*nSignals_];
                     f.read(D,nTraceSamples_*4*nSignals_);
-                    for (int i=0; i< nTraceSamples_; i++)
+                    for (std::size_t i=0; i< nTraceSamples_; i++)
                       for (std::size_t n=0; n<nSignals_;n++)
                         y_[n](i,j)=getValuePos<float>(&D[0],(i*nSignals_+n)*4,"float");
 
@@ -1266,7 +1266,7 @@ namespace Markov_IO
                   double scale=H1_->fDACRange/H1_->lDACResolution*H1_->fDACCalibrationFactor[k];
                   char * D=new char[nTraceSamples_*2];
                   if (f.read(D,nTraceSamples_))
-                    for (int i=0; i< nTraceSamples_; i++)
+                    for (std::size_t i=0; i< nTraceSamples_; i++)
                       {
                         double x=getValuePos<int16_t>(&D[0],i*2,"short");
                         DAC_[k](i,0)=scale*(H1_->fDACCalibrationOffset[k]+x);
@@ -1279,7 +1279,7 @@ namespace Markov_IO
                   double scale=H1_->fDACRange/H1_->lDACResolution*H1_->fDACCalibrationFactor[k];
                   char * D=new char[nTraceSamples_*4];
                   if (f.read(D,nTraceSamples_*4))
-                    for (int i=0; i<nTraceSamples_; i++)
+                    for (std::size_t i=0; i<nTraceSamples_; i++)
                       DAC_[k](i,0)=scale*(H1_->fDACCalibrationOffset[k]+getValuePos<float>(&D[0],i*4,"float"));
 
                   delete[] D;
@@ -1316,7 +1316,7 @@ namespace Markov_IO
                         double scale=P.fDACRange/P.lDACResolution*DAC.fDACCalibrationFactor;
                         char * D=new char[nTraceSamples_*2];
                         f.read(D,nTraceSamples_);
-                        for (int i=0; i< nTraceSamples_; i++)
+                        for (std::size_t i=0; i< nTraceSamples_; i++)
                           DAC_[k](i,0)=scale*(DAC.fDACCalibrationOffset+getValuePos<int16_t>(&D[0],i*2,"short"));
 
                         delete[] D;

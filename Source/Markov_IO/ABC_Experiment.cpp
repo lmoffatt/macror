@@ -52,7 +52,7 @@ Markov_LA::M_Matrix<double> ABC_Experiment::t_y()const
 */
 
 
- const ABC_Experiment& ABC_Experiment::selectPatch(std::string patchLabel)const
+ const ABC_Experiment& ABC_Experiment::selectPatch(std::string )const
 {
   return *this;
 }

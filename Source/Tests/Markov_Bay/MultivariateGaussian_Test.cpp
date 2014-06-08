@@ -37,11 +37,11 @@ using namespace Markov_IO;
 
  }
 
- MultipleTests MultivariateGaussian_Test::logP_Test(const Markov_LA::M_Matrix<double>& x)const
+ MultipleTests MultivariateGaussian_Test::logP_Test(const Markov_LA::M_Matrix<double>& )const
  {
 
  }
- MultipleTests  MultivariateGaussian_Test::P_Test(const Markov_LA::M_Matrix<double>& x)const
+ MultipleTests  MultivariateGaussian_Test::P_Test(const Markov_LA::M_Matrix<double>& )const
  {
 
  }
@@ -56,9 +56,9 @@ using namespace Markov_IO;
      M_Matrix<double> Mean=zeros<double>(1,k);
 
      M_Matrix<double> Cov=zeros<double>(k,k);
-     double sumLogL=0;
+     //double sumLogL=0;
 
-     double sumLogL2=0;
+     //double sumLogL2=0;
 
      for (std::size_t i=0; i< NumSamples; ++i)
      {

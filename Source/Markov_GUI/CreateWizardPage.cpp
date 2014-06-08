@@ -132,6 +132,7 @@ bool SelectStringWizardPage::validatePage()
     w->setClassName(*str_);
     w->initselect();
     nextId_=w->currentId()+1;
+    return true;
 
 }
 
@@ -160,7 +161,7 @@ CreateWizardPage::CreateWizardPage(
     field_and_modes(),
     editMap()
 {
-    for (std::size_t i=0; i<someFielIndex.size(); ++i)
+    for (int i=0; i<someFielIndex.size(); ++i)
     {
         field_and_modes.append(QString(claDes->ElementName(someFielIndex.at(i)).c_str()));
 
@@ -501,6 +502,7 @@ bool Create_Pulses_trace_Page2::isComplete()const
         return false;
     if(! (concentration_of_each_pulse>=0.0))
         return false;
+    return true;
 
 }
 

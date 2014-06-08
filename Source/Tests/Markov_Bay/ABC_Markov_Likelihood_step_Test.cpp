@@ -276,7 +276,7 @@ ABC_Markov_Likelihood_step_Test::~ABC_Markov_Likelihood_step_Test()
  }
 
 
-  MultipleTests ABC_Markov_Likelihood_step_Test::AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested)
+  MultipleTests ABC_Markov_Likelihood_step_Test::AllTests(Markov_Console::Markov_CommandManager* , const std::string )
  {
      MultipleTests result("class ABC_Markov_Likelihood_step on "+
                           S_->myClass(),

@@ -93,8 +93,7 @@ namespace Markov_Test
       virtual std::string testedClass()const;
 
       virtual MultipleTests classInvariant()const;
-      virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm,
-                                     const std::string varNameTested);
+      virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager*, const std::string);
       virtual ~Autocomplete_Test(){}
       static std::string TestName();
       virtual std::string myTest()const;

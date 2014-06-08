@@ -144,7 +144,6 @@ CreateQModelPage1::CreateQModelPage1(QWidget *parent):
 
 void CreateQModelPage1::aca()
 {
-    bool iscol;
 
 }
 

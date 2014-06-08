@@ -8,9 +8,8 @@
 
 #include "Markov_IO/auxiliarIO.h"
 
-MacrorCommandHistory::MacrorCommandHistory(
-        Markov_Console::Markov_CommandManager* cm,
-        QWidget* parent,const QString& fname):
+MacrorCommandHistory::MacrorCommandHistory(Markov_Console::Markov_CommandManager* cm,
+        QWidget* parent, const QString& ):
     QTreeView(parent),
     cm_(cm)
 {

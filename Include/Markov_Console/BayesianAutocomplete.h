@@ -59,7 +59,7 @@ using namespace Markov_Console;
 class BayesAutocomplete_Test: public All_Tests
 {
 public:
-  virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager* cm, const std::string varNameTested);
+  virtual MultipleTests AllTests(Markov_Console::Markov_CommandManager*, const std::string);
   virtual std::string testedClass()const;
 
     virtual MultipleTests classInvariant()const;

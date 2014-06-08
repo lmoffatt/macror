@@ -198,8 +198,8 @@ namespace Markov_Bay
     priorPatchDist_(priorD),
     optRuns_(optRuns),
     resLogL_(resLogL),
-    maxLik_(),
     reachMaxLik_(),
+    maxLik_(),
     posteriorModeDist_(),
     posteriorMeanDist_()
   {

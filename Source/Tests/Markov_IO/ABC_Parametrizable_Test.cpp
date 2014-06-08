@@ -78,7 +78,7 @@ MultipleTests ABC_Parametrizable_Test::classInvariant()const
     pGP.push_back(ElementaryTest(
 		      "apply_paramers()",
 		      "appy_parameters() applies all the parameters",
-		      usedPar==par.size()));
+		      usedPar==static_cast<int>(par.size())));
     pGP.push_back(ElementaryTest(
 		      "apply_parameters()",
 		      "apply_parameters returns the original object",

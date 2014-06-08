@@ -44,10 +44,9 @@ public:
 };
 
 
-bool  create(ABC_Operator*& v,const std::string& childClass);
+bool  create(ABC_Operator*& ,const std::string& );
 
-bool LoadFromDescription(ABC_Operator*& v,
-             const Markov_IO::ClassDescription& classDesc);
+bool LoadFromDescription(ABC_Operator*&, const Markov_IO::ClassDescription&);
 
 
 

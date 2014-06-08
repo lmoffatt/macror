@@ -51,8 +51,7 @@ public:
  GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Var* e,
                    const Markov_IO::ABC_Experiment& experiment);
 
- GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Var* e,
-                   const Markov_IO::YfitLikelihoodEvaluation& experiment);
+ GraphWindow* plot(QWidget*, Markov_IO::ABC_Var*, const Markov_IO::YfitLikelihoodEvaluation&);
 
 }
 

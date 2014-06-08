@@ -566,6 +566,7 @@ namespace Markov_Mol
 
 
   Q_Markov_Model::Q_Markov_Model(const Q_Markov_Model& other):
+    Markov_IO::Implements_Complex_Var(other),
     patch_(other.patch_),
     name_(other.name_),
     k_u(other.k_u),

@@ -14,10 +14,10 @@ virtual ~EditWidgetMatrixDoubles(){}
 public slots:
     void editMe();
     void updateValue();
-    void  ShowContextMenu(const QPoint& pos);
+    void  ShowContextMenu(const QPoint&);
     void insertColumn();
-    void insertColumn(int i);
-    void insertRow(int n);
+    void insertColumn(int);
+    void insertRow(int);
  protected:
     Markov_LA::M_Matrix<double> md_;
 private:

@@ -273,8 +273,8 @@ namespace Markov_LA_Test
     }
 
     template<typename T>
-MultipleTests Matrix_Test<T>::AllTests(Markov_Console::Markov_CommandManager* cm,
-                                   const std::string varNameTested){
+MultipleTests Matrix_Test<T>::AllTests(Markov_Console::Markov_CommandManager* ,
+                                   const std::string ){
 
   return AllTests();
 

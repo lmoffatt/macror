@@ -57,16 +57,15 @@ bool ABC_Operator::Load(const std::string& fileName)
 }
 
 
-  bool  create(ABC_Operator*& v,const std::string& childClass)
+  bool  create(ABC_Operator*& ,const std::string& )
   {
        return false;
   }
 
-  bool LoadFromDescription(ABC_Operator*& v,
-               const Markov_IO::ClassDescription& classDesc)
+  bool LoadFromDescription(ABC_Operator*& ,
+               const Markov_IO::ClassDescription& )
   {
 
-      AverageExperiment* o;
       return false;
 
   }

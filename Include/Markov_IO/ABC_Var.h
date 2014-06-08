@@ -1286,6 +1286,7 @@ namespace  Markov_IO {
   template<typename Enum>
   Implements_Categorical<Enum> *Implements_Categorical<Enum>::to_ComplexVar()const
   {
+    return nullptr;
   }
 
   template<typename Enum>
@@ -1293,7 +1294,7 @@ namespace  Markov_IO {
                                        const std::string& tip,
                                        const std::string & whatthis)
   {
-    return addChildVar(new Implements_Categorical<Enum>(this,name,i));
+    return addChildVar(new Implements_Categorical<Enum>(this,name,i,tip,whatthis));
 
   }
 

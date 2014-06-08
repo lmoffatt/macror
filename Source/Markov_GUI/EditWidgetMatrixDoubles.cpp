@@ -51,12 +51,12 @@ void EditWidgetMatrixDoubles::insertColumn()
 
 }
 
-void EditWidgetMatrixDoubles::insertColumn(int i)
+void EditWidgetMatrixDoubles::insertColumn(int )
 {
     }
 
 
-void EditWidgetMatrixDoubles::insertRow(int n){
+void EditWidgetMatrixDoubles::insertRow(int ){
 
 }
 
@@ -96,6 +96,6 @@ void EditWidgetMatrixDoubles::fillTable()
 
 }
 
-void EditWidgetMatrixDoubles::ShowContextMenu(const QPoint& pos) // this is a slot
+void EditWidgetMatrixDoubles::ShowContextMenu(const QPoint& ) // this is a slot
 {
 }

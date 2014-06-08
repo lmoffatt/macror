@@ -13,8 +13,8 @@ namespace Markov_Plot
                        Markov_IO::ABC_Var* e,
                        qreal width,
                        qreal height):
-    Markov_IO::Implements_Complex_Var(e,"","GraphView","",""),
     QGraphicsView(parent),
+    Markov_IO::Implements_Complex_Var(e,"","GraphView","",""),
     gscene_(new QGraphicsScene(0.0,0.0,width,height,parent)),
     height_(height),
     width_(width),
@@ -270,9 +270,9 @@ namespace Markov_Plot
     g->redraw();
     return g;
   }
-  GraphView* aplot(const Markov_IO::ABC_Experiment& experiment)
+  GraphView* aplot(const Markov_IO::ABC_Experiment& )
   {
-
+ return nullptr;
 
 
   }
