@@ -310,8 +310,8 @@ ABC_Markov_Likelihood_step_Test::~ABC_Markov_Likelihood_step_Test()
              S1=S_->patch().Model().run(xst1,S0,numSteps,sto);
      S_->patch().Noise().set_random_generator(&sto);
 
-     double yrunFit=S_->y();
-     double yrun=S1.ymean();
+    // double yrunFit=S_->y();
+  //   double yrun=S1.ymean();
      double noise=S_->patch().Noise().sample(xst.dt());
      xst1.y(S1.ymean()+noise);
 
@@ -326,8 +326,8 @@ ABC_Markov_Likelihood_step_Test::~ABC_Markov_Likelihood_step_Test()
      xst2.y(S2.ymean()+noise);
 
 
-     yrunFit=S_->y();
-     yrun=S2.ymean();
+     //yrunFit=S_->y();
+     //yrun=S2.ymean();
 
      result.push_back(runInvariant(xst2,numSamples,numSteps,pmin));
      result.push_back(classInvariant());
@@ -339,8 +339,8 @@ ABC_Markov_Likelihood_step_Test::~ABC_Markov_Likelihood_step_Test()
              S3=S_->patch().Model().run(xst3,S2,numSteps,sto);
      noise=S_->patch().Noise().sample(xst3.dt());
      xst3.y(S3.ymean()+noise);
-     yrunFit=S_->y();
-     yrun=S3.ymean();
+     //yrunFit=S_->y();
+     //yrun=S3.ymean();
 
      result.push_back(runInvariant(xst3,numSamples,numSteps,pmin));
      result.push_back(classInvariant());

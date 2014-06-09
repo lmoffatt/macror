@@ -18,8 +18,8 @@ using namespace Markov_IO;
 using namespace Markov_LA;
 using namespace Markov_Bay;
 
-   MultipleTests MersenneTwister_Test::AllTests(Markov_Console::Markov_CommandManager* cm,
-                                                const std::string varNameTested)
+   MultipleTests MersenneTwister_Test::AllTests(Markov_Console::Markov_CommandManager* ,
+                                                const std::string )
    {
      return AllTests();
    }
@@ -112,7 +112,7 @@ MersenneTwister_Test::MersenneTwister_Test(std::size_t seed):
 
 MersenneTwister_Test::~MersenneTwister_Test(){}
 
-MultipleTests MersenneTwister_Test::Binomial_Test() const{}
+MultipleTests MersenneTwister_Test::Binomial_Test() const{ return {};}
 
 MultipleTests MersenneTwister_Test::Multinomial_Test(const M_Matrix<double>& P,
                                                      std::size_t N,

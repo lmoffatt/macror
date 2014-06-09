@@ -39,11 +39,11 @@ using namespace Markov_IO;
 
  MultipleTests MultivariateGaussian_Test::logP_Test(const Markov_LA::M_Matrix<double>& )const
  {
-
+return {};
  }
  MultipleTests  MultivariateGaussian_Test::P_Test(const Markov_LA::M_Matrix<double>& )const
  {
-
+return {};
  }
 
  MultipleTests  MultivariateGaussian_Test::sample_Test(std::size_t NumSamples,

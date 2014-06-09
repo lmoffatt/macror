@@ -1535,7 +1535,7 @@ namespace Markov_Mol
     return  "unitary_conductance";
   }
 
-  bool Q_Markov_Model::processComplexVar(const Markov_IO::ABC_Var *source)
+  bool Q_Markov_Model::loadFromComplexVar(const Markov_IO::ABC_Var *source)
   {
     decltype(Q_M) Q;
     decltype(g0_M) g;

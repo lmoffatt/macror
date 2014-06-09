@@ -63,7 +63,7 @@ SimpleOptimization_Test::~SimpleOptimization_Test()
 
 
  MultipleTests SimpleOptimization_Test::
- runInvariant(const Markov_IO::Parameters& beta)
+ runInvariant(const Markov_IO::Parameters& )
  {
      MultipleTests results("SimpleOptimization::run(const Markov_IO::Parameters&)",
                    "method invariant");

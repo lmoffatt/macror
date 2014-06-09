@@ -721,7 +721,7 @@ namespace Markov_Plot
 
 
 
-  bool Scale::processComplexVar(const Markov_IO::ABC_Var *)
+  bool Scale::loadFromComplexVar(const Markov_IO::ABC_Var *)
   {
     return false;
   }

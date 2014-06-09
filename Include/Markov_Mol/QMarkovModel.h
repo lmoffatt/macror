@@ -178,7 +178,7 @@ namespace Markov_Mol
     std::string gamma_Label();
 
 
-    virtual bool processComplexVar(const ABC_Var* source)override;
+    virtual bool loadFromComplexVar(const ABC_Var* source)override;
 
     virtual ABC_Var* to_ComplexVar() const override
     {
