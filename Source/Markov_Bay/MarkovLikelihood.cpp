@@ -29,7 +29,9 @@ namespace Markov_Bay
     return new Markov_Likelihood();
   }
 
-  Markov_Likelihood::~Markov_Likelihood() {}
+  Markov_Likelihood::~Markov_Likelihood() {
+    delete L_A;
+  }
 
   const Markov_IO::ABC_Experiment* Markov_Likelihood::experiment()const
   {
@@ -86,7 +88,7 @@ namespace Markov_Bay
 
     if (Markov_LA::isFinite(L_0.logL()))
       {
-#pragma omp parallel for
+//#pragma omp parallel for
         for (std::size_t i=0; i<beta.size();++i)
           {
             Markov_IO::Parameters beta_i(beta);
@@ -406,13 +408,13 @@ namespace Markov_Bay
                                        const std::string patch,
                                        const std::string myExperiment,
                                        const Markov_IO::ABC_Options &O):
-    name_(),
+    name_("ML_"+patch+"_"+myExperiment),
     E_(e),
     experimentName_(myExperiment),
     patchName_(patch),
-    L_A(0),
-    E_A(0),
-    Options_(O)
+    L_A(nullptr),
+    E_A(nullptr),
+    Options_()
   {
     E_A=experiment();
 
@@ -420,7 +422,6 @@ namespace Markov_Bay
         dynamic_cast<const Markov_Mol::ABC_PatchModel*>(E_->getVar(patchName_));
 
 
-    name_=std::string(P->myName()+"_on_"+E_A->myName()+"_with_"+O.myName());
 
     std::string alg=Options_.name("Likelihood_Algorithm");
     if (Options_.name("Likelihood_Algorithm")=="MacroNR")
@@ -445,20 +446,15 @@ namespace Markov_Bay
 
   Markov_Likelihood::Markov_Likelihood(const Markov_Likelihood& ML):
     name_(ML.name_),
+    E_(ML.E_),
+    experimentName_(ML.experimentName_),
+    patchName_(ML.patchName_),
     L_A(ML.L_A->clone()),
     E_A(ML.E_A),
     Options_(ML.Options_)
   {
   }
 
-  Markov_Likelihood::Markov_Likelihood():
-    name_(),
-    L_A(NULL),
-    E_A(NULL),
-    Options_()
-
-  {
-  }
 
 
   Markov_Likelihood& Markov_Likelihood::operator=(const Markov_Likelihood& other)
@@ -472,13 +468,12 @@ namespace Markov_Bay
   }
   void swap(Markov_Likelihood& x,Markov_Likelihood& y){
     std::swap(x.name_,y.name_);
+    std::swap(x.E_,y.E_);
     std::swap(x.experimentName_,y.experimentName_);
-    std::swap(x.name_,y.name_);
-
+    std::swap(x.patchName_,y.patchName_);
     std::swap(x.L_A,y.L_A);
     std::swap(x.E_A,y.E_A);
     swap(x.Options_,y.Options_);
-
   }
 
 

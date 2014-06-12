@@ -10,7 +10,6 @@ cd
 
 cd dirname
       Changes current directory to dirname
-
 who
       List the variables
 

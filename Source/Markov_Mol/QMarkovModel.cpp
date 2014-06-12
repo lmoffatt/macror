@@ -1804,17 +1804,6 @@ namespace Markov_Mol
                         unitary_conductance);
 
     *this=std::move(temp);
-    initComplexVar();
-    to_ComplexVar();
-    std::string s=toString();
-    std::deque<Markov_IO::Token_New> t;
-    t<<s;
-    std::size_t pos=0;
-    Markov_IO::ABC_Var* o=Markov_IO::ABC_Var::getFromTokens(this,t,pos);
-    Q_Markov_Model q{};
-    q.initComplexVar();
-    q.loadFromComplexVar(o);
-    std::cerr<<q;
 
     return true;
   }

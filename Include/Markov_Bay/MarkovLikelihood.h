@@ -91,7 +91,7 @@ public:
     Markov_Likelihood(const Markov_Likelihood& ML);
 
 
-    Markov_Likelihood();
+    Markov_Likelihood()=default;
 
     Markov_Likelihood& operator=(const Markov_Likelihood& other);
     friend void swap(Markov_Likelihood& x,Markov_Likelihood& y);

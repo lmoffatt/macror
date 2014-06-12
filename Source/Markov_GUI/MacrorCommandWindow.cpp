@@ -430,6 +430,7 @@ void MacrorCommandWindow::put(const std::string& s)
 {
   insertPlainText(s.c_str());
   moveCursor(QTextCursor::End);
+  repaint();
 }
 
 /// put a string to the output source

@@ -43,15 +43,18 @@ public:
 
     x_dt(double dt_,double x_);
 
-
-
     x_dt& operator+=(const ABC_measure_point& m);
 
-    x_dt(const x_dt& other);
+
+
+    x_dt(const x_dt& other)=default;
+
+    x_dt(x_dt&& other)=default;
 
     x_dt();
 
-    x_dt&  operator=(const x_dt& other);
+    x_dt&  operator=(const x_dt& other)=default;
+    x_dt&  operator=(x_dt&& other)=default;
 
 private:
     double dt_d;

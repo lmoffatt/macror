@@ -34,27 +34,24 @@ public:
     std::size_t count(const T1& X) const;
 
 
-    std::size_t histogram(const std::size_t n_) const;
-
+   
     std::size_t size()const;
 
     /// copy constructor
 
-    buffered_function(const buffered_function& other);
+    buffered_function(const buffered_function& other)=default;
+    buffered_function(buffered_function&& other)=default;
 
 
     ///default constructor
-    buffered_function();
+    buffered_function():buff{}{}
 
 
     ///asignment
-    buffered_function& operator=(const buffered_function& other);
+    buffered_function& operator=(const buffered_function& other)=default;
 
+    buffered_function& operator=(buffered_function&& other)=default;
 
-    ///swap
-    template<class T3,class T4>
-    friend void swap(buffered_function<T3,T4>& one,
-		     buffered_function<T3,T4>& other);
 
     void reset();
 
@@ -63,8 +60,7 @@ private:
     void remove_non_repeated_elements(std::size_t min_count);
 
 
-    mutable std::map<T1,std::pair<T2,std::size_t> > buff;
-    mutable std::map<std::size_t, std::size_t>  hist;
+     mutable std::map<T1,std::pair<T2,std::size_t> > buff;
 };
 
 

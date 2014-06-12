@@ -655,14 +655,14 @@ void CreateWizard::init_Parameters(){
 
 void CreateWizard::acceptQ_Markov_Model()
 {
-    Markov_Mol::Q_Markov_Model* m=new Markov_Mol::Q_Markov_Model;
+    Markov_Mol::Q_Markov_Model* m=new Markov_Mol::Q_Markov_Model();
     m->LoadFromDescription(*desc);
     *sptr=m;
 }
 
 void CreateWizard::accept_Pulses_program()
 {
-    Markov_IO::Pulses_program* m=new Markov_IO::Pulses_program;
+    Markov_IO::Pulses_program* m=new Markov_IO::Pulses_program();
     m->LoadFromDescription(*desc);
     *sptr=m;
 

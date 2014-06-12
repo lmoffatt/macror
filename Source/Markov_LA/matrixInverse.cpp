@@ -69,6 +69,7 @@ Constructor
 
         ipiv = new int[n];
         try{
+
           dgetrf_(&n, &m, A, &dla,ipiv,&info);
         }
         catch(...)
@@ -76,19 +77,12 @@ Constructor
           std::cerr<<" degetrf_ error";
         }
 
-        lwork= -1;
-        work1 = new double[2];
-        double* work;
+        lwork= n*n;
+        double *work = new double[n*n];
 
         try
         {
-          dgetri_(&n,A,&dla,ipiv,work1,&lwork,&info);
-          lwork = (int)(work1[0]);
-          work = new double [2*lwork];
           dgetri_(&n,A,&dla,ipiv,work,&lwork,&info);
-          delete [] ipiv;
-          delete [] work;
-          delete [] work1;
 
         }
         catch (...)
@@ -99,6 +93,8 @@ Constructor
         for (size_t k = 0; k < size_t(n*n); k++)
           B[k] = *(A+k);
         delete [] A;
+        delete [] ipiv;
+        delete [] work;
         if (info!=0)
           {
             throw SingularMatrix_error("cannot invert a singular matrix");

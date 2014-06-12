@@ -49,14 +49,14 @@ public:
 			   bool varying_=false,
 			   bool two_anchor_=false);
 
-    Markov_Transition_step();
+    Markov_Transition_step()=default;
     ///copy constructor
-    Markov_Transition_step(const Markov_Transition_step& other);
+    Markov_Transition_step(const Markov_Transition_step& other)=default;
 
-    friend void swap(Markov_Transition_step& x, Markov_Transition_step& y);
-
+    Markov_Transition_step( Markov_Transition_step&& other)=default;
     ///asignment
-    Markov_Transition_step& operator=(const Markov_Transition_step& other);
+    Markov_Transition_step& operator=(const Markov_Transition_step& other)=default;
+    Markov_Transition_step& operator=( Markov_Transition_step&& other)=default;
 
     virtual std::ostream& put(std::ostream& s) const;
 };
