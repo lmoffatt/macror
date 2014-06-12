@@ -13,7 +13,7 @@ namespace Markov_LA_Test
 {
     using namespace Markov_LA;
 
-   MultipleTests ToleranceComparison_Test::AllTests(Markov_Console::Markov_CommandManager* cm,
+   MultipleTests ToleranceComparison_Test::AllTests(Markov_Console::Markov_CommandManager* ,
                                  const std::string )
    {
      return AllTests();

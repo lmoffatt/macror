@@ -11,8 +11,9 @@
 #include <stdexcept>
 #include <deque>
 #include <sstream>
-
+#include <iostream>
 #include <limits>
+#include <utility>
 #include "Markov_LA/Matrix.h"
 namespace  Markov_IO {
 
@@ -144,7 +145,7 @@ namespace  Markov_IO {
   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::vector<T> v)
   {
     tok<<"\n[";
-    for (T e:v)
+    for (const T& e:v)
       tok<<e;
     tok<<"]"<<"\n";
     return tok;
@@ -177,7 +178,7 @@ namespace  Markov_IO {
   std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::map<K,T> m)
   {
     tok<<"\n[";
-    for (std::pair<K,T> e:m)
+    for (auto& e:m)
       tok<<e;
     tok<<"]"<<"\n";
     return tok;
@@ -263,9 +264,8 @@ namespace  Markov_IO {
             ++irow;
             ++icol;
             v.push_back(val);
-            while (toValue(tok,val,i))
+            while (toValue(tok,val,i)) // advances only on success
               {
-                ++i;
                 icol++;
                 v.push_back(val);
               }
@@ -275,6 +275,7 @@ namespace  Markov_IO {
             else if (ncols!=icol)
               return false;
             icol=0;
+            ++i;
           }
         m=Markov_LA::M_Matrix<T>(irow,ncols,v);
         return true;
@@ -366,6 +367,22 @@ namespace  Markov_IO {
 
   std::set<std::string> operator+(std::set<std::string> &&ss1,
                                   std::set<std::string> &&ss2);
+
+
+
+  template<class C,typename T>
+  using setter=void (C::*)(T);
+
+  template<class C,typename T>
+  using getter=T(C::*)()const;
+
+  template<class C,typename T>
+  using refgetter=const T&(C::*)()const;
+
+  template<class C,typename T>
+  using refsetter=T&(C::*)();
+
+
 
 
   class ABC_Var
@@ -465,6 +482,8 @@ namespace  Markov_IO {
                       const std::string& tip="",
                       const std::string & whatthis="");
 
+
+
     bool push_backVarRef(const std::string& name,
                          const std::string& idRef,
                          const std::string& classname="",
@@ -488,8 +507,13 @@ namespace  Markov_IO {
       if ((other==nullptr)||(numChildVars()!=other->numChildVars()))
         return false;
       for (std::size_t i=0; i<numChildVars(); ++i)
-        if (other->getChildVar(ith_VarName(i),childClass(ith_VarName(i)))==nullptr)
-          return false;
+        {
+          auto name=ith_VarName(i);
+          auto cl=childClass(name);
+          auto o=other->getChildVar(name,cl);
+          if (o==nullptr)
+            return false;
+        }
       return true;
     }
 
@@ -553,13 +577,8 @@ namespace  Markov_IO {
 
     Implements_VarId(const ABC_Var& other);
 
-    Implements_VarId();
-    Implements_VarId(const Implements_VarId& other):
-      id_(other.id_),
-      class_(other.class_),
-      p_(other.p_),
-      tip_(other.tip_),
-      whatThis_(other.whatThis_){}
+    Implements_VarId()=default;
+    Implements_VarId(const Implements_VarId& other)=default;
     Implements_VarId& operator=(const Implements_VarId& other)=default;
 
     Implements_VarId(Implements_VarId&& other)=default;
@@ -628,32 +647,20 @@ namespace  Markov_IO {
 
     T value()const
     {
-      if (valuePtr_==nullptr)
-        return value_;
-      else
-        return *valuePtr_;
+      return value_;
     }
 
     void setValue(T val)
     {
-      if (valuePtr_==nullptr)
-        value_=std::move(val);
-      else
-        *valuePtr_=std::move(val);
+      value_=std::move(val);
     }
     const T& refval()const
     {
-      if (valuePtr_==nullptr)
-        return value_;
-      else
-        return *valuePtr_;
+      return value_;
     }
     T& refval()
     {
-      if (valuePtr_==nullptr)
-        return value_;
-      else
-        return *valuePtr_;
+      return value_;
     }
 
     std::deque<Token_New> toTokens() const
@@ -698,53 +705,23 @@ namespace  Markov_IO {
                           const std::string& tip="",
                           const std::string& whatthis=""):
       Implements_VarId(parent,id,className,tip,whatthis),
-      value_(val),valuePtr_{nullptr}{}
-
-    Implements_Simple_Var(ABC_Var* parent,
-                          std::string id,
-                          T* val,
-                          std::string className=ClassName(),
-                          const std::string& tip="",
-                          const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
-      value_{},valuePtr_(val){}
+      value_(val){}
 
 
-    Implements_Simple_Var():
-      Implements_VarId(),
-      value_{},valuePtr_{nullptr}{}
+    Implements_Simple_Var()=default;
 
+    Implements_Simple_Var(const Implements_Simple_Var<T>& other)=default;
 
-    Implements_Simple_Var(const Implements_Simple_Var<T>& other):
-      Implements_VarId(other),
-      value_(other.valuePtr_==nullptr?other.value_:*other.valuePtr_),
-      valuePtr_{nullptr}{}
+    Implements_Simple_Var(Implements_Simple_Var<T>&& other)=default;
 
-    Implements_Simple_Var(Implements_Simple_Var<T>&& other):
-      Implements_VarId(other),
-      value_(other.valuePtr_==nullptr?other.value_:*other.valuePtr_),
-      valuePtr_{nullptr}{}
-
-
-
-
-    Implements_Simple_Var& operator=(const Implements_Simple_Var<T>& other)
-    {
+    Implements_Simple_Var& operator=(const Implements_Simple_Var<T>& other)=default;
+    /* {
       if (this!=&other)
         *this=Implements_Simple_Var<T>(other);
       return *this;
     }
-
-    Implements_Simple_Var& operator=(Implements_Simple_Var<T>&& other)
-    {
-      if (this!=&other)
-        {
-          Implements_VarId::operator =(other);
-          value_=other.value_;
-          valuePtr_=other.valuePtr_;
-        }
-      return *this;
-    }
+*/
+    Implements_Simple_Var& operator=(Implements_Simple_Var<T>&& other)=default;
 
     virtual ~Implements_Simple_Var(){}
 
@@ -759,180 +736,11 @@ namespace  Markov_IO {
     }
   private:
     T value_;
-    T * valuePtr_;
   };
 
 
-  template< class C,typename T>
-  class Implements_Method_Var: public Implements_VarId
-  {
-    // ABC_Var interface
-  public:
-    using setter=void (C::*)(T);
-    using getter=T(C::*)()const;
-    static std::string ClassName();
 
-    static std::set<std::string> SuperClasses()
-    {
-      return ABC_Var::SuperClasses()+ClassName();
-    }
-
-    virtual std::set<std::string> mySuperClasses()const
-    {
-      return SuperClasses();
-    }
-
-    virtual Implements_Method_Var<C,T>* varCreate() const override
-    {
-      return new Implements_Method_Var<C,T>;
-    }
-
-    virtual Implements_Method_Var<C,T>* varClone() const override
-    {
-      return new Implements_Method_Var<C,T>(*this);
-    }
-
-
-
-    const ABC_Var *motherClass() const override
-    {
-      if (parentVar()!=nullptr)
-        {
-          auto p=parentVar()->getChildVar(myClass());
-          return dynamic_cast<const Implements_Simple_Class<T> *>(p);
-        }
-      else
-        return nullptr;
-    }
-
-    T value()const
-    {
-      if ((object_==nullptr)||(get_==nullptr))
-        return {};
-      else
-        return object_->*get_();
-    }
-
-    void setValue(T val)
-    {
-      if ((object_!=nullptr)&&(get_!=nullptr))
-        object_->*set_(val);
-    }
-
-
-    std::deque<Token_New> toTokens() const
-    {
-      auto out=Implements_VarId::toTokens();
-      out<<"="<<toToken(value())<<"\n";
-      return out;
-    }
-
-    bool processTokens(const std::deque<Token_New>& t,
-                       std::size_t &pos)
-    {
-      if (!Implements_VarId::processTokens(t,pos))
-        return false;
-      else
-        {
-          if (t.at(pos).tok()!=Token_New::ASSIGN)
-            return false;
-          ++pos;
-          T val;
-          if (!toValue(t,val,pos))
-            return false;
-          else
-            {
-
-              setValue(val);
-              if (t.at(pos).tok()==Token_New::EOL)
-                ++pos;
-              return true;
-            }
-        }
-    }
-
-
-
-    // ABC_Var interface
-
-    Implements_Method_Var(ABC_Var* parent,
-                          std::string id,
-                          C* object,
-                          getter getterMethod,
-                          setter setterMethod,
-                          std::string className=ClassName(),
-                          const std::string& tip="",
-                          const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
-      object_(object),
-      get_(getterMethod),
-      set_(setterMethod){}
-
-
-
-    Implements_Method_Var():
-      Implements_VarId(),
-      object_(nullptr),
-      get_(nullptr),
-      set_(nullptr){}
-
-
-    Implements_Method_Var(const Implements_Method_Var<C,T>& other):
-      Implements_VarId(other),
-      object_(other.object_),
-      get_(other.get_),
-      set_(other.set_){}
-
-
-    Implements_Method_Var(Implements_Method_Var<C,T>&& other):
-      Implements_VarId(other),
-      object_(other.object_),
-      get_(other.get_),
-      set_(other.set_){}
-
-
-
-
-    Implements_Method_Var& operator=(const Implements_Method_Var<C,T>& other)
-    {
-      if (this!=&other)
-        {
-          *this=Implements_Method_Var<C,T>(other);
-        }
-      return this;
-    }
-
-    Implements_Method_Var& operator=(Implements_Method_Var<C,T>&& other)
-    {
-      if (this!=&other)
-        {
-          Implements_VarId::operator =(other);
-          object_=other.object_;
-          get_=other.get_;
-          set_=other.set_;
-        }
-      return *this;
-    }
-
-    virtual ~Implements_Method_Var(){}
-
-    virtual Implements_Method_Var<C,T>* to_ComplexVar()const  override
-    {
-      return varClone();
-    }
-
-    virtual bool loadFromComplexVar(const ABC_Var* ) override
-    {
-      return false;
-    }
-  private:
-    C* object_;
-    setter set_;
-    getter get_;
-  };
-
-
-  class Implements_Complex_Var:virtual public ABC_Var, public Implements_VarId
+  class Implements_Complex_Var: public Implements_VarId
   {
 
     // ABC_Var interface
@@ -968,11 +776,23 @@ namespace  Markov_IO {
         const std::vector<std::pair<std::string,std::string>>& childsNameClass={});
 
 
-    Implements_Complex_Var(const ABC_Var& other);
+    Implements_Complex_Var(const ABC_Var& other):
+      Implements_VarId(other)
+    {
+
+      for (std::size_t i=0; i<other.numChildVars(); ++i)
+        {
+          std::string name=other.ith_VarName(i);
+          auto o=other.getChildVar(name);
+          if (o!=nullptr)
+            addChildVar(o->varClone());
+          childclss_[name]=other.childClass(name);
+        }
+    }
 
 
 
-    Implements_Complex_Var(){}
+    Implements_Complex_Var()=default;
 
 
     Implements_Complex_Var(const Implements_Complex_Var& other)
@@ -982,23 +802,29 @@ namespace  Markov_IO {
         childclss_(other.childclss_),
         vars_(other.vars_)
     {
-      for (std::pair<std::string,ABC_Var*> it:vars_)
-        {
-          it.second=it.second->varClone();
-        }
+      cloneChids();
+      resetChildsParent();
     }
 
     Implements_Complex_Var(Implements_Complex_Var&& other):
-      Implements_VarId(other),
-      ids_(other.ids_),
-      childclss_{other.childclss_},
-      vars_{other.vars_}{}
+      Implements_VarId(std::move(other)),
+      ids_(std::move(other.ids_)),
+      childclss_(std::move(other.childclss_)),
+      vars_(std::move(other.vars_))
+    {
+      resetChildsParent();
+    }
 
     Implements_Complex_Var& operator=(Implements_Complex_Var&& other)
     {
       if (this!=&other)
         {
-          std::swap(*this,other);
+          privateDelete();
+          Implements_VarId::operator =(std::move(other));
+          ids_=std::move(other.ids_);
+          childclss_=std::move(other.childclss_);
+          vars_=std::move(other.vars_);
+          resetChildsParent();
         }
       return *this;
     }
@@ -1011,13 +837,25 @@ namespace  Markov_IO {
       if (this!=&other)
         {
           *this=Implements_Complex_Var(other);
+          resetChildsParent();
+
         }
       return *this;
     }
 
+    void privateDelete()
+    {
+      for (auto& id:vars_)
+        {
+          auto o=id.second;
+          delete o;
+        }
+    }
 
 
-    virtual ~Implements_Complex_Var();
+    virtual ~Implements_Complex_Var(){
+      privateDelete();
+    }
 
     virtual std::deque<Token_New> toTokens() const override;
 
@@ -1042,9 +880,449 @@ namespace  Markov_IO {
     }
 
   protected:
+    void cloneChids()
+    {
+      for (auto& it:vars_)
+        {
+          if (it.second!=nullptr)
+            {
+              ABC_Var* n=it.second->varClone();
+
+              it.second=n;
+            }
+        }
+    }
+
+    void resetChildsParent()
+    {
+      for (auto& it:vars_)
+        {
+          if (it.second!=nullptr)
+            {
+              it.second->setParentVar(this);
+            }
+        }
+    }
     std::vector<std::string> ids_;
     std::map<std::string, std::string> childclss_;
     std::map<std::string,ABC_Var*> vars_;
+
+  };
+
+
+  template<class C>
+  class Implements_Method: public Implements_VarId
+  {
+  public:
+    C* getObject()
+    {
+      return object_;
+    }
+
+    const C* getObject()const
+    {
+      return object_;
+    }
+    void setObject(C* obj)
+    {
+      object_=obj;
+    }
+    Implements_Method(ABC_Var* parent,
+                      std::string id,
+                      C* object,
+                      std::string className=ClassName(),
+                      const std::string& tip="",
+                      const std::string& whatthis=""):
+      Implements_VarId(parent,id,className,tip,whatthis),
+      object_(object)
+    {}
+
+
+
+    virtual ~Implements_Method(){}
+
+    Implements_Method()=default;
+    Implements_Method<C>& operator=(const Implements_Method<C>& other)=default;
+
+    Implements_Method<C>& operator=(Implements_Method<C>&& other)=default;
+
+    Implements_Method(const Implements_Method<C>& other)=default;
+    Implements_Method(Implements_Method<C>&& other)=default;
+
+
+  protected:
+    C* object_;
+  };
+
+
+  template<class C,typename T>
+  class Implements_Method_Var: public Implements_Method<C>
+  {
+    // ABC_Var interface
+  public:
+    static std::string ClassName()
+    {
+      return C::ClassName()+"_method";
+    }
+
+    static std::set<std::string> SuperClasses()
+    {
+      return ABC_Var::SuperClasses()+ClassName();
+    }
+
+    virtual std::set<std::string> mySuperClasses()const
+    {
+      return SuperClasses();
+    }
+
+    virtual Implements_Method_Var<C,T>* varCreate() const override
+    {
+      return new Implements_Method_Var<C,T>;
+    }
+
+    virtual Implements_Method_Var<C,T>* varClone() const override
+    {
+      return new Implements_Method_Var<C,T>(*this);
+    }
+
+
+
+
+    T value()const
+    {
+      if ((Implements_Method<C>::getObject()==nullptr))
+        return {};
+      if (m_!=nullptr)
+        return Implements_Method<C>::getObject()->*m_;
+      else if (rget_!=nullptr)
+        return (Implements_Method<C>::getObject()->*rget_)();
+      else if (get_!=nullptr)
+        return (Implements_Method<C>::getObject()->*get_)();
+      else
+        return {};
+    }
+
+    void setValue(T val)
+    {
+      if ((Implements_Method<C>::getObject()!=nullptr)&& (rset_!=nullptr))
+        (Implements_Method<C>::getObject()->*rset_)()=val;
+      else if ((Implements_Method<C>::getObject()!=nullptr)&& (set_!=nullptr))
+        ((Implements_Method<C>::getObject()->*set_))(val);
+      else if ((Implements_Method<C>::getObject()!=nullptr)&& (m_!=nullptr))
+        (Implements_Method<C>::getObject()->*m_)=val;
+
+    }
+
+
+
+    std::deque<Token_New> toTokens() const
+    {
+      auto out=Implements_VarId::toTokens();
+      out<<"="<<toToken(value())<<"\n";
+      return out;
+    }
+
+    bool processTokens(const std::deque<Token_New>& t,
+                       std::size_t &pos)
+    {
+      if (!Implements_VarId::processTokens(t,pos))
+        return false;
+      else
+        {
+          if (t.at(pos).tok()!=Token_New::ASSIGN)
+            return false;
+          ++pos;
+          T val{};
+          if (!toValue(t,val,pos))
+            return false;
+          else
+            {
+              setValue(val);
+              if (t.at(pos).tok()==Token_New::EOL)
+                ++pos;
+              return true;
+            }
+        }
+    }
+
+
+
+    // ABC_Var interface
+
+    Implements_Method_Var(ABC_Var* parent,
+                          std::string id,
+                          C* object,
+                          getter<C,T> getterMethod,
+                          setter<C,T> setterMethod,
+                          std::string className=ClassName(),
+                          const std::string& tip="",
+                          const std::string& whatthis=""):
+      Implements_Method<C>(parent,id,object,className,tip,whatthis),
+      m_(nullptr),
+      get_(getterMethod),
+      set_(setterMethod),
+      rget_(nullptr),
+      rset_(nullptr){}
+
+    Implements_Method_Var(ABC_Var* parent,
+                          std::string id,
+                          C* object,
+                          refgetter<C,T> refgetterMethod,
+                          refsetter<C,T> refsetterMethod,
+                          std::string className=ClassName(),
+                          const std::string& tip="",
+                          const std::string& whatthis=""):
+      Implements_Method<C>(parent,id,object,className,tip,whatthis),
+      m_(nullptr),
+      get_(nullptr),
+      set_(nullptr),
+      rget_(refgetterMethod),
+      rset_(refsetterMethod){}
+
+    Implements_Method_Var(ABC_Var* parent,
+                          std::string id,
+                          C* object,
+                          T C::* memberPointer,
+                          std::string className=ClassName(),
+                          const std::string& tip="",
+                          const std::string& whatthis=""):
+      Implements_Method<C>(parent,id,object,className,tip,whatthis),
+      m_(memberPointer),
+      get_(nullptr),
+      set_(nullptr),
+      rget_(nullptr),
+      rset_(nullptr){}
+
+
+    Implements_Method_Var()=default;
+
+
+    Implements_Method_Var(const Implements_Method_Var<C,T>& other)=default;
+
+
+    Implements_Method_Var(Implements_Method_Var<C,T>&& other)=default;
+
+
+
+
+    Implements_Method_Var& operator=( Implements_Method_Var<C,T>&& other)=default;
+
+
+    Implements_Method_Var& operator=(const Implements_Method_Var<C,T>& other)=default;
+
+    virtual ~Implements_Method_Var(){}
+
+    virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
+    {
+      return new Implements_Simple_Var<T>(nullptr,id(),value(),myClass(),Tip(), WhatThis());
+    }
+
+    virtual bool loadFromComplexVar(const ABC_Var* var) override
+    {
+      if ((var!=nullptr)&&(id()==var->id()))
+        {
+          auto o=dynamic_cast<const Implements_Simple_Var<T>*>(var);
+          if(o!=nullptr)
+            {
+              setValue(o->value());
+              if (!o->Tip().empty())
+                setTip(o->Tip());
+              if (!o->WhatThis().empty())
+                setWhatThis(o->WhatThis());
+              return true;
+            }
+          else
+            return false;
+        }
+      else
+        return false;
+    }
+  private:
+    T C::* m_;
+    getter<C,T> get_;
+    setter<C,T> set_;
+    refgetter<C,T> rget_;
+    refsetter<C,T> rset_;
+
+    // ABC_Var interface
+  public:
+    virtual std::string id() const{return Implements_VarId::id();}
+    virtual std::string Tip() const{return Implements_VarId::Tip();}
+    virtual std::string WhatThis() const{return Implements_VarId::WhatThis();}
+    virtual std::string myClass() const{return Implements_VarId::myClass();}
+
+
+    // ABC_Var interface
+  public:
+    virtual void setTip(const std::string &tip) {Implements_VarId::setTip(tip);}
+    virtual void setWhatThis(const std::string &whatThis){Implements_VarId::setTip(whatThis);}
+    virtual void setParentVar(ABC_Var* par){Implements_VarId::setParentVar(par);}
+    virtual ABC_Var* parentVar(){return Implements_VarId::parentVar();}
+  };
+
+
+  template <class C>
+  class Implements_Class_Reflection: public Implements_Complex_Var
+  {
+    // ABC_Var interface
+  public:
+    static std::string ClassName()
+    {
+      return C::ClassName()+"_reflection";
+    }
+
+    virtual C* getObject()
+    {
+      return object_;
+    }
+
+    virtual const C* getObject()const
+    {
+      return object_;
+    }
+
+    virtual void setObject(C* obj)
+    {
+      object_=obj;
+    }
+
+    virtual Implements_Class_Reflection* varCreate() const override
+    {
+      return new Implements_Class_Reflection;
+    }
+
+    virtual Implements_Class_Reflection* varClone() const override
+    {
+      return new Implements_Class_Reflection(*this);
+    }
+
+    template<typename T>
+    bool push_backVarPointer(const std::string& name,
+                             T C::* value,
+                             const std::string& classname="",
+                             const std::string& tip="",
+                             const std::string & whatthis="");
+
+    template<typename T>
+    bool push_backMethod(const std::string& name,
+                         getter<C,T> getmethod,
+                         setter<C,T> setmethod,
+                         const std::string& classname="",
+                         const std::string& tip="",
+                         const std::string & whatthis="");
+
+    template<typename T>
+    bool push_backMethod(const std::string& name,
+                         refgetter<C,T> rgetmethod,
+                         refsetter<C,T> rsetmethod,
+                         const std::string& classname="",
+                         const std::string& tip="",
+                         const std::string & whatthis="");
+
+    template<typename T>
+    bool push_backMethod(const std::string& name,
+                         getter<C,T> getmethod,
+                         const std::string& classname="",
+                         const std::string& tip="",
+                         const std::string & whatthis="");
+
+    Implements_Class_Reflection(
+        ABC_Var *parent,
+        const std::string& id,
+        C* object,
+        const std::string className,
+        const std::string & tip,
+        const std::string& whatthis):
+      Implements_Complex_Var(parent,id,className,tip,whatthis),
+      object_(object)
+    {}
+
+
+    Implements_Class_Reflection()=default;
+
+    Implements_Class_Reflection(const Implements_Class_Reflection& other)
+      : Implements_Complex_Var(other),
+        object_(other.object_)
+    {
+
+      resetChildsObject();
+    }
+
+    Implements_Class_Reflection(Implements_Class_Reflection&& other):
+      Implements_Complex_Var(std::move(other)),
+      object_(std::move(other.object_))
+
+    {
+      resetChildsObject();
+      other.object_=nullptr;
+    }
+
+    Implements_Class_Reflection& operator=(Implements_Class_Reflection&& other)
+    {
+      if (this!=&other)
+        {
+          Implements_Complex_Var::operator =(std::move(other));
+          object_=std::move(other.object_);
+          other.object_=nullptr;
+          resetChildsObject();
+        }
+      return *this;
+    }
+
+    Implements_Class_Reflection& operator=(const Implements_Class_Reflection& other)
+    {
+      if (this!=&other)
+        {
+          operator=(Implements_Class_Reflection(other));
+        }
+      return *this;
+    }
+
+    virtual ~Implements_Class_Reflection(){}
+
+    virtual ABC_Var* to_ComplexVar()const override
+    {
+      auto out= new Implements_Complex_Var(nullptr,id(),myClass(),Tip(),WhatThis());
+      for (std::size_t i=0; i<numChildVars(); ++i)
+        {
+          auto a=getChildVar(ith_VarName(i));
+          auto e=a->to_ComplexVar();
+          out->addChildVar(e);
+        }
+      return out;
+    }
+    virtual bool loadFromComplexVar(const ABC_Var* source)override
+    {
+      if (sameFields(source))
+        {
+          for (std::size_t i=0; i<numChildVars(); ++i)
+            {
+              auto s=source->getChildVar(ith_VarName(i));
+              if (s!=nullptr)
+                {
+                  getChildVar(ith_VarName(i))->loadFromComplexVar(s);
+                }
+            }
+          return true;
+        }
+      else
+        return false;
+    }
+
+  protected:
+    void resetChildsObject()
+    {
+      initComplexVar();
+      for (auto &it:vars_)
+        {
+          auto o=dynamic_cast<Implements_Method<C>*>(it.second);
+          if (o!=nullptr)
+            o->setObject(object_);
+        }
+    }
+    virtual void initComplexVar(){}
+
+    C* object_;
 
   };
 
@@ -1354,7 +1632,7 @@ namespace  Markov_IO {
 
   inline std::ostream& operator<<(std::ostream& os, std::vector<std::string> data )
   {
-    for (std::string s:data)
+    for (const auto& s:data)
       {
         os<<s<<"\t";
       }
@@ -1378,7 +1656,8 @@ namespace  Markov_IO {
   template<typename T>
   bool ABC_Var::getValue(const std::string &name, T &value) const
   {
-    const Implements_Simple_Var<T>* o=dynamic_cast<const Implements_Simple_Var<T>*>(getChildVar(name));
+    auto a=getChildVar(name);
+    const Implements_Simple_Var<T>* o=dynamic_cast<const Implements_Simple_Var<T>*>(a);
 
     if (o!=nullptr)
       {
@@ -1386,12 +1665,22 @@ namespace  Markov_IO {
         return true;
       }
     else
-      return false;
+      {
+        auto t=a->toTokens();
+        Implements_Simple_Var<T> v{};
+        std::size_t pos=0;
+        if (v.processTokens(t,pos))
+          {
+            value=v.value();
+            return true;
+          }
+        else
+          return false;
+      }
   }
-
-
   template<typename T>
-  bool ABC_Var::push_backVar(const std::string &name, T value,
+  bool ABC_Var::push_backVar(const std::string &name,
+                             T value,
                              const std::string &classname,
                              const std::string& tip,
                              const std::string & whatthis)
@@ -1403,6 +1692,81 @@ namespace  Markov_IO {
     return addChildVar(o);
 
   }
+
+
+
+  template<class C> template<typename T>
+  bool Implements_Class_Reflection<C>::push_backVarPointer(const std::string &name,
+                                                           T C::* value,
+                                                           const std::string &classname,
+                                                           const std::string& tip,
+                                                           const std::string & whatthis)
+  {
+    std::string c=classname;
+    if (c.empty())
+      c=Implements_Simple_Var<T>::ClassName();
+    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(this,name,getObject(),value,c,tip,whatthis);
+    return addChildVar(o);
+
+  }
+
+
+  template<class C> template<typename T>
+  bool Implements_Class_Reflection<C>::push_backMethod(const std::string& name,
+                                                       getter<C,T> getmethod,
+                                                       setter<C,T> setmethod,
+                                                       const std::string& classname,
+                                                       const std::string& tip,
+                                                       const std::string & whatthis)
+  {
+    std::string c=classname;
+    if (c.empty())
+      c=Implements_Method_Var<C,T>::ClassName();
+    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(this,name,getObject(),getmethod,setmethod,c,tip,whatthis);
+    return addChildVar(o);
+
+  }
+
+
+
+
+  template<class C>template<typename T>
+  bool Implements_Class_Reflection<C>::push_backMethod(const std::string& name,
+                                                       refgetter<C,T> rgetmethod,
+                                                       refsetter<C,T> rsetmethod,
+                                                       const std::string& classname,
+                                                       const std::string& tip,
+                                                       const std::string & whatthis)
+  {
+    std::string c=classname;
+    if (c.empty())
+      c=Implements_Method_Var<C,T>::ClassName();
+    auto o=new Implements_Method_Var<C,T>(this,name,getObject(),rgetmethod,rsetmethod,c,tip,whatthis);
+    return addChildVar(o);
+
+  }
+
+
+
+
+
+
+
+  template<class C> template<typename T>
+  bool Implements_Class_Reflection<C>::push_backMethod(const std::string& name,
+                                                       getter<C,T> getmethod,
+                                                       const std::string& classname,
+                                                       const std::string& tip,
+                                                       const std::string & whatthis)
+  {
+    std::string c=classname;
+    if (c.empty())
+      c=Implements_Method_Var<C,T>::ClassName();
+    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(this,name,getObject(),getmethod,nullptr,c,tip,whatthis);
+    return addChildVar(o);
+
+  }
+
 
 
 
@@ -1491,7 +1855,7 @@ namespace  Markov_IO {
   template<typename Enum>
   void Implements_Categorical<Enum>::updateCat()
   {
-    for (std::pair<std::string,Enum> p:strToEnum)
+    for (auto& p:strToEnum)
       if (p.second==rank_)
         {
           setValue(p.first);
@@ -1636,6 +2000,8 @@ namespace  Markov_IO {
     tok.push_back(Token_New(d));
     return tok;
   }
+
+
 
 
 

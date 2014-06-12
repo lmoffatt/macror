@@ -316,6 +316,7 @@ namespace Markov_LA
   template<typename T>
   const T& M_Matrix<T>::operator[](std::size_t n) const
   {
+    if (n>=size(*this))
     ASSERT_LESS(n, size(*this));
     return _data[n];
   }
