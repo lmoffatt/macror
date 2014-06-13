@@ -910,53 +910,9 @@ namespace  Markov_IO {
   };
 
 
-  template<class C>
-  class Implements_Method: public Implements_VarId
-  {
-  public:
-    C* getObject()
-    {
-      return object_;
-    }
-
-    const C* getObject()const
-    {
-      return object_;
-    }
-    void setObject(C* obj)
-    {
-      object_=obj;
-    }
-    Implements_Method(ABC_Var* parent,
-                      std::string id,
-                      C* object,
-                      std::string className=ClassName(),
-                      const std::string& tip="",
-                      const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
-      object_(object)
-    {}
-
-
-
-    virtual ~Implements_Method(){}
-
-    Implements_Method()=default;
-    Implements_Method<C>& operator=(const Implements_Method<C>& other)=default;
-
-    Implements_Method<C>& operator=(Implements_Method<C>&& other)=default;
-
-    Implements_Method(const Implements_Method<C>& other)=default;
-    Implements_Method(Implements_Method<C>&& other)=default;
-
-
-  protected:
-    C* object_;
-  };
-
 
   template<class C,typename T>
-  class Implements_Method_Var: public Implements_Method<C>
+  class Implements_Method_Var: public Implements_VarId
   {
     // ABC_Var interface
   public:
@@ -970,6 +926,25 @@ namespace  Markov_IO {
       return ABC_Var::SuperClasses()+ClassName();
     }
 
+    C* getObject()
+    {
+      if (object_!=nullptr)
+      return *object_;
+      else
+        return nullptr;
+    }
+
+    const C* getObject()const
+    {
+      if (object_!=nullptr)
+      return *object_;
+      else
+        return nullptr;
+    }
+    void setObject(C** obj)
+    {
+      object_=obj;
+    }
     virtual std::set<std::string> mySuperClasses()const
     {
       return SuperClasses();
@@ -990,26 +965,26 @@ namespace  Markov_IO {
 
     T value()const
     {
-      if ((Implements_Method<C>::getObject()==nullptr))
+      if ((getObject()==nullptr))
         return {};
       if (m_!=nullptr)
-        return Implements_Method<C>::getObject()->*m_;
+        return getObject()->*m_;
       else if (rget_!=nullptr)
-        return (Implements_Method<C>::getObject()->*rget_)();
+        return (getObject()->*rget_)();
       else if (get_!=nullptr)
-        return (Implements_Method<C>::getObject()->*get_)();
+        return (getObject()->*get_)();
       else
         return {};
     }
 
     void setValue(T val)
     {
-      if ((Implements_Method<C>::getObject()!=nullptr)&& (rset_!=nullptr))
-        (Implements_Method<C>::getObject()->*rset_)()=val;
-      else if ((Implements_Method<C>::getObject()!=nullptr)&& (set_!=nullptr))
-        ((Implements_Method<C>::getObject()->*set_))(val);
-      else if ((Implements_Method<C>::getObject()!=nullptr)&& (m_!=nullptr))
-        (Implements_Method<C>::getObject()->*m_)=val;
+      if ((getObject()!=nullptr)&& (rset_!=nullptr))
+        (getObject()->*rset_)()=val;
+      else if ((getObject()!=nullptr)&& (set_!=nullptr))
+        ((getObject()->*set_))(val);
+      else if ((getObject()!=nullptr)&& (m_!=nullptr))
+        (getObject()->*m_)=val;
 
     }
 
@@ -1051,13 +1026,14 @@ namespace  Markov_IO {
 
     Implements_Method_Var(ABC_Var* parent,
                           std::string id,
-                          C* object,
+                          C** object,
                           getter<C,T> getterMethod,
                           setter<C,T> setterMethod,
                           std::string className=ClassName(),
                           const std::string& tip="",
                           const std::string& whatthis=""):
-      Implements_Method<C>(parent,id,object,className,tip,whatthis),
+      Implements_VarId(parent,id,className,tip,whatthis),
+      object_(object),
       m_(nullptr),
       get_(getterMethod),
       set_(setterMethod),
@@ -1066,13 +1042,14 @@ namespace  Markov_IO {
 
     Implements_Method_Var(ABC_Var* parent,
                           std::string id,
-                          C* object,
+                          C** object,
                           refgetter<C,T> refgetterMethod,
                           refsetter<C,T> refsetterMethod,
                           std::string className=ClassName(),
                           const std::string& tip="",
                           const std::string& whatthis=""):
-      Implements_Method<C>(parent,id,object,className,tip,whatthis),
+      Implements_VarId(parent,id,className,tip,whatthis),
+      object_(object),
       m_(nullptr),
       get_(nullptr),
       set_(nullptr),
@@ -1081,12 +1058,13 @@ namespace  Markov_IO {
 
     Implements_Method_Var(ABC_Var* parent,
                           std::string id,
-                          C* object,
+                          C** object,
                           T C::* memberPointer,
                           std::string className=ClassName(),
                           const std::string& tip="",
                           const std::string& whatthis=""):
-      Implements_Method<C>(parent,id,object,className,tip,whatthis),
+      Implements_VarId(parent,id,className,tip,whatthis),
+      object_(object),
       m_(memberPointer),
       get_(nullptr),
       set_(nullptr),
@@ -1137,27 +1115,14 @@ namespace  Markov_IO {
       else
         return false;
     }
-  private:
+  protected:
+    C** object_;
     T C::* m_;
     getter<C,T> get_;
     setter<C,T> set_;
     refgetter<C,T> rget_;
     refsetter<C,T> rset_;
 
-    // ABC_Var interface
-  public:
-    virtual std::string id() const{return Implements_VarId::id();}
-    virtual std::string Tip() const{return Implements_VarId::Tip();}
-    virtual std::string WhatThis() const{return Implements_VarId::WhatThis();}
-    virtual std::string myClass() const{return Implements_VarId::myClass();}
-
-
-    // ABC_Var interface
-  public:
-    virtual void setTip(const std::string &tip) {Implements_VarId::setTip(tip);}
-    virtual void setWhatThis(const std::string &whatThis){Implements_VarId::setTip(whatThis);}
-    virtual void setParentVar(ABC_Var* par){Implements_VarId::setParentVar(par);}
-    virtual ABC_Var* parentVar(){return Implements_VarId::parentVar();}
   };
 
 
@@ -1245,15 +1210,13 @@ namespace  Markov_IO {
         object_(other.object_)
     {
 
-      resetChildsObject();
-    }
+      }
 
     Implements_Class_Reflection(Implements_Class_Reflection&& other):
       Implements_Complex_Var(std::move(other)),
       object_(std::move(other.object_))
 
     {
-      resetChildsObject();
       other.object_=nullptr;
     }
 
@@ -1264,7 +1227,6 @@ namespace  Markov_IO {
           Implements_Complex_Var::operator =(std::move(other));
           object_=std::move(other.object_);
           other.object_=nullptr;
-          resetChildsObject();
         }
       return *this;
     }
@@ -1310,18 +1272,7 @@ namespace  Markov_IO {
     }
 
   protected:
-    void resetChildsObject()
-    {
-      initComplexVar();
-      for (auto &it:vars_)
-        {
-          auto o=dynamic_cast<Implements_Method<C>*>(it.second);
-          if (o!=nullptr)
-            o->setObject(object_);
-        }
-    }
     virtual void initComplexVar(){}
-
     C* object_;
 
   };
@@ -1330,6 +1281,7 @@ namespace  Markov_IO {
   template<typename T>
   class Implements_Simple_Class: public Implements_Complex_Var
   {
+    typedef Implements_Simple_Class C;
     // ABC_Var interface
   public:
     static std::string ClassName();
@@ -1380,22 +1332,55 @@ namespace  Markov_IO {
       max_=val;
     }
 
+    std::string units()const
+    {
+      return units_;
+
+    }
+
+    void setUnits(std::string newunits)
+    {
+      units_=newunits;
+    }
 
     Implements_Simple_Class(ABC_Var* parent,
                             std::string id,
+                            std::string measureunits,
                             T defaultValue=T(),
                             T minValue=T(),
                             T maxValue=T(),
                             std::string className=ClassName()):
       Implements_Complex_Var(parent,id,className,{}),
+      units_(measureunits),
       default_{defaultValue},
       min_(minValue),
       max_(maxValue)
     {
-      addChildVar(new Implements_Simple_Var<T>(this,"default",&default_));
-      addChildVar(new Implements_Simple_Var<T>(this,"min",&min_));
-      addChildVar(new Implements_Simple_Var<T>(this,"max",&max_));
+      addChildVar(new Implements_Method_Var<C,std::string>(
+                    this,this,
+                    &Implements_Simple_Class::units,
+                    &Implements_Simple_Class::setUnits,"",
+                    "measure unit",
+                    "it does not allow conversions yet"));
+      addChildVar(new Implements_Method_Var<C,T>(
+                    this,this,
+                    &Implements_Simple_Class::defaultValue,
+                    &Implements_Simple_Class::setDefaultValue,"",
+                    "default value",
+                    "suggested value, used for default constructor"));
+      addChildVar(new Implements_Method_Var<C,T>(
+                    this,this,
+                    &Implements_Simple_Class::minValue,
+                    &Implements_Simple_Class::setminValue,"",
+                    "min value",
+                    "mandatory min value, in I/O interaction it enforces it"));
 
+      addChildVar(new Implements_Method_Var<C,T>(
+                    this,this,
+                    &Implements_Simple_Class::maxValue,
+                    &Implements_Simple_Class::setmaxValue,"",
+                    "max value",
+                    "mandatory max value, in I/O interaction it enforces it"));
     }
 
 
@@ -1429,6 +1414,7 @@ namespace  Markov_IO {
 
 
   private:
+    std::string units_;
     T default_;
     T min_;
     T max_;
@@ -1705,7 +1691,8 @@ namespace  Markov_IO {
     std::string c=classname;
     if (c.empty())
       c=Implements_Simple_Var<T>::ClassName();
-    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(this,name,getObject(),value,c,tip,whatthis);
+    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(
+          this,name,&object_,value,c,tip,whatthis);
     return addChildVar(o);
 
   }
@@ -1741,7 +1728,7 @@ namespace  Markov_IO {
     std::string c=classname;
     if (c.empty())
       c=Implements_Method_Var<C,T>::ClassName();
-    auto o=new Implements_Method_Var<C,T>(this,name,getObject(),rgetmethod,rsetmethod,c,tip,whatthis);
+    auto o=new Implements_Method_Var<C,T>(this,name,&object_,rgetmethod,rsetmethod,c,tip,whatthis);
     return addChildVar(o);
 
   }
@@ -1762,7 +1749,7 @@ namespace  Markov_IO {
     std::string c=classname;
     if (c.empty())
       c=Implements_Method_Var<C,T>::ClassName();
-    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(this,name,getObject(),getmethod,nullptr,c,tip,whatthis);
+    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(this,name,&object_,getmethod,nullptr,c,tip,whatthis);
     return addChildVar(o);
 
   }

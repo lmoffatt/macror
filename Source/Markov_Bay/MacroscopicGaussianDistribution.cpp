@@ -90,7 +90,7 @@ MacroscopicGaussianDistribution::SampleP()const
     {
         std::size_t k=ncols(Pmean_);
         std::size_t ii=0;
-        std::size_t ilast;
+        std::size_t ilast=0;
         for (std::size_t i=0;i<k;i++)
         {
             if (Pcov_(i,i)>std::sqrt(std::numeric_limits<double>::epsilon()))

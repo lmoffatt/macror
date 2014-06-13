@@ -106,9 +106,11 @@ HEADERS += \
     Include/Markov_Plot/PlotCommand.h \
     Include/Markov_GUI/CdCommandGUI.h \
     Include/Markov_GUI/MyInputDialog.h \
-    Include/Markov_GUI/ABC_Var_GUI.h
+    Include/Markov_GUI/ABC_Var_GUI.h \
+    Include/Markov_Plot/GraphicPage.h
 
 SOURCES += \
     Source/Markov_Plot/PlotCommand.cpp \
     Source/Markov_GUI/CdCommandGUI.cpp \
-    Source/Markov_GUI/MyInputDialog.cpp
+    Source/Markov_GUI/MyInputDialog.cpp \
+    Source/Markov_Plot/GraphicPage.cpp

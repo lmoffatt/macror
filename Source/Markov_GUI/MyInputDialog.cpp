@@ -70,7 +70,7 @@ namespace Markov_GUI {
 
   }
 
-  void MyInputDialog::mousePressEvent(QMouseEvent *m)
+  void MyInputDialog::mousePressEvent(QMouseEvent *)
   {
     accept();
 

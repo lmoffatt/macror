@@ -53,7 +53,7 @@ Constructor
   {
     if ((size(a)>0)&&(nrows(a)==ncols(a)))
       {
-        double *A, *work1;
+        double *A;
         int info=0;
         //  char msg[101];
         int *ipiv;

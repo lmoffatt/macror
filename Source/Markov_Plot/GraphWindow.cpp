@@ -5,7 +5,8 @@ namespace Markov_Plot
 {
 
   GraphWindow::GraphWindow(QWidget* parent):
-    QWidget(parent)
+    QWidget(parent),
+    Implements_Complex_Var()
   {
   }
 

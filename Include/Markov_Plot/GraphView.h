@@ -56,8 +56,9 @@ namespace Markov_Plot
 
     QGraphicsScene* gscene_;
 
-    qreal height_;
-    qreal width_;
+
+    qreal height_; // in mm
+    qreal width_;  // in mm
 
     std::vector<Scale*> xAxes_;
     std::vector<Scale*> yAxes_;

@@ -407,7 +407,7 @@ namespace Markov_Bay
   Markov_Likelihood::Markov_Likelihood(Markov_IO::ABC_Environment* e,
                                        const std::string patch,
                                        const std::string myExperiment,
-                                       const Markov_IO::ABC_Options &O):
+                                       const Markov_IO::ABC_Options &):
     name_("ML_"+patch+"_"+myExperiment),
     E_(e),
     experimentName_(myExperiment),

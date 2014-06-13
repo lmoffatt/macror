@@ -11,7 +11,7 @@ namespace Markov_IO {
 
 namespace Markov_Plot
 {
-class GraphWindow: public QWidget
+class GraphWindow: public QWidget, public Markov_IO::Implements_Complex_Var
 {
    Q_OBJECT
 

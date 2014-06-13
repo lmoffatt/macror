@@ -1072,7 +1072,7 @@ namespace Markov_Test
     MultipleTests ABC_Markov_Model_Test::AllTests(Markov_Console::Markov_CommandManager* cm,
                                                   const std::string varNameTested)
     {
-      ABC_Markov_Model* m;
+      ABC_Markov_Model* m=nullptr;
       if (cm->checkVariable(varNameTested,testedClass()))
         m=dynamic_cast<ABC_Markov_Model*>(cm->getVar(varNameTested));
       this->sample_=m;

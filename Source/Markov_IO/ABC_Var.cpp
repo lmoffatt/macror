@@ -1447,7 +1447,7 @@ namespace Markov_IO {
 
     if (!n.processTokens(t,pos))
       return nullptr;
-    ABC_Var* out;
+    ABC_Var* out=nullptr;
     if (!(pos<t.size())) return nullptr;
     Token_New to=t.at(pos);
     if (to.tok()==Token_New::ASSIGN)
