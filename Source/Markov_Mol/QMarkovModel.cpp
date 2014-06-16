@@ -315,7 +315,7 @@ namespace Markov_Mol
 
   void Q_Markov_Model::initComplexVar()
   {
-    push_backMethod<Markov_LA::M_Matrix<double>>(
+    push_backRefMethod(
           "Q_matrix",
           &Q_Markov_Model::Q,
     {},

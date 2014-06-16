@@ -519,7 +519,7 @@ namespace Markov_Plot
                                Scale::ClassName());
 */
 
-
+/*
     ABC_Var* a=to_ComplexVar();
 
 
@@ -539,7 +539,7 @@ namespace Markov_Plot
     std::cerr<<d2->toString();
 
 
-
+*/
 
   }
 

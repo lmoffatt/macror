@@ -527,7 +527,7 @@ namespace  Markov_IO {
   { // ABC_Var interface
   public:
 
-    virtual Implements_VarId* varCreate()const override
+    virtual ABC_Var* varCreate()const override
     {
       return new Implements_VarId;
     }
@@ -606,7 +606,27 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  class Implements_Simple_Var: public Implements_VarId
+  class ABC_Simple_Var: public virtual Implements_VarId
+  {
+    // ABC_Var interface
+  public:
+    virtual T value()const=0;
+    virtual void setValue(T val)=0;
+
+    virtual const T& refval()const=0;
+
+    virtual T& refval()=0;
+
+
+    virtual ~ABC_Simple_Var(){}
+
+  };
+
+
+
+
+  template<typename T>
+  class Implements_Simple_Var: public ABC_Simple_Var<T>
   {
     // ABC_Var interface
   public:
@@ -624,7 +644,7 @@ namespace  Markov_IO {
 
     virtual Implements_Simple_Var<T>* varCreate() const override
     {
-      return new Implements_Simple_Var<T>;
+      return new Implements_Simple_Var<T>();
     }
 
     virtual Implements_Simple_Var<T>* varClone() const override
@@ -636,42 +656,41 @@ namespace  Markov_IO {
 
     const ABC_Var *motherClass() const override
     {
-      if (parentVar()!=nullptr)
+      if (this->parentVar()!=nullptr)
         {
-          auto p=parentVar()->getChildVar(myClass());
+          auto p=this->parentVar()->getChildVar(this->myClass());
           return dynamic_cast<const Implements_Simple_Class<T>*>(p);
         }
       else
         return nullptr;
     }
 
-    T value()const
+    virtual  T value()const override
     {
       return value_;
     }
 
-    void setValue(T val)
+    virtual void setValue(T val) override
     {
       value_=std::move(val);
     }
-    const T& refval()const
+    virtual const T& refval()const override
     {
       return value_;
     }
-    T& refval()
+    virtual T& refval() override
     {
       return value_;
     }
 
-    std::deque<Token_New> toTokens() const
+    virtual std::deque<Token_New> toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
       out<<"="<<toToken(value())<<"\n";
       return out;
     }
 
-    bool processTokens(const std::deque<Token_New>& t,
-                       std::size_t &pos)
+    bool processTokens(const std::deque<Token_New>& t,std::size_t &pos) override
     {
       if (!Implements_VarId::processTokens(t,pos))
         return false;
@@ -693,9 +712,6 @@ namespace  Markov_IO {
             }
         }
     }
-
-
-
     // ABC_Var interface
 
     Implements_Simple_Var(ABC_Var* parent,
@@ -736,23 +752,25 @@ namespace  Markov_IO {
     }
   private:
     T value_;
+
   };
 
 
 
-  class Implements_Complex_Var: public Implements_VarId
-  {
 
+
+
+
+
+  class Implements_Complex_Var: public virtual Implements_VarId
+  {
     // ABC_Var interface
   public:
-
     static std::string ClassName();
-
     virtual Implements_Complex_Var* varCreate() const override
     {
       return new Implements_Complex_Var;
     }
-
     virtual Implements_Complex_Var* varClone() const override
     {
       return new Implements_Complex_Var(*this);
@@ -911,8 +929,24 @@ namespace  Markov_IO {
 
 
 
+  template<class C>
+  class ABC_Class: public virtual Implements_VarId
+  {
+    // ABC_Var interface
+  public:
+    virtual C* getObject() =0;
+
+    virtual const C* getObject()const =0;
+    virtual void setObject(C** obj)=0;
+
+
+    virtual ~ABC_Class(){}
+  };
+
+
+
   template<class C,typename T>
-  class Implements_Method_Var: public Implements_VarId
+  class Implements_ValMethod_Var: public ABC_Simple_Var<T>, public ABC_Class<C>
   {
     // ABC_Var interface
   public:
@@ -926,65 +960,66 @@ namespace  Markov_IO {
       return ABC_Var::SuperClasses()+ClassName();
     }
 
-    C* getObject()
-    {
-      if (object_!=nullptr)
-      return *object_;
-      else
-        return nullptr;
-    }
-
-    const C* getObject()const
-    {
-      if (object_!=nullptr)
-      return *object_;
-      else
-        return nullptr;
-    }
-    void setObject(C** obj)
-    {
-      object_=obj;
-    }
     virtual std::set<std::string> mySuperClasses()const
     {
       return SuperClasses();
     }
 
-    virtual Implements_Method_Var<C,T>* varCreate() const override
+    virtual Implements_ValMethod_Var<C,T>* varCreate() const override
     {
-      return new Implements_Method_Var<C,T>;
+      return new Implements_ValMethod_Var<C,T>;
     }
 
-    virtual Implements_Method_Var<C,T>* varClone() const override
+    virtual Implements_ValMethod_Var<C,T>* varClone() const override
     {
-      return new Implements_Method_Var<C,T>(*this);
+      return new Implements_ValMethod_Var<C,T>(*this);
     }
 
-
-
-
-    T value()const
+    virtual C* getObject() override
     {
-      if ((getObject()==nullptr))
-        return {};
-      if (m_!=nullptr)
-        return getObject()->*m_;
-      else if (rget_!=nullptr)
-        return (getObject()->*rget_)();
-      else if (get_!=nullptr)
-        return (getObject()->*get_)();
+      if (objectPtr_!=nullptr)
+        return *objectPtr_;
       else
-        return {};
+        return nullptr;
     }
 
-    void setValue(T val)
+    virtual const C* getObject()const override
     {
-      if ((getObject()!=nullptr)&& (rset_!=nullptr))
-        (getObject()->*rset_)()=val;
-      else if ((getObject()!=nullptr)&& (set_!=nullptr))
-        ((getObject()->*set_))(val);
-      else if ((getObject()!=nullptr)&& (m_!=nullptr))
-        (getObject()->*m_)=val;
+      if (objectPtr_!=nullptr)
+        return *objectPtr_;
+      else
+        return nullptr;
+    }
+    virtual void setObject(C** obj) override
+    {
+      objectPtr_=obj;
+    }
+
+
+    virtual T& refval() override
+    {
+      return empty_;
+    }
+
+    virtual const T& refval() const override
+    {
+      return empty_;
+    }
+
+    T value()const override
+    {
+      if ((this->getObject()==nullptr))
+        return empty_;
+      if (get_!=nullptr)
+        return (this->getObject()->*get_)();
+      else
+        return empty_;
+    }
+
+    void setValue(T val) override
+    {
+      if ((this->getObject()!=nullptr)&& (set_!=nullptr))
+        ((this->getObject()->*set_))(val);
 
     }
 
@@ -1024,89 +1059,58 @@ namespace  Markov_IO {
 
     // ABC_Var interface
 
-    Implements_Method_Var(ABC_Var* parent,
-                          std::string id,
-                          C** object,
-                          getter<C,T> getterMethod,
-                          setter<C,T> setterMethod,
-                          std::string className=ClassName(),
-                          const std::string& tip="",
-                          const std::string& whatthis=""):
+    Implements_ValMethod_Var(ABC_Var* parent,
+                             std::string id,
+                             C** objectPtr,
+                             getter<C,T> getterMethod,
+                             setter<C,T> setterMethod,
+                             std::string className=ClassName(),
+                             const std::string& tip="",
+                             const std::string& whatthis=""):
       Implements_VarId(parent,id,className,tip,whatthis),
-      object_(object),
-      m_(nullptr),
+      objectPtr_(objectPtr),
       get_(getterMethod),
-      set_(setterMethod),
-      rget_(nullptr),
-      rset_(nullptr){}
-
-    Implements_Method_Var(ABC_Var* parent,
-                          std::string id,
-                          C** object,
-                          refgetter<C,T> refgetterMethod,
-                          refsetter<C,T> refsetterMethod,
-                          std::string className=ClassName(),
-                          const std::string& tip="",
-                          const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
-      object_(object),
-      m_(nullptr),
-      get_(nullptr),
-      set_(nullptr),
-      rget_(refgetterMethod),
-      rset_(refsetterMethod){}
-
-    Implements_Method_Var(ABC_Var* parent,
-                          std::string id,
-                          C** object,
-                          T C::* memberPointer,
-                          std::string className=ClassName(),
-                          const std::string& tip="",
-                          const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
-      object_(object),
-      m_(memberPointer),
-      get_(nullptr),
-      set_(nullptr),
-      rget_(nullptr),
-      rset_(nullptr){}
+      set_(setterMethod)
+    {}
 
 
-    Implements_Method_Var()=default;
+
+    Implements_ValMethod_Var()=default;
 
 
-    Implements_Method_Var(const Implements_Method_Var<C,T>& other)=default;
+    Implements_ValMethod_Var(const Implements_ValMethod_Var<C,T>& other)=default;
 
 
-    Implements_Method_Var(Implements_Method_Var<C,T>&& other)=default;
+    Implements_ValMethod_Var(Implements_ValMethod_Var<C,T>&& other)=default;
 
 
 
 
-    Implements_Method_Var& operator=( Implements_Method_Var<C,T>&& other)=default;
+    Implements_ValMethod_Var& operator=( Implements_ValMethod_Var<C,T>&& other)=default;
 
 
-    Implements_Method_Var& operator=(const Implements_Method_Var<C,T>& other)=default;
+    Implements_ValMethod_Var& operator=(const Implements_ValMethod_Var<C,T>& other)=default;
 
-    virtual ~Implements_Method_Var(){}
+    virtual ~Implements_ValMethod_Var(){}
 
     virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
     {
-      return new Implements_Simple_Var<T>(nullptr,id(),value(),myClass(),Tip(), WhatThis());
+      return new Implements_Simple_Var<T>(
+            nullptr,this->id(),this->value(),this->myClass(),this->Tip(), this->WhatThis());
     }
 
     virtual bool loadFromComplexVar(const ABC_Var* var) override
     {
-      if ((var!=nullptr)&&(id()==var->id()))
+      if ((var!=nullptr)&&(this->id()==var->id()))
         {
-          auto o=dynamic_cast<const Implements_Simple_Var<T>*>(var);
+          auto o=dynamic_cast<const ABC_Simple_Var<T>*>(var);
           if(o!=nullptr)
             {
               setValue(o->value());
               if (!o->Tip().empty())
-                setTip(o->Tip());
+                this->setTip(o->Tip());
               if (!o->WhatThis().empty())
-                setWhatThis(o->WhatThis());
+                this->setWhatThis(o->WhatThis());
               return true;
             }
           else
@@ -1116,18 +1120,651 @@ namespace  Markov_IO {
         return false;
     }
   protected:
-    C** object_;
-    T C::* m_;
+    C** objectPtr_;
     getter<C,T> get_;
     setter<C,T> set_;
-    refgetter<C,T> rget_;
-    refsetter<C,T> rset_;
+    T empty_=T();
+  };
+
+
+
+  template<class C,typename T>
+  class Implements_PointerMember_Var: public ABC_Simple_Var<T>, public ABC_Class<C>
+  {
+    // ABC_Var interface
+  public:
+    static std::string ClassName()
+    {
+      return C::ClassName()+"_method";
+    }
+
+    static std::set<std::string> SuperClasses()
+    {
+      return ABC_Var::SuperClasses()+ClassName();
+    }
+
+    virtual std::set<std::string> mySuperClasses()const
+    {
+      return SuperClasses();
+    }
+
+    virtual Implements_PointerMember_Var<C,T>* varCreate() const override
+    {
+      return new Implements_PointerMember_Var<C,T>;
+    }
+
+    virtual Implements_PointerMember_Var<C,T>* varClone() const override
+    {
+      return new Implements_PointerMember_Var<C,T>(*this);
+    }
+
+    virtual C* getObject() override
+    {
+      if (objectPtr_!=nullptr)
+        return *objectPtr_;
+      else
+        return nullptr;
+    }
+
+    virtual const C* getObject()const override
+    {
+      if (objectPtr_!=nullptr)
+        return *objectPtr_;
+      else
+        return nullptr;
+    }
+    virtual void setObject(C** obj) override
+    {
+      objectPtr_=obj;
+    }
+
+
+    virtual T& refval() override
+    {
+      return empty_;
+    }
+
+    virtual const T& refval() const override
+    {
+      return empty_;
+    }
+
+    T value()const override
+    {
+      if ((this->getObject()==nullptr))
+        return empty_;
+      if (m_!=nullptr)
+        return this->getObject()->*m_;
+      else
+        return empty_;
+    }
+
+    void setValue(T val) override
+    {
+      if ((this->getObject()!=nullptr)&& (m_!=nullptr))
+        (this->getObject()->*m_)=val;
+
+    }
+
+
+
+    std::deque<Token_New> toTokens() const
+    {
+      auto out=Implements_VarId::toTokens();
+      out<<"="<<toToken(value())<<"\n";
+      return out;
+    }
+
+    bool processTokens(const std::deque<Token_New>& t,
+                       std::size_t &pos)
+    {
+      if (!Implements_VarId::processTokens(t,pos))
+        return false;
+      else
+        {
+          if (t.at(pos).tok()!=Token_New::ASSIGN)
+            return false;
+          ++pos;
+          T val{};
+          if (!toValue(t,val,pos))
+            return false;
+          else
+            {
+              setValue(val);
+              if (t.at(pos).tok()==Token_New::EOL)
+                ++pos;
+              return true;
+            }
+        }
+    }
+
+
+
+    // ABC_Var interface
+
+
+    Implements_PointerMember_Var(ABC_Var* parent,
+                                 std::string id,
+                                 C** objectPtr,
+                                 T C::* memberPointer,
+                                 std::string className=ClassName(),
+                                 const std::string& tip="",
+                                 const std::string& whatthis=""):
+      Implements_VarId(parent,id,className,tip,whatthis),
+      objectPtr_(objectPtr),
+      m_(memberPointer)
+    {}
+
+
+    Implements_PointerMember_Var()=default;
+
+
+    Implements_PointerMember_Var(const Implements_PointerMember_Var<C,T>& other)=default;
+
+
+    Implements_PointerMember_Var(Implements_PointerMember_Var<C,T>&& other)=default;
+
+
+
+
+    Implements_PointerMember_Var& operator=( Implements_PointerMember_Var<C,T>&& other)=default;
+
+
+    Implements_PointerMember_Var& operator=(const Implements_PointerMember_Var<C,T>& other)=default;
+
+    virtual ~Implements_PointerMember_Var(){}
+
+    virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
+    {
+      return new Implements_Simple_Var<T>(
+            nullptr,this->id(),this->value(),this->myClass(),this->Tip(), this->WhatThis());
+    }
+
+    virtual bool loadFromComplexVar(const ABC_Var* var) override
+    {
+      if ((var!=nullptr)&&(this->id()==var->id()))
+        {
+          auto o=dynamic_cast<const ABC_Simple_Var<T>*>(var);
+          if(o!=nullptr)
+            {
+              setValue(o->value());
+              if (!o->Tip().empty())
+                this->setTip(o->Tip());
+              if (!o->WhatThis().empty())
+                this->setWhatThis(o->WhatThis());
+              return true;
+            }
+          else
+            return false;
+        }
+      else
+        return false;
+    }
+  protected:
+    C** objectPtr_;
+    T C::* m_;
+    T empty_=T();
 
   };
 
 
+  template<class C,typename T>
+  class Implements_RefMethod_Var: public ABC_Simple_Var<T>, public ABC_Class<C>
+  {
+    // ABC_Var interface
+  public:
+    static std::string ClassName()
+    {
+      return C::ClassName()+"_method";
+    }
+
+    static std::set<std::string> SuperClasses()
+    {
+      return ABC_Var::SuperClasses()+ClassName();
+    }
+
+    virtual std::set<std::string> mySuperClasses()const
+    {
+      return SuperClasses();
+    }
+
+    virtual Implements_RefMethod_Var<C,T>* varCreate() const override
+    {
+      return new Implements_RefMethod_Var<C,T>;
+    }
+
+    virtual Implements_RefMethod_Var<C,T>* varClone() const override
+    {
+      return new Implements_RefMethod_Var<C,T>(*this);
+    }
+
+    virtual C* getObject() override
+    {
+      if (objectPtr_!=nullptr)
+        return *objectPtr_;
+      else
+        return nullptr;
+    }
+
+    virtual const C* getObject()const override
+    {
+      if (objectPtr_!=nullptr)
+        return *objectPtr_;
+      else
+        return nullptr;
+    }
+    virtual void setObject(C** obj) override
+    {
+      objectPtr_=obj;
+    }
+
+
+    virtual T& refval() override
+    {
+      if ((this->getObject()==nullptr))
+        return empty_;
+      if (rget_!=nullptr)
+        return (this->getObject()->*rset_)();
+      else
+        return empty_;
+    }
+
+    virtual const T& refval() const override
+    {
+      if ((this->getObject()==nullptr))
+        return empty_;
+      if (rget_!=nullptr)
+        return (this->getObject()->*rget_)();
+      else
+        return empty_;
+    }
+
+    T value()const override
+    {
+      if ((this->getObject()==nullptr))
+        return empty_;
+      else if (rget_!=nullptr)
+        return (this->getObject()->*rget_)();
+      else
+        return empty_;
+    }
+
+    void setValue(T val) override
+    {
+      if ((this->getObject()!=nullptr)&& (rset_!=nullptr))
+        (this->getObject()->*rset_)()=val;
+
+    }
+
+
+
+    std::deque<Token_New> toTokens() const
+    {
+      auto out=Implements_VarId::toTokens();
+      out<<"="<<toToken(value())<<"\n";
+      return out;
+    }
+
+    bool processTokens(const std::deque<Token_New>& t,
+                       std::size_t &pos)
+    {
+      if (!Implements_VarId::processTokens(t,pos))
+        return false;
+      else
+        {
+          if (t.at(pos).tok()!=Token_New::ASSIGN)
+            return false;
+          ++pos;
+          T val{};
+          if (!toValue(t,val,pos))
+            return false;
+          else
+            {
+              setValue(val);
+              if (t.at(pos).tok()==Token_New::EOL)
+                ++pos;
+              return true;
+            }
+        }
+    }
+
+
+
+    // ABC_Var interface
+
+    Implements_RefMethod_Var(ABC_Var* parent,
+                             std::string id,
+                             C** object,
+                             refgetter<C,T> refgetterMethod,
+                             refsetter<C,T> refsetterMethod,
+                             std::string className=ClassName(),
+                             const std::string& tip="",
+                             const std::string& whatthis=""):
+      Implements_VarId(parent,id,className,tip,whatthis),
+      objectPtr_(object),
+      rget_(refgetterMethod),
+      rset_(refsetterMethod){}
+
+
+    Implements_RefMethod_Var()=default;
+
+
+    Implements_RefMethod_Var(const Implements_RefMethod_Var<C,T>& other)=default;
+
+
+    Implements_RefMethod_Var(Implements_RefMethod_Var<C,T>&& other)=default;
+
+
+
+
+    Implements_RefMethod_Var& operator=( Implements_RefMethod_Var<C,T>&& other)=default;
+
+
+    Implements_RefMethod_Var& operator=(const Implements_RefMethod_Var<C,T>& other)=default;
+
+    virtual ~Implements_RefMethod_Var(){}
+
+    virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
+    {
+      return new Implements_Simple_Var<T>(
+            nullptr,this->id(),this->value(),this->myClass(),this->Tip(), this->WhatThis());
+    }
+
+    virtual bool loadFromComplexVar(const ABC_Var* var) override
+    {
+      if ((var!=nullptr)&&(this->id()==var->id()))
+        {
+          auto o=dynamic_cast<const ABC_Simple_Var<T>*>(var);
+          if(o!=nullptr)
+            {
+              setValue(o->value());
+              if (!o->Tip().empty())
+                this->setTip(o->Tip());
+              if (!o->WhatThis().empty())
+                this->setWhatThis(o->WhatThis());
+              return true;
+            }
+          else
+            return false;
+        }
+      else
+        return false;
+    }
+  protected:
+    C** objectPtr_;
+    refgetter<C,T> rget_;
+    refsetter<C,T> rset_;
+    T empty_=T();
+
+  };
+
+
+
+  template<class C,typename Enum>
+  class Implements_EnumMethod_Var: public ABC_Simple_Var<Enum>, public ABC_Class<C>
+  {
+    // ABC_Var interface
+  public:
+    static std::string ClassName();
+
+    static std::set<std::string> SuperClasses()
+    {
+      return ABC_Var::SuperClasses()+ClassName();
+    }
+
+    virtual std::set<std::string> mySuperClasses()const
+    {
+      return SuperClasses();
+    }
+
+    virtual Implements_EnumMethod_Var<C,Enum>* varCreate() const override
+    {
+      return new Implements_EnumMethod_Var<C,Enum>;
+    }
+
+    virtual Implements_EnumMethod_Var<C,Enum>* varClone() const override
+    {
+      return new Implements_EnumMethod_Var<C,Enum>(*this);
+    }
+
+    virtual C* getObject() override
+    {
+      if (objectPtr_!=nullptr)
+        return *objectPtr_;
+      else
+        return nullptr;
+    }
+
+    virtual const C* getObject()const override
+    {
+      if (objectPtr_!=nullptr)
+        return *objectPtr_;
+      else
+        return nullptr;
+    }
+    virtual void setObject(C** obj) override
+    {
+      objectPtr_=obj;
+    }
+
+
+    virtual Enum& refval() override
+    {
+      return empty_;
+    }
+
+    virtual const Enum& refval() const override
+    {
+      return empty_;
+    }
+
+    Enum value()const override
+    {
+      if ((this->getObject()==nullptr))
+        return empty_;
+      if (get_!=nullptr)
+        return (this->getObject()->*get_)();
+      else
+        return empty_;
+    }
+
+    void setValue(Enum val) override
+    {
+      if ((this->getObject()!=nullptr)&& (set_!=nullptr))
+        ((this->getObject()->*set_))(val);
+
+    }
+
+    bool setCategory(std::string cat)
+    {
+      auto it=strToEnum.find(cat);
+      if (it!=strToEnum.end())
+        {
+          setValue(it->second);
+          return true;
+        }
+      else
+        return false;
+    }
+
+    std::string Category()const
+    {
+      Enum i=value();
+      for (auto& e:strToEnum)
+        {
+          if (e.second==i)
+            return e.first;
+        }
+      return {};
+    }
+
+
+    std::deque<Token_New> toTokens() const
+    {
+      auto out=Implements_VarId::toTokens();
+      out<<"="<<toToken(Category())<<"\n";
+      return out;
+    }
+
+    bool processTokens(const std::deque<Token_New>& t,
+                       std::size_t &pos)
+    {
+      if (!Implements_VarId::processTokens(t,pos))
+        return false;
+      else
+        {
+          if (t.at(pos).tok()!=Token_New::ASSIGN)
+            return false;
+          ++pos;
+          std::string val{};
+          if (!toValue(t,val,pos))
+            return false;
+          else if (!setCategory(val))
+            return false;
+          else
+            {
+              if (t.at(pos).tok()==Token_New::EOL)
+                ++pos;
+              return true;
+            }
+        }
+    }
+
+
+
+    // ABC_Var interface
+
+    Implements_EnumMethod_Var(ABC_Var* parent,
+                              std::string id,
+                              C** objectPtr,
+                              getter<C,Enum> getterMethod,
+                              setter<C,Enum> setterMethod,
+                              std::string className=ClassName(),
+                              const std::string& tip="",
+                              const std::string& whatthis=""):
+      Implements_VarId(parent,id,className,tip,whatthis),
+      objectPtr_(objectPtr),
+      get_(getterMethod),
+      set_(setterMethod)
+    {}
+
+
+
+    Implements_EnumMethod_Var()=default;
+
+
+    Implements_EnumMethod_Var(const Implements_EnumMethod_Var<C,Enum>& other)=default;
+
+
+    Implements_EnumMethod_Var(Implements_EnumMethod_Var<C,Enum>&& other)=default;
+
+
+
+
+    Implements_EnumMethod_Var& operator=( Implements_EnumMethod_Var<C,Enum>&& other)=default;
+
+
+    Implements_EnumMethod_Var& operator=(const Implements_EnumMethod_Var<C,Enum>& other)=default;
+
+    virtual ~Implements_EnumMethod_Var(){}
+
+
+
+
+    virtual Implements_Simple_Var<std::string>* to_ComplexVar()const  override
+    {
+      return new Implements_Simple_Var<std::string>(
+            nullptr,this->id(),this->Category(),this->myClass(),this->Tip(), this->WhatThis());
+    }
+
+    virtual bool loadFromComplexVar(const ABC_Var* var) override
+    {
+      if ((var!=nullptr)&&(this->id()==var->id()))
+        {
+          auto o=dynamic_cast<const ABC_Simple_Var<std::string>*>(var);
+          if(o!=nullptr)
+            {
+
+              setCategory(o->value());
+              if (!o->Tip().empty())
+                this->setTip(o->Tip());
+              if (!o->WhatThis().empty())
+                this->setWhatThis(o->WhatThis());
+              return true;
+            }
+          else
+            return false;
+        }
+      else
+        return false;
+    }
+  protected:
+    C** objectPtr_;
+    getter<C,Enum> get_;
+    setter<C,Enum> set_;
+    Enum empty_=Enum();
+    static std::map<std::string,Enum> strToEnum;
+  };
+
+
+
+  template<typename Enum>
+  class Implements_Categorical: public Implements_Simple_Var<std::string>
+  {
+  public:
+    static std::string ClassName()
+    {
+      return "Category";
+    }
+
+    static std::set<std::string> SuperClasses();
+
+    virtual std::set<std::string> mySuperClasses() const override;
+
+
+    // ABC_Var interface
+  public:
+    std::string Category()const;
+
+    Enum Rank()const;
+
+    void updateCat();
+    void updateRank();
+
+    void setCategory(const std::string& cat);
+
+    void setRank(Enum i);
+
+    Implements_Categorical(ABC_Var* parent, const std::string& idName,Enum i,
+                           const std::string& tip="",
+                           const std::string & whatthis="");
+    Implements_Categorical(ABC_Var* parent, const std::string& idName,
+                           const std::string &cat,
+                           const std::string& tip="",
+                           const std::string & whatthis="");
+
+
+
+    virtual const Implements_Categorical* motherClass()const;
+    virtual Implements_Categorical* motherClass();
+
+
+    virtual bool loadFromComplexVar(const ABC_Var*) override;
+
+    virtual Implements_Categorical<Enum> *to_ComplexVar() const override;
+
+  private:
+    static std::map<std::string,Enum> strToEnum;
+    Enum rank_;
+  };
+
+
+
+
+
+
   template <class C>
-  class Implements_Class_Reflection: public Implements_Complex_Var
+  class Implements_Class_Reflection: public Implements_Complex_Var, public ABC_Class<C>
   {
     // ABC_Var interface
   public:
@@ -1136,29 +1773,30 @@ namespace  Markov_IO {
       return C::ClassName()+"_reflection";
     }
 
-    virtual C* getObject()
+
+    virtual C* getObject() override
     {
       return object_;
     }
 
-    virtual const C* getObject()const
+    const C* getObject()const override
     {
       return object_;
     }
-
-    virtual void setObject(C* obj)
+    void setObject(C** obj) override
     {
-      object_=obj;
+      object_=*obj;
     }
 
-    virtual Implements_Class_Reflection* varCreate() const override
+
+    virtual Implements_Complex_Var* varCreate() const override
     {
-      return new Implements_Class_Reflection;
+      return new Implements_Class_Reflection<C>();
     }
 
-    virtual Implements_Class_Reflection* varClone() const override
+    virtual Implements_Complex_Var* varClone() const override
     {
-      return new Implements_Class_Reflection(*this);
+      return new Implements_Class_Reflection<C>(*this);
     }
 
     template<typename T>
@@ -1169,27 +1807,29 @@ namespace  Markov_IO {
                              const std::string & whatthis="");
 
     template<typename T>
-    bool push_backMethod(const std::string& name,
-                         getter<C,T> getmethod,
-                         setter<C,T> setmethod,
-                         const std::string& classname="",
-                         const std::string& tip="",
-                         const std::string & whatthis="");
+    bool push_backValMethod(const std::string& name,
+                            getter<C,T> getmethod,
+                            setter<C,T> setmethod,
+                            const std::string& classname="",
+                            const std::string& tip="",
+                            const std::string & whatthis="");
+
+    template<typename Enum>
+    bool push_backEnumValMethod(const std::string& name,
+                                getter<C,Enum> getmethod,
+                                setter<C,Enum> setmethod,
+                                const std::string& classname="",
+                                const std::string& tip="",
+                                const std::string & whatthis="");
 
     template<typename T>
-    bool push_backMethod(const std::string& name,
-                         refgetter<C,T> rgetmethod,
-                         refsetter<C,T> rsetmethod,
-                         const std::string& classname="",
-                         const std::string& tip="",
-                         const std::string & whatthis="");
+    bool push_backRefMethod(const std::string& name,
+                            refgetter<C,T> rgetmethod,
+                            refsetter<C,T> rsetmethod,
+                            const std::string& classname="",
+                            const std::string& tip="",
+                            const std::string & whatthis="");
 
-    template<typename T>
-    bool push_backMethod(const std::string& name,
-                         getter<C,T> getmethod,
-                         const std::string& classname="",
-                         const std::string& tip="",
-                         const std::string & whatthis="");
 
     Implements_Class_Reflection(
         ABC_Var *parent,
@@ -1198,6 +1838,7 @@ namespace  Markov_IO {
         const std::string className,
         const std::string & tip,
         const std::string& whatthis):
+      Implements_VarId(parent,id,className,tip,whatthis),
       Implements_Complex_Var(parent,id,className,tip,whatthis),
       object_(object)
     {}
@@ -1206,18 +1847,23 @@ namespace  Markov_IO {
     Implements_Class_Reflection()=default;
 
     Implements_Class_Reflection(const Implements_Class_Reflection& other)
-      : Implements_Complex_Var(other),
+      :  Implements_VarId(other),
+        Implements_Complex_Var(other),
         object_(other.object_)
     {
+      resetChildsObject();
 
-      }
+
+    }
 
     Implements_Class_Reflection(Implements_Class_Reflection&& other):
+      Implements_VarId(other),
       Implements_Complex_Var(std::move(other)),
       object_(std::move(other.object_))
 
     {
       other.object_=nullptr;
+      resetChildsObject();
     }
 
     Implements_Class_Reflection& operator=(Implements_Class_Reflection&& other)
@@ -1227,6 +1873,7 @@ namespace  Markov_IO {
           Implements_Complex_Var::operator =(std::move(other));
           object_=std::move(other.object_);
           other.object_=nullptr;
+          resetChildsObject();
         }
       return *this;
     }
@@ -1236,6 +1883,7 @@ namespace  Markov_IO {
       if (this!=&other)
         {
           operator=(Implements_Class_Reflection(other));
+          resetChildsObject();
         }
       return *this;
     }
@@ -1257,12 +1905,12 @@ namespace  Markov_IO {
     {
       if (sameFields(source))
         {
-          for (std::size_t i=0; i<numChildVars(); ++i)
+          for (std::size_t i=0; i<this->numChildVars(); ++i)
             {
-              auto s=source->getChildVar(ith_VarName(i));
+              auto s=source->getChildVar(this->ith_VarName(i));
               if (s!=nullptr)
                 {
-                  getChildVar(ith_VarName(i))->loadFromComplexVar(s);
+                  this->getChildVar(ith_VarName(i))->loadFromComplexVar(s);
                 }
             }
           return true;
@@ -1273,22 +1921,40 @@ namespace  Markov_IO {
 
   protected:
     virtual void initComplexVar(){}
+
+    virtual void resetChildsObject()
+    {
+      for (std::size_t i=0; i<numChildVars(); i++)
+        {
+          ABC_Var* a=this->getChildVar(ith_VarName(i));
+          ABC_Class<C>* c=dynamic_cast<ABC_Class<C>*>(a);
+          if (c!=nullptr)
+            {
+              c->setObject(&object_);
+            }
+        }
+    }
+
     C* object_;
+
 
   };
 
 
+
+
   template<typename T>
-  class Implements_Simple_Class: public Implements_Complex_Var
+  class Implements_Simple_Class: public Implements_Class_Reflection<Implements_Simple_Class<T>>
   {
-    typedef Implements_Simple_Class C;
+    typedef Implements_Simple_Class<T> C;
     // ABC_Var interface
   public:
+
     static std::string ClassName();
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Var::SuperClasses()<<ClassName();
+      return ABC_Var::SuperClasses()+ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()const override
@@ -1349,57 +2015,53 @@ namespace  Markov_IO {
                             T defaultValue=T(),
                             T minValue=T(),
                             T maxValue=T(),
-                            std::string className=ClassName()):
-      Implements_Complex_Var(parent,id,className,{}),
+                            std::string className=ClassName(),
+                            std::string tip="",
+                            std::string whatthis=""):
+      Implements_VarId(parent,id,className,tip,whatthis),
+      Implements_Class_Reflection<C>(parent,id,this,className,tip,whatthis),
       units_(measureunits),
       default_{defaultValue},
       min_(minValue),
       max_(maxValue)
     {
-      addChildVar(new Implements_Method_Var<C,std::string>(
-                    this,this,
-                    &Implements_Simple_Class::units,
-                    &Implements_Simple_Class::setUnits,"",
-                    "measure unit",
-                    "it does not allow conversions yet"));
-      addChildVar(new Implements_Method_Var<C,T>(
-                    this,this,
-                    &Implements_Simple_Class::defaultValue,
-                    &Implements_Simple_Class::setDefaultValue,"",
-                    "default value",
-                    "suggested value, used for default constructor"));
-      addChildVar(new Implements_Method_Var<C,T>(
-                    this,this,
-                    &Implements_Simple_Class::minValue,
-                    &Implements_Simple_Class::setminValue,"",
-                    "min value",
-                    "mandatory min value, in I/O interaction it enforces it"));
+      this->push_backValMethod("units",&C::units,&C::setUnits,"measure unit",
+                               "it does not allow conversions yet");
+      this->push_backValMethod("defaultValue",&C::defaultValue,&C::setDefaultValue,"default value",
+                               "suggested value, used for default constructor");
 
-      addChildVar(new Implements_Method_Var<C,T>(
-                    this,this,
-                    &Implements_Simple_Class::maxValue,
-                    &Implements_Simple_Class::setmaxValue,"",
-                    "max value",
-                    "mandatory max value, in I/O interaction it enforces it"));
+
+      this->push_backValMethod("min",&C::minValue,&C::setminValue,"min value",
+                               "mandatory min value, in I/O interaction it enforces it");
+
+      this->push_backValMethod("max",&C::maxValue,&C::setmaxValue,"max value",
+                               "mandatory max value, in I/O interaction it enforces it");
+
     }
 
 
-    Implements_Simple_Class():
-      Implements_VarId(0,ClassName(),ClassName()),
-      default_{}, min_{},max_{}{}
+    Implements_Simple_Class()=default;
+
+    Implements_Simple_Class(const Implements_Simple_Class& other)=default;
+    Implements_Simple_Class(Implements_Simple_Class&& other)=default;
+
+    Implements_Simple_Class& operator=(const Implements_Simple_Class& other)=default;
+
+    Implements_Simple_Class& operator=(Implements_Simple_Class&& other)=default;
+
 
 
     virtual ~Implements_Simple_Class(){}
 
     virtual  Implements_Simple_Var<T>* varTemplate()const  override
     {
-      return new Implements_Simple_Var<T>(nullptr,"",defaultValue(),id());
+      return new Implements_Simple_Var<T>(nullptr,"",defaultValue(),this->id());
     }
 
 
     virtual bool isInDomain(const ABC_Var *value) const  override
     {
-      Implements_Simple_Var<T>* p=dynamic_cast<Implements_Simple_Var<T>* > (value);
+      auto p=dynamic_cast<const ABC_Simple_Var<T>* > (value);
       if (p!=nullptr)
         {
           if ((minValue()!=emptyValue())&&(p->value()<minValue()))
@@ -1418,6 +2080,7 @@ namespace  Markov_IO {
     T default_;
     T min_;
     T max_;
+
   };
 
 
@@ -1556,53 +2219,6 @@ namespace  Markov_IO {
   };
 
 */
-  template<typename Enum>
-  class Implements_Categorical: public Implements_Simple_Var<std::string>
-  {
-  public:
-    static std::string ClassName();
-
-    static std::set<std::string> SuperClasses();
-
-    virtual std::set<std::string> mySuperClasses() const override;
-
-
-    // ABC_Var interface
-  public:
-    std::string Category()const;
-
-    Enum Rank()const;
-
-    void updateCat();
-    void updateRank();
-
-    void setCategory(const std::string& cat);
-
-    void setRank(Enum i);
-
-    Implements_Categorical(ABC_Var* parent, const std::string& idName,Enum i,
-                           const std::string& tip="",
-                           const std::string & whatthis="");
-    Implements_Categorical(ABC_Var* parent, const std::string& idName,
-                           const std::string &cat,
-                           const std::string& tip="",
-                           const std::string & whatthis="");
-
-
-
-    virtual const Implements_Categorical* motherClass()const;
-    virtual Implements_Categorical* motherClass();
-
-
-    virtual bool loadFromComplexVar(const ABC_Var*) override;
-
-    virtual Implements_Categorical<Enum> *to_ComplexVar() const override;
-
-  private:
-    static std::map<std::string,Enum> strToEnum;
-    Enum rank_;
-  };
-
 
 
   template<>
@@ -1691,7 +2307,7 @@ namespace  Markov_IO {
     std::string c=classname;
     if (c.empty())
       c=Implements_Simple_Var<T>::ClassName();
-    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(
+    Implements_PointerMember_Var<C,T>* o=new Implements_PointerMember_Var<C,T>(
           this,name,&object_,value,c,tip,whatthis);
     return addChildVar(o);
 
@@ -1699,17 +2315,38 @@ namespace  Markov_IO {
 
 
   template<class C> template<typename T>
-  bool Implements_Class_Reflection<C>::push_backMethod(const std::string& name,
-                                                       getter<C,T> getmethod,
-                                                       setter<C,T> setmethod,
-                                                       const std::string& classname,
-                                                       const std::string& tip,
-                                                       const std::string & whatthis)
+  bool Implements_Class_Reflection<C>::push_backValMethod(const std::string& name,
+                                                          getter<C,T> getmethod,
+                                                          setter<C,T> setmethod,
+                                                          const std::string& classname,
+                                                          const std::string& tip,
+                                                          const std::string & whatthis)
   {
     std::string c=classname;
     if (c.empty())
-      c=Implements_Method_Var<C,T>::ClassName();
-    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(this,name,getObject(),getmethod,setmethod,c,tip,whatthis);
+      c=Implements_ValMethod_Var<C,T>::ClassName();
+    Implements_ValMethod_Var<C,T>* o=new Implements_ValMethod_Var<C,T>(this,name,&object_,getmethod,setmethod,c,tip,whatthis);
+    return addChildVar(o);
+
+  }
+
+
+
+
+
+
+  template<class C>  template<typename Enum>
+  bool Implements_Class_Reflection<C>::push_backEnumValMethod(const std::string& name,
+                                                              getter<C,Enum> getmethod,
+                                                              setter<C,Enum> setmethod,
+                                                              const std::string& classname,
+                                                              const std::string& tip,
+                                                              const std::string & whatthis)
+  {
+    std::string c=classname;
+    if (c.empty())
+      c=Implements_EnumMethod_Var<C,Enum>::ClassName();
+    Implements_EnumMethod_Var<C,Enum>* o=new Implements_EnumMethod_Var<C,Enum>(this,name,&object_,getmethod,setmethod,c,tip,whatthis);
     return addChildVar(o);
 
   }
@@ -1718,17 +2355,17 @@ namespace  Markov_IO {
 
 
   template<class C>template<typename T>
-  bool Implements_Class_Reflection<C>::push_backMethod(const std::string& name,
-                                                       refgetter<C,T> rgetmethod,
-                                                       refsetter<C,T> rsetmethod,
-                                                       const std::string& classname,
-                                                       const std::string& tip,
-                                                       const std::string & whatthis)
+  bool Implements_Class_Reflection<C>::push_backRefMethod(const std::string& name,
+                                                          refgetter<C,T> rgetmethod,
+                                                          refsetter<C,T> rsetmethod,
+                                                          const std::string& classname,
+                                                          const std::string& tip,
+                                                          const std::string & whatthis)
   {
     std::string c=classname;
     if (c.empty())
-      c=Implements_Method_Var<C,T>::ClassName();
-    auto o=new Implements_Method_Var<C,T>(this,name,&object_,rgetmethod,rsetmethod,c,tip,whatthis);
+      c=Implements_RefMethod_Var<C,T>::ClassName();
+    auto o=new Implements_RefMethod_Var<C,T>(this,name,&object_,rgetmethod,rsetmethod,c,tip,whatthis);
     return addChildVar(o);
 
   }
@@ -1739,20 +2376,6 @@ namespace  Markov_IO {
 
 
 
-  template<class C> template<typename T>
-  bool Implements_Class_Reflection<C>::push_backMethod(const std::string& name,
-                                                       getter<C,T> getmethod,
-                                                       const std::string& classname,
-                                                       const std::string& tip,
-                                                       const std::string & whatthis)
-  {
-    std::string c=classname;
-    if (c.empty())
-      c=Implements_Method_Var<C,T>::ClassName();
-    Implements_Method_Var<C,T>* o=new Implements_Method_Var<C,T>(this,name,&object_,getmethod,nullptr,c,tip,whatthis);
-    return addChildVar(o);
-
-  }
 
 
 
@@ -1809,11 +2432,7 @@ namespace  Markov_IO {
     return addChildVar(value);
   }
 
-  template<typename Enum>
-  std::string Implements_Categorical<Enum>::ClassName()
-  {
-    return "Category";
-  }
+
 
   template<typename Enum>
   std::set<std::string> Implements_Categorical<Enum>::SuperClasses()

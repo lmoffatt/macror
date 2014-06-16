@@ -2,24 +2,44 @@
 #include <QHBoxLayout>
 #include <QTabWidget>
 
-/*
+
+namespace Markov_IO {
+  using Markov_Plot::GraphicPage;
+
+
+
+  template<>
+  std::string
+  Implements_EnumMethod_Var<GraphicPage,GraphicPage::zoomScale>::ClassName()
+  {
+    return "graph_Zoom_Scale";
+  }
+
+  template<>
+  std::map<std::string,GraphicPage::zoomScale>        Implements_EnumMethod_Var<GraphicPage,GraphicPage::zoomScale>::strToEnum=
+  {
+   {"actual_Pixels",GraphicPage::BYPIXEL},{"actual_size",GraphicPage::BYCM}
+  };
+
+
+}
+
 namespace Markov_Plot
 {
 
 
 
 
-  GraphicPage::~GraphicPage()
-  {
-  }
+
 
 
 
   GraphicPage* plot(QWidget* parent,
                     Markov_IO::ABC_Var* e,
+                    const std::string &id,
                     const Markov_LA::M_Matrix<double>& x)
   {
-    GraphicPage* gw=new  GraphicPage(parent);
+    GraphicPage* gw=new  GraphicPage(parent,e,id,"xplot","","");
 
     GraphView* g=  aplot(parent,e,x);
 
@@ -32,10 +52,11 @@ namespace Markov_Plot
 
   GraphicPage* plot(QWidget* parent,
                     Markov_IO::ABC_Var* e,
+                    const std::string &id,
                     const Markov_LA::M_Matrix<double>& x,
                     const Markov_LA::M_Matrix<double>& y)
   {
-    GraphicPage* gw=new  GraphicPage(parent);
+    GraphicPage* gw=new  GraphicPage(parent,e,id,"xyplot","","");
 
     GraphView* g=  aplot(parent,e,x,y);
 
@@ -50,10 +71,11 @@ namespace Markov_Plot
 
   GraphicPage* plot(QWidget* parent,
                     Markov_IO::ABC_Var *e,
+                    const std::string &id,
                     const Markov_IO::ABC_trace& trace)
   {
 
-    GraphicPage* gw=new  GraphicPage(parent);
+    GraphicPage* gw=new  GraphicPage(parent,e,id,"xplot","","");
 
     GraphView* g=  aplot(parent,e,trace);
 
@@ -67,9 +89,12 @@ namespace Markov_Plot
   }
   GraphicPage* plot(QWidget* parent,
                     Markov_IO::ABC_Var *e,
+                    const std::string &id,
                     const Markov_IO::ABC_Experiment& experiment)
   {
-    GraphicPage* gw=new  GraphicPage(parent);
+    GraphicPage* gw=new  GraphicPage(parent,e,id,"experimentplot","","");
+
+
 
     QHBoxLayout* mainLayout= new QHBoxLayout;
 
@@ -118,15 +143,9 @@ namespace Markov_Plot
 
 
 
-  GraphicPage *plot(QWidget *, Markov_IO::ABC_Var *, const Markov_IO::YfitLikelihoodEvaluation &)
-  {
-     return nullptr;
-  }
 
 
 
 
 }
-
-*/
 
