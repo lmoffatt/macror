@@ -13,7 +13,7 @@
 #include "Markov_GUI/MacrorPatchsWindow.h"
 #include "Markov_GUI/MacrorExperimentsWindow.h"
 
-#include "Markov_Plot/GraphWindow.h"
+#include "Markov_Plot/GraphicPage.h"
 #include "Markov_Plot/GraphView.h"
 
 
@@ -36,7 +36,7 @@ public:
                      Markov_Console::Markov_CommandManager* cm=
         new Markov_Console::Markov_CommandManager());
 
-    void createGraph(Markov_Plot::GraphWindow *graph);
+    void createGraph(Markov_Plot::GraphicPage *graph);
 
     virtual ~MacrorMainWindow()
     {
@@ -167,7 +167,7 @@ private:
     MacrorPatchsWindow * patchsWindow;
     MacrorExperimentsWindow * experimentsWindow;
 
-    QList<Markov_Plot::GraphWindow*> graphWindows;
+    QList<Markov_Plot::GraphicPage*> graphWindows;
 
     Markov_Console::Markov_CommandManager* cm_;
 

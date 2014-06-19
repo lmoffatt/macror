@@ -23,20 +23,13 @@
 namespace Markov_GUI {
 
 
-  EditWizardField::EditWizardField(QString fieldName,
-                                   QStringList modeList,
-                                   Markov_IO::ClassDescription* cd,
-                                   Markov_IO::ABC_Var *av,
-                                   QWidget *pw):
-    QWidget(pw),
-    field(fieldName),
-    mode(modeList),
-    desc(cd),
+  EditField::EditField(QWidget* parent, Markov_IO::ABC_Var *av):
+    QWidget(parent),
     var_(av)
   {
   }
 
-  bool EditWizardField::isValid()const
+  bool EditField::isValid()const
   {
     return true;
   }
@@ -46,7 +39,7 @@ namespace Markov_GUI {
 
 
 
-  void EditWizardField::keyPressEvent(QKeyEvent * event)
+  void EditField::keyPressEvent(QKeyEvent * event)
   {
     if(event->matches(QKeySequence::Copy) )
       {
@@ -66,69 +59,70 @@ namespace Markov_GUI {
 
 
 
-  EditWizardField* EditWizardField::create(QString fieldName,
-                                           QStringList modeList,
-                                           Markov_IO::ClassDescription* cd,
-                                           Markov_IO::ABC_Var* av)
+  EditField* EditField::create(QWidget *parent, Markov_IO::ABC_Var* v)
   {
+    if (v==nullptr)
+      return nullptr;
 
-    std::size_t i=cd->NameIndex(fieldName.toStdString());
-    if (cd->IsComplexObject(i))
-      return new EditWizard_Complex_Var(fieldName,modeList,cd,av);
-    else
-      {
-        const Markov_IO::ABC_Object* o=cd->operator [](fieldName.toStdString());
-        if (o->myClass()==Markov_IO::Object<Markov_LA::M_Matrix<double> >::ClassName())
-          return new EditWizardMatrixDoubles(fieldName,modeList,cd,av);
-        else if (o->myClass()==Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> >::ClassName())
-          return new EditWizardMatrixSizes(fieldName,modeList,cd,av);
-        else if (o->myClass()==Markov_IO::Object<double >::ClassName())
-          return new EditWizardDouble(fieldName,modeList,cd,av);
-        else if (o->myClass()==Markov_IO::Object<std::size_t >::ClassName())
-          return new EditWizardSize(fieldName,modeList,cd,av);
-        else if (o->myClass()==Markov_IO::Object<bool>::ClassName())
-          return new EditWizardBool(fieldName,modeList,cd,av);
-        else if (o->myClass()==Markov_IO::Object<std::string>::ClassName())
-          return new EditWizardString(fieldName,modeList,cd,av);
-        else return 0;
-      }
+
+    if (v->complyClass(
+          Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<double> >::ClassName()))
+      return new EditFieldMatrixDoubles(parent,v);
+    else if (v->complyClass(
+               Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t> >::ClassName()))
+      return new EditWizardMatrixSizes(parent,v);
+    else if (v->complyClass(
+               Markov_IO::Implements_Simple_Var<double >::ClassName()))
+      return new EditWizardDouble(parent,v);
+    else if (v->complyClass(
+               Markov_IO::Implements_Simple_Var<std::size_t >::ClassName()))
+      return new EditWizardSize(parent,v);
+    else if (v->complyClass(
+               Markov_IO::Implements_Simple_Var<bool>::ClassName()))
+      return new EditWizardBool(parent,v);
+    else if (v->complyClass(
+               Markov_IO::Implements_Simple_Var<std::string>::ClassName()))
+      return new EditWizardString(parent,v);
+    else return nullptr;
   }
 
 
-  EditWizardMatrixDoubles::EditWizardMatrixDoubles(QString fieldName,
-                                                   QStringList modeList,
-                                                   Markov_IO::ClassDescription* cd,
-                                                   Markov_IO::ABC_Var* av):
-    EditWizardField(fieldName,modeList,cd,av)
+
+  EditFieldMatrixDoubles::EditFieldMatrixDoubles(QWidget* parent,
+                                                 Markov_IO::ABC_Var* av):
+    EditField(parent ,av),
+    v(dynamic_cast<Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<double>>*>(var_)),
+    table (new QTableView)
   {
 
-//    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
-//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+    //    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
+    //    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
 
-//    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
+    //    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
 
-//    md_=od->Value();
-    var_->getValue(field.toStdString(),md_);
 
-    table=new QTableView;
-
-    if (mode.contains("Q_Matrix",Qt::CaseInsensitive))
+    if (v->complyModes("Q_Matrix"))
       {
         columnExpandable=false;
         rowsExpandable=false;
-        ModelQMatrix *Qmodel=new ModelQMatrix(&md_);
+        ModelQMatrix *Qmodel=new ModelQMatrix(&v->refval());
         table->setModel(Qmodel);
         connect(Qmodel,SIGNAL(moveToCell(int,int)),this,SLOT(moveToCell(int,int)));
       }
     else
       {
-        table->setModel(new ModelMatrix(&md_));
+        table->setModel(new ModelMatrix(&v->refval()));
         columnExpandable=false;
         rowsExpandable=false;
       }
     table->setItemDelegate(new LineEditDelegate);
-    QStringList colTitles=
-        mode.filter("ColTitle",Qt::CaseInsensitive);
+    QStringList colTitles;
+    auto c=v->modes();
+    for (std::string e:c)
+      {
+        if (e.find("ColTitle")!=e.npos)
+          colTitles.push_back(e.c_str());
+      }
     foreach (QString title,colTitles )
       {
         QStringList ti=title.split("_");
@@ -140,13 +134,13 @@ namespace Markov_GUI {
 
 
 
-    QLabel* label=new QLabel(field);
-//    int i=desc->NameIndex(field.toStdString());
-   // label->setToolTip(QString(desc->Tip(i).c_str()));
-   // label->setWhatsThis(desc->WhatThis(i).c_str());
+    QLabel* label=new QLabel(v->id().c_str());
+    //    int i=desc->NameIndex(field.toStdString());
+    // label->setToolTip(QString(desc->Tip(i).c_str()));
+    // label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->Tip().c_str()));
+    label->setWhatsThis(var_->WhatThis().c_str());
 
 
 
@@ -160,14 +154,15 @@ namespace Markov_GUI {
         myLayout->addWidget(units);
       }
 */
-    if (!mode.filter("_INDEX",Qt::CaseInsensitive).isEmpty())
+    if ((v->motherClass()->complyModes("ROW_INDEX"))&&(v->motherClass()->complyModes("COL_INDEX")))
+
       {
         QHBoxLayout* lay=new QHBoxLayout;
 
 
-        if (mode.contains("ROW_INDEX",Qt::CaseInsensitive))
+        if (v->motherClass()->complyModes("ROW_INDEX"))
           {
-            if (mode.contains("COL_INDEX",Qt::CaseInsensitive))
+            if  (v->motherClass()->complyModes("COL_INDEX"))
               {
                 QSpinBox* numCols=new QSpinBox(this);
                 columnExpandable=true;
@@ -198,7 +193,8 @@ namespace Markov_GUI {
                 lay->addWidget(numRows);
               }
 
-          }else if (mode.contains("COL_INDEX",Qt::CaseInsensitive))
+          }
+        else if (v->motherClass()->complyModes("COL_INDEX"))
           {
             QSpinBox* numCols=new QSpinBox(this);
             columnExpandable=true;
@@ -222,7 +218,7 @@ namespace Markov_GUI {
 
   }
 
-  void EditWizardMatrixDoubles::resetRowCount(int newRowCount)
+  void EditFieldMatrixDoubles::resetRowCount(int newRowCount)
   {
     int oldRowCount=table->model()->rowCount();
     if (newRowCount>oldRowCount)
@@ -235,7 +231,7 @@ namespace Markov_GUI {
       }
   }
 
-  void EditWizardMatrixDoubles::resetColumnCount(int newColumnCount)
+  void EditFieldMatrixDoubles::resetColumnCount(int newColumnCount)
   {
     int oldColumnCount=table->model()->columnCount();
     if (newColumnCount>oldColumnCount)
@@ -249,26 +245,26 @@ namespace Markov_GUI {
   }
 
 
-  bool EditWizardMatrixDoubles::isValid()const
+  bool EditFieldMatrixDoubles::isValid()const
   {
-    if (mode.contains("NOT_ALL_ZERO",Qt::CaseInsensitive))
+    if (var_->motherClass()->complyModes("NOT_ALL_ZERO"))
       {
-        if (md_==0.0)
+        if (v->refval()==0.0)
           return false;
       }
-    if (mode.contains("Q_MATRIX",Qt::CaseInsensitive))
+    if (var_->motherClass()->complyModes("Q_MATRIX"))
       {
-        if (md_==0.0)
+        if (v->refval()==0.0)
           return false;
-        for (std::size_t i=0; i < Markov_LA::nrows(md_); i++)
+        for (std::size_t i=0; i < Markov_LA::nrows(v->refval()); i++)
           {
-            for (std::size_t j=i+1; j< Markov_LA::nrows(md_); ++j)
+            for (std::size_t j=i+1; j< Markov_LA::nrows(v->refval()); ++j)
               {
-                if ((md_(i,j)<0)||(md_(j,i)<0))
+                if ((v->refval()(i,j)<0)||(v->refval()(j,i)<0))
                   return false;
-                if ((md_(i,j)>0)&&(md_(j,i)==0))
+                if ((v->refval()(i,j)>0)&&(v->refval()(j,i)==0))
                   return false;
-                if ((md_(j,i)>0)&&(md_(i,j)==0))
+                if ((v->refval()(j,i)>0)&&(v->refval()(i,j)==0))
                   return false;
               }
           }
@@ -278,7 +274,7 @@ namespace Markov_GUI {
 
 
 
-  void EditWizardMatrixDoubles::copy()
+  void EditFieldMatrixDoubles::copy()
   {
     QItemSelectionModel * selection = table->selectionModel();
     QModelIndexList indexes = selection->selectedIndexes();
@@ -321,7 +317,7 @@ namespace Markov_GUI {
     qApp->clipboard()->setText(selected_text);
   }
 
-  void EditWizardMatrixDoubles::paste()
+  void EditFieldMatrixDoubles::paste()
   {
     QString selected_text = qApp->clipboard()->text();
     QStringList cells = selected_text.split(QRegExp(QLatin1String("\\n|\\t")));
@@ -383,73 +379,53 @@ namespace Markov_GUI {
       }
   }
 
-  void EditWizardMatrixDoubles::updateValue()
+  void EditFieldMatrixDoubles::updateValue()
   {
 
-//    Markov_IO::Object<Markov_LA::M_Matrix<double> > od(md_);
-//    desc->ReplaceElement(field.toStdString(),od);
-    var_->push_backVar(field.toStdString(),md_);
-
+    //    Markov_IO::Object<Markov_LA::M_Matrix<double> > od(md_);
+    //    desc->ReplaceElement(field.toStdString(),od);
+   
     emit valueChanged();
   }
 
 
-  void EditWizardMatrixDoubles::resetModel()
+  void EditFieldMatrixDoubles::resetModel()
   {
-//    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
-//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-//    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
-//    md_=od->Value();
+    //    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
+    //    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+    //    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
+    //    md_=od->Value();
 
-    var_->getValue(field.toStdString(),md_);
+    var_->reset();
 
-    QItemSelectionModel *m = table->selectionModel();
-    table->setModel(new ModelMatrix(&md_));
-    delete m;
+
   }
 
 
-  void EditWizardMatrixDoubles::moveToCell(int i, int j)
+  void EditFieldMatrixDoubles::moveToCell(int i, int j)
   {
     table->setCurrentIndex(table->currentIndex().sibling(i,j));
   }
 
 
 
-  void EditWizardMatrixDoubles::setConstraint(Constrain someConstrain)
-  {
-    if (someConstrain==EditWizardField::Q_Matrix)
-      {
-        // change the matrix model accordingly
-        QItemSelectionModel *m = table->selectionModel();
-        ModelQMatrix *Qmodel=new ModelQMatrix(&md_);
-        table->setModel(Qmodel);
-        delete m;
-        connect(Qmodel,SIGNAL(moveToCell(int,int)),this,SLOT(moveToCell(int,int)));
-      }
-
-
-  }
 
 
 
-  EditWizard_Complex_Var::EditWizard_Complex_Var(QString fieldName,
-                                         QStringList modeList,
-                                         Markov_IO::ClassDescription* cd ,
-                                         Markov_IO::ABC_Var* av):
-    EditWizardField(fieldName,modeList,cd,av),
+  EditWizard_Complex_Var::EditWizard_Complex_Var(QWidget* parent,Markov_IO::ABC_Var *av):
+    EditField(parent,av),
+    cvar_(dynamic_cast<Markov_IO::Implements_Complex_Var*>(av)),
     isvalid(false)
   {
-    desField=cd->ElementClass(field.toStdString())->GetDescription();
-    QLabel* label=new QLabel(field);
-    lineEdit=new QLineEdit(QString(desField.ElementValue(0).c_str()));
+    QLabel* label=new QLabel(cvar_->id().c_str());
+    lineEdit=new QLineEdit(QString(cvar_->id().c_str()));
     lineEdit->setReadOnly(true);
 
     QPushButton* button=new QPushButton("&edit");
-    label->setToolTip(desField.Tip(0).c_str());
-    lineEdit->setToolTip(desField.Tip(0).c_str());
-    label->setWhatsThis(desField.WhatThis(0).c_str());
-    lineEdit->setWhatsThis(desField.WhatThis(0).c_str());
+    label->setToolTip(cvar_->Tip().c_str());
+    lineEdit->setToolTip(cvar_->Tip().c_str());
+    label->setWhatsThis(cvar_->WhatThis().c_str());
+    lineEdit->setWhatsThis(cvar_->WhatThis().c_str());
 
     QHBoxLayout* myLayout=new QHBoxLayout;
     myLayout->addWidget(label);
@@ -463,17 +439,14 @@ namespace Markov_GUI {
 
   void EditWizard_Complex_Var::editMe()
   {
-    QString className(desField.ClassName().c_str());
-    Markov_IO::ABC_Saveable *s;
-    Markov_IO::ABC_Saveable **sptr=&s;
-
-    CreateWizard* c=new CreateWizard(&className,&desField,sptr);
+    auto v=cvar_->to_ComplexVar();
+    EditVariableDialog* c=new EditVariableDialog(this,v);
     if (c->exec()==1)
       {
-        desc->ReplaceElement(field.toStdString(),**sptr);
+        cvar_->loadFromComplexVar(v);
 
         isvalid=true;
-        lineEdit->setText(QString(desField.ElementValue(0).c_str()));
+        lineEdit->setText(QString(cvar_->id().c_str()));
         update();
 
         emit valueChanged();
@@ -492,40 +465,32 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardMatrixSizes::EditWizardMatrixSizes(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd, Markov_IO::ABC_Var * av):
-    EditWizardField(fieldName,modeList,cd,av)
+  EditWizardMatrixSizes::EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Var * av):
+    EditField(parent,av),
+    v(dynamic_cast<Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t>>*>(av))
   {
-
-//    const Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > * od;
-//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-//    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > * > (o);
-//    ms_=od->Value();
-
-    var_->getValue(field.toStdString(),ms_);
-
-
     QTableView *table=new QTableView;
 
-    table->setModel(new ModelMatrix(&ms_));
+    table->setModel(new ModelMatrix(&v->refval()));
 
 
-    QLabel* label=new QLabel(field);
+    QLabel* label=new QLabel(av->id().c_str());
     QVBoxLayout* myLayout=new QVBoxLayout;
 
-//    int i=desc->NameIndex(field.toStdString());
-//    label->setToolTip(QString(desc->Tip(i).c_str()));
-//    label->setWhatsThis(desc->WhatThis(i).c_str());
+    //    int i=desc->NameIndex(field.toStdString());
+    //    label->setToolTip(QString(desc->Tip(i).c_str()));
+    //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->Tip().c_str()));
+    label->setWhatsThis(var_->WhatThis().c_str());
 
 
     myLayout->addWidget(label);
-//    if (!desc->Unit(i).empty())
-//      {
-//        QLabel* units=new QLabel(desc->Unit(i).c_str());
-//        myLayout->addWidget(units);
-//      }
+    //    if (!desc->Unit(i).empty())
+    //      {
+    //        QLabel* units=new QLabel(desc->Unit(i).c_str());
+    //        myLayout->addWidget(units);
+    //      }
     QHBoxLayout* tableLayout=new QHBoxLayout;
 
     tableLayout->addWidget(table);
@@ -544,27 +509,22 @@ namespace Markov_GUI {
   void EditWizardMatrixSizes::updateValue()
   {
 
-//    Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > od(ms_);
-//    desc->ReplaceElement(field.toStdString(),od);
-    var_->push_backVar(field.toStdString(),ms_);
+    //    Markov_IO::Object<Markov_LA::M_Matrix<std::size_t> > od(ms_);
+    //    desc->ReplaceElement(field.toStdString(),od);
 
     emit valueChanged();
   }
 
 
-  EditWizardDouble::EditWizardDouble(QString fieldName,
-                                     QStringList modeList,
-                                     Markov_IO::ClassDescription* cd,
-                                     Markov_IO::ABC_Var*av):
-    EditWizardField(fieldName,modeList,cd,av)
+  EditWizardDouble::EditWizardDouble(QWidget * parent,Markov_IO::ABC_Var*av):
+    EditField(parent,av),
+    v(dynamic_cast < Markov_IO::Implements_Simple_Var<double>*>(av))
   {
 
-//    const Markov_IO::Object<double > * od;
-//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-//    od=dynamic_cast<const Markov_IO::Object<double > * > (o);
-//    d_=od->Value();
-
-    var_->getValue(field.toStdString(),d_);
+    //    const Markov_IO::Object<double > * od;
+    //    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+    //    od=dynamic_cast<const Markov_IO::Object<double > * > (o);
+    //    d_=od->Value();
 
     lineEdit=new QLineEdit;
 
@@ -575,15 +535,15 @@ namespace Markov_GUI {
     lineEdit->setText(QString("%1").arg(d_,0,'g',14));
     lineEdit->setAlignment(Qt::AlignRight);
 
-    QLabel* label=new QLabel(field);
+    QLabel* label=new QLabel(v->id().c_str());
 
-//    int i=desc->NameIndex(field.toStdString());
-//    QString toolt=QString(desc->Tip(i).c_str());
-//    label->setToolTip(toolt);
-//    label->setWhatsThis(desc->WhatThis(i).c_str());
+    //    int i=desc->NameIndex(field.toStdString());
+    //    QString toolt=QString(desc->Tip(i).c_str());
+    //    label->setToolTip(toolt);
+    //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->Tip().c_str()));
+    label->setWhatsThis(var_->WhatThis().c_str());
 
 
 
@@ -592,16 +552,16 @@ namespace Markov_GUI {
     myLayout->addStretch();
 
     myLayout->addWidget(lineEdit);
-//    if (!desc->Unit(i).empty())
-//      {
-//        QLabel* units=new QLabel(desc->Unit(i).c_str());
-//        myLayout->addWidget(units);
-//      }
-//    else
-//      {
+    //    if (!desc->Unit(i).empty())
+    //      {
+    //        QLabel* units=new QLabel(desc->Unit(i).c_str());
+    //        myLayout->addWidget(units);
+    //      }
+    //    else
+    //      {
 
-//        myLayout->addStretch();
-//      }
+    //        myLayout->addStretch();
+    //      }
     myLayout->addStretch();
 
     setLayout(myLayout);
@@ -611,7 +571,7 @@ namespace Markov_GUI {
 
   bool EditWizardDouble::isValid()const
   {
-    if (mode.contains("NOT_ZERO",Qt::CaseInsensitive))
+    if (var_->motherClass()->complyModes("NOT_ZERO"))
       {
         if (d_==0)
           return false;
@@ -628,42 +588,43 @@ namespace Markov_GUI {
     d_ =label.toDouble(&ok) ;
     if (ok)
       {
-//        Markov_IO::Object<double> od(d_);
-//        desc->ReplaceElement(field.toStdString(),od);
-        var_->push_backVar(field.toStdString(),d_);
+        //        Markov_IO::Object<double> od(d_);
+        //        desc->ReplaceElement(field.toStdString(),od);
+        v->setValue(d_);
         emit valueChanged();
       }
     lineEdit->updateGeometry();
   }
 
-  EditWizardSize::EditWizardSize(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd,
-                                 Markov_IO::ABC_Var* av):
-    EditWizardField(fieldName,modeList,cd,av)
+  EditWizardSize::EditWizardSize(QWidget * parent,Markov_IO::ABC_Var*av):
+    EditField(parent,av),
+    v(dynamic_cast < Markov_IO::Implements_Simple_Var<std::size_t>*>(av)),
+    s_(v->value())
   {
 
-//    const Markov_IO::Object<std::size_t > * od;
-//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-//    od=dynamic_cast<const Markov_IO::Object<std::size_t > * > (o);
-//    s_=od->Value();
+    //    const Markov_IO::Object<std::size_t > * od;
+    //    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+    //    od=dynamic_cast<const Markov_IO::Object<std::size_t > * > (o);
+    //    s_=od->Value();
 
-    var_->getValue(field.toStdString(),s_);
+
 
     spinBox=new QSpinBox;
 
-    spinBox->setMaximum(1000000);
+    spinBox->setMaximum(v->motherClassType()->maxValue());
 
     spinBox->setValue(s_);
 
     spinBox->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
 
 
-    QLabel* label=new QLabel(field);
-//    int i=desc->NameIndex(field.toStdString());
-//    label->setToolTip(QString(desc->Tip(i).c_str()));
-//    label->setWhatsThis(desc->WhatThis(i).c_str());
+    QLabel* label=new QLabel(v->id().c_str());
+    //    int i=desc->NameIndex(field.toStdString());
+    //    label->setToolTip(QString(desc->Tip(i).c_str()));
+    //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->Tip().c_str()));
+    label->setWhatsThis(var_->WhatThis().c_str());
 
 
     QHBoxLayout* myLayout=new QHBoxLayout;
@@ -671,16 +632,16 @@ namespace Markov_GUI {
     myLayout->addWidget(label);
     myLayout->addStretch();
     myLayout->addWidget(spinBox);
-/*    if (!desc->Unit(i).empty())
+    if (!v->motherClassType()->units().empty())
       {
-        QLabel* units=new QLabel(desc->Unit(i).c_str());
+        QLabel* units=new QLabel(v->motherClassType()->units().c_str());
         myLayout->addWidget(units);
       }
     else
       {
         myLayout->addStretch();
       }
-  */  myLayout->addStretch();
+    myLayout->addStretch();
 
     setLayout(myLayout);
     connect(spinBox,SIGNAL(editingFinished()),this,SLOT(updateValue()));
@@ -691,24 +652,24 @@ namespace Markov_GUI {
   {
 
     s_=spinBox->value();
-//    Markov_IO::Object<std::size_t> od(s_);
-//    desc->ReplaceElement(field.toStdString(),od);
-    var_->push_backVar(field.toStdString(),s_);
+    //    Markov_IO::Object<std::size_t> od(s_);
+    //    desc->ReplaceElement(field.toStdString(),od);
+    v->setValue(s_);
 
     emit valueChanged();
   }
 
 
-  EditWizardBool::EditWizardBool(QString fieldName, QStringList modeList, Markov_IO::ClassDescription* cd,
-                                 Markov_IO::ABC_Var* av):
-    EditWizardField(fieldName,modeList,cd,av)
+  EditWizardBool::EditWizardBool(QWidget * parent,Markov_IO::ABC_Var*av):
+    EditField(parent,av),
+    v(dynamic_cast < Markov_IO::Implements_Simple_Var<bool>*>(av)),
+    b_(v->value())
   {
 
-//    const Markov_IO::Object<bool > * od;
-//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-//    od=dynamic_cast<const Markov_IO::Object<bool > * > (o);
-//    b_=od->Value();
-    var_->getValue(field.toStdString(),b_);
+    //    const Markov_IO::Object<bool > * od;
+    //    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+    //    od=dynamic_cast<const Markov_IO::Object<bool > * > (o);
+    //    b_=od->Value();
 
     comboBox=new QComboBox;
 
@@ -720,14 +681,14 @@ namespace Markov_GUI {
     else
       comboBox->setCurrentIndex(0);
 
-    QLabel* label=new QLabel(field);
+    QLabel* label=new QLabel(v->id().c_str());
 
-//    int i=desc->NameIndex(field.toStdString());
-//    label->setToolTip(QString(desc->Tip(i).c_str()));
-//    label->setWhatsThis(desc->WhatThis(i).c_str());
+    //    int i=desc->NameIndex(field.toStdString());
+    //    label->setToolTip(QString(desc->Tip(i).c_str()));
+    //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(var_->Tip().c_str()));
+    label->setWhatsThis(var_->WhatThis().c_str());
 
 
     QHBoxLayout* myLayout=new QHBoxLayout;
@@ -747,9 +708,9 @@ namespace Markov_GUI {
       b_=false;
     else
       b_=true;
-//    Markov_IO::Object<bool> od(b_);
-//    desc->ReplaceElement(field.toStdString(),od);
-    var_->push_backVar(field.toStdString(),b_);
+    //    Markov_IO::Object<bool> od(b_);
+    //    desc->ReplaceElement(field.toStdString(),od);
+    v->setValue(b_);
 
     emit valueChanged();
   }
@@ -757,20 +718,17 @@ namespace Markov_GUI {
 
 
 
-  EditWizardString::EditWizardString(QString fieldName,
-                                     QStringList modeList,
-                                     Markov_IO::ClassDescription* cd ,
-                                     Markov_IO::ABC_Var* av):
-    EditWizardField(fieldName,modeList,cd,av)
+  EditWizardString::EditWizardString(QWidget * parent,Markov_IO::ABC_Var*av):
+    EditField(parent,av),
+    v(dynamic_cast < Markov_IO::Implements_Simple_Var<std::string>*>(av))
   {
 
-//    const Markov_IO::Object<std::string > * od;
-//    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-//    od=dynamic_cast<const Markov_IO::Object<std::string > * > (o);
-//    str_=od->Value();
+    //    const Markov_IO::Object<std::string > * od;
+    //    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
+    //    od=dynamic_cast<const Markov_IO::Object<std::string > * > (o);
+    //    str_=od->Value();
 
-    var_->getValue(field.toStdString(),str_);
-
+    str_=v->value();
     lineEdit=new QLineEdit;
 
 
@@ -778,15 +736,15 @@ namespace Markov_GUI {
 
     lineEdit->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 
-    QLabel* label=new QLabel(field);
+    QLabel* label=new QLabel(v->id().c_str());
     QHBoxLayout* myLayout=new QHBoxLayout;
 
-//    int i=desc->NameIndex(field.toStdString());
-//    label->setToolTip(QString(desc->Tip(i).c_str()));
-//    label->setWhatsThis(desc->WhatThis(i).c_str());
+    //    int i=desc->NameIndex(field.toStdString());
+    //    label->setToolTip(QString(desc->Tip(i).c_str()));
+    //    label->setWhatsThis(desc->WhatThis(i).c_str());
 
-    label->setToolTip(QString(var_->getChildVar(field.toStdString())->Tip().c_str()));
-    label->setWhatsThis(var_->getChildVar(field.toStdString())->WhatThis().c_str());
+    label->setToolTip(QString(v->Tip().c_str()));
+    label->setWhatsThis(v->WhatThis().c_str());
 
 
     myLayout->addWidget(label);
@@ -794,45 +752,10 @@ namespace Markov_GUI {
 
     myLayout->addWidget(lineEdit);
     myLayout->addStretch();
-    QStringList fnameext=mode.filter("FILENAME",Qt::CaseInsensitive);
-    if (!fnameext.empty())
-      {
 
-        QPushButton* button=new QPushButton("&Browse");
-        myLayout->addWidget(button);
-        connect(button,SIGNAL(clicked()),this,SLOT(browse()));
-
-
-
-      }
 
     setLayout(myLayout);
     connect(lineEdit,SIGNAL(editingFinished()),this,SLOT(updateValue()));
-
-  }
-
-  void EditWizardString::browse()
-  {
-    QStringList fileExt=mode.filter("filename",Qt::CaseInsensitive);
-
-    QString extensions;
-    foreach (QString ext,fileExt)
-      {
-        QStringList ext2=ext.split("_");
-        for (int i=1; i<ext2.length(); i++)
-          extensions+=tr("*.")+ext2.at(i);
-      }
-
-
-    str_=QFileDialog::getOpenFileName(this,
-                                      tr("file name"),
-                                      tr(""),
-                                      extensions).toStdString();
-
-    lineEdit->setText(str_.c_str());
-    //desc->ReplaceElement(field.toStdString(),str_);
-    var_->push_backVar(field.toStdString(),str_);
-    emit valueChanged();
 
   }
 
@@ -846,7 +769,7 @@ namespace Markov_GUI {
   {
     str_=lineEdit->text().toStdString();
     //desc->ReplaceElement(field.toStdString(),str_);
-    var_->push_backVar(field.toStdString(),str_);
+    v->setValue(str_);
     emit valueChanged();
 
   }

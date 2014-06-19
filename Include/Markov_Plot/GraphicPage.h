@@ -21,15 +21,15 @@ namespace Markov_Plot
     static void addDefinitions(Markov_IO::ABC_Var* e)
     {
       e->addChildVar(new Markov_IO::Implements_Simple_Class<double>(
-                       nullptr,"widthSize","mm",210,26,841));
+                       nullptr,"widthSize","mm",{},210,26,841));
       e->addChildVar(new Markov_IO::Implements_Simple_Class<double>(
-                       nullptr,"heightSize","mm",297,37,1189));
+                       nullptr,"heightSize","mm",{},297,37,1189));
 
       e->addChildVar(new Markov_IO::Implements_Simple_Class<double>(
-                       nullptr,"graphResolution","dpi",300,50,1200));
+                       nullptr,"graphResolution","dpi",{},300,50,1200));
 
       e->addChildVar(new Markov_IO::Implements_Simple_Class<double>(
-                       nullptr,"graphZoom","%",100,6.75,1600));
+                       nullptr,"graphZoom","%",{},100,6.75,1600));
 
 
 
@@ -48,6 +48,7 @@ namespace Markov_Plot
       Implements_Class_Reflection<GraphicPage>(e,id,this,className,tip,whatthis)
     {
 
+      addDefinitions(e);
       this->push_backValMethod("width",&C::getWidth,&C::setWidth,"widthSize",
                                "width of the page",
                                "width value for the printed page");
@@ -62,6 +63,9 @@ namespace Markov_Plot
                                 "100% zoom means actual resolution or actual size",
                                 "it represent the graph in its final physical size or in its final "
                                 "resolution ");
+
+
+
 
 
 
@@ -134,7 +138,7 @@ namespace Markov_Plot
   GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Var* e, const std::string &id,
                     const Markov_IO::ABC_Experiment& experiment);
 
-  GraphicPage* plot(QWidget*, Markov_IO::ABC_Var*, const Markov_IO::YfitLikelihoodEvaluation&);
+  //GraphicPage* plot(QWidget*, Markov_IO::ABC_Var*, const Markov_IO::YfitLikelihoodEvaluation&);
 
 }
 

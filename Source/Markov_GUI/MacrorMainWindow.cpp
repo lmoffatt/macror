@@ -490,7 +490,7 @@ void MacrorMainWindow::createDockWindows(){
 }
 
 
-void MacrorMainWindow::createGraph(Markov_Plot::GraphWindow* graph)
+void MacrorMainWindow::createGraph(Markov_Plot::GraphicPage* graph)
 {
   //  graph->show();
     if (0)

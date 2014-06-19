@@ -385,6 +385,7 @@ namespace  Markov_IO {
 
 
 
+
   class ABC_Var
   {
   public:
@@ -426,6 +427,8 @@ namespace  Markov_IO {
 
     virtual ABC_Var* motherClass()=0;
 
+    virtual std::set<std::string> modes()const =0;
+    virtual bool complyModes(const std::string mode) const=0;
 
     virtual std::string toString()const;
     
@@ -470,6 +473,8 @@ namespace  Markov_IO {
     virtual bool isInDomain(const ABC_Var* value)const=0;
 
     virtual ABC_Var* varTemplate()const=0;
+
+    virtual void reset()=0;
 
     
     template<typename T>
@@ -536,6 +541,20 @@ namespace  Markov_IO {
     {
       return new Implements_VarId(*this);
     }
+    virtual void reset() override
+    {
+      if ((parentVar()!=nullptr)&&(!isRootedVariable()))
+        {
+          auto s=dynamic_cast<Implements_VarId*>(parentVar()->getChildVar(id()));
+          if (s!=nullptr)
+            *this=*s;
+
+        }
+
+    }
+
+
+
     virtual std::string myClass() const override;
     virtual void setClass(const std::string& classname)override;
 
@@ -566,6 +585,14 @@ namespace  Markov_IO {
     virtual std::string refId()const override;
     virtual ABC_Var* motherClass() override;
     virtual const ABC_Var* motherClass() const  override;
+    virtual bool complyModes(const std::string )const override
+    {
+      return false;
+    }
+    virtual std::set<std::string> modes()const
+    {
+      return {};
+    }
     virtual void setParentVar(ABC_Var *par)override;
     virtual bool isInDomain(const ABC_Var* value)const override;
     virtual ABC_Var* varTemplate()const  override;
@@ -591,7 +618,6 @@ namespace  Markov_IO {
 
 
 
-
   protected:
     std::string id_;
     std::string class_;
@@ -603,6 +629,46 @@ namespace  Markov_IO {
 
   template<typename T>
   class Implements_Simple_Class;
+
+
+
+  template<typename T>
+  class ABC_Simple_Var;
+
+  template<typename T>
+  class ABC_Simple_Class:  public  virtual Implements_VarId
+  {
+  public:
+
+    static std::string ClassName();
+
+    static std::set<std::string> SuperClasses()
+    {
+      return ABC_Var::SuperClasses()+ClassName();
+    }
+
+    virtual std::set<std::string> mySuperClasses()const override
+    {
+      return SuperClasses();
+    }
+
+    virtual T defaultValue()const=0;
+    virtual T minValue()const=0;
+    virtual T maxValue()const=0;
+    virtual T emptyValue()const=0;
+    virtual T unknownValue()const=0;
+    virtual void setDefaultValue(T val)=0;
+    virtual void setminValue(T val)=0;
+    virtual void setmaxValue(T val)=0;
+    virtual std::string units()const=0;
+    virtual void setUnits(std::string newunits)=0;
+    virtual bool complyModes(const std::string mode)=0;
+    virtual std::set<std::string> modes()const=0;
+    virtual ~ABC_Simple_Class(){}
+    virtual  ABC_Simple_Var<T>* varTemplate()const=0;
+  };
+
+
 
 
   template<typename T>
@@ -617,10 +683,21 @@ namespace  Markov_IO {
 
     virtual T& refval()=0;
 
+    virtual const ABC_Simple_Class<T>* motherClassType()const
+    {
+      return dynamic_cast<const ABC_Simple_Class<T>*> (motherClass());
+    }
+
+    virtual  ABC_Simple_Class<T>* motherClassType()
+    {
+      return dynamic_cast<ABC_Simple_Class<T>*> (motherClass());
+    }
+
 
     virtual ~ABC_Simple_Var(){}
 
   };
+
 
 
 
@@ -637,7 +714,7 @@ namespace  Markov_IO {
       return ABC_Var::SuperClasses()+ClassName();
     }
 
-    virtual std::set<std::string> mySuperClasses()const
+    virtual std::set<std::string> mySuperClasses()const override
     {
       return SuperClasses();
     }
@@ -652,19 +729,16 @@ namespace  Markov_IO {
       return new Implements_Simple_Var<T>(*this);
     }
 
-
-
-    const ABC_Var *motherClass() const override
+    virtual void reset() override
     {
-      if (this->parentVar()!=nullptr)
+      if ((this->parentVar()!=nullptr)&&(!this->isRootedVariable()))
         {
-          auto p=this->parentVar()->getChildVar(this->myClass());
-          return dynamic_cast<const Implements_Simple_Class<T>*>(p);
-        }
-      else
-        return nullptr;
-    }
+          auto s=dynamic_cast<Implements_Simple_Var<T>*>(this->parentVar()->getChildVar(this->id()));
+          if (s!=nullptr)
+            *this=*s;
 
+        }
+    }
     virtual  T value()const override
     {
       return value_;
@@ -746,10 +820,15 @@ namespace  Markov_IO {
       return varClone();
     }
 
+
+
     virtual bool loadFromComplexVar(const ABC_Var* ) override
     {
       return false;
     }
+
+
+
   private:
     T value_;
 
@@ -762,7 +841,7 @@ namespace  Markov_IO {
 
 
 
-  class Implements_Complex_Var: public virtual Implements_VarId
+  class Implements_Complex_Var: virtual public  Implements_VarId
   {
     // ABC_Var interface
   public:
@@ -774,6 +853,17 @@ namespace  Markov_IO {
     virtual Implements_Complex_Var* varClone() const override
     {
       return new Implements_Complex_Var(*this);
+    }
+    virtual void reset() override
+    {
+      if ((parentVar()!=nullptr)&&(!isRootedVariable()))
+        {
+          auto s=dynamic_cast<Implements_Complex_Var*>(parentVar()->getChildVar(id()));
+          if (s!=nullptr)
+            *this=*s;
+
+        }
+
     }
 
     virtual std::size_t numChildVars() const override;
@@ -882,6 +972,9 @@ namespace  Markov_IO {
 
 
 
+
+
+
     virtual ABC_Var* to_ComplexVar()const override
     {
       return new Implements_Complex_Var(*this);
@@ -930,7 +1023,7 @@ namespace  Markov_IO {
 
 
   template<class C>
-  class ABC_Class: public virtual Implements_VarId
+  class ABCObject:  virtual public Implements_VarId
   {
     // ABC_Var interface
   public:
@@ -940,13 +1033,13 @@ namespace  Markov_IO {
     virtual void setObject(C** obj)=0;
 
 
-    virtual ~ABC_Class(){}
+    virtual ~ABCObject(){}
   };
 
 
 
   template<class C,typename T>
-  class Implements_ValMethod_Var: public ABC_Simple_Var<T>, public ABC_Class<C>
+  class Implements_ValMethod_Var: public ABC_Simple_Var<T>, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -975,6 +1068,19 @@ namespace  Markov_IO {
       return new Implements_ValMethod_Var<C,T>(*this);
     }
 
+
+
+
+    virtual void reset() override
+    {
+      if ((this->parentVar()!=nullptr)&&(!this->isRootedVariable()))
+        {
+          auto s=dynamic_cast<Implements_ValMethod_Var<C,T>*>(this->parentVar()->getChildVar(this->id()));
+          if (s!=nullptr)
+            *this=*s;
+
+        }
+    }
     virtual C* getObject() override
     {
       if (objectPtr_!=nullptr)
@@ -1099,6 +1205,12 @@ namespace  Markov_IO {
             nullptr,this->id(),this->value(),this->myClass(),this->Tip(), this->WhatThis());
     }
 
+
+
+
+
+
+
     virtual bool loadFromComplexVar(const ABC_Var* var) override
     {
       if ((var!=nullptr)&&(this->id()==var->id()))
@@ -1129,7 +1241,7 @@ namespace  Markov_IO {
 
 
   template<class C,typename T>
-  class Implements_PointerMember_Var: public ABC_Simple_Var<T>, public ABC_Class<C>
+  class Implements_PointerMember_Var: public ABC_Simple_Var<T>, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -1309,7 +1421,7 @@ namespace  Markov_IO {
 
 
   template<class C,typename T>
-  class Implements_RefMethod_Var: public ABC_Simple_Var<T>, public ABC_Class<C>
+  class Implements_RefMethod_Var: public ABC_Simple_Var<T>, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -1464,6 +1576,7 @@ namespace  Markov_IO {
 
     virtual ~Implements_RefMethod_Var(){}
 
+
     virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
     {
       return new Implements_Simple_Var<T>(
@@ -1501,7 +1614,7 @@ namespace  Markov_IO {
 
 
   template<class C,typename Enum>
-  class Implements_EnumMethod_Var: public ABC_Simple_Var<Enum>, public ABC_Class<C>
+  class Implements_EnumMethod_Var: public ABC_Simple_Var<Enum>, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -1668,8 +1781,17 @@ namespace  Markov_IO {
 
     virtual ~Implements_EnumMethod_Var(){}
 
+    typedef Implements_EnumMethod_Var<C,Enum> CC;
+    virtual void reset() override
+    {
+      if ((this->parentVar()!=nullptr)&&(!this->isRootedVariable()))
+        {
+          auto s=dynamic_cast<Implements_EnumMethod_Var<C,Enum>*>(this->parentVar()->getChildVar(this->id()));
+          if (s!=nullptr)
+            *this=*s;
 
-
+        }
+    }
 
     virtual Implements_Simple_Var<std::string>* to_ComplexVar()const  override
     {
@@ -1753,6 +1875,20 @@ namespace  Markov_IO {
 
     virtual Implements_Categorical<Enum> *to_ComplexVar() const override;
 
+    typedef Implements_Categorical<Enum> C;
+    virtual void reset() override
+    {
+      if ((parentVar()!=nullptr)&&(!isRootedVariable()))
+        {
+
+          C* r=dynamic_cast<C*>(parentVar()->getChildVar(id()));
+          if (r!=nullptr)
+            *this=*r;
+
+        }
+
+    }
+
   private:
     static std::map<std::string,Enum> strToEnum;
     Enum rank_;
@@ -1764,7 +1900,7 @@ namespace  Markov_IO {
 
 
   template <class C>
-  class Implements_Class_Reflection: public Implements_Complex_Var, public ABC_Class<C>
+  class Implements_Class_Reflection: public Implements_Complex_Var, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -1789,14 +1925,25 @@ namespace  Markov_IO {
     }
 
 
-    virtual Implements_Complex_Var* varCreate() const override
+    virtual Implements_Class_Reflection<C>* varCreate() const override
     {
       return new Implements_Class_Reflection<C>();
     }
 
-    virtual Implements_Complex_Var* varClone() const override
+    virtual Implements_Class_Reflection<C>* varClone() const override
     {
       return new Implements_Class_Reflection<C>(*this);
+    }
+
+    virtual void reset() override
+    {
+      if ((parentVar()!=nullptr)&&(!isRootedVariable()))
+        {
+          auto s=dynamic_cast<Implements_Class_Reflection<C>*>(parentVar()->getChildVar(id()));
+          if (s!=nullptr)
+            *this=*s;
+
+        }
     }
 
     template<typename T>
@@ -1919,6 +2066,8 @@ namespace  Markov_IO {
         return false;
     }
 
+
+
   protected:
     virtual void initComplexVar(){}
 
@@ -1927,7 +2076,7 @@ namespace  Markov_IO {
       for (std::size_t i=0; i<numChildVars(); i++)
         {
           ABC_Var* a=this->getChildVar(ith_VarName(i));
-          ABC_Class<C>* c=dynamic_cast<ABC_Class<C>*>(a);
+          ABCObject<C>* c=dynamic_cast<ABCObject<C>*>(a);
           if (c!=nullptr)
             {
               c->setObject(&object_);
@@ -1943,14 +2092,20 @@ namespace  Markov_IO {
 
 
 
+
   template<typename T>
-  class Implements_Simple_Class: public Implements_Class_Reflection<Implements_Simple_Class<T>>
+  class Implements_Simple_Class:
+      public ABC_Simple_Class<T>,
+      private Implements_Class_Reflection<Implements_Simple_Class<T>>
   {
     typedef Implements_Simple_Class<T> C;
     // ABC_Var interface
   public:
 
-    static std::string ClassName();
+    static std::string ClassName()
+    {
+      return Implements_Simple_Var<T>::ClassName()+"_class";
+    }
 
     static std::set<std::string> SuperClasses()
     {
@@ -1980,13 +2135,14 @@ namespace  Markov_IO {
     }
     T unknownValue()const
     {
-      std::numeric_limits<T>::quiet_NaN();
+      return std::numeric_limits<T>::quiet_NaN();
     }
 
     void setDefaultValue(T val)
     {
       default_=val;
     }
+
 
     void setminValue(T val)
     {
@@ -2009,9 +2165,19 @@ namespace  Markov_IO {
       units_=newunits;
     }
 
+    virtual bool complyModes(const std::string mode)
+    {
+      return mode_.find(mode)!=mode_.end();
+    }
+
+    virtual std::set<std::string> modes()const
+    {
+      return mode_;
+    }
     Implements_Simple_Class(ABC_Var* parent,
                             std::string id,
                             std::string measureunits,
+                            std::set<std::string> modes,
                             T defaultValue=T(),
                             T minValue=T(),
                             T maxValue=T(),
@@ -2020,6 +2186,7 @@ namespace  Markov_IO {
                             std::string whatthis=""):
       Implements_VarId(parent,id,className,tip,whatthis),
       Implements_Class_Reflection<C>(parent,id,this,className,tip,whatthis),
+      mode_(modes),
       units_(measureunits),
       default_{defaultValue},
       min_(minValue),
@@ -2076,6 +2243,7 @@ namespace  Markov_IO {
 
 
   private:
+    std::set<std::string> mode_;
     std::string units_;
     T default_;
     T min_;
@@ -2610,6 +2778,11 @@ namespace  Markov_IO {
 
 
 
+  template<typename T>
+  std::string ABC_Simple_Class<T>::ClassName()
+  {
+    return Implements_Simple_Var<T>::ClassName()+"_abs_SC";
+  }
 
 
 }

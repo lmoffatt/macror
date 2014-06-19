@@ -18,7 +18,7 @@
 #include "Markov_Mol/QMarkovModel.h"
 
 
-#include "Markov_Plot/GraphWindow.h"
+#include "Markov_Plot/GraphicPage.h"
 #include "Markov_Plot/GraphView.h"
 
 #include "Markov_Plot/XY_PlotData.h"
@@ -109,7 +109,7 @@ bool MacrorCommandWindow::plot(const QString& line)
     {
       Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
             MarkovCommand()->getVar(line.toStdString()));
-      Markov_Plot::GraphWindow* g=Markov_Plot::plot(0,MarkovCommand(),*e);
+      Markov_Plot::GraphicPage* g=Markov_Plot::plot(0,MarkovCommand(),e->myName(),*e);
       mw_->createGraph(g);
 
 

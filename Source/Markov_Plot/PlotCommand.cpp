@@ -3,7 +3,9 @@
 #include "Markov_Console/Markov_CommandManager.h"
 
 #include "Markov_Plot/GraphWindow.h"
-#include "Markov_Plot/GraphView.h"
+//#include "Markov_Plot/GraphView.h"
+#include "Markov_Plot/GraphicPage.h"
+
 
 #include "Markov_Plot/XY_PlotData.h"
 #include "Markov_GUI/MacrorMainWindow.h"
@@ -61,7 +63,7 @@ bool PlotCommand::run(const std::string& varName)
       {
         Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
               getCommandManager()->getVar(varName));
-        Markov_Plot::GraphWindow* g=plot(0,getCommandManager(),*e);
+        Markov_Plot::GraphicPage* g=plot(0,getCommandManager(),e->myName(),*e);
         mw_->createGraph(g);
 
 
