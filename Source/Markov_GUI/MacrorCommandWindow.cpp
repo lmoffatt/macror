@@ -133,7 +133,7 @@ bool MacrorCommandWindow::edit(const QString& varname)
 {
   MacrorEditWindow* eW=new MacrorEditWindow(varname,cm_);
   eW->show();
-  //BUG: does not make sense it does not return nothing
+  //BUG: does not make sense to return a boolean since it does not return nothing
   return true;
 }
 

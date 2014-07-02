@@ -112,6 +112,8 @@ namespace Markov_Plot
                              const Markov_IO::ABC_Experiment& experiment);
 
 
+
+
   private:
     double resolution_;
     double width_;
