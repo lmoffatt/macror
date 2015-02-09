@@ -79,15 +79,9 @@ namespace  Markov_IO {
       SWITCH, //switch
       CASE   // case
     };
-
-
-
     std::istream& get(std::istream& stream);
-
     std::string str()const;
-
     double realValue()const;
-
     int  intval()const;
 
     std::size_t count()const;
@@ -389,7 +383,6 @@ namespace  Markov_IO {
   class ABC_Var
   {
   public:
-
     static ABC_Var* getFromTokens(ABC_Var* parent,
                                   const std::deque<Token_New>& tokensList,
                                   std::size_t& pos);
@@ -501,7 +494,8 @@ namespace  Markov_IO {
     bool replaceValue(const std::string& name, const T& value);
 
     template<typename Enum>
-    bool push_back_CategoryItem(const std::string & name, Enum i,
+    bool push_back_CategoryItem(const std::string & name,
+                                Enum i,
                                 const std::string& tip="",
                                 const std::string & whatthis="");
 
@@ -559,8 +553,7 @@ namespace  Markov_IO {
     virtual void setClass(const std::string& classname)override;
 
     virtual std::deque<Token_New> toTokens() const override;
-    virtual bool processTokens(const std::deque<Token_New> &t,
-                               std::size_t& pos) override;
+    virtual bool processTokens(const std::deque<Token_New> &t,std::size_t& pos) override;
     virtual std::string id()const override;
     virtual void setId(const std::string& IdName)override;
 
@@ -589,7 +582,7 @@ namespace  Markov_IO {
     {
       return false;
     }
-    virtual std::set<std::string> modes()const
+    virtual std::set<std::string> modes()const override
     {
       return {};
     }
@@ -662,10 +655,10 @@ namespace  Markov_IO {
     virtual void setmaxValue(T val)=0;
     virtual std::string units()const=0;
     virtual void setUnits(std::string newunits)=0;
-    virtual bool complyModes(const std::string mode)=0;
-    virtual std::set<std::string> modes()const=0;
+    virtual bool complyModes(const std::string mode)const override=0;
+    virtual std::set<std::string> modes()const override=0;
     virtual ~ABC_Simple_Class(){}
-    virtual  ABC_Simple_Var<T>* varTemplate()const=0;
+    virtual  ABC_Simple_Var<T>* varTemplate()const override=0;
   };
 
 
@@ -967,8 +960,7 @@ namespace  Markov_IO {
 
     virtual std::deque<Token_New> toTokens() const override;
 
-    virtual bool processTokens(const std::deque<Token_New> &tokenList,
-                               std::size_t &pos) override;
+    virtual bool processTokens(const std::deque<Token_New> &tokenList,std::size_t &pos) override;
 
 
 
@@ -1053,7 +1045,7 @@ namespace  Markov_IO {
       return ABC_Var::SuperClasses()+ClassName();
     }
 
-    virtual std::set<std::string> mySuperClasses()const
+    virtual std::set<std::string> mySuperClasses()const override
     {
       return SuperClasses();
     }
@@ -1131,15 +1123,14 @@ namespace  Markov_IO {
 
 
 
-    std::deque<Token_New> toTokens() const
+    std::deque<Token_New> toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
       out<<"="<<toToken(value())<<"\n";
       return out;
     }
 
-    bool processTokens(const std::deque<Token_New>& t,
-                       std::size_t &pos)
+    bool processTokens(const std::deque<Token_New>& t,std::size_t &pos) override
     {
       if (!Implements_VarId::processTokens(t,pos))
         return false;
@@ -1255,7 +1246,7 @@ namespace  Markov_IO {
       return ABC_Var::SuperClasses()+ClassName();
     }
 
-    virtual std::set<std::string> mySuperClasses()const
+    virtual std::set<std::string> mySuperClasses()const override
     {
       return SuperClasses();
     }
@@ -1320,15 +1311,14 @@ namespace  Markov_IO {
 
 
 
-    std::deque<Token_New> toTokens() const
+    std::deque<Token_New> toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
       out<<"="<<toToken(value())<<"\n";
       return out;
     }
 
-    bool processTokens(const std::deque<Token_New>& t,
-                       std::size_t &pos)
+    bool processTokens(const std::deque<Token_New>& t,std::size_t &pos) override
     {
       if (!Implements_VarId::processTokens(t,pos))
         return false;
@@ -1435,7 +1425,7 @@ namespace  Markov_IO {
       return ABC_Var::SuperClasses()+ClassName();
     }
 
-    virtual std::set<std::string> mySuperClasses()const
+    virtual std::set<std::string> mySuperClasses()const override
     {
       return SuperClasses();
     }
@@ -1510,15 +1500,14 @@ namespace  Markov_IO {
 
 
 
-    std::deque<Token_New> toTokens() const
+    std::deque<Token_New> toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
       out<<"="<<toToken(value())<<"\n";
       return out;
     }
 
-    bool processTokens(const std::deque<Token_New>& t,
-                       std::size_t &pos)
+    bool processTokens(const std::deque<Token_New>& t,std::size_t &pos) override
     {
       if (!Implements_VarId::processTokens(t,pos))
         return false;
@@ -1625,7 +1614,7 @@ namespace  Markov_IO {
       return ABC_Var::SuperClasses()+ClassName();
     }
 
-    virtual std::set<std::string> mySuperClasses()const
+    virtual std::set<std::string> mySuperClasses()const override
     {
       return SuperClasses();
     }
@@ -1712,15 +1701,14 @@ namespace  Markov_IO {
     }
 
 
-    std::deque<Token_New> toTokens() const
+    std::deque<Token_New> toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
       out<<"="<<toToken(Category())<<"\n";
       return out;
     }
 
-    bool processTokens(const std::deque<Token_New>& t,
-                       std::size_t &pos)
+    bool processTokens(const std::deque<Token_New>& t,std::size_t &pos) override
     {
       if (!Implements_VarId::processTokens(t,pos))
         return false;
@@ -2117,60 +2105,60 @@ namespace  Markov_IO {
       return SuperClasses();
     }
 
-    T defaultValue()const
+    T defaultValue()const override
     {
       return default_;
     }
-    T minValue()const
+    T minValue()const override
     {
       return min_;
     }
-    T maxValue()const
+    T maxValue()const override
     {
       return max_;
     }
-    T emptyValue()const
+    T emptyValue()const override
     {
       return T();
     }
-    T unknownValue()const
+    T unknownValue()const override
     {
       return std::numeric_limits<T>::quiet_NaN();
     }
 
-    void setDefaultValue(T val)
+    void setDefaultValue(T val) override
     {
       default_=val;
     }
 
 
-    void setminValue(T val)
+    void setminValue(T val) override
     {
       min_=val;
     }
 
-    void setmaxValue(T val)
+    void setmaxValue(T val) override
     {
       max_=val;
     }
 
-    std::string units()const
+    std::string units()const override
     {
       return units_;
 
     }
 
-    void setUnits(std::string newunits)
+    void setUnits(std::string newunits) override
     {
       units_=newunits;
     }
 
-    virtual bool complyModes(const std::string mode)
+    virtual bool complyModes(const std::string mode) const override
     {
       return mode_.find(mode)!=mode_.end();
     }
 
-    virtual std::set<std::string> modes()const
+    virtual std::set<std::string> modes()const override
     {
       return mode_;
     }
@@ -2282,8 +2270,7 @@ namespace  Markov_IO {
     // ABC_Var interface
   public:
     virtual std::deque<Token_New> toTokens() const override;
-    virtual bool processTokens(const std::deque<Token_New> &t,
-                               std::size_t& pos)override;
+    virtual bool processTokens(const std::deque<Token_New> &t,std::size_t& pos)override;
 
 
     virtual std::string ith_VarName(std::size_t i)const  override;

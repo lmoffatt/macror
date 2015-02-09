@@ -467,7 +467,8 @@ HEADERS += \
     Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
     Include/Markov_IO/ABC_Environment.h \
-    Include/Markov_IO/ABC_Var.h
+    Include/Markov_IO/ABC_Var.h \
+    Include/Markov_Mol/ABC_Q.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \

@@ -14,6 +14,8 @@ namespace Markov_Console
 {
   class Markov_CommandManager;
 
+
+  // TODO: root ABC_Command in the hierarchy
   class ABC_Command
   {
   public:

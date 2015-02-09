@@ -9,6 +9,8 @@
 #include "Markov_IO/ABC_Var.h"
 
 
+//TODO: reduce the number of classes and separate semantics (analyse meaning of data) from algorithms (perform calculations)
+
 int main(int argc, char **argv)
 {
   Markov_IO::Implements_Simple_Var<double> d(nullptr,"df",89.4);

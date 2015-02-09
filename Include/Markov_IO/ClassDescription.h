@@ -39,7 +39,7 @@ class ABC_Saveable;
 
   */
 
-
+//TODO: replace ClassDescription with a ABC_var derived class.
 class ClassDescription: public ABC_Put
 {
 public:

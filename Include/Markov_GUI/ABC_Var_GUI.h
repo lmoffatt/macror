@@ -7,7 +7,7 @@
 #include <QDialog>
 
 
-#include "Markov_IO/ClassDescription.h"
+//#include "Markov_IO/ClassDescription.h"
 #include "Markov_IO/ABC_Var.h"
 #include "Markov_LA/Matrix.h"
 
@@ -72,9 +72,7 @@ namespace Markov_GUI {
 
     virtual ~EditField(){}
 
-  virtual bool isValid()const;
-
-
+    virtual bool isValid()const;
 
   signals:
     void valueChanged();
