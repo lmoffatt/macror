@@ -18,17 +18,17 @@ namespace Markov_Plot
 
   public:
 
-    static void addDefinitions(Markov_IO::ABC_Var* e)
+    static void addDefinitions(Markov_IO::ABC_Data* e)
     {
-      e->addChildVar(new Markov_IO::Implements_Simple_Class<double>(
+      e->pushChildVar(new Markov_IO::Implements_Simple_Class<double>(
                        nullptr,"widthSize","mm",{},210,26,841));
-      e->addChildVar(new Markov_IO::Implements_Simple_Class<double>(
+      e->pushChildVar(new Markov_IO::Implements_Simple_Class<double>(
                        nullptr,"heightSize","mm",{},297,37,1189));
 
-      e->addChildVar(new Markov_IO::Implements_Simple_Class<double>(
+      e->pushChildVar(new Markov_IO::Implements_Simple_Class<double>(
                        nullptr,"graphResolution","dpi",{},300,50,1200));
 
-      e->addChildVar(new Markov_IO::Implements_Simple_Class<double>(
+      e->pushChildVar(new Markov_IO::Implements_Simple_Class<double>(
                        nullptr,"graphZoom","%",{},100,6.75,1600));
 
 
@@ -39,7 +39,7 @@ namespace Markov_Plot
 
     GraphicPage()=default;
     GraphicPage(QWidget* parent,
-                Markov_IO::ABC_Var* e,
+                Markov_IO::ABC_Data* e,
                 const std::string& id,
                 const std::string& className,
                 const std::string & tip,
@@ -94,20 +94,20 @@ namespace Markov_Plot
     }
 
 
-    friend GraphicPage* plot(QWidget* parent,Markov_IO::ABC_Var* e,
+    friend GraphicPage* plot(QWidget* parent,Markov_IO::ABC_Data* e,
                              const std::string& id,
                              const Markov_LA::M_Matrix<double>& x);
-    friend GraphicPage* plot(QWidget* parent,Markov_IO::ABC_Var* e,
+    friend GraphicPage* plot(QWidget* parent,Markov_IO::ABC_Data* e,
                              const std::string& id,
                              const Markov_LA::M_Matrix<double>& x,
                              const Markov_LA::M_Matrix<double>& y);
 
     friend GraphicPage* plot(QWidget* parent,
-                             Markov_IO::ABC_Var* e,
+                             Markov_IO::ABC_Data* e,
                              const std::string& id,
                              const Markov_IO::ABC_trace& trace);
     friend GraphicPage* plot(QWidget* parent,
-                             Markov_IO::ABC_Var* e,
+                             Markov_IO::ABC_Data* e,
                              const std::string& id,
                              const Markov_IO::ABC_Experiment& experiment);
 
@@ -128,16 +128,16 @@ namespace Markov_Plot
 
 
 
-  GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Var* e,
+  GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Data* e,
                     const std::string& id,
                     const Markov_LA::M_Matrix<double>& x);
-  GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Var* e, const std::string &id,
+  GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Data* e, const std::string &id,
                     const Markov_LA::M_Matrix<double>& x,
                     const Markov_LA::M_Matrix<double>& y);
 
-  GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Var* e, const std::string &id,
+  GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Data* e, const std::string &id,
                     const Markov_IO::ABC_trace& trace);
-  GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Var* e, const std::string &id,
+  GraphicPage* plot(QWidget* parent, Markov_IO::ABC_Data* e, const std::string &id,
                     const Markov_IO::ABC_Experiment& experiment);
 
   //GraphicPage* plot(QWidget*, Markov_IO::ABC_Var*, const Markov_IO::YfitLikelihoodEvaluation&);

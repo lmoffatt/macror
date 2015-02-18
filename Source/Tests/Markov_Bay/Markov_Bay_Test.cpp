@@ -1,5 +1,5 @@
 #include "Tests/Markov_Bay/Markov_Bay_Test.h"
-
+#include "Markov_Console/Markov_CommandManager.h"
 #include "Markov_Bay/MacroDRStep.h"
 #include "Markov_Bay/MacroRStep.h"
 #include "Markov_Bay/MacroNRStep.h"
@@ -175,7 +175,9 @@ namespace Markov_Test
 
       std::cerr<<"llega ";
 
-      ABC_Markov_Likelihood_step_Test  macroRAvgTest(Macro_R_step(*patch_many,true,true));
+      ABC_Markov_Likelihood_step_Test
+          macroRAvgTest(Macro_R_step(cm,"Macro_R_with_averaging",
+                                     *patch_many,true,true,"class Macro_R_step with averaging"));
       MultipleTests pMRA("class Macro_R_step with averaging",
                          "test against many channels on long step");
       pMRA.push_back(macroRAvgTest.startInvariant(0.0));
@@ -190,7 +192,8 @@ namespace Markov_Test
                           "test against few channels on short step");
 
 
-      Macro_R_step MRNA(*patch_few,false,true);
+      Macro_R_step MRNA(cm,"Macro_R_without_averaging",
+                        *patch_few,false,true,"class Macro_R_step without averaging");
       MRNA.start(0);
       xst_short_few.y(Markov_LA::NaN());
 

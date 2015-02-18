@@ -35,7 +35,7 @@ namespace Markov_Plot
 
 
   GraphicPage* plot(QWidget* parent,
-                    Markov_IO::ABC_Var* e,
+                    Markov_IO::ABC_Data* e,
                     const std::string &id,
                     const Markov_LA::M_Matrix<double>& x)
   {
@@ -51,7 +51,7 @@ namespace Markov_Plot
 
 
   GraphicPage* plot(QWidget* parent,
-                    Markov_IO::ABC_Var* e,
+                    Markov_IO::ABC_Data* e,
                     const std::string &id,
                     const Markov_LA::M_Matrix<double>& x,
                     const Markov_LA::M_Matrix<double>& y)
@@ -70,7 +70,7 @@ namespace Markov_Plot
   }
 
   GraphicPage* plot(QWidget* parent,
-                    Markov_IO::ABC_Var *e,
+                    Markov_IO::ABC_Data *e,
                     const std::string &id,
                     const Markov_IO::ABC_trace& trace)
   {
@@ -88,7 +88,7 @@ namespace Markov_Plot
 
   }
   GraphicPage* plot(QWidget* parent,
-                    Markov_IO::ABC_Var *e,
+                    Markov_IO::ABC_Data *e,
                     const std::string &id,
                     const Markov_IO::ABC_Experiment& experiment)
   {

@@ -257,7 +257,7 @@ namespace Markov_IO
 
 
 
-  std::string Single_Pulses2::myName()const
+  std::string Single_Pulses2::id()const
   {
     return name_;
   };

@@ -20,7 +20,7 @@ namespace Markov_Bay
 
        static std::string ClassName();
 
-       virtual std::string myName()const;
+       virtual std::string id()const;
 	   virtual std::string myClass()const;
 
 	   virtual const Markov_LA::M_Matrix<double>& s2()const;

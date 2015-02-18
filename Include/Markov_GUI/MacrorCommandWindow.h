@@ -40,7 +40,7 @@ public:
     virtual std::string getline();
 
     /// put a string to the output source
-    virtual void put(const std::string &s);
+    virtual void put(const std::string &s) ;
 
 virtual void putError(const std::string &);
 

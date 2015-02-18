@@ -123,19 +123,16 @@ namespace Markov_Console
               if (!f)
                 {
                   output_.clear();
-                  errorMessage_="invalid name "+path;
+                  getCommandManager()->putErrorOut("invalid name "+path);
                   return false;
                 }
             }
-
-
-
           std::size_t numVar=0;
           std::string varname;
           //safeGetline allow loading windows files in linux
           //TODO: check if it loads linux files in windows
 
-
+          std::deque<Markov_IO::Token_New> tok;
           while (Markov_IO::safeGetline(f,varname))
             {
 
@@ -158,44 +155,22 @@ namespace Markov_Console
                   (std::find(varnames.begin(),varnames.end(),varname)!=
                    varnames.end()))
                 {
-                  Markov_IO::ClassDescription des;
-                  des.setEnvironment(getCommandManager());
-                  if (f>>des)
-                    {
-                      Markov_IO::ABC_Saveable* s;
+                  tok<<varname;
+                  std::size_t pos=0;
+                  auto v=this->getCommandManager()->getVarFromStream(tok,pos,&f);
+                  auto w=getCommandManager()->getObjectFromVar(v);
+                  if (v!=nullptr)
+                  {
                       numVar++;
-                      bool isVar=false;
-                      for (auto tname:cm_->getTypesList())
-                        {
-                          s=cm_->getType(tname)->create();
-                          if (s->LoadFromDescription(des))
-                            {
-                              cm_->add_var(varname,s);
-                              isVar=true;
-                              break;
-                            }
-                        }
-                      if (!isVar)
-                        {
-                          std::stringstream ss;
-                          ss<<"unrecognized variable: "<<des;
-                          errorMessage_=ss.str();
-                          output_.clear();
-
-                          numVar--;
-                        }
-
-                    }
+                  }
                   else
-                    {
-                      if (!des.ClassName().empty())
-                        {
-                          std::stringstream ss;
-                          ss<<"unrecognized variable: "<<des;
-                          errorMessage_=ss.str();
-                          output_.clear();
-                        }
-                    }
+                  {
+                      std::string m="unrecognized variable; read text ";
+                      m+=Markov_IO::putTokenBuffer(tok,pos);
+                      getCommandManager()->putErrorOut(m);
+                   }
+                  tok.erase(tok.begin(),tok.begin()+pos);
+                  pos=0;
                 }
             }
           if (errorMessage_.empty())
@@ -217,7 +192,8 @@ namespace Markov_Console
 
       }
 
-    else
+    else   // it is a dirname
+
       {
         // tries one by one all the files in the directory
         std::string fileName;

@@ -85,12 +85,12 @@ char Markov_Console::getchar()
 }
 
 /// put a string to the output source
-void Markov_Console::put(const std::string& s)
+void Markov_Console::put(const std::string& s) const
 {
     std::cout<<s;
 }
 
-void Markov_Console::putError(const std::string &s)
+void Markov_Console::putError(const std::string &s)const
 {
     std::cerr<<s;
 }

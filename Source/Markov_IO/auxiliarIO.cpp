@@ -396,14 +396,6 @@ bool ToValue(const std::string& str,T*& value)
         o= value;
         return true;
       }
-    else if (o->mySuperClass()==Markov_Mol::ABC_Markov_Model::ClassName())
-      {
-        Markov_Mol::ABC_Markov_Model* value;
-        if (!ToValue(s,value))
-          return false;
-        o= value;
-        return true;
-      }
     else if (o->mySuperClass()==Markov_Mol::ABC_noise::ClassName())
       {
         Markov_Mol::ABC_noise* value;

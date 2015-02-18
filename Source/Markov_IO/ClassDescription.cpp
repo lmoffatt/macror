@@ -439,9 +439,6 @@ Adds a new element to the Class Description.
                               const ABC_Experiment& value){push_back_object(elementName,value);}
 
 
-  template<> void
-  ClassDescription::push_back(const std::string& elementName,
-                              const Markov_Mol::ABC_Markov_Model& value){push_back_object(elementName,value);}
 
   template<> void
   ClassDescription::push_back(const std::string& elementName,
@@ -590,16 +587,6 @@ Adds a new element to the Class Description.
                                }
 
 
-  template<> void
-  ClassDescription::push_back(const std::string& elementName,
-                              const Markov_Mol::ABC_Markov_Model& value,
-                              const std::string& elementTip,
-                              const std::string& elemetWhatThis
-                              ){push_back_object(elementName,
-                                                 value,
-                                                 elementTip,
-                                                 elemetWhatThis);
-                               }
 
   template<> void
   ClassDescription::push_back(const std::string& elementName,
@@ -1146,6 +1133,7 @@ Indexed constant access to the names of the elements
 
 
 
+
     ABC_Saveable* getDescriptible(const std::string& classname)
     {
       ABC_Saveable *v;
@@ -1154,6 +1142,7 @@ Indexed constant access to the names of the elements
       else return 0;
       ABC_Experiment* exp;
       ABC_trace* trac;
+
       Markov_Mol::ABC_Markov_Model* mod;
       Markov_Mol::ABC_noise* noise;
       Markov_Mol::ABC_PatchModel* patch;
@@ -1165,8 +1154,6 @@ Indexed constant access to the names of the elements
         return exp;
       else if (create(trac,classname))
         return trac;
-      else if (create(mod,classname))
-        return mod;
       else if (create(noise,classname))
         return noise;
       else if (create(patch,classname))

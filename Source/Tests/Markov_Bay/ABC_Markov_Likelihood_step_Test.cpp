@@ -175,7 +175,7 @@ ABC_Markov_Likelihood_step_Test::~ABC_Markov_Likelihood_step_Test()
                            "\n Number of steps="+ToString(numSteps));
 
 
-     Macro_Aprox_step L(*S_,numSamples,numSteps,0);
+     Macro_Aprox_step L(S_->parentVar(),"Macro_Aprox",*S_,numSamples,numSteps,0);
 
      L.run(Y);
 

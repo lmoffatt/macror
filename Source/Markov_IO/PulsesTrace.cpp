@@ -414,7 +414,7 @@ std::string Pulses_trace::ClassName()
 
 
 
-std::string Pulses_trace::myName()const
+std::string Pulses_trace::id()const
 {
    return name_;
 };

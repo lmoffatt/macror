@@ -19,15 +19,19 @@ class QSpinBox;
 
 namespace Markov_IO {
 
-  inline bool toValue(const std::deque<Token_New> &tok, QString &val, std::size_t &i)
+  inline bool toValue( std::deque<Token_New> &tok,
+                      QString &val,
+                      std::size_t &pos,
+                      std::istream *s)
   {
-    if (!(i<tok.size())) return false;
-    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
+    tokenAdvance(tok,pos,s,1);
+    if (!(pos<tok.size())) return false;
+    if (tok.at(pos).tok()!=Token_New::IDENTIFIER)
       return false;
     else
       {
-        val=tok.at(i).str().c_str();
-        ++i;
+        val=tok.at(pos).str().c_str();
+        ++pos;
         return true;
       }
   }
@@ -68,7 +72,7 @@ namespace Markov_GUI {
     Q_OBJECT
   public:
 
-    static EditField* create(QWidget *parent, Markov_IO::ABC_Var* v);
+    static EditField* create(QWidget *parent, Markov_IO::ABC_Data* v);
 
     virtual ~EditField(){}
 
@@ -92,8 +96,8 @@ namespace Markov_GUI {
   protected:
     virtual void keyPressEvent(QKeyEvent * event);
 
-    EditField(QWidget* parent,Markov_IO::ABC_Var* av);
-    Markov_IO::ABC_Var* var_;
+    EditField(QWidget* parent,Markov_IO::ABC_Data* av);
+    Markov_IO::ABC_Data* var_;
   };
 
   class EditFieldMatrixDoubles: public EditField
@@ -118,7 +122,7 @@ namespace Markov_GUI {
 
 
   protected:
-    EditFieldMatrixDoubles(QWidget* parent,Markov_IO::ABC_Var *av);
+    EditFieldMatrixDoubles(QWidget* parent,Markov_IO::ABC_Data *av);
     Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<double>>* v;
     QTableView *table;
     bool rowsExpandable;
@@ -140,7 +144,7 @@ namespace Markov_GUI {
     void updateValue();
     friend class EditField;
   protected:
-    EditWizard_Complex_Var(QWidget* parent,Markov_IO::ABC_Var *av);
+    EditWizard_Complex_Var(QWidget* parent,Markov_IO::ABC_Data *av);
   private:
     Markov_IO::Implements_Complex_Var* cvar_;
 
@@ -163,7 +167,7 @@ namespace Markov_GUI {
     virtual void paste(){}
 
   protected:
-    EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Var *av);
+    EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Data *av);
     Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t>>* v;
 
   };
@@ -180,7 +184,7 @@ namespace Markov_GUI {
     friend class EditField;
 
   protected:
-    EditWizardDouble(QWidget* parent,Markov_IO::ABC_Var *av);
+    EditWizardDouble(QWidget* parent,Markov_IO::ABC_Data *av);
     Markov_IO::Implements_Simple_Var<double>* v;
     QLineEdit* lineEdit;
     double d_;
@@ -203,7 +207,7 @@ namespace Markov_GUI {
     void updateValue();
     friend class EditField;
   protected:
-    EditWizardSize(QWidget* parent,Markov_IO::ABC_Var *av);
+    EditWizardSize(QWidget* parent,Markov_IO::ABC_Data *av);
     Markov_IO::Implements_Simple_Var<std::size_t>* v;
     QSpinBox* spinBox;
     std::size_t s_;
@@ -226,7 +230,7 @@ namespace Markov_GUI {
     void updateValue();
     friend class EditField;
   protected:
-    EditWizardBool(QWidget* parent,Markov_IO::ABC_Var *av);
+    EditWizardBool(QWidget* parent,Markov_IO::ABC_Data *av);
     Markov_IO::Implements_Simple_Var<bool>* v;
     QComboBox* comboBox;
     bool b_;
@@ -246,7 +250,7 @@ namespace Markov_GUI {
     friend class EditField;
   protected:
 
-    EditWizardString(QWidget* parent,Markov_IO::ABC_Var *av);
+    EditWizardString(QWidget* parent,Markov_IO::ABC_Data *av);
     Markov_IO::Implements_Simple_Var<std::string>* v;
     std::string str_;
     QLineEdit* lineEdit;
@@ -258,7 +262,7 @@ namespace Markov_GUI {
   class  EditVariableDialog: public QDialog
   {
   public:
-    EditVariableDialog(QWidget*parent,Markov_IO::ABC_Var* var):
+    EditVariableDialog(QWidget*parent,Markov_IO::ABC_Data* var):
     QDialog(parent),
       v_(var)
     {
@@ -268,7 +272,7 @@ namespace Markov_GUI {
 
       for (std::size_t i=0; i<var->numChildVars(); i++)
         {
-          Markov_IO::ABC_Var * v=var->getChildVar(var->ith_VarName(i));
+          Markov_IO::ABC_Data * v=var->getChildVar(var->ith_VarName(i));
           EditField* f=EditField::create(this,v);
           fieldsLayout->addWidget(f);
 
@@ -279,7 +283,7 @@ namespace Markov_GUI {
     }
 
    private:
-    Markov_IO::ABC_Var* v_;
+    Markov_IO::ABC_Data* v_;
 
   };
 

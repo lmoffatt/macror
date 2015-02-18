@@ -216,7 +216,7 @@ ClassDescription Pulses_program::GetDescription()const
 
 
 
- std::string Pulses_program::myName()const
+ std::string Pulses_program::id()const
  {
      return name_;
  }

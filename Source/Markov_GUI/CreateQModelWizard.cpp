@@ -27,14 +27,18 @@ CreateQModelWizard::CreateQModelWizard(QString name, Markov_Console::Markov_Comm
 
 }
 
+
+//FIXME: replace with ABC_Var logic
 void  CreateQModelWizard::accept()
 {
+  /*
    // QDialog::accept() calls validatePage()!!
     QDialog::accept();
     std::string name=field("name").toString().toStdString();
     double gamma=field("gamma").toDouble();
     Markov_Mol::Q_Markov_Model* Q=new Markov_Mol::Q_Markov_Model(cm_,name,Q_,*g_,*a_,gamma);
     cm_->add_var(alias.toStdString(),Q);
+*/
 }
 
 

@@ -11,9 +11,9 @@
 namespace Markov_Bay
 {
 
-class Macro_NR_step: public ABC_Markov_Likelihood_step
-{
-public:
+  class Macro_NR_step: public ABC_Markov_Likelihood_step
+  {
+  public:
     virtual Macro_NR_step* clone()const;
 
     virtual Macro_NR_step* create()const;
@@ -53,15 +53,19 @@ public:
 
     virtual Macro_NR_step& run(const Markov_IO::ABC_measure_step& Y);
 
-    Macro_NR_step(const Markov_Mol::ABC_PatchModel& M,
-		  bool is_averaging);
+    Macro_NR_step(Markov_IO::ABC_Data* e,
+                  const std::string &id,
+                  const Markov_Mol::ABC_PatchModel& M,
+                  bool is_averaging,
+                  const std::string &tip="",
+                  const std::string &whatthis="");
 
     Macro_NR_step(const Macro_NR_step& other);
     Macro_NR_step();
 
     ~Macro_NR_step();
 
-private:
+  private:
     Markov_Mol::ABC_PatchModel* model_A;
 
     Markov_Mol::Markov_Transition_step Q_dt;
@@ -80,6 +84,6 @@ private:
 
     bool isaveraging_b;
 
-};
+  };
 }
 #endif // MACRONRSTEP_H

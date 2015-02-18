@@ -18,6 +18,11 @@ namespace  Markov_IO {
     ~ABC_Environment(){}
 
 
+    virtual void putOut(const std::string& m)const=0;
+    virtual void putErrorOut(const std::string& m)const=0;
+
+    virtual std::string getLineIn()=0;
+
 
     virtual ABC_Saveable* getVar(const std::string& varName)=0;
     virtual const ABC_Saveable* getType(const std::string& varName)const=0;

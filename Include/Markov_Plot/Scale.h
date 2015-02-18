@@ -58,7 +58,7 @@ public:
     Type getType()const;
     void setType(Type scaleType);
 
-    Scale(Markov_IO::ABC_Var* e,
+    Scale(Markov_IO::ABC_Data* e,
           double min,
           double max,
           AxisType axis,
@@ -99,8 +99,8 @@ public:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-    virtual ABC_Var* to_ComplexVar() const override;
-    virtual bool loadFromComplexVar(const ABC_Var* source)override;
+    virtual ABC_Data* to_ComplexVar() const override;
+    virtual bool loadFromComplexVar(const ABC_Data* source)override;
 
  private:
     void reset();

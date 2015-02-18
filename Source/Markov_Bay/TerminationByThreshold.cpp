@@ -120,7 +120,7 @@ TerminationByThreshold::Options::Options(const std::string& name,
 }
 
 TerminationByThreshold::Options::Options(const Markov_IO::ABC_Options& O):
-    BaseOptions(O.myName())
+    BaseOptions(O.id())
 {
     push_back("resolution_in_LogL",
 	      O.real("resolution_in_LogL"));

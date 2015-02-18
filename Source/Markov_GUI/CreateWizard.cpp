@@ -652,12 +652,13 @@ void CreateWizard::init_Parameters(){
 
 
 
-
+//FIXME: replace with ABC_Var logic
 void CreateWizard::acceptQ_Markov_Model()
 {
-    Markov_Mol::Q_Markov_Model* m=new Markov_Mol::Q_Markov_Model();
+/*    Markov_Mol::Q_Markov_Model* m=new Markov_Mol::Q_Markov_Model();
     m->LoadFromDescription(*desc);
     *sptr=m;
+*/
 }
 
 void CreateWizard::accept_Pulses_program()

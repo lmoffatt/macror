@@ -9,44 +9,44 @@ namespace Markov_Bay
 class Macro_DR_step: public ABC_Markov_Likelihood_step
 {
 public:
-    virtual Macro_DR_step* clone()const;
-    virtual Macro_DR_step* create()const;
+    virtual Macro_DR_step* clone()const override;
+    virtual Macro_DR_step* create()const override;
 
-    virtual const  Markov_LA::M_Matrix<double>& P_mean()const;
-    virtual  const Markov_LA::M_Matrix<double>& P_cov()const;
+    virtual const  Markov_LA::M_Matrix<double>& P_mean()const override;
+    virtual  const Markov_LA::M_Matrix<double>& P_cov()const override;
 
-    virtual  std::string myClass()const;
+    virtual  std::string myClass()const override;
     static  std::string ClassName();
 
 
-    virtual   double y()const;
+    virtual   double y()const override;
 
-    virtual   double y_mean()const;
+    virtual   double y_mean()const override;
 
-    virtual   double y_var()const;
+    virtual   double y_var()const override;
 
-    virtual   double y_std()const;
+    virtual   double y_std()const override;
 
-    virtual  double plogL()const;
+    virtual  double plogL()const override;
 
-    virtual  double eplogL()const;
+    virtual  double eplogL()const override;
 
 
-    virtual  double N_channels()const;
+    virtual  double N_channels()const override;
 
-    virtual const Markov_Mol::ABC_Markov_Model& model()const;
+    virtual const Markov_Mol::ABC_Markov_Model& model()const override;
 
-    virtual const Markov_Mol::ABC_PatchModel& patch()const;
+    virtual const Markov_Mol::ABC_PatchModel& patch()const override;
 
-    virtual const Markov_Mol::ABC_noise& noise()const;
+    virtual const Markov_Mol::ABC_noise& noise()const override;
 
-    virtual void apply_parameters(const Markov_IO::Parameters& beta);
+    virtual void apply_parameters(const Markov_IO::Parameters& beta) override;
 
-    virtual const Markov_IO::Parameters& get_parameters()const;
+    virtual const Markov_IO::Parameters& get_parameters()const override;
 
-    virtual Macro_DR_step& start(double x);
+    virtual Macro_DR_step& start(double x) override;
 
-    virtual Macro_DR_step& run(const Markov_IO::ABC_measure_step& Y);
+    virtual Macro_DR_step& run(const Markov_IO::ABC_measure_step& Y) override;
 
 
     Macro_DR_step(const Markov_Mol::ABC_PatchModel& P,
@@ -60,7 +60,7 @@ public:
     ~Macro_DR_step();
 
 protected:
-    Markov_IO::Parameters& buildParameters();
+    Markov_IO::Parameters& buildParameters() ;
 
 private:
     Markov_Mol::ABC_PatchModel* model_A;

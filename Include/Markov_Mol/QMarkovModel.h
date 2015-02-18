@@ -32,6 +32,28 @@ namespace Markov_Mol
 
     virtual Q_Markov_Model* create() const;
 
+    virtual ABC_Data* cloneFromVar(ABC_Data *parent, const ABC_Data *source) const
+    {
+      if (sameFields(source))
+        {
+          decltype(Q0_M) Qt;
+          decltype(g0_M) gt;
+          decltype(a_M) at;
+          decltype(gamma()) gammat;
+          bool bQ=source->getValue("Q_matrix",Qt);
+          auto bg=source->getValue("conductance_vector",gt);
+          bool ba=source->getValue("agonist_vector",at);
+          bool bgamma=source->getValue("unitary_conductance", gammat);
+
+          if (bQ&&bg&&ba&&bgamma)
+            {
+              return new Q_Markov_Model(parent,source->id(),Qt,gt,at,gammat,
+                                        nullptr,source->Tip(),source->WhatThis());
+            }
+        }
+        return nullptr;
+    }
+
     virtual int apply_parameters(const Markov_IO::Parameters& p);
 
     virtual const Markov_IO::Parameters& get_parameters()const;
@@ -124,7 +146,7 @@ namespace Markov_Mol
 
 
 
-    Q_Markov_Model(Markov_IO::ABC_Var* parent,
+    Q_Markov_Model(Markov_IO::ABC_Data* parent,
                    const std::string& model_name,
                    const M_Matrix<double>& Q_matrix,
                    const M_Matrix<double>& conductance_vector,
@@ -159,7 +181,7 @@ namespace Markov_Mol
     virtual bool LoadFromStringDescription(const ClassDescription& classDes);
 
     static std::string ClassName();
-    virtual std::string myName()const;
+    virtual std::string id()const;
     virtual std::string myClass()const;
 
 
@@ -179,7 +201,7 @@ namespace Markov_Mol
     std::string gamma_Label();
 
 
-    virtual bool loadFromComplexVar(const ABC_Var* source)override;
+    virtual bool loadFromComplexVar(const ABC_Data* source)override;
 
 
 

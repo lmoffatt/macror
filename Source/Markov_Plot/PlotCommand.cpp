@@ -63,7 +63,7 @@ bool PlotCommand::run(const std::string& varName)
       {
         Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
               getCommandManager()->getVar(varName));
-        Markov_Plot::GraphicPage* g=plot(0,getCommandManager(),e->myName(),*e);
+        Markov_Plot::GraphicPage* g=plot(0,getCommandManager(),e->id(),*e);
         mw_->createGraph(g);
 
 

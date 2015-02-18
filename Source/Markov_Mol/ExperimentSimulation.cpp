@@ -221,7 +221,7 @@ namespace Markov_Mol
 
 
 
-  std::string Experiment_simulation::myName()const
+  std::string Experiment_simulation::id()const
   {
     return name_;
   };

@@ -378,7 +378,7 @@ namespace Markov_Test
       MultipleTests results("ABC_Markov_Model",
                             "Class Invariant");
 
-      results.push_back(ABC_Parametrizable_Test::classInvariant());
+      //TODO: replace results.push_back(ABC_Parametrizable_Test::classInvariant());
 
       {
         MultipleTests pModel("Model description",
@@ -1050,10 +1050,10 @@ namespace Markov_Test
     }
 
 
-
-    ABC_Markov_Model_Test::ABC_Markov_Model_Test(const ABC_Markov_Model& model):
-      ABC_Parametrizable_Test(model),
-      model_(dynamic_cast<const ABC_Markov_Model*>(sample_))
+// TODO: look replace ABC_Parametrizable_Test
+    ABC_Markov_Model_Test::ABC_Markov_Model_Test(const ABC_Markov_Model& model)//:
+     // ABC_Parametrizable_Test(model),
+      //model_(dynamic_cast<const ABC_Markov_Model*>(sample_))
     {
 
     }
@@ -1075,9 +1075,9 @@ namespace Markov_Test
       ABC_Markov_Model* m=nullptr;
       if (cm->checkVariable(varNameTested,testedClass()))
         m=dynamic_cast<ABC_Markov_Model*>(cm->getVar(varNameTested));
-      this->sample_=m;
-      this->saveable_=m;
-      this->param_=m;
+      //TODO: replace this->sample_=m;
+      //this->saveable_=m;
+      //this->param_=m;
       this->model_=m;
 
       MultipleTests result("class ABC_Markov_Model",

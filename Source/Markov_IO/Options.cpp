@@ -157,7 +157,7 @@ void BaseOptions::push_back(const std::string& option,const std::string& astring
 
 std::string BaseOptions::ClassName()
 {return "options";}
- std::string BaseOptions::myName()const
+ std::string BaseOptions::id()const
 {return name_;}
  std::string BaseOptions::myClass()const
 {return ClassName();}

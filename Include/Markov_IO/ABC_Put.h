@@ -32,8 +32,6 @@ public:
 
     /// a short description of the class
     virtual std::string WhatThis()const;
-
-
 };
 inline
 std::ostream& operator<< (std::ostream& s,const ABC_Put& x)

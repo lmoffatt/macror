@@ -22,36 +22,36 @@ public:
     virtual ~GraphWindow();
 
 
-    friend GraphWindow* plot(QWidget* parent,Markov_IO::ABC_Var* e,
+    friend GraphWindow* plot(QWidget* parent,Markov_IO::ABC_Data* e,
                              const Markov_LA::M_Matrix<double>& x);
-    friend GraphWindow* plot(QWidget* parent,Markov_IO::ABC_Var* e,
+    friend GraphWindow* plot(QWidget* parent,Markov_IO::ABC_Data* e,
                              const Markov_LA::M_Matrix<double>& x,
                              const Markov_LA::M_Matrix<double>& y);
 
     friend GraphWindow* plot(QWidget* parent,
-                             Markov_IO::ABC_Var* e,
+                             Markov_IO::ABC_Data* e,
                              const Markov_IO::ABC_trace& trace);
     friend GraphWindow* plot(QWidget* parent,
-                             Markov_IO::ABC_Var* e,
+                             Markov_IO::ABC_Data* e,
                              const Markov_IO::ABC_Experiment& experiment);
 
-    friend GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Var* e,
+    friend GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Data* e,
                              const Markov_IO::YfitLikelihoodEvaluation& experiment);
 
 };
 
- GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Var* e,
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Data* e,
                    const Markov_LA::M_Matrix<double>& x);
- GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Var* e,
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Data* e,
                    const Markov_LA::M_Matrix<double>& x,
                          const Markov_LA::M_Matrix<double>& y);
 
- GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Var* e,
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Data* e,
                    const Markov_IO::ABC_trace& trace);
- GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Var* e,
+ GraphWindow* plot(QWidget* parent, Markov_IO::ABC_Data* e,
                    const Markov_IO::ABC_Experiment& experiment);
 
- GraphWindow* plot(QWidget*, Markov_IO::ABC_Var*, const Markov_IO::YfitLikelihoodEvaluation&);
+ GraphWindow* plot(QWidget*, Markov_IO::ABC_Data*, const Markov_IO::YfitLikelihoodEvaluation&);
 
 }
 

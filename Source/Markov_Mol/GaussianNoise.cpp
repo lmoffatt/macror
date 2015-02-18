@@ -210,7 +210,7 @@ std::string gaussian_noise::ClassName()
     return "gaussian_noise";
 }
 
-std::string gaussian_noise::myName()const
+std::string gaussian_noise::id()const
 {
     return name_;
 };

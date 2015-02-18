@@ -27,7 +27,7 @@ namespace Markov_Bay
 
     static std::string ClassName();
 
-    virtual std::string myName()const;
+    virtual std::string id()const;
     virtual const Markov_IO::ABC_Experiment *experiment()const;
 
     virtual std::string experimentName()const

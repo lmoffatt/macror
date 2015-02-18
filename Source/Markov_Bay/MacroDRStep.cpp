@@ -252,7 +252,9 @@ Macro_DR_step::Macro_DR_step(const Markov_Mol::ABC_PatchModel& P,
  }
 
 Macro_DR_step::Macro_DR_step(const Macro_DR_step& other):
-	model_A(other.model_A->clone()),
+  Implements_VarId(other),
+  ABC_Markov_Likelihood_step(other) ,
+        model_A(other.model_A->clone()),
 	Q_dt(other.Q_dt),
 	P_mean_M(other.P_mean_M),
 	P_cov_M(other.P_cov_M),

@@ -21,7 +21,7 @@ public:
     virtual ~ABC_trace();
 
     static std::string ClassName();
-    virtual std::string myName()const=0;
+    virtual std::string id()const=0;
     virtual std::string myClass()const=0;
     virtual std::string mySuperClass()const;
 

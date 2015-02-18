@@ -86,7 +86,7 @@ std::string SingleOptimizationResult::ClassName()
 {
     return "Single_Optimization_Result";
 }
-std::string SingleOptimizationResult::myName()const
+std::string SingleOptimizationResult::id()const
 {
     return name_;
 }

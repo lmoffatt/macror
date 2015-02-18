@@ -169,7 +169,7 @@ bool EditCommand::run(const std::string& varname)
         Markov_IO::ABC_Saveable* v=cm_->getVar(varname);
         Markov_IO::ClassDescription desc=v->GetDescription();
         std::cout<<"Current value of ";
-        std::cout<<varname<<", alias of "<<v->myName();
+        std::cout<<varname<<", alias of "<<v->id();
         std::cout<<" a "<<v->myClass()<<"  "<<v->mySuperClass()<<std::endl;
         for (std::size_t i=0; i<desc.size(); i++)
         {

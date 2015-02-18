@@ -10,7 +10,7 @@
 namespace Markov_Plot
 {
   GraphView::GraphView(QWidget* parent,
-                       Markov_IO::ABC_Var* e,
+                       Markov_IO::ABC_Data* e,
                        qreal width,
                        qreal height):
     QGraphicsView(parent),
@@ -56,7 +56,7 @@ namespace Markov_Plot
   }
 
 
-  GraphView* aplot(QWidget* parent,Markov_IO::ABC_Var* e,
+  GraphView* aplot(QWidget* parent,Markov_IO::ABC_Data* e,
                    const Markov_LA::M_Matrix<double>& x)
   {
     GraphView* g=  new GraphView(parent,e,
@@ -104,7 +104,7 @@ namespace Markov_Plot
   }
 
 
-  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Var *e,
+  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data *e,
                    const Markov_LA::M_Matrix<double>& x,
                    const Markov_LA::M_Matrix<double>& y)
   {
@@ -165,7 +165,7 @@ namespace Markov_Plot
 
 
 
-  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Var *e, const Markov_IO::ABC_trace& trace)
+  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data *e, const Markov_IO::ABC_trace& trace)
   {
 
 
@@ -283,7 +283,7 @@ namespace Markov_Plot
     fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
   }
 
-  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Var *e,
+  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data *e,
                    const Markov_Bay::YfitLikelihoodEvaluation& yfit,
                    std::size_t itrace)
   {

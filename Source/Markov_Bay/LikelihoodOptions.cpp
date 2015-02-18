@@ -31,7 +31,7 @@ namespace Markov_Bay
     }
 
     LikelihoodOptions::LikelihoodOptions(const Markov_IO::ABC_Options& options):
-	BaseOptions(options.myName())
+	BaseOptions(options.id())
     {
         push_back("Likelihood_Algorithm",options.name("Likelihood_Algorithm"));
 	push_back("averaging",options.boolean("averaging"));

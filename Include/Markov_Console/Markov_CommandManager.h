@@ -50,7 +50,7 @@ public:
     Markov_CommandManager();
     virtual ~Markov_CommandManager();
 
-    virtual std::string build()const;
+    virtual std::string buildVersion()const;
     virtual std::string buildDate()const;
     virtual std::string uncommitedFiles()const;
 
@@ -100,7 +100,7 @@ public:
     virtual std::string  getDir()const {return dir_;}
     virtual bool setDir(const std::string& dir);
 
-    virtual Markov_IO::ABC_IO* getIO(){return io_;}
+    virtual Markov_IO::ABC_IO* getIO()const {return io_;}
     virtual void setIO(Markov_IO::ABC_IO* io){io_=io;}
 
 
@@ -200,6 +200,21 @@ protected:
     virtual void Loadcommands();
     virtual void LoadTypes();
 
+
+    // ABC_Environment interface
+public:
+    virtual void putOut(const std::string &m) const
+    {
+      getIO()->put(m);
+    }
+    virtual void putErrorOut(const std::string &m) const
+    {
+      getIO()->putError(m);
+    }
+    virtual std::string getLineIn()
+    {
+      return getIO()->getline();
+    }
 };
 
 }

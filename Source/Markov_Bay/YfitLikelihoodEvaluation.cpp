@@ -22,7 +22,7 @@ namespace Markov_Bay
     Markov_IO::ClassDescription desc(myClass(),mySuperClass());
     desc.setEnvironment(getEnvironment());
 
-    desc.push_back("name",myName());
+    desc.push_back("name",id());
 
     desc.push_back("Experiment",experimentName());
 
@@ -174,9 +174,9 @@ namespace Markov_Bay
 
 
 
-  std::string YfitLikelihoodEvaluation::myName()const
+  std::string YfitLikelihoodEvaluation::id()const
   {
-    return LikelihoodEvaluation::myName();
+    return LikelihoodEvaluation::id();
   }
   std::string YfitLikelihoodEvaluation::myClass()const
   {

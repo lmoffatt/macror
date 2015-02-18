@@ -55,9 +55,9 @@ const Markov_IO::ParametersMoments& NormalDistributed::get_parameters_moments()c
 
 }
 
-std::string NormalDistributed::myName()const
+std::string NormalDistributed::id()const
 {
-    return "Normal_Distribution_build_with_"+this->parMoments_.myName();
+    return "Normal_Distribution_build_with_"+this->parMoments_.id();
 }
 std::string NormalDistributed::ClassName()
 {

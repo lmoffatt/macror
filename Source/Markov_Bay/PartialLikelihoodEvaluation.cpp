@@ -23,7 +23,7 @@ namespace Markov_Bay
     Markov_IO::ClassDescription desc(myClass(),mySuperClass());
     desc.setEnvironment(getEnvironment());
 
-    desc.push_back("name",myName());
+    desc.push_back("name",id());
 
     desc.push_back("Experiment",experimentName());
 
@@ -132,9 +132,9 @@ namespace Markov_Bay
     return "Partial_Likelihood_Evaluation";
   }
 
-  std::string PartialLikelihoodEvaluation::myName()const
+  std::string PartialLikelihoodEvaluation::id()const
   {
-    return LikelihoodEvaluation::myName();
+    return LikelihoodEvaluation::id();
   }
   std::string PartialLikelihoodEvaluation::myClass()const
   {

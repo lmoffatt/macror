@@ -13,6 +13,8 @@
 namespace Markov_Console
 {
 
+
+//FIXME: replace Test hierarchy
 Markov_CommandManagerTest::Markov_CommandManagerTest():
     Markov_CommandManager()
 {
@@ -27,8 +29,9 @@ Markov_CommandManagerTest::Markov_CommandManagerTest():
       new Markov_Test::Markov_LA_Test::ToleranceComparison_Test;
   tests[Markov_Test::MersenneTwister_Test::MersenneTwister_Test::TestName()]=
       new Markov_Test::MersenneTwister_Test::MersenneTwister_Test;
-  tests[Markov_Test::Markov_Mol_Test::ABC_Markov_Model_Test::TestName()]=
-      new Markov_Test::Markov_Mol_Test::ABC_Markov_Model_Test;
+
+  //tests[Markov_Test::Markov_Mol_Test::ABC_Markov_Model_Test::TestName()]=
+  //    new Markov_Test::Markov_Mol_Test::ABC_Markov_Model_Test;
   tests[Markov_Test::Markov_Mol_Test::Markov_Mol_Test::TestName()]=
       new Markov_Test::Markov_Mol_Test::Markov_Mol_Test;
 

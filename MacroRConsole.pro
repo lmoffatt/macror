@@ -80,9 +80,9 @@ CONFIG(debug, debug|release) {
 #QMAKE_CXXFLAGS_DEBUG += -pg
 #QMAKE_LFLAGS_DEBUG += -pg
 
-unix:!macx {
-QMAKE_CXX = g++-4.8
-}
+#unix:!macx {
+#QMAKE_CXX = g++-4.8
+#}
 
 QMAKE_CXXFLAGS_RELEASE += -fopenmp
 QMAKE_LFLAGS_RELEASE += -fopenmp

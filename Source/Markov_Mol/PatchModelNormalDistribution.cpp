@@ -97,7 +97,7 @@ std::string PatchModelNormalDistribution::ClassName(){
 }
 
 
-std::string PatchModelNormalDistribution::myName()const{
+std::string PatchModelNormalDistribution::id()const{
     return name_;
 
 }

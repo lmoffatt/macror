@@ -461,7 +461,7 @@ namespace Markov_Plot
 
 
 
-  Scale::Scale(ABC_Var *e,
+  Scale::Scale(ABC_Data *e,
                double min,
                double max,
                AxisType axis,
@@ -704,9 +704,9 @@ namespace Markov_Plot
 
   }
 
-  Markov_IO::ABC_Var *Scale::to_ComplexVar() const
+  Markov_IO::ABC_Data *Scale::to_ComplexVar() const
   {
-    Markov_IO::Implements_Complex_Var* v=varClone();
+    Markov_IO::Implements_Complex_Var* v=clone();
 
     v->push_backVar("min",min_);
     v->push_backVar("max",max_);
@@ -721,7 +721,7 @@ namespace Markov_Plot
 
 
 
-  bool Scale::loadFromComplexVar(const Markov_IO::ABC_Var *)
+  bool Scale::loadFromComplexVar(const Markov_IO::ABC_Data *)
   {
     return false;
   }

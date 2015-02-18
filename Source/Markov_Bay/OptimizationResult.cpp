@@ -18,7 +18,7 @@ namespace Markov_Bay
   Markov_IO::ClassDescription OptimizationResult::GetDescription()const
   {
     Markov_IO::ClassDescription desc(myClass(),mySuperClass());;
-    desc.push_back("name",myName());
+    desc.push_back("name",id());
     desc.push_back("Experiment",Experiment());
     desc.push_back("Prior_Distribution",Prior());
 
@@ -125,7 +125,7 @@ namespace Markov_Bay
 
 
 
-  std::string OptimizationResult::myName()const{
+  std::string OptimizationResult::id()const{
     return name_;
   }
   std::string OptimizationResult::myClass()const{

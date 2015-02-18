@@ -274,7 +274,7 @@ MultipleTests ABC_Experiment_Test::classInvariant()const
     pGD.push_back(ElementaryTest("myName()",
                                  "right in GetDescription",
                                  des.ElementValue(des.NameIndex("name"))==
-                                 experiment_->myName()));
+                                 experiment_->id()));
 
     results.push_back(pGD);
     MultipleTests pGS("GetState()",
@@ -291,7 +291,7 @@ MultipleTests ABC_Experiment_Test::classInvariant()const
     pGS.push_back(ElementaryTest("myName()",
                                  "right in GetDescription",
                                  st.ElementValue(des.NameIndex("name"))==
-                                 experiment_->myName()));
+                                 experiment_->id()));
 
 
     results.push_back(pGS);

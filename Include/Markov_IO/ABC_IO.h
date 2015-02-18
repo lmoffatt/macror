@@ -17,7 +17,7 @@ public:
     virtual void put(const std::string&)=0;
 
 
-  virtual void putError(const std::string& )=0;
+  virtual void putError(const std::string& ) =0;
 
     template <typename T>
   void put(const T& x )

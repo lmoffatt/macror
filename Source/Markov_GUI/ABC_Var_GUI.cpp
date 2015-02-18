@@ -23,7 +23,7 @@
 namespace Markov_GUI {
 
 
-  EditField::EditField(QWidget* parent, Markov_IO::ABC_Var *av):
+  EditField::EditField(QWidget* parent, Markov_IO::ABC_Data *av):
     QWidget(parent),
     var_(av)
   {
@@ -59,7 +59,7 @@ namespace Markov_GUI {
 
 
 
-  EditField* EditField::create(QWidget *parent, Markov_IO::ABC_Var* v)
+  EditField* EditField::create(QWidget *parent, Markov_IO::ABC_Data* v)
   {
     if (v==nullptr)
       return nullptr;
@@ -89,7 +89,7 @@ namespace Markov_GUI {
 
 
   EditFieldMatrixDoubles::EditFieldMatrixDoubles(QWidget* parent,
-                                                 Markov_IO::ABC_Var* av):
+                                                 Markov_IO::ABC_Data* av):
     EditField(parent ,av),
     v(dynamic_cast<Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<double>>*>(var_)),
     table (new QTableView)
@@ -412,7 +412,7 @@ namespace Markov_GUI {
 
 
 
-  EditWizard_Complex_Var::EditWizard_Complex_Var(QWidget* parent,Markov_IO::ABC_Var *av):
+  EditWizard_Complex_Var::EditWizard_Complex_Var(QWidget* parent,Markov_IO::ABC_Data *av):
     EditField(parent,av),
     cvar_(dynamic_cast<Markov_IO::Implements_Complex_Var*>(av)),
     isvalid(false)
@@ -465,7 +465,7 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardMatrixSizes::EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Var * av):
+  EditWizardMatrixSizes::EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Data * av):
     EditField(parent,av),
     v(dynamic_cast<Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t>>*>(av))
   {
@@ -516,7 +516,7 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardDouble::EditWizardDouble(QWidget * parent,Markov_IO::ABC_Var*av):
+  EditWizardDouble::EditWizardDouble(QWidget * parent,Markov_IO::ABC_Data*av):
     EditField(parent,av),
     v(dynamic_cast < Markov_IO::Implements_Simple_Var<double>*>(av))
   {
@@ -596,7 +596,7 @@ namespace Markov_GUI {
     lineEdit->updateGeometry();
   }
 
-  EditWizardSize::EditWizardSize(QWidget * parent,Markov_IO::ABC_Var*av):
+  EditWizardSize::EditWizardSize(QWidget * parent,Markov_IO::ABC_Data*av):
     EditField(parent,av),
     v(dynamic_cast < Markov_IO::Implements_Simple_Var<std::size_t>*>(av)),
     s_(v->value())
@@ -660,7 +660,7 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardBool::EditWizardBool(QWidget * parent,Markov_IO::ABC_Var*av):
+  EditWizardBool::EditWizardBool(QWidget * parent,Markov_IO::ABC_Data*av):
     EditField(parent,av),
     v(dynamic_cast < Markov_IO::Implements_Simple_Var<bool>*>(av)),
     b_(v->value())
@@ -718,7 +718,7 @@ namespace Markov_GUI {
 
 
 
-  EditWizardString::EditWizardString(QWidget * parent,Markov_IO::ABC_Var*av):
+  EditWizardString::EditWizardString(QWidget * parent,Markov_IO::ABC_Data*av):
     EditField(parent,av),
     v(dynamic_cast < Markov_IO::Implements_Simple_Var<std::string>*>(av))
   {

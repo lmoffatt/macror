@@ -393,7 +393,7 @@ namespace Markov_Bay
   }
 
   OptimizationStepBFGS::Options::Options(const Markov_IO::ABC_Options& O):
-    BaseOptions(O.myName())
+    BaseOptions(O.id())
   {
     push_back("Maximum_evaluations_per_loop",O.count("Maximum_evaluations_per_loop"));
     push_back("Wolf_Condition_c1",O.real("Wolf_Condition_c1"));

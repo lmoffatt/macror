@@ -346,7 +346,7 @@ Random_Pulses* Random_Pulses::clone() const
 
 
 
- std::string Random_Pulses::myName()const
+ std::string Random_Pulses::id()const
  {
      return name_;
  };

@@ -108,7 +108,7 @@ std::string Parameters::ClassName()
     return "Parameters";
 }
 
-std::string Parameters::myName()const
+std::string Parameters::id()const
 {return name_;
 }
 std::string Parameters::myClass()const

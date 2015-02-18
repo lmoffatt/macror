@@ -26,7 +26,7 @@ AverageExperiment* AverageExperiment::create() const
 AverageExperiment::~AverageExperiment()
 {}
 
- std::string AverageExperiment::myName()const
+ std::string AverageExperiment::id()const
 {
     return name_;
 }
@@ -103,12 +103,12 @@ bool AverageExperiment::amIAbstract() const
              ty(i,0)=ts[i];
              ty(i,1)=ys[i];
          }
-         std::string name="Avg_"+x.myName()+"_"+ToString(i_trace);
+         std::string name="Avg_"+x.id()+"_"+ToString(i_trace);
          double time_interval=x[x.num_measures()].dt();
          tr.push_back(Trace(name,x.toTx(),ty,time_interval));
 
     }
-     std::string name="Avg_"+x.myName();
+     std::string name="Avg_"+x.id();
 
      Experiment result(name,tr);
      return result;
@@ -288,7 +288,7 @@ bool AverageExperiment::amIAbstract() const
   }
 
  AverageExperiment::Options::Options(const Markov_IO::ABC_Options& O):
-     BaseOptions(O.myName())
+     BaseOptions(O.id())
  {
      push_back("maximal_frequency",O.real("maximal_frequency"));
      push_back("minimal_time_step",O.real("minimal_time_step"));

@@ -27,9 +27,9 @@ public:
     virtual char getchar();
 
     /// put a string to the output source
-    virtual void put(const std::string& s);
+    virtual void put(const std::string& s)const;
 
-    void putError(const std::string &s);
+    void putError(const std::string &s)const;
 
 
 };

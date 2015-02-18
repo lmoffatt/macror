@@ -61,15 +61,14 @@ function of experimental and simulated currents against a given kinetic model.
 
 */
 
-class ABC_Markov_Model: public Markov_IO::ABC_Parametrizable
-{
+class ABC_Markov_Model: virtual public Markov_IO::ABC_Data{
 public:
     /** virtual copy constructor
        @returns a pointer to a copy of the object
        @post memory is allocated
        @warning has to be removed with delete at the end of the scope
     */
-    virtual ABC_Markov_Model* clone() const=0;
+    virtual ABC_Markov_Model* clone() const override=0;
 
     /** virtual default constructors
 	@return a pointer to an empty model
@@ -80,7 +79,7 @@ public:
 
 
     static std::string ClassName();
-    virtual std::string myName()const=0;
+    virtual std::string id()const=0;
     virtual std::string myClass()const=0;
     virtual std::string mySuperClass()const;
 
@@ -117,7 +116,6 @@ public:
     virtual const Markov_IO::Parameters& get_parameters()const=0;
 
 
-    virtual Markov_IO::ClassDescription GetDescription()const=0;
 
     virtual bool LoadFromStringDescription(const Markov_IO::ClassDescription& classDes)=0;
 
@@ -447,10 +445,6 @@ public:
 bool operator==(const ABC_Markov_Model& x,const ABC_Markov_Model& y);
 
 
-bool LoadFromDescription(ABC_Markov_Model*& x,
-                         const Markov_IO::ClassDescription& classDes);
-bool LoadFromStringDescription(ABC_Markov_Model*& x,
-                         const Markov_IO::ClassDescription& classDes);
 
 
 std::istream& operator>> (std::istream& stream,ABC_Markov_Model*& model);

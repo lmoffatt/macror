@@ -138,7 +138,7 @@ bool ABC_Saveable::Load(const std::string& fileName)
   }
 
 
-  ABC_Saveable* ABC_Saveable::create(const std::string& childClass)
+ ABC_Saveable* ABC_Saveable::create(const std::string& childClass)
  {
      ABC_Saveable* o;
      if (Markov_IO::create(o,childClass))
@@ -146,6 +146,7 @@ bool ABC_Saveable::Load(const std::string& fileName)
      else
          return 0;
  }
+
 
 
 
@@ -223,7 +224,7 @@ MultipleTests ABC_Saveable_Test::classInvariant()const
     pGD.push_back(ElementaryTest("myName()",
                                  "right in GetDescription",
                                  des.ElementValue(des.NameIndex("name"))==
-                                 saveable_->myName()));
+                                 saveable_->id()));
 
     results.push_back(pGD);
     MultipleTests pGS("GetState()",
@@ -240,7 +241,7 @@ MultipleTests ABC_Saveable_Test::classInvariant()const
     pGS.push_back(ElementaryTest("myName()",
                                  "right in GetDescription",
                                  st.ElementValue(des.NameIndex("name"))==
-                                 saveable_->myName()));
+                                 saveable_->id()));
 
 
     results.push_back(pGS);

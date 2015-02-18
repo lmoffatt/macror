@@ -50,9 +50,14 @@ public:
      Macro_R_step& run(const Markov_IO::ABC_measure_step& Y);
 
 
-     Macro_R_step(const Markov_Mol::ABC_PatchModel& P,
+     Macro_R_step(Markov_IO::ABC_Data* e,
+                  const std::string &id,const Markov_Mol::ABC_PatchModel& P,
 		  bool is_averaging,
-		 bool p_zero_guard);
+		 bool p_zero_guard,
+		  const std::string &tip="",
+		  const std::string &whatthis="");
+
+
 
 
     Macro_R_step(const Macro_R_step& other);

@@ -15,7 +15,9 @@ namespace Markov_Test
     using namespace Markov_Mol;
 
 
-    class ABC_Markov_Model_Test: public Markov_IO_Test::ABC_Parametrizable_Test
+
+    //TODO: replace ABC_Parametrizable_Test
+    class ABC_Markov_Model_Test//: public Markov_IO_Test::ABC_Parametrizable_Test
     {
     public:
       /**

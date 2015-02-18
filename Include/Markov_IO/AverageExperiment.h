@@ -21,7 +21,7 @@ class AverageExperiment: public ABC_Operator
         virtual Experiment run(const ABC_Experiment &x);
 
         static  std::string ClassName();
-        virtual std::string myName()const;
+        virtual std::string id()const;
         virtual std::string myClass()const;
 
         virtual bool amIAbstract()const;

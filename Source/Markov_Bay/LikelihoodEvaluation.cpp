@@ -26,7 +26,7 @@ namespace Markov_Bay
 
 
     desc.setEnvironment(getEnvironment());
-    desc.push_back("name",myName());
+    desc.push_back("name",id());
 
     desc.push_back("Experiment",experimentName());
 
@@ -98,7 +98,7 @@ namespace Markov_Bay
   {
     return "Likelihood_Evaluation";
   }
-  std::string LikelihoodEvaluation::myName()const
+  std::string LikelihoodEvaluation::id()const
   {
     return this->name_;
   }

@@ -20,13 +20,14 @@ std::string ABC_Parametrizable::ClassName()
 
  bool  create(ABC_Parametrizable*& v,const std::string& childClass)
  {
-
+/*
      Markov_Mol::ABC_Markov_Model* m;
      if (create(m,childClass))
      {
          v=m;
          return true;
      }
+     */
      Markov_Mol::ABC_PatchModel* p;
      if (create(p,childClass))
      {
@@ -60,13 +61,14 @@ std::string ABC_Parametrizable::ClassName()
               const Markov_IO::ClassDescription& classDesc)
 
  {
-
+/*
      Markov_Mol::ABC_Markov_Model* m;
      if (LoadFromDescription(m,classDesc))
      {
          v=m;
          return true;
      }
+     */
      Markov_Mol::ABC_PatchModel* p;
      if (LoadFromDescription(p,classDesc))
      {

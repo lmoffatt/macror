@@ -23,7 +23,7 @@ namespace Markov_IO
 
 
 
-    std::string Experiment::myName()const
+    std::string Experiment::id()const
     {
     return name_;
     }
@@ -147,7 +147,7 @@ namespace Markov_IO
 
 
     Experiment::Experiment(const ABC_Experiment &other):
-	name_(other.myName()),
+	name_(other.id()),
     traces_(std::vector<Trace>(other.num_traces())),
 	total_samples_(other.total_samples()),
     i_trace_(0)

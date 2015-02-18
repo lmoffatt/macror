@@ -52,32 +52,20 @@ bool  create(ABC_Markov_Model*& model,const std::string& childClass)
 
 }
 
-bool LoadFromDescription(ABC_Markov_Model*& model,
-                         const Markov_IO::ClassDescription& classDes)
-{
-    if (create(model,classDes.ClassName()))
-        return model->LoadFromDescription(classDes);
-    return false;
-}
-
-bool LoadFromStringDescription(ABC_Markov_Model*& model,
-                         const Markov_IO::ClassDescription& classDes)
-{
-    if (create(model,classDes.ClassName()))
-        return model->LoadFromStringDescription(classDes);
-    return false;
-}
 
 
 
+//TODO: replace with ABC_Var logic
 std::istream& operator>> (std::istream& stream,ABC_Markov_Model*& x)
 {
+  /*
     ClassDescription classDes;
     stream>>classDes;
     if (stream.good())
 	if(!LoadFromDescription(x,classDes))
 	    stream.setstate(stream.rdstate() | std::ios_base::failbit);
     return stream;
+    */
 }
 
 

@@ -39,7 +39,7 @@ public:
 	virtual std::string name()const=0; */
 
 
-    virtual std::string myName()const;
+    virtual std::string id()const;
     virtual std::string myClass()const;
     static std::string ClassName();
 

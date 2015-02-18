@@ -63,9 +63,9 @@ namespace Markov_Mol
     //std::cout<<ClassName();
     //std::cout<<mySuperClass();
     Markov_IO::ClassDescription desc(myClass(),mySuperClass());
-    desc.push_back("name",this->myName());
+    desc.push_back("name",this->id());
     // std::cout<<Model();
-    desc.push_back("Channel_Model",Model());
+    //desc.push_back("Channel_Model",Model());
     desc.push_back("Number_of_Channels",
                    this->AverageNumberOfChannels(),
                    "[mean number of channels]",
@@ -84,7 +84,7 @@ namespace Markov_Mol
     return "Simple_Patch_Model";
   }
 
-  std::string PatchModel::myName()const
+  std::string PatchModel::id()const
   {
     return name_;
   }
@@ -201,7 +201,7 @@ namespace Markov_Mol
                                         std::size_t n_replicates,
                                         const Markov_IO::ABC_Options& opt)
   {
-    Experiment_simulation ES(myName()+"_on_"+x.myName(),
+    Experiment_simulation ES(id()+"_on_"+x.id(),
                              x,
                              *this,
                              n_replicates);

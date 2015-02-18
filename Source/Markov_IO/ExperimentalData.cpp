@@ -718,7 +718,7 @@ namespace Markov_IO
 
 
 
-  std::string ExperimentalData::myName()const
+  std::string ExperimentalData::id()const
   {
     return name_;
   }

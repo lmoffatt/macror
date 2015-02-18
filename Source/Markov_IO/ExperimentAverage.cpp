@@ -123,7 +123,7 @@ std::string Experiment_Average::ClassName()
 
 
 
-std::string Experiment_Average::myName()const
+std::string Experiment_Average::id()const
 {
     return name_;
 };

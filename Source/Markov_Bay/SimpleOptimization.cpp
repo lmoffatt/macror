@@ -60,7 +60,7 @@ namespace Markov_Bay
 
     startPatch->apply_parameters(beta);
 
-    std::string namePM=ML_.model().myName();
+    std::string namePM=ML_.model().id();
 
     std::size_t nfeval=0;
     std::size_t niter=0;
@@ -104,7 +104,7 @@ namespace Markov_Bay
 
     SingleOptimizationResult SOR(namePM,
                                  *startPatch,
-                                 ML_.experiment()->myName(),
+                                 ML_.experiment()->id(),
                                  pdist,
                                  LE,
                                  nfeval,
@@ -221,7 +221,7 @@ namespace Markov_Bay
   }
 
   SimpleOptimization::Options::Options(const Markov_IO::ABC_Options& options):
-    BaseOptions(options.myName())
+    BaseOptions(options.id())
   {
     push_back("Hessian_update",options.name("Hessian_update"));
     push_back("Termination_Condition",options.name("Termination_Condition"));

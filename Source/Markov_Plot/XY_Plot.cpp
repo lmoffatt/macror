@@ -39,7 +39,7 @@ void XY_Plot::setSymbol(XY_Plot::Symbol symbol)
 
 
 
-XY_Plot::XY_Plot(Markov_IO::ABC_Var* e,
+XY_Plot::XY_Plot(Markov_IO::ABC_Data* e,
                  const Markov_LA::M_Matrix<double>* x,
                  const Markov_LA::M_Matrix<double>* y,
                  QString title,

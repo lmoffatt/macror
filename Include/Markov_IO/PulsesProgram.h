@@ -94,7 +94,7 @@ public:
 
     static std::string ClassName();
 
-    virtual std::string myName()const;
+    virtual std::string id()const;
     virtual std::string myClass()const;
 
 

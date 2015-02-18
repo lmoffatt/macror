@@ -37,7 +37,7 @@ public:
     virtual bool LoadFromDescription(const ClassDescription& classDes)=0;
 
 
-    virtual std::string myName()const=0;
+    virtual std::string id()const=0;
     virtual std::string myClass()const=0;
     virtual std::string mySuperClass()const;
     static std::string ClassName();

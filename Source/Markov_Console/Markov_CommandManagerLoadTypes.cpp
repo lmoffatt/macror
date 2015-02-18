@@ -52,6 +52,8 @@
 
 namespace Markov_Console
 {
+
+  // TODO: replace with ABC_Var logic
 void Markov_CommandManager::LoadTypes()
 {
     types[Markov_IO::Pulses_program::ClassName()]=new Markov_IO::Pulses_program();
@@ -96,7 +98,7 @@ void Markov_CommandManager::LoadTypes()
     types[Markov_Mol::SimulationOptions::ClassName()]=new Markov_Mol::SimulationOptions();
 
 
-    types[Markov_Mol::Q_Markov_Model::ClassName()]=new Markov_Mol::Q_Markov_Model();
+    //types[Markov_Mol::Q_Markov_Model::ClassName()]=new Markov_Mol::Q_Markov_Model();
 
     types[Markov_Mol::PatchModel::ClassName()]=new Markov_Mol::PatchModel();
 

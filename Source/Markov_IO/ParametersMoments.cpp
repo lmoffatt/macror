@@ -211,7 +211,7 @@ ParametersMoments::ParametersMoments(const Parameters par,
     Parameters(par),
     cov_inv_(Markov_LA::size(covinv)>0?covinv:Markov_LA::invSafe(cov)),
     cov_(Markov_LA::size(cov)>0?cov:Markov_LA::invSafe(covinv)),
-    allmoments_(par.myName()+"_moments")
+    allmoments_(par.id()+"_moments")
 {
 
     for (std::size_t i=0; i<size();i++)
@@ -316,8 +316,8 @@ std::string ParametersMoments::ClassName(){
 
 
 
-std::string ParametersMoments::myName()const{
-    return Parameters::myName()+"_Moments";
+std::string ParametersMoments::id()const{
+    return Parameters::id()+"_Moments";
 
 }
 std::string ParametersMoments::myClass()const{

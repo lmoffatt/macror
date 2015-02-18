@@ -32,7 +32,7 @@ QList<QStandardItem*> MacrorExperimentsWindow::objectItems(const QString& modelN
         const Markov_IO::ABC_Experiment* m=
             dynamic_cast<const Markov_IO::ABC_Experiment*>(cm_->getVar(modelName.toStdString()));
         list.append(new QStandardItem(QString(m->myClass().c_str())));
-        list.append(new QStandardItem(QString(m->myName().c_str())));
+        list.append(new QStandardItem(QString(m->id().c_str())));
     }
 
     return list;

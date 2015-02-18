@@ -33,7 +33,7 @@ QList<QStandardItem*> MacrorPatchsWindow::objectItems(const QString& modelName)
       const Markov_Mol::ABC_PatchModel* m=
           dynamic_cast<const Markov_Mol::ABC_PatchModel*>(cm_->getVar(modelName.toStdString()));
       list.append(new QStandardItem(QString(m->myClass().c_str())));
-      list.append(new QStandardItem(QString(m->myName().c_str())));
+      list.append(new QStandardItem(QString(m->id().c_str())));
   }
 
   return list;

@@ -109,7 +109,7 @@ bool MacrorCommandWindow::plot(const QString& line)
     {
       Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
             MarkovCommand()->getVar(line.toStdString()));
-      Markov_Plot::GraphicPage* g=Markov_Plot::plot(0,MarkovCommand(),e->myName(),*e);
+      Markov_Plot::GraphicPage* g=Markov_Plot::plot(0,MarkovCommand(),e->id(),*e);
       mw_->createGraph(g);
 
 
@@ -119,12 +119,15 @@ bool MacrorCommandWindow::plot(const QString& line)
   else return false;
 }
 
+// TODO: replace with ABC_Var logic
 bool MacrorCommandWindow::modelChannel(const QString& varname)
 {
+  /*
   Markov_Mol::Q_Markov_Model* p=new Markov_Mol::Q_Markov_Model();
   cm_->delete_var(varname.toStdString());
   cm_->add_var(varname.toStdString(),p);
   return edit(varname);
+  */
 }
 
 

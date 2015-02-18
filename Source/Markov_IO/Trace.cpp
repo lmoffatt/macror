@@ -33,7 +33,7 @@ std::string Trace::ClassName()
 
 
 
-std::string Trace::myName()const
+std::string Trace::id()const
 {return name_;}
 
 std::string Trace::myClass()const
@@ -255,7 +255,7 @@ Trace::Trace(const std::string& traceName,
 
 
 Trace::Trace(const ABC_trace& other):
-    name_(other.myName()),
+    name_(other.id()),
     tx_(other.toTx()),
     ty_(other.toTy()),
     trace_interval_(other.operator [](other.num_measures()).dt()),

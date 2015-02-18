@@ -50,10 +50,14 @@ public:
     virtual Macro_Aprox_step& run(const Markov_IO::ABC_measure_step& Y);
 
 
-    Macro_Aprox_step(const ABC_Markov_Likelihood_step& step,
+    Macro_Aprox_step(Markov_IO::ABC_Data* parent,
+                     const std::string& id,
+                     const ABC_Markov_Likelihood_step& step,
                      std::size_t numSamples,
                      std::size_t numSteps,
-                     std::size_t seed);
+                     std::size_t seed,
+                     const std::string &tip="",
+                     const std::string &whatthis="");
 
     Macro_Aprox_step(const Macro_Aprox_step& other);
 

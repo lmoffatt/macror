@@ -40,7 +40,7 @@ public:
     virtual bool LoadFromDescription(const ClassDescription& classDes);
 
     static std::string ClassName();
-    virtual std::string myName()const;
+    virtual std::string id()const;
     virtual std::string myClass()const;
 
     PatchModelNormalDistribution();

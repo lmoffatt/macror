@@ -408,39 +408,38 @@ namespace Markov_IO {
     return {};
   }
 
-  const ABC_Var *Implements_VarId::getChildVar(const std::string &) const
+  const ABC_Data *Implements_VarId::getChildVar(const std::string &) const
   {
     return nullptr;
   }
 
-  ABC_Var *Implements_VarId::getChildVar(const std::string &)
+  ABC_Data *Implements_VarId::getChildVar(const std::string &)
   {
     return nullptr;
   }
 
-  const ABC_Var *Implements_VarId::getChildVar(const std::string &, const std::string &) const
+  const ABC_Data *Implements_VarId::getChildVar(const std::string &, const std::string &) const
   {
     return nullptr;
   }
 
-  ABC_Var *Implements_VarId::getChildVar(const std::string &, const std::string &)
+  ABC_Data *Implements_VarId::getChildVar(const std::string &, const std::string &)
   {
     return nullptr;
   }
 
-  bool Implements_VarId::addChildVar(ABC_Var *)
+  void Implements_VarId::pushChildVar(ABC_Data *)
   {
-    return false;
-  }
+   }
 
-  ABC_Var *Implements_VarId::parentVar()
+  ABC_Data *Implements_VarId::parentVar()
   {
     if (isRootedVariable())
       return p_;
     else
       return nullptr;
   }
-  const ABC_Var *Implements_VarId::parentVar() const
+  const ABC_Data *Implements_VarId::parentVar() const
   {
     return p_;
   }
@@ -450,7 +449,7 @@ namespace Markov_IO {
   }
 
 
-  ABC_Var *Implements_VarId::motherClass()
+  ABC_Data *Implements_VarId::motherClass()
   {
     if (parentVar()!=nullptr)
       return parentVar()->getChildVar(myClass());
@@ -459,7 +458,7 @@ namespace Markov_IO {
 
   }
 
-  const ABC_Var *Implements_VarId::motherClass() const
+  const ABC_Data *Implements_VarId::motherClass() const
   {
     if (parentVar()!=nullptr)
       return parentVar()->getChildVar(myClass());
@@ -469,46 +468,50 @@ namespace Markov_IO {
   }
 
 
-  Implements_VarId::Implements_VarId(ABC_Var *parent,
+  Implements_VarId::Implements_VarId(ABC_Data *parent,
                                      const std::string &name,
                                      const std::string &className,
                                      const std::string &tip,
                                      const std::string &whatthis)
     :
-      id_(ABC_Var::isValidId(name)?name:""),
-      class_(ABC_Var::isValidId(className)?className:""),
-      p_(parent),
+      id_(ABC_Data::isValidId(name)?name:""),
+      class_(ABC_Data::isValidId(className)?className:""),
+      p_(nullptr),
       tip_(tip),
-      whatThis_(whatthis){}
+      whatThis_(whatthis)
+  {
+    if (parent!=nullptr)
+      parent->pushChildVar(this);
+  }
 
-  Implements_VarId::Implements_VarId(const ABC_Var &other):
+  Implements_VarId::Implements_VarId(const ABC_Data &other):
     id_(other.id()),
     class_(other.myClass()),
-    p_(const_cast<ABC_Var*>(other.parentVar())),
+    p_(const_cast<ABC_Data*>(other.parentVar())),
     tip_(other.Tip()),
     whatThis_(other.WhatThis())
   {}
 
 
-  bool Implements_VarId::loadFromComplexVar(const ABC_Var* )
+  bool Implements_VarId::loadFromComplexVar(const ABC_Data* )
   {
     return false;
 
   }
 
-  ABC_Var *Implements_VarId::to_ComplexVar()const
+  ABC_Data *Implements_VarId::to_ComplexVar()const
   {
     return nullptr;
   }
 
 
 
-  void Implements_VarId::setParentVar(ABC_Var *par)
+  void Implements_VarId::setParentVar(ABC_Data *par)
   {
     p_=par;
   }
 
-  bool Implements_VarId::isInDomain(const ABC_Var *value) const
+  bool Implements_VarId::isInDomain(const ABC_Data *value) const
   {
     auto p= motherClass();
     if (p!=nullptr)
@@ -518,7 +521,7 @@ namespace Markov_IO {
 
   }
 
-  ABC_Var *Implements_VarId::varTemplate()const
+  ABC_Data *Implements_VarId::varTemplate()const
   {
     auto p= motherClass();
     if (p!=nullptr)
@@ -553,11 +556,37 @@ namespace Markov_IO {
 
   }
 
-  bool Implements_VarId::processTokens(const std::deque<Token_New> &t,
-                                       std::size_t &pos)
+  /**
+Extract tip, whatthis, id and class from stream
+@param[in, out] t buffer of unprocessed tokens already extracted from stream
+@param[in,out] pos position of the next token to be processed
+@param[in,out] s pointer to the stream to be extracted from
+@returns true if an valid Implements_VarId object was extracted
+@returns false if an valid Implements_VarId object could not be extracted
+
+@pre expects a token buffer t with a cursor indicating the next token to be processed
+@pre parameter s can be nullptr, in which case it only extract from the tokens buffer.
+@pre if the pos is out of the token buffer, tokens are read from the stream
+
+
+@post if successful, current object elements are changed to indicate the read object. Absent tip or whatthis are indicated by an empty string.
+
+@post Buffer will contain all read tokens and postion will indicate +1 of the last successfully read token
+@post if unsuccessful, current object is left unchanged
+@post no elements are removed from the buffer in neither case, only added.
+
+*/
+
+  bool Implements_VarId::processTokens(std::deque<Token_New> &t,
+                                       std::size_t &pos,
+                                       std::istream *s)
   {
+
     while ((pos<t.size())&&(t.at(pos).tok()==Token_New::EOL))
       ++pos;
+
+    tokenAdvance(t,pos,s,2);
+
     if ((pos+1<t.size())&&
         (t.at(pos).tok()==Token_New::HASH)&&
         (t.at(pos+1).tok()==Token_New::STRING)) // tip is present
@@ -566,6 +595,8 @@ namespace Markov_IO {
         setTip(t.at(pos).str());
         ++pos;
       }
+    tokenAdvance(t,pos,s,3);
+
     if ((pos+2<t.size())
         &&(t.at(pos).tok()==Token_New::HASH)
         &&(t.at(pos+1).tok()==Token_New::HASH)
@@ -577,6 +608,9 @@ namespace Markov_IO {
       }
     while ((pos<t.size())&&(t.at(pos).tok()==Token_New::EOL))
       ++pos;
+
+    tokenAdvance(t,pos,s,3);
+
     if ((!(pos+2<t.size()))
         ||(t.at(pos).tok()!=Token_New::IDENTIFIER)
         ||(t.at(pos+1).tok()!=Token_New::COLON)
@@ -587,7 +621,6 @@ namespace Markov_IO {
         id_=t.at(pos).str();
         class_=t.at(pos+2).str();
         pos+=3;
-
         return true;
       }
   }
@@ -605,7 +638,7 @@ namespace Markov_IO {
     return refId_;
   }
 
-  ABC_Var *Implements_Refer_Var::refVar()
+  ABC_Data *Implements_Refer_Var::refVar()
   {
     if (parentVar()!=nullptr)
       return parentVar()->getChildVar(refId(),myClass());
@@ -613,7 +646,7 @@ namespace Markov_IO {
         nullptr;
   }
 
-  const ABC_Var *Implements_Refer_Var::refVar() const
+  const ABC_Data *Implements_Refer_Var::refVar() const
   {
     if (parentVar()!=nullptr)
       return parentVar()->getChildVar(refId(),myClass());
@@ -621,14 +654,19 @@ namespace Markov_IO {
         nullptr;
   }
 
-  Implements_Refer_Var::Implements_Refer_Var(ABC_Var *parent,
+  Implements_Refer_Var::Implements_Refer_Var(ABC_Data *parent,
                                              const std::string& idName,
                                              const std::string &refClass,
                                              const std::string& refName,
                                              const std::string &tip,
                                              const std::string &whatthis):
     Implements_VarId(parent,idName,refClass,tip,whatthis),
-    refId_(refName){}
+    refId_(refName){
+
+    if (parent!=nullptr)
+      parent->pushChildVar(this);
+
+  }
 
   std::deque<Token_New> Implements_Refer_Var::toTokens() const
   {
@@ -637,22 +675,28 @@ namespace Markov_IO {
     return out;
   }
 
-  bool Implements_Refer_Var::processTokens(const std::deque<Token_New> &t, std::size_t &pos)
+  bool Implements_Refer_Var::processTokens(std::deque<Token_New> &t,
+                                           std::size_t &pos,
+                                           std::istream* s)
   {
-    if (!Implements_VarId::processTokens(t,pos))
-      return false;
-    else  if ((!pos+3<t.size())
-              ||(t.at(pos).tok()!=Token_New::ASSIGN)
-              ||(t.at(pos+1).tok()!=Token_New::MUL)
-              ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER)
-              ||(t.at(pos+3).tok()!=Token_New::EOL)
-              )
+    if (!Implements_VarId::processTokens(t,pos,s))
       return false;
     else
       {
-        refId_=t.at(pos+2).str();
-        pos+=4;
-        return true;
+        tokenAdvance(t,pos,s,3);
+        if ((!pos+3<t.size())
+            ||(t.at(pos).tok()!=Token_New::ASSIGN)
+            ||(t.at(pos+1).tok()!=Token_New::MUL)
+            ||(t.at(pos+2).tok()!=Token_New::IDENTIFIER)
+            ||(t.at(pos+3).tok()!=Token_New::EOL)
+            )
+          return false;
+        else
+          {
+            refId_=t.at(pos+2).str();
+            pos+=4;
+            return true;
+          }
       }
   }
 
@@ -663,39 +707,38 @@ namespace Markov_IO {
     else return {};
   }
 
-  const ABC_Var *Implements_Refer_Var::getChildVar(const std::string &name) const
+  const ABC_Data *Implements_Refer_Var::getChildVar(const std::string &name) const
   {
     if (refVar()!=nullptr)
       return refVar()->getChildVar(name);
     else return {};
   }
 
-  ABC_Var *Implements_Refer_Var::getChildVar(const std::string &name)
+  ABC_Data *Implements_Refer_Var::getChildVar(const std::string &name)
   {
     if (refVar()!=nullptr)
       return refVar()->getChildVar(name);
     else return {};
   }
 
-  const ABC_Var *Implements_Refer_Var::getChildVar(const std::string &name, const std::string &kind) const
+  const ABC_Data *Implements_Refer_Var::getChildVar(const std::string &name, const std::string &kind) const
   {
     if (refVar()!=nullptr)
       return refVar()->getChildVar(name,kind);
     else return {};
   }
 
-  ABC_Var *Implements_Refer_Var::getChildVar(const std::string &name, const std::string &kind)
+  ABC_Data *Implements_Refer_Var::getChildVar(const std::string &name, const std::string &kind)
   {
     if (refVar()!=nullptr)
       return refVar()->getChildVar(name,kind);
     else return {};
   }
 
-  bool Implements_Refer_Var::addChildVar(ABC_Var *var)
+  void Implements_Refer_Var::pushChildVar(ABC_Data *var)
   {
     if (refVar()!=nullptr)
-      return refVar()->addChildVar(var);
-    else return {};
+       refVar()->pushChildVar(var);
   }
 
 
@@ -714,14 +757,15 @@ namespace Markov_IO {
     return out;
   }
 
-  bool Implements_Complex_Var::processTokens(
-      const std::deque<Token_New> &t,
-      std::size_t& pos)
+  bool Implements_Complex_Var::processTokens(std::deque<Token_New> &t,
+                                             std::size_t& pos,
+                                             std::istream *s)
   {
-    if (!Implements_VarId::processTokens(t,pos))
+    if (!Implements_VarId::processTokens(t,pos,s))
       return false;
     else
       {
+        tokenAdvance(t,pos,s,3);
         if ( (!(pos+1<t.size()))
              ||(t.at(pos).tok()!=Token_New::BEGIN)
              ||(t.at(pos+1).tok()!=Token_New::EOL))
@@ -733,11 +777,10 @@ namespace Markov_IO {
                    (!((t.at(pos).str()==myClass())&&
                       (t.at(pos+1).tok()==Token_New::END))))
               {
-                if (! addChildVar(getFromTokens(this,t,pos)))
+                if (this->getVarFromStream(t,pos,s)==nullptr)
                   return false;
               }
             if ((pos+1>=t.size())||(t.at(pos+1).tok()!=Token_New::END))
-
               return false;
             pos+=2;
             return true;
@@ -770,7 +813,7 @@ namespace Markov_IO {
       return {};
   }
 
-  const ABC_Var *Implements_Complex_Var::getChildVar(const std::string &name) const
+  const ABC_Data *Implements_Complex_Var::getChildVar(const std::string &name) const
   {
     auto it=vars_.find(name);
     if (it!=vars_.end())
@@ -780,7 +823,7 @@ namespace Markov_IO {
     else return nullptr;
   }
 
-  ABC_Var *Implements_Complex_Var::getChildVar(const std::string &name)
+  ABC_Data *Implements_Complex_Var::getChildVar(const std::string &name)
   {
     auto it=vars_.find(name);
     if (it!=vars_.end())
@@ -790,47 +833,46 @@ namespace Markov_IO {
     else return nullptr;
   }
 
-  const ABC_Var *Implements_Complex_Var::getChildVar(const std::string &name, const std::string &myclass) const
+  const ABC_Data *Implements_Complex_Var::getChildVar(const std::string &name, const std::string &myclass) const
   {
-    const ABC_Var* out=getChildVar(name);
+    const ABC_Data* out=getChildVar(name);
     if ((out!=nullptr)&&(out->complyClass(myclass)))
       return out;
     else
       return nullptr;
   }
 
-  ABC_Var *Implements_Complex_Var::getChildVar(const std::string &name, const std::string &myclass)
+  ABC_Data *Implements_Complex_Var::getChildVar(const std::string &name, const std::string &myclass)
   {
-    ABC_Var* out=getChildVar(name);
+    ABC_Data* out=getChildVar(name);
     if ((out!=nullptr)&&(out->complyClass(myclass)))
       return out;
     else
       return nullptr;
   }
 
-  bool Implements_Complex_Var::addChildVar(ABC_Var *var)
+  void Implements_Complex_Var::pushChildVar(ABC_Data *var)
   {
-    if (var==nullptr)
-      return false;
-
-    auto it=vars_.find(var->id());
-    if (it==vars_.end())
+    if (var!=nullptr)
       {
-        ids_.push_back(var->id());
-        childclss_[var->id()]=var->myClass();
-        vars_[var->id()]=var;
-        var->setParentVar(this);
-        return true;
-      }
-    else {
-        auto n=var->id();
-        ABC_Var* o=vars_[var->id()];
-        if (o!=var)
-          {delete o ;
+        auto it=vars_.find(var->id());
+        if (it==vars_.end())
+          {
+            ids_.push_back(var->id());
+            childclss_[var->id()]=var->myClass();
             vars_[var->id()]=var;
+            var->setParentVar(this);
           }
-        var->setParentVar(this);
-        return true;
+        else {
+            ABC_Data* o=vars_[var->id()];
+            if (o!=var)
+              {
+                delete o ;
+                vars_[var->id()]=var;
+                childclss_[var->id()]=var->myClass();
+              }
+            var->setParentVar(this);
+          }
       }
   }
 
@@ -838,7 +880,7 @@ namespace Markov_IO {
 
 
   Implements_Complex_Var::Implements_Complex_Var(
-      ABC_Var *parent,
+      ABC_Data *parent,
       const std::string &id,
       const std::string className,
       const std::string&tip,
@@ -862,7 +904,7 @@ namespace Markov_IO {
   bool Token_New::isNameChar(char ch)
   {
     const std::string NameChar="abcdefghijklmnopqrstuvwxyz"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "1234567890_"; return
+                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "1234567890_"; return
         NameChar.find_first_of(ch)!=std::string::npos;
 
   }
@@ -902,8 +944,17 @@ namespace Markov_IO {
     return ss.str();
   }
 
+  ///
+  /// \brief Token_New::get
+  /// \param stream input stream
+  /// \return valid stream if a token was successfully read
+  /// \post if successfull, the read token is stored.
+  /// \post if fails, previous value is wiped out
+  /// \post if the stream is invalid, token value is set to Token_New::END
+  ///
+  /// whitespaces are skipped
+  ///
   std::istream &Token_New::get(std::istream &stream)
-
   {
     str_.clear();
     int_=0;
@@ -1329,11 +1380,17 @@ namespace Markov_IO {
         return CASE;
       }
 
-
     else return IDENTIFIER;
 
   }
 
+
+  ///
+  /// \brief Token_New::toString string representation of an operator or keyword Token_New::Value
+  /// \param identifier the category of token
+  /// \return string representation of the keyword or operator token
+  ///  \return empty string otherwise (number, identifier, string,path)
+  ///
   std::string Token_New::toString(Token_New::Value identifier)
   {
     switch (identifier) {
@@ -1425,7 +1482,14 @@ namespace Markov_IO {
     number_{},
     str_{toString(v)}{}
 
-  std::string ABC_Var::toString() const
+
+
+
+  //*************************************************************************************//
+
+
+
+  std::string ABC_Data::toString() const
   {
     std::string out;
     auto t=toTokens();
@@ -1437,26 +1501,45 @@ namespace Markov_IO {
   }
 
 
+  /**
+Extract an ABC_Var object from stream and it insert in a complex var
+@param[in, out]  parent complex ABC_Object where the read object is inserted
+@param[in, out] t  buffer that stores unprocessed tokens already extracted from stream
+@returns the input stream. If an invalid name is found, it sets the failbit
+ of the stream (and  therefore the boolean operator applied
+on the stream will return false).
 
-  ABC_Var *ABC_Var::getFromTokens(ABC_Var* parent,
-                                  const std::deque<Token_New> &t,
-                                  std::size_t &pos)
+@pre Expects a two words: the class name and the beginLabel(). It admits
+commenst after the characters //
+@post on success, a goodbit stream, an empty line and the class name in
+the parameter className
+
+*/
+
+  ABC_Data *ABC_Data::getVarFromStream(std::deque<Token_New> &t,
+                                     std::size_t &pos,
+                                     std::istream *s)
   {
     auto pos0=pos;
     Implements_VarId n;
 
-    if (!n.processTokens(t,pos))
+    if (!n.processTokens(t,pos,s))
       return nullptr;
-    ABC_Var* out=nullptr;
-    if (!(pos<t.size())) return nullptr;
+    tokenAdvance(t,pos,s,5);
+    if (!(pos<t.size()))
+      return nullptr;
     Token_New to=t.at(pos);
+    ABC_Data* out=nullptr;
+    // we have to find what is out
+    // possibilities:  reference, simple_var or complex_var
+
     if (to.tok()==Token_New::ASSIGN)
       {
         ++pos;
         if (!(pos<t.size())) return nullptr;
         to=t.at(pos);
         if (to.tok()==Token_New::MUL)
-          {  // reference var
+          {  // Implements_Refer_Var
 
             ++pos;
             if (!(pos<t.size())) return nullptr;
@@ -1465,7 +1548,7 @@ namespace Markov_IO {
               return nullptr;
             else
               return new Implements_Refer_Var(
-                    parent,n.id(),n.myClass(),t.at(pos).str(),n.Tip(),n.WhatThis());
+                    this,n.id(),n.myClass(),t.at(pos).str(),n.Tip(),n.WhatThis());
           }
         else
           {
@@ -1473,25 +1556,31 @@ namespace Markov_IO {
             switch (to.tok())
               {
               case Token_New::REAL:
-                out= new Implements_Simple_Var<double>(parent,n.id(),to.realValue(),n.myClass());
+                return new Implements_Simple_Var<double>(
+                      this,n.id(),to.realValue(),n.myClass());
                 break;
               case Token_New::INTEGER:
-                out= new Implements_Simple_Var<int>(parent,n.id(),to.intval(),n.myClass());
+                return new Implements_Simple_Var<int>(
+                      this,n.id(),to.intval(),n.myClass());
                 break;
               case Token_New::UNSIGNED:
-                out= new Implements_Simple_Var<std::size_t>(parent,n.id(),to.count(),n.myClass());
+                return new Implements_Simple_Var<std::size_t>(
+                      this,n.id(),to.count(),n.myClass());
                 break;
               case Token_New::IDENTIFIER:
-                out= new Implements_Simple_Var<std::string>(parent,n.id(),t.at(pos).str(),n.myClass());
+                return new Implements_Simple_Var<std::string>(
+                      this,n.id(),t.at(pos).str(),n.myClass());
                 break;
               case Token_New::EOL:
                 // that means it is a matrix, a vector or a map
                 {
                   ++pos;
-                  if (!(pos<t.size())) return nullptr;
+                  if (!(pos<t.size()))
+                    return nullptr;
                   to=t.at(pos);
                   if (to.tok()==Token_New::LSB)  // vector or map !!
                     {
+
                       if ((pos+3<t.size())&&(t.at(pos+2).tok()==Token_New::COLON)) //map
                         {  // it is a simple key map!!
                           // lets find out the types
@@ -1521,18 +1610,20 @@ namespace Markov_IO {
                                   switch (to2.tok())
                                     {
                                     case Token_New::REAL:
-                                      out=new Implements_Simple_Var<std::map<double,std::vector<double>>>;
+                                      out=new Implements_Simple_Var<
+                                          std::map<double,std::vector<double>>>;
                                       break;
                                     case Token_New::INTEGER:
-                                      out=new Implements_Simple_Var<std::map<double,std::vector<int>>>;
+                                      out=new Implements_Simple_Var<
+                                          std::map<double,std::vector<int>>>;
                                       break;
                                     case Token_New::UNSIGNED:
-                                      out=new Implements_Simple_Var<std::map<double,
-                                          std::vector<std::size_t>>>;
+                                      out=new Implements_Simple_Var<
+                                          std::map<double,std::vector<std::size_t>>>;
                                       break;
                                     case Token_New::IDENTIFIER:
-                                      out=new Implements_Simple_Var<std::map<double,
-                                          std::vector<std::string>>>;
+                                      out=new Implements_Simple_Var<
+                                          std::map<double,std::vector<std::string>>>;
                                       break;
                                     default:
                                       return nullptr;
@@ -1564,18 +1655,20 @@ namespace Markov_IO {
                                   switch (to2.tok())
                                     {
                                     case Token_New::REAL:
-                                      out=new Implements_Simple_Var<std::map<int,std::vector<double>>>;
+                                      out=new Implements_Simple_Var<
+                                          std::map<int,std::vector<double>>>;
                                       break;
                                     case Token_New::INTEGER:
-                                      out=new Implements_Simple_Var<std::map<int,std::vector<int>>>;
+                                      out=new Implements_Simple_Var<
+                                          std::map<int,std::vector<int>>>;
                                       break;
                                     case Token_New::UNSIGNED:
-                                      out=new Implements_Simple_Var<std::map<int,
-                                          std::vector<std::size_t>>>;
+                                      out=new Implements_Simple_Var<
+                                          std::map<int,std::vector<std::size_t>>>;
                                       break;
                                     case Token_New::IDENTIFIER:
-                                      out=new Implements_Simple_Var<std::map<int,
-                                          std::vector<std::string>>>;
+                                      out=new Implements_Simple_Var<
+                                          std::map<int,std::vector<std::string>>>;
                                       break;
                                     default:
                                       return nullptr;
@@ -1716,17 +1809,22 @@ namespace Markov_IO {
       }
     else if  (t.at(pos).tok()==Token_New::BEGIN)
       {
-        // ABC_Complex_Var
+        // Complex_Var
         out=new Implements_Complex_Var;
       }
     else
       return nullptr;
-    out->setParentVar(parent);
     pos=pos0;
-    if (!out->processTokens(t,pos))
-      return nullptr;
+    if (!out->processTokens(t,pos,s))
+      {
+        delete out;
+        return nullptr;
+      }
     else
-      return out;
+      {
+         this->pushChildVar(out);
+         return out;
+      }
 
   }
 
@@ -1735,27 +1833,31 @@ namespace Markov_IO {
 
 
 
-  bool ABC_Var::isValidId(std::string name)
+
+
+
+
+  bool ABC_Data::isValidId(std::string name)
   {
     return Token_New(name).tok()==Token_New::IDENTIFIER;
   }
 
-  std::string ABC_Var::ClassName()
+  std::string ABC_Data::ClassName()
   {
     return "ABC_Var";
   }
 
-  std::set<std::string> ABC_Var::SuperClasses()
+  std::set<std::string> ABC_Data::SuperClasses()
   {
     return {ClassName()};
   }
 
-  std::set<std::string> ABC_Var::mySuperClasses()const
+  std::set<std::string> ABC_Data::mySuperClasses()const
   {
     return SuperClasses();
   }
 
-  bool ABC_Var::complyClass(const std::string classname) const
+  bool ABC_Data::complyClass(const std::string classname) const
   {
     auto s= mySuperClasses()+myClass();
     return s.find(classname)!=s.end();
@@ -1765,7 +1867,7 @@ namespace Markov_IO {
 
 
 
-  Implements_Complex_Class::Implements_Complex_Class(ABC_Var *parent,
+  Implements_Complex_Class::Implements_Complex_Class(ABC_Data *parent,
                                                      const std::string &id,
                                                      const std::string& className,
                                                      const std::string &tip,
@@ -1775,19 +1877,19 @@ namespace Markov_IO {
   {
     for (const auto& e:m)
       {
-        addChildVar(new Implements_Refer_Var(parentVar(),
-                                             e.first,
-                                             e.second.superClass,
-                                             e.second.className,
-                                             e.second.tip,
-                                             e.second.whatthis));
+        pushChildVar(new Implements_Refer_Var(parentVar(),
+                                              e.first,
+                                              e.second.superClass,
+                                              e.second.className,
+                                              e.second.tip,
+                                              e.second.whatthis));
       }
   }
 
 
 
 
-  bool Implements_Complex_Class::isInDomain(const ABC_Var *value) const
+  bool Implements_Complex_Class::isInDomain(const ABC_Data *value) const
   {
     if (value==nullptr)
       return false;
@@ -1815,7 +1917,7 @@ namespace Markov_IO {
       {
         auto v=getChildVar(ith_VarName(i))->varTemplate();
         v->setId(ith_VarName(i));
-        out->addChildVar(v);
+        out->pushChildVar(v);
       }
 
     return out;
@@ -1824,99 +1926,108 @@ namespace Markov_IO {
 
   void Implements_Complex_Class::push_back(const std::string &idName, const std::string &superclassname, const std::string &classname, const std::string& tip, const std::string& whatthis)
   {
-    addChildVar(new Implements_Refer_Var(parentVar(),idName,superclassname, classname,tip, whatthis));
+    pushChildVar(new Implements_Refer_Var(parentVar(),idName,superclassname, classname,tip, whatthis));
   }
 
 
 
-  bool toValue(const std::deque<Token_New> &tok, double &val, std::size_t &i)
+  bool toValue( std::deque<Token_New> &tok, double &val, std::size_t &pos, std::istream *s)
   {
-    if (!(i<tok.size())) return false;
-    Token_New t=tok.at(i);
+    tokenAdvance(tok,pos,s,1);
+    if (!(pos<tok.size())) return false;
+    Token_New t=tok.at(pos);
     if (!t.isReal())
       return false;
     else
       {
         val=t.realValue();
-        ++i;
+        ++pos;
         return true;
       }
   }
 
-  bool toValue(const std::deque<Token_New> &tok, int &val, std::size_t &i)
+  bool toValue(std::deque<Token_New> &tok, int &val, std::size_t &pos, std::istream *s)
   {
-    if (!(i<tok.size())) return false;
-    Token_New t=tok.at(i);
+    tokenAdvance(tok,pos,s,1);
+    if (!(pos<tok.size())) return false;
+    Token_New t=tok.at(pos);
     if (!t.isInteger())
       return false;
     else
       {
         val=t.intval();
-        ++i;
+        ++pos;
         return true;
       }
   }
 
-  bool toValue(const std::deque<Token_New> &tok, std::size_t &val, std::size_t &i)
+  bool toValue(std::deque<Token_New> &tok, std::size_t &val,
+               std::size_t &pos, std::istream *s)
   {
-    if (!(i<tok.size())) return false;
-    Token_New t=tok.at(i);
+    tokenAdvance(tok,pos,s,1);
+    if (!(pos<tok.size())) return false;
+    Token_New t=tok.at(pos);
     if (t.isCount())
       {
         val=t.count();
-        ++i;
+        ++pos;
         return true;
       }
     else
       return false;
   }
 
-  bool toValue(const std::deque<Token_New> &tok, std::string &val, std::size_t &i)
+  bool toValue(std::deque<Token_New> &tok, std::string &val, std::size_t &pos, std::istream *s)
   {
-    if (!(i<tok.size())) return false;
-    if (tok.at(i).tok()!=Token_New::IDENTIFIER)
+    tokenAdvance(tok,pos,s,2);
+    if (!(pos<tok.size())) return false;
+    if (tok.at(pos).tok()!=Token_New::IDENTIFIER)
       return false;
     else
       {
-        val=tok.at(i).str();
-        ++i;
+        val=tok.at(pos).str();
+        ++pos;
         return true;
       }
   }
 
 
-  bool toValue(const std::deque<Token_New> &tok, bool &val, std::size_t &i)
+  bool toValue(std::deque<Token_New> &tok,
+               bool &val,
+               std::size_t &pos,
+               std::istream *s)
   {
-    if (!(i<tok.size())) return false;
-    if (tok.at(i).tok()==Token_New::IDENTIFIER)
+    tokenAdvance(tok,pos,s,1);
+    if (!(pos<tok.size())) return false;
+    if (tok.at(pos).tok()==Token_New::IDENTIFIER)
       {
-        std::string s=tok.at(i).str();
+        std::string s=tok.at(pos).str();
         if ((s=="false")||(s=="FALSE"))
           {
             val=false;
-            ++i;
+            ++pos;
             return true;
           }
         else if ((s=="true")||(s=="TRUE"))
           {
             val=true;
-            ++i;
+            ++pos;
             return true;
           }
         else return false;
       }
-    else if (tok.at(i).isCount())
+    else if (tok.at(pos).isCount())
       {
-        if (tok.at(i).count()==0)
+        if (tok.at(pos).count()==0)
           {
             val=false;
-            ++i;
+            ++pos;
             return true;
           }
-        else if(tok.at(i).count()==1)
+        else if(tok.at(pos).count()==1)
           {
             val=true;
-            ++i;
+            ++pos;
             return true;
           }
         else
@@ -1925,6 +2036,8 @@ namespace Markov_IO {
     else
       return false;
   }
+
+
 
 
 
