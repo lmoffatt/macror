@@ -18,7 +18,7 @@ namespace Markov_Mol
 {
 
   using Markov_IO::x_dt;
-  using Markov_IO::ClassDescription;
+//  using Markov_IO::ClassDescription;
   using Markov_IO::ToValue;
 
 
@@ -32,7 +32,7 @@ namespace Markov_Mol
 
     virtual Q_Markov_Model* create() const;
 
-    virtual ABC_Data* cloneFromVar(ABC_Data *parent, const ABC_Data *source) const
+    virtual ABC_Data* cloneFromData(ABC_Data *parent, const ABC_Data *source) const
     {
       if (sameFields(source))
         {
@@ -53,6 +53,35 @@ namespace Markov_Mol
         }
         return nullptr;
     }
+
+
+
+    virtual ABC_Data* moveFromData(ABC_Data *parent,ABC_Data *&source) const
+    {
+      if (sameFields(source))
+        {
+          decltype(Q0_M) Qt;
+          decltype(g0_M) gt;
+          decltype(a_M) at;
+          decltype(gamma()) gammat;
+          bool bQ=source->moveValue("Q_matrix",Qt);
+          auto bg=source->moveValue("conductance_vector",gt);
+          bool ba=source->moveValue("agonist_vector",at);
+          bool bgamma=source->moveValue("unitary_conductance", gammat);
+
+          if (bQ&&bg&&ba&&bgamma)
+            {
+              return new Q_Markov_Model(parent,source->id(),std::move(Qt),
+                                        std::move(gt),
+                                        std::move(at),
+                                        gammat,
+                                        nullptr,source->Tip(),source->WhatThis());
+            }
+        }
+        return nullptr;
+    }
+
+
 
     virtual int apply_parameters(const Markov_IO::Parameters& p);
 
@@ -175,10 +204,10 @@ namespace Markov_Mol
 
 
 
-    virtual ClassDescription GetDescription()const;
+    //virtual ClassDescription GetDescription()const;
 
-    virtual bool LoadFromDescription(const ClassDescription& classDes);
-    virtual bool LoadFromStringDescription(const ClassDescription& classDes);
+   // virtual bool LoadFromDescription(const ClassDescription& classDes);
+  //  virtual bool LoadFromStringDescription(const ClassDescription& classDes);
 
     static std::string ClassName();
     virtual std::string id()const;

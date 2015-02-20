@@ -158,7 +158,6 @@ namespace Markov_Console
                   tok<<varname;
                   std::size_t pos=0;
                   auto v=this->getCommandManager()->getVarFromStream(tok,pos,&f);
-                  auto w=getCommandManager()->getObjectFromVar(v);
                   if (v!=nullptr)
                   {
                       numVar++;
@@ -169,6 +168,7 @@ namespace Markov_Console
                       m+=Markov_IO::putTokenBuffer(tok,pos);
                       getCommandManager()->putErrorOut(m);
                    }
+                  auto w=getCommandManager()->moveVarToObject(v);
                   tok.erase(tok.begin(),tok.begin()+pos);
                   pos=0;
                 }

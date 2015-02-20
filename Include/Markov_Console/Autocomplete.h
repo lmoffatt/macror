@@ -56,7 +56,8 @@ namespace  Markov_Console {
     void push_back(std::string newItem);
     void clear();
 
-    static std::string suggestedCharacters(const std::vector<std::string>& autocompleteList, const std::string& hint);
+    static std::string suggestedCharacters(const std::vector<std::string>& autocompleteList,
+                                           const std::string& hint);
   private:
     std::set<std::string> items;
 

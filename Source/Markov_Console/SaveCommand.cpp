@@ -121,11 +121,11 @@ bool SaveCommand::run(
      {
          f<<getCommandManager()->version()<<std::endl;
          std::size_t i=0;
-         auto variablenames=cm_->getVarsList();
+         auto variablenames=cm_->getChildList();
          for (auto name : variablenames)
          {
-             f<<name<<std::endl;
-             f<<cm_->getVar(name)->GetDescription();
+             f<<cm_->getChildVar(name)->toString();
+             i++;
          }
          f.close();
          output_=Markov_IO::ToString(i)+"  variables saved in file "+path;

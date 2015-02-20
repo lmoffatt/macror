@@ -50,9 +50,9 @@ public:
     Markov_CommandManager();
     virtual ~Markov_CommandManager();
 
-    virtual std::string buildVersion()const;
-    virtual std::string buildDate()const;
-    virtual std::string uncommitedFiles()const;
+     std::string buildVersion()const;
+     std::string buildDate()const;
+     std::string uncommitedFiles()const;
 
     virtual std::string version()const;
     virtual std::string wellcomeMessage(unsigned ncols=80)const;
@@ -60,7 +60,6 @@ public:
 
 
     virtual bool next_instruction();
-
     virtual void clear_tokens();
 
     virtual void add_tokens(std::string commandLine);
@@ -135,6 +134,8 @@ public:
 
     virtual  bool has_command(const std::string& name)const;
     virtual  bool has_var(const std::string& name) const;
+
+
     virtual  bool has_type(const std::string& name) const;
     virtual  bool has_superType(const std::string& name) const;
 

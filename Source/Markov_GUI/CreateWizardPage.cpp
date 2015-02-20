@@ -267,7 +267,7 @@ bool CreateQ_Markov_ModelPage0::isComplete() const
 
 bool CreateQ_Markov_ModelPage0::validatePage()
 {
-    const Markov_IO::ABC_Object* o=(*des)["Q_matrix"];
+  /*  const Markov_IO::ABC_Object* o=(*des)["Q_matrix"];
 
     const Markov_IO::Object<Markov_LA::M_Matrix<double> > * obj;
     obj=static_cast< const Markov_IO::Object<Markov_LA::M_Matrix<double> >* >(o);
@@ -279,7 +279,7 @@ bool CreateQ_Markov_ModelPage0::validatePage()
         *des=Markov_Mol::Q_Markov_Model(name,numStates).GetDescription();
     }
     return true;
-
+*/
 }
 
 void CreateQ_Markov_ModelPage0::setNumStates(int numstates)

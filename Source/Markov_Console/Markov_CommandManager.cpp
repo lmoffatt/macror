@@ -102,7 +102,7 @@ namespace Markov_Console
   }
 
 
-  std::string Markov_CommandManager::build()const
+  std::string Markov_CommandManager::buildVersion()const
   {
     std::string d=Markov_IO::getExecutableDir();
     std::string fname=STRINGIZE(GIT_VER_PATH);
@@ -168,7 +168,7 @@ namespace Markov_Console
     std::string decorating_line(ncols,'#');
     std::string vers=version();
     std::string motto="Statistically Sound Molecular Kinetics";
-    std::string date_build=buildDate()+"    build:"+build();
+    std::string date_build=buildDate()+"    build:"+buildVersion();
     std::string updatesMss="updates in http://code.google.com/p/macror/";
     std::string helpmss="enter help for help";
 
@@ -305,6 +305,9 @@ namespace Markov_Console
   bool Markov_CommandManager::has_var(const std::string& name)const {
     return (vars.find(name)!=vars.end());
   }
+
+
+
 
   bool Markov_CommandManager::has_type(const std::string& name)const
   {
@@ -610,6 +613,20 @@ namespace Markov_Console
       }
     return std::vector<std::string>();
   }
+
+  std::vector<std::string> Markov_CommandManager::getVarSiblings(std::string name)const
+  {
+    std::map<std::string, std::string>::const_iterator itp=parent.find(name);
+    if (itp!=parent.end())
+      {
+        auto it=childs.find(itp->second);
+        if (it!=childs.end())
+          return it->second;
+
+      }
+    return std::vector<std::string>();
+  }
+
 
   std::vector<std::string> Markov_CommandManager::getChilds(std::string name)const
   {

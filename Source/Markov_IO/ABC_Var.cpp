@@ -418,6 +418,9 @@ namespace Markov_IO {
     return nullptr;
   }
 
+
+   void Implements_VarId::removeChildVar(const std::string& ) {}
+
   const ABC_Data *Implements_VarId::getChildVar(const std::string &, const std::string &) const
   {
     return nullptr;
@@ -822,6 +825,17 @@ Extract tip, whatthis, id and class from stream
       return parentVar()->getChildVar(name);
     else return nullptr;
   }
+
+  void Implements_Complex_Var::removeChildVar(const std::string &name)
+  { if (vars_.erase(name)>0)
+      {
+        childclss_.erase(name);
+        auto i=std::find(ids_.begin(),ids_.end(),name);
+        if (i!=ids_.end())
+            ids_.erase(i);
+
+      }
+   }
 
   ABC_Data *Implements_Complex_Var::getChildVar(const std::string &name)
   {

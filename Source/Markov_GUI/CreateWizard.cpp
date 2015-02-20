@@ -390,6 +390,7 @@ void CreateWizard::accept()
 
 void CreateWizard::init_Q_Markov_Model()
 {
+  /*
     *desc=Markov_Mol::Q_Markov_Model().GetDescription();
     CreateQ_Markov_ModelPage0 *page0=new CreateQ_Markov_ModelPage0(desc);
     CreateWizardPage *page1=
@@ -405,6 +406,7 @@ void CreateWizard::init_Q_Markov_Model()
     addPage(page1);
     addPage(page2);
     addPage(page3);
+*/
 }
 
 void CreateWizard::init_Pulses_program(){

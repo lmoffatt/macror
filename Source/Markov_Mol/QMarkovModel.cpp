@@ -1707,7 +1707,7 @@ namespace Markov_Mol
   //    return Markov_IO::ABC_Saveable::FileName();
   //}
 
-
+/*
   ClassDescription Q_Markov_Model::GetDescription()const
   {
     ClassDescription desc(myClass(),mySuperClass());
@@ -1748,6 +1748,10 @@ namespace Markov_Mol
 
   }
 
+
+
+
+  */
   std::string Q_Markov_Model::ClassName()
   {
     return "Q_Markov_Model";
@@ -1765,7 +1769,7 @@ namespace Markov_Mol
 
 
 
-
+/*
   bool Q_Markov_Model::LoadFromDescription(const ClassDescription& classDes)
   {
     if (classDes.ClassName()!=myClass())
@@ -1805,6 +1809,11 @@ namespace Markov_Mol
 
     return true;
   }
+
+
+
+  */
+  /*
 
   bool Q_Markov_Model::LoadFromStringDescription(
       const ClassDescription& classDes)
@@ -1846,5 +1855,7 @@ namespace Markov_Mol
   }
 
 
+
+  */
 
 }
