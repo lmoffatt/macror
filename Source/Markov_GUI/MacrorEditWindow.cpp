@@ -363,7 +363,6 @@ void MacrorVarEditWindow::init()
     for (std::size_t i=0; i<desc.size(); i++)
     {
         QString fieldName=desc.ElementName(i).c_str();
-
         fieldNames.push_back(fieldName);
         EditWidgetField* fe=EditWidgetField::create(fieldName,this);
         fe->init();

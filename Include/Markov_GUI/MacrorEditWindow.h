@@ -44,10 +44,12 @@ class MacrorVarEditWindow: public QDialog
 {
     Q_OBJECT
 public:
-    MacrorVarEditWindow(QString Qvarname,Markov_Console::Markov_CommandManager* cm,
+    MacrorVarEditWindow(QString Qvarname,
+                        Markov_Console::Markov_CommandManager* cm,
                        QWidget* parent=0);
 
-    MacrorVarEditWindow(QString fieldName,MacrorVarEditWindow* parent);
+    MacrorVarEditWindow(QString fieldName,
+                        MacrorVarEditWindow* parent);
 
 
     const Markov_IO::ABC_Data* getFieldClass(QString fieldName) const;
@@ -80,7 +82,7 @@ signals:
 private:
      void init();
      Markov_Console::Markov_CommandManager* cm_;
-     MacrorEditWindow* pw_;
+     MacrorVarEditWindow* pw_;
      QString alias;
      QString myFieldName;
      const Markov_IO::ABC_Data* v;

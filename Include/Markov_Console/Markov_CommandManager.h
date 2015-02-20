@@ -124,7 +124,10 @@ public:
     virtual  bool checkVariable(std::string var, std::string superClass) const;
 
     virtual std::vector<std::string> getSiblings(std::string name) const;
-    virtual  std::vector<std::string> getChilds(std::string name)const;
+     virtual std::vector<std::string> getVarSiblings(std::string name) const;
+
+
+     virtual  std::vector<std::string> getChilds(std::string name)const;
 
 
 

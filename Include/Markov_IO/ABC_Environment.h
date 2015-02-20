@@ -44,6 +44,8 @@ namespace  Markov_IO {
     virtual  bool checkVariable(std::string var, std::string superClass) const=0;
 
     virtual std::vector<std::string> getSiblings(std::string name) const=0;
+    virtual std::vector<std::string> getVarSiblings(std::string name) const=0;
+
     virtual  std::vector<std::string> getChilds(std::string name)const=0;
 
 
