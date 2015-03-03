@@ -138,179 +138,438 @@ namespace  Markov_IO {
 
 
 
+  class ABC_Data;
 
-  ///
-  /// \brief tokenAdvance
-  /// \param  t [in, out]buffer of tokens
-  /// \param pos [in] position of the current token in the buffer
-  /// \param s  [in, out] if not nullptr, it points to a stream to read new tokens
-  /// \param n  [in] desired number of tokens from position
-  ///
-  /// \retval true if there are at least the desired number of tokens begining at the indicated position
-  /// \retval false if it failed to complete the buffer up to the desired number of tokens
-  /// \post    if successful the buffer will contain at least n more tokens starting from the position
 
-  inline bool tokenAdvance(std::deque<Token_New> &t,
-                           std::size_t pos,
-                           std::istream *s,
-                           std::size_t n)
-  { if (s!=nullptr)
+  class Token_Buffer
+  {
+  public:
+    Token_Buffer(std::istream *s):
+      t_{},
+      pos_(0),
+      s_(s)
+    {}
+
+    Token_Buffer():
+      t_{},pos_(0),s_(nullptr){}
+
+    std::deque<Token_New>const & getToken()const
+    {
+      return t_;
+    }
+
+    void push_back(Token_New n)
+    {
+      t_.push_back(n);
+    }
+
+
+    std::size_t pos()const
+    {
+      return pos_;
+    }
+
+    void setPos(std::size_t p)
+    {
+      pos_=p;
+    }
+
+    Token_New& currToken()
+
+    {
+      return t_.at(pos_);
+
+    }
+    Token_New const & currToken()const
+
+    {
+      return t_.at(pos_);
+    }
+
+    Token_New const & nextToken(std::size_t i)const
+
+    {
+      return t_.at(pos_+i);
+    }
+
+    Token_Buffer& operator ++()
+    {
+      pos_++;
+      return *this;
+    }
+
+    Token_Buffer& advance(int i)
+    {
+      pos_+=i;
+      return *this;
+    }
+
+     std::size_t size()const
+    {
+      return t_.size();
+    }
+    ///
+    /// \brief tokenAdvance
+    /// \param  t [in, out]buffer of tokens
+    /// \param pos [in] position of the current token in the buffer
+    /// \param s  [in, out] if not nullptr, it points to a stream to read new tokens
+    /// \param n  [in] desired number of tokens from position
+    ///
+    /// \retval true if there are at least the desired number of tokens begining at the indicated position
+    /// \retval false if it failed to complete the buffer up to the desired number of tokens
+    /// \post    if successful the buffer will contain at least n more tokens starting from the position
+
+    inline bool tokenAdvance(std::size_t n)
+    { if (s_!=nullptr)
+        {
+          Token_New to;
+          while (pos_+n>t_.size())
+            {
+              if (to.get(*s_))
+                t_.push_back(to);
+              else
+                return false;
+            }
+          return true;
+        }
+      else
+        return pos_+n<=t_.size();
+    }
+
+
+    inline void advanceEmptyLines()
+    {
+      while ((pos_<t_.size())&&(t_.at(pos_).tok()==Token_New::EOL))
+        ++pos_;
+    }
+
+    Token_Buffer &operator<<(const std::string &text)
+    {
+      std::stringstream ss(text);
+      Token_New t;
+      while (t.get(ss))
+        {
+          t_.push_back(t);
+        }
+
+      return *this;
+    }
+
+
+    inline Token_Buffer &operator<<(const char* text)
+    {
+      std::stringstream ss(text);
+      Token_New t;
+      while (t.get(ss))
+        {
+          t_.push_back(t);
+        }
+
+      return *this;
+    }
+
+
+
+    inline Token_Buffer &operator<<(const Token_Buffer &tok2)
+    {
+      t_.insert(t_.end(),tok2.t_.begin(),tok2.t_.end());
+      return *this;
+    }
+
+
+
+    inline Token_Buffer &operator<<(double d)
+    {
+      t_.push_back(Token_New(d));
+      return *this;
+    }
+
+    inline Token_Buffer &operator<<(int d)
+    {
+      t_.push_back(Token_New(d));
+      return *this;
+    }
+
+    inline Token_Buffer &operator<<(std::size_t s)
+    {
+      t_.push_back(Token_New(s));
+      return *this;
+    }
+
+    template<typename T>
+    Token_Buffer& operator<<(std::vector<T> v)
+    {
+      *this<<"\n[";
+      for (const T& e:v)
+        *this<<e;
+      *this<<"]"<<"\n";
+      return *this;
+    }
+
+    template<typename T>
+    Token_Buffer& operator<<(Markov_LA::M_Matrix<T> m)
+    {
+      *this<<"\n";
+      for (std::size_t i=0; i<Markov_LA::nrows(m); ++i)
+        {
+          for(std::size_t j=0; j<Markov_LA::ncols(m); ++j)
+            {
+              *this<<m(i,j);
+            }
+          *this<<"\n";
+        }
+      *this<<"\n";
+      return *this;
+    }
+
+
+
+
+
+    template<typename K,typename T>
+    Token_Buffer& operator<<(std::pair<K,T> e)
+    {
+      *this<<e.first<<":"<<e.second;
+      return *this;
+    }
+
+    template<typename K,typename T>
+    Token_Buffer& operator<<( std::map<K,T> m)
+    {
+      *this<<"\n[";
+      for (auto& e:m)
+        *this<<e;
+      *this<<"]"<<"\n";
+      return *this;
+    }
+
+
+    template<typename T>
+    static Token_Buffer toToken(const T& val)
+    {
+      Token_Buffer out;
+      out<<val;
+      return out;
+    }
+
+
+
+
+
+
+
+    bool toTip(std::string&  tip)
+    {
+      tokenAdvance(2);
+      if ((pos_+1<t_.size())&&
+          (t_.at(pos_).tok()==Token_New::HASH)&&
+          (t_.at(pos_+1).tok()==Token_New::STRING)) // tip is present
+        {
+          ++pos_;
+          tip=t_.at(pos_).str();
+          ++pos_;
+          return true;
+        }
+      else
+        return false;
+
+    }
+
+
+    bool toWhatThis(std::string& whatthis)
+    {
+      if ((pos_+2<t_.size())
+          &&(t_.at(pos_).tok()==Token_New::HASH)
+          &&(t_.at(pos_+1).tok()==Token_New::HASH)
+          &&(t_.at(pos_+2).tok()==Token_New::STRING))
+        {
+          pos_+=2;
+          whatthis=t_.at(pos_).str();
+          ++pos_;
+          return true;
+        }
+      else
+        return false;
+    }
+
+    bool toIdClass(std::string& id, std::string& idclass)
+    {
+      if ((!(pos_+2<t_.size()))
+          ||(t_.at(pos_).tok()!=Token_New::IDENTIFIER)
+          ||(t_.at(pos_+1).tok()!=Token_New::COLON)
+          ||(t_.at(pos_+2).tok()!=Token_New::IDENTIFIER))
+        {
+           return false;
+        }
+      else
+        {
+          id=t_.at(pos_).str();
+          idclass=t_.at(pos_+2).str();
+          pos_+=3;
+          return true;
+        }
+    }
+
+
+    void cleanRead()
+    {
+      t_.erase(t_.begin(),t_.begin()+pos_);
+      pos_=0;
+    }
+
+    std::string putTokenBuffer()
+    {
+      std::string out;
+      for (std::size_t i=0; i<std::min(pos_,t_.size()); i++)
+        out+=t_.at(i).toString();
+      return out;
+    }
+
+  private:
+    std::deque<Token_New> t_;
+    std::size_t pos_;
+    std::istream *s_;
+  };
+
+  inline bool toValue(Token_Buffer& t,double &val)
+  {
+    t.tokenAdvance(1);
+    if (!(t.pos()<t.size())) return false;
+    Token_New to=t.currToken();
+    if (!to.isReal())
+      return false;
+    else
       {
-        Token_New to;
-        while (pos+n>t.size())
-          {
-            if (to.get(*s))
-              t.push_back(to);
-            else
-              return false;
-          }
+        val=to.realValue();
+        ++t;
+        return true;
+      }
+  }
+
+  inline bool toValue(Token_Buffer& t,int &val)
+  {
+    t.tokenAdvance(1);
+    if (!(t.pos()<t.size())) return false;
+    Token_New to=t.currToken();
+    if (!to.isInteger())
+      return false;
+    else
+      {
+        val=to.intval();
+        ++t;
+        return true;
+      }
+  }
+
+  inline bool toValue(Token_Buffer& t,std::size_t &val)
+  {
+    t.tokenAdvance(1);
+    if (!(t.pos()<t.size())) return false;
+    Token_New to=t.currToken();
+    if (to.isCount())
+      {
+        val=to.count();
+        ++t;
         return true;
       }
     else
-      return pos+n<=t.size();
+      return false;
   }
 
-
-  inline std::string putTokenBuffer(const std::deque<Token_New>& t, std::size_t pos=0)
+  inline bool toValue(Token_Buffer& to,std::string &val)
   {
-    std::string out;
-      for (std::size_t i=0; i<std::min(pos,t.size()); i++)
-        out+=t.at(i).toString();
-      return out;
-  }
-
-
-
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok1,
-                                    const std::deque<Token_New>& tok2);
-
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
-                                    const std::string& text);
-
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
-                                    const char* text);
-
-
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
-                                    double d);
-
-  template<typename T>
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::vector<T> v)
-  {
-    tok<<"\n[";
-    for (const T& e:v)
-      tok<<e;
-    tok<<"]"<<"\n";
-    return tok;
-  }
-
-  template<typename T>
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, Markov_LA::M_Matrix<T> m)
-  {
-    tok<<"\n";
-    for (std::size_t i=0; i<Markov_LA::nrows(m); ++i)
+    to.tokenAdvance(2);
+    if (!(to.pos()<to.size())) return false;
+    if (to.currToken().tok()!=Token_New::IDENTIFIER)
+      return false;
+    else
       {
-        for(std::size_t j=0; j<Markov_LA::ncols(m); ++j)
-          {
-            tok<<m(i,j);
-          }
-        tok<<"\n";
+        val=to.currToken().str();
+        ++to;
+        return true;
       }
-    tok<<"\n";
-    return tok;
   }
 
-  template<typename K,typename T>
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::pair<K,T> e)
-  {
-    tok<<e.first<<":"<<e.second;
-    return tok;
-  }
 
-  template<typename K,typename T>
-  std::deque<Token_New>& operator<<(std::deque<Token_New>& tok, std::map<K,T> m)
+  inline bool toValue(Token_Buffer& t,bool &val)
   {
-    tok<<"\n[";
-    for (auto& e:m)
-      tok<<e;
-    tok<<"]"<<"\n";
-    return tok;
+    t.tokenAdvance(1);
+    if (!(t.pos()<t.size())) return false;
+    if (t.currToken().tok()==Token_New::IDENTIFIER)
+      {
+        std::string s=t.currToken().str();
+        if ((s=="false")||(s=="FALSE"))
+          {
+            val=false;
+            ++t;
+            return true;
+          }
+        else if ((s=="true")||(s=="TRUE"))
+          {
+            val=true;
+            ++t;
+            return true;
+          }
+        else return false;
+      }
+    else if (t.currToken().isCount())
+      {
+        if (t.currToken().count()==0)
+          {
+            val=false;
+            ++t;
+            return true;
+          }
+        else if(t.currToken().count()==1)
+          {
+            val=true;
+            ++t;
+            return true;
+          }
+        else
+          return false;
+      }
+    else
+      return false;
   }
 
 
   template<typename T>
-  inline std::deque<Token_New> toToken(const T& val)
-  {
-    std::deque<Token_New> out;
-    out<<val;
-    return out;
-  }
-
-  bool toValue(std::deque<Token_New> &tok,
-               double &val,
-               std::size_t& pos, std::istream *s);
-
-
-  bool toValue( std::deque<Token_New> &tok,
-                int &val,
-                std::size_t& pos, std::istream *s);
-
-  bool toValue( std::deque<Token_New> &tok,
-                std::size_t &val,
-                std::size_t& pos, std::istream *s);
-
-
-  bool toValue( std::deque<Token_New> &tok,
-                std::string &val,
-                std::size_t& pos, std::istream *s);
-
-
-  bool toValue( std::deque<Token_New> &tok,
-                bool &val,
-                std::size_t& pos, std::istream *s);
-
-
-  template<typename T>
-  bool toValue( std::deque<Token_New> &tok,
-                std::vector<T> &vec,
-                std::size_t& pos, std::istream *s)
+  bool toValue(Token_Buffer& t, std::vector<T> &vec)
   {
     // checks the initial squarebracket
-    tokenAdvance(tok,pos,s,3);
-    if ((!(pos+1<tok.size()))||
-        (tok.at(pos).tok()!=Token_New::EOL)||
-        (tok.at(pos+1).tok()!=Token_New::LSB))
+    t.tokenAdvance(3);
+    if ((!(t.pos()+1<t.size()))||
+        (t.currToken().tok()!=Token_New::EOL)||
+        (t.nextToken(1).tok()!=Token_New::LSB))
       return false;
-    pos+=2;
+    t.advance(2);
     T val;
-    if (!toValue(tok,val,pos,s))
+    if (!toValue(t,val))
       return false;
     else
       {
         vec.push_back(val);
-        while (toValue(tok,val,pos,s))
+        while (toValue(t,val))
           {
             vec.push_back(val);
           }
-        tokenAdvance(tok,pos,s,1);
-        if ((!(pos<tok.size()))||(tok.at(pos).tok()!=Token_New::RSB))
+        t.tokenAdvance(1);
+        if ((!(t.pos()<t.size()))||(t.currToken().tok()!=Token_New::RSB))
           return false;
-        ++pos;
+        ++t;
         return true;
       }
   }
 
   template<typename T>
-  inline bool toValue( std::deque<Token_New> &tok,
-                       Markov_LA::M_Matrix<T> &m,
-                       std::size_t& pos,
-                       std::istream *s)
+  inline bool toValue(Token_Buffer& t, Markov_LA::M_Matrix<T> &m)
   {
-    tokenAdvance(tok,pos,s,2);
-    if ((!(pos<tok.size()))||
-        (tok.at(pos).tok()!=Token_New::EOL))
+    t.tokenAdvance(2);
+    if ((!(t.pos()<t.size()))||
+        (t.currToken().tok()!=Token_New::EOL))
       return false;
-    ++pos;
+    ++t;
     std::vector<T> v;
     T val;
     if (Markov_LA::size(m)==0)// we have to determine the size ourselves
@@ -318,12 +577,12 @@ namespace  Markov_IO {
         std::size_t ncols=0;
         std::size_t icol=0;
         std::size_t irow=0;
-        while (toValue(tok,val,pos,s))
+        while (toValue(t,val))
           {
             ++irow;
             ++icol;
             v.push_back(val);
-            while (toValue(tok,val,pos,s)) // advances only on success
+            while (toValue(t,val)) // advances only on success
               {
                 icol++;
                 v.push_back(val);
@@ -334,7 +593,7 @@ namespace  Markov_IO {
             else if (ncols!=icol)
               return false;
             icol=0;
-            ++pos;
+            ++t;
           }
         m=Markov_LA::M_Matrix<T>(irow,ncols,v);
         return true;
@@ -346,15 +605,15 @@ namespace  Markov_IO {
           {
             for (std::size_t j=0; j<Markov_LA::ncols(m); ++j)
               {
-                if (toValue(tok,val,pos,s))
+                if (toValue(t,val))
                   m(ii,j)=val;
                 else
                   return false;
               }
-            if ((pos>=tok.size())||(tok.at(pos).tok()!=Token_New::EOL))
+            if ((t.pos()>=t.size())||(t.currToken().tok()!=Token_New::EOL))
               return false;
             else
-              ++pos;
+              ++t;
           }
         return true;
       }
@@ -362,26 +621,23 @@ namespace  Markov_IO {
 
 
   template<typename K,typename T>
-  inline bool toValue( std::deque<Token_New> &tok,
-                       std::pair<K,T>& p,
-                       std::size_t& pos,
-                       std::istream *s)
+  inline bool toValue(Token_Buffer& to, std::pair<K,T>& p)
   {
-    tokenAdvance(tok,pos,s,4);
-    if (!(pos+2<tok.size()))
+    to.tokenAdvance(4);
+    if (!(to.pos()+2<to.size()))
       return false;
-    auto pos0=pos;
+    auto pos0=to.pos();
 
     K k;
     T t;
-    if (tok.at(pos+1).tok()!=Token_New::COLON)
+    if (to.nextToken(1).tok()!=Token_New::COLON)
       return false;
-    if (!toValue(tok,k,pos,s))
+    if (!toValue(to,k))
       return false;
-    ++pos;
-    if (!toValue(tok,t,pos,s))
+    ++to;
+    if (!toValue(to,t))
       {
-        pos=pos0;
+        to.setPos(pos0);
         return false;
       }
     else
@@ -393,34 +649,39 @@ namespace  Markov_IO {
   }
 
   template<typename K,typename T>
-  inline bool toValue( std::deque<Token_New> &tok,
-                       std::map<K,T> &map,
-                       std::size_t& pos,
-                       std::istream *s)
+  inline bool toValue(Token_Buffer& to, std::map<K,T> &map)
   {
-    tokenAdvance(tok,pos,s,4);
+    to.tokenAdvance(4);
     // checks the initial squarebracket
-    if ((!(pos+1<tok.size()))||
-        (tok.at(pos).tok()!=Token_New::EOL)||
-        (tok.at(pos+1).tok()!=Token_New::LSB))
+    if ((!(to.pos()+1<to.size()))||
+        (to.currToken().tok()!=Token_New::EOL)||
+        (to.nextToken(1).tok()!=Token_New::LSB))
       return false;
-    pos+=2;
+    to.advance(2);
     std::pair<K,T> val;
-    if (!toValue(tok,val,pos,s))
+    if (!toValue(to,val))
       return false;
     else
       {
         map.insert(val);
-        while (toValue(tok,val,pos,s))
+        while (toValue(to,val))
           {
             map.insert(val);
           }
-        if ((!(pos<tok.size()))||(tok.at(pos).tok()!=Token_New::RSB))
+        if ((!(to.pos()<to.size()))||(to.currToken().tok()!=Token_New::RSB))
           return false;
-        ++pos;
+        ++to;
         return true;
       }
   }
+
+
+
+
+
+
+
+
 
 
 
@@ -454,9 +715,7 @@ namespace  Markov_IO {
   public:
 
 
-    ABC_Data* getVarFromStream(std::deque<Token_New> &tokensList,
-                              std::size_t& pos,
-                              std::istream *s);
+    ABC_Data* getVarFromStream(Token_Buffer &t);
 
 
 
@@ -535,15 +794,13 @@ namespace  Markov_IO {
 
 
     
-    virtual std::deque<Token_New> toTokens()const=0;
+    virtual Token_Buffer toTokens()const=0;
 
-    virtual bool processTokens(std::deque<Token_New>& tokenList,
-                               std::size_t& pos,
-                               std::istream* s)=0;
+
+    virtual bool processTokens(Token_Buffer& t)=0;
+
 
     // invariant varCreate()->processTokens(toTokens())=true
-
-
 
 
 
@@ -585,9 +842,9 @@ namespace  Markov_IO {
     std::vector<std::string> getChildList()const
     {
       std::vector<std::string> out(numChildVars());
-    for (std::size_t i=0; i<numChildVars(); i++)
-      out[i]=ith_VarName(i);
-    return out;
+      for (std::size_t i=0; i<numChildVars(); i++)
+        out[i]=ith_VarName(i);
+      return out;
     }
 
     virtual const ABC_Data* getChildVar(const std::string& name,const std::string& kind)const=0;
@@ -705,10 +962,10 @@ namespace  Markov_IO {
     virtual std::string myClass() const override;
     virtual void setClass(const std::string& classname)override;
 
-    virtual std::deque<Token_New> toTokens() const override;
-    virtual bool processTokens( std::deque<Token_New> &t,
-                                std::size_t& pos,
-                                std::istream *s) override;
+    virtual Token_Buffer toTokens() const override;
+    virtual bool processTokens( Token_Buffer& tok) override;
+
+
 
 
     virtual std::string id()const override;
@@ -930,33 +1187,31 @@ namespace  Markov_IO {
       return value_;
     }
 
-    virtual std::deque<Token_New> toTokens() const override
+    virtual Token_Buffer toTokens() const override
     {
-      auto out=Implements_VarId::toTokens();
-      out<<"="<<toToken(value())<<"\n";
+      Token_Buffer out=Implements_VarId::toTokens();
+      out<<"="<<value()<<"\n";
       return out;
     }
 
-    bool processTokens( std::deque<Token_New>& t,
-                        std::size_t &pos,
-                        std::istream *s) override
+    bool processTokens( Token_Buffer& t) override
     {
-      if (!Implements_VarId::processTokens(t,pos,s))
+      if (!Implements_VarId::processTokens(t))
         return false;
       else
         {
-          tokenAdvance(t,pos,s,2);
-          if (t.at(pos).tok()!=Token_New::ASSIGN)
+          t.tokenAdvance(2);
+          if (t.currToken().tok()!=Token_New::ASSIGN)
             return false;
-          ++pos;
+          ++t;
           T val;
-          if (!toValue(t,val,pos,s))
+          if (!toValue(t,val))
             return false;
           else
             {
               setValue(val);
-              if (t.at(pos).tok()==Token_New::EOL)
-                ++pos;
+              if (t.currToken().tok()==Token_New::EOL)
+                ++t;
               return true;
             }
         }
@@ -1059,7 +1314,7 @@ namespace  Markov_IO {
 
     virtual  ABC_Data* getChildVar(const std::string& name)override;
     virtual const ABC_Data* getChildVar(const std::string& name,
-                                       const std::string &myclass)const override;
+                                        const std::string &myclass)const override;
     virtual ABC_Data* getChildVar(const std::string& name, const std::string &myclass) override;
     virtual void pushChildVar(ABC_Data *var) override;
     Implements_Complex_Var(
@@ -1152,11 +1407,9 @@ namespace  Markov_IO {
       privateDelete();
     }
 
-    virtual std::deque<Token_New> toTokens() const override;
+    virtual Token_Buffer toTokens() const override;
 
-    virtual bool processTokens( std::deque<Token_New> &tokenList,
-                                std::size_t &pos,
-                                std::istream *s) override;
+    virtual bool processTokens( Token_Buffer& t) override;
 
 
 
@@ -1319,31 +1572,31 @@ namespace  Markov_IO {
 
 
 
-    std::deque<Token_New> toTokens() const override
+    Token_Buffer toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
-      out<<"="<<toToken(value())<<"\n";
+      out<<"="<<value()<<"\n";
       return out;
     }
 
-    bool processTokens( std::deque<Token_New>& t,std::size_t &pos, std::istream *s) override
+    bool processTokens( Token_Buffer&  t) override
     {
-      if (!Implements_VarId::processTokens(t,pos,s))
+      if (!Implements_VarId::processTokens(t))
         return false;
       else
         {
-          tokenAdvance(t,pos,s,2);
-          if (t.at(pos).tok()!=Token_New::ASSIGN)
+          t.tokenAdvance(2);
+          if (t.currToken().tok()!=Token_New::ASSIGN)
             return false;
-          ++pos;
+          ++t;
           T val{};
-          if (!toValue(t,val,pos,s))
+          if (!toValue(t,val))
             return false;
           else
             {
               setValue(val);
-              if (t.at(pos).tok()==Token_New::EOL)
-                ++pos;
+              if (t.currToken().tok()==Token_New::EOL)
+                ++t;
               return true;
             }
         }
@@ -1499,9 +1752,9 @@ namespace  Markov_IO {
         return empty_;
     }
 
-     void moveValue(T &val)  override
+    void moveValue(T &val)  override
     {
-        return  val;
+      return  val;
     }
 
 
@@ -1514,30 +1767,30 @@ namespace  Markov_IO {
 
 
 
-    std::deque<Token_New> toTokens() const override
+    Token_Buffer toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
       out<<"="<<toToken(value())<<"\n";
       return out;
     }
 
-    bool processTokens(const std::deque<Token_New>& t,std::size_t &pos) override
+    bool processTokens(Token_Buffer& t) override
     {
-      if (!Implements_VarId::processTokens(t,pos))
+      if (!Implements_VarId::processTokens(t))
         return false;
       else
         {
-          if (t.at(pos).tok()!=Token_New::ASSIGN)
+          if (t.currToken().tok()!=Token_New::ASSIGN)
             return false;
-          ++pos;
+          ++t;
           T val{};
-          if (!toValue(t,val,pos))
+          if (!toValue(t,val))
             return false;
           else
             {
               setValue(val);
-              if (t.at(pos).tok()==Token_New::EOL)
-                ++pos;
+              if (t.currToken().tok()==Token_New::EOL)
+                ++t;
               return true;
             }
         }
@@ -1705,32 +1958,31 @@ namespace  Markov_IO {
     }
 
 
-
-    std::deque<Token_New> toTokens() const override
+    Token_Buffer toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
-      out<<"="<<toToken(value())<<"\n";
+      out<<"="<<value()<<"\n";
       return out;
     }
 
-    bool processTokens( std::deque<Token_New>& t,std::size_t &pos, std::istream *s) override
+    bool processTokens( Token_Buffer& t) override
     {
-      if (!Implements_VarId::processTokens(t,pos,s))
+      if (!Implements_VarId::processTokens(t))
         return false;
       else
         {
-          tokenAdvance(t,pos,s,2);
-          if (t.at(pos).tok()!=Token_New::ASSIGN)
+          t.tokenAdvance(2);
+          if (t.currToken().tok()!=Token_New::ASSIGN)
             return false;
-          ++pos;
+          ++t;
           T val{};
-          if (!toValue(t,val,pos,s))
+          if (!toValue(t,val))
             return false;
           else
             {
               setValue(val);
-              if (t.at(pos).tok()==Token_New::EOL)
-                ++pos;
+              if (t.currToken().tok()==Token_New::EOL)
+                ++t;
               return true;
             }
         }
@@ -1908,32 +2160,32 @@ namespace  Markov_IO {
     }
 
 
-    std::deque<Token_New> toTokens() const override
+    Token_Buffer toTokens() const override
     {
       auto out=Implements_VarId::toTokens();
-      out<<"="<<toToken(Category())<<"\n";
+      out<<"="<<Category()<<"\n";
       return out;
     }
 
-    bool processTokens(std::deque<Token_New>& t,std::size_t &pos, std::istream *s) override
+   bool processTokens(Token_Buffer& t) override
     {
-      if (!Implements_VarId::processTokens(t,pos,s))
+      if (!Implements_VarId::processTokens(t))
         return false;
       else
         {
-          tokenAdvance(t,pos,s,2);
-          if (t.at(pos).tok()!=Token_New::ASSIGN)
+          t.tokenAdvance(2);
+          if (t.currToken().tok()!=Token_New::ASSIGN)
             return false;
-          ++pos;
+          ++t;
           std::string val{};
-          if (!toValue(t,val,pos,s))
+          if (!toValue(t,val))
             return false;
           else if (!setCategory(val))
             return false;
           else
             {
-              if (t.at(pos).tok()==Token_New::EOL)
-                ++pos;
+              if (t.currToken().tok()==Token_New::EOL)
+                ++t;
               return true;
             }
         }
@@ -2479,10 +2731,8 @@ namespace  Markov_IO {
     std::string refId_;
     // ABC_Var interface
   public:
-    virtual std::deque<Token_New> toTokens() const override;
-    virtual bool processTokens(std::deque<Token_New> &t,
-                               std::size_t& pos,
-                               std::istream *s)override;
+    virtual Token_Buffer toTokens() const override;
+    virtual bool processTokens(Token_Buffer& t)override;
 
 
     virtual std::string ith_VarName(std::size_t i)const  override;
@@ -2688,8 +2938,7 @@ namespace  Markov_IO {
       {
         auto t=a->toTokens();
         Implements_Simple_Var<T> v{};
-        std::size_t pos=0;
-        if (v.processTokens(t,pos,nullptr))
+        if (v.processTokens(t))
           {
             value=v.value();
             return true;
@@ -2717,8 +2966,7 @@ namespace  Markov_IO {
       {
         auto t=a->toTokens();
         Implements_Simple_Var<T> v{};
-        std::size_t pos=0;
-        if (v.processTokens(t,pos,nullptr))
+        if (v.processTokens(t))
           {
             v.moveValue(value);
             return true;
@@ -2737,7 +2985,7 @@ namespace  Markov_IO {
     if (a==nullptr)
       return value;
 
-     ABC_Simple_Var<T>* o=dynamic_cast< ABC_Simple_Var<T>*>(a);
+    ABC_Simple_Var<T>* o=dynamic_cast< ABC_Simple_Var<T>*>(a);
 
     if (o!=nullptr)
       {
@@ -2776,10 +3024,10 @@ namespace  Markov_IO {
 
   template<typename T>
   void ABC_Data::push_backVar(const std::string &name,
-                             T value,
-                             const std::string &classname,
-                             const std::string& tip,
-                             const std::string & whatthis)
+                              T value,
+                              const std::string &classname,
+                              const std::string& tip,
+                              const std::string & whatthis)
   {
     std::string c=classname;
     if (c.empty())
@@ -2877,10 +3125,10 @@ namespace  Markov_IO {
 
   template<>
   inline  void ABC_Data::push_backVar(const std::string &name,
-                                     ABC_Data* value,
-                                     const std::string &classname,
-                                     const std::string& tip,
-                                     const std::string & whatthis)
+                                      ABC_Data* value,
+                                      const std::string &classname,
+                                      const std::string& tip,
+                                      const std::string & whatthis)
 
   {
     if (value!=nullptr)
@@ -3035,10 +3283,10 @@ namespace  Markov_IO {
 
   template<typename Enum>
   void ABC_Data::push_back_CategoryItem(const std::string &name, Enum i,
-                                       const std::string& tip,
-                                       const std::string & whatthis)
+                                        const std::string& tip,
+                                        const std::string & whatthis)
   {
-     pushChildVar(new Implements_Categorical<Enum>(this,name,i,tip,whatthis));
+    pushChildVar(new Implements_Categorical<Enum>(this,name,i,tip,whatthis));
 
   }
 
@@ -3059,46 +3307,6 @@ namespace  Markov_IO {
     ss1.insert(ss2.begin(),ss2.end());
     return ss1;
   }
-
-
-  inline std::deque<Token_New> &operator<<(std::deque<Token_New> &tok1, const std::deque<Token_New> &tok2)
-  {
-    tok1.insert(tok1.end(),tok2.begin(),tok2.end());
-    return tok1;
-  }
-
-  inline std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, const std::string &text)
-  {
-    std::stringstream ss(text);
-    Token_New t;
-    while (t.get(ss))
-      {
-        tok.push_back(t);
-      }
-
-    return tok;
-  }
-
-
-  inline std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, const char* text)
-  {
-    std::stringstream ss(text);
-    Token_New t;
-    while (t.get(ss))
-      {
-        tok.push_back(t);
-      }
-
-    return tok;
-  }
-
-
-  inline std::deque<Token_New> &operator<<(std::deque<Token_New> &tok, double d)
-  {
-    tok.push_back(Token_New(d));
-    return tok;
-  }
-
 
 
 

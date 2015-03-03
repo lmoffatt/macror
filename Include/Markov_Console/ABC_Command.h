@@ -144,8 +144,6 @@ namespace Markov_Console
     std::vector<bool> outputMandatory_;
 
 
-
-
   };
 
 }

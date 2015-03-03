@@ -10,6 +10,7 @@
 #include "Markov_IO/Object.h"
 
 #include "Markov_GUI/MacrorEditWindow.h"
+#include "Markov_GUI/ABC_Var_GUI.h"
 
 
 
@@ -256,209 +257,17 @@ bool MacrorEditCommand::run(const std::string& varname)
         eW->show();
         return true;
     }
+    else if (cm_->has_child(varname))
+      {
+        Markov_GUI::EditVariableDialog*
+            eD=new Markov_GUI::EditVariableDialog(nullptr,cm_->getChildVar(varname));
+        eD->show();
+
+      }
     else
 
         return false;
 }
-
-
-
-
-
-MacrorVarEditWindow::MacrorVarEditWindow(QString Qvarname,
-                                   Markov_Console::Markov_CommandManager* cm,
-                                   QWidget* parent):
-
-    QDialog(parent),
-    cm_(cm),
-    pw_(0),
-    alias(Qvarname)
-{
-
-    std::string varname=Qvarname.toStdString();
-
-
-    if (cm_->has_child(varname))
-    {
-        v=cm_->getChildVar(varname);
-        init();
-    }
-}
-
-MacrorVarEditWindow::MacrorVarEditWindow(QString fieldName,
-                                   MacrorVarEditWindow *parent):
-
-    QDialog(parent),
-    cm_(parent->cm_),
-    pw_(parent),
-    alias(parent->alias+"."+fieldName),
-    myFieldName(fieldName),
-    v(parent->getFieldClass(fieldName))
-{
-    if (v)
-        init();
-}
-
-
-void MacrorVarEditWindow::changeClass(QString newClass)
-{
-    if (cm_->has_type(newClass.toStdString()))
-    {
-        if (v_old)
-        {
-            if (v_old->myClass()==newClass.toStdString())
-            {
-                std::swap(v,v_old);
-            }
-        }
-        delete v_old;
-        v_old=v;
-        Markov_IO::ABC_Saveable* newv;
-        Markov_IO::create(newv,newClass.toStdString());
-        v=newv;
-        init();
-        update();
-    }
-
-}
-
-
-void MacrorVarEditWindow::init()
-{
-    setWindowTitle(QString(alias).prepend("Edit "));
-
-    QVBoxLayout* mainLayout=new QVBoxLayout;
-    nameLabel= new QLabel(tr("id&Name"));
-    nameEdit= new QLineEdit(QString(v->id().c_str()));
-    nameLabel->setBuddy(nameEdit);
-    mainLayout->addWidget(nameLabel);
-    mainLayout->addWidget(nameEdit);
-
-
-   QString classL="Class "+v->myClass().c_str();
-
-    classLabel= new QLabel(classL);
-
-    mainLayout->addWidget(classLabel);
-
-
-
-    buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                     | QDialogButtonBox::Cancel);
-
-    buttonBox->buttons().value(0)->setToolTip("accept editing");
-    buttonBox->buttons().value(1)->setToolTip("cancel editing");
-    buttonBox->buttons().value(1)->setWhatsThis("Press this button to finish when you think the editing"
-                                                "has finished. Press the cancel button when you do not want"
-                                                " to save the work done");
-
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    mainLayout->addWidget(buttonBox);
-
-
-    QVBoxLayout* fieldsLayout=new QVBoxLayout;
-
-    for (std::size_t i=0; i<desc.size(); i++)
-    {
-        QString fieldName=desc.ElementName(i).c_str();
-        fieldNames.push_back(fieldName);
-        EditWidgetField* fe=EditWidgetField::create(fieldName,this);
-        fe->init();
-        fieldsMap[fieldName]=fe;
-        fieldsLayout->addWidget(fe);
-
-    }
-
-    QWidget* fieldsWidget=new QWidget;
-    QScrollArea* area=new QScrollArea(this);
-    fieldsWidget->setLayout(fieldsLayout);
-    area->setWidget(fieldsWidget);
-    mainLayout->addWidget(area);
-    delete layout();
-    setLayout(mainLayout);
-
-
-
-}
-
-
-
-
-
-const Markov_IO::ABC_Data *MacrorVarEditWindow::getFieldClass(QString fieldName)const
-{
-    return desc.ElementClass(fieldName.toStdString());
-}
-
-QString MacrorVarEditWindow::getFieldValue(QString fieldName)const
-{
-    return QString(desc.ElementValue(desc.NameIndex(fieldName.toStdString())).c_str());
-}
-
-const Markov_IO::ABC_Object* MacrorVarEditWindow::getFieldObject(QString fieldName) const{
-    return desc[fieldName.toStdString()];
-}
-
-
-QString MacrorVarEditWindow::getFieldTip(QString fieldName)const
-{
-    return QString(desc.Tip(desc.NameIndex(fieldName.toStdString())).c_str());
-}
-
-QString MacrorVarEditWindow::getFieldWhatThis(QString fieldName)const
-{
-    return QString(desc.WhatThis(desc.NameIndex(fieldName.toStdString())).c_str());
-
-}
-
-QString MacrorVarEditWindow::getAlias()const
-{
-    return alias;
-}
-
-
-
-
-
-bool MacrorVarEditWindow::replaceField(QString fieldName,QString newValue)
-{
-    return desc.ReplaceElement(fieldName.toStdString(),newValue.toStdString());
-}
-bool MacrorVarEditWindow::replaceField(QString fieldName,const Markov_IO::ABC_Object* newObject)
-{
-   return desc.ReplaceElement(fieldName.toStdString(),*newObject);
-
-}
-
-
-void MacrorVarEditWindow::accept()
-{
-    for (int i=0;i<fieldNames.size();++i)
-    {
-        fieldsMap[fieldNames.at(i)]->updateValue();
-    }
-
-    Markov_IO::ABC_Saveable* vv=v->clone();
-    vv->LoadFromDescription(desc);
-
-    if (pw_)
-    {
-        pw_->replaceField(myFieldName,vv);
-    }
-    else
-    {
-        cm_->add_var(alias.toStdString(),vv);
-    }
-
-QDialog::accept();
-
-}
-
-
-
-
 
 
 

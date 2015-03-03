@@ -132,7 +132,7 @@ namespace Markov_Console
           //safeGetline allow loading windows files in linux
           //TODO: check if it loads linux files in windows
 
-          std::deque<Markov_IO::Token_New> tok;
+          Markov_IO::Token_Buffer tok(&f);
           while (Markov_IO::safeGetline(f,varname))
             {
 
@@ -156,8 +156,7 @@ namespace Markov_Console
                    varnames.end()))
                 {
                   tok<<varname;
-                  std::size_t pos=0;
-                  auto v=this->getCommandManager()->getVarFromStream(tok,pos,&f);
+                  auto v=this->getCommandManager()->getVarFromStream(tok);
                   if (v!=nullptr)
                   {
                       numVar++;
@@ -165,12 +164,11 @@ namespace Markov_Console
                   else
                   {
                       std::string m="unrecognized variable; read text ";
-                      m+=Markov_IO::putTokenBuffer(tok,pos);
+                      m+=tok.putTokenBuffer();
                       getCommandManager()->putErrorOut(m);
                    }
                   auto w=getCommandManager()->moveVarToObject(v);
-                  tok.erase(tok.begin(),tok.begin()+pos);
-                  pos=0;
+                  tok.cleanRead();
                 }
             }
           if (errorMessage_.empty())

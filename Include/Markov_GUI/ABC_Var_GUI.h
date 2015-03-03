@@ -19,24 +19,22 @@ class QSpinBox;
 
 namespace Markov_IO {
 
-  inline bool toValue( std::deque<Token_New> &tok,
-                      QString &val,
-                      std::size_t &pos,
-                      std::istream *s)
+  inline bool toValue( Token_Buffer &tok,
+                      QString &val)
   {
-    tokenAdvance(tok,pos,s,1);
-    if (!(pos<tok.size())) return false;
-    if (tok.at(pos).tok()!=Token_New::IDENTIFIER)
+    tok.tokenAdvance(1);
+    if (!(tok.pos()<tok.size())) return false;
+    if (tok.currToken().tok()!=Token_New::IDENTIFIER)
       return false;
     else
       {
-        val=tok.at(pos).str().c_str();
-        ++pos;
+        val=tok.currToken().str().c_str();
+        ++tok;
         return true;
       }
   }
 
-  inline std::deque<Token_New>& operator<<(std::deque<Token_New>& tok,
+  inline Token_Buffer& operator<<(Token_Buffer& tok,
                                            const QString& text)
   {
     std::stringstream ss(text.toStdString());

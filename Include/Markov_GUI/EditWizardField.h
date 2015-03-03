@@ -12,6 +12,8 @@ class QTableView;
 class QLineEdit;
 class QSpinBox;
 
+
+
 class EditWizardField:public QWidget
 {
     Q_OBJECT

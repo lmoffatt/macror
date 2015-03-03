@@ -1,4 +1,4 @@
-#include "Include/Markov_Console/BayesianAutocomplete.h"
+#include "Markov_Console/BayesianAutocomplete.h"
 
 namespace Markov_Console {
 
