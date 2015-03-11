@@ -27,71 +27,77 @@ deriving Markov_CommandManager but by catching them before Markov_CommandManager
 
 class MacrorCommandWindow: public QPlainTextEdit, public Markov_IO::ABC_IO
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    MacrorCommandWindow(MacrorMainWindow *parent,
-                         Markov_Console::Markov_CommandManager* cm=
-            new Markov_Console::Markov_CommandManager());
-    ~MacrorCommandWindow();
+  MacrorCommandWindow(MacrorMainWindow *parent,
+                      Markov_Console::Markov_CommandManager* cm=
+      new Markov_Console::Markov_CommandManager());
+  ~MacrorCommandWindow();
 
 
-    /// get a string from the input source
-    virtual std::string getline();
 
-    /// put a string to the output source
-    virtual void put(const std::string &s) ;
+  /// put a string to the output source
+  virtual void put(const std::string &s) ;
 
-virtual void putError(const std::string &);
+  virtual void putError(const std::string &);
+
+  virtual void showMessage(const std::string &m);
 
 
-    bool lastCommandResult()const;
+  bool lastCommandResult()const;
 
-    virtual QString getDir()const;
+  virtual QString getDir()const;
+
+  virtual std::string getItemFromList(const std::string &title, const std::vector<std::string> &list, bool &ok, std::size_t current);
+
+  virtual void erase_from_cursor(int n);
+
+  virtual void move_cursor(int n);
 protected:
 
 
 
-    Markov_Console::Markov_CommandManager* MarkovCommand();
-    const Markov_Console::Markov_CommandManager* MarkovCommand()const;
-    virtual void	keyPressEvent ( QKeyEvent * e );
+  Markov_Console::Markov_CommandManager* MarkovCommand();
+  const Markov_Console::Markov_CommandManager* MarkovCommand()const;
+  virtual void	keyPressEvent ( QKeyEvent * e );
 
 
 public slots:
-    virtual void commandLine(const QString& line);
+  virtual void commandLine(const QString& line);
 
-    virtual void addCommandLine(const QString& line);
+  virtual void addCommandLine(const QString& line);
 
-    virtual void next_instruction();
+  virtual void next_instruction();
 
 
 
 
 signals:
-    void commandLineExecuted(const QString& line);
-    void outputGenerated(const QString& output);
+  void commandLineExecuted(const QString& line);
+  void outputGenerated(const QString& output);
 
 
 
 private:
-    bool graphCommandLine(const QString& line);
+  bool graphCommandLine(const QString& line);
 
-    bool plot(const QString& line);
+  bool plot(const QString& line);
 
-    bool modelChannel(const QString& line);
+  bool modelChannel(const QString& line);
 
-    bool modelPatch(const QString& line);
+  bool modelPatch(const QString& line);
 
-    bool edit(const QString& varname);
+  bool edit(const QString& varname);
 
-    MacrorMainWindow* mw_;
-    Markov_Console::Markov_CommandManager* cm_;
-    int cursorPosition;
-    int previous_key;
-    QString cmdLine;
-    QString cmdWord;
-    QString tail;
-    QLabel* message;
+  MacrorMainWindow* mw_;
+  Markov_Console::Markov_CommandManager* cm_;
+  int cursorPosition;
+  int previous_key;
+  QString cmdLine;
+  QString cmdWord;
+  QString tail;
+  QLabel* message;
 
 
 };

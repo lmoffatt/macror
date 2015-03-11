@@ -376,6 +376,9 @@ namespace Markov_Console
 
   }
 
+  bool   ABC_Command::run(Markov_IO::Token_Buffer &tokenList)
+  {
+    }
 
 
   bool ABC_Command::run(std::deque<Token> &tokenList)

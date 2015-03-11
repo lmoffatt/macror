@@ -12,7 +12,7 @@
 
 namespace Markov_Plot
 {
-  class GraphView: public QGraphicsView, public Markov_IO::Implements_Complex_Var
+  class GraphView: public QGraphicsView, public Markov_IO::Implements_Complex_Value
   {
     Q_OBJECT
 
@@ -20,25 +20,25 @@ namespace Markov_Plot
     GraphView(QWidget* parent=0);
 
     GraphView(QWidget *parent,
-              Markov_IO::ABC_Data *e,
+              Markov_IO::ABC_Value *e,
               qreal width,
               qreal height);
 
     virtual ~GraphView();
 
 
-    friend GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data* e,
+    friend GraphView* aplot(QWidget* parent, Markov_IO::ABC_Value* e,
                             const Markov_LA::M_Matrix<double>& x);
-    friend GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data* e,
+    friend GraphView* aplot(QWidget* parent, Markov_IO::ABC_Value* e,
                             const Markov_LA::M_Matrix<double>& x,
                             const Markov_LA::M_Matrix<double>& y);
 
-    friend GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data* e,
+    friend GraphView* aplot(QWidget* parent, Markov_IO::ABC_Value* e,
                             const Markov_IO::ABC_trace& trace);
-    friend GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data* e,
+    friend GraphView* aplot(QWidget* parent, Markov_IO::ABC_Value* e,
                             const Markov_IO::ABC_Experiment& experiment);
 
-    friend GraphView* aplot(QWidget* parent,Markov_IO::ABC_Data* e,
+    friend GraphView* aplot(QWidget* parent,Markov_IO::ABC_Value* e,
                             const Markov_Bay::YfitLikelihoodEvaluation& yfit,
                             std::size_t itrace);
 
@@ -69,18 +69,18 @@ namespace Markov_Plot
 
   };
 
-  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data *e,
+  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Value *e,
                    const Markov_LA::M_Matrix<double>& x);
-  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Data* e,
+  GraphView* aplot(QWidget* parent, Markov_IO::ABC_Value* e,
                    const Markov_LA::M_Matrix<double>& x,
                    const Markov_LA::M_Matrix<double>& y);
 
   GraphView* aplot(QWidget* parent,
-                   Markov_IO::ABC_Data* e,
+                   Markov_IO::ABC_Value* e,
                    const Markov_IO::ABC_trace& trace);
 
 
- GraphView* aplot(QWidget* parent,Markov_IO::ABC_Data* e,
+ GraphView* aplot(QWidget* parent,Markov_IO::ABC_Value* e,
                           const Markov_Bay::YfitLikelihoodEvaluation& yfit,
                           std::size_t itrace);
 

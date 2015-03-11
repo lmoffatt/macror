@@ -23,7 +23,7 @@
 namespace Markov_GUI {
 
 
-  EditField::EditField(QWidget* parent, Markov_IO::ABC_Data *av):
+  EditField::EditField(QWidget* parent, Markov_IO::ABC_Value *av):
     QWidget(parent),
     var_(av)
   {
@@ -59,29 +59,29 @@ namespace Markov_GUI {
 
 
 
-  EditField* EditField::create(QWidget *parent, Markov_IO::ABC_Data* v)
+  EditField* EditField::create(QWidget *parent, Markov_IO::ABC_Value* v)
   {
     if (v==nullptr)
       return nullptr;
 
 
     if (v->complyClass(
-          Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<double> >::ClassName()))
+          Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<double> >::ClassName()))
       return new EditFieldMatrixDoubles(parent,v);
     else if (v->complyClass(
-               Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t> >::ClassName()))
+               Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t> >::ClassName()))
       return new EditWizardMatrixSizes(parent,v);
     else if (v->complyClass(
-               Markov_IO::Implements_Simple_Var<double >::ClassName()))
+               Markov_IO::Implements_Simple_Value<double >::ClassName()))
       return new EditWizardDouble(parent,v);
     else if (v->complyClass(
-               Markov_IO::Implements_Simple_Var<std::size_t >::ClassName()))
+               Markov_IO::Implements_Simple_Value<std::size_t >::ClassName()))
       return new EditWizardSize(parent,v);
     else if (v->complyClass(
-               Markov_IO::Implements_Simple_Var<bool>::ClassName()))
+               Markov_IO::Implements_Simple_Value<bool>::ClassName()))
       return new EditWizardBool(parent,v);
     else if (v->complyClass(
-               Markov_IO::Implements_Simple_Var<std::string>::ClassName()))
+               Markov_IO::Implements_Simple_Value<std::string>::ClassName()))
       return new EditWizardString(parent,v);
     else return nullptr;
   }
@@ -89,9 +89,9 @@ namespace Markov_GUI {
 
 
   EditFieldMatrixDoubles::EditFieldMatrixDoubles(QWidget* parent,
-                                                 Markov_IO::ABC_Data* av):
+                                                 Markov_IO::ABC_Value* av):
     EditField(parent ,av),
-    v(dynamic_cast<Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<double>>*>(var_)),
+    v(dynamic_cast<Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<double>>*>(var_)),
     table (new QTableView)
   {
 
@@ -154,15 +154,15 @@ namespace Markov_GUI {
         myLayout->addWidget(units);
       }
 */
-    if ((v->motherClass()->complyModes("ROW_INDEX"))&&(v->motherClass()->complyModes("COL_INDEX")))
+    if ((v->myVarPtr()->complyModes("ROW_INDEX"))&&(v->myVarPtr()->complyModes("COL_INDEX")))
 
       {
         QHBoxLayout* lay=new QHBoxLayout;
 
 
-        if (v->motherClass()->complyModes("ROW_INDEX"))
+        if (v->myVarPtr()->complyModes("ROW_INDEX"))
           {
-            if  (v->motherClass()->complyModes("COL_INDEX"))
+            if  (v->myVarPtr()->complyModes("COL_INDEX"))
               {
                 QSpinBox* numCols=new QSpinBox(this);
                 columnExpandable=true;
@@ -194,7 +194,7 @@ namespace Markov_GUI {
               }
 
           }
-        else if (v->motherClass()->complyModes("COL_INDEX"))
+        else if (v->myVarPtr()->complyModes("COL_INDEX"))
           {
             QSpinBox* numCols=new QSpinBox(this);
             columnExpandable=true;
@@ -247,12 +247,12 @@ namespace Markov_GUI {
 
   bool EditFieldMatrixDoubles::isValid()const
   {
-    if (var_->motherClass()->complyModes("NOT_ALL_ZERO"))
+    if (var_->myVarPtr()->complyModes("NOT_ALL_ZERO"))
       {
         if (v->refval()==0.0)
           return false;
       }
-    if (var_->motherClass()->complyModes("Q_MATRIX"))
+    if (var_->myVarPtr()->complyModes("Q_MATRIX"))
       {
         if (v->refval()==0.0)
           return false;
@@ -412,9 +412,9 @@ namespace Markov_GUI {
 
 
 
-  EditWizard_Complex_Var::EditWizard_Complex_Var(QWidget* parent,Markov_IO::ABC_Data *av):
+  EditWizard_Complex_Var::EditWizard_Complex_Var(QWidget* parent,Markov_IO::ABC_Value *av):
     EditField(parent,av),
-    cvar_(dynamic_cast<Markov_IO::Implements_Complex_Var*>(av)),
+    cvar_(dynamic_cast<Markov_IO::Implements_Complex_Value*>(av)),
     isvalid(false)
   {
     QLabel* label=new QLabel(cvar_->id().c_str());
@@ -439,11 +439,13 @@ namespace Markov_GUI {
 
   void EditWizard_Complex_Var::editMe()
   {
-    auto v=cvar_->to_ComplexVar();
+    auto v=cvar_->to_PlainValue();
     EditVariableDialog* c=new EditVariableDialog(this,v);
     if (c->exec()==1)
       {
-        cvar_->loadFromComplexVar(v);
+
+        /// FIXME: replace this with something!!
+      //  cvar_->loadFromObjectValue(v);
 
         isvalid=true;
         lineEdit->setText(QString(cvar_->id().c_str()));
@@ -465,9 +467,9 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardMatrixSizes::EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Data * av):
+  EditWizardMatrixSizes::EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Value * av):
     EditField(parent,av),
-    v(dynamic_cast<Markov_IO::Implements_Simple_Var<Markov_LA::M_Matrix<std::size_t>>*>(av))
+    v(dynamic_cast<Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>*>(av))
   {
     QTableView *table=new QTableView;
 
@@ -516,9 +518,9 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardDouble::EditWizardDouble(QWidget * parent,Markov_IO::ABC_Data*av):
+  EditWizardDouble::EditWizardDouble(QWidget * parent,Markov_IO::ABC_Value*av):
     EditField(parent,av),
-    v(dynamic_cast < Markov_IO::Implements_Simple_Var<double>*>(av))
+    v(dynamic_cast < Markov_IO::Implements_Simple_Value<double>*>(av))
   {
 
     //    const Markov_IO::Object<double > * od;
@@ -571,7 +573,7 @@ namespace Markov_GUI {
 
   bool EditWizardDouble::isValid()const
   {
-    if (var_->motherClass()->complyModes("NOT_ZERO"))
+    if (var_->myVarPtr()->complyModes("NOT_ZERO"))
       {
         if (d_==0)
           return false;
@@ -596,9 +598,9 @@ namespace Markov_GUI {
     lineEdit->updateGeometry();
   }
 
-  EditWizardSize::EditWizardSize(QWidget * parent,Markov_IO::ABC_Data*av):
+  EditWizardSize::EditWizardSize(QWidget * parent,Markov_IO::ABC_Value*av):
     EditField(parent,av),
-    v(dynamic_cast < Markov_IO::Implements_Simple_Var<std::size_t>*>(av)),
+    v(dynamic_cast < Markov_IO::Implements_Simple_Value<std::size_t>*>(av)),
     s_(v->value())
   {
 
@@ -660,9 +662,9 @@ namespace Markov_GUI {
   }
 
 
-  EditWizardBool::EditWizardBool(QWidget * parent,Markov_IO::ABC_Data*av):
+  EditWizardBool::EditWizardBool(QWidget * parent,Markov_IO::ABC_Value*av):
     EditField(parent,av),
-    v(dynamic_cast < Markov_IO::Implements_Simple_Var<bool>*>(av)),
+    v(dynamic_cast < Markov_IO::Implements_Simple_Value<bool>*>(av)),
     b_(v->value())
   {
 
@@ -718,9 +720,9 @@ namespace Markov_GUI {
 
 
 
-  EditWizardString::EditWizardString(QWidget * parent,Markov_IO::ABC_Data*av):
+  EditWizardString::EditWizardString(QWidget * parent,Markov_IO::ABC_Value*av):
     EditField(parent,av),
-    v(dynamic_cast < Markov_IO::Implements_Simple_Var<std::string>*>(av))
+    v(dynamic_cast < Markov_IO::Implements_Simple_Value<std::string>*>(av))
   {
 
     //    const Markov_IO::Object<std::string > * od;

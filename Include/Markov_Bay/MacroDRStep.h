@@ -15,7 +15,7 @@ public:
     virtual const  Markov_LA::M_Matrix<double>& P_mean()const override;
     virtual  const Markov_LA::M_Matrix<double>& P_cov()const override;
 
-    virtual  std::string myClass()const override;
+    virtual  std::string myVar()const override;
     static  std::string ClassName();
 
 

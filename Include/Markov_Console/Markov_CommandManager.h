@@ -25,6 +25,10 @@
 #include "Markov_Console/CommandHistory.h"
 #include "Markov_Console/Autocomplete.h"
 
+//#include "Markov_Console/MacorCoreApplication.h"
+
+
+
 #include "Markov_IO/FileDir.h"
 
 #include "Markov_Bay/ABC_Result.h"
@@ -35,7 +39,7 @@
 namespace Markov_Console
 {
 
-/**
+  /**
   @brief Markov_CommandManager manages the commands
   to be executed, keep the declared variables and
   allow to make runs.
@@ -43,16 +47,21 @@ namespace Markov_Console
   @warning declared variables in MacroR languaje can't be redeclared.
   */
 
+  class ExpressionManager;
 
-class Markov_CommandManager: public Markov_IO::ABC_Environment
-{
-public:
+  class Markov_CommandManager: public Markov_IO::ABC_Environment
+  {
+  public:
+
+    virtual void KeyEvent(Markov_IO::Key k);
+
+
     Markov_CommandManager();
     virtual ~Markov_CommandManager();
 
-     std::string buildVersion()const;
-     std::string buildDate()const;
-     std::string uncommitedFiles()const;
+    std::string buildVersion()const;
+    std::string buildDate()const;
+    std::string uncommitedFiles()const;
 
     virtual std::string version()const;
     virtual std::string wellcomeMessage(unsigned ncols=80)const;
@@ -64,9 +73,27 @@ public:
 
     virtual void add_tokens(std::string commandLine);
 
+    //  virtual void add_tokens(Markov_IO::Token_Buffer&& buffer);
+
+
     virtual std::string add_single_token(const std::string &command);
 
     virtual std::string check_tokens();
+    virtual  std::vector<std::string> complete(const Markov_Console::ExpressionManager& e){}
+
+    virtual  std::string check(const Markov_Console::ExpressionManager& e){}
+
+    virtual void process(ExpressionManager &e);
+
+
+    //  virtual bool check_tokens(const Markov_IO::Token_Buffer &b, std::string candidate, std::string *errMessage);
+
+
+    //   virtual std::string try_world(Markov_Console::ExpressionManager& exp);
+
+
+    //    virtual std::vector<std::string> complete(Markov_Console::ExpressionManager& exp);
+
 
 
     virtual std::vector<std::string> complete(const std::string& hint);
@@ -124,10 +151,10 @@ public:
     virtual  bool checkVariable(std::string var, std::string superClass) const;
 
     virtual std::vector<std::string> getSiblings(std::string name) const;
-     virtual std::vector<std::string> getVarSiblings(std::string name) const;
+    virtual std::vector<std::string> getVarSiblings(std::string name) const;
 
 
-     virtual  std::vector<std::string> getChilds(std::string name)const;
+    virtual  std::vector<std::string> getChilds(std::string name)const;
 
 
 
@@ -150,17 +177,23 @@ public:
 
     static bool isMacroFile(const std::string& path);
     static Autocomplete LoadFiles(const std::string& dir);
-  static std::size_t getVersion(const std::string& line);
+    static std::size_t getVersion(const std::string& line);
 
     static std::string getHelpDir();
 
 
-protected:
+  protected:
     Markov_IO::ABC_IO* io_;
+
+    ExpressionManager* e;
 
     std::string dir_;
 
     std::map<std::string, ABC_Command*> cmds;
+
+    std::map<std::string, Markov_IO::ABC_Value*> classTypes;
+
+
     Autocomplete cmdsl;
 
 
@@ -206,7 +239,7 @@ protected:
 
 
     // ABC_Environment interface
-public:
+  public:
     virtual void putOut(const std::string &m) const
     {
       getIO()->put(m);
@@ -215,11 +248,12 @@ public:
     {
       getIO()->putError(m);
     }
-    virtual std::string getLineIn()
-    {
-      return getIO()->getline();
-    }
-};
+
+    virtual ABC_Command *getCommand(const Markov_IO::Token_New &t);
+    bool processVariable(ExpressionManager &e);
+    bool processCommand(ExpressionManager &e);
+    Markov_IO::ABC_Value *getClass(std::string name);
+  };
 
 }
 

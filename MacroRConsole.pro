@@ -236,7 +236,6 @@ HEADERS += \
     Include/Markov_Console/ExportCommand.h \
     Include/Markov_Console/MkdirCommand.h \
     Include/Markov_IO/ABC_IO.h \
-    Include/Markov_IO/STD_IO.h \
     Include/Markov_Console/ExitCommand.h \
     Include/Markov_Console/EditCommand.h \
     Include/Markov_Console/WhoCommand.h \
@@ -370,7 +369,6 @@ SOURCES +=  \
     Source/Markov_Console/LoadCommand.cpp \
     Source/Markov_Console/ExportCommand.cpp \
     Source/Markov_Console/MkdirCommand.cpp \
-    Source/Markov_IO/STD_IO.cpp \
     Source/Markov_Console/ExitCommand.cpp \
     Source/Markov_Console/EditCommand.cpp \
     Source/Markov_IO/ABC_Parametrizable.cpp \
@@ -469,11 +467,13 @@ HEADERS += \
     Include/Markov_IO/ABC_Environment.h \
     Include/Markov_IO/ABC_Var.h \
     Include/Markov_Mol/ABC_Q.h \
-    Include/Markov_Console/MacorCoreApplication.h
+    Include/Markov_Console/MacorCoreApplication.h \
+    Include/Markov_Console/ExpressionManager.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp
+    Source/Markov_Console/BayesianAutocomplete.cpp \
+    Source/Markov_Console/ExpressionManager.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

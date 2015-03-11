@@ -18,7 +18,7 @@ namespace Markov_Bay
 
     virtual Macro_NR_step* create()const;
 
-    virtual  std::string myClass()const;
+    virtual  std::string myVar()const;
     static  std::string ClassName();
 
     virtual const  Markov_LA::M_Matrix<double>& P_mean()const;
@@ -53,8 +53,7 @@ namespace Markov_Bay
 
     virtual Macro_NR_step& run(const Markov_IO::ABC_measure_step& Y);
 
-    Macro_NR_step(Markov_IO::ABC_Data* e,
-                  const std::string &id,
+    Macro_NR_step(const std::string &id,
                   const Markov_Mol::ABC_PatchModel& M,
                   bool is_averaging,
                   const std::string &tip="",

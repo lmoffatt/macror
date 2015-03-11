@@ -176,7 +176,7 @@ namespace Markov_Test
       std::cerr<<"llega ";
 
       ABC_Markov_Likelihood_step_Test
-          macroRAvgTest(Macro_R_step(cm,"Macro_R_with_averaging",
+          macroRAvgTest(Macro_R_step("Macro_R_with_averaging",
                                      *patch_many,true,true,"class Macro_R_step with averaging"));
       MultipleTests pMRA("class Macro_R_step with averaging",
                          "test against many channels on long step");
@@ -192,7 +192,7 @@ namespace Markov_Test
                           "test against few channels on short step");
 
 
-      Macro_R_step MRNA(cm,"Macro_R_without_averaging",
+      Macro_R_step MRNA("Macro_R_without_averaging",
                         *patch_few,false,true,"class Macro_R_step without averaging");
       MRNA.start(0);
       xst_short_few.y(Markov_LA::NaN());

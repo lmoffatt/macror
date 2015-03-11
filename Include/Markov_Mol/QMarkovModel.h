@@ -14,12 +14,21 @@
 
 #include "Markov_IO/ABC_Var.h"
 
+#include<set>
+#include<map>
+
 namespace Markov_Mol
 {
 
   using Markov_IO::x_dt;
-//  using Markov_IO::ClassDescription;
+  //  using Markov_IO::ClassDescription;
   using Markov_IO::ToValue;
+
+
+
+
+
+
 
 
 
@@ -28,11 +37,15 @@ namespace Markov_Mol
   class Q_Markov_Model: public Markov_IO::Implements_Class_Reflection<Q_Markov_Model>,public ABC_Markov_Model
   {
   public:
+
+    virtual Implements_Complex_Value* to_PlainValue()const;
+
+
     virtual Q_Markov_Model* clone() const;
 
     virtual Q_Markov_Model* create() const;
 
-    virtual ABC_Data* cloneFromData(ABC_Data *parent, const ABC_Data *source) const
+    virtual Q_Markov_Model* toSameVar(const ABC_Value *source) const
     {
       if (sameFields(source))
         {
@@ -40,46 +53,29 @@ namespace Markov_Mol
           decltype(g0_M) gt;
           decltype(a_M) at;
           decltype(gamma()) gammat;
-          bool bQ=source->getValue("Q_matrix",Qt);
-          auto bg=source->getValue("conductance_vector",gt);
-          bool ba=source->getValue("agonist_vector",at);
-          bool bgamma=source->getValue("unitary_conductance", gammat);
+          bool bQ=source->getVal("Q_matrix",Qt);
+          auto bg=source->getVal("conductance_vector",gt);
+          bool ba=source->getVal("agonist_vector",at);
+          bool bgamma=source->getVal("unitary_conductance", gammat);
 
           if (bQ&&bg&&ba&&bgamma)
             {
-              return new Q_Markov_Model(parent,source->id(),Qt,gt,at,gammat,
-                                        nullptr,source->Tip(),source->WhatThis());
-            }
-        }
-        return nullptr;
-    }
-
-
-
-    virtual ABC_Data* moveFromData(ABC_Data *parent,ABC_Data *&source) const
-    {
-      if (sameFields(source))
-        {
-          decltype(Q0_M) Qt;
-          decltype(g0_M) gt;
-          decltype(a_M) at;
-          decltype(gamma()) gammat;
-          bool bQ=source->moveValue("Q_matrix",Qt);
-          auto bg=source->moveValue("conductance_vector",gt);
-          bool ba=source->moveValue("agonist_vector",at);
-          bool bgamma=source->moveValue("unitary_conductance", gammat);
-
-          if (bQ&&bg&&ba&&bgamma)
-            {
-              return new Q_Markov_Model(parent,source->id(),std::move(Qt),
-                                        std::move(gt),
-                                        std::move(at),
+              return new Q_Markov_Model(source->id(),
+                                        Q_Markov_Model::ClassName(),
+                                        Qt,
+                                        gt,
+                                        at,
                                         gammat,
-                                        nullptr,source->Tip(),source->WhatThis());
+                                        nullptr,
+                                        source->Tip(),
+                                        source->WhatThis());
             }
         }
-        return nullptr;
+      return nullptr;
     }
+
+
+
 
 
 
@@ -87,7 +83,6 @@ namespace Markov_Mol
 
     virtual const Markov_IO::Parameters& get_parameters()const;
 
-    virtual std::string name()const;
 
     virtual const ABC_PatchModel* patch()const;
 
@@ -175,30 +170,28 @@ namespace Markov_Mol
 
 
 
-    Q_Markov_Model(Markov_IO::ABC_Data* parent,
-                   const std::string& model_name,
+    Q_Markov_Model(const std::string& idName,
+                   const std::string& idVarName,
+
                    const M_Matrix<double>& Q_matrix,
                    const M_Matrix<double>& conductance_vector,
                    const M_Matrix<std::size_t>& agonist_vector,
                    double unitary_conductance,
-                   ABC_PatchModel* mypatch=0,
+                   const ABC_PatchModel* mypatch=0,
                    const std::string& tip="",
                    const std::string& whatthis="");
 
-    Q_Markov_Model(const std::string &model_name,
-                   std::size_t n, ABC_PatchModel *mypatch=0);
 
 
     Q_Markov_Model()=default;
 
     Q_Markov_Model(const Q_Markov_Model& other)=default;
 
-   Q_Markov_Model(Q_Markov_Model&& other)=default;
+    Q_Markov_Model(Q_Markov_Model&& other)=default;
 
-    Q_Markov_Model(const ABC_Markov_Model& M);
 
     Q_Markov_Model& operator=(const Q_Markov_Model& x)=default;
-   Q_Markov_Model& operator=(Q_Markov_Model&& x)=default;
+    Q_Markov_Model& operator=(Q_Markov_Model&& x)=default;
 
     virtual ~Q_Markov_Model();
 
@@ -206,12 +199,10 @@ namespace Markov_Mol
 
     //virtual ClassDescription GetDescription()const;
 
-   // virtual bool LoadFromDescription(const ClassDescription& classDes);
-  //  virtual bool LoadFromStringDescription(const ClassDescription& classDes);
+    // virtual bool LoadFromDescription(const ClassDescription& classDes);
+    //  virtual bool LoadFromStringDescription(const ClassDescription& classDes);
 
     static std::string ClassName();
-    virtual std::string id()const;
-    virtual std::string myClass()const;
 
 
 
@@ -220,17 +211,20 @@ namespace Markov_Mol
     //			     const std::string& extension);
 
 
-    std::string kij_Label(std::size_t i,
-                          std::size_t j);
+    static std::string kij_Label(std::size_t i,
+                                 std::size_t j);
 
-    bool get_states_from_kij_Label(std::string kij,
-                                   std::size_t& i,
-                                   std::size_t& j);
+    static bool get_states_from_kij_Label(std::string kij,
+                                          std::size_t& i,
+                                          std::size_t& j);
 
-    std::string gamma_Label();
+    static std::string gamma_Label();
 
+    static std::string Q_Label(){return "Q_matrix";}
+    static std::string g_Label(){return "conductance_vector";}
+    static std::string a_Label(){return "agonist_vector";}
 
-    virtual bool loadFromComplexVar(const ABC_Data* source)override;
+    static std::string patch_Label(){return "patch";}
 
 
 
@@ -250,7 +244,6 @@ namespace Markov_Mol
 
     const ABC_PatchModel* patch_;
 
-    std::string name_;
     std::size_t k_u;
     M_Matrix<double> Q_M;  // no completed cycles, for parameters extraction
     M_Matrix<double> Q0_M; //par
@@ -312,6 +305,90 @@ namespace Markov_Mol
   };
 
 
+  template<typename T>
+  class UndirectedGraph
+  {
+  public:
+    std::size_t numNodes()const
+    {
+      return m_.size();
+    }
+
+    std::size_t numEdges()const
+    {
+      std::size_t count=0;
+      for (auto itp:m_)
+        {
+          count+=itp.second.size();
+        }
+      return count/2;
+    }
+
+    const std::set<T>& connectedTo(std::size_t i)const
+    {
+
+      return m_.find(i)->second;
+
+    }
+    bool isEdge(T i, T j)const
+    {
+      auto itp=m_.find(i);
+      if (itp!=m_.end())
+        return itp->second.find(j)!=itp->second.end();
+      else
+        return false;
+    }
+
+    void push_back(T i, T j)
+    {
+      if (i!=j)
+        {
+          m_[i].insert(j);
+          m_[j].insert(i);
+        }
+    }
+
+    UndirectedGraph<T> ( std::map <T, std::set< T> >  pairList)
+    {
+      for (auto p:pairList)
+        {
+          std::size_t i=p.first;
+          for (auto j: p.second)
+            push_back(i,j);
+        }
+
+    }
+
+
+    UndirectedGraph():m_(){}
+
+    std::string toString()const
+    {
+      std::string out;
+      std::stringstream ss(out);
+      ss<<" { ";
+      for (auto itp:m_)
+        {
+          T i=itp.first;
+          ss<<i<<": {";
+          for (auto it=itp.second.find(i); it!=itp.second.end(); ++it)
+            ss<<*it <<" ";
+          ss<<"}";
+        }
+      ss<<" } ";
+      return ss.str();
+    }
+
+    std::map<T,std::set<T>>  getMap( )const {return m_;}
+
+  private:
+
+    std::map<T,std::set<T>> m_;
+
+  };
+
+
+
 
   std::multimap<std::size_t,std::size_t>
   getConnectionMap(const M_Matrix<double>& Q);
@@ -321,6 +398,126 @@ namespace Markov_Mol
                      const std::multimap<std::size_t,std::size_t>&conn_Map,
                      bool &hasloops,
                      bool removeLoops=false);
+
+
+
+
+
+
+
+
+
+
+
+  class Q_Markov_Scheme: public Markov_IO::Implements_ValueId
+  {
+    UndirectedGraph<std::size_t> ug_;
+    Markov_LA::M_Matrix<double> g_;
+    Markov_LA::M_Matrix<std::size_t> a_;
+    ABC_PatchModel *p_=nullptr;
+  public:
+
+    static std::string connections_Label()
+    {
+      return "connectons_between_states";
+    }
+
+
+    Q_Markov_Scheme(const std::string& idName,
+                    const std::string& idVarName,
+                    const UndirectedGraph<std::size_t>& connections,
+                    const Markov_LA::M_Matrix<double>& g,
+                    const Markov_LA::M_Matrix<std::size_t> agonistVector,
+                    const std::string& tip,
+                    const std::string& whatthis):
+    Implements_ValueId(idName,idVarName,tip,whatthis),
+    ug_(connections),
+    g_(g),
+    a_(agonistVector),
+    p_(nullptr){}
+
+
+
+    Q_Markov_Scheme():
+    ug_(),g_(),a_(),p_(nullptr){}
+
+
+
+
+
+
+    Q_Markov_Model* toMeasure(const ABC_Value *source) const
+    {
+      double gamma;
+      bool gammaOk=false;
+      std::size_t numStates=Markov_LA::size(g_);
+      Markov_LA::M_Matrix<double> Qc=Markov_LA::zeros<double>(numStates,numStates);
+      for (std::size_t i=0; i<source->numChilds(); i++)
+        {
+          std::string par=source->ith_ChildName(i);
+          size_t state_i, state_j;
+          if (par==Q_Markov_Model::gamma_Label())
+            {
+              gammaOk=source->getVal(Q_Markov_Model::gamma_Label(),gamma);
+              if (!gammaOk)
+                {
+                  putErrorOut("\n gamma not found \n:");
+                  putErrorOut(source->toString()+"\n");
+                }
+            }
+          else if (!Q_Markov_Model::get_states_from_kij_Label(par,state_i,state_j))
+            {
+              putErrorOut(par+" no in kij format");
+            }
+          else
+            {
+              if (!ug_.isEdge(state_i,state_j))
+                {
+                  putErrorOut(par +"not a connection. Allowed connections ");
+                  putErrorOut(ug_.toString());
+                }
+              else
+                {
+                  bool kok=source->getVal(par,Qc(state_i,state_j));
+                  if (!kok)
+                    {
+                      std::string msg="error in parameter value"+par+"="+source->getChild(par)->toString();
+                      putErrorOut(msg);
+                    }
+                }
+
+            }
+        };
+
+      return new Q_Markov_Model(source->id(),id(),Qc,g_,a_,gamma,p_,source->Tip(),source->WhatThis());
+
+    }
+
+
+
+    Q_Markov_Scheme* toSameVar(const ABC_Value *source) const;
+
+
+    Markov_IO::Implements_Complex_Value* to_PlainValue() const;
+
+
+
+    Markov_IO::Implements_Complex_Value *to_PlainValue(const ABC_Value* source) const;
+    // ABC_Put interface
+  public:
+    virtual Q_Markov_Scheme *clone() const
+    {
+      return new Q_Markov_Scheme(*this);
+    }
+    virtual Q_Markov_Scheme *create() const
+    {
+      return new Q_Markov_Scheme;
+    }
+    // ABC_Value interface
+
+  };
+
+
 
 
 }

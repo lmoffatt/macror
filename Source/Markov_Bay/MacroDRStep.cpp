@@ -22,7 +22,7 @@ Macro_DR_step* Macro_DR_step::create()const
     return new Macro_DR_step();
 }
 
-std::string Macro_DR_step::myClass()const
+std::string Macro_DR_step::myVar()const
 {
     return ClassName();
 }
@@ -252,7 +252,7 @@ Macro_DR_step::Macro_DR_step(const Markov_Mol::ABC_PatchModel& P,
  }
 
 Macro_DR_step::Macro_DR_step(const Macro_DR_step& other):
-  Implements_VarId(other),
+  Implements_ValueId(other),
   ABC_Markov_Likelihood_step(other) ,
         model_A(other.model_A->clone()),
 	Q_dt(other.Q_dt),

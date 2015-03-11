@@ -29,7 +29,7 @@ namespace Markov_Bay
     return new Macro_Aprox_step();
   }
 
-  std::string Macro_Aprox_step::myClass()const
+  std::string Macro_Aprox_step::myVar()const
   {
     return ClassName();
   }
@@ -211,15 +211,14 @@ namespace Markov_Bay
     return *this;
   }
 
-  Macro_Aprox_step::Macro_Aprox_step(ABC_Data *parent,
-                                     const std::string &id,
+  Macro_Aprox_step::Macro_Aprox_step(const std::string &id,
                                      const ABC_Markov_Likelihood_step& step,
                                      std::size_t numSamples,
                                      std::size_t numSteps,
                                      std::size_t seed,
                                      const std::string &tip,
                                      const std::string &whatthis):
-    ABC_Markov_Likelihood_step(parent,id,ClassName(),tip,whatthis),
+    ABC_Markov_Likelihood_step(id,ClassName(),tip,whatthis),
     step_(step.clone()),
     model_A(step.patch().clone()),
     Q_dt(),
@@ -248,7 +247,7 @@ namespace Markov_Bay
 
 
   Macro_Aprox_step::Macro_Aprox_step(const Macro_Aprox_step& other):
-    Implements_VarId(other),
+    Implements_ValueId(other),
     ABC_Markov_Likelihood_step(other),
     step_(other.step_->clone()),
     model_A(other.model_A->clone()),

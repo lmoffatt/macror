@@ -100,6 +100,8 @@ void Markov_CommandManager::LoadTypes()
 
     //types[Markov_Mol::Q_Markov_Model::ClassName()]=new Markov_Mol::Q_Markov_Model();
 
+    this->pushIdChild(Markov_Mol::Q_Markov_Model::ClassName(),new Markov_Mol::Q_Markov_Model());
+
     types[Markov_Mol::PatchModel::ClassName()]=new Markov_Mol::PatchModel();
 
     types[Markov_Mol::gaussian_noise::ClassName()]=new Markov_Mol::gaussian_noise();

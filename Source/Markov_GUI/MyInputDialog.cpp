@@ -6,7 +6,7 @@
 #include <QKeyEvent>
 namespace Markov_GUI {
 
-  QString MyInputDialog::getItem(QWidget *parent, const QString &title,  const QStringList &items, bool* ok, int current)
+  QString MyInputDialog::getItem(QWidget *parent, QString title,   QStringList items, bool* ok, int current)
   {
 
     QLabel selected;
@@ -24,6 +24,16 @@ namespace Markov_GUI {
         *ok=false;
       return {};
       }
+  }
+
+  std::string MyInputDialog::getItem(QWidget *parent, const std::string &title, const std::vector<std::string> &items, bool *ok, int current)
+  {
+    QStringList list;
+    for (auto it:items)
+      list<<QString(it.c_str());
+
+    QString res=getItem(parent, QString(title.c_str()),list,ok,current);
+    return res.toStdString();
   }
 
   void MyInputDialog::accept()

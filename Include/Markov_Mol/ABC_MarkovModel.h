@@ -61,7 +61,7 @@ function of experimental and simulated currents against a given kinetic model.
 
 */
 
-class ABC_Markov_Model: virtual public Markov_IO::ABC_Data{
+class ABC_Markov_Model: virtual public Markov_IO::ABC_Value{
 public:
     /** virtual copy constructor
        @returns a pointer to a copy of the object
@@ -79,9 +79,7 @@ public:
 
 
     static std::string ClassName();
-    virtual std::string id()const=0;
-    virtual std::string myClass()const=0;
-    virtual std::string mySuperClass()const;
+     virtual std::string mySuperClass()const;
 
 
 

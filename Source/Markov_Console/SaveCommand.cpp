@@ -124,7 +124,7 @@ bool SaveCommand::run(
          auto variablenames=cm_->getChildList();
          for (auto name : variablenames)
          {
-             f<<cm_->getChildVar(name)->toString();
+             f<<cm_->getChild(name)->toString();
              i++;
          }
          f.close();

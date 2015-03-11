@@ -401,7 +401,7 @@ namespace Markov_Plot
       }
   }
 
-  std::string Scale::myClass() const
+  std::string Scale::myVar() const
   {
     return ClassName();
   }
@@ -461,7 +461,7 @@ namespace Markov_Plot
 
 
 
-  Scale::Scale(ABC_Data *e,
+  Scale::Scale(ABC_Value *e,
                double min,
                double max,
                AxisType axis,
@@ -471,7 +471,7 @@ namespace Markov_Plot
                double width,
                Type scaletype
                ):
-    Markov_IO::Implements_Complex_Var(e,title.toStdString(),"scale","a tip","a whats up"),
+    Markov_IO::Implements_Complex_Value(title.toStdString(),"scale","a tip","a whats up"),
     axis_(axis),
     type_(scaletype),
     rangeCalc_(Scale::Pad5PercentRange),
@@ -499,16 +499,16 @@ namespace Markov_Plot
 
 
     /*
-    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<double>);
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Value<double>);
 
-    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<std::string>,
-                               Markov_IO::Implements_Simple_Var<std::string>::ClassName());
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Value<std::string>,
+                               Markov_IO::Implements_Simple_Value<std::string>::ClassName());
 
-    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<std::vector<std::string>>,
-                               Markov_IO::Implements_Simple_Var<std::vector<std::string>>::ClassName());
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Value<std::vector<std::string>>,
+                               Markov_IO::Implements_Simple_Value<std::vector<std::string>>::ClassName());
 
-    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Var<int>,
-                               Markov_IO::Implements_Simple_Var<int>::ClassName());
+    getEnvironment()->addClass(new Markov_IO::Implements_Simple_Value<int>,
+                               Markov_IO::Implements_Simple_Value<int>::ClassName());
 
     getEnvironment()->addClass(new Markov_IO::Categorical_Options,
                                Markov_IO::Categorical_Options::ClassName());
@@ -704,16 +704,16 @@ namespace Markov_Plot
 
   }
 
-  Markov_IO::ABC_Data *Scale::to_ComplexVar() const
+  Markov_IO::ABC_Value *Scale::to_PlainValue() const
   {
-    Markov_IO::Implements_Complex_Var* v=clone();
+    Markov_IO::Implements_Complex_Value* v=clone();
 
-    v->push_backVar("min",min_);
-    v->push_backVar("max",max_);
-    v->push_backVar("length",length_);
-    v->push_backVar("width",width_);
-    v->push_backVar("title",title_);
-    v->push_backVar("units",units_);
+    v->push_backVal("min",min_);
+    v->push_backVal("max",max_);
+    v->push_backVal("length",length_);
+    v->push_backVal("width",width_);
+    v->push_backVal("title",title_);
+    v->push_backVal("units",units_);
     v->push_back_CategoryItem("axis",axis_);
     v->push_back_CategoryItem("saletype",type_);
     return v;
@@ -721,10 +721,6 @@ namespace Markov_Plot
 
 
 
-  bool Scale::loadFromComplexVar(const Markov_IO::ABC_Data *)
-  {
-    return false;
-  }
 
 
 

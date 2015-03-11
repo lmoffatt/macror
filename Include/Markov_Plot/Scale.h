@@ -14,7 +14,7 @@
 namespace Markov_Plot
 
 {
-class Scale: public QGraphicsObject, public Markov_IO::Implements_Complex_Var
+class Scale: public QGraphicsObject, public Markov_IO::Implements_Complex_Value
 {
     Q_OBJECT
 public:
@@ -58,7 +58,7 @@ public:
     Type getType()const;
     void setType(Type scaleType);
 
-    Scale(Markov_IO::ABC_Data* e,
+    Scale(Markov_IO::ABC_Value* e,
           double min,
           double max,
           AxisType axis,
@@ -69,7 +69,7 @@ public:
           Type scaletype);
 
     Scale():
-      Implements_Complex_Var(0,"","Scale","",""){}
+      Implements_Complex_Value("","Scale","",""){}
 
 
 
@@ -99,8 +99,7 @@ public:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-    virtual ABC_Data* to_ComplexVar() const override;
-    virtual bool loadFromComplexVar(const ABC_Data* source)override;
+    virtual ABC_Value* to_PlainValue() const override;
 
  private:
     void reset();
@@ -167,7 +166,7 @@ public:
 
     // ABC_Object interface
 public:
-    virtual std::string myClass() const;
+    virtual std::string myVar() const;
 
     virtual std::string mySuperClass()const;
     static std::string ClassName();

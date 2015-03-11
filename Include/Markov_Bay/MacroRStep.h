@@ -14,7 +14,7 @@ public:
 
      Macro_R_step* create()const;
 
-     virtual  std::string myClass()const;
+     virtual  std::string myVar()const;
      static  std::string ClassName();
 
      const  Markov_LA::M_Matrix<double>& P_mean()const;
@@ -50,12 +50,11 @@ public:
      Macro_R_step& run(const Markov_IO::ABC_measure_step& Y);
 
 
-     Macro_R_step(Markov_IO::ABC_Data* e,
-                  const std::string &id,const Markov_Mol::ABC_PatchModel& P,
-		  bool is_averaging,
-		 bool p_zero_guard,
-		  const std::string &tip="",
-		  const std::string &whatthis="");
+     Macro_R_step(const std::string &id, const Markov_Mol::ABC_PatchModel& P,
+                  bool is_averaging,
+                 bool p_zero_guard,
+                  const std::string &tip="",
+                  const std::string &whatthis="");
 
 
 

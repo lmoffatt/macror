@@ -12,16 +12,12 @@ namespace  Markov_IO {
   class ABC_Saveable;
 
 
-  class ABC_Environment:public Implements_Complex_Var
+  class ABC_Environment:public Implements_Complex_Value
   {
   public:
     ~ABC_Environment(){}
 
 
-    virtual void putOut(const std::string& m)const=0;
-    virtual void putErrorOut(const std::string& m)const=0;
-
-    virtual std::string getLineIn()=0;
 
 
     virtual ABC_Saveable* getVar(const std::string& varName)=0;

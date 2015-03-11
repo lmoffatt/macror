@@ -10,7 +10,7 @@
 namespace Markov_Plot
 
 {
-class XY_Plot: public QGraphicsObject, public Markov_IO::Implements_Complex_Var
+class XY_Plot: public QGraphicsObject, public Markov_IO::Implements_Complex_Value
 {
     Q_OBJECT
 public:
@@ -36,7 +36,7 @@ public:
     void setSymbol(Symbol symbol);
 
 
-    XY_Plot(Markov_IO::ABC_Data* e,
+    XY_Plot(Markov_IO::ABC_Value* e,
             const Markov_LA::M_Matrix<double>* x,
                      const Markov_LA::M_Matrix<double>* y,
                      QString title,

@@ -16,7 +16,7 @@ public:
     virtual ABC_Markov_Likelihood_step* clone()const=0;
     virtual ABC_Markov_Likelihood_step* create()const=0;
 
-    virtual  std::string myClass()const=0;
+    virtual  std::string myVar()const=0;
     virtual  const Markov_LA::M_Matrix<double>& P_mean()const=0;
     virtual  const Markov_LA::M_Matrix<double>& P_cov()const=0;
 
@@ -41,14 +41,14 @@ public:
 
     virtual std::ostream& put(std::ostream& s)const;
 
+
   ABC_Markov_Likelihood_step(
-      ABC_Data *parent,
       const std::string& id,
-      const std::string className,
+      const std::string varName,
       const std::string & tip,
       const std::string& whatthis):
-    Implements_VarId(parent,id,className,tip,whatthis),
-    Implements_Class_Reflection<ABC_Markov_Likelihood_step>(parent,id,this,className,tip,whatthis)
+    Implements_ValueId(id,varName,tip,whatthis),
+    Implements_Class_Reflection<ABC_Markov_Likelihood_step>(id,varName,this,tip,whatthis)
   {
     push_backRefMethod("P_mean",
                        &ABC_Markov_Likelihood_step::P_mean,{},"MeanStateProbabilityVector",
@@ -89,10 +89,15 @@ public:
                        "expected partial log Likelihood",
                        "expected increase in the logarithm of the likelihood of the current measured "
                        "during the time interval");
+
     }
 
+
+
+
+
   ABC_Markov_Likelihood_step(const ABC_Markov_Likelihood_step& other):
-    Implements_VarId(other),
+    Implements_ValueId(other),
     Implements_Class_Reflection<ABC_Markov_Likelihood_step>(other){}
 
 

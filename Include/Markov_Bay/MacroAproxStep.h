@@ -13,7 +13,7 @@ public:
     virtual Macro_Aprox_step* clone()const;
     virtual Macro_Aprox_step* create()const;
 
-    virtual  std::string myClass()const;
+    virtual  std::string myVar()const;
     static  std::string ClassName();
 
 
@@ -50,8 +50,7 @@ public:
     virtual Macro_Aprox_step& run(const Markov_IO::ABC_measure_step& Y);
 
 
-    Macro_Aprox_step(Markov_IO::ABC_Data* parent,
-                     const std::string& id,
+    Macro_Aprox_step(const std::string& id,
                      const ABC_Markov_Likelihood_step& step,
                      std::size_t numSamples,
                      std::size_t numSteps,

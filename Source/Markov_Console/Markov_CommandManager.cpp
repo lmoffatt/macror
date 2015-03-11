@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "Markov_Console/Markov_CommandManager.h"
+#include "Markov_Console/ExpressionManager.h"
 #include "Markov_Console/Help_File.h"
 #include "Markov_Console/Markov_Script.h"
 
@@ -39,7 +40,6 @@
 
 
 
-#include "Markov_IO/STD_IO.h"
 
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
@@ -56,6 +56,11 @@ namespace Markov_Console
 
 
 
+
+  void Markov_CommandManager::KeyEvent(Markov_IO::Key k)
+  {
+    e->KeyEvent(k);
+  }
 
   Markov_CommandManager::Markov_CommandManager():
     io_(nullptr),
@@ -255,7 +260,6 @@ namespace Markov_Console
     varsl.push_back(name);
     autoCmptBySuperClass[s->mySuperClass()].push_back(name);
     autoCmptByClass[s->myClass()].push_back(name);
-
 
   }
 
@@ -515,6 +519,9 @@ namespace Markov_Console
 
   }
 
+
+
+
   std::string Markov_CommandManager::check_tokens()
   {
     if (has_var(tokens[0].Name()))
@@ -537,6 +544,86 @@ namespace Markov_Console
 
   }
 
+  void Markov_CommandManager::process(ExpressionManager &e)
+  {
+
+
+    /// command or variable definition?
+    /// variable definition is identifier colon known class identifier
+    /// command is identifier equals known command identifier
+    /// or known command identifier.
+    ///
+
+    if (processCommand(e))
+      ;
+    else if (processVariable(e))
+      ;
+    else
+      ;
+  }
+
+  ABC_Command* Markov_CommandManager::getCommand(const Markov_IO::Token_New& t)
+  {
+    if (t.tok()!=Markov_IO::Token_New::IDENTIFIER)
+      return nullptr;
+    else
+      {
+        auto it=cmds.find(t.toString());
+        if (it!=cmds.end())
+          return it->second;
+        else
+          return nullptr;
+      }
+  }
+
+
+  bool Markov_CommandManager::processCommand(ExpressionManager &e)
+  {
+    ABC_Command* c=getCommand(e.at(0));
+    if (c!=nullptr)
+      return c->run(e.tokens());
+    else if (e.at(1).tok()==Markov_IO::Token_New::ASSIGN)
+      {
+        c=getCommand(e.at(2));
+        if (c!=nullptr)
+          return c->run(e.tokens());
+        else
+          return false;
+      }
+    else
+      return false;
+  }
+
+  Markov_IO::ABC_Value* Markov_CommandManager::getClass(std::string name)
+  {
+    auto it=classTypes.find(name);
+    if (it!=classTypes.end())
+      return it->second;
+    else
+      return
+          nullptr;
+
+  }
+
+
+  bool Markov_CommandManager::processVariable(ExpressionManager &e){
+    Markov_IO::ABC_Value* d=Markov_IO::ABC_Value::getValueFromStream(e.tokens());
+    if (d!=nullptr)
+      {
+        Markov_IO::ABC_Value* c=getClass(d->myVar());
+        d=c->toIndicatedVar(d);
+        if (d!=nullptr)
+          // TODO: decide who takes care of removing c moveFromData or processVariable
+
+            return true;
+        else
+          return false;
+      }
+    else
+      return false;
+  }
+
+
 
 
 
@@ -544,13 +631,13 @@ namespace Markov_Console
                                                            const std::string& category)
   {
     auto itkind=autoCmptByKind.find(category);
-     if (has_superType(category))
+    if (has_superType(category))
       return autoCmptBySuperClass[category].complete(hint);
     else if (has_type(category))
       return autoCmptByClass[category].complete(hint);
-     else   if (itkind!=autoCmptByKind.end())
-       return autoCmptByKind[category].complete(hint);
-     else
+    else   if (itkind!=autoCmptByKind.end())
+      return autoCmptByKind[category].complete(hint);
+    else
       return {};
 
 
@@ -740,12 +827,12 @@ namespace Markov_Console
   std::vector<std::string> Markov_CommandManager::getVarsList(std::string className)const
   {
     std::vector<std::string> list;
-    std::map<std::string,Markov_IO::ABC_Saveable*>::const_iterator it;
-    for (it=vars.begin();it!=vars.end();++it)
+    auto l=getChildList();
+    for (std::string el:l)
       {
-        if ((it->second->myClass()==className)||(it->second->mySuperClass()==className))
+        if (getChild(el,className)!=nullptr)
           {
-            list.push_back(it->first);
+            list.push_back(el);
           }
       }
     return list;
@@ -763,6 +850,9 @@ namespace Markov_Console
         varList.push_back(it->first);
 
       }
+
+    auto l=getChildList();
+    varList.insert(varList.begin(),l.begin(),l.end());
     return varList;
   }
 

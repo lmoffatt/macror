@@ -175,7 +175,7 @@ ABC_Markov_Likelihood_step_Test::~ABC_Markov_Likelihood_step_Test()
                            "\n Number of steps="+ToString(numSteps));
 
 
-     Macro_Aprox_step L(S_->parentVar(),"Macro_Aprox",*S_,numSamples,numSteps,0);
+     Macro_Aprox_step L("Macro_Aprox",*S_,numSamples,numSteps,0);
 
      L.run(Y);
 
@@ -279,7 +279,7 @@ ABC_Markov_Likelihood_step_Test::~ABC_Markov_Likelihood_step_Test()
   MultipleTests ABC_Markov_Likelihood_step_Test::AllTests(Markov_Console::Markov_CommandManager* , const std::string )
  {
      MultipleTests result("class ABC_Markov_Likelihood_step on "+
-                          S_->myClass(),
+                          S_->myVar(),
                    "All tests");
 
      result.push_back(classInvariant());

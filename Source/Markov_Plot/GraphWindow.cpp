@@ -6,7 +6,7 @@ namespace Markov_Plot
 
   GraphWindow::GraphWindow(QWidget* parent):
     QWidget(parent),
-    Implements_Complex_Var()
+    Implements_Complex_Value()
   {
   }
 
@@ -18,7 +18,7 @@ namespace Markov_Plot
 
 
   GraphWindow* plot(QWidget* parent,
-                    Markov_IO::ABC_Data* e,
+                    Markov_IO::ABC_Value* e,
                     const Markov_LA::M_Matrix<double>& x)
   {
     GraphWindow* gw=new  GraphWindow(parent);
@@ -33,7 +33,7 @@ namespace Markov_Plot
 
 
   GraphWindow* plot(QWidget* parent,
-                    Markov_IO::ABC_Data* e,
+                    Markov_IO::ABC_Value* e,
                     const Markov_LA::M_Matrix<double>& x,
                     const Markov_LA::M_Matrix<double>& y)
   {
@@ -51,7 +51,7 @@ namespace Markov_Plot
   }
 
   GraphWindow* plot(QWidget* parent,
-                    Markov_IO::ABC_Data *e,
+                    Markov_IO::ABC_Value *e,
                     const Markov_IO::ABC_trace& trace)
   {
 
@@ -68,7 +68,7 @@ namespace Markov_Plot
 
   }
   GraphWindow* plot(QWidget* parent,
-                    Markov_IO::ABC_Data *e,
+                    Markov_IO::ABC_Value *e,
                     const Markov_IO::ABC_Experiment& experiment)
   {
     GraphWindow* gw=new  GraphWindow(parent);
@@ -120,7 +120,7 @@ namespace Markov_Plot
 
 
 
-  GraphWindow *plot(QWidget *, Markov_IO::ABC_Data *, const Markov_IO::YfitLikelihoodEvaluation &)
+  GraphWindow *plot(QWidget *, Markov_IO::ABC_Value *, const Markov_IO::YfitLikelihoodEvaluation &)
   {
      return nullptr;
   }

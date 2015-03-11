@@ -250,8 +250,7 @@ namespace Markov_Bay
           {
             E_A->replicate(i_r);
             L_A->start(this->E_A->trace(0)[0].sub_step(0).x());
-            Macro_Aprox_step As(E_,
-                                "Macro_Aprox_step",
+            Macro_Aprox_step As("Macro_Aprox_step",
                                 *L_A,
                                 Options_.count("num_samples"),
                                 Options_.count("num_steps"),
@@ -263,9 +262,9 @@ namespace Markov_Bay
                   {
                     L_A->run((*E_A)[j]);
                     As.run((*E_A)[j]);
-                    std::cout<<L_A->myClass();
+                    std::cout<<L_A->myVar();
                     L_A->put(std::cout);
-                    std::cout<<As.myClass();
+                    std::cout<<As.myVar();
                     As.put(std::cout);
                     if (!((L_A->P_mean())>=0.0)||(Markov_LA::isFinite(L_A->plogL())))
                       if (!Markov_LA::isFinite(L_A->plogL()))
@@ -428,11 +427,11 @@ namespace Markov_Bay
     std::string alg=Options_.name("Likelihood_Algorithm");
     if (Options_.name("Likelihood_Algorithm")=="MacroNR")
       {
-        this->L_A= new Macro_NR_step(E_,"MacroNR",*P,Options_.boolean("Is_Averaging"));
+        this->L_A= new Macro_NR_step("MacroNR",*P,Options_.boolean("Is_Averaging"));
       }
     else if (Options_.name("Likelihood_Algorithm")=="MacroR")
       {
-        this->L_A= new Macro_R_step(E_,"MacroR",*P,
+        this->L_A= new Macro_R_step("MacroR",*P,
                                     Options_.boolean("Is_Averaging"),
                                     Options_.boolean("Use_Zero_Guard"));
       }

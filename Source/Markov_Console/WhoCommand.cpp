@@ -65,8 +65,8 @@ bool WhoCommand::run(const std::string& className)
     output_.clear();
     std::vector<std::string> list;
     if (className.empty())
-        list=cm_->getVarsList();
-    else  if (cm_->has_var(className))
+        list=cm_->getChildList();
+    else  if (cm_->has_child(className))
     {
         list.push_back(className);
     }
@@ -79,21 +79,22 @@ bool WhoCommand::run(const std::string& className)
     std::size_t widthClass=0;
     for (std::size_t i=0;i<list.size();++i)
     {
-        if (list[i].size()>widthName)
-            widthName=list[i].size();
+        auto wN=list[i].size();
+        auto wC=cm_->getChild(list[i])->myVar().size();
+        if (wN>widthName)
+            widthName=wN;
 
-        if (cm_->getVar(list[i])->myClass().size()>widthClass)
-            widthClass=cm_->getVar(list[i])->myClass().size();
+        if (wC>widthClass)
+            widthClass=wC;
     }
     for (std::size_t i=0;i<list.size();++i)
     {
         ret.append(list[i]);
         std::size_t n=widthName-list[i].size()+3;
         ret.append(n,' ');
-        ret.append(cm_->getVar(list[i])->myClass());
-        n=widthClass-cm_->getVar(list[i])->myClass().size()+3;
+        ret.append(cm_->getChild(list[i])->myVar());
+        n=widthClass-cm_->getChild(list[i])->myVar().size()+3;
         ret.append(n,' ');
-        ret += cm_->getVar(list[i])->mySuperClass();
         ret += "\n";
     }
     output_=ret;

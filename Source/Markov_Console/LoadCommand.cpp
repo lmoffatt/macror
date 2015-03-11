@@ -155,11 +155,17 @@ namespace Markov_Console
                   (std::find(varnames.begin(),varnames.end(),varname)!=
                    varnames.end()))
                 {
-                  tok<<varname;
-                  auto v=this->getCommandManager()->getVarFromStream(tok);
+                  tok<<varname<<"\n";
+                  auto v=getValueFromStream(tok);
                   if (v!=nullptr)
                   {
                       numVar++;
+                      auto w=getCommandManager()->getMeasureFromValue(v);
+                      if (w!=nullptr)
+                        getCommandManager()->pushChild(w);
+                      else
+                        getCommandManager()->pushChild(v);
+
                   }
                   else
                   {
@@ -167,8 +173,7 @@ namespace Markov_Console
                       m+=tok.putTokenBuffer();
                       getCommandManager()->putErrorOut(m);
                    }
-                  auto w=getCommandManager()->moveVarToObject(v);
-                  tok.cleanRead();
+                 tok.cleanRead();
                 }
             }
           if (errorMessage_.empty())

@@ -64,100 +64,101 @@ namespace Markov_Console
   /// runs the command for a list of parameters
   bool EditCommand::run(Markov_IO::ClassDescription& classDes)
   {
-    Markov_IO::ClassDescription desc=classDes;
-    std::stringstream ss;
-    while (true)
-      {
-        ss<<"Enter either:\n"
-            "(0) a current variable name of the corresponding superClass \n"
-            "(1) ""all"" for editing all the items one by one or \n";
-        ss<<" (2) the name or (number) of an item of the variable or\n";
-        ss<<" (3) ""save"" for saving the variable"<<std::endl;
-        ss<<" (4) ""exit"" for exit without saving changes"<<std::endl;
-        cm_->getIO()->put(ss.str());
-        ss.str().clear();
-        std::string resp=cm_->getIO()->getline();
-        std::size_t first=0;
-        std::size_t last=0;
-        if (cm_->checkVariable(resp,desc.SuperClass()))
-          {
-            ss<<"use variable?"<<resp<<"\n"<<*cm_->getVar(resp)<<std::endl;
-            ss<<"enter ""yes"" or ""no""";
-            cm_->getIO()->put(ss.str());
-            ss.str().clear();
-            std::string resp2=cm_->getIO()->getline();
-            if (resp2=="yes")
-              {
-                Markov_IO::ABC_Saveable* s=cm_->getVar(resp);
-                classDes=s->GetDescription();
-                return true;
-              }
-          }
-        else if (resp=="all")
-          {
-            first=0; last=desc.size();
-          }
-        else if (Markov_IO::ToValue(resp,first)&&(first<desc.size()))
-          {
-            last=first+1;
-          }
-        else if (desc.HasElementName(resp))
-          {
-            first=desc.NameIndex(resp);last=first+1;
-          }
-        else {
-            first=0; last=0;
-          }
-        for (std::size_t i=first; i<last; i++)
-          {
-            std::string name=desc.ElementName(i);
-            ss<<name<<" current value"<<std::endl;
-            ss<<ToString(*desc[name])<<std::endl;
-            if (desc[name]->mySuperClass()==Markov_IO::ABC_Object::ClassName())
-              {
-                ss<<"enter "<<name<< " new value [end with blank line]"<<std::endl;
-                std::string value;
-                cm_->getIO()->put(ss.str());
-                ss.str().clear();
-                std::string line=cm_->getIO()->getline();
+//    Markov_IO::ClassDescription desc=classDes;
+//    std::stringstream ss;
+//    while (true)
+//      {
 
-                value=value+line+"\n";
-                while (!line.empty())
-                  {
-                    line=cm_->getIO()->getline();
-                    value=value+line+"\n";
-                  }
-                desc.ReplaceElement(name,value);
-              }
-            else
-              {
-                Markov_IO::ABC_Saveable* os=
-                    dynamic_cast<const Markov_IO::ABC_Saveable*>(desc[name])->clone();
-                Markov_IO::ClassDescription fieldDes=os->GetDescription();
+//        ss<<"Enter either:\n"
+//            "(0) a current variable name of the corresponding superClass \n"
+//            "(1) ""all"" for editing all the items one by one or \n";
+//        ss<<" (2) the name or (number) of an item of the variable or\n";
+//        ss<<" (3) ""save"" for saving the variable"<<std::endl;
+//        ss<<" (4) ""exit"" for exit without saving changes"<<std::endl;
+//        cm_->getIO()->put(ss.str());
+//        ss.str().clear();
+//        std::string resp=cm_->getIO()->getline();
+//        std::size_t first=0;
+//        std::size_t last=0;
+//        if (cm_->checkVariable(resp,desc.SuperClass()))
+//          {
+//            ss<<"use variable?"<<resp<<"\n"<<*cm_->getVar(resp)<<std::endl;
+//            ss<<"enter ""yes"" or ""no""";
+//            cm_->getIO()->put(ss.str());
+//            ss.str().clear();
+//            std::string resp2=cm_->getIO()->getline();
+//            if (resp2=="yes")
+//              {
+//                Markov_IO::ABC_Saveable* s=cm_->getVar(resp);
+//                classDes=s->GetDescription();
+//                return true;
+//              }
+//          }
+//        else if (resp=="all")
+//          {
+//            first=0; last=desc.size();
+//          }
+//        else if (Markov_IO::ToValue(resp,first)&&(first<desc.size()))
+//          {
+//            last=first+1;
+//          }
+//        else if (desc.HasElementName(resp))
+//          {
+//            first=desc.NameIndex(resp);last=first+1;
+//          }
+//        else {
+//            first=0; last=0;
+//          }
+//        for (std::size_t i=first; i<last; i++)
+//          {
+//            std::string name=desc.ElementName(i);
+//            ss<<name<<" current value"<<std::endl;
+//            ss<<ToString(*desc[name])<<std::endl;
+//            if (desc[name]->mySuperClass()==Markov_IO::ABC_Object::ClassName())
+//              {
+//                ss<<"enter "<<name<< " new value [end with blank line]"<<std::endl;
+//                std::string value;
+//                cm_->getIO()->put(ss.str());
+//                ss.str().clear();
+//                std::string line=cm_->getIO()->getline();
 
-                run(fieldDes);
-                os->LoadFromDescription(fieldDes);
-                desc.ReplaceElement(name,*os);
-                delete os;
-              }
+//                value=value+line+"\n";
+//                while (!line.empty())
+//                  {
+//                    line=cm_->getIO()->getline();
+//                    value=value+line+"\n";
+//                  }
+//                desc.ReplaceElement(name,value);
+//              }
+//            else
+//              {
+//                Markov_IO::ABC_Saveable* os=
+//                    dynamic_cast<const Markov_IO::ABC_Saveable*>(desc[name])->clone();
+//                Markov_IO::ClassDescription fieldDes=os->GetDescription();
 
-          }
-        if (resp=="save")
-          {
-            ss<<"Class Description"<<"\n"<<desc<<"\n";
+//                run(fieldDes);
+//                os->LoadFromDescription(fieldDes);
+//                desc.ReplaceElement(name,*os);
+//                delete os;
+//              }
 
-            classDes=desc;
-            ss<<"Saving successfull. New value"<<std::endl;
+//          }
+//        if (resp=="save")
+//          {
+//            ss<<"Class Description"<<"\n"<<desc<<"\n";
 
-            cm_->getIO()->put(ss.str());
-            ss.str().clear();
+//            classDes=desc;
+//            ss<<"Saving successfull. New value"<<std::endl;
 
-            return true;
-          }
-        else if (resp=="exit")
-          return false;
-      }
-  }
+//            cm_->getIO()->put(ss.str());
+//            ss.str().clear();
+
+//            return true;
+//          }
+//        else if (resp=="exit")
+//          return false;
+//      }
+}
 
 
   bool EditCommand::run(const std::string& varname)
@@ -195,11 +196,11 @@ namespace Markov_Console
       }
     else
       {
-        auto v=cm_->getChildVar(varname);
+        auto v=cm_->getChild(varname);
         if (v!=nullptr)
           {
             std::string s="current value of "+v->id();
-            s+="a "+v->myClass()+"\n"+v->toString();
+            s+="a "+v->myVar()+"\n"+v->toString();
             cm_->putOut(s);
 
 

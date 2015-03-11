@@ -75,7 +75,11 @@ bool ShowCommand::run(const std::string& varname)
         return true;
 
     }
-    else
+    else if (cm_->has_child(varname))
+      {
+        cm_->getIO()->put(cm_->getChild(varname)->toString());
+      }
+      else
     {
         errorMessage_= "Variable does not exist";
         return false;

@@ -24,7 +24,7 @@ Macro_NR_step* Macro_NR_step::create()const
 }
 
 
-std::string Macro_NR_step::myClass()const
+std::string Macro_NR_step::myVar()const
 {
     return ClassName();
 }
@@ -39,7 +39,7 @@ std::string Macro_NR_step::ClassName()
 
 
 Macro_NR_step::Macro_NR_step(const Macro_NR_step& other):
-  Implements_VarId(other),
+  Implements_ValueId(other),
   ABC_Markov_Likelihood_step(other) ,
     model_A(other.model_A->clone()),
     Q_dt(other.Q_dt),
@@ -119,13 +119,12 @@ const Markov_IO::Parameters& Macro_NR_step::get_parameters()const
     return model_A->get_parameters();
 }
 
-Macro_NR_step::Macro_NR_step(ABC_Data *e,
-                             const std::string& id,
+Macro_NR_step::Macro_NR_step(const std::string& id,
                              const Markov_Mol::ABC_PatchModel& P,
                              bool is_averaging,
                              const std::string& tip,
                              const std::string& whatthis):
-  ABC_Markov_Likelihood_step(e,id,ClassName(),tip,whatthis),
+  ABC_Markov_Likelihood_step(id,ClassName(),tip,whatthis),
     model_A(P.clone()),
     Q_dt(),
     P_mean_M(Markov_LA::M_Matrix<double>(1,P.Model().k())),

@@ -64,6 +64,8 @@ namespace  Markov_IO {
       RP=')',
       LSB='[',
       RSB=']',
+      LCB='{',
+      RCB='}',
       NOT='~',
       AND='&',
       OR='|',
@@ -138,7 +140,7 @@ namespace  Markov_IO {
 
 
 
-  class ABC_Data;
+  class ABC_Value;
 
 
   class Token_Buffer
@@ -158,11 +160,26 @@ namespace  Markov_IO {
       return t_;
     }
 
+
+    std::deque<Token_New>& getToken()
+    {
+      return t_;
+    }
+
+
     void push_back(Token_New n)
     {
       t_.push_back(n);
     }
 
+
+    void pop_back()
+    {
+      t_.pop_back();
+      if (!t_.empty())
+        pos_=t_.size()-1;
+      else pos_=0;
+    }
 
     std::size_t pos()const
     {
@@ -173,6 +190,19 @@ namespace  Markov_IO {
     {
       pos_=p;
     }
+
+    void setPosEnd()
+    {
+      if (!t_.empty())
+        pos_=t_.size()-1;
+      else pos_=0;
+    }
+    void setPosHome()
+    {
+      setPos(0);
+    }
+
+
 
     Token_New& currToken()
 
@@ -198,13 +228,31 @@ namespace  Markov_IO {
       return *this;
     }
 
+    Token_Buffer& moveStartLine()
+    {
+      while ((pos_>0)&& currToken().tok()!=Token_New::EOL)
+        --pos_;
+      return *this;
+    }
+
+    std::string tailString()const
+    {
+      std::string res;
+      for (auto p=pos_; p<t_.size(); ++p)
+        {
+          res.append(t_[p].toString());
+        }
+      return res;
+
+    }
+
     Token_Buffer& advance(int i)
     {
       pos_+=i;
       return *this;
     }
 
-     std::size_t size()const
+    std::size_t size()const
     {
       return t_.size();
     }
@@ -336,12 +384,24 @@ namespace  Markov_IO {
     template<typename K,typename T>
     Token_Buffer& operator<<( std::map<K,T> m)
     {
-      *this<<"\n[";
+      *this<<"\n{";
       for (auto& e:m)
         *this<<e;
-      *this<<"]"<<"\n";
+      *this<<"}"<<"\n";
       return *this;
     }
+
+    template<typename T>
+    Token_Buffer& operator<<( std::set<T> m)
+    {
+      *this<<"\n{";
+      for (auto& e:m)
+        *this<<e;
+      *this<<"}"<<"\n";
+      return *this;
+    }
+
+
 
 
     template<typename T>
@@ -399,7 +459,7 @@ namespace  Markov_IO {
           ||(t_.at(pos_+1).tok()!=Token_New::COLON)
           ||(t_.at(pos_+2).tok()!=Token_New::IDENTIFIER))
         {
-           return false;
+          return false;
         }
       else
         {
@@ -562,6 +622,46 @@ namespace  Markov_IO {
       }
   }
 
+
+
+  template<typename T>
+  bool toValue(Token_Buffer& t, std::set<T> &myset)
+  {
+    // checks the initial squarebracket
+    t.tokenAdvance(3);
+    if ((!(t.pos()+1<t.size()))||
+        (t.currToken().tok()!=Token_New::EOL)||
+        (t.nextToken(1).tok()!=Token_New::LCB))
+      return false;
+    t.advance(2);
+    T val;
+    if (!toValue(t,val))
+      return false;
+    else
+      {
+        myset.insert(val);
+        while (toValue(t,val))
+          {
+            myset.insert(val);
+          }
+        t.tokenAdvance(1);
+        if ((!(t.pos()<t.size()))||(t.currToken().tok()!=Token_New::RCB))
+          return false;
+        ++t;
+        return true;
+      }
+  }
+
+
+
+
+
+
+
+
+
+
+
   template<typename T>
   inline bool toValue(Token_Buffer& t, Markov_LA::M_Matrix<T> &m)
   {
@@ -648,6 +748,10 @@ namespace  Markov_IO {
       }
   }
 
+
+
+
+
   template<typename K,typename T>
   inline bool toValue(Token_Buffer& to, std::map<K,T> &map)
   {
@@ -655,7 +759,7 @@ namespace  Markov_IO {
     // checks the initial squarebracket
     if ((!(to.pos()+1<to.size()))||
         (to.currToken().tok()!=Token_New::EOL)||
-        (to.nextToken(1).tok()!=Token_New::LSB))
+        (to.nextToken(1).tok()!=Token_New::LCB))
       return false;
     to.advance(2);
     std::pair<K,T> val;
@@ -668,7 +772,7 @@ namespace  Markov_IO {
           {
             map.insert(val);
           }
-        if ((!(to.pos()<to.size()))||(to.currToken().tok()!=Token_New::RSB))
+        if ((!(to.pos()<to.size()))||(to.currToken().tok()!=Token_New::RCB))
           return false;
         ++to;
         return true;
@@ -707,50 +811,193 @@ namespace  Markov_IO {
   using refsetter=T&(C::*)();
 
 
+  class ABC_Value;
 
 
+  /// Variables store all the context information that give meaning to the values.
+  /// Unfortunatelly it was cumbersome to create a proper class for variables,
+  /// it is distinguished by a the method ABC_Val::isValue()
+  typedef ABC_Value ABC_Var;
 
-  class ABC_Data: public ABC_Put
+  /// Measures have actual access to the variables so they have all the information
+  /// necessary to give meaning to its values. Besides they might have a custum structure.
+  typedef ABC_Value ABC_Measure;
+
+
+  class ABC_Simple: public ABC_Put
   {
   public:
 
 
-    ABC_Data* getVarFromStream(Token_Buffer &t);
+    static std::string ClassName();
+
+    static std::set<std::string> SuperClasses();
 
 
 
-    ABC_Data* getObjectFromVar(ABC_Data * v)
+
+    /// si myClass==SomeClass::ClassName()  => static_cast<SomeClass*>(this)!=nullptr
+    virtual std::string myClass() const
     {
-      if (v)
-        {
-          auto m=v->motherClass();
-          if (m)
-            return m->cloneFromData(this,v);
-          else
-            return nullptr;
-        }
-      return nullptr;
+      return ClassName();
     }
 
-    ABC_Data* moveVarToObject(ABC_Data * v)
+
+
+    virtual std::set<std::string> mySuperClasses() const
     {
-      if (v)
-        {
-          auto m=v->motherClass();
-          if (m)
-            return m->moveFromData(this,v);
-          else
-            return nullptr;
-        }
-      return nullptr;
+      return {ClassName()};
     }
 
+
+    /// creates an empty object of the same class
+    virtual ABC_Simple * create()const=0;  // ABC_Put::create() // same myClass?
+
+    /// creates a stand alone copy of the object,
+    /// however it does not have the same parent
+    virtual ABC_Simple* clone()const=0;   //
+
+
+
+
+
+
+    virtual std::string toString()const;   //
+
+    virtual std::ostream& put(std::ostream& s) const
+    {
+      s<<toString();
+      return s;
+    }
+
+
+    virtual Token_Buffer toTokens()const=0;
+
+
+
+    virtual bool processTokens(Token_Buffer& t)=0;
+
+
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  class ABC_Value: public ABC_Put
+  {
+  public:
 
     static bool isValidId(std::string name);
 
     static std::string ClassName();
 
     static std::set<std::string> SuperClasses();
+
+    virtual bool isMeasure()const
+    {
+      return false;
+    }
+    virtual bool isVariable()const
+    {
+      return false;
+    }
+
+    virtual bool isBuildIn()const
+    {
+      return false;
+    }
+
+    /// creates an ABC_Value of the right kind of within Complex_Value/Simple_Value
+    /// No parent, it should be either deleted or rooted
+    static ABC_Value* getValueFromStream(Token_Buffer &t);
+
+
+
+
+    /// it returns a copy of the value representation of the object
+    /// it works as a Parameter
+    virtual ABC_Value* to_PlainValue() const =0;
+
+
+
+    virtual ABC_Value* to_PlainValue(const ABC_Measure* measure)const =0;
+
+
+
+    virtual Token_Buffer toTokens()const=0;
+
+
+
+    virtual bool processTokens(Token_Buffer& t)=0;
+
+
+
+    /// it uses the information in source to build a fully formed
+    /// object
+    /// Invariant *this==parentValue()->getChild(myVar())->cloneFromValue(getValueFromStream(this->toTokens));
+    ///
+    Markov_IO::ABC_Value* toIndicatedVar(const ABC_Value *source) const
+    {
+      if (source->myVar()==id())
+        return toMeasure(source);
+      else if (source->myVar()==myClass())
+        return toSameVar(source);
+      else return nullptr;
+    }
+
+
+
+
+protected:
+
+    virtual ABC_Var* toSameVar(const ABC_Value* source)const=0;
+
+
+    virtual ABC_Measure* toMeasure(const ABC_Value* source)const=0;
+
+  public:
+
+    ABC_Measure* getMeasureFromValue(ABC_Value * v)
+    {
+      if (v)
+        {
+          auto m=getChild(v->myVar());
+          if (m)
+            return m->toIndicatedVar(v);
+          else
+            return nullptr;
+        }
+      return nullptr;
+    }
+
+
+
+    /// si myClass==SomeClass::ClassName()  => static_cast<SomeClass*>(this)!=nullptr
+    virtual std::string myClass() const
+    {
+      return ClassName();
+    }
+
+
+
+    virtual std::set<std::string> mySuperClasses() const
+    {
+      return {ClassName()};
+    }
+
+    /// si complyClass(SomeClass::ClassName())  => static_cast<SomeClass*>(this)!=nullptr
+    virtual bool complyClass(const std::string classname)const ;
 
 
     virtual std::string Tip()const=0;
@@ -759,8 +1006,19 @@ namespace  Markov_IO {
     virtual void setTip(const std::string& tip)=0;
     virtual void setWhatThis(const std::string& whatThis)=0;
   public:
-    virtual ABC_Data* create()const=0;  // ABC_Put::create() // same myClass?
-    virtual ABC_Data* clone()const=0;   //
+
+    /// creates an empty object of the same class
+    virtual ABC_Value* create()const=0;  // ABC_Put::create() // same myClass?
+
+    /// creates a stand alone copy of the object,
+    /// however it does not have the same parent
+    virtual ABC_Value* clone()const=0;   //
+
+
+
+
+
+
     virtual std::string toString()const;   //
 
     virtual std::ostream& put(std::ostream& s) const
@@ -776,101 +1034,84 @@ namespace  Markov_IO {
 
     virtual std::string refId()const=0;
 
-    virtual std::string myClass()const=0;
-    virtual void setClass(const std::string& classname)=0;
+    virtual std::string myVar()const=0;
 
-    virtual std::set<std::string> mySuperClasses() const;
 
-    virtual bool complyClass(const std::string classname)const ;
+
+    virtual void setVar(const std::string& varname)=0;
 
     virtual bool isRootedVariable()const=0;
 
-    virtual const ABC_Data* motherClass()const=0;
 
-    virtual ABC_Data* motherClass()=0;
+
+    ///FIXME: see what to to with it
+    virtual const ABC_Var* myVarPtr()const=0;
+
+    virtual ABC_Var* myVarPtr()=0;
 
     virtual std::set<std::string> modes()const =0;
     virtual bool complyModes(const std::string mode) const=0;
 
 
     
-    virtual Token_Buffer toTokens()const=0;
-
-
-    virtual bool processTokens(Token_Buffer& t)=0;
 
 
     // invariant varCreate()->processTokens(toTokens())=true
 
 
+    virtual std::size_t numChilds()const=0;
 
-    virtual ABC_Data* to_ComplexVar() const =0;
+    virtual ABC_Value* parentValue()=0;
+    virtual const ABC_Value* parentValue()const =0;
 
-    virtual ABC_Data* cloneFromData(ABC_Data *parent,const ABC_Data* source)const=0;
+    virtual void setParentValue(ABC_Value* par)=0;
 
-
-    virtual ABC_Data* moveFromData(ABC_Data *parent,ABC_Data*& source)const=0;
-
-
-
-    virtual bool loadFromComplexVar(const ABC_Data* source)=0;
-    //
-
-
-    
-    virtual std::size_t numChildVars()const=0;
-
-    virtual ABC_Data* parentVar()=0;
-    virtual const ABC_Data* parentVar()const =0;
-
-    virtual void setParentVar(ABC_Data* par)=0;
-
-  public:
-    virtual std::string ith_VarName(std::size_t i)const=0;
-    virtual std::string childClass(const std::string& idName)const=0;
+    virtual std::string ith_ChildName(std::size_t i)const=0;
+    virtual std::string childVar(const std::string& idName)const=0;
 
 
     bool has_child(const std::string& name)const
     {
-      return getChildVar(name)!=nullptr;
+      return getChild(name)!=nullptr;
     }
 
-    virtual const ABC_Data* getChildVar(const std::string& name)const=0;
-    virtual ABC_Data* getChildVar(const std::string &name)=0;
-    virtual void removeChildVar(const std::string& name)=0;
+    virtual const ABC_Value* getChild(const std::string& name)const=0;
+    virtual ABC_Value* getChild(const std::string &name)=0;
+    virtual void removeChild(const std::string& name)=0;
 
     std::vector<std::string> getChildList()const
     {
-      std::vector<std::string> out(numChildVars());
-      for (std::size_t i=0; i<numChildVars(); i++)
-        out[i]=ith_VarName(i);
+      std::vector<std::string> out(numChilds());
+      for (std::size_t i=0; i<numChilds(); i++)
+        out[i]=ith_ChildName(i);
       return out;
     }
 
-    virtual const ABC_Data* getChildVar(const std::string& name,const std::string& kind)const=0;
-    virtual ABC_Data* getChildVar(const std::string &name, const std::string &kind) =0;
+    virtual const ABC_Value* getChild(const std::string& name,const std::string& kind)const=0;
+    virtual ABC_Value* getChild(const std::string &name, const std::string &kind) =0;
 
-    virtual void pushChildVar(ABC_Data* var)=0;
+    virtual void pushChild(ABC_Value* var)=0;
+    virtual void pushIdChild(const std::string& id,ABC_Value* var);
 
 
-    virtual ~ABC_Data(){}
-    virtual bool isInDomain(const ABC_Data* value)const=0;
+    virtual void putOut(const std::string& m)const=0;
+    virtual void putErrorOut(const std::string& m)const=0;
 
-    virtual ABC_Data* varTemplate()const=0;
+    virtual ~ABC_Value(){}
+    virtual bool isInDomain(const ABC_Value* value)const=0;
 
     virtual void reset()=0;
-
     
     template<typename T>
-    bool getValue(const std::string& name, T& value)const;
+    bool getVal(const std::string& name, T& value)const;
 
 
     template<typename T>
-    bool moveValue(const std::string& name, T& value);
+    bool moveVal(const std::string& name, T& value);
 
 
     template<typename T>
-    bool hasValue(const std::string& name, T& value)const;
+    bool hasVal(const std::string& name, T& value)const;
 
 
 
@@ -884,7 +1125,7 @@ namespace  Markov_IO {
 
 
     template<typename T>
-    void push_backVar(const std::string& name,
+    void push_backVal(const std::string& name,
                       T value,
                       const std::string& classname="",
                       const std::string& tip="",
@@ -911,15 +1152,15 @@ namespace  Markov_IO {
 
 
 
-    bool sameFields(const ABC_Data* other)const
+    bool sameFields(const ABC_Value* other)const
     {
-      if ((other==nullptr)||(numChildVars()!=other->numChildVars()))
+      if ((other==nullptr)||(numChilds()!=other->numChilds()))
         return false;
-      for (std::size_t i=0; i<numChildVars(); ++i)
+      for (std::size_t i=0; i<numChilds(); ++i)
         {
-          auto name=ith_VarName(i);
-          auto cl=childClass(name);
-          auto o=other->getChildVar(name,cl);
+          auto name=ith_ChildName(i);
+          auto cl=childVar(name);
+          auto o=other->getChild(name,cl);
           if (o==nullptr)
             return false;
         }
@@ -932,24 +1173,27 @@ namespace  Markov_IO {
 
 
 
-  class Implements_VarId: virtual public ABC_Data
+
+
+
+  class Implements_ValueId: virtual public ABC_Value
   { // ABC_Var interface
   public:
 
-    virtual ABC_Data* create()const override
+    virtual ABC_Value* create()const override
     {
-      return new Implements_VarId;
+      return new Implements_ValueId;
     }
 
-    virtual Implements_VarId* clone() const override
+    virtual Implements_ValueId* clone() const override
     {
-      return new Implements_VarId(*this);
+      return new Implements_ValueId(*this);
     }
     virtual void reset() override
     {
-      if ((parentVar()!=nullptr)&&(!isRootedVariable()))
+      if ((parentValue()!=nullptr)&&(!isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_VarId*>(parentVar()->getChildVar(id()));
+          auto s=dynamic_cast<Implements_ValueId*>(parentValue()->getChild(id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -959,8 +1203,11 @@ namespace  Markov_IO {
 
 
 
-    virtual std::string myClass() const override;
-    virtual void setClass(const std::string& classname)override;
+
+
+
+    virtual std::string myVar() const override;
+    virtual void setVar(const std::string& varname)override;
 
     virtual Token_Buffer toTokens() const override;
     virtual bool processTokens( Token_Buffer& tok) override;
@@ -979,21 +1226,24 @@ namespace  Markov_IO {
 
     bool isRootedVariable()const override;
 
-    ABC_Data *parentVar() override;
-    const ABC_Data *parentVar() const override;
-    virtual std::size_t numChildVars() const override;
-    virtual std::string ith_VarName(std::size_t) const override;
-    virtual std::string childClass(const std::string &) const override;
-    virtual const ABC_Data* getChildVar(const std::string&)const override;
-    virtual ABC_Data* getChildVar(const std::string &) override;
+    ABC_Value *parentValue() override;
+    const ABC_Value *parentValue() const override;
+    virtual std::size_t numChilds() const override;
+    virtual std::string ith_ChildName(std::size_t) const override;
+    virtual std::string childVar(const std::string &) const override;
+    virtual const ABC_Value* getChild(const std::string&)const override;
+    virtual ABC_Value* getChild(const std::string &) override;
 
-    virtual void removeChildVar(const std::string& ) override;
-    virtual const ABC_Data* getChildVar(const std::string&, const std::string&)const  override;
-    virtual ABC_Data* getChildVar(const std::string &, const std::string &) override;
-    virtual void pushChildVar(ABC_Data *) override;
+    virtual void removeChild(const std::string& ) override;
+    virtual const ABC_Value* getChild(const std::string&, const std::string&)const  override;
+    virtual ABC_Value* getChild(const std::string &, const std::string &) override;
+    virtual void pushChild(ABC_Value *) override;
+
     virtual std::string refId()const override;
-    virtual ABC_Data* motherClass() override;
-    virtual const ABC_Data* motherClass() const  override;
+
+    //TODO: there are two concepts here: the current holder of the id in parent and the var that is pointed by myVar
+    virtual ABC_Var* myVarPtr() override;
+    virtual const ABC_Value* myVarPtr() const  override;
     virtual bool complyModes(const std::string )const override
     {
       return false;
@@ -1003,35 +1253,43 @@ namespace  Markov_IO {
       return {};
     }
   protected:
-    virtual void setParentVar(ABC_Data *par)override;
+    virtual void setParentValue(ABC_Value *par)override;
   public:
-    virtual bool isInDomain(const ABC_Data* value)const override;
-    virtual ABC_Data* varTemplate()const  override;
-    Implements_VarId(ABC_Data* parent,
-                     const std::string& name,
-                     const std::string& className,
-                     const std::string &tip,
-                     const std::string &whatthis);
+    virtual bool isInDomain(const ABC_Value* value)const override;
+    Implements_ValueId(const std::string& name,
+                       const std::string& className,
+                       const std::string &tip,
+                       const std::string &whatthis);
 
-    Implements_VarId(const ABC_Data& other);
+    Implements_ValueId(const ABC_Value& other);
 
-    Implements_VarId()=default;
-    Implements_VarId(const Implements_VarId& other)=default;
-    Implements_VarId& operator=(const Implements_VarId& other)=default;
+    Implements_ValueId()=default;
+    Implements_ValueId(const Implements_ValueId& other)=default;
+    Implements_ValueId& operator=(const Implements_ValueId& other)=default;
 
-    Implements_VarId(Implements_VarId&& other)=default;
-    Implements_VarId& operator=(Implements_VarId&& other)=default;
+    Implements_ValueId(Implements_ValueId&& other)=default;
+    Implements_ValueId& operator=(Implements_ValueId&& other)=default;
 
-    virtual ~Implements_VarId(){}
+    virtual ~Implements_ValueId(){}
 
-    virtual bool loadFromComplexVar(const ABC_Data*)override;
-    virtual ABC_Data* to_ComplexVar() const override;
-    virtual ABC_Data* cloneFromData(ABC_Data *,const ABC_Data* )const override
+
+    virtual void putOut(const std::string& m)const;
+    virtual void putErrorOut(const std::string& m)const;
+
+
+    virtual ABC_Value* to_PlainValue() const override;
+    virtual ABC_Value* to_PlainValue(const ABC_Measure* )const override
     {
       return nullptr;
     }
 
-    virtual ABC_Data* moveFromData(ABC_Data *, ABC_Data*& )const override
+    virtual ABC_Value* toMeasure(const ABC_Value* )const override
+    {
+      return nullptr;
+    }
+
+
+    virtual ABC_Var* toSameVar(const ABC_Value* )const override
     {
       return nullptr;
     }
@@ -1039,8 +1297,8 @@ namespace  Markov_IO {
 
   protected:
     std::string id_;
-    std::string class_;
-    ABC_Data* p_;
+    std::string var_;
+    ABC_Value* p_;
     std::string tip_;
     std::string whatThis_;
 
@@ -1052,10 +1310,10 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  class ABC_Simple_Var;
+  class ABC_Simple_Value;
 
   template<typename T>
-  class ABC_Simple_Class:  public  virtual Implements_VarId
+  class ABC_Simple_Class:  public  virtual Implements_ValueId
   {
   public:
 
@@ -1063,7 +1321,7 @@ namespace  Markov_IO {
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Data::SuperClasses()+ClassName();
+      return ABC_Value::SuperClasses()+ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()const override
@@ -1089,20 +1347,19 @@ namespace  Markov_IO {
 
     virtual std::set<std::string> modes()const override=0;
     virtual ~ABC_Simple_Class(){}
-    virtual  ABC_Simple_Var<T>* varTemplate()const override=0;
   };
 
 
 
 
   template<typename T>
-  class ABC_Simple_Var: public virtual Implements_VarId
+  class ABC_Simple_Value: public virtual Implements_ValueId
   {
     // ABC_Var interface
   public:
     virtual T value()const=0;
     virtual void setValue(T val)=0;
-    virtual void moveValue(T& ){}
+    virtual void moveVal(T& ){}
 
     virtual const T& refval()const=0;
 
@@ -1110,16 +1367,16 @@ namespace  Markov_IO {
 
     virtual const ABC_Simple_Class<T>* motherClassType()const
     {
-      return dynamic_cast<const ABC_Simple_Class<T>*> (motherClass());
+      return dynamic_cast<const ABC_Simple_Class<T>*> (myVarPtr());
     }
 
     virtual  ABC_Simple_Class<T>* motherClassType()
     {
-      return dynamic_cast<ABC_Simple_Class<T>*> (motherClass());
+      return dynamic_cast<ABC_Simple_Class<T>*> (myVarPtr());
     }
 
 
-    virtual ~ABC_Simple_Var(){}
+    virtual ~ABC_Simple_Value(){}
 
   };
 
@@ -1127,8 +1384,9 @@ namespace  Markov_IO {
 
 
 
+
   template<typename T>
-  class Implements_Simple_Var: public ABC_Simple_Var<T>
+  class Implements_Simple_Value: public ABC_Simple_Value<T>
   {
     // ABC_Var interface
   public:
@@ -1136,7 +1394,7 @@ namespace  Markov_IO {
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Data::SuperClasses()+ClassName();
+      return ABC_Value::SuperClasses()+ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()const override
@@ -1144,21 +1402,21 @@ namespace  Markov_IO {
       return SuperClasses();
     }
 
-    virtual Implements_Simple_Var<T>* create() const override
+    virtual Implements_Simple_Value<T>* create() const override
     {
-      return new Implements_Simple_Var<T>();
+      return new Implements_Simple_Value<T>();
     }
 
-    virtual Implements_Simple_Var<T>* clone() const override
+    virtual Implements_Simple_Value<T>* clone() const override
     {
-      return new Implements_Simple_Var<T>(*this);
+      return new Implements_Simple_Value<T>(*this);
     }
 
     virtual void reset() override
     {
-      if ((this->parentVar()!=nullptr)&&(!this->isRootedVariable()))
+      if ((this->parentValue()!=nullptr)&&(!this->isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_Simple_Var<T>*>(this->parentVar()->getChildVar(this->id()));
+          auto s=dynamic_cast<Implements_Simple_Value<T>*>(this->parentValue()->getChild(this->id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -1169,7 +1427,7 @@ namespace  Markov_IO {
       return value_;
     }
 
-    virtual void moveValue(T& val)
+    virtual void moveVal(T& val)
     {
       val=std::move(value_);
     }
@@ -1189,14 +1447,14 @@ namespace  Markov_IO {
 
     virtual Token_Buffer toTokens() const override
     {
-      Token_Buffer out=Implements_VarId::toTokens();
+      Token_Buffer out=Implements_ValueId::toTokens();
       out<<"="<<value()<<"\n";
       return out;
     }
 
     bool processTokens( Token_Buffer& t) override
     {
-      if (!Implements_VarId::processTokens(t))
+      if (!Implements_ValueId::processTokens(t))
         return false;
       else
         {
@@ -1218,47 +1476,42 @@ namespace  Markov_IO {
     }
     // ABC_Var interface
 
-    Implements_Simple_Var(ABC_Data* parent,
-                          std::string id,
-                          T val,
-                          std::string className=ClassName(),
-                          const std::string& tip="",
-                          const std::string& whatthis=""):
-      Implements_VarId(nullptr,id,className,tip,whatthis),
-      value_(val){
-      if (parent)
-        parent->pushChildVar(this);
-    }
+
+    Implements_Simple_Value(std::string id,
+                            T val,
+                            std::string className=ClassName(),
+                            const std::string& tip="",
+                            const std::string& whatthis=""):
+      Implements_ValueId(id,className,tip,whatthis),
+      value_(val){}
 
 
-    Implements_Simple_Var()=default;
 
-    Implements_Simple_Var(const Implements_Simple_Var<T>& other)=default;
 
-    Implements_Simple_Var(Implements_Simple_Var<T>&& other)=default;
 
-    Implements_Simple_Var& operator=(const Implements_Simple_Var<T>& other)=default;
+    Implements_Simple_Value()=default;
+
+    Implements_Simple_Value(const Implements_Simple_Value<T>& other)=default;
+
+    Implements_Simple_Value(Implements_Simple_Value<T>&& other)=default;
+
+    Implements_Simple_Value& operator=(const Implements_Simple_Value<T>& other)=default;
     /* {
       if (this!=&other)
-        *this=Implements_Simple_Var<T>(other);
+        *this=Implements_Simple_Value<T>(other);
       return *this;
     }
 */
-    Implements_Simple_Var& operator=(Implements_Simple_Var<T>&& other)=default;
+    Implements_Simple_Value& operator=(Implements_Simple_Value<T>&& other)=default;
 
-    virtual ~Implements_Simple_Var(){}
+    virtual ~Implements_Simple_Value(){}
 
-    virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
+    virtual Implements_Simple_Value<T>* to_PlainValue()const  override
     {
       return clone();
     }
 
 
-
-    virtual bool loadFromComplexVar(const ABC_Data* ) override
-    {
-      return false;
-    }
 
 
 
@@ -1271,28 +1524,34 @@ namespace  Markov_IO {
 
 
 
+  template<typename T>
+  class Implements_Simple_Measure: public  Implements_Simple_Value<T>, public ABC_Measure
+  {
+
+
+  };
 
 
 
 
-  class Implements_Complex_Var: virtual public  Implements_VarId
+  class Implements_Complex_Value: virtual public  Implements_ValueId
   {
     // ABC_Var interface
   public:
     static std::string ClassName();
-    virtual Implements_Complex_Var* create() const override
+    virtual Implements_Complex_Value* create() const override
     {
-      return new Implements_Complex_Var;
+      return new Implements_Complex_Value;
     }
-    virtual Implements_Complex_Var* clone() const override
+    virtual Implements_Complex_Value* clone() const override
     {
-      return new Implements_Complex_Var(*this);
+      return new Implements_Complex_Value(*this);
     }
     virtual void reset() override
     {
-      if ((parentVar()!=nullptr)&&(!isRootedVariable()))
+      if ((parentValue()!=nullptr)&&(!isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_Complex_Var*>(parentVar()->getChildVar(id()));
+          auto s=dynamic_cast<Implements_Complex_Value*>(parentValue()->getChild(id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -1300,25 +1559,27 @@ namespace  Markov_IO {
 
     }
 
-    virtual std::size_t numChildVars() const override;
-    virtual std::string ith_VarName(std::size_t i) const override;
-    virtual std::string childClass(const std::string &idName) const override;
-    virtual const ABC_Data* getChildVar(const std::string& name)const override;
+    virtual std::size_t numChilds() const override;
+    virtual std::string ith_ChildName(std::size_t i) const override;
+    virtual std::string childVar(const std::string &idName) const override;
+    virtual const ABC_Value* getChild(const std::string& name)const override;
 
 
     std::vector<std::string> getChildList()const
     {
       return ids_;
     }
-    virtual void removeChildVar(const std::string& name)override;
+    virtual void removeChild(const std::string& name)override;
 
-    virtual  ABC_Data* getChildVar(const std::string& name)override;
-    virtual const ABC_Data* getChildVar(const std::string& name,
-                                        const std::string &myclass)const override;
-    virtual ABC_Data* getChildVar(const std::string& name, const std::string &myclass) override;
-    virtual void pushChildVar(ABC_Data *var) override;
-    Implements_Complex_Var(
-        ABC_Data *parent,
+    virtual  ABC_Value* getChild(const std::string& name)override;
+    virtual const ABC_Value* getChild(const std::string& name,
+                                      const std::string &myclass)const override;
+    virtual ABC_Value* getChild(const std::string& name, const std::string &myclass) override;
+    virtual void pushChild(ABC_Value *var) override;
+
+
+
+    Implements_Complex_Value(
         const std::string& id,
         const std::string className,
         const std::string & tip,
@@ -1326,28 +1587,28 @@ namespace  Markov_IO {
         const std::vector<std::pair<std::string,std::string>>& childsNameClass={});
 
 
-    Implements_Complex_Var(const ABC_Data& other):
-      Implements_VarId(other)
+    Implements_Complex_Value(const ABC_Value& other):
+      Implements_ValueId(other)
     {
 
-      for (std::size_t i=0; i<other.numChildVars(); ++i)
+      for (std::size_t i=0; i<other.numChilds(); ++i)
         {
-          std::string name=other.ith_VarName(i);
-          auto o=other.getChildVar(name);
+          std::string name=other.ith_ChildName(i);
+          auto o=other.getChild(name);
           if (o!=nullptr)
-            pushChildVar(o->clone());
-          childclss_[name]=other.childClass(name);
+            pushChild(o->clone());
+          childclss_[name]=other.childVar(name);
         }
     }
 
 
 
-    Implements_Complex_Var()=default;
+    Implements_Complex_Value()=default;
 
 
-    Implements_Complex_Var(const Implements_Complex_Var& other)
+    Implements_Complex_Value(const Implements_Complex_Value& other)
       :
-        Implements_VarId(other),
+        Implements_ValueId(other),
         ids_(other.ids_),
         childclss_(other.childclss_),
         vars_(other.vars_)
@@ -1356,8 +1617,8 @@ namespace  Markov_IO {
       resetChildsParent();
     }
 
-    Implements_Complex_Var(Implements_Complex_Var&& other):
-      Implements_VarId(std::move(other)),
+    Implements_Complex_Value(Implements_Complex_Value&& other):
+      Implements_ValueId(std::move(other)),
       ids_(std::move(other.ids_)),
       childclss_(std::move(other.childclss_)),
       vars_(std::move(other.vars_))
@@ -1365,12 +1626,12 @@ namespace  Markov_IO {
       resetChildsParent();
     }
 
-    Implements_Complex_Var& operator=(Implements_Complex_Var&& other)
+    Implements_Complex_Value& operator=(Implements_Complex_Value&& other)
     {
       if (this!=&other)
         {
           privateDelete();
-          Implements_VarId::operator =(std::move(other));
+          Implements_ValueId::operator =(std::move(other));
           ids_=std::move(other.ids_);
           childclss_=std::move(other.childclss_);
           vars_=std::move(other.vars_);
@@ -1382,11 +1643,11 @@ namespace  Markov_IO {
 
 
 
-    Implements_Complex_Var& operator=(const Implements_Complex_Var& other)
+    Implements_Complex_Value& operator=(const Implements_Complex_Value& other)
     {
       if (this!=&other)
         {
-          *this=Implements_Complex_Var(other);
+          *this=Implements_Complex_Value(other);
           resetChildsParent();
 
         }
@@ -1403,7 +1664,7 @@ namespace  Markov_IO {
     }
 
 
-    virtual ~Implements_Complex_Var(){
+    virtual ~Implements_Complex_Value(){
       privateDelete();
     }
 
@@ -1416,20 +1677,20 @@ namespace  Markov_IO {
 
 
 
-    virtual ABC_Data* to_ComplexVar()const override
+    virtual ABC_Value* to_PlainValue()const override
     {
-      return new Implements_Complex_Var(*this);
+      return new Implements_Complex_Value(*this);
     }
-    virtual bool loadFromComplexVar(const ABC_Data* source)override
-    {
-      if (sameFields(source))
-        {
-          *this=Implements_Complex_Var(*source);
-          return true;
-        }
-      else
-        return false;
-    }
+//    virtual bool loadFromObjectValue(const ABC_Value* source)override
+//    {
+//      if (sameFields(source))
+//        {
+//          *this=Implements_Complex_Value(*source);
+//          return true;
+//        }
+//      else
+//        return false;
+//    }
 
   protected:
     void cloneChids()
@@ -1438,7 +1699,7 @@ namespace  Markov_IO {
         {
           if (it.second!=nullptr)
             {
-              ABC_Data* n=it.second->clone();
+              ABC_Value* n=it.second->clone();
 
               it.second=n;
             }
@@ -1451,20 +1712,20 @@ namespace  Markov_IO {
         {
           if (it.second!=nullptr)
             {
-              it.second->setParentVar(this);
+              it.second->setParentValue(this);
             }
         }
     }
     std::vector<std::string> ids_;
     std::map<std::string, std::string> childclss_;
-    std::map<std::string,ABC_Data*> vars_;
+    std::map<std::string,ABC_Value*> vars_;
 
   };
 
 
 
   template<class C>
-  class ABCObject:  virtual public Implements_VarId
+  class ABCObject:  virtual public Implements_ValueId
   {
     // ABC_Var interface
   public:
@@ -1480,7 +1741,7 @@ namespace  Markov_IO {
 
 
   template<class C,typename T>
-  class Implements_ValMethod_Var: public ABC_Simple_Var<T>, public ABCObject<C>
+  class Implements_ValMethod_Var: public ABC_Simple_Value<T>, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -1491,7 +1752,7 @@ namespace  Markov_IO {
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Data::SuperClasses()+ClassName();
+      return ABC_Value::SuperClasses()+ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()const override
@@ -1514,9 +1775,9 @@ namespace  Markov_IO {
 
     virtual void reset() override
     {
-      if ((this->parentVar()!=nullptr)&&(!this->isRootedVariable()))
+      if ((this->parentValue()!=nullptr)&&(!this->isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_ValMethod_Var<C,T>*>(this->parentVar()->getChildVar(this->id()));
+          auto s=dynamic_cast<Implements_ValMethod_Var<C,T>*>(this->parentValue()->getChild(this->id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -1574,14 +1835,14 @@ namespace  Markov_IO {
 
     Token_Buffer toTokens() const override
     {
-      auto out=Implements_VarId::toTokens();
+      auto out=Implements_ValueId::toTokens();
       out<<"="<<value()<<"\n";
       return out;
     }
 
     bool processTokens( Token_Buffer&  t) override
     {
-      if (!Implements_VarId::processTokens(t))
+      if (!Implements_ValueId::processTokens(t))
         return false;
       else
         {
@@ -1606,15 +1867,14 @@ namespace  Markov_IO {
 
     // ABC_Var interface
 
-    Implements_ValMethod_Var(ABC_Data* parent,
-                             std::string id,
+    Implements_ValMethod_Var(std::string id,
                              C** objectPtr,
                              getter<C,T> getterMethod,
                              setter<C,T> setterMethod,
                              std::string className=ClassName(),
                              const std::string& tip="",
                              const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
+      Implements_ValueId(id,className,tip,whatthis),
       objectPtr_(objectPtr),
       get_(getterMethod),
       set_(setterMethod)
@@ -1640,10 +1900,9 @@ namespace  Markov_IO {
 
     virtual ~Implements_ValMethod_Var(){}
 
-    virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
+    virtual Implements_Simple_Value<T>* to_PlainValue()const  override
     {
-      return new Implements_Simple_Var<T>(
-            nullptr,this->id(),this->value(),this->myClass(),this->Tip(), this->WhatThis());
+      return new Implements_Simple_Value<T>(this->id(),this->value(),this->myVar(),this->Tip(), this->WhatThis());
     }
 
 
@@ -1652,26 +1911,26 @@ namespace  Markov_IO {
 
 
 
-    virtual bool loadFromComplexVar(const ABC_Data* var) override
-    {
-      if ((var!=nullptr)&&(this->id()==var->id()))
-        {
-          auto o=dynamic_cast<const ABC_Simple_Var<T>*>(var);
-          if(o!=nullptr)
-            {
-              setValue(o->value());
-              if (!o->Tip().empty())
-                this->setTip(o->Tip());
-              if (!o->WhatThis().empty())
-                this->setWhatThis(o->WhatThis());
-              return true;
-            }
-          else
-            return false;
-        }
-      else
-        return false;
-    }
+//    virtual bool loadFromObjectValue(const ABC_Value* var) override
+//    {
+//      if ((var!=nullptr)&&(this->id()==var->id()))
+//        {
+//          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
+//          if(o!=nullptr)
+//            {
+//              setValue(o->value());
+//              if (!o->Tip().empty())
+//                this->setTip(o->Tip());
+//              if (!o->WhatThis().empty())
+//                this->setWhatThis(o->WhatThis());
+//              return true;
+//            }
+//          else
+//            return false;
+//        }
+//      else
+//        return false;
+//    }
   protected:
     C** objectPtr_;
     getter<C,T> get_;
@@ -1682,7 +1941,7 @@ namespace  Markov_IO {
 
 
   template<class C,typename T>
-  class Implements_PointerMember_Var: public ABC_Simple_Var<T>, public ABCObject<C>
+  class Implements_PointerMember_Var: public ABC_Simple_Value<T>, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -1693,7 +1952,7 @@ namespace  Markov_IO {
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Data::SuperClasses()+ClassName();
+      return ABC_Value::SuperClasses()+ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()const override
@@ -1752,7 +2011,7 @@ namespace  Markov_IO {
         return empty_;
     }
 
-    void moveValue(T &val)  override
+    void moveVal(T &val)  override
     {
       return  val;
     }
@@ -1769,14 +2028,14 @@ namespace  Markov_IO {
 
     Token_Buffer toTokens() const override
     {
-      auto out=Implements_VarId::toTokens();
+      auto out=Implements_ValueId::toTokens();
       out<<"="<<toToken(value())<<"\n";
       return out;
     }
 
     bool processTokens(Token_Buffer& t) override
     {
-      if (!Implements_VarId::processTokens(t))
+      if (!Implements_ValueId::processTokens(t))
         return false;
       else
         {
@@ -1801,14 +2060,13 @@ namespace  Markov_IO {
     // ABC_Var interface
 
 
-    Implements_PointerMember_Var(ABC_Data* parent,
-                                 std::string id,
+    Implements_PointerMember_Var(std::string id,
                                  C** objectPtr,
                                  T C::* memberPointer,
                                  std::string className=ClassName(),
                                  const std::string& tip="",
                                  const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
+      Implements_ValueId(id,className,tip,whatthis),
       objectPtr_(objectPtr),
       m_(memberPointer)
     {}
@@ -1832,32 +2090,32 @@ namespace  Markov_IO {
 
     virtual ~Implements_PointerMember_Var(){}
 
-    virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
+    virtual Implements_Simple_Value<T>* to_PlainValue()const  override
     {
-      return new Implements_Simple_Var<T>(
-            nullptr,this->id(),this->value(),this->myClass(),this->Tip(), this->WhatThis());
+      return new Implements_Simple_Value<T>(
+            nullptr,this->id(),this->value(),this->myVar(),this->Tip(), this->WhatThis());
     }
 
-    virtual bool loadFromComplexVar(const ABC_Data* var) override
-    {
-      if ((var!=nullptr)&&(this->id()==var->id()))
-        {
-          auto o=dynamic_cast<const ABC_Simple_Var<T>*>(var);
-          if(o!=nullptr)
-            {
-              setValue(o->value());
-              if (!o->Tip().empty())
-                this->setTip(o->Tip());
-              if (!o->WhatThis().empty())
-                this->setWhatThis(o->WhatThis());
-              return true;
-            }
-          else
-            return false;
-        }
-      else
-        return false;
-    }
+//    virtual bool loadFromObjectValue(const ABC_Value* var) override
+//    {
+//      if ((var!=nullptr)&&(this->id()==var->id()))
+//        {
+//          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
+//          if(o!=nullptr)
+//            {
+//              setValue(o->value());
+//              if (!o->Tip().empty())
+//                this->setTip(o->Tip());
+//              if (!o->WhatThis().empty())
+//                this->setWhatThis(o->WhatThis());
+//              return true;
+//            }
+//          else
+//            return false;
+//        }
+//      else
+//        return false;
+//    }
   protected:
     C** objectPtr_;
     T C::* m_;
@@ -1867,7 +2125,7 @@ namespace  Markov_IO {
 
 
   template<class C,typename T>
-  class Implements_RefMethod_Var: public ABC_Simple_Var<T>, public ABCObject<C>
+  class Implements_RefMethod_Var: public ABC_Simple_Value<T>, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -1878,7 +2136,7 @@ namespace  Markov_IO {
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Data::SuperClasses()+ClassName();
+      return ABC_Value::SuperClasses()+ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()const override
@@ -1960,14 +2218,14 @@ namespace  Markov_IO {
 
     Token_Buffer toTokens() const override
     {
-      auto out=Implements_VarId::toTokens();
+      auto out=Implements_ValueId::toTokens();
       out<<"="<<value()<<"\n";
       return out;
     }
 
     bool processTokens( Token_Buffer& t) override
     {
-      if (!Implements_VarId::processTokens(t))
+      if (!Implements_ValueId::processTokens(t))
         return false;
       else
         {
@@ -1992,15 +2250,14 @@ namespace  Markov_IO {
 
     // ABC_Var interface
 
-    Implements_RefMethod_Var(ABC_Data* parent,
-                             std::string id,
+    Implements_RefMethod_Var(std::string id,
                              C** object,
                              refgetter<C,T> refgetterMethod,
                              refsetter<C,T> refsetterMethod,
                              std::string className=ClassName(),
                              const std::string& tip="",
                              const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
+      Implements_ValueId(id,className,tip,whatthis),
       objectPtr_(object),
       rget_(refgetterMethod),
       rset_(refsetterMethod){}
@@ -2025,32 +2282,33 @@ namespace  Markov_IO {
     virtual ~Implements_RefMethod_Var(){}
 
 
-    virtual Implements_Simple_Var<T>* to_ComplexVar()const  override
+    virtual Implements_Simple_Value<T>* to_PlainValue()const  override
     {
-      return new Implements_Simple_Var<T>(
-            nullptr,this->id(),this->value(),this->myClass(),this->Tip(), this->WhatThis());
+      return new Implements_Simple_Value<T>(this->id(),this->value(),this->myVar(),this->Tip(), this->WhatThis());
     }
 
-    virtual bool loadFromComplexVar(const ABC_Data* var) override
-    {
-      if ((var!=nullptr)&&(this->id()==var->id()))
-        {
-          auto o=dynamic_cast<const ABC_Simple_Var<T>*>(var);
-          if(o!=nullptr)
-            {
-              setValue(o->value());
-              if (!o->Tip().empty())
-                this->setTip(o->Tip());
-              if (!o->WhatThis().empty())
-                this->setWhatThis(o->WhatThis());
-              return true;
-            }
-          else
-            return false;
-        }
-      else
-        return false;
-    }
+//    virtual bool loadFromObjectValue(const ABC_Value* var) override
+//    {
+//      if ((var!=nullptr)&&(this->id()==var->id()))
+//        {
+//          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
+//          if(o!=nullptr)
+//            {
+//              setValue(o->value());
+//              if (!o->Tip().empty())
+//                this->setTip(o->Tip());
+//              if (!o->WhatThis().empty())
+//                this->setWhatThis(o->WhatThis());
+//              return true;
+//            }
+//          else
+//            return false;
+//        }
+//      else
+//        return false;
+//    }
+
+
   protected:
     C** objectPtr_;
     refgetter<C,T> rget_;
@@ -2062,7 +2320,7 @@ namespace  Markov_IO {
 
 
   template<class C,typename Enum>
-  class Implements_EnumMethod_Var: public ABC_Simple_Var<Enum>, public ABCObject<C>
+  class Implements_EnumMethod_Var: public ABC_Simple_Value<Enum>, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -2070,7 +2328,7 @@ namespace  Markov_IO {
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Data::SuperClasses()+ClassName();
+      return ABC_Value::SuperClasses()+ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()const override
@@ -2162,14 +2420,14 @@ namespace  Markov_IO {
 
     Token_Buffer toTokens() const override
     {
-      auto out=Implements_VarId::toTokens();
+      auto out=Implements_ValueId::toTokens();
       out<<"="<<Category()<<"\n";
       return out;
     }
 
-   bool processTokens(Token_Buffer& t) override
+    bool processTokens(Token_Buffer& t) override
     {
-      if (!Implements_VarId::processTokens(t))
+      if (!Implements_ValueId::processTokens(t))
         return false;
       else
         {
@@ -2195,15 +2453,14 @@ namespace  Markov_IO {
 
     // ABC_Var interface
 
-    Implements_EnumMethod_Var(ABC_Data* parent,
-                              std::string id,
+    Implements_EnumMethod_Var(std::string id,
                               C** objectPtr,
                               getter<C,Enum> getterMethod,
                               setter<C,Enum> setterMethod,
                               std::string className=ClassName(),
                               const std::string& tip="",
                               const std::string& whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
+      Implements_ValueId(id,className,tip,whatthis),
       objectPtr_(objectPtr),
       get_(getterMethod),
       set_(setterMethod)
@@ -2232,42 +2489,41 @@ namespace  Markov_IO {
     typedef Implements_EnumMethod_Var<C,Enum> CC;
     virtual void reset() override
     {
-      if ((this->parentVar()!=nullptr)&&(!this->isRootedVariable()))
+      if ((this->parentValue()!=nullptr)&&(!this->isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_EnumMethod_Var<C,Enum>*>(this->parentVar()->getChildVar(this->id()));
+          auto s=dynamic_cast<Implements_EnumMethod_Var<C,Enum>*>(this->parentValue()->getChild(this->id()));
           if (s!=nullptr)
             *this=*s;
 
         }
     }
 
-    virtual Implements_Simple_Var<std::string>* to_ComplexVar()const  override
+    virtual Implements_Simple_Value<std::string>* to_PlainValue()const  override
     {
-      return new Implements_Simple_Var<std::string>(
-            nullptr,this->id(),this->Category(),this->myClass(),this->Tip(), this->WhatThis());
+      return new Implements_Simple_Value<std::string>(this->id(),this->Category(),this->myVar(),this->Tip(), this->WhatThis());
     }
 
-    virtual bool loadFromComplexVar(const ABC_Data* var) override
-    {
-      if ((var!=nullptr)&&(this->id()==var->id()))
-        {
-          auto o=dynamic_cast<const ABC_Simple_Var<std::string>*>(var);
-          if(o!=nullptr)
-            {
+//    virtual bool loadFromObjectValue(const ABC_Value* var) override
+//    {
+//      if ((var!=nullptr)&&(this->id()==var->id()))
+//        {
+//          auto o=dynamic_cast<const ABC_Simple_Value<std::string>*>(var);
+//          if(o!=nullptr)
+//            {
 
-              setCategory(o->value());
-              if (!o->Tip().empty())
-                this->setTip(o->Tip());
-              if (!o->WhatThis().empty())
-                this->setWhatThis(o->WhatThis());
-              return true;
-            }
-          else
-            return false;
-        }
-      else
-        return false;
-    }
+//              setCategory(o->value());
+//              if (!o->Tip().empty())
+//                this->setTip(o->Tip());
+//              if (!o->WhatThis().empty())
+//                this->setWhatThis(o->WhatThis());
+//              return true;
+//            }
+//          else
+//            return false;
+//        }
+//      else
+//        return false;
+//    }
   protected:
     C** objectPtr_;
     getter<C,Enum> get_;
@@ -2279,7 +2535,7 @@ namespace  Markov_IO {
 
 
   template<typename Enum>
-  class Implements_Categorical: public Implements_Simple_Var<std::string>
+  class Implements_Categorical: public Implements_Simple_Value<std::string>
   {
   public:
     static std::string ClassName()
@@ -2305,31 +2561,29 @@ namespace  Markov_IO {
 
     void setRank(Enum i);
 
-    Implements_Categorical(ABC_Data* parent, const std::string& idName,Enum i,
-                           const std::string& tip="",
-                           const std::string & whatthis="");
-    Implements_Categorical(ABC_Data* parent, const std::string& idName,
+    Implements_Categorical( const std::string& idName,Enum i,
+                            const std::string& tip="",
+                            const std::string & whatthis="");
+    Implements_Categorical(const std::string& idName,
                            const std::string &cat,
                            const std::string& tip="",
                            const std::string & whatthis="");
 
 
 
-    virtual const Implements_Categorical* motherClass()const;
-    virtual Implements_Categorical* motherClass();
+    virtual const Implements_Categorical* myVarPtr()const;
+    virtual Implements_Categorical* myVarPtr();
 
 
-    virtual bool loadFromComplexVar(const ABC_Data*) override;
-
-    virtual Implements_Categorical<Enum> *to_ComplexVar() const override;
+     virtual Implements_Categorical<Enum> *to_PlainValue() const override;
 
     typedef Implements_Categorical<Enum> C;
     virtual void reset() override
     {
-      if ((parentVar()!=nullptr)&&(!isRootedVariable()))
+      if ((parentValue()!=nullptr)&&(!isRootedVariable()))
         {
 
-          C* r=dynamic_cast<C*>(parentVar()->getChildVar(id()));
+          C* r=dynamic_cast<C*>(parentValue()->getChild(id()));
           if (r!=nullptr)
             *this=*r;
 
@@ -2348,7 +2602,7 @@ namespace  Markov_IO {
 
 
   template <class C>
-  class Implements_Class_Reflection: public Implements_Complex_Var, public ABCObject<C>
+  class Implements_Class_Reflection: public Implements_Complex_Value, public ABCObject<C>
   {
     // ABC_Var interface
   public:
@@ -2385,9 +2639,9 @@ namespace  Markov_IO {
 
     virtual void reset() override
     {
-      if ((parentVar()!=nullptr)&&(!isRootedVariable()))
+      if ((parentValue()!=nullptr)&&(!isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_Class_Reflection<C>*>(parentVar()->getChildVar(id()));
+          auto s=dynamic_cast<Implements_Class_Reflection<C>*>(parentValue()->getChild(id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -2430,15 +2684,13 @@ namespace  Markov_IO {
 
   public:
 
-    Implements_Class_Reflection(
-        ABC_Data *parent,
-        const std::string& id,
-        C* object,
-        const std::string className,
-        const std::string & tip,
-        const std::string& whatthis):
-      Implements_VarId(parent,id,className,tip,whatthis),
-      Implements_Complex_Var(parent,id,className,tip,whatthis),
+    Implements_Class_Reflection(const std::string& id,
+                                const std::string& myVar,
+                                C* object,
+                                const std::string & tip,
+                                const std::string& whatthis):
+      Implements_ValueId(id,myVar,tip,whatthis),
+      Implements_Complex_Value(id,myVar,tip,whatthis),
       object_(object)
     {}
 
@@ -2446,16 +2698,16 @@ namespace  Markov_IO {
     Implements_Class_Reflection()=default;
 
     Implements_Class_Reflection(const Implements_Class_Reflection& other)
-      :  Implements_VarId(other),
-        Implements_Complex_Var(other),
+      :  Implements_ValueId(other),
+        Implements_Complex_Value(other),
         object_(other.object_)
     {
       resetChildsObject();
     }
 
     Implements_Class_Reflection(Implements_Class_Reflection&& other):
-      Implements_VarId(other),
-      Implements_Complex_Var(std::move(other)),
+      Implements_ValueId(other),
+      Implements_Complex_Value(std::move(other)),
       object_(std::move(other.object_))
 
     {
@@ -2467,7 +2719,7 @@ namespace  Markov_IO {
     {
       if (this!=&other)
         {
-          Implements_Complex_Var::operator =(std::move(other));
+          Implements_Complex_Value::operator =(std::move(other));
           object_=std::move(other.object_);
           other.object_=nullptr;
           resetChildsObject();
@@ -2487,34 +2739,34 @@ namespace  Markov_IO {
 
     virtual ~Implements_Class_Reflection(){}
 
-    virtual ABC_Data* to_ComplexVar()const override
+    virtual ABC_Value* to_PlainValue()const override
     {
-      auto out= new Implements_Complex_Var(nullptr,id(),myClass(),Tip(),WhatThis());
-      for (std::size_t i=0; i<numChildVars(); ++i)
+      auto out= new Implements_Complex_Value(id(),myVar(),Tip(),WhatThis());
+      for (std::size_t i=0; i<numChilds(); ++i)
         {
-          auto a=getChildVar(ith_VarName(i));
-          auto e=a->to_ComplexVar();
-          out->pushChildVar(e);
+          auto a=getChild(ith_ChildName(i));
+          auto e=a->to_PlainValue();
+          out->pushChild(e);
         }
       return out;
     }
-    virtual bool loadFromComplexVar(const ABC_Data* source)override
-    {
-      if (sameFields(source))
-        {
-          for (std::size_t i=0; i<this->numChildVars(); ++i)
-            {
-              auto s=source->getChildVar(this->ith_VarName(i));
-              if (s!=nullptr)
-                {
-                  this->getChildVar(ith_VarName(i))->loadFromComplexVar(s);
-                }
-            }
-          return true;
-        }
-      else
-        return false;
-    }
+//    virtual bool loadFromObjectValue(const ABC_Value* source)override
+//    {
+//      if (sameFields(source))
+//        {
+//          for (std::size_t i=0; i<this->numChilds(); ++i)
+//            {
+//              auto s=source->getChild(this->ith_ChildName(i));
+//              if (s!=nullptr)
+//                {
+//                  this->getChild(ith_ChildName(i))->loadFromObjectValue(s);
+//                }
+//            }
+//          return true;
+//        }
+//      else
+//        return false;
+//    }
 
 
 
@@ -2523,9 +2775,9 @@ namespace  Markov_IO {
 
     virtual void resetChildsObject()
     {
-      for (std::size_t i=0; i<numChildVars(); i++)
+      for (std::size_t i=0; i<numChilds(); i++)
         {
-          ABC_Data* a=this->getChildVar(ith_VarName(i));
+          ABC_Value* a=this->getChild(ith_ChildName(i));
           ABCObject<C>* c=dynamic_cast<ABCObject<C>*>(a);
           if (c!=nullptr)
             {
@@ -2554,12 +2806,12 @@ namespace  Markov_IO {
 
     static std::string ClassName()
     {
-      return Implements_Simple_Var<T>::ClassName()+"_class";
+      return Implements_Simple_Value<T>::ClassName()+"_class";
     }
 
     static std::set<std::string> SuperClasses()
     {
-      return ABC_Data::SuperClasses()+ClassName();
+      return ABC_Value::SuperClasses()+ClassName();
     }
 
     virtual std::set<std::string> mySuperClasses()const override
@@ -2624,8 +2876,7 @@ namespace  Markov_IO {
     {
       return mode_;
     }
-    Implements_Simple_Class(ABC_Data* parent,
-                            std::string id,
+    Implements_Simple_Class(std::string id,
                             std::string measureunits,
                             std::set<std::string> modes,
                             T defaultValue=T(),
@@ -2634,8 +2885,8 @@ namespace  Markov_IO {
                             std::string className=ClassName(),
                             std::string tip="",
                             std::string whatthis=""):
-      Implements_VarId(parent,id,className,tip,whatthis),
-      Implements_Class_Reflection<C>(parent,id,this,className,tip,whatthis),
+      Implements_ValueId(id,className,tip,whatthis),
+      Implements_Class_Reflection<C>(id,className,this,tip,whatthis),
       mode_(modes),
       units_(measureunits),
       default_{defaultValue},
@@ -2670,15 +2921,10 @@ namespace  Markov_IO {
 
     virtual ~Implements_Simple_Class(){}
 
-    virtual  Implements_Simple_Var<T>* varTemplate()const  override
-    {
-      return new Implements_Simple_Var<T>(nullptr,"",defaultValue(),this->id());
-    }
 
-
-    virtual bool isInDomain(const ABC_Data *value) const  override
+    virtual bool isInDomain(const ABC_Value *value) const  override
     {
-      auto p=dynamic_cast<const ABC_Simple_Var<T>* > (value);
+      auto p=dynamic_cast<const ABC_Simple_Value<T>* > (value);
       if (p!=nullptr)
         {
           if ((minValue()!=emptyValue())&&(p->value()<minValue()))
@@ -2705,7 +2951,7 @@ namespace  Markov_IO {
 
 
 
-  class Implements_Refer_Var:public Implements_VarId
+  class Implements_Refer_Var:public Implements_ValueId
   {
     // ABC_Var interface
   public:
@@ -2715,19 +2961,20 @@ namespace  Markov_IO {
     virtual std::string refId()const override;
 
 
-    Implements_Refer_Var(ABC_Data* parent,
-                         const std::string &idName,
+
+    Implements_Refer_Var(const std::string &idName,
                          const std::string& refClass,
                          const std::string &refName,
                          const std::string& tip,
                          const std::string& whatthis);
 
+
     Implements_Refer_Var()=default;
 
   private:
-    ABC_Data* refVar() ;
+    ABC_Value* refVar() ;
 
-    const ABC_Data* refVar()const ;
+    const ABC_Value* refVar()const ;
     std::string refId_;
     // ABC_Var interface
   public:
@@ -2735,16 +2982,16 @@ namespace  Markov_IO {
     virtual bool processTokens(Token_Buffer& t)override;
 
 
-    virtual std::string ith_VarName(std::size_t i)const  override;
+    virtual std::string ith_ChildName(std::size_t i)const  override;
 
-    virtual const ABC_Data* getChildVar(const std::string& name)const  override;
-    virtual ABC_Data* getChildVar(const std::string &name)  override;
+    virtual const ABC_Value* getChild(const std::string& name)const  override;
+    virtual ABC_Value* getChild(const std::string &name)  override;
 
-    virtual const ABC_Data* getChildVar(const std::string& name,const std::string& kind)const  override;
-    virtual ABC_Data* getChildVar(const std::string &name, const std::string &kind)  override;
+    virtual const ABC_Value* getChild(const std::string& name,const std::string& kind)const  override;
+    virtual ABC_Value* getChild(const std::string &name, const std::string &kind)  override;
 
 
-    virtual void pushChildVar(ABC_Data* var) override;
+    virtual void pushChild(ABC_Value* var) override;
 
   };
 
@@ -2752,7 +2999,7 @@ namespace  Markov_IO {
 
 
 
-  class Implements_Complex_Class: public Implements_Complex_Var
+  class Implements_Complex_Class: public Implements_Complex_Value
   {
   public:
 
@@ -2761,8 +3008,7 @@ namespace  Markov_IO {
 
     };
 
-    Implements_Complex_Class(ABC_Data *parent,
-                             const std::string &id,
+    Implements_Complex_Class(const std::string &id,
                              const std::string &className,
                              const std::string &tip,
                              const std::string &whatthis,
@@ -2770,8 +3016,7 @@ namespace  Markov_IO {
 
 
 
-    virtual bool isInDomain(const ABC_Data *value) const  override;
-    virtual  Implements_Complex_Var *varTemplate()  const override;
+    virtual bool isInDomain(const ABC_Value *value) const  override;
     // ABC_Complex_Var interface
   public:
     virtual void push_back(const std::string& idName,
@@ -2789,7 +3034,7 @@ namespace  Markov_IO {
 
   class Parameters;
 
-  class ABC_Parameterizable: public ABC_Data
+  class ABC_Parameterizable: public ABC_Value
 
   {
   public:
@@ -2806,7 +3051,7 @@ namespace  Markov_IO {
       return "Parameterizable";
     }
 
-    std::string myClass()const override;
+    std::string myVar()const override;
 
 
 
@@ -2839,10 +3084,10 @@ namespace  Markov_IO {
 
 
   template<>
-  std::string Implements_Simple_Var<std::map<std::string,int>>::ClassName();
+  std::string Implements_Simple_Value<std::map<std::string,int>>::ClassName();
 
 
-  class Implements_Categorical_Class : public Implements_Simple_Var<std::map<std::string,int>>
+  class Implements_Categorical_Class : public Implements_Simple_Value<std::map<std::string,int>>
   {
   public:
 
@@ -2889,13 +3134,13 @@ namespace  Markov_IO {
 
 
   template<>
-  std::string Implements_Simple_Var<std::vector<std::string>>::ClassName();
+  std::string Implements_Simple_Value<std::vector<std::string>>::ClassName();
 
   template<>
-  std::string Implements_Simple_Var<std::string>::ClassName();
+  std::string Implements_Simple_Value<std::string>::ClassName();
 
   template<>
-  std::string Implements_Simple_Var<Markov_LA::M_Matrix<double>>::ClassName();
+  std::string Implements_Simple_Value<Markov_LA::M_Matrix<double>>::ClassName();
 
 
 
@@ -2909,9 +3154,9 @@ namespace  Markov_IO {
   }
 
   template<>
-  inline bool ABC_Data::getValue(const std::string &name, const ABC_Data  *& value) const
+  inline bool ABC_Value::getVal(const std::string &name, const ABC_Value  *& value) const
   {
-    const ABC_Data* o=getChildVar(name);
+    const ABC_Value* o=getChild(name);
     if (o!=nullptr)
       {
         value=o;
@@ -2922,12 +3167,12 @@ namespace  Markov_IO {
   }
 
   template<typename T>
-  bool ABC_Data::getValue(const std::string &name, T &value) const
+  bool ABC_Value::getVal(const std::string &name, T &value) const
   {
-    auto a=getChildVar(name);
+    auto a=getChild(name);
     if (a==nullptr)
       return false;
-    const ABC_Simple_Var<T>* o=dynamic_cast<const ABC_Simple_Var<T>*>(a);
+    const ABC_Simple_Value<T>* o=dynamic_cast<const ABC_Simple_Value<T>*>(a);
 
     if (o!=nullptr)
       {
@@ -2937,7 +3182,7 @@ namespace  Markov_IO {
     else
       {
         auto t=a->toTokens();
-        Implements_Simple_Var<T> v{};
+        Implements_Simple_Value<T> v{};
         if (v.processTokens(t))
           {
             value=v.value();
@@ -2949,26 +3194,26 @@ namespace  Markov_IO {
   }
 
   template<typename T>
-  bool ABC_Data::moveValue(const std::string &name, T &value)
+  bool ABC_Value::moveVal(const std::string &name, T &value)
   {
-    auto a=getChildVar(name);
+    auto a=getChild(name);
     if (a==nullptr)
       return false;
-    ABC_Simple_Var<T>* o=dynamic_cast<ABC_Simple_Var<T>*>(a);
+    ABC_Simple_Value<T>* o=dynamic_cast<ABC_Simple_Value<T>*>(a);
 
     if (o!=nullptr)
       {
-        o->moveValue(value);
-        removeChildVar(name);
+        o->moveVal(value);
+        removeChild(name);
         return true;
       }
     else
       {
         auto t=a->toTokens();
-        Implements_Simple_Var<T> v{};
+        Implements_Simple_Value<T> v{};
         if (v.processTokens(t))
           {
-            v.moveValue(value);
+            v.moveVal(value);
             return true;
           }
         else
@@ -2979,13 +3224,13 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  T& ABC_Data::getReference(const std::string &name, T &value)
+  T& ABC_Value::getReference(const std::string &name, T &value)
   {
-    auto a=getChildVar(name);
+    auto a=getChild(name);
     if (a==nullptr)
       return value;
 
-    ABC_Simple_Var<T>* o=dynamic_cast< ABC_Simple_Var<T>*>(a);
+    ABC_Simple_Value<T>* o=dynamic_cast< ABC_Simple_Value<T>*>(a);
 
     if (o!=nullptr)
       {
@@ -2994,7 +3239,7 @@ namespace  Markov_IO {
     else
       {
         auto t=a->toTokens();
-        Implements_Simple_Var<T> v{};
+        Implements_Simple_Value<T> v{};
         std::size_t pos=0;
         if (v.processTokens(t,pos,nullptr))
           {
@@ -3006,9 +3251,9 @@ namespace  Markov_IO {
   }
 
   template<>
-  inline ABC_Data*& ABC_Data::getReference(const std::string &name, ABC_Data  *& value)
+  inline ABC_Value*& ABC_Value::getReference(const std::string &name, ABC_Value  *& value)
   {
-    ABC_Data* o=getChildVar(name);
+    ABC_Value* o=getChild(name);
     if (o!=nullptr)
       {
         value=o;
@@ -3023,19 +3268,32 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  void ABC_Data::push_backVar(const std::string &name,
-                              T value,
-                              const std::string &classname,
-                              const std::string& tip,
-                              const std::string & whatthis)
+  void ABC_Value::push_backVal(const std::string &name,
+                               T value,
+                               const std::string &classname,
+                               const std::string& tip,
+                               const std::string & whatthis)
   {
     std::string c=classname;
     if (c.empty())
-      c=Implements_Simple_Var<T>::ClassName();
-    Implements_Simple_Var<T>* o=new Implements_Simple_Var<T>(this,name,value,c,tip,whatthis);
-    pushChildVar(o);
+      c=Implements_Simple_Value<T>::ClassName();
+    Implements_Simple_Value<T>* o=new Implements_Simple_Value<T>(name,value,c,tip,whatthis);
+    pushChild(o);
 
   }
+
+  inline
+  void ABC_Value::push_backVarRef(const std::string &name, const std::string &idRef, const std::string &classname, const std::string &tip, const std::string &whatthis)
+  {
+    std::string c=classname;
+    if (c.empty())
+      c=Implements_Refer_Var::ClassName();
+    auto o=new Implements_Refer_Var(name,c,idRef,tip,whatthis);
+    pushChild(o);
+
+  }
+
+
 
 
 
@@ -3048,10 +3306,9 @@ namespace  Markov_IO {
   {
     std::string c=classname;
     if (c.empty())
-      c=Implements_Simple_Var<T>::ClassName();
-    Implements_PointerMember_Var<C,T>* o=new Implements_PointerMember_Var<C,T>(
-          this,name,&object_,value,c,tip,whatthis);
-    pushChildVar(o);
+      c=Implements_Simple_Value<T>::ClassName();
+    auto o=new Implements_PointerMember_Var<C,T>(name,&object_,value,c,tip,whatthis);
+    pushChild(o);
   }
 
 
@@ -3066,8 +3323,8 @@ namespace  Markov_IO {
     std::string c=classname;
     if (c.empty())
       c=Implements_ValMethod_Var<C,T>::ClassName();
-    Implements_ValMethod_Var<C,T>* o=new Implements_ValMethod_Var<C,T>(this,name,&object_,getmethod,setmethod,c,tip,whatthis);
-    pushChildVar(o);
+    Implements_ValMethod_Var<C,T>* o=new Implements_ValMethod_Var<C,T>(name,&object_,getmethod,setmethod,c,tip,whatthis);
+    pushChild(o);
 
   }
 
@@ -3087,8 +3344,8 @@ namespace  Markov_IO {
     std::string c=classname;
     if (c.empty())
       c=Implements_EnumMethod_Var<C,Enum>::ClassName();
-    Implements_EnumMethod_Var<C,Enum>* o=new Implements_EnumMethod_Var<C,Enum>(this,name,&object_,getmethod,setmethod,c,tip,whatthis);
-    pushChildVar(o);
+    Implements_EnumMethod_Var<C,Enum>* o=new Implements_EnumMethod_Var<C,Enum>(name,&object_,getmethod,setmethod,c,tip,whatthis);
+    pushChild(o);
 
   }
 
@@ -3106,8 +3363,8 @@ namespace  Markov_IO {
     std::string c=classname;
     if (c.empty())
       c=Implements_RefMethod_Var<C,T>::ClassName();
-    auto o=new Implements_RefMethod_Var<C,T>(this,name,&object_,rgetmethod,rsetmethod,c,tip,whatthis);
-    pushChildVar(o);
+    auto o=new Implements_RefMethod_Var<C,T>(name,&object_,rgetmethod,rsetmethod,c,tip,whatthis);
+    pushChild(o);
 
   }
 
@@ -3124,11 +3381,11 @@ namespace  Markov_IO {
 
 
   template<>
-  inline  void ABC_Data::push_backVar(const std::string &name,
-                                      ABC_Data* value,
-                                      const std::string &classname,
-                                      const std::string& tip,
-                                      const std::string & whatthis)
+  inline  void ABC_Value::push_backVal(const std::string &name,
+                                       ABC_Value* value,
+                                       const std::string &classname,
+                                       const std::string& tip,
+                                       const std::string & whatthis)
 
   {
     if (value!=nullptr)
@@ -3136,21 +3393,21 @@ namespace  Markov_IO {
         if (!name.empty())
           value->setId(name);
         if (!classname.empty())
-          value->setClass(classname);
+          value->setVar(classname);
         if (!tip.empty())
           value->setTip(tip);
         if (!whatthis.empty())
           value->setWhatThis(whatthis);
-        pushChildVar(value);
+        pushChild(value);
 
       }
   }
 
   template<typename T>
-  bool ABC_Data::replaceValue(const std::string &name, const T &value)
+  bool ABC_Value::replaceValue(const std::string &name, const T &value)
   {
-    ABC_Data*p=getChildVar(name);
-    Implements_Simple_Var<T>* o=dynamic_cast<Implements_Simple_Var<T>*>(p);
+    ABC_Value*p=getChild(name);
+    Implements_Simple_Value<T>* o=dynamic_cast<Implements_Simple_Value<T>*>(p);
 
     if (o!=nullptr)
       {
@@ -3164,11 +3421,11 @@ namespace  Markov_IO {
 
 
   template<>
-  inline  bool ABC_Data::replaceValue(const std::string &name, ABC_Data* const& value)
+  inline  bool ABC_Value::replaceValue(const std::string &name, ABC_Value* const& value)
   {
-    if ((value==nullptr)||(value->id()!=name)||(getChildVar(name)==nullptr))
+    if ((value==nullptr)||(value->id()!=name)||(getChild(name)==nullptr))
       return false;
-    pushChildVar(value);
+    pushChild(value);
     return true;
   }
 
@@ -3177,7 +3434,7 @@ namespace  Markov_IO {
   template<typename Enum>
   std::set<std::string> Implements_Categorical<Enum>::SuperClasses()
   {
-    return Implements_Simple_Var<int>::SuperClasses()+ClassName();
+    return Implements_Simple_Value<int>::SuperClasses()+ClassName();
   }
 
   template<typename Enum>
@@ -3218,7 +3475,7 @@ namespace  Markov_IO {
   template<typename Enum>
   void Implements_Categorical<Enum>::setCategory(const std::string &cat)
   {
-    push_backVar(cat);
+    push_backVal(cat);
     updateRank();
   }
 
@@ -3230,12 +3487,11 @@ namespace  Markov_IO {
   }
 
   template<typename Enum>
-  Implements_Categorical<Enum>::Implements_Categorical(ABC_Data *parent,
-                                                       const std::string &idName,
+  Implements_Categorical<Enum>::Implements_Categorical(const std::string &idName,
                                                        Enum i,
                                                        const std::string& tip,
                                                        const std::string & whatthis):
-    Implements_Simple_Var<std::string>(parent,idName,"",ClassName(),tip,whatthis),
+    Implements_Simple_Value<std::string>(idName,"",ClassName(),tip,whatthis),
     rank_{i}
   {
     updateCat();
@@ -3243,12 +3499,11 @@ namespace  Markov_IO {
 
 
   template<typename Enum>
-  Implements_Categorical<Enum>::Implements_Categorical(ABC_Data *parent,
-                                                       const std::string &idName,
+  Implements_Categorical<Enum>::Implements_Categorical(const std::string &idName,
                                                        const std::string & cat,
                                                        const std::string& tip,
                                                        const std::string & whatthis):
-    Implements_Simple_Var<std::string>(parent,idName,cat,ClassName(),tip,whatthis),
+    Implements_Simple_Value<std::string>(idName,cat,ClassName(),tip,whatthis),
     rank_{}
   {
     updateRank();
@@ -3257,36 +3512,31 @@ namespace  Markov_IO {
 
 
   template<typename Enum>
-  const Implements_Categorical<Enum> *Implements_Categorical<Enum>::motherClass() const
+  const Implements_Categorical<Enum> *Implements_Categorical<Enum>::myVarPtr() const
   {
-    return dynamic_cast<const Implements_Categorical<Enum>*>(parentVar()->getChildVar(myClass()));
+    return dynamic_cast<const Implements_Categorical<Enum>*>(parentValue()->getChild(myVar()));
   }
 
 
   template<typename Enum>
-  Implements_Categorical<Enum> *Implements_Categorical<Enum>::motherClass()
+  Implements_Categorical<Enum> *Implements_Categorical<Enum>::myVarPtr()
   {
-    return dynamic_cast< Implements_Categorical<Enum>*>(parentVar()->getChildVar(myClass()));
+    return dynamic_cast< Implements_Categorical<Enum>*>(parentValue()->getChild(myVar()));
   }
 
-  template<typename Enum>
-  bool Implements_Categorical<Enum>::loadFromComplexVar(const ABC_Data* )
-  {
-    return false;
-  }
 
   template<typename Enum>
-  Implements_Categorical<Enum> *Implements_Categorical<Enum>::to_ComplexVar()const
+  Implements_Categorical<Enum> *Implements_Categorical<Enum>::to_PlainValue()const
   {
     return nullptr;
   }
 
   template<typename Enum>
-  void ABC_Data::push_back_CategoryItem(const std::string &name, Enum i,
-                                        const std::string& tip,
-                                        const std::string & whatthis)
+  void ABC_Value::push_back_CategoryItem(const std::string &name, Enum i,
+                                         const std::string& tip,
+                                         const std::string & whatthis)
   {
-    pushChildVar(new Implements_Categorical<Enum>(this,name,i,tip,whatthis));
+    pushChild(new Implements_Categorical<Enum>(name,i,tip,whatthis));
 
   }
 
@@ -3310,10 +3560,13 @@ namespace  Markov_IO {
 
 
 
+
+
+
   template<typename T>
   std::string ABC_Simple_Class<T>::ClassName()
   {
-    return Implements_Simple_Var<T>::ClassName()+"_abs_SC";
+    return Implements_Simple_Value<T>::ClassName()+"_abs_SC";
   }
 
 

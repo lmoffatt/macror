@@ -26,7 +26,7 @@ namespace Markov_Bay
     return new Macro_R_step();
   }
 
-  std::string Macro_R_step::myClass()const
+  std::string Macro_R_step::myVar()const
   {
     return ClassName();
   }
@@ -102,14 +102,13 @@ namespace Markov_Bay
 
 
 
-  Macro_R_step::Macro_R_step(Markov_IO::ABC_Data* parent,
-                             const std::string& id,
+  Macro_R_step::Macro_R_step(const std::string& id,
                              const Markov_Mol::ABC_PatchModel& P,
                              bool is_averaging,
                              bool p_zero_guard,
                              const std::string &tip,
                              const std::string &whatthis):
-    ABC_Markov_Likelihood_step(parent,id,ClassName(),tip,whatthis),
+    ABC_Markov_Likelihood_step(id,ClassName(),tip,whatthis),
     model_A(P.clone()),
     Q_dt(),
     P_mean_M(Markov_LA::M_Matrix<double>(1,P.Model().k())),
@@ -128,7 +127,7 @@ namespace Markov_Bay
   {}
 
   Macro_R_step::Macro_R_step(const Macro_R_step& other):
-    Implements_VarId(other),
+    Implements_ValueId(other),
     ABC_Markov_Likelihood_step(other),
     model_A(other.model_A->clone()),
     Q_dt(other.Q_dt),

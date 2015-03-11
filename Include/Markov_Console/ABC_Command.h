@@ -7,7 +7,7 @@
 #include <tuple>
 
 #include <Markov_Console/Token.h>
-
+#include "Markov_IO/ABC_Var.h"
 
 
 namespace Markov_Console
@@ -16,7 +16,7 @@ namespace Markov_Console
 
 
   // TODO: root ABC_Command in the hierarchy
-  class ABC_Command
+  class ABC_Command : public Markov_IO::Implements_ValueId
   {
   public:
     struct variable
@@ -107,7 +107,7 @@ namespace Markov_Console
     /// runs the command on the command manager and returns true if succeeds
     virtual bool run( std::deque<Token>& tokenList);
 
-   // virtual bool run( std::deque<Token>& tokenList){}
+    virtual bool run( ){}
 
     virtual bool run(const std::vector<std::string>& InputValue,
                      const std::vector<std::string>& OutputValue){return InputValue==OutputValue;}
@@ -125,6 +125,7 @@ namespace Markov_Console
 
 
 
+    bool run(Markov_IO::Token_Buffer &tokenList);
   protected:
     virtual void errorMessage(const std::string& errmsg);
 

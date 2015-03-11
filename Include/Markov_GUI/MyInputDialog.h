@@ -12,11 +12,21 @@ namespace Markov_GUI {
     Q_OBJECT
   public:
 
-    static QString getItem(QWidget *  parent,
-                           const QString & title,
-                           const QStringList & items,
+    static QString getItem( QWidget *  parent,
+                            QString  title,
+                           QStringList items,
                            bool *ok,
                            int current = 0);
+
+
+    static std::string getItem( QWidget *parent,
+                           const std::string & title,
+                           const std::vector<std::string> & items,
+                           bool *ok,
+                           int current = 0);
+
+
+
 
     void accept();
 
