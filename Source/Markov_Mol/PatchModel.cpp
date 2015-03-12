@@ -28,7 +28,7 @@ namespace Markov_Mol
 
   int PatchModel::apply_parameters(const Parameters& p)
   {
-    int usedPar=this->model_->apply_parameters(p);
+   int usedPar{};//=this->model_->apply_parameters(p);
     if (p.HasName(num_channels_label()))
       {
         this->nChannels_=p[num_channels_label()];
@@ -176,7 +176,7 @@ namespace Markov_Mol
 
   Markov_IO::Parameters PatchModel::BuildParameters() const
   {
-    Markov_IO::Parameters p=Model().get_parameters();
+    Markov_IO::Parameters p;//=Model().get_parameters();
     p.push_back(num_channels_label(),
                 AverageNumberOfChannels(),
                 Markov_IO::Parameters::LOG);

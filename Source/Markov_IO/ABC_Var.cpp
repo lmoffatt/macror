@@ -279,8 +279,8 @@ namespace Markov_IO {
 
 
 
-/////SETS
-///
+  /////SETS
+  ///
   template<>
   std::string Implements_Simple_Value<std::map<std::string,std::set<std::string>>>::ClassName()
   {
@@ -654,11 +654,9 @@ namespace Markov_IO {
   {
     Token_Buffer out;
     if (!Tip().empty())
-      out<<"# \""+Tip()+"\"";
+      out<<"# \""+Tip()+"\" \n";
     if (!WhatThis().empty())
-      out<<"## \""+WhatThis()+"\"";
-    if (!(Tip().empty()&&WhatThis().empty()))
-      out<<"\n";
+      out<<"## \""+WhatThis()+"\" \n";
     out<<id()<<":"<<myVar();
     return out;
 
@@ -740,7 +738,7 @@ Extract tip, whatthis, id and class from stream
     return
         nullptr;
   }
-   ///Constructor for use as Base
+  ///Constructor for use as Base
   Implements_Refer_Var::Implements_Refer_Var(const std::string& idName,
                                              const std::string &refClass,
                                              const std::string& refName,
@@ -869,7 +867,7 @@ Extract tip, whatthis, id and class from stream
                     t.tokenAdvance(2);
                     while (t.currToken().tok()==Token_New::EOL)
                       {
-                      ++t;
+                        ++t;
                         t.tokenAdvance(2);
                       }
                   }
@@ -1686,29 +1684,29 @@ the parameter className
                     return nullptr;
                   to=t.currToken();
                   if (to.tok()==Token_New::LSB)  // vector !!
+                    {
+                      if (!(t.pos()<t.size())) return nullptr;
+
+                      to=t.nextToken(1);
+
+                      switch (to.tok())
                         {
-                          if (!(t.pos()<t.size())) return nullptr;
-
-                          to=t.nextToken(1);
-
-                          switch (to.tok())
-                            {
-                            case Token_New::REAL:
-                              out=new Implements_Simple_Value<std::vector<double>>;
-                              break;
-                            case Token_New::INTEGER:
-                              out=new Implements_Simple_Value<std::vector<int>>;
-                              break;
-                            case Token_New::UNSIGNED:
-                              out=new Implements_Simple_Value<std::vector<std::size_t>>;
-                              break;
-                            case Token_New::IDENTIFIER:
-                              out=new Implements_Simple_Value<std::vector<std::string>>;
-                              break;
-                            default:
-                              return nullptr;
-                            }
+                        case Token_New::REAL:
+                          out=new Implements_Simple_Value<std::vector<double>>;
+                          break;
+                        case Token_New::INTEGER:
+                          out=new Implements_Simple_Value<std::vector<int>>;
+                          break;
+                        case Token_New::UNSIGNED:
+                          out=new Implements_Simple_Value<std::vector<std::size_t>>;
+                          break;
+                        case Token_New::IDENTIFIER:
+                          out=new Implements_Simple_Value<std::vector<std::string>>;
+                          break;
+                        default:
+                          return nullptr;
                         }
+                    }
 
 
                   if (to.tok()==Token_New::LCB)  // set or map !!
@@ -1738,57 +1736,66 @@ the parameter className
                                   out=new Implements_Simple_Value<std::map<double,std::string>>;
                                   break;
                                 case Token_New::EOL:
-                                  if (!(t.pos()+4<t.size()))
-                                    return nullptr;
-                                  to2=t.nextToken(4);
-                                  switch (to2.tok())
-                                    {
-                                    case Token_New::REAL:
-                                      out=new Implements_Simple_Value<
-                                          std::map<double,std::vector<double>>>;
-                                      break;
-                                    case Token_New::INTEGER:
-                                      out=new Implements_Simple_Value<
-                                          std::map<double,std::vector<int>>>;
-                                      break;
-                                    case Token_New::UNSIGNED:
-                                      out=new Implements_Simple_Value<
-                                          std::map<double,std::vector<std::size_t>>>;
-                                      break;
-                                    case Token_New::IDENTIFIER:
-                                      out=new Implements_Simple_Value<
-                                          std::map<double,std::vector<std::string>>>;
-                                      break;
-                                    case Token_New::LCB:    // set !!
-                                      if (!(t.pos()+4<t.size()))
-                                        return nullptr;
-                                      to2=t.nextToken(4);
-                                      switch (to2.tok())
-                                        {
-                                        case Token_New::REAL:
-                                          out=new Implements_Simple_Value<
-                                              std::map<double,std::set<double>>>;
-                                          break;
-                                        case Token_New::INTEGER:
-                                          out=new Implements_Simple_Value<
-                                              std::map<double,std::set<int>>>;
-                                          break;
-                                        case Token_New::UNSIGNED:
-                                          out=new Implements_Simple_Value<
-                                              std::map<double,std::set<std::size_t>>>;
-                                          break;
-                                        case Token_New::IDENTIFIER:
-                                          out=new Implements_Simple_Value<
-                                              std::map<double,std::set<std::string>>>;
-                                          break;
-                                        default:
-                                          return nullptr;
-                                        }
-                                      break;
-
-                                    default:
+                                  {
+                                    if (!(t.pos()+4<t.size()))
                                       return nullptr;
-                                    }
+                                    to2=t.nextToken(4);
+                                    auto to3=t.nextToken(5);
+                                    if (to2.tok()==Token_New::LSB) //vector
+                                      {
+
+                                        switch (to3.tok())
+                                          {
+                                          case Token_New::REAL:
+                                            out=new Implements_Simple_Value<
+                                                std::map<double,std::vector<double>>>;
+                                            break;
+                                          case Token_New::INTEGER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<double,std::vector<int>>>;
+                                            break;
+                                          case Token_New::UNSIGNED:
+                                            out=new Implements_Simple_Value<
+                                                std::map<double,std::vector<std::size_t>>>;
+                                            break;
+                                          case Token_New::IDENTIFIER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<double,std::vector<std::string>>>;
+                                            break;
+
+                                          default:
+                                            return nullptr;
+                                          }
+                                      }
+                                    else if (to2.tok()==Token_New::LCB) //set
+                                      {
+                                        switch (to3.tok())
+                                          {
+                                          case Token_New::REAL:
+                                            out=new Implements_Simple_Value<
+                                                std::map<double,std::set<double>>>;
+                                            break;
+                                          case Token_New::INTEGER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<double,std::set<int>>>;
+                                            break;
+                                          case Token_New::UNSIGNED:
+                                            out=new Implements_Simple_Value<
+                                                std::map<double,std::set<std::size_t>>>;
+                                            break;
+                                          case Token_New::IDENTIFIER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<double,std::set<std::string>>>;
+                                            break;
+
+                                          default:
+                                            return nullptr;
+                                          }
+                                      }
+                                    else {
+                                        return nullptr;
+                                      }
+                                  }
                                   break;
                                 default:
                                   return nullptr;
@@ -1799,7 +1806,7 @@ the parameter className
                               switch (to2.tok())
                                 {
                                 case Token_New::REAL:
-                                  out=new Implements_Simple_Value<std::map<int,double>>;
+                                  out=new  Implements_Simple_Value<std::map<int,double>>;
                                   break;
                                 case Token_New::INTEGER:
                                   out=new Implements_Simple_Value<std::map<int,int>>;
@@ -1811,30 +1818,65 @@ the parameter className
                                   out=new Implements_Simple_Value<std::map<int,std::string>>;
                                   break;
                                 case Token_New::EOL:
-                                  if (!(t.pos()+4<t.size()))
-                                    return nullptr;
-                                  to2=t.nextToken(4);
-                                  switch (to2.tok())
-                                    {
-                                    case Token_New::REAL:
-                                      out=new Implements_Simple_Value<
-                                          std::map<int,std::vector<double>>>;
-                                      break;
-                                    case Token_New::INTEGER:
-                                      out=new Implements_Simple_Value<
-                                          std::map<int,std::vector<int>>>;
-                                      break;
-                                    case Token_New::UNSIGNED:
-                                      out=new Implements_Simple_Value<
-                                          std::map<int,std::vector<std::size_t>>>;
-                                      break;
-                                    case Token_New::IDENTIFIER:
-                                      out=new Implements_Simple_Value<
-                                          std::map<int,std::vector<std::string>>>;
-                                      break;
-                                    default:
+                                  {
+                                    if (!(t.pos()+4<t.size()))
                                       return nullptr;
-                                    }
+                                    to2=t.nextToken(4);
+                                    auto to3=t.nextToken(5);
+
+                                    if (to2.tok()==Token_New::LSB) //vector
+                                      {
+
+                                        switch (to3.tok())
+                                          {
+                                          case Token_New::REAL:
+                                            out=new Implements_Simple_Value<
+                                                std::map<int,std::vector<double>>>;
+                                            break;
+                                          case Token_New::INTEGER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<int,std::vector<int>>>;
+                                            break;
+                                          case Token_New::UNSIGNED:
+                                            out=new Implements_Simple_Value<
+                                                std::map<int,std::vector<std::size_t>>>;
+                                            break;
+                                          case Token_New::IDENTIFIER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<int,std::vector<std::string>>>;
+                                            break;
+
+                                          default:
+                                            return nullptr;
+                                          }
+                                      }
+                                    else if (to2.tok()==Token_New::LCB) //set
+                                      {
+                                        switch (to3.tok())
+                                          {
+                                          case Token_New::REAL:
+                                            out=new Implements_Simple_Value<
+                                                std::map<int,std::set<double>>>;
+                                            break;
+                                          case Token_New::INTEGER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<int,std::set<int>>>;
+                                            break;
+                                          case Token_New::UNSIGNED:
+                                            out=new Implements_Simple_Value<
+                                                std::map<int,std::set<std::size_t>>>;
+                                            break;
+                                          case Token_New::IDENTIFIER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<int,std::set<std::string>>>;
+                                            break;
+
+                                          default:
+                                            return nullptr;
+                                          }
+                                      }
+                                  }
+                                  break;
                                 default:
                                   return nullptr;
                                 }
@@ -1843,7 +1885,7 @@ the parameter className
                               switch (to2.tok())
                                 {
                                 case Token_New::REAL:
-                                  out=new Implements_Simple_Value<std::map<std::size_t,double>>;
+                                  out=new  Implements_Simple_Value<std::map<std::size_t,double>>;
                                   break;
                                 case Token_New::INTEGER:
                                   out=new Implements_Simple_Value<std::map<std::size_t,int>>;
@@ -1855,27 +1897,68 @@ the parameter className
                                   out=new Implements_Simple_Value<std::map<std::size_t,std::string>>;
                                   break;
                                 case Token_New::EOL:
-                                  switch (to2.tok())
-                                    {
-                                    case Token_New::REAL:
-                                      out=new Implements_Simple_Value<std::map<std::size_t
-                                          ,std::vector<double>>>;
-                                      break;
-                                    case Token_New::INTEGER:
-                                      out=new Implements_Simple_Value<std::map<std::size_t,
-                                          std::vector<int>>>;
-                                      break;
-                                    case Token_New::UNSIGNED:
-                                      out=new Implements_Simple_Value<std::map<std::size_t,
-                                          std::vector<std::size_t>>>;
-                                      break;
-                                    case Token_New::IDENTIFIER:
-                                      out=new Implements_Simple_Value<std::map<std::size_t,
-                                          std::vector<std::string>>>;
-                                      break;
-                                    default:
+                                  {
+                                    if (!(t.pos()+4<t.size()))
                                       return nullptr;
-                                    }
+                                    to2=t.nextToken(4);
+                                    auto to3=t.nextToken(5);
+
+                                    if (to2.tok()==Token_New::LSB) //vector
+                                      {
+
+                                        switch (to3.tok())
+                                          {
+                                          case Token_New::REAL:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::size_t,std::vector<double>>>;
+                                            break;
+                                          case Token_New::INTEGER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::size_t,std::vector<int>>>;
+                                            break;
+                                          case Token_New::UNSIGNED:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::size_t,std::vector<std::size_t>>>;
+                                            break;
+                                          case Token_New::IDENTIFIER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::size_t,std::vector<std::string>>>;
+                                            break;
+
+                                          default:
+                                            return nullptr;
+                                          }
+                                      }
+                                    else if (to2.tok()==Token_New::LCB) //set
+                                      {
+                                        switch (to3.tok())
+                                          {
+                                          case Token_New::REAL:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::size_t,std::set<double>>>;
+                                            break;
+                                          case Token_New::INTEGER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::size_t,std::set<int>>>;
+                                            break;
+                                          case Token_New::UNSIGNED:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::size_t,std::set<std::size_t>>>;
+                                            break;
+                                          case Token_New::IDENTIFIER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::size_t,std::set<std::string>>>;
+                                            break;
+
+                                          default:
+                                            return nullptr;
+                                          }
+                                      }
+
+                                    else
+                                      return nullptr;
+                                  }
+                                  break;
                                 default:
                                   return nullptr;
                                 }
@@ -1884,7 +1967,7 @@ the parameter className
                               switch (to2.tok())
                                 {
                                 case Token_New::REAL:
-                                  out=new Implements_Simple_Value<std::map<std::string,double>>;
+                                  out=new  Implements_Simple_Value<std::map<std::string,double>>;
                                   break;
                                 case Token_New::INTEGER:
                                   out=new Implements_Simple_Value<std::map<std::string,int>>;
@@ -1896,27 +1979,68 @@ the parameter className
                                   out=new Implements_Simple_Value<std::map<std::string,std::string>>;
                                   break;
                                 case Token_New::EOL:
-                                  switch (to2.tok())
-                                    {
-                                    case Token_New::REAL:
-                                      out=new Implements_Simple_Value<std::map<std::string
-                                          ,std::vector<double>>>;
-                                      break;
-                                    case Token_New::INTEGER:
-                                      out=new Implements_Simple_Value<std::map<std::string,
-                                          std::vector<int>>>;
-                                      break;
-                                    case Token_New::UNSIGNED:
-                                      out=new Implements_Simple_Value<std::map<std::string,
-                                          std::vector<std::size_t>>>;
-                                      break;
-                                    case Token_New::IDENTIFIER:
-                                      out=new Implements_Simple_Value<std::map<std::string,
-                                          std::vector<std::string>>>;
-                                      break;
-                                    default:
+                                  {
+                                    if (!(t.pos()+4<t.size()))
                                       return nullptr;
-                                    }
+                                    to2=t.nextToken(4);
+                                    auto to3=t.nextToken(5);
+
+                                    if (to2.tok()==Token_New::LSB) //vector
+                                      {
+
+                                        switch (to3.tok())
+                                          {
+                                          case Token_New::REAL:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::string,std::vector<double>>>;
+                                            break;
+                                          case Token_New::INTEGER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::string,std::vector<int>>>;
+                                            break;
+                                          case Token_New::UNSIGNED:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::string,std::vector<std::size_t>>>;
+                                            break;
+                                          case Token_New::IDENTIFIER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::string,std::vector<std::string>>>;
+                                            break;
+
+                                          default:
+                                            return nullptr;
+                                          }
+                                      }
+                                    else if (to2.tok()==Token_New::LCB) //set
+                                      {
+                                        switch (to3.tok())
+                                          {
+                                          case Token_New::REAL:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::string,std::set<double>>>;
+                                            break;
+                                          case Token_New::INTEGER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::string,std::set<int>>>;
+                                            break;
+                                          case Token_New::UNSIGNED:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::string,std::set<std::size_t>>>;
+                                            break;
+                                          case Token_New::IDENTIFIER:
+                                            out=new Implements_Simple_Value<
+                                                std::map<std::string,std::set<std::string>>>;
+                                            break;
+
+                                          default:
+                                            return nullptr;
+                                          }
+                                      }
+
+                                    else
+                                      return nullptr;
+                                  }
+                                  break;
                                 default:
                                   return nullptr;
                                 }
@@ -1926,7 +2050,8 @@ the parameter className
                               return nullptr;
                             }
                         }
-                      else   //set
+                      else
+                        //set
                         {
                           if (!(t.pos()<t.size())) return nullptr;
 
@@ -1990,8 +2115,6 @@ the parameter className
       }
 
   }
-
-
 
 
 

@@ -22,73 +22,58 @@ namespace Markov_Mol
 
   using Markov_IO::x_dt;
   //  using Markov_IO::ClassDescription;
-  using Markov_IO::ToValue;
-
-
-
-
-
-
-
-
-
 
   ///Concrete implementation of ABC_Markov_Model
-  class Q_Markov_Model: public Markov_IO::Implements_Class_Reflection<Q_Markov_Model>,public ABC_Markov_Model
+  class Q_Markov_Model: public ABC_Markov_Model
   {
   public:
 
-    virtual Implements_Complex_Value* to_PlainValue()const;
+    class Q_matrix:public Markov_IO::Implements_Simple_Class<Markov_LA::M_Matrix<double>>
+    {
+    public:
+      static std::string ClassName(){return "Q_matrix";}
+        Q_matrix():
+      Implements_ValueId(Q_matrix::ClassName(),Q_matrix::ClassName(),"",""),
+      Implements_Simple_Class(Q_matrix::ClassName(),"s^-1",{"Q_MATRIX"})
+      {}
+    };
 
+    class g_matrix:public Markov_IO::Implements_Simple_Class<Markov_LA::M_Matrix<double>>
+    {
+    public:
+      static std::string ClassName(){return "g_matrix";}
+        g_matrix():
+          Implements_ValueId(ClassName(),ClassName(),"",""),
+      Implements_Simple_Class(g_matrix::ClassName(),"1=max conductance",{"NOT_ALL_ZERO"}){}
+    };
+
+    virtual Markov_IO::Implements_Complex_Value* to_PlainValue()const;
+
+    Q_Markov_Model* toMeasure(const ABC_Value *source) const
+    {
+      return toSameVar(source);
+    }
+
+
+    virtual Markov_IO::Token_Buffer toTokens()const override
+    {
+      auto p=to_PlainValue();
+      auto t=p->toTokens();
+      delete p;
+      return t;
+    }
 
     virtual Q_Markov_Model* clone() const;
 
     virtual Q_Markov_Model* create() const;
 
-    virtual Q_Markov_Model* toSameVar(const ABC_Value *source) const
-    {
-      if (sameFields(source))
-        {
-          decltype(Q0_M) Qt;
-          decltype(g0_M) gt;
-          decltype(a_M) at;
-          decltype(gamma()) gammat;
-          bool bQ=source->getVal("Q_matrix",Qt);
-          auto bg=source->getVal("conductance_vector",gt);
-          bool ba=source->getVal("agonist_vector",at);
-          bool bgamma=source->getVal("unitary_conductance", gammat);
+    virtual Q_Markov_Model* toSameVar(const ABC_Value *source) const;
 
-          if (bQ&&bg&&ba&&bgamma)
-            {
-              return new Q_Markov_Model(source->id(),
-                                        Q_Markov_Model::ClassName(),
-                                        Qt,
-                                        gt,
-                                        at,
-                                        gammat,
-                                        nullptr,
-                                        source->Tip(),
-                                        source->WhatThis());
-            }
-        }
-      return nullptr;
-    }
-
-
-
-
-
-
-    virtual int apply_parameters(const Markov_IO::Parameters& p);
-
-    virtual const Markov_IO::Parameters& get_parameters()const;
 
 
     virtual const ABC_PatchModel* patch()const;
 
     virtual void setPatch(const ABC_PatchModel* newPatch);
-
-
 
     //    virtual std::ostream& put(std::ostream& s) const;
 
@@ -172,7 +157,6 @@ namespace Markov_Mol
 
     Q_Markov_Model(const std::string& idName,
                    const std::string& idVarName,
-
                    const M_Matrix<double>& Q_matrix,
                    const M_Matrix<double>& conductance_vector,
                    const M_Matrix<std::size_t>& agonist_vector,
@@ -181,9 +165,9 @@ namespace Markov_Mol
                    const std::string& tip="",
                    const std::string& whatthis="");
 
-
-
-    Q_Markov_Model()=default;
+    Q_Markov_Model():
+    Implements_ValueId(ClassName(),ClassName(),"General Markov Model","Raw class describing the Markov model")
+    {}
 
     Q_Markov_Model(const Q_Markov_Model& other)=default;
 
@@ -203,12 +187,6 @@ namespace Markov_Mol
     //  virtual bool LoadFromStringDescription(const ClassDescription& classDes);
 
     static std::string ClassName();
-
-
-
-
-    //    virtual std::string save(const std::string& dirName,
-    //			     const std::string& extension);
 
 
     static std::string kij_Label(std::size_t i,
@@ -238,7 +216,6 @@ namespace Markov_Mol
     void Q_to_conn_K_tau_QC();
     void K_conn_tau_to_Q();
     void update();
-    void initComplexVar();
 
   private:
 

@@ -260,7 +260,8 @@ namespace Markov_GUI {
   class  EditVariableDialog: public QDialog
   {
   public:
-    EditVariableDialog(QWidget*parent,Markov_IO::ABC_Value* var):
+    EditVariableDialog(QWidget*parent,
+                       Markov_IO::ABC_Value* var):
     QDialog(parent),
       v_(var)
     {

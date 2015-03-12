@@ -154,7 +154,11 @@ namespace Markov_GUI {
         myLayout->addWidget(units);
       }
 */
-    if ((v->myVarPtr()->complyModes("ROW_INDEX"))&&(v->myVarPtr()->complyModes("COL_INDEX")))
+    auto var=v->myVarPtr();
+
+    if ((var!=nullptr)
+        &&(v->myVarPtr()->complyModes("ROW_INDEX"))
+        &&(v->myVarPtr()->complyModes("COL_INDEX")))
 
       {
         QHBoxLayout* lay=new QHBoxLayout;
@@ -590,8 +594,6 @@ namespace Markov_GUI {
     d_ =label.toDouble(&ok) ;
     if (ok)
       {
-        //        Markov_IO::Object<double> od(d_);
-        //        desc->ReplaceElement(field.toStdString(),od);
         v->setValue(d_);
         emit valueChanged();
       }
@@ -603,13 +605,6 @@ namespace Markov_GUI {
     v(dynamic_cast < Markov_IO::Implements_Simple_Value<std::size_t>*>(av)),
     s_(v->value())
   {
-
-    //    const Markov_IO::Object<std::size_t > * od;
-    //    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-    //    od=dynamic_cast<const Markov_IO::Object<std::size_t > * > (o);
-    //    s_=od->Value();
-
-
 
     spinBox=new QSpinBox;
 
@@ -650,12 +645,10 @@ namespace Markov_GUI {
 
   }
 
+
   void EditWizardSize::updateValue()
   {
-
     s_=spinBox->value();
-    //    Markov_IO::Object<std::size_t> od(s_);
-    //    desc->ReplaceElement(field.toStdString(),od);
     v->setValue(s_);
 
     emit valueChanged();

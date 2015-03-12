@@ -347,10 +347,10 @@ namespace  Markov_IO {
     template<typename T>
     Token_Buffer& operator<<(std::vector<T> v)
     {
-      *this<<"\n[";
+      *this<<"\n [ ";
       for (const T& e:v)
         *this<<e;
-      *this<<"]"<<"\n";
+      *this<<" ] "<<"\n";
       return *this;
     }
 
@@ -366,7 +366,6 @@ namespace  Markov_IO {
             }
           *this<<"\n";
         }
-      *this<<"\n";
       return *this;
     }
 
@@ -384,20 +383,20 @@ namespace  Markov_IO {
     template<typename K,typename T>
     Token_Buffer& operator<<( std::map<K,T> m)
     {
-      *this<<"\n{";
+      *this<<"\n { ";
       for (auto& e:m)
         *this<<e;
-      *this<<"}"<<"\n";
+      *this<<" } "<<"\n";
       return *this;
     }
 
     template<typename T>
     Token_Buffer& operator<<( std::set<T> m)
     {
-      *this<<"\n{";
+      *this<<"\n { ";
       for (auto& e:m)
         *this<<e;
-      *this<<"}"<<"\n";
+      *this<<" } "<<"\n";
       return *this;
     }
 
@@ -477,7 +476,7 @@ namespace  Markov_IO {
       pos_=0;
     }
 
-    std::string putTokenBuffer()
+    std::string putTokenBuffer() const
     {
       std::string out;
       for (std::size_t i=0; i<std::min(pos_,t_.size()); i++)
@@ -978,6 +977,7 @@ protected:
           else
             return nullptr;
         }
+      else
       return nullptr;
     }
 
@@ -1244,12 +1244,20 @@ protected:
     //TODO: there are two concepts here: the current holder of the id in parent and the var that is pointed by myVar
     virtual ABC_Var* myVarPtr() override;
     virtual const ABC_Value* myVarPtr() const  override;
-    virtual bool complyModes(const std::string )const override
+
+
+    virtual bool complyModes(const std::string m)const override
     {
-      return false;
+      if ((parentValue()!=nullptr)
+          &&(parentValue()->getChild(myVar())!=nullptr)
+          &&(parentValue()->getChild(myVar())->modes().find(m)!=parentValue()->getChild(myVar())->modes().end()))
+        return true;
+      else
+        return false;
     }
     virtual std::set<std::string> modes()const override
     {
+
       return {};
     }
   protected:

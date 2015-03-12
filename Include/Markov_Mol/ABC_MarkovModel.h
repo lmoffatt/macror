@@ -61,7 +61,8 @@ function of experimental and simulated currents against a given kinetic model.
 
 */
 
-class ABC_Markov_Model: virtual public Markov_IO::ABC_Value{
+class ABC_Markov_Model: virtual public Markov_IO::Implements_ValueId
+{
 public:
     /** virtual copy constructor
        @returns a pointer to a copy of the object
@@ -96,22 +97,22 @@ public:
 
 
 
-   /**
-     Parametrized Modifier of the Model.
-     Modifies all the parameters of the model accordingly with the listed
-     parameters
-     @param parameters contains the numeric values of the parameters to be
-	    changed
-     @post The model is reinitialize after changing the values of the parameters
-     @see MarkovOptim.h
-    */
-    virtual int apply_parameters(const Markov_IO::Parameters& parameters)=0;
+//   /**
+//     Parametrized Modifier of the Model.
+//     Modifies all the parameters of the model accordingly with the listed
+//     parameters
+//     @param parameters contains the numeric values of the parameters to be
+//	    changed
+//     @post The model is reinitialize after changing the values of the parameters
+//     @see MarkovOptim.h
+//    */
+//    virtual int apply_parameters(const Markov_IO::Parameters& parameters)=0;
 
-    /**
-      Returns all the parametriziced values of the Model.
-      @returns A Parameter object that can be fed on optimization algoritms
-    */
-    virtual const Markov_IO::Parameters& get_parameters()const=0;
+//    /**
+//      Returns all the parametriziced values of the Model.
+//      @returns A Parameter object that can be fed on optimization algoritms
+//    */
+//    virtual const Markov_IO::Parameters& get_parameters()const=0;
 
 
 

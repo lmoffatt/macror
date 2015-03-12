@@ -31,6 +31,10 @@ public:
 
     /// virtual destructor
     virtual ~MacrorEditCommand();
+    std::string commandName()const
+    {
+      return "edita";
+    }
 
 
     /// runs the command for a list of parameters

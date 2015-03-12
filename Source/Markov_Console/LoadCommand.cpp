@@ -5,6 +5,8 @@
 #include "Markov_Mol/ABC_PatchModel.h"
 #include "Markov_IO/ExperimentalData.h"
 
+#include <fstream>
+
 namespace Markov_Console
 {
   ///  destructor
@@ -28,8 +30,8 @@ namespace Markov_Console
   std::string LoadCommand::WhatThis()const
   {
     return "Help command\n"
-        " returns help on subject\n"
-        " subject can be either a command";
+           " returns help on subject\n"
+           " subject can be either a command";
   }
 
 
@@ -96,9 +98,6 @@ namespace Markov_Console
   bool LoadCommand::run(const std::string& fname,
                         const std::vector<std::string>& varnames)
   {
-    output_.clear();
-    errorMessage_.clear();
-
     std::string filename=fname;
     // is filename or dirname?
     if (!Markov_IO::IsDir(filename))
@@ -122,7 +121,6 @@ namespace Markov_Console
               f.open(path.c_str());
               if (!f)
                 {
-                  output_.clear();
                   getCommandManager()->putErrorOut("invalid name "+path);
                   return false;
                 }
@@ -133,77 +131,59 @@ namespace Markov_Console
           //TODO: check if it loads linux files in windows
 
           Markov_IO::Token_Buffer tok(&f);
-          while (Markov_IO::safeGetline(f,varname))
-            {
 
-              if (numVar==0)
+          if (Markov_IO::safeGetline(f,varname))
+            {
+              MacroVersion_=getCommandManager()->getVersion(varname);
+              if (MacroVersion_>0)
                 {
-                  MacroVersion_=getCommandManager()->getVersion(varname);
-                  if (MacroVersion_>0)
-                    {
-                      output_="Format of version "+varname+"\n";
-                      varname.clear();
-                    }
+                  output_="Format of version "+varname+"\n";
                   varname.clear();
-
                 }
+              varname.clear();
 
-              while (varname.empty())
-                if (!Markov_IO::safeGetline(f,varname))
-                  break;
-              if (varnames.empty()||
-                  (std::find(varnames.begin(),varnames.end(),varname)!=
-                   varnames.end()))
-                {
-                  tok<<varname<<"\n";
-                  auto v=getValueFromStream(tok);
-                  if (v!=nullptr)
-                  {
-                      numVar++;
-                      auto w=getCommandManager()->getMeasureFromValue(v);
-                      if (w!=nullptr)
-                        getCommandManager()->pushChild(w);
-                      else
-                        getCommandManager()->pushChild(v);
-
-                  }
-                  else
-                  {
-                      std::string m="unrecognized variable; read text ";
-                      m+=tok.putTokenBuffer();
-                      getCommandManager()->putErrorOut(m);
-                   }
-                 tok.cleanRead();
-                }
-            }
-          if (errorMessage_.empty())
-            {
-              output_+=Markov_IO::ToString(numVar)+" variables loaded from file "+
-                  path;
-              return true;
             }
           else
+            return false;
+
+          while (true)
             {
+              auto v=getValueFromStream(tok);
+              if (v!=nullptr)
+                {
+                  numVar++;
+                  auto w=getCommandManager()->getMeasureFromValue(v);
+                  if (w!=nullptr)
+                    getCommandManager()->pushChild(w);
+                  else
+                    getCommandManager()->pushChild(v);
 
-              errorMessage_=Markov_IO::ToString(numVar)+" variables loaded from file "+
-                  path+"; \nbut the following variables were not recognized "+errorMessage_;
-              return false;
+                }
+              else if (!f.eof())
+                {
+
+                  std::string m="unrecognized variable; read text ";
+                  m+=tok.putTokenBuffer();
+                  getCommandManager()->putErrorOut(m);
+                  f.close();
+                  return false;
+                }
+              if (f.eof())
+                break;
+              tok.cleanRead();
             }
-
-          f.close();
+          getCommandManager()->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
         }
 
       }
-
     else   // it is a dirname
-
       {
         // tries one by one all the files in the directory
         std::string fileName;
         Markov_IO::FileDir f(filename);
         f.begin();
         std::size_t numVar=0;
-       // std::size_t numfiles=0;
+        // std::size_t numfiles=0;
 
         do
           {

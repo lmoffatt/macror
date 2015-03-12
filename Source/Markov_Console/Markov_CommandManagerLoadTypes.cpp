@@ -100,7 +100,10 @@ void Markov_CommandManager::LoadTypes()
 
     //types[Markov_Mol::Q_Markov_Model::ClassName()]=new Markov_Mol::Q_Markov_Model();
 
-    this->pushIdChild(Markov_Mol::Q_Markov_Model::ClassName(),new Markov_Mol::Q_Markov_Model());
+    this->pushChild(new Markov_Mol::Q_Markov_Model());
+    this->pushChild(new Markov_Mol::Q_Markov_Model::g_matrix());
+    this->pushChild(new Markov_Mol::Q_Markov_Model::Q_matrix());
+
 
     types[Markov_Mol::PatchModel::ClassName()]=new Markov_Mol::PatchModel();
 
