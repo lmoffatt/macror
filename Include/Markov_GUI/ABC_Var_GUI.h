@@ -47,14 +47,18 @@ namespace Markov_IO {
     return tok;
   }
 
-
-  template
-  class Implements_Simple_Value<QString>;
   template<>
   inline std::string Implements_Simple_Value<QString>::ClassName()
   {
     return "QString";
   }
+
+  template
+  class Implements_Simple_Value<QString>;
+
+
+
+
 
 }
 
@@ -75,6 +79,16 @@ namespace Markov_GUI {
     virtual ~EditField(){}
 
     virtual bool isValid()const;
+
+    virtual int nGridColumnsHint()const
+    {
+      return 1;
+    }
+    virtual int nGridRowsHint()const
+    {
+      return 1;
+    }
+
 
   signals:
     void valueChanged();
@@ -113,6 +127,10 @@ namespace Markov_GUI {
 
     void resetRowCount(int newRowCount);
     void resetColumnCount(int newRowCount);
+
+    virtual int nGridColumnsHint()const;
+    virtual int nGridRowsHint()const;
+
 
   protected slots:
     virtual void copy();
@@ -155,6 +173,8 @@ namespace Markov_GUI {
     Q_OBJECT
   public:
     virtual ~EditWizardMatrixSizes(){}
+    int nGridColumnsHint() const;
+    int nGridRowsHint() const;
   public slots:
     void updateValue();
     friend class EditField;
@@ -167,7 +187,7 @@ namespace Markov_GUI {
   protected:
     EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Value *av);
     Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>* v;
-
+    QTableView *table;
   };
 
   class EditWizardDouble: public EditField
@@ -267,13 +287,16 @@ namespace Markov_GUI {
     {
 
 
-      QVBoxLayout* fieldsLayout=new QVBoxLayout;
+      QGridLayout* fieldsLayout=new QGridLayout;
+
+      int row=0;
 
       for (std::size_t i=0; i<var->numChilds(); i++)
         {
           Markov_IO::ABC_Value * v=var->getChild(var->ith_ChildName(i));
           EditField* f=EditField::create(this,v);
-          fieldsLayout->addWidget(f);
+          fieldsLayout->addWidget(f,row,1,f->nGridRowsHint()+1,f->nGridColumnsHint());
+          row+=f->nGridRowsHint()+1;
 
         }
 

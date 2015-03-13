@@ -51,8 +51,8 @@ namespace Markov_Mol
 
 
     c->push_backVal(Q_Label(),Q(),Q_matrix::ClassName());
-    c->push_backVal(g_Label(),g(),g_matrix::ClassName());
-    c->push_backVal(a_Label(),n_bound_agonists());
+    c->push_backVal(g_Label(),Markov_LA::Transpose(g()),g_matrix::ClassName());
+    c->push_backVal(a_Label(),Markov_LA::Transpose(n_bound_agonists()),a_matrix::ClassName());
     c->push_backVal(gamma_Label(),gamma());
     return c;
   }

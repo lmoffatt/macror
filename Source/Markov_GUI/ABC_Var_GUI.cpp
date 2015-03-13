@@ -6,6 +6,8 @@
 #include <QSpinBox>
 #include <string>
 #include <QFileDialog>
+#include <QHeaderView>
+#include <QDebug>
 
 #include "Markov_IO/Object.h"
 #include "Markov_IO/auxiliarIO.h"
@@ -95,12 +97,6 @@ namespace Markov_GUI {
     table (new QTableView)
   {
 
-    //    const Markov_IO::Object<Markov_LA::M_Matrix<double> > * od;
-    //    const Markov_IO::ABC_Object *o=(*desc)[field.toStdString()];
-
-    //    od=dynamic_cast<const Markov_IO::Object<Markov_LA::M_Matrix<double> > * > (o);
-
-
     if (v->complyModes("Q_Matrix"))
       {
         columnExpandable=false;
@@ -135,18 +131,15 @@ namespace Markov_GUI {
 
 
     QLabel* label=new QLabel(v->id().c_str());
-    //    int i=desc->NameIndex(field.toStdString());
-    // label->setToolTip(QString(desc->Tip(i).c_str()));
-    // label->setWhatsThis(desc->WhatThis(i).c_str());
 
     label->setToolTip(QString(var_->Tip().c_str()));
     label->setWhatsThis(var_->WhatThis().c_str());
 
 
 
-    QVBoxLayout* myLayout=new QVBoxLayout;
+    QGridLayout* myLayout=new QGridLayout;
 
-    myLayout->addWidget(label);
+    myLayout->addWidget(label,0,0,1,2,Qt::AlignLeft);
     /*
     if (!desc->Unit(i).empty())
       {
@@ -161,8 +154,6 @@ namespace Markov_GUI {
         &&(v->myVarPtr()->complyModes("COL_INDEX")))
 
       {
-        QHBoxLayout* lay=new QHBoxLayout;
-
 
         if (v->myVarPtr()->complyModes("ROW_INDEX"))
           {
@@ -172,18 +163,18 @@ namespace Markov_GUI {
                 columnExpandable=true;
 
                 numCols->setValue(table->model()->columnCount());
-                numCols->setRange(0,1e8);
+                numCols->setRange(0,1e3);
+                numCols->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
                 connect(numCols,SIGNAL(valueChanged(int)),this,SLOT(resetColumnCount(int)));
                 QSpinBox* numRows=new QSpinBox(this);
                 rowsExpandable=true;
 
                 numRows->setValue(table->model()->rowCount());
-                numRows->setRange(0,1e8);
+                numRows->setRange(0,1e3);
+                numRows->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
                 connect(numRows,SIGNAL(valueChanged(int)),this,SLOT(resetRowCount(int)));
-                QVBoxLayout* indexLayout=new QVBoxLayout;
-                indexLayout->addWidget(numCols);
-                indexLayout->addWidget(numRows);
-                lay->addLayout(indexLayout);
+                myLayout->addWidget(numCols,1,2,1,2,Qt::AlignCenter);
+                myLayout->addWidget(numRows,2,1,1,2,Qt::AlignCenter);
 
               }
             else
@@ -192,9 +183,10 @@ namespace Markov_GUI {
                 rowsExpandable=true;
 
                 numRows->setValue(table->model()->rowCount());
-                numRows->setRange(0,1e8);
+                numRows->setRange(0,1e3);
+                numRows->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
                 connect(numRows,SIGNAL(valueChanged(int)),this,SLOT(resetRowCount(int)));
-                lay->addWidget(numRows);
+                myLayout->addWidget(numRows,2,1,2,2,Qt::AlignCenter);
               }
 
           }
@@ -205,16 +197,46 @@ namespace Markov_GUI {
 
             numCols->setValue(table->model()->columnCount());
             numCols->setRange(0,1e8);
+            numCols->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
             connect(numCols,SIGNAL(valueChanged(int)),this,SLOT(resetColumnCount(int)));
-            lay->addWidget(numCols);
+            myLayout->addWidget(numCols,1,2,1,2,Qt::AlignCenter);
           }
-        lay->addWidget(table);
-        myLayout->addLayout(lay);
+        table->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+        table->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        table->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+        table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+
+        table->horizontalHeader()->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        table->horizontalHeader()->sectionResizeMode(2);
+        table->verticalHeader()->sectionResizeMode(2);
+        table->verticalHeader()->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+
+  //      table->resizeColumnsToContents();
+  //     table->resizeRowsToContents();
+
+       myLayout->addWidget(table,2,3,
+                           std::min(5,table->model()->rowCount()),
+                           std::min(5,table->model()->columnCount()));
 
       }
     else
       {
-        myLayout->addWidget(table);
+        table->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+        table->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        table->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+        table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+
+        table->horizontalHeader()->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        table->horizontalHeader()->sectionResizeMode(2);
+        table->verticalHeader()->sectionResizeMode(2);
+        table->verticalHeader()->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+
+      //  table->resizeColumnsToContents();
+      //  table->resizeRowsToContents();
+        myLayout->addWidget(table,2,3,
+                            std::min(5,table->model()->rowCount()),
+                            std::min(5,table->model()->columnCount()));
+
       }
     setLayout(myLayout);
 
@@ -247,6 +269,25 @@ namespace Markov_GUI {
         table->model()->removeColumns(newColumnCount,oldColumnCount-newColumnCount);
       }
   }
+
+  int EditFieldMatrixDoubles::nGridColumnsHint() const
+  {
+    int n=std::min(5,table->model()->columnCount());
+    if(v->myVarPtr()->complyModes("COL_INDEX"))  {++n;}
+    return n;
+
+  }
+
+  int EditFieldMatrixDoubles::nGridRowsHint() const
+  {
+    int n=std::min(5,table->model()->rowCount());
+    if(v->myVarPtr()->complyModes("ROW_INDEX"))  {++n;}
+    return n;
+
+  }
+
+
+
 
 
   bool EditFieldMatrixDoubles::isValid()const
@@ -475,37 +516,40 @@ namespace Markov_GUI {
     EditField(parent,av),
     v(dynamic_cast<Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>*>(av))
   {
-    QTableView *table=new QTableView;
+    table=new QTableView;
 
     table->setModel(new ModelMatrix(&v->refval()));
 
 
     QLabel* label=new QLabel(av->id().c_str());
-    QVBoxLayout* myLayout=new QVBoxLayout;
-
-    //    int i=desc->NameIndex(field.toStdString());
-    //    label->setToolTip(QString(desc->Tip(i).c_str()));
-    //    label->setWhatsThis(desc->WhatThis(i).c_str());
+    QGridLayout* myLayout=new QGridLayout;
 
     label->setToolTip(QString(var_->Tip().c_str()));
     label->setWhatsThis(var_->WhatThis().c_str());
 
 
-    myLayout->addWidget(label);
+    myLayout->addWidget(label,0,0,1,2);
     //    if (!desc->Unit(i).empty())
     //      {
     //        QLabel* units=new QLabel(desc->Unit(i).c_str());
     //        myLayout->addWidget(units);
     //      }
-    QHBoxLayout* tableLayout=new QHBoxLayout;
 
-    tableLayout->addWidget(table);
-    tableLayout->addStretch();
-    tableLayout->addStretch();
-    tableLayout->addStretch();
-    myLayout->addLayout(tableLayout);
-    myLayout->addStretch();
-    myLayout->addStretch();
+    table->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    table->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+    table->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+
+    table->horizontalHeader()->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+    table->horizontalHeader()->sectionResizeMode(2);
+    table->verticalHeader()->sectionResizeMode(2);
+    table->verticalHeader()->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+
+   // table->resizeColumnsToContents();
+   // table->resizeRowsToContents();
+    myLayout->addWidget(table,2,3,
+                        std::min(5,table->model()->rowCount()),
+                        std::min(5,table->model()->columnCount()));
 
     setLayout(myLayout);
     connect(table->itemDelegate(),SIGNAL(closeEditor(QWidget*)),this,SLOT(updateValue()));
@@ -520,6 +564,24 @@ namespace Markov_GUI {
 
     emit valueChanged();
   }
+
+  int EditWizardMatrixSizes::nGridColumnsHint() const
+  {
+    int n=std::min(5,table->model()->columnCount());
+    if(v->myVarPtr()->complyModes("COL_INDEX"))  {++n;}
+    return n;
+
+  }
+
+  int EditWizardMatrixSizes::nGridRowsHint() const
+  {
+    int n=std::min(5,table->model()->rowCount());
+    if(v->myVarPtr()->complyModes("ROW_INDEX"))  {++n;}
+    return n;
+
+  }
+
+
 
 
   EditWizardDouble::EditWizardDouble(QWidget * parent,Markov_IO::ABC_Value*av):
@@ -729,7 +791,7 @@ namespace Markov_GUI {
 
     lineEdit->setText(QString(str_.c_str()));
 
-    lineEdit->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    lineEdit->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
 
     QLabel* label=new QLabel(v->id().c_str());
     QHBoxLayout* myLayout=new QHBoxLayout;

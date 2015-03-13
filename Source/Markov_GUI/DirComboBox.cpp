@@ -17,7 +17,7 @@ DirComboBox::DirComboBox(QDir initDir,QString label, QWidget *parent)
     directoryComboBox = new QComboBox;
     directoryComboBox->setEditable(true);
     directoryComboBox->addItem(initDir.absolutePath());
-    directoryComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    directoryComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     directoryComboBox->setMinimumContentsLength(3);
 
     directoryLabel = new QLabel(label);

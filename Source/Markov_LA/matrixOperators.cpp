@@ -96,6 +96,9 @@ M_Matrix<T> row_vector(const M_Matrix<T>& x)
 template
 M_Matrix<double>  Transpose(const M_Matrix<double>& X);
 
+template
+M_Matrix<std::size_t>  Transpose(const M_Matrix<std::size_t>& X);
+
 
 
 template

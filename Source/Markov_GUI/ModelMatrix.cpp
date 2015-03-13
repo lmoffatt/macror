@@ -460,9 +460,9 @@ void LineEditDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 //! [3]
 
 //! [4]
-void LineEditDelegate::updateEditorGeometry(QWidget *editor,
-                                            const QStyleOptionViewItem &option, const QModelIndex &/* index */) const
-{
-  editor->setGeometry(option.rect);
-}
+//void LineEditDelegate::updateEditorGeometry(QWidget *editor,
+//                                            const QStyleOptionViewItem &option, const QModelIndex &/* index */) const
+//{
+//  editor->setGeometry(option.rect);
+//}
 

@@ -47,6 +47,18 @@ namespace Markov_Mol
       Implements_Simple_Class(g_matrix::ClassName(),"1=max conductance",{"NOT_ALL_ZERO"}){}
     };
 
+    class a_matrix:public Markov_IO::Implements_Simple_Class<Markov_LA::M_Matrix<std::size_t>>
+    {
+    public:
+      static std::string ClassName(){return "a_matrix";}
+        a_matrix():
+          Implements_ValueId(ClassName(),ClassName(),"",""),
+      Implements_Simple_Class(g_matrix::ClassName(),"agonist_count",{"NOT_ALL_ZERO"}){}
+    };
+
+
+
+
     virtual Markov_IO::Implements_Complex_Value* to_PlainValue()const;
 
     Q_Markov_Model* toMeasure(const ABC_Value *source) const
