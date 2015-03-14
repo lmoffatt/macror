@@ -341,6 +341,11 @@ ModelQMatrix::ModelQMatrix(Markov_LA::M_Matrix<double> *matrix,QObject *parent):
 {
 }
 
+ModelQMatrix::ModelQMatrix(Markov_LA::M_Matrix<std::size_t> *matrix,QObject *parent):
+  ModelMatrix(matrix,parent),
+  Z(Markov_LA::zeros<double>(Markov_LA::nrows(*m),1))
+{
+}
 
 bool  ModelQMatrix::setData(const QModelIndex &index, const QVariant &value, int role)
 {

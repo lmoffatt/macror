@@ -546,7 +546,7 @@ namespace Markov_LA
     */
   template <typename T>
   std::size_t nrows(const M_Matrix<T>& x)
-  {return x._nrows;};
+  {return x._nrows;}
 
 
 

@@ -7,7 +7,6 @@
 #include <QDialog>
 
 
-//#include "Markov_IO/ClassDescription.h"
 #include "Markov_IO/ABC_Var.h"
 #include "Markov_LA/Matrix.h"
 
@@ -66,19 +65,17 @@ namespace Markov_IO {
 namespace Markov_GUI {
 
 
-
-
-
   class EditField:public QWidget
   {
     Q_OBJECT
   public:
 
-    static EditField* create(QWidget *parent, Markov_IO::ABC_Value* v);
+    static EditField* create(QWidget *parent,
+                             Markov_IO::ABC_Value* v);
 
     virtual ~EditField(){}
 
-    virtual bool isValid()const;
+     bool isValid()const;
 
     virtual int nGridColumnsHint()const
     {
@@ -89,7 +86,6 @@ namespace Markov_GUI {
       return 1;
     }
 
-
   signals:
     void valueChanged();
 
@@ -98,27 +94,44 @@ namespace Markov_GUI {
 
     virtual void resetModel(){}
 
-
   protected slots:
     virtual void copy(){}
-
 
     virtual void paste(){}
 
   protected:
-    virtual void keyPressEvent(QKeyEvent * event);
+    virtual void keyPressEvent(QKeyEvent * event) override;
 
-    EditField(QWidget* parent,Markov_IO::ABC_Value* av);
-    Markov_IO::ABC_Value* var_;
+    EditField(QWidget* parent);
   };
 
-  class EditFieldMatrixDoubles: public EditField
+
+  class EditFieldDouble: public EditField
   {
     Q_OBJECT
   public:
-    virtual ~EditFieldMatrixDoubles(){}
+    virtual ~EditFieldDouble(){}
 
-    virtual bool isValid()const;
+    bool isValid()const;
+  public slots:
+    void updateValue();
+    friend class EditField;
+
+  protected:
+    EditFieldDouble(QWidget* parent,Markov_IO::ABC_Value *av);
+    Markov_IO::Implements_Simple_Value<double>* var_;
+    QLineEdit* lineEdit;
+    double d_;
+
+  };
+
+  class EditFieldMatrix: public EditField
+  {
+    Q_OBJECT
+  public:
+    virtual ~EditFieldMatrix(){}
+
+    bool isValid()const;
   public slots:
     void updateValue();
     void resetModel();
@@ -138,8 +151,10 @@ namespace Markov_GUI {
 
 
   protected:
-    EditFieldMatrixDoubles(QWidget* parent,Markov_IO::ABC_Value *av);
-    Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<double>>* v;
+    EditFieldMatrix(QWidget* parent,Markov_IO::ABC_Value *av);
+    Markov_IO::ABC_Var* v_;
+    Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<double>>* vard_;
+    Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>* vars_;
     QTableView *table;
     bool rowsExpandable;
     bool columnExpandable;
@@ -149,64 +164,23 @@ namespace Markov_GUI {
 
 
 
-  class EditWizard_Complex_Var: public EditField
+  class EditField_Complex_Var: public EditField
   {
     Q_OBJECT
   public:
-    virtual ~EditWizard_Complex_Var(){}
+    virtual ~EditField_Complex_Var(){}
     bool isValid()const;
   public slots:
     void editMe();
     void updateValue();
     friend class EditField;
   protected:
-    EditWizard_Complex_Var(QWidget* parent,Markov_IO::ABC_Value *av);
+    EditField_Complex_Var(QWidget* parent,Markov_IO::ABC_Value *av);
   private:
-    Markov_IO::Implements_Complex_Value* cvar_;
+    Markov_IO::ABC_Value* var_;
 
     bool isvalid;
     QLineEdit *lineEdit;
-  };
-
-  class EditWizardMatrixSizes: public EditField
-  {
-    Q_OBJECT
-  public:
-    virtual ~EditWizardMatrixSizes(){}
-    int nGridColumnsHint() const;
-    int nGridRowsHint() const;
-  public slots:
-    void updateValue();
-    friend class EditField;
-  protected slots:
-    virtual void copy(){}
-
-
-    virtual void paste(){}
-
-  protected:
-    EditWizardMatrixSizes(QWidget* parent,Markov_IO::ABC_Value *av);
-    Markov_IO::Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>* v;
-    QTableView *table;
-  };
-
-  class EditWizardDouble: public EditField
-  {
-    Q_OBJECT
-  public:
-    virtual ~EditWizardDouble(){}
-
-    bool isValid()const;
-  public slots:
-    void updateValue();
-    friend class EditField;
-
-  protected:
-    EditWizardDouble(QWidget* parent,Markov_IO::ABC_Value *av);
-    Markov_IO::Implements_Simple_Value<double>* v;
-    QLineEdit* lineEdit;
-    double d_;
-
   };
 
 
@@ -226,7 +200,7 @@ namespace Markov_GUI {
     friend class EditField;
   protected:
     EditWizardSize(QWidget* parent,Markov_IO::ABC_Value *av);
-    Markov_IO::Implements_Simple_Value<std::size_t>* v;
+    Markov_IO::Implements_Simple_Value<std::size_t>* var_;
     QSpinBox* spinBox;
     std::size_t s_;
 
@@ -249,7 +223,7 @@ namespace Markov_GUI {
     friend class EditField;
   protected:
     EditWizardBool(QWidget* parent,Markov_IO::ABC_Value *av);
-    Markov_IO::Implements_Simple_Value<bool>* v;
+    Markov_IO::Implements_Simple_Value<bool>* var_;
     QComboBox* comboBox;
     bool b_;
 
@@ -269,7 +243,7 @@ namespace Markov_GUI {
   protected:
 
     EditWizardString(QWidget* parent,Markov_IO::ABC_Value *av);
-    Markov_IO::Implements_Simple_Value<std::string>* v;
+    Markov_IO::Implements_Simple_Value<std::string>* var_;
     std::string str_;
     QLineEdit* lineEdit;
 
@@ -280,9 +254,7 @@ namespace Markov_GUI {
   class  EditVariableDialog: public QDialog
   {
   public:
-    EditVariableDialog(QWidget*parent,
-                       Markov_IO::ABC_Value* var):
-    QDialog(parent),
+    EditVariableDialog(Markov_IO::ABC_Value* var):
       v_(var)
     {
 

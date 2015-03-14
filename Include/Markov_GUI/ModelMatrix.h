@@ -22,11 +22,11 @@ public:
     LineEditDelegate(QObject *parent = 0);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const;
+                          const QModelIndex &index) const override;
 
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
     void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const;
+                      const QModelIndex &index) const override;
 
 //    void updateEditorGeometry(QWidget *editor,
 //        const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -42,23 +42,23 @@ class ModelMatrix: public QAbstractTableModel
      ModelMatrix(Markov_LA::M_Matrix<std::size_t> *matrix,QObject *parent = 0);
 
 
-     int rowCount(const QModelIndex &parent = QModelIndex()) const;
-     int columnCount(const QModelIndex &parent = QModelIndex()) const;
+     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-     bool insertRows(int row, int count, const QModelIndex &parent= QModelIndex());
-     bool insertColumns(int column, int count, const QModelIndex &parent= QModelIndex());
+     bool insertRows(int row, int count, const QModelIndex &parent= QModelIndex()) override;
+     bool insertColumns(int column, int count, const QModelIndex &parent= QModelIndex()) override;
 
-     bool removeColumns(int column, int count, const QModelIndex &parent= QModelIndex());
-     bool removeRows(int row, int count, const QModelIndex &parent= QModelIndex());
+     bool removeColumns(int column, int count, const QModelIndex &parent= QModelIndex()) override;
+     bool removeRows(int row, int count, const QModelIndex &parent= QModelIndex()) override;
 
-     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int);
-     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int) override;
+      bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+      Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 protected:
 
@@ -99,18 +99,18 @@ protected:
 
 
 
-
 class ModelQMatrix: public ModelMatrix
 {
    Q_OBJECT
 
  public:
      ModelQMatrix(Markov_LA::M_Matrix<double> *matrix,QObject *parent = 0);
+     ModelQMatrix(Markov_LA::M_Matrix<std::size_t> *matrix,QObject *parent = 0);
 
 
-     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+      bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+      Qt::ItemFlags flags(const QModelIndex &index) const override;
 signals:
      void moveToCell(int i, int j);
 private:

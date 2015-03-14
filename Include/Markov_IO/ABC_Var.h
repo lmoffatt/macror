@@ -958,7 +958,7 @@ namespace  Markov_IO {
 
 
 
-protected:
+  protected:
 
     virtual ABC_Var* toSameVar(const ABC_Value* source)const=0;
 
@@ -978,7 +978,7 @@ protected:
             return nullptr;
         }
       else
-      return nullptr;
+        return nullptr;
     }
 
 
@@ -1249,11 +1249,15 @@ protected:
     virtual bool complyModes(const std::string m)const override
     {
       if ((parentValue()!=nullptr)
-          &&(parentValue()->getChild(myVar())!=nullptr)
-          &&(parentValue()->getChild(myVar())->modes().find(m)!=parentValue()->getChild(myVar())->modes().end()))
-        return true;
-      else
-        return false;
+          &&(parentValue()->getChild(myVar())!=nullptr))
+        {
+          auto const mo=parentValue()->getChild(myVar())->modes();
+          if(mo.find(m)!=mo.end())
+            return true;
+          else
+            return false;
+        }
+      else return false;
     }
     virtual std::set<std::string> modes()const override
     {
@@ -1689,16 +1693,16 @@ protected:
     {
       return new Implements_Complex_Value(*this);
     }
-//    virtual bool loadFromObjectValue(const ABC_Value* source)override
-//    {
-//      if (sameFields(source))
-//        {
-//          *this=Implements_Complex_Value(*source);
-//          return true;
-//        }
-//      else
-//        return false;
-//    }
+    //    virtual bool loadFromObjectValue(const ABC_Value* source)override
+    //    {
+    //      if (sameFields(source))
+    //        {
+    //          *this=Implements_Complex_Value(*source);
+    //          return true;
+    //        }
+    //      else
+    //        return false;
+    //    }
 
   protected:
     void cloneChids()
@@ -1919,26 +1923,26 @@ protected:
 
 
 
-//    virtual bool loadFromObjectValue(const ABC_Value* var) override
-//    {
-//      if ((var!=nullptr)&&(this->id()==var->id()))
-//        {
-//          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
-//          if(o!=nullptr)
-//            {
-//              setValue(o->value());
-//              if (!o->Tip().empty())
-//                this->setTip(o->Tip());
-//              if (!o->WhatThis().empty())
-//                this->setWhatThis(o->WhatThis());
-//              return true;
-//            }
-//          else
-//            return false;
-//        }
-//      else
-//        return false;
-//    }
+    //    virtual bool loadFromObjectValue(const ABC_Value* var) override
+    //    {
+    //      if ((var!=nullptr)&&(this->id()==var->id()))
+    //        {
+    //          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
+    //          if(o!=nullptr)
+    //            {
+    //              setValue(o->value());
+    //              if (!o->Tip().empty())
+    //                this->setTip(o->Tip());
+    //              if (!o->WhatThis().empty())
+    //                this->setWhatThis(o->WhatThis());
+    //              return true;
+    //            }
+    //          else
+    //            return false;
+    //        }
+    //      else
+    //        return false;
+    //    }
   protected:
     C** objectPtr_;
     getter<C,T> get_;
@@ -2104,26 +2108,26 @@ protected:
             nullptr,this->id(),this->value(),this->myVar(),this->Tip(), this->WhatThis());
     }
 
-//    virtual bool loadFromObjectValue(const ABC_Value* var) override
-//    {
-//      if ((var!=nullptr)&&(this->id()==var->id()))
-//        {
-//          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
-//          if(o!=nullptr)
-//            {
-//              setValue(o->value());
-//              if (!o->Tip().empty())
-//                this->setTip(o->Tip());
-//              if (!o->WhatThis().empty())
-//                this->setWhatThis(o->WhatThis());
-//              return true;
-//            }
-//          else
-//            return false;
-//        }
-//      else
-//        return false;
-//    }
+    //    virtual bool loadFromObjectValue(const ABC_Value* var) override
+    //    {
+    //      if ((var!=nullptr)&&(this->id()==var->id()))
+    //        {
+    //          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
+    //          if(o!=nullptr)
+    //            {
+    //              setValue(o->value());
+    //              if (!o->Tip().empty())
+    //                this->setTip(o->Tip());
+    //              if (!o->WhatThis().empty())
+    //                this->setWhatThis(o->WhatThis());
+    //              return true;
+    //            }
+    //          else
+    //            return false;
+    //        }
+    //      else
+    //        return false;
+    //    }
   protected:
     C** objectPtr_;
     T C::* m_;
@@ -2295,26 +2299,26 @@ protected:
       return new Implements_Simple_Value<T>(this->id(),this->value(),this->myVar(),this->Tip(), this->WhatThis());
     }
 
-//    virtual bool loadFromObjectValue(const ABC_Value* var) override
-//    {
-//      if ((var!=nullptr)&&(this->id()==var->id()))
-//        {
-//          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
-//          if(o!=nullptr)
-//            {
-//              setValue(o->value());
-//              if (!o->Tip().empty())
-//                this->setTip(o->Tip());
-//              if (!o->WhatThis().empty())
-//                this->setWhatThis(o->WhatThis());
-//              return true;
-//            }
-//          else
-//            return false;
-//        }
-//      else
-//        return false;
-//    }
+    //    virtual bool loadFromObjectValue(const ABC_Value* var) override
+    //    {
+    //      if ((var!=nullptr)&&(this->id()==var->id()))
+    //        {
+    //          auto o=dynamic_cast<const ABC_Simple_Value<T>*>(var);
+    //          if(o!=nullptr)
+    //            {
+    //              setValue(o->value());
+    //              if (!o->Tip().empty())
+    //                this->setTip(o->Tip());
+    //              if (!o->WhatThis().empty())
+    //                this->setWhatThis(o->WhatThis());
+    //              return true;
+    //            }
+    //          else
+    //            return false;
+    //        }
+    //      else
+    //        return false;
+    //    }
 
 
   protected:
@@ -2511,27 +2515,27 @@ protected:
       return new Implements_Simple_Value<std::string>(this->id(),this->Category(),this->myVar(),this->Tip(), this->WhatThis());
     }
 
-//    virtual bool loadFromObjectValue(const ABC_Value* var) override
-//    {
-//      if ((var!=nullptr)&&(this->id()==var->id()))
-//        {
-//          auto o=dynamic_cast<const ABC_Simple_Value<std::string>*>(var);
-//          if(o!=nullptr)
-//            {
+    //    virtual bool loadFromObjectValue(const ABC_Value* var) override
+    //    {
+    //      if ((var!=nullptr)&&(this->id()==var->id()))
+    //        {
+    //          auto o=dynamic_cast<const ABC_Simple_Value<std::string>*>(var);
+    //          if(o!=nullptr)
+    //            {
 
-//              setCategory(o->value());
-//              if (!o->Tip().empty())
-//                this->setTip(o->Tip());
-//              if (!o->WhatThis().empty())
-//                this->setWhatThis(o->WhatThis());
-//              return true;
-//            }
-//          else
-//            return false;
-//        }
-//      else
-//        return false;
-//    }
+    //              setCategory(o->value());
+    //              if (!o->Tip().empty())
+    //                this->setTip(o->Tip());
+    //              if (!o->WhatThis().empty())
+    //                this->setWhatThis(o->WhatThis());
+    //              return true;
+    //            }
+    //          else
+    //            return false;
+    //        }
+    //      else
+    //        return false;
+    //    }
   protected:
     C** objectPtr_;
     getter<C,Enum> get_;
@@ -2583,7 +2587,7 @@ protected:
     virtual Implements_Categorical* myVarPtr();
 
 
-     virtual Implements_Categorical<Enum> *to_PlainValue() const override;
+    virtual Implements_Categorical<Enum> *to_PlainValue() const override;
 
     typedef Implements_Categorical<Enum> C;
     virtual void reset() override
@@ -2758,23 +2762,23 @@ protected:
         }
       return out;
     }
-//    virtual bool loadFromObjectValue(const ABC_Value* source)override
-//    {
-//      if (sameFields(source))
-//        {
-//          for (std::size_t i=0; i<this->numChilds(); ++i)
-//            {
-//              auto s=source->getChild(this->ith_ChildName(i));
-//              if (s!=nullptr)
-//                {
-//                  this->getChild(ith_ChildName(i))->loadFromObjectValue(s);
-//                }
-//            }
-//          return true;
-//        }
-//      else
-//        return false;
-//    }
+    //    virtual bool loadFromObjectValue(const ABC_Value* source)override
+    //    {
+    //      if (sameFields(source))
+    //        {
+    //          for (std::size_t i=0; i<this->numChilds(); ++i)
+    //            {
+    //              auto s=source->getChild(this->ith_ChildName(i));
+    //              if (s!=nullptr)
+    //                {
+    //                  this->getChild(ith_ChildName(i))->loadFromObjectValue(s);
+    //                }
+    //            }
+    //          return true;
+    //        }
+    //      else
+    //        return false;
+    //    }
 
 
 
