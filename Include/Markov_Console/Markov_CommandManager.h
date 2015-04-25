@@ -49,6 +49,201 @@ namespace Markov_Console
 
   class ExpressionManager;
 
+
+  class Markov_CommandManagerVar: public Markov_IO::Implements_Complex_Value
+  {
+  public:
+
+    virtual bool push_CommandLine(std::string& line);
+
+
+    virtual bool processTokens(Markov_IO::Token_Stream &t);
+
+
+    virtual void KeyEvent(Markov_IO::Key k);
+
+
+    Markov_CommandManagerVar();
+    virtual ~Markov_CommandManagerVar();
+
+    std::string buildVersion()const;
+    std::string buildDate()const;
+    std::string uncommitedFiles()const;
+
+     virtual std::string version()const;
+    virtual std::string wellcomeMessage(unsigned ncols=80)const;
+
+    static std::string directory();
+
+    static std::string idVarName();
+
+    static std::string idTypeName();
+
+    static std::string fileName();
+
+    static std::string testName();
+
+    static std::string idCommandName(){ return "Command";}
+
+
+    virtual  std::vector<std::string>
+    complete(const std::string &hint,
+             const std::string& category)const
+
+    {
+      auto it= autoCmptByCategories.find(category);
+      if (it!=autoCmptByCategories.end())
+        {
+          Autocomplete a=it->second;
+          return a.complete(hint);
+        }
+      else
+        {
+          return {};
+        }
+    }
+
+
+    virtual  std::map<std::string,std::vector<std::string>>
+    complete(const std::string &hint,
+             const std::vector<std::pair<std::string, bool>>& categories)const
+    {
+      std::map<std::string,std::vector<std::string>> out;
+      for (std::pair<std::string,bool> cat:categories)
+        {
+          auto v=complete(hint,cat.first);
+          if (!v.empty())
+            out[cat.first]=v;
+        }
+      return out;
+
+    }
+    virtual  std::string check(const std::string &hint, const std::string& category){
+
+
+
+    }
+
+
+    virtual std::string check(const std::string &hint,
+                              const std::vector<std::pair<std::string,bool>>& categories)
+    {
+      std::string out;
+      return out;
+    }
+
+
+    virtual std::string  getDir()const {return dir_;}
+    virtual bool setDir(const std::string& dir)
+    {
+      dir_=dir;
+    }
+
+    virtual Markov_IO::ABC_IO* getIO()const {return io_;}
+    virtual void setIO(Markov_IO::ABC_IO* io){io_=io;}
+
+
+    virtual CommandHistory& getH(){return h;}
+
+    virtual void add_command(ABC_CommandVar* cmd);
+
+    ABC_CommandVar const* getCommand(const std::string& cmdlabel)const
+    {
+      auto it=cmds.find(cmdlabel);
+      if (it!=cmds.end())
+        return it->second;
+      else
+        return nullptr;
+    }
+
+    ABC_CommandVar * getCommand(const std::string& cmdlabel)
+    {
+      auto it=cmds.find(cmdlabel);
+      if (it!=cmds.end())
+        return it->second;
+      else
+        return nullptr;
+    }
+
+    Markov_IO::ABC_Var* getVar(const std::string& name)
+    {
+      auto it=vars.find(name);
+      if (it!=vars.end())
+        return it->second;
+      else
+        return nullptr;
+
+
+    }
+
+
+
+    virtual  bool has_command(const std::string& name)const;
+
+    virtual bool has_var(const std::string& name)const;
+
+
+
+
+
+
+    static std::size_t getVersion(const std::string& line);
+
+    static std::string getHelpDir();
+
+
+  protected:
+    Markov_IO::ABC_IO* io_;
+
+    ExpressionManager* e;
+
+    std::string dir_;
+
+    std::map<std::string, ABC_CommandVar*> cmds;
+
+    std::map<std::string, Markov_IO::ABC_Var*> vars;
+
+
+    std::map<std::string, std::map<std::string, Markov_IO::ABC_Var*> > varByType;
+
+    Autocomplete varsl;
+
+    std::map<std::string,Autocomplete> autoCmptByCategories;
+
+
+    std::deque<Token> tokens;
+
+    bool lastCmdRst;
+
+    CommandHistory h;
+
+    virtual void Loadcommands();
+    virtual void LoadTypes();
+
+
+    // ABC_Environment interface
+  public:
+    virtual void putOut(const std::string &m) const
+    {
+      getIO()->put(m);
+    }
+    virtual void putErrorOut(const std::string &m) const
+    {
+      getIO()->putError(m);
+    }
+
+    virtual ABC_Command *getCommand(const Markov_IO::Token_New &t);
+    bool processVariable(ExpressionManager &e);
+    bool processCommand(ExpressionManager &e);
+    Markov_IO::ABC_Value *getClass(std::string name);
+
+    void add_var(Markov_IO::ABC_Var *v);
+
+
+  };
+
+
+
   class Markov_CommandManager: public Markov_IO::ABC_Environment
   {
   public:
@@ -86,13 +281,13 @@ namespace Markov_Console
     virtual void process(ExpressionManager &e);
 
 
-    //  virtual bool check_tokens(const Markov_IO::Token_Buffer &b, std::string candidate, std::string *errMessage);
+//      virtual bool check_tokens(const Markov_IO::Token_Buffer &b, std::string candidate, std::string *errMessage);
 
 
-    //   virtual std::string try_world(Markov_Console::ExpressionManager& exp);
+       virtual std::string try_world(Markov_Console::ExpressionManager& exp);
 
 
-    //    virtual std::vector<std::string> complete(Markov_Console::ExpressionManager& exp);
+        virtual std::vector<std::string> complete(Markov_Console::ExpressionManager& exp);
 
 
 

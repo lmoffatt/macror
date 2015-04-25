@@ -7,12 +7,108 @@
 #include <tuple>
 
 #include <Markov_Console/Token.h>
+
 #include "Markov_IO/ABC_Var.h"
 
 
 namespace Markov_Console
 {
   class Markov_CommandManager;
+  class Markov_CommandManagerVar;
+
+
+
+
+
+
+  // TODO: root ABC_Command in the hierarchy
+  class ABC_CommandVar : public Markov_IO::Implements_Complex_Value
+  {
+  public:
+       virtual ~ABC_CommandVar();
+    /// virtual formated output
+
+
+
+   // TODO: constructor based on vector of tuples
+
+    ABC_CommandVar(Markov_CommandManagerVar* cm,
+        const std::string& commandName,
+                   const std::string &commandClass,
+                   const std::string &tip,
+                   const std::string &whatthis,
+                std::vector<Implements_ValueId *> mandatoryInput,
+                std::vector<Implements_ValueId* > OptionalInput);
+
+    ABC_CommandVar(){}
+
+
+
+
+
+
+    bool run(Markov_IO::Token_Stream &tokenList);
+  protected:
+      std::map<std::string,bool> isMandatoryField_;
+  public:
+    virtual bool isMeasure() const
+    {
+      return false;
+    }
+    virtual bool isVariable() const
+    {
+      return false;
+    }
+    virtual bool isBuildIn() const
+    {
+      return true;
+    }
+    virtual Markov_IO::Token_Stream toTokens() const
+    {
+      return {};
+    }
+    virtual bool processTokens(Markov_IO::Token_Stream &t)
+    {
+      return false;
+    }
+
+  protected:
+    virtual Markov_IO::ABC_Var *toSameVar(const Markov_IO::ABC_Value *) const
+    {
+      return nullptr;
+    }
+    virtual Markov_IO::ABC_Measure *toMeasure(const Markov_IO::ABC_Value *) const
+    {
+      return nullptr;
+    }
+
+  public:
+    static std::string ClassName()
+    {
+      return "ABC_Command";
+    }
+
+    virtual std::string myClass() const
+    {
+      return ClassName();
+    }
+
+    virtual std::set<std::string> mySuperClasses() const
+    {
+      return {ClassName()};
+    }
+
+  protected:
+    Markov_CommandManagerVar *cm_;
+
+    
+    // ABC_Value interface
+  public:
+    virtual std::vector<std::string> complete(const std::string& hint,const std::string& category){}
+    virtual bool check(const std::string& hint,const std::string& category){}
+  };
+
+
 
 
   // TODO: root ABC_Command in the hierarchy
@@ -113,19 +209,19 @@ namespace Markov_Console
                      const std::vector<std::string>& OutputValue){return InputValue==OutputValue;}
 
 
-    static std::string directory();
+      static std::string directory();
 
-    static std::string varName();
+      static std::string varName();
 
-    static std::string typeName();
+      static std::string typeName();
 
-    static std::string fileName();
+      static std::string fileName();
 
-    static std::string testName();
+      static std::string testName();
 
 
 
-    bool run(Markov_IO::Token_Buffer &tokenList);
+    bool run(Markov_IO::Token_Stream tokenList);
   protected:
     virtual void errorMessage(const std::string& errmsg);
 
@@ -146,6 +242,7 @@ namespace Markov_Console
 
 
   };
+
 
 }
 

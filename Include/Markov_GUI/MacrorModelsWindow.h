@@ -6,7 +6,7 @@ class MacrorModelsWindow: public ABC_ObjectsWindow
 {
     Q_OBJECT
 public:
-    MacrorModelsWindow(Markov_Console::Markov_CommandManager* cm,
+    MacrorModelsWindow(Markov_Console::Markov_CommandManager *cm,
                        QWidget* parent=0);
 
 public slots:

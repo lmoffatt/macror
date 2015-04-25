@@ -33,8 +33,8 @@ class MacrorMainWindow : public QMainWindow
 public:
 
     MacrorMainWindow(QWidget *parent = 0,
-                     Markov_Console::Markov_CommandManager* cm=
-        new Markov_Console::Markov_CommandManager());
+                     Markov_Console::Markov_CommandManagerVar* cm=
+        new Markov_Console::Markov_CommandManagerVar());
 
     void createGraph(Markov_Plot::GraphicPage *graph);
 
@@ -169,7 +169,7 @@ private:
 
     QList<Markov_Plot::GraphicPage*> graphWindows;
 
-    Markov_Console::Markov_CommandManager* cm_;
+    Markov_Console::Markov_CommandManagerVar* cm_;
 
 
 

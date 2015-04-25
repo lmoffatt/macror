@@ -3,219 +3,283 @@
 
 namespace Markov_Console {
 
+
+
+  void ExpressionView::KeyEvent(Markov_IO::Key k)
+  {
+    switch(k)
+      {
+      case Markov_IO::Key_Home:
+        move_Home();
+        break;
+      case Markov_IO::Key_Left:
+        move_Left();
+        break;
+      case Markov_IO::Key_Backspace:
+        backErase();
+        break;
+      case Markov_IO::Key_Right:
+        move_Right();
+        break;
+      case Markov_IO::Key_Up:
+        history_up();
+        break;
+      case Markov_IO::Key_Down:
+        history_down();
+        break;
+
+      case Markov_IO::Key_Tab:
+        suggestCompletion();
+        break;
+      case Markov_IO::Key_PageUp:
+      case Markov_IO::Key_PageDown:
+        break;
+      case Markov_IO::Key_Space:
+        putText(' ');
+        break;
+      case Markov_IO::Key_Return:
+        putReturn();
+        break;
+      default:
+        putText(Markov_IO::toText(k));
+        break;
+      }
+    previous_key=k;
+  }
+
+
   void ExpressionManager::move_Left()
   {
-    if (p_>0)
+    if(!b_.empty()&&(b_.back().tok()==Markov_IO::Token_New::EMPTY))
+      b_.pop_back();
+
+    if((!b_.empty())&&(b_.back().tok()!=Markov_IO::Token_New::EOL))
       {
-        --p_;
-        io_->move_cursor(-1);
-      }
-    else if (b_.currToken().tok()!=Markov_IO::Token_New::EOL)
-      {
-        auto pr=b_.currToken().toString();
-        b_.pop_back();
-        currWord_.insert(0,pr+" ");
-        p_=pr.size();
-        --p_;
-        io_->move_cursor(-1);
-      }
+        Markov_IO::Token_New &t=b_.back();
+        char ch=t.popLastChar();
+        currWord_.insert(currWord_.begin(),ch);
+        cm_->getIO()->move_cursor(-1);
+      }  // else "beep?"
+
   }
+
 
   void ExpressionManager::backErase()
   {
-    if (p_>0)
-      {
-        --p_;
-        io_->erase_from_cursor(-1);
-        currWord_.erase(p_);
-      }
-    else if (b_.currToken().tok()!=Markov_IO::Token_New::EOL)
-      {
-        auto pr=b_.currToken().toString();
-        b_.pop_back();
-        currWord_.insert(0,pr);
-        p_=pr.size();
-        --p_;
-        io_->erase_from_cursor(-1);
-        currWord_.erase(p_);
-      }
-  }
+    if(!b_.empty()&&(b_.back().tok()==Markov_IO::Token_New::EMPTY))
+      b_.pop_back();
 
+    if((!b_.empty())&&(b_.back().tok()!=Markov_IO::Token_New::EOL))
+      {
+        cm_->getIO()->erase_from_cursor(currWord_.size());
+        currWord_.clear();
+        Markov_IO::Token_New &t=b_.back();
+        t.popLastChar();
+        cm_->getIO()->move_cursor(-1);
+      }  // else "beep?"
+
+  }
   void ExpressionManager::move_Right()
   {
-    if ((!currWord_.empty())&&(p_<currWord_.size()-1))
+    if (!currWord_.empty())
       {
-        ++p_;
-        io_->move_cursor(+1);
+        char c=currWord_.front();
+        currWord_.erase(0,1);
+        if (b_.empty())
+          b_.push_back(Markov_IO::Token_New(c));
+        else
+          {
+            Markov_IO::Token_New &t=b_.back();
+            if (!t.CharIsSuccesfullyFeed(c))
+              b_.push_back(Markov_IO::Token_New(c));
+
+          }
+        cm_->getIO()->move_cursor(1);
       }
   }
 
   void ExpressionManager::move_Home()
   {
-    int n=p_;
-    while (b_.currToken().tok()!=Markov_IO::Token_New::EOL)
+    int n=0;
+    if (!b_.empty())
       {
-        auto pr=b_.currToken().toString();
-        b_.pop_back();
-        currWord_.insert(0,pr);
-        n+=pr.size();
+        std::size_t pos=b_.size()-1;
+        while (pos>0&&(b_[pos].tok()!=Markov_IO::Token_New::EOL))
+          {
+            auto pr=b_[pos].str();
+            --pos;
+            n-=pr.size();
+            currWord_.insert(0,pr);
+          }
+
+        cm_->getIO()->move_cursor(n);
       }
-    io_->move_cursor(n);
-    p_=0;
   }
-
-  std::string ExpressionManager::currentLine()
+  std::string ExpressionManager::currentLine()const
   {
-    std::string buffline=b_.moveStartLine().tailString();
-    buffline.append(currWord_.substr(0,p_));
-    return buffline;
+    std::size_t pos=b_.size()-1;
+    while ((pos>0)&& b_.at(pos-1).tok()!=Markov_IO::Token_New::EOL)
+      --pos;
 
+    std::string buffline;
+    while (pos<b_.size())
+      {
+        buffline.append(b_.at(pos).str());
+        ++pos;
+
+      }
+    return buffline;
   }
 
   void ExpressionManager::history_up()
   {
-
     std::string line=currentLine();
-    io_->erase_from_cursor(currWord_.size()-p_);
-    currWord_.erase(p_);
+    getStringandCleanFromCursor();
     std::string tail=cm_->getH().up(line);
-    io_->put(tail);
-    currWord_+=tail;
+    cm_->getIO()->put(tail);
+    b_<<tail;
   }
 
   void ExpressionManager::history_down()
   {
-
     std::string line=currentLine();
-    io_->erase_from_cursor(currWord_.size()-p_);
-    currWord_.erase(p_);
+    getStringandCleanFromCursor();
     std::string tail=cm_->getH().down(line);
-    io_->put(tail);
-    currWord_+=tail;
+    cm_->getIO()->put(tail);
+    b_<<tail;
   }
+
+  void ExpressionManager::getStringandCleanFromCursor()
+  {
+    std::size_t n=currWord_.size();
+    currWord_.clear();
+    cm_->getIO()->erase_from_cursor(n);
+  }
+
 
   void ExpressionManager::suggestCompletion()
 
   {
-    std::vector<std::string> res=cm_->complete(*this);
+    getStringandCleanFromCursor();
+    auto n=b_.size()-1;
 
-    currWord_.erase(p_);
-    if ((res.size()==1)&&(res.front()[0]!='<')&&(res.front()[0]!='['))
+    std::string w=b_.back().str();
+    std::map<std::string,std::vector<std::string>>
+        res=cm_->complete(b_.back().str(),categories_[n]);
+    if ((res.size()==1)&&(res.begin()->second.size()==1))
       {
-        auto tail=Markov_Console::Autocomplete::suggestedCharacters(
-              res,currWord_);
-        currWord_+=tail;
-        io_->put(tail);
-        p_+=tail.size();
 
+        auto tail=Markov_Console::Autocomplete::suggestedCharacters(res,w);
+        cm_->getIO()->put(tail);
+        b_<<tail;
       }
-    else if(res.size()>0)
+    else  if ((previous_key==Markov_IO::Key_Tab)&&(res.size()>0))
       {
-        if (previous_key==Markov_IO::Key_Tab)
+        auto tail=Markov_Console::Autocomplete::suggestedCharacters(res,w);
+        cm_->getIO()->put(tail);
+        b_<<tail;
+        bool ok;
+        std::string fieldselect = cm_->getIO()->getItemFromSeveralLists(w,res,ok,0);
+        if (ok && !fieldselect.empty())
           {
-
-            auto tail=Markov_Console::Autocomplete::suggestedCharacters(res,currWord_);
-            //auto pp=c.position();
-            currWord_+=tail;
-            io_->put(tail);
-            p_+=tail.size();
-            std::vector<std::string> list;
-            std::string field;
-            for (auto item:res)
+            auto tail=Markov_Console::Autocomplete::suggestedCharacters(
+            {fieldselect},w);
+            cm_->getIO()->put(tail);
+            b_<<tail;
+          }
+      }
+    else
+      {
+        std::string fields;
+        for (std::pair<std::string,bool>e:categories_[n])
+          {
+            if (e.second)
               {
-                if ((item.front()=='<')||(item.front()=='['))
-                  field=item.substr(1,item.size()-2);
-                else
-                  list.push_back(item);
-              }
-            if (list.size()>0)
-              {
-                bool ok;
-                std::string fieldselect = io_->getItemFromList(currWord_,list,ok,0);
-                if (ok && !fieldselect.empty())
-                  {
-                    auto tail=Markov_Console::Autocomplete::suggestedCharacters({fieldselect},currWord_);
-                    currWord_+=tail;
-                    io_->put(tail);
-                    p_+=tail.size();
-
-                  }
+                fields.push_back('<');
+                fields.append(e.first);
+                fields.append("> ,");
               }
             else
               {
-                std::string fields;
-                for (std::size_t i=0;i<res.size()-1; i++)
-                  {
-                    if ((res[i].front()=='<')||(res[i].front()=='['))
-                      fields+=res[i]+",";
-
-                  }
-
-                io_->showMessage(field);
+                fields.push_back('[');
+                fields.append(e.first);
+                fields.append("] ,");
               }
           }
+        fields.pop_back();
+        cm_->getIO()->showMessage(fields);
       }
-
   }
 
-  bool ExpressionManager::putSpace()
-  {
-    currWord_.erase(p_);
-    std::string err=cm_->check(*this);
-    if (!err.empty())
-      {
-        io_->showMessage(err);
-        return false;
 
-      }
-    else
-      {
-        b_<<currWord_;
-        b_.setPosEnd();
-        currWord_.clear();
-        p_=0;
-        return true;
-      }
-
-  }
+  //  bool ExpressionManager::putSpace()
+  //  {
+  //    getStringandCleanFromCursor();
+  //    w.push_back(' ');
+  //    std::string err=cm_->check(w,categories_[cursorTok_]);
+  //    if (!err.empty())
+  //      {
+  //        cm_->getIO()->showMessage(err);
+  //        return false;
+  //      }
+  //    else
+  //      {
+  //        b_<<w;
+  //        cursorTok_=b_.size()-1;
+  //        p_=b_.back().str().size()-1;
+  //        return true;
+  //      }
+  //  }
 
   bool ExpressionManager::putReturn()
   {
-    if (!putSpace())
+    if (!putText('\n'))
       return false;
     else
       {
-        currWord_="\n";
-        p_=1;
-        if (!putSpace())
-          return false;
-        else
-          {
-          cm_->process(*this);
-          return true;
-          }
+        Markov_IO::Token_Stream p(b_);
+        return cm_->processTokens(p);
       }
   }
 
-  bool ExpressionManager::putText(std::string s)
-  {
-    currWord_.erase(p_);
-    auto old=currWord_;
-    currWord_+=s;
-    std::string err=cm_->check(*this);
-    if (!err.empty())
-      {
-        currWord_=old;
-        io_->showMessage(err);
-        return false;
 
+
+  bool ExpressionManager::putText(char c)
+  {
+    Markov_IO::Token_New told;
+    if (b_.empty())
+      {
+        b_.push_back(Markov_IO::Token_New(c));
       }
     else
       {
-        p_+=s.size();
+        Markov_IO::Token_New &t=b_.back();
+        told=t;
+        if (!t.CharIsSuccesfullyFeed(c))
+          b_.push_back(Markov_IO::Token_New(c));
+      }
+    std::string err=cm_->check(b_.back().str(),categories_[b_.size()-1]);
+    if (!err.empty())
+      {
+        b_.back()=told;
+        cm_->getIO()->showMessage(err);
+        return false;
+      }
+    else
+      {
+
+        std::string o;
+        o.push_back(c);
+        cm_->getIO()->put(o);
         return true;
       }
+
   }
+
+
+
+
+
 
   void ExpressionManager::KeyEvent(Markov_IO::Key k)
   {
@@ -247,7 +311,7 @@ namespace Markov_Console {
       case Markov_IO::Key_PageDown:
         break;
       case Markov_IO::Key_Space:
-        putSpace();
+        putText(' ');
         break;
       case Markov_IO::Key_Return:
         putReturn();
@@ -259,24 +323,68 @@ namespace Markov_Console {
     previous_key=k;
   }
 
+  void ExpressionManager::clean()
+  {
+    int n=0;
+    if (!b_.empty())
+      {
+        std::size_t pos=b_.size()-1;
+        while (pos>0&&(b_[pos].tok()!=Markov_IO::Token_New::EOL))
+          {
+            auto pr=b_[pos].str();
+            --pos;
+            n-=pr.size();
+          }
 
+        cm_->getIO()->erase_from_cursor(n);
+      }
+  }
 
+  bool ExpressionParser::run()
+  {
 
+  }
 
+  void ExpressionParser::clear()
+  {
 
+  }
 
+  void ExpressionParser::assignVar()
+  {
+    Markov_IO::Token_New &t=t_.currToken();
+    auto pos=t_.pos();
+    if (t.tok()==Markov_IO::Token_New::IDENTIFIER)
+      {
+        auto id=t.id();
+        std::string myclass;
 
+        if (cm_->has_command(id))
+          {
+            v_=cm_->getCommand(id);
+            if (v_!=nullptr)
+              v_->setTokens(&t_);
+          }
+        else if (cm_->has_var(id)&&(t_.nextToken(1).tok()==Markov_IO::Token_New::EOL))
+          {
+            v_= cm_->getCommand("show");
+            if (v_!=nullptr)
+              v_->setTokens(&t_);
+          }
+        else if (t_.toIdClass(id,myclass))
 
+          {
+            t_.setPos(pos);
+            v_=cm_->getClass(myclass);
+            if (v_!=nullptr)
+              v_->setTokens(&t_);
 
-
-
-
-
-
-
-
-
-
-
+          }
+      }
+    else
+      v_=nullptr;
+  }
 
 }
+
+

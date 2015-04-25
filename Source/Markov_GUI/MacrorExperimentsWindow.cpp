@@ -3,8 +3,7 @@
 
 
 
-MacrorExperimentsWindow::MacrorExperimentsWindow(
-        Markov_Console::Markov_CommandManager *cm,QWidget *parent):
+MacrorExperimentsWindow::MacrorExperimentsWindow(Markov_Console::Markov_CommandManager *cm, QWidget *parent):
     ABC_ObjectsWindow(cm,parent)
     {
 

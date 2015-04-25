@@ -25,7 +25,7 @@
 
 
 MacrorCommandWindow::MacrorCommandWindow(MacrorMainWindow *parent ,
-                                         Markov_Console::Markov_CommandManager* cm):
+                                         Markov_Console::Markov_CommandManagerVar *cm):
   QPlainTextEdit(parent),
   mw_(parent),
   cm_(cm),
@@ -33,10 +33,11 @@ MacrorCommandWindow::MacrorCommandWindow(MacrorMainWindow *parent ,
 {
   cm_->setIO(this);
 
-  cm_->add_command(new MacrorEditCommand(cm_));
-  cm_->add_command(new MacrorExitCommand(cm_,mw_));
-  cm_->add_command(new MacrorCreateCommand(cm_));
-  cm_->add_command(new Markov_GUI::CdCommandGUI(cm_,mw_));
+  //TODO: add them later
+//  cm_->add_command(new MacrorEditCommand(cm_));
+//  cm_->add_command(new MacrorExitCommand(cm_,mw_));
+//  cm_->add_command(new MacrorCreateCommand(cm_));
+//  cm_->add_command(new Markov_GUI::CdCommandGUI(cm_,mw_));
   unsigned windowWidth=35;
   put(cm_->wellcomeMessage(windowWidth));
 
@@ -64,6 +65,8 @@ void MacrorCommandWindow::commandLine(const QString& line)
 
 void MacrorCommandWindow::addCommandLine(const QString& line)
 {
+  MarkovCommand()->add_tokens(line.toStdString());
+
   moveCursor(QTextCursor::End);
   insertPlainText(line);
 
@@ -134,8 +137,8 @@ bool MacrorCommandWindow::modelChannel(const QString& varname)
 
 bool MacrorCommandWindow::edit(const QString& varname)
 {
-  MacrorEditWindow* eW=new MacrorEditWindow(varname,cm_);
-  eW->show();
+  //MacrorEditWindow* eW=new MacrorEditWindow(varname,cm_);
+  //eW->show();
   //BUG: does not make sense to return a boolean since it does not return nothing
   return true;
 }
@@ -178,6 +181,12 @@ std::string MacrorCommandWindow::getItemFromList(const std::string &title, const
  
 }
 
+std::string MacrorCommandWindow::getItemFromSeveralLists(const std::string &title, const std::map<std::string, std::vector<std::string> > &list, bool &ok, std::size_t current)
+{
+  return Markov_GUI::MyInputDialog::getItem(this,title,list.begin()->second,&ok,current);
+
+}
+
 void MacrorCommandWindow::erase_from_cursor(int n)
 {
   QTextCursor c=textCursor();
@@ -193,8 +202,20 @@ void MacrorCommandWindow::move_cursor(int n)
   setTextCursor(c);
 }
 
+void MacrorCommandWindow::cleanLastLine()
+{
+  moveCursor(QTextCursor::End);
 
-const Markov_Console::Markov_CommandManager*
+
+}
+
+void MacrorCommandWindow::move_end()
+{
+  moveCursor(QTextCursor::End);
+}
+
+
+const Markov_Console::Markov_CommandManagerVar*
 MacrorCommandWindow::MarkovCommand()const
 {
   return cm_;
@@ -207,229 +228,13 @@ bool MacrorCommandWindow::lastCommandResult()const
 
 void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
 {
-  message->close();
-  if (textCursor().blockNumber()!=blockCount()-1)
-    moveCursor(QTextCursor::End);
-  QTextCursor c=textCursor();
-  auto p=c.position();
 
-  switch(e->key())
-    {
-    case Qt::Key_Home:
-      {
-        moveCursor(QTextCursor::StartOfBlock);
-        moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
-        moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
-        break;
-      }
-    case Qt::Key_Left:
-      {
-        if(textCursor().positionInBlock()>2)
-          {
-            moveCursor(QTextCursor::Left,QTextCursor::MoveAnchor);
-            tail.prepend(cmdWord[0]);
-            cmdWord.chop(1);
+  Markov_IO::Key k=static_cast<Markov_IO::Key>(e->key());
+  cm_->KeyEvent(k);
 
-          }
-
-      }
-      break;
-    case Qt::Key_Backspace:
-      {
-        if(textCursor().positionInBlock()>2)
-          {
-            QPlainTextEdit::keyPressEvent(e);
-            tail.clear();
-            if (!cmdWord.isEmpty())
-              cmdWord.chop(1);
-            else
-              cmdLine.chop(1);
-          }
-
-      }
-      break;
-    case Qt::Key_Right:
-      {
-        moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
-        if (!tail.isEmpty())
-          {
-            cmdWord.append(tail[0]);
-            tail.remove(0,1);
-          }
-      }
-      break;
-    case Qt::Key_Up:
-      {
-        tail=cm_->getH().up((cmdLine+cmdWord).toStdString()).c_str();
-
-        c.setPosition(p);
-        c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
-        c.removeSelectedText();
-        c.insertText(tail);
-        c.setPosition(p);
-        setTextCursor(c);
-      }
-      break;
-
-      //    case Qt::Key_Right:
-    case Qt::Key_Down:
-      {
-
-        tail=cm_->getH().down((cmdLine+cmdWord).toStdString()).c_str();
-        c.setPosition(p);
-        c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
-        c.removeSelectedText();
-        c.insertText(tail);
-        c.setPosition(p);
-        setTextCursor(c);
-      }
-      break;
-
-    case Qt::Key_Tab:
-      {
-        c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
-        c.removeSelectedText();
-        setTextCursor(c);
-
-
-        std::vector<std::string> res=
-            cm_->complete(cmdWord.toStdString());
-
-        if ((res.size()==1)&&(res.front()[0]!='<')&&(res.front()[0]!='['))
-          {
-            tail=
-                Markov_Console::Autocomplete::suggestedCharacters(
-                  res,cmdWord.toStdString()).c_str();
-            c.movePosition(QTextCursor::EndOfLine);
-            c.insertText(tail);
-            setTextCursor(c);
-            cmdWord+=tail;
-            tail.clear();
-
-           }
-        else if(res.size()>0)
-          {
-            if (previous_key==Qt::Key_Tab)
-              {
-
-                tail=Markov_Console::Autocomplete::suggestedCharacters(res,cmdWord.toStdString()).c_str();
-                //auto pp=c.position();
-                c.insertText(tail);
-                setTextCursor(c);
-                cmdWord+=tail;
-                tail.clear();
-
-                QStringList list;
-                QString field;
-                for (auto item:res)
-                  {
-                    if ((item.front()=='<')||(item.front()=='['))
-                      field=QString(item.substr(1,item.size()-2).c_str());
-                    else
-                      list<<QString(item.c_str());
-                  }
-                if (list.size()>0)
-                  {
-                    bool ok;
-                    QString fieldselect = Markov_GUI::MyInputDialog::getItem(this,cmdLine,list,&ok,0);
-                    std::stringstream ss(fieldselect.toStdString());
-                    Markov_Console::Token tok;
-                    tok.get(ss);
-                    ss.get();
-                    if (ss)
-                      {
-                        fieldselect.prepend('"');
-                        fieldselect.append('"');
-                      }
-                    if (ok && !fieldselect.isEmpty())
-                      {
-                        c.setPosition(c.position()-cmdWord.size(),QTextCursor::KeepAnchor);
-                        c.removeSelectedText();
-                        setTextCursor(c);
-                        c.insertText(fieldselect);
-                        setTextCursor(c);
-
-                        cmdWord=fieldselect;
-                      }
-                  }
-                else
-                  {
-                    QString field;
-                    for (std::size_t i=0;i<res.size()-1; i++)
-                      {
-                        if ((res[i].front()=='<')||(res[i].front()=='['))
-                          field+=QString(res[i].c_str())+QString(",");
-
-                      }
-                    field+=res.back().c_str();
-
-                  }
-              }
-          }
-
-      }
-
-      break;
-    case Qt::Key_PageUp:
-    case Qt::Key_PageDown:
-      break;
-    case Qt::Key_Space:
-      {
-        QTextCursor c=textCursor();
-        c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
-        c.removeSelectedText();
-        QString err=cm_->add_single_token(cmdWord.toStdString()).c_str();
-        if (!err.toStdString().empty())
-          {
-            c.insertText("\n");
-            setTextCursor(c);
-            putError(err.toStdString());
-            cmdWord.clear();
-            c.insertText(">>"+cmdLine);
-            setTextCursor(c);
-          }
-        else
-          {
-            cmdLine+=cmdWord+" ";
-            c.insertText(" ");
-            setTextCursor(c);
-            cmdWord.clear();
-
-          }
-      }
-      break;
-    default:
-      {
-        QString s=e->text();
-        if (s=="\r")
-          {
-            cmdLine+=cmdWord+tail;
-            c.movePosition(QTextCursor::EndOfLine);
-
-            c.insertText("\n");
-            setTextCursor(c);
-
-            commandLine(cmdLine);
-            put(">>");
-            cm_->clear_tokens();
-            cmdLine.clear();
-            cmdWord.clear();
-            tail.clear();
-            cm_->getH().reset();
-
-          }
-        else
-          {
-            cmdWord+=s;
-            c.insertText(s);
-            setTextCursor(c);
-
-          }
-      }
-
-    }
-  previous_key=e->key();
 }
+
+
 
 
 ///// get a string from the input source

@@ -17,14 +17,14 @@
 
 
 MacrorMainWindow::MacrorMainWindow(QWidget *parent,
-                                   Markov_Console::Markov_CommandManager* cm):
+                                   Markov_Console::Markov_CommandManagerVar* cm):
     QMainWindow(parent),
     commandWindow(new MacrorCommandWindow(this,cm)),
     commandHistory(new MacrorCommandHistory(cm,parent)),
-    modelsWindow(new MacrorModelsWindow(cm,parent)),
-    patchsWindow(new MacrorPatchsWindow(cm,parent)),
-    experimentsWindow(new MacrorExperimentsWindow(cm,parent)),
-    graphWindows(),
+    //modelsWindow(new MacrorModelsWindow(cm,parent)),
+    //patchsWindow(new MacrorPatchsWindow(cm,parent)),
+    //experimentsWindow(new MacrorExperimentsWindow(cm,parent)),
+    //graphWindows(),
     cm_(cm)
 {
     createActions();
@@ -34,8 +34,9 @@ MacrorMainWindow::MacrorMainWindow(QWidget *parent,
     createDockWindows();
 
     setWindowTitle(tr("Macro-R"));
-    Markov_Console::ABC_Command* plcmd=new Markov_Plot::PlotCommand(cm,this);
-    cm->add_command(plcmd);
+  // include plot later
+    //  Markov_Console::ABC_Command* plcmd=new Markov_Plot::PlotCommand(cm,this);
+ //   cm->add_command(plcmd);
 
 }
 

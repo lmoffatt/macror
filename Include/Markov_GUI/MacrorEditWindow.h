@@ -44,13 +44,12 @@ public:
 };
 
 
-
-
 class MacrorEditWindow: public QDialog
 {
     Q_OBJECT
 public:
-    MacrorEditWindow(QString Qvarname,Markov_Console::Markov_CommandManager* cm,
+    MacrorEditWindow(QString Qvarname,
+                     Markov_Console::Markov_CommandManager* cm,
                        QWidget* parent=0);
 
     MacrorEditWindow(QString fieldName,MacrorEditWindow* parent);

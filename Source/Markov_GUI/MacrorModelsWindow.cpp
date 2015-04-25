@@ -4,8 +4,7 @@
 
 
 
-MacrorModelsWindow::MacrorModelsWindow(
-        Markov_Console::Markov_CommandManager *cm,QWidget *parent):
+MacrorModelsWindow::MacrorModelsWindow(Markov_Console::Markov_CommandManager *cm, QWidget *parent):
     ABC_ObjectsWindow(cm,parent)
     {
 

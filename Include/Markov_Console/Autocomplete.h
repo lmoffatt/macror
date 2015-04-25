@@ -50,14 +50,21 @@ namespace  Markov_Console {
 
     std::vector<std::string> complete(const std::string &hint) const;
 
+    bool check(const std::string &hint)const;
+
     bool has(const std::string& item) const;
 
 
     void push_back(std::string newItem);
     void clear();
 
-    static std::string suggestedCharacters(const std::vector<std::string>& autocompleteList,
-                                           const std::string& hint);
+    static std::string suggestedCharacters(
+        const std::vector<std::string>& autocompleteList,
+        const std::string& hint);
+    static std::string suggestedCharacters(
+        const std::map<std::string,std::vector<std::string>>& autocompleteList,
+        const std::string& hint);
+
   private:
     std::set<std::string> items;
 

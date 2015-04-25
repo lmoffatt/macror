@@ -29,43 +29,71 @@ namespace  Markov_Console {
   std::vector<std::string> Autocomplete::complete(const std::string &hint) const
   {
 
-    auto lo=items.lower_bound(hint);
-    std::string hintup=hint;
-    hintup.back()++;
-    auto up=items.upper_bound(hintup);
-    if (hint.empty())
-      {lo=items.begin();
-        up=items.end();}
-
-
-
+    auto    lo=items.begin();
+    auto    up=items.end();
+    if (!hint.empty())
+      {
+        lo=items.lower_bound(hint);
+        std::string hintup=hint;
+        hintup.back()++;
+        up=items.upper_bound(hintup);
+      }
     std::vector<std::string> res(lo,up);
 
     return res;
 
   }
 
-std::string Autocomplete::suggestedCharacters(const std::vector<std::string>& list, const std::string& hint)
-{
-  if (list.empty())
-    return "";
-  std::size_t i=0;
-  while ((i<list.size())&&((list[i][0]=='<')||(list[i][0]=='[')))
-    i++;
+  bool Autocomplete::check(const std::string &hint) const
+  {
+    if (hint.empty())
+      {
+        return !items.empty();
+      }
+    else
+      {
+        auto lo=items.lower_bound(hint);
+        std::string hintup=hint;
+        hintup.back()++;
+        auto up=items.upper_bound(hintup);
+        return lo!=up;
 
-  if (i==list.size())
-    return "";
+      }
+  }
 
-  std::size_t n=0;
+  std::string Autocomplete::suggestedCharacters(const std::vector<std::string>& list, const std::string& hint)
+  {
+    if (list.empty())
+      return "";
+    std::size_t i=0;
+    while ((i<list.size())&&((list[i][0]=='<')||(list[i][0]=='[')))
+      i++;
+
+    if (i==list.size())
+      return "";
+
+    std::size_t n=0;
 
 
-  while((n<hint.size())&&(n<list.back().size())&&(list.back()[n]==hint[n]))
-    n++;
-  std::size_t m=n;
-  while((m<list[i].size())&&(m<list.back().size())&&(list[i][m]==list.back()[m]))
-    m++;
-  return list[i].substr(n,m-n);
-}
+    while((n<hint.size())&&(n<list.back().size())&&(list.back()[n]==hint[n]))
+      n++;
+    std::size_t m=n;
+    while((m<list[i].size())&&(m<list.back().size())&&(list[i][m]==list.back()[m]))
+      m++;
+    return list[i].substr(n,m-n);
+  }
+
+  std::string Autocomplete::suggestedCharacters(
+      const std::map<std::string, std::vector<std::string> > &autocompleteList,
+      const std::string &hint)
+  {
+    std::vector<std::string> list;
+    for (std::pair<std::string,std::vector<std::string>> it:autocompleteList)
+      {
+        list.insert(list.end(),it.second.begin(),it.second.end());
+      }
+    return suggestedCharacters(list,hint);
+  }
 
 
 
@@ -76,10 +104,10 @@ std::string Autocomplete::suggestedCharacters(const std::vector<std::string>& li
 
 
 
-   void Autocomplete::clear()
-   {
-     items.clear();
-   }
+  void Autocomplete::clear()
+  {
+    items.clear();
+  }
 
 
 }
@@ -95,15 +123,15 @@ namespace Markov_Test
   {
 
     using namespace Markov_Console;
-     std::string Autocomplete_Test::TestName()
+    std::string Autocomplete_Test::TestName()
     {
       return "Autocomplete_Test";
     }
 
-     std::string Autocomplete_Test::myTest()const
-     {
-       return TestName();
-     }
+    std::string Autocomplete_Test::myTest()const
+    {
+      return TestName();
+    }
 
 
     MultipleTests Autocomplete_Test::AllTests(Markov_Console::Markov_CommandManager* , const std::string )
@@ -112,7 +140,7 @@ namespace Markov_Test
       return classInvariant();
     }
 
-     std::string Autocomplete_Test::testedClass()const
+    std::string Autocomplete_Test::testedClass()const
     {
       return "";
     }

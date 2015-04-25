@@ -7,7 +7,7 @@ class MacrorExperimentsWindow: public ABC_ObjectsWindow
 {
     Q_OBJECT
 public:
-    MacrorExperimentsWindow(Markov_Console::Markov_CommandManager* cm,
+    MacrorExperimentsWindow(Markov_Console::Markov_CommandManager *cm,
                        QWidget* parent=0);
 
 public slots:

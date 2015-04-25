@@ -1,12 +1,351 @@
 #include "Markov_Console/ABC_Command.h"
-#include "Markov_Console/Markov_CommandManager.h"
 
+#include "Markov_Console/Markov_CommandManager.h"
+#include  "Markov_Console/ExpressionManager.h"
 
 
 namespace Markov_Console
 
 
 {
+
+
+
+
+
+
+
+
+
+
+  ABC_CommandVar::~ABC_CommandVar(){}
+
+  ABC_CommandVar::ABC_CommandVar(Markov_CommandManagerVar *cm,
+                                 const std::string &commandName,
+                                 const std::string &commandClass,
+                                 const std::string &tip,
+                                 const std::string &whatthis,
+                                 std::vector<Markov_IO::Implements_ValueId *> mandatoryInput, std::vector<Markov_IO::Implements_ValueId *> OptionalInput):
+    Implements_ValueId(commandName,commandClass,tip,whatthis),
+    Markov_IO::Implements_Complex_Value(commandName,commandClass,tip,whatthis),
+    cm_(cm)
+  {
+
+    for (Implements_ValueId* m:mandatoryInput)
+      {
+        isMandatoryField_[m->id()]=true;
+        pushChild(m);
+      }
+    for (Implements_ValueId* o:OptionalInput)
+      {
+        isMandatoryField_[o->id()]=false;
+        pushChild(o);
+      }
+
+     cm_->pushChild(this);
+
+
+  }
+  ///  formated output
+
+
+
+  ///
+  /// \brief ABC_CommandVar::complete
+  /// \param e ExpressionManager buffer.
+  /// \return A vector containing plausible strings that complete the expression
+  ///  \pre  The first token in e is the name of the command
+  ///  \pre   the position in the buffer indicates
+  ///
+  ///  std::vector<std::string> ABC_Command::complete(const std::string& hint,const std::deque<Token>& tokenList)
+
+//  std::vector<std::string> ABC_CommandVar::complete(ExpressionManager &e)
+
+//  {
+//    auto hint=e.currWord_;
+//    auto tokenList=e.tokens().getToken();
+//    auto n=tokenList.size();
+
+//    for (std::size_t i=1; i<n; i++)
+//      {
+//        auto name=tokenList.at(i).toString();
+//        std::size_t j=0;
+//        while ((j<isMandatoryField_.size())&&
+//               (hasInput[j]||
+//                (!getCommandManager()->checkVariable(name,InputType(j)))))
+//          {
+//            if ((isMandatoryInput(j))&&(!hasInput[j]))
+//              {
+//                return {name+" is wrong; Mandatory input <"+InputName(j)+ "> expected"};
+//              }
+//            else
+//              j++;
+//          }
+//        if (j<numInputs())
+//          {
+//            hasInput[j]=true;
+//          }
+//        else
+//          {
+//            std::size_t k=0;
+//            while (k<numOutputs()&&
+//                   (hasOutput[k]||
+//                    !getCommandManager()->checkVariable(name,OutputType(k))
+//                    ))
+//              {
+//                if (isMandatoryOutput(k))
+//                  {
+//                    return {name+" is wrong; Mandatory output "+OutputName(k)+ "expected"};
+//                  }
+//                else
+//                  k++;
+//              }
+//            if (k<numOutputs())
+//              {
+//                hasOutput[k]=true;
+//              }
+//            else
+//              {
+//                std::string msg;
+//                for (std::size_t jj=0; jj<numInputs(); jj++)
+//                  if (!hasInput[jj])
+//                    msg+="<"+InputName(jj)+"> is missing; ";
+//                for (std::size_t kk=0; k<numOutputs(); kk++)
+//                  if (!hasOutput[kk])
+//                    msg+="<"+OutputName(kk)+"> is missing; ";
+
+//                return {name + "is wrong "+msg};
+//              }
+//          }
+//      }
+
+
+
+//      std::vector<std::string> res;
+//    for (std::size_t jj=0; jj<numInputs(); jj++)
+//      if ((!hasInput[jj])&&isMandatoryInput(jj))
+//        {
+//          res=getCommandManager()->complete(hint,InputType(jj));
+//          if (res.size()!=1)
+//            {
+//              res.insert(res.begin(),"<"+InputName(jj)+">");
+//            }
+//          return res;
+//        }
+//    for (std::size_t kk=0; kk<numOutputs(); kk++)
+//      if ((!hasOutput[kk])&& isMandatoryOutput(kk))
+//        {
+//          res=getCommandManager()->complete(hint,OutputType(kk));
+//          if (res.size()!=1)
+//            {
+//              res.insert(res.begin(),"<"+OutputName(kk)+">");
+//            }
+//          return res;
+//        }
+
+//    std::size_t numIOleft=0;
+//    for (std::size_t jj=0; jj<numInputs(); jj++)
+//      if ((!hasInput[jj]))
+//        {
+//          numIOleft++;
+//        }
+
+//    for (std::size_t kk=0; kk<numOutputs(); kk++)
+//      if ((!hasOutput[kk]))
+//        {
+//          numIOleft++;
+//        }
+
+
+
+//    for (std::size_t jj=0; jj<numInputs(); jj++)
+//      if ((!hasInput[jj]))
+//        {
+//          auto res2=getCommandManager()->complete(hint,InputType(jj));
+//          if ((res2.size()==1) && (numIOleft==1))
+//            return res2;
+//          res.insert(res.end(),"["+InputName(jj)+"]");
+//          res.insert(res.end(),res2.begin(),res2.end());
+//        }
+
+//    for (std::size_t kk=0; kk<numOutputs(); kk++)
+//      if ((!hasOutput[kk]))
+//        {
+//          auto res2= getCommandManager()->complete(hint,OutputType(kk));
+//          if ((res2.size()==1) && (numIOleft==1))
+//            return res2;
+//              res.insert(res.end(),"["+OutputName(kk)+"]");
+//              res.insert(res.end(),res2.begin(),res2.end());
+
+//        }
+//    if (res.empty())
+//      return {"Error", "too many parameters"};
+//    else
+//      return res;
+
+//  }
+
+
+
+//  bool ABC_CommandVar::check(ExpressionManager &e)
+//  {
+//    auto n=e.size();
+//    std::vector<bool> hasInput(numInputs(),false);
+//    std::vector<bool> hasOutput(numOutputs(),false);
+
+//    for (std::size_t i=1; i<n; i++)
+//      {
+//        auto name=e.at(i).Name();
+//        std::size_t j=0;
+//        while ((j<numInputs())&&
+//               (hasInput[j]||
+//                (!getCommandManager()->checkVariable(name,InputType(j)))))
+//          {
+//            if ((isMandatoryInput(j))&&(!hasInput[j]))
+//              {
+//                return name+" is wrong; Mandatory input <"+InputName(j)+ "> expected";
+//              }
+//            else
+//              j++;
+//          }
+//        if (j<numInputs())
+//          {
+//            hasInput[j]=true;
+//          }
+//        else
+//          {
+//            std::size_t k=0;
+//            while (k<numOutputs()&&
+//                   (hasOutput[k]||
+//                    !getCommandManager()->checkVariable(name,OutputType(k))
+//                    ))
+//              {
+//                if (isMandatoryOutput(k))
+//                  {
+//                    return name+" is wrong; Mandatory output "+OutputName(k)+ "expected";
+//                  }
+//                else
+//                  k++;
+//              }
+//            if (k<numOutputs())
+//              {
+//                hasOutput[k]=true;
+//              }
+//            else
+//              {
+//                std::string msg;
+//                for (std::size_t jj=0; jj<numInputs(); jj++)
+//                  if (!hasInput[jj])
+//                    msg+="<"+InputName(jj)+"> is missing; ";
+//                for (std::size_t kk=0; k<numOutputs(); kk++)
+//                  if (!hasOutput[kk])
+//                    msg+="<"+OutputName(kk)+"> is missing; ";
+
+//                return name + "is wrong "+msg;
+//              }
+//          }
+//      }
+//    return "";
+
+//  }
+
+
+
+//  bool ABC_CommandVar::run(std::deque<Token> &tokenList)
+//  {
+//    auto n=tokenList.size();
+//    std::vector<std::string> InputValue(numInputs(),"");
+//    std::vector<std::string> OutputValue(numOutputs(),"");
+
+//    for (std::size_t i=0; i<n; i++)
+//      {
+//        auto name=tokenList.at(i).Name();
+//        std::size_t j=0;
+//        while ((j<numInputs())&&
+//               (!InputValue[j].empty()||
+//                (!getCommandManager()->checkVariable(name,InputType(j)))))
+//          {
+//            if ((isMandatoryInput(j))&&(InputValue[j].empty()))
+//              {
+//                getCommandManager()->printErrorMessage(
+//                      name+" is wrong; Mandatory input <"+InputName(j)+ "> expected", this);
+//                return false;
+//              }
+//            else
+//              j++;
+//          }
+//        if (j<numInputs())
+//          {
+//            InputValue[j]=name;
+//          }
+//        else
+//          {
+//            std::size_t k=0;
+//            while (k<numOutputs()&&
+//                   (!OutputValue[k].empty()||
+//                    !getCommandManager()->checkVariable(name,OutputType(k))
+//                    ))
+//              {
+//                if ( isMandatoryOutput(k) && OutputValue[k].empty())
+//                  {
+//                    getCommandManager()->printErrorMessage(
+//                          name+" is wrong; Mandatory output <"+OutputName(k)+ "> expected",this);
+//                    return false;
+//                  }
+//                else
+//                  k++;
+//              }
+//            if (k<numOutputs())
+//              {
+//                OutputValue[k]=name;
+//              }
+//            else
+//              {
+//                std::string msg;
+//                for (std::size_t jj=0; jj<numInputs(); jj++)
+//                  if (InputValue[jj].empty())
+//                    msg+=InputName(jj)+" is missing; ";
+//                for (std::size_t kk=0; k<numOutputs(); kk++)
+//                  if (OutputValue[kk].empty())
+//                    msg+=OutputName(kk)+" is missing; ";
+
+//                getCommandManager()->printErrorMessage(
+//                      name + " is wrong "+msg,this);
+//                return false;
+//              }
+//          }
+//      }
+//    for  (std::size_t i=0; i<numInputs(); i++)
+//      if (isMandatoryInput(i)&& InputValue[i].empty())
+//        {
+//        getCommandManager()->printErrorMessage(
+//              "Mandatory input <"+ InputName(i)+"> is missing",this);
+//        return false;
+//        }
+
+//    for  (std::size_t i=0; i<numOutputs(); i++)
+//      if (isMandatoryOutput(i)&& OutputValue[i].empty())
+//        {
+//        getCommandManager()->printErrorMessage(
+//              "Mandatory output <"+ OutputName(i)+"> is missing",this);
+//        return false;
+//        }
+//    tokenList.clear();
+
+//    return run(InputValue,OutputValue);
+
+//  }
+
+
+
+
+
+
+
+
+
+
+
 
   std::vector<std::string> slice0 (const std::vector<ABC_Command::variable > data)
   {
@@ -376,7 +715,7 @@ namespace Markov_Console
 
   }
 
-  bool   ABC_Command::run(Markov_IO::Token_Buffer &tokenList)
+  bool   ABC_Command::run(Markov_IO::Token_Stream tokenList)
   {
     }
 
@@ -499,3 +838,4 @@ namespace Markov_Console
 
 
 }
+

@@ -11,6 +11,9 @@
 #include <unistd.h>
 #include <termios.h>
 
+#include <vector>
+
+
 
 int getUnbufChar(void)
 {
@@ -109,19 +112,36 @@ namespace Markov_Console
           case Markov_IO::Key_Up:
             if (pos>0)
               {
+                auto pos0=pos;
                 --pos;
-                erase_from_cursor(c.size());
-                c=list[pos];
-                std::cout<<c;
+                while ((pos>0)&&((list[pos].front()=='<')||(list[pos].front()=='[')))
+                  --pos;
+                if ((list[pos].front()=='<')||(list[pos].front()=='['))
+                  pos=pos0;
+                else
+                  {
+                    erase_from_cursor(c.size());
+                    c=list[pos];
+                    std::cout<<c;
+                  }
               }
             break;
           case Markov_IO::Key_Down:
             if (pos<list.size()-1)
               {
                 ++pos;
-                erase_from_cursor(c.size());
-                c=list[pos];
-                std::cout<<c;
+                auto pos0=pos;
+                while (pos<list.size()-1
+                       &&((list[pos].front()=='<')||(list[pos].front()=='[')))
+                  ++pos;
+                if ((list[pos].front()=='<')||(list[pos].front()=='['))
+                  pos=pos0;
+                else
+                  {
+                    erase_from_cursor(c.size());
+                    c=list[pos];
+                    std::cout<<c;
+                  }
               }
             break;
           case Markov_IO::Key_Return:
@@ -149,6 +169,22 @@ namespace Markov_Console
 
 
   }
+
+  std::string Markov_Console::getItemFromSeveralLists(const std::string &title, const std::map<std::string, std::vector<std::string> > &list, bool &ok, std::size_t current)
+  {
+   std::vector<std::string> commonList;
+   for (std::pair <std::string, std::vector<std::string>> p:list)
+     {
+       std::string field="<";
+       field.append(p.first);
+       field.append(">");
+       commonList.push_back(field);
+       commonList.insert(commonList.end(),p.second.begin(),p.second.end());
+     }
+   return getItemFromList(title,commonList,ok,current);
+
+  }
+
 
   Markov_IO::Key Markov_Console::getKey()
   {
@@ -191,7 +227,7 @@ namespace Markov_Console
           {
             return Markov_IO::Key_Left;
           }
-        else return Markov_IO::Key_Any;
+        else return Markov_IO::Key_Unknown;
       }
     else if (ch==' ')
       {
@@ -457,6 +493,190 @@ namespace Markov_Console
   }
 
 
+  Markov_Console::Markov_Console(Markov_CommandManagerVar *c, const std::string& fileCommandName):
+    cmV(c)
+  {
+    cmV->setIO(this);
+    std::string commandLine;
+    std::string commandWord;
+    std::size_t ncols=80;
+    std::string tail;
+
+    if (fileCommandName.empty())
+      {
+        char ch,ch0=' ';
+        std::cout <<cm->wellcomeMessage();
+        while(true)
+          {
+            std::cout<<">>";
+            commandWord.clear();
+            commandLine.clear();
+            ch=0;
+            while ((ch!='\n')&&(ch!='\r'))
+              {
+                ch=getUnbufChar();
+                if (ch=='\t')
+                  {
+                    std::vector<std::string> res=cm->complete(commandWord);
+                    if ((res.size()==1)&&(res.front()[0]!='<')&&(res.front()[0]!='['))
+                      {
+                        std::string tail=Autocomplete::suggestedCharacters(res,commandWord);
+                        std::cout<<tail;
+                        std::cout.flush();
+                        commandWord+=tail;
+                      }
+                    else if(res.size()>0)
+                      {
+                        if (ch0=='\t')
+                          {
+
+                            std::string tail=Autocomplete::suggestedCharacters(res,commandWord);
+                            commandWord+=tail;
+                            std::cout<<"\n"<<incolumns(res,ncols)<<">>"<<commandLine+commandWord;
+                          }
+                      }
+
+                  }
+                else if ((ch=='\b')||(ch==127))
+                  {
+                    if (!commandWord.empty())
+                      {
+                        commandWord.pop_back();
+                        std::cout<<'\b';
+                        std::cout<<' ';
+                        std::cout<<'\b';
+                      }
+
+
+                  }
+                else if ((ch=='\033')||(ch==-32))  //indicates an arrow  key
+                  {
+                    char ch2,ch3;
+                    if (ch=='\033')   // linux
+
+                      {
+                        ch2=getUnbufChar();
+
+                        ch3=getUnbufChar();
+                      }
+                    else
+                      {
+                        ch2=getUnbufChar();
+                        ch3=' ';
+                      }
+                    if ((((ch2=='[')&&(ch3=='A'))||(ch2=='H'))||  //upkey
+                        (((ch2=='[')&&(ch3=='B'))||(ch2=='P'))) //downkey
+                      {
+                        std::string tail0=tail;
+                        if ((ch3=='A')||(ch2=='H'))
+                          tail=cm->getH().up(commandWord);
+                        else
+                          tail=cm->getH().down(commandWord);
+
+                        if (tail0.size()>tail.size())
+                          {
+                            std::cout<<tail<<std::string(tail0.size()-tail.size(),' ');
+                            std::cout.flush();
+                            if (ch=='\033')
+                              for (std::size_t i=0; i<tail0.size(); ++i)
+                                std::cout<<'\033'<<'['<<'D';
+                            else
+                              for (std::size_t i=0; i<tail0.size(); ++i)
+                                std::cout<<'\b';
+                            std::cout.flush();
+                          }
+                        else
+                          {
+                            std::cout<<tail;
+                            std::cout.flush();
+                            if (ch=='\033')
+                              for (std::size_t i=0; i<tail.size(); ++i)
+                                std::cout<<'\033'<<'['<<'D';
+                            else
+                              for (std::size_t i=0; i<tail.size(); ++i)
+                                std::cout<<'\b';
+
+                            std::cout.flush();
+                          }
+                      }
+                    else  if (((ch2=='[')&&(ch3=='C'))||(ch2=='M')) // rightkey
+                      {
+                        if (!tail.empty())
+                          {
+                            if (ch=='\033')
+                              std::cout<<'\033'<<'['<<'C';
+                            else
+                              std::cout<<tail.front();
+                            std::cout.flush();
+                            commandWord+=tail.front();
+                            tail=tail.substr(1);
+                          }
+
+                      }
+                    else  if (((ch2=='[')&&(ch3=='D'))||(ch2=='K')) // leftkey
+                      {
+                        if (!commandWord.empty())
+                          {
+                            if (ch=='\033')
+                              std::cout<<'\033'<<'['<<'D';
+                            else
+                              std::cout<<'\b';
+                            std::cout.flush();
+                            tail=commandWord.back()+tail;
+                            commandWord.pop_back();
+                          }
+                      }
+                  }
+                else if (ch==' ')
+                  {
+                    std::cout<<ch;
+                    std::string err=cm->add_single_token(commandWord);
+                    if (!err.empty())
+                      {
+                        std::cout<<"\n"<<err<<">>"<<commandLine;
+                      }
+                    else
+                      commandLine+=commandWord+ch;
+                    commandWord.clear();
+
+                  }
+                else if ((ch!='\n')&&(ch!='\r'))
+                  {
+                    std::cout<<ch;
+                    commandWord+=ch;
+                  }
+                else  // new line
+                  {
+                    std::cout<<'\n';
+                    commandLine+=commandWord+tail;
+                    tail.clear();
+                    commandWord.clear();
+                    cm->getH().reset();
+                  }
+                ch0=ch;
+              }
+            ch=0;
+            // getline(std::cin,commandLine);
+            cm->add_tokens(commandLine);
+            if (cm->next_instruction())
+              cm->getH().push_back(commandLine);
+            cm->clear_tokens();
+            commandLine.clear();
+          }
+      }
+
+    else
+      {
+        Markov_Script ms(cm,fileCommandName);
+        commandLine="exit";
+        cm->add_tokens(commandLine);
+        cm->next_instruction();
+      }
+  }
+
+
+
+
   int  Markov_Console::exec()
   {
     put(cm->wellcomeMessage());
@@ -464,7 +684,7 @@ namespace Markov_Console
       {
         cm->KeyEvent(getKey());
       }
-  return 0;
+    return 0;
   }
 
 

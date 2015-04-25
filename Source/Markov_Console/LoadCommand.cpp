@@ -130,7 +130,7 @@ namespace Markov_Console
           //safeGetline allow loading windows files in linux
           //TODO: check if it loads linux files in windows
 
-          Markov_IO::Token_Buffer tok(&f);
+          Markov_IO::Token_Stream tok(&f);
 
           if (Markov_IO::safeGetline(f,varname))
             {

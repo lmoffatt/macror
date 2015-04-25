@@ -114,9 +114,6 @@ namespace Markov_GUI {
     okBt->setDefault(true);
 
     setWindowModality(Qt::ApplicationModal);
-
-
-
   }
 
 

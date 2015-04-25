@@ -18,7 +18,7 @@ class QSpinBox;
 
 namespace Markov_IO {
 
-  inline bool toValue( Token_Buffer &tok,
+  inline bool toValue( Token_Stream &tok,
                       QString &val)
   {
     tok.tokenAdvance(1);
@@ -33,17 +33,10 @@ namespace Markov_IO {
       }
   }
 
-  inline Token_Buffer& operator<<(Token_Buffer& tok,
+  inline std::deque<Token_New>& operator<<( std::deque<Token_New>& tok,
                                            const QString& text)
   {
-    std::stringstream ss(text.toStdString());
-    Token_New t;
-    while (t.get(ss))
-      {
-        tok.push_back(t);
-      }
-
-    return tok;
+    return tok<<text.toStdString();
   }
 
   template<>
@@ -85,6 +78,9 @@ namespace Markov_GUI {
     {
       return 1;
     }
+
+
+
 
   signals:
     void valueChanged();

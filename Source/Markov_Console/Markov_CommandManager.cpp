@@ -49,6 +49,356 @@ namespace Markov_Console
 {
 
 
+  bool Markov_CommandManagerVar::push_CommandLine(std::string &line)
+  {
+    Markov_IO::Token_Stream t;
+   // io_->move_cursor();
+    t.getToken()<<line<<"\n";
+    return processTokens(t);
+
+  }
+
+
+
+  bool Markov_CommandManagerVar::processTokens(Markov_IO::Token_Stream &t)
+  {
+    if (t.currToken().tok()==Markov_IO::Token_New::IDENTIFIER)
+      {
+        auto id=t.currToken().id();
+        if (has_command(id))
+          {
+            return getCommand(id)->processTokens(t);
+          }
+        else if (has_var(id)&&(t.nextToken(1).tok()==Markov_IO::Token_New::EOL))
+          {
+            return getCommand("show")->processTokens(t);
+          }
+        else
+          {
+            // v is a naked pointer, it has to be deleted
+            auto v=Markov_IO::ABC_Var::getValueFromStream(t);
+            if (v!=nullptr)
+              {
+                Markov_IO::ABC_Value* c=getClass(v->myVar());
+                auto d=c->toIndicatedVar(v);
+
+                if (d!=nullptr)
+                  {
+                    delete v;
+                    if (!has_var(d->id()))
+                      add_var(d);
+                    else
+                      delete d;
+                  }
+                else
+                  {
+                    if (!has_var(v->id()))
+                      add_var(v);
+                    else
+                      delete v;
+                  }
+                return true;
+              }
+            else
+              return false;
+
+          }
+      }
+    else
+      return false;
+  }
+
+
+
+
+
+
+
+
+
+  void Markov_CommandManagerVar::KeyEvent(Markov_IO::Key k)
+  {
+    e->KeyEvent(k);
+  }
+
+  Markov_CommandManagerVar::Markov_CommandManagerVar():
+    io_(nullptr),
+    dir_{Markov_IO::getWorkingPath()},
+    cmds{},
+    vars{},
+    varByType{},
+    varsl{},
+    tokens{},
+    lastCmdRst{},
+    h("")
+
+  {
+    //    auto dirs=Markov_IO::getSubDirs(dir_);
+    //    filesl=LoadFiles(getDir());
+    //    autoCmptByKind[ABC_Command::directory()]=Autocomplete(dirs);
+    //    autoCmptByKind[ABC_Command::fileName()]=LoadFiles(getDir());
+
+    //    Loadcommands();
+    //    cmdsl=Autocomplete(cmds);
+    //    LoadTypes();
+  }
+
+
+
+
+
+
+
+
+
+
+
+  std::string Markov_CommandManagerVar::getHelpDir()
+  {
+    return STRINGIZE(HELP_PATH);
+  }
+
+
+
+
+
+  Markov_CommandManagerVar::~Markov_CommandManagerVar()
+  {
+
+  }
+
+
+  std::string Markov_CommandManagerVar::buildVersion()const
+  {
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(GIT_VER_PATH);
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
+    std::fstream f(path.c_str());
+    if (!(f))
+      {
+        f.close();
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
+        f.open(path.c_str());
+      }
+
+    std::string lineHash;
+    Markov_IO::safeGetline(f,lineHash);
+    return lineHash;
+  }
+
+  std::string Markov_CommandManagerVar::buildDate()const
+  {
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(GIT_VER_PATH);
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
+    std::fstream f(path.c_str());
+    if (!(f))
+      {
+        f.close();
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
+        f.open(path.c_str());
+      }
+    std::string line;
+    Markov_IO::safeGetline(f,line);
+    std::string lineDate;
+    Markov_IO::safeGetline(f,lineDate);
+    return lineDate;
+  }
+
+  std::string Markov_CommandManagerVar::uncommitedFiles()const
+  {
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(UNCOMMITED_PATH);
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
+    std::fstream f(path.c_str());
+    if (!(f))
+      {
+        f.close();
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
+        f.open(path.c_str());
+      }
+    std::string lineUncommited0;
+    std::string lineUncommited;
+    while ( Markov_IO::safeGetline(f,lineUncommited0))
+      {
+        lineUncommited+=lineUncommited0;
+        if (Markov_IO::safeGetline(f,lineUncommited0))
+          lineUncommited+=" "+lineUncommited0+"\n";
+      }
+    return lineUncommited;
+  }
+
+  std::string Markov_CommandManagerVar::wellcomeMessage(unsigned ncols)const
+  {
+    std::string wllc;
+    std::string decorating_line(ncols,'#');
+    std::string vers=version();
+    std::string motto="Statistically Sound Molecular Kinetics";
+    std::string date_build=buildDate()+"    build:"+buildVersion();
+    std::string updatesMss="updates in http://code.google.com/p/macror/";
+    std::string helpmss="enter help for help";
+
+    wllc+=decorating_line+"\n";
+
+    int pos0=0;
+    if (ncols>vers.size())
+      pos0=(ncols-vers.size())/2;
+    wllc+=std::string(pos0,' ')+vers+"\n";
+
+    pos0=0;
+    if (ncols>motto.size())
+      pos0=(ncols-motto.size())/2;
+    wllc+=std::string(pos0,' ')+motto+"\n";
+
+    pos0=0;
+    if (ncols>date_build.size())
+      pos0=(ncols-date_build.size())/2;
+    wllc+=std::string(pos0,' ')+date_build+"\n";
+
+    wllc+=decorating_line+"\n";
+
+    std::string uncomf=uncommitedFiles();
+    if (!uncomf.empty())
+      {
+        std::string warnmg="Warning: there are uncommited files, build number refers to a previous build";
+        wllc+=warnmg+"\n";
+        wllc+=uncomf+"\n";
+      }
+
+    wllc+=updatesMss+"\n";
+    wllc+=helpmss+"\n";
+    return wllc;
+  }
+
+
+  std::string Markov_CommandManagerVar::version()const
+  {
+    std::string version="MacroConsole 0.1";
+    return version;
+  }
+
+  std::size_t Markov_CommandManagerVar::getVersion(const std::string& line)
+  {
+    if (line.find("MacroR")==0)
+      {
+        std::size_t n=line.find_last_of('.');
+        if (n!=line.npos)
+          {
+            std::string num=line.substr(n+1);
+            std::size_t ver;
+            if (Markov_IO::ToValue(num,ver))
+              return ver;
+            else
+              return 0;
+          }
+        else
+          return 0;
+      }
+    return 0;
+  }
+
+
+
+
+  void Markov_CommandManagerVar::add_command(ABC_CommandVar *cmd)
+  {
+    if (!has_child(cmd->id()))
+      {
+        pushChild(cmd);
+        cmds[cmd->id()]=cmd;
+        autoCmptByCategories[idCommandName()].push_back(cmd->id());
+      }
+  }
+
+
+  bool Markov_CommandManagerVar::has_command(const std::string& name)const{
+    return (cmds.find(name)!=cmds.end());
+  }
+
+  void Markov_CommandManagerVar::add_var(Markov_IO::ABC_Var *v)
+  {
+    if (!has_child(v->id()))
+      {
+        pushChild(v);
+        vars[v->id()]=v;
+        autoCmptByCategories[idVarName()].push_back(v->id());
+      }
+  }
+
+
+  bool Markov_CommandManagerVar::has_var(const std::string& name)const{
+    return (vars.find(name)!=vars.end());
+  }
+
+
+
+
+
+
+
+
+  Markov_IO::ABC_Value* Markov_CommandManagerVar::getClass(std::string name)
+  {
+
+  }
+
+
+  bool Markov_CommandManagerVar::processVariable(ExpressionManager &e){
+    auto t=e.tokens();
+    Markov_IO::ABC_Value* d=Markov_IO::ABC_Value::getValueFromStream(t);
+    if (d!=nullptr)
+      {
+        Markov_IO::ABC_Value* c=getClass(d->myVar());
+        d=c->toIndicatedVar(d);
+        if (d!=nullptr)
+          // TODO: decide who takes care of removing c moveFromData or processVariable
+
+          return true;
+        else
+          return false;
+      }
+    else
+      return false;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+namespace Markov_Console
+{
+
+
+
+
+
+
+
+
+
   std::string Markov_CommandManager::getHelpDir()
   {
     return STRINGIZE(HELP_PATH);
@@ -367,11 +717,11 @@ namespace Markov_Console
 
 
   /**
-  Execute the next instruction in the list of inserted instruction
-  @pre one or more instructions have to be inserted
-  @post if the inserted instruction is valid it runs, else
-  an error is written at stdout
-  */
+           Execute the next instruction in the list of inserted instruction
+           @pre one or more instructions have to be inserted
+           @post if the inserted instruction is valid it runs, else
+           an error is written at stdout
+           */
   bool Markov_CommandManager::next_instruction()
   {
     if (tokens.size()==0) return false;
@@ -411,46 +761,46 @@ namespace Markov_Console
               {
                 runScript(tokens[0].Name()+".macror.txt");
               }/*
-            else if (tokens[0].Name()=="model")
-            {
-                if (tokens.size()<2)
-                {
-                    std::cerr<<"enter \n model channel    or \n model patch \n";
-                }
-                else if (tokens[1].Name()=="channel")
-                {
-                    if (tokens.size()<3)
-                        model_channel("mychannel");
-                    else model_channel(tokens[2].Name());
-                }
-                else if (tokens[1].Name()=="patch")
-                {
-                    if (tokens.size()<3)
-                        model_patch("mypatch");
-                    else model_patch(tokens[2].Name());
-                }
+                     else if (tokens[0].Name()=="model")
+                     {
+                         if (tokens.size()<2)
+                         {
+                             std::cerr<<"enter \n model channel    or \n model patch \n";
+                         }
+                         else if (tokens[1].Name()=="channel")
+                         {
+                             if (tokens.size()<3)
+                                 model_channel("mychannel");
+                             else model_channel(tokens[2].Name());
+                         }
+                         else if (tokens[1].Name()=="patch")
+                         {
+                             if (tokens.size()<3)
+                                 model_patch("mypatch");
+                             else model_patch(tokens[2].Name());
+                         }
 
-            }*/
+                     }*/
             /*    else if (tokens[0].Name()=="option")
-            {
-                if (tokens.size()<2)
-                {
-                    std::cout<<"enter:  \n"
-                               "\t option simulate    or \n"
-                               "\t option likelihood  or \n"
-                               "\t option optimize    \n";
-                }
-                else if (tokens.size()<3)
-                    option(tokens[1].Name(),"");
-                else
-                    option(tokens[1].Name(),tokens[2].Name());
-            }*/
+                     {
+                         if (tokens.size()<2)
+                         {
+                             std::cout<<"enter:  \n"
+                                        "\t option simulate    or \n"
+                                        "\t option likelihood  or \n"
+                                        "\t option optimize    \n";
+                         }
+                         else if (tokens.size()<3)
+                             option(tokens[1].Name(),"");
+                         else
+                             option(tokens[1].Name(),tokens[2].Name());
+                     }*/
             /*        else if (tokens[0].Name()=="experiment")
-            {
-                if (tokens.size()<2)
-                    experiment("myexperiment");
-                else experiment(tokens[1].Name());
-            }*/
+                     {
+                         if (tokens.size()<2)
+                             experiment("myexperiment");
+                         else experiment(tokens[1].Name());
+                     }*/
             else if (tokens[0].Name()=="RunScript")
               {
                 if (tokens.size()<2) missing_parameter();
@@ -473,8 +823,8 @@ namespace Markov_Console
     return false;
   }
   /**
-  Insert a string with one or more intructions to be executed
-  */
+           Insert a string with one or more intructions to be executed
+           */
   void Markov_CommandManager::add_tokens(std::string commandLine)
   {
     // construct a stream from the string
@@ -498,9 +848,9 @@ namespace Markov_Console
 
 
   /*!
-   * \brief Markov_CommandManager::add_single_token adds one token to the current command line
-   * \param command  the added token
-   */
+            * \brief Markov_CommandManager::add_single_token adds one token to the current command line
+            * \param command  the added token
+            */
 
 
 
@@ -607,7 +957,8 @@ namespace Markov_Console
 
 
   bool Markov_CommandManager::processVariable(ExpressionManager &e){
-    Markov_IO::ABC_Value* d=Markov_IO::ABC_Value::getValueFromStream(e.tokens());
+    auto t=e.tokens();
+    Markov_IO::ABC_Value* d=Markov_IO::ABC_Value::getValueFromStream(t);
     if (d!=nullptr)
       {
         Markov_IO::ABC_Value* c=getClass(d->myVar());
@@ -615,7 +966,7 @@ namespace Markov_Console
         if (d!=nullptr)
           // TODO: decide who takes care of removing c moveFromData or processVariable
 
-            return true;
+          return true;
         else
           return false;
       }
@@ -645,10 +996,10 @@ namespace Markov_Console
 
 
   /*!
-   * \brief Markov_CommandManager::complete list possible commands or options
-   * \param hint characters to be matched
-   * \return the list of matching commands or files or alias
-   */
+            * \brief Markov_CommandManager::complete list possible commands or options
+            * \param hint characters to be matched
+            * \return the list of matching commands or files or alias
+            */
 
   std::vector<std::string> Markov_CommandManager::complete(const std::string &hint)
   {
@@ -1066,7 +1417,6 @@ namespace Markov_Console
 
 
 }
-
 
 
 

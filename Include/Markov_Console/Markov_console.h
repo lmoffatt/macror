@@ -20,9 +20,13 @@ namespace Markov_Console
 class Markov_Console :public Markov_IO::ABC_IO
 {
 protected:
+    Markov_CommandManagerVar* cmV;
+
     Markov_CommandManager* cm;
 
+
 public:
+    Markov_Console(Markov_CommandManagerVar* c,const std::string& fileCommandName="");
     Markov_Console(Markov_CommandManager* c,const std::string& fileCommandName="");
 
       /// put a string to the output source
@@ -34,6 +38,14 @@ public:
                                         const std::vector<std::string> &list,
                                         bool &ok,
                                         std::size_t pos) ;
+
+
+    virtual std::string
+    getItemFromSeveralLists(const std::string& title,
+                            const std::map<std::string,std::vector<std::string> >& list,
+                            bool &ok,
+                            std::size_t current);
+
 
 
     Markov_IO::Key getKey();

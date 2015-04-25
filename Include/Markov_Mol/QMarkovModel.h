@@ -67,7 +67,7 @@ namespace Markov_Mol
     }
 
 
-    virtual Markov_IO::Token_Buffer toTokens()const override
+    virtual Markov_IO::Token_Stream toTokens()const override
     {
       auto p=to_PlainValue();
       auto t=p->toTokens();

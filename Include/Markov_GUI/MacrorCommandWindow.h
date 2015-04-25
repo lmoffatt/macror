@@ -5,12 +5,17 @@
 #include <QStandardItem>
 
 #include <Markov_Console/Markov_CommandManager.h>
-
+#include "Markov_Console/ExpressionManager.h"
 
 class QLabel;
 
 
 class MacrorMainWindow;
+
+
+
+
+
 
 /**
 
@@ -25,14 +30,15 @@ deriving Markov_CommandManager but by catching them before Markov_CommandManager
 */
 
 
-class MacrorCommandWindow: public QPlainTextEdit, public Markov_IO::ABC_IO
+class MacrorCommandWindow: public QPlainTextEdit, public Markov_IO::ABC_IO,
+    public Markov_Console::ExpressionView
 {
   Q_OBJECT
 
 public:
   MacrorCommandWindow(MacrorMainWindow *parent,
-                      Markov_Console::Markov_CommandManager* cm=
-      new Markov_Console::Markov_CommandManager());
+                      Markov_Console::Markov_CommandManagerVar* cm=
+      new Markov_Console::Markov_CommandManagerVar());
   ~MacrorCommandWindow();
 
 
@@ -51,9 +57,21 @@ public:
 
   virtual std::string getItemFromList(const std::string &title, const std::vector<std::string> &list, bool &ok, std::size_t current);
 
+  virtual std::string
+  getItemFromSeveralLists(const std::string& title,
+                          const std::map<std::string,std::vector<std::string> >& list,
+                          bool &ok,
+                          std::size_t current);
+
   virtual void erase_from_cursor(int n);
 
   virtual void move_cursor(int n);
+
+  virtual void cleanLastLine();
+
+  virtual void move_end();
+
+  virtual void move_home();
 protected:
 
 
@@ -91,7 +109,7 @@ private:
   bool edit(const QString& varname);
 
   MacrorMainWindow* mw_;
-  Markov_Console::Markov_CommandManager* cm_;
+  Markov_Console::Markov_CommandManagerVar* cm_;
   int cursorPosition;
   int previous_key;
   QString cmdLine;
@@ -99,7 +117,20 @@ private:
   QString tail;
   QLabel* message;
 
+  // Temporary interface
+public:
+  virtual bool isEmpty() const;
+  virtual bool isValid() const;
+  virtual bool isCompleted() const;
+  virtual bool hasExecuted() const;
+  virtual std::string currentError() const;
 
+  // ExpressionView interface
+public:
+  virtual void update();
+
+protected:
+  virtual std::string chooseFromList(const std::vector<std::string> list) const;
 };
 
 

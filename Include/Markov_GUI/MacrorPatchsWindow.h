@@ -8,7 +8,7 @@ class MacrorPatchsWindow: public ABC_ObjectsWindow
 {
     Q_OBJECT
 public:
-    MacrorPatchsWindow(Markov_Console::Markov_CommandManager* cm,
+    MacrorPatchsWindow(Markov_Console::Markov_CommandManager *cm,
                        QWidget* parent=0);
 
 public slots:

@@ -11,7 +11,7 @@ class MacrorCommandHistory: public QTreeView
 {
     Q_OBJECT
 public:
-    MacrorCommandHistory(Markov_Console::Markov_CommandManager* cm,
+    MacrorCommandHistory(Markov_Console::Markov_CommandManagerVar* cm,
                          QWidget* parent=0,const QString& fname="");
 
 public slots:
@@ -25,7 +25,7 @@ private:
     void addCommandNoFileWrite(const QString &line);
     QStandardItemModel* data_;
     QStandardItem *lastSession_;
-    Markov_Console::Markov_CommandManager* cm_;
+    Markov_Console::Markov_CommandManagerVar* cm_;
 };
 
 
