@@ -260,7 +260,9 @@ HEADERS += \
 
 
 SOURCES +=  \
-    Source/Markov_IO/ABC_Var.cpp\
+    Source/Markov_IO/ABC_Var.cpp \
+    Source/Markov_IO/Token_New.cpp \
+    Source/Markov_IO/buildByToken.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/ABC_Object.cpp \
     Source/Markov_IO/Object.cpp \
@@ -468,7 +470,9 @@ HEADERS += \
     Include/Markov_IO/ABC_Var.h \
     Include/Markov_Mol/ABC_Q.h \
     Include/Markov_Console/MacorCoreApplication.h \
-    Include/Markov_Console/ExpressionManager.h
+    Include/Markov_Console/ExpressionManager.h \
+    Include/Markov_IO/Token_New.h \
+    Include/Markov_IO/buildByToken.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \

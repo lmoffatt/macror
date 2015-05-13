@@ -11,31 +11,61 @@
 #include "Markov_Console/Markov_CommandManager.h"
 class ABC_ObjectsWindow: public QTableView
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    ABC_ObjectsWindow(Markov_Console::Markov_CommandManager* cm,
-                       QWidget* parent=0);
+  ABC_ObjectsWindow(Markov_Console::Markov_CommandManagerVar *cm,
+                    const std::string& objectclass,
+                    QWidget* parent=0);
 
-    virtual ~ABC_ObjectsWindow(){}
+
+
+  virtual ~ABC_ObjectsWindow(){}
 public slots:
-    virtual void add(const QString& ObjectName);
-    virtual void remove(const QString& ObjectName);
+  virtual void add(const QString& ObjectName);
+  virtual void remove(const QString& ObjectName);
 
-    virtual void clear();
-    virtual QList<QStandardItem*> objectItems(const QString& modelName)=0;
+  virtual void clear();
+  virtual QList<QStandardItem*> objectItems(const QString& modelName)
+  {
+    QList<QStandardItem*> list;
+
+    auto m=cm_->getChild(modelName.toStdString(),objectClass_);
+    if (m!=nullptr)
+    {
+        list.append(new QStandardItem(modelName));
+        list.append(new QStandardItem(QString(m->myClass().c_str())));
+        auto superclasses=m->mySuperClasses();
+        for (std::string sc:superclasses)
+        list.append(new QStandardItem(QString(sc.c_str())));
+    }
+
+    return list;
+
+  }
 
 
 private slots:
-    virtual void actualize()=0;
+  virtual void actualize()
+  {
+    clear();
+    auto names=cm_->getChildList(objectClass_);
+
+    for (auto name:names)
+      {
+        add(QString(name.c_str()));
+      }
+  }
 
 
 protected:
-    QStandardItemModel* data_;
+  QStandardItemModel* data_;
 
-    Markov_Console::Markov_CommandManager * cm_;
+  Markov_Console::Markov_CommandManagerVar * cm_;
+
+  std::string objectClass_;
 
 
- };
+};
 
 
 

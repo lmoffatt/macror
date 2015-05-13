@@ -19,7 +19,7 @@
 
 namespace  Markov_Console {
 
-
+  class ExpressionManager;
 
   class MacrorKeyEvent
   {

@@ -159,6 +159,29 @@ namespace Markov_LA
 
 
 
+    template
+    int maxAbs(const M_Matrix<int>& x);
+
+    template
+    int minAbs(const M_Matrix<int>& x);
+
+    template
+    int max(const M_Matrix<int> & x);
+
+    template
+    int min(const M_Matrix<int> & x);
+
+    template
+    int minPositive(const M_Matrix<int> & x);
+
+    template
+    int norm_inf(const M_Matrix<int>& x);
+
+    template
+    int norm(const M_Matrix<int>& x);
+
+
+
 
 
     template

@@ -16,60 +16,33 @@ namespace Markov_Console
   class Markov_CommandManager;
   class Markov_CommandManagerVar;
 
-
-
-
-
-
   // TODO: root ABC_Command in the hierarchy
   class ABC_CommandVar : public Markov_IO::Implements_Complex_Value
   {
   public:
-       virtual ~ABC_CommandVar();
+    virtual ~ABC_CommandVar();
     /// virtual formated output
 
 
 
-   // TODO: constructor based on vector of tuples
+    // TODO: constructor based on vector of tuples
 
     ABC_CommandVar(Markov_CommandManagerVar* cm,
-        const std::string& commandName,
+                   const std::string& commandName,
                    const std::string &commandClass,
                    const std::string &tip,
                    const std::string &whatthis,
-                std::vector<Implements_ValueId *> mandatoryInput,
-                std::vector<Implements_ValueId* > OptionalInput);
+                   std::vector<Implements_ValueId> mandatoryInput,
+                   std::vector<Implements_ValueId> OptionalInput);
+
 
     ABC_CommandVar(){}
 
 
-
-
-
-
-    bool run(Markov_IO::Token_Stream &tokenList);
-  protected:
-      std::map<std::string,bool> isMandatoryField_;
   public:
-    virtual bool isMeasure() const
-    {
-      return false;
-    }
-    virtual bool isVariable() const
-    {
-      return false;
-    }
-    virtual bool isBuildIn() const
-    {
-      return true;
-    }
     virtual Markov_IO::Token_Stream toTokens() const
     {
       return {};
-    }
-    virtual bool processTokens(Markov_IO::Token_Stream &t)
-    {
-      return false;
     }
 
   protected:
@@ -101,10 +74,13 @@ namespace Markov_Console
   protected:
     Markov_CommandManagerVar *cm_;
 
-    
+    std::map<std::string,bool> isMandatoryField_;
+
+
+
     // ABC_Value interface
   public:
-    virtual std::vector<std::string> complete(const std::string& hint,const std::string& category){}
+    virtual std::vector<std::string> complete(const std::string& hint);
     virtual bool check(const std::string& hint,const std::string& category){}
   };
 
@@ -136,7 +112,7 @@ namespace Markov_Console
 
 
 
-   // TODO: constructor based on vector of tuples
+    // TODO: constructor based on vector of tuples
 
     ABC_Command(Markov_CommandManager* cm,
                 const std::string& commandName,
@@ -209,15 +185,15 @@ namespace Markov_Console
                      const std::vector<std::string>& OutputValue){return InputValue==OutputValue;}
 
 
-      static std::string directory();
+    static std::string directory();
 
-      static std::string varName();
+    static std::string varName();
 
-      static std::string typeName();
+    static std::string typeName();
 
-      static std::string fileName();
+    static std::string fileName();
 
-      static std::string testName();
+    static std::string testName();
 
 
 

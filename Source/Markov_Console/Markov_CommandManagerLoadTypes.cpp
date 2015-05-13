@@ -47,6 +47,20 @@
 
 
 
+namespace Markov_Console
+{
+
+  // TODO: replace with ABC_Var logic
+void Markov_CommandManagerVar::LoadTypes()
+{
+
+    this->pushChild(new Markov_Mol::Q_Markov_Model());
+    this->pushChild(new Markov_Mol::Q_Markov_Model::a_matrix());
+    this->pushChild(new Markov_Mol::Q_Markov_Model::g_matrix());
+    this->pushChild(new Markov_Mol::Q_Markov_Model::Q_matrix());
+
+}
+}
 
 
 

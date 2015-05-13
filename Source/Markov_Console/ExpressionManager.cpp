@@ -1,51 +1,8 @@
 #include "Markov_Console/ExpressionManager.h"
+#include"Markov_Console/Markov_CommandManager.h"
 
 
 namespace Markov_Console {
-
-
-
-  void ExpressionView::KeyEvent(Markov_IO::Key k)
-  {
-    switch(k)
-      {
-      case Markov_IO::Key_Home:
-        move_Home();
-        break;
-      case Markov_IO::Key_Left:
-        move_Left();
-        break;
-      case Markov_IO::Key_Backspace:
-        backErase();
-        break;
-      case Markov_IO::Key_Right:
-        move_Right();
-        break;
-      case Markov_IO::Key_Up:
-        history_up();
-        break;
-      case Markov_IO::Key_Down:
-        history_down();
-        break;
-
-      case Markov_IO::Key_Tab:
-        suggestCompletion();
-        break;
-      case Markov_IO::Key_PageUp:
-      case Markov_IO::Key_PageDown:
-        break;
-      case Markov_IO::Key_Space:
-        putText(' ');
-        break;
-      case Markov_IO::Key_Return:
-        putReturn();
-        break;
-      default:
-        putText(Markov_IO::toText(k));
-        break;
-      }
-    previous_key=k;
-  }
 
 
   void ExpressionManager::move_Left()
@@ -75,7 +32,8 @@ namespace Markov_Console {
         currWord_.clear();
         Markov_IO::Token_New &t=b_.back();
         t.popLastChar();
-        cm_->getIO()->move_cursor(-1);
+        cm_->getIO()->erase_from_cursor(-1);
+
       }  // else "beep?"
 
   }
@@ -238,42 +196,65 @@ namespace Markov_Console {
     else
       {
         Markov_IO::Token_Stream p(b_);
-        return cm_->processTokens(p);
+        bool res= cm_->processTokens(p);
+        if (res)
+          {
+            clear();
+            cm_->putOut(">>");
+          }
+        return res;
       }
   }
 
 
+  bool ExpressionManager::check()
+  {
+    std::string err=cm_->check(b_.back().str(),categories_[b_.size()-1]);
+    if (!err.empty())
+      {
+        cm_->getIO()->showMessage(err);
+        return false;
+      }
+    else return true;
+  }
+
 
   bool ExpressionManager::putText(char c)
   {
-    Markov_IO::Token_New told;
     if (b_.empty())
       {
         b_.push_back(Markov_IO::Token_New(c));
+        cm_->getIO()->put(c);
+        return true;
       }
     else
       {
         Markov_IO::Token_New &t=b_.back();
-        told=t;
         if (!t.CharIsSuccesfullyFeed(c))
-          b_.push_back(Markov_IO::Token_New(c));
+          {
+            if (check())
+              {
+                b_.push_back(Markov_IO::Token_New(c));
+                cm_->getIO()->put(c);
+                return true;
+              }
+            else return false;
+          }
+        else if (c==' ')
+          {
+            if (check())
+              {
+                cm_->getIO()->put(" ");
+                return true;
+              }
+            else return false;
+          }
+        else
+          {
+            cm_->getIO()->put(c);
+            return true;
+          }
       }
-    std::string err=cm_->check(b_.back().str(),categories_[b_.size()-1]);
-    if (!err.empty())
-      {
-        b_.back()=told;
-        cm_->getIO()->showMessage(err);
-        return false;
-      }
-    else
-      {
-
-        std::string o;
-        o.push_back(c);
-        cm_->getIO()->put(o);
-        return true;
-      }
-
   }
 
 
@@ -323,6 +304,16 @@ namespace Markov_Console {
     previous_key=k;
   }
 
+  void ExpressionManager::clear()
+  {
+    b_.clear();
+    currWord_.clear();
+    p_=0;  // position of cursor on the line
+    previous_key=Markov_IO::Key_Unknown;
+    categories_.clear();
+
+  }
+
   void ExpressionManager::clean()
   {
     int n=0;
@@ -340,50 +331,6 @@ namespace Markov_Console {
       }
   }
 
-  bool ExpressionParser::run()
-  {
-
-  }
-
-  void ExpressionParser::clear()
-  {
-
-  }
-
-  void ExpressionParser::assignVar()
-  {
-    Markov_IO::Token_New &t=t_.currToken();
-    auto pos=t_.pos();
-    if (t.tok()==Markov_IO::Token_New::IDENTIFIER)
-      {
-        auto id=t.id();
-        std::string myclass;
-
-        if (cm_->has_command(id))
-          {
-            v_=cm_->getCommand(id);
-            if (v_!=nullptr)
-              v_->setTokens(&t_);
-          }
-        else if (cm_->has_var(id)&&(t_.nextToken(1).tok()==Markov_IO::Token_New::EOL))
-          {
-            v_= cm_->getCommand("show");
-            if (v_!=nullptr)
-              v_->setTokens(&t_);
-          }
-        else if (t_.toIdClass(id,myclass))
-
-          {
-            t_.setPos(pos);
-            v_=cm_->getClass(myclass);
-            if (v_!=nullptr)
-              v_->setTokens(&t_);
-
-          }
-      }
-    else
-      v_=nullptr;
-  }
 
 }
 

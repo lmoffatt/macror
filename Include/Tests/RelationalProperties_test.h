@@ -20,7 +20,7 @@ class RelationalProperties_test
 	    {
 		if (x_[i]==x_[j])
 		{
-		    ASSERT_FALSE_M(x_[i]<x_[j], x_[i]<<"  "<<x_[j ]);
+		    ASSERT_false_M(x_[i]<x_[j], x_[i]<<"  "<<x_[j ]);
 		}
 	    }
 	}
@@ -70,16 +70,16 @@ class RelationalProperties_test
 	    {
 		if (x_[i]<x_[j])
 		{
-		    ASSERT_FALSE_M(x_[i]==x_[j],
+		    ASSERT_false_M(x_[i]==x_[j],
 				   x_[i]<<"  "<<x_[j]);
-		    ASSERT_FALSE_M(x_[i]>x_[j],
+		    ASSERT_false_M(x_[i]>x_[j],
 				   x_[i]<<"  "<<x_[j]);
 		}
 		else
 		{
 		    if(x_[i]>x_[j])
 		    {
-			ASSERT_FALSE(x_[i]==x_[j],
+			ASSERT_false(x_[i]==x_[j],
 				     x_[i]<<" "<<x_[j]);
 		    }
 		    else

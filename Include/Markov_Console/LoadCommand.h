@@ -5,7 +5,27 @@
 
 namespace Markov_Console
 {
-class LoadCommand:public ABC_Command
+  class LoadCommandVar:public ABC_CommandVar
+  {
+  public:
+      LoadCommandVar(Markov_CommandManagerVar* cm);
+
+      /// virtual destructor
+      virtual ~LoadCommandVar();
+
+
+      virtual bool processTokens(Markov_IO::Token_Stream &t) override;
+
+  private:
+      bool run(const std::string& fname,
+                           const std::vector<std::string>& varnames);
+
+      size_t MacroVersion_;
+
+  };
+
+
+  class LoadCommand:public ABC_Command
 {
 public:
     LoadCommand(Markov_CommandManager* cm);

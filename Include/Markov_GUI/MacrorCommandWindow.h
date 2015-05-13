@@ -12,8 +12,16 @@ class QLabel;
 
 class MacrorMainWindow;
 
+inline Markov_IO::Key QKeyToKey(QKeyEvent * e)
+{
 
+Markov_IO::Key k=static_cast<Markov_IO::Key>(e->key());
 
+if ((k>=Markov_IO::Key_A)&&(k<=Markov_IO::Key_Z))
+  return static_cast<Markov_IO::Key>(e->text().toStdString()[0]);
+else
+  return k;
+}
 
 
 
@@ -30,8 +38,7 @@ deriving Markov_CommandManager but by catching them before Markov_CommandManager
 */
 
 
-class MacrorCommandWindow: public QPlainTextEdit, public Markov_IO::ABC_IO,
-    public Markov_Console::ExpressionView
+class MacrorCommandWindow: public QPlainTextEdit, public Markov_IO::ABC_IO
 {
   Q_OBJECT
 
@@ -71,13 +78,13 @@ public:
 
   virtual void move_end();
 
-  virtual void move_home();
+  virtual void move_home(){}
 protected:
 
 
 
-  Markov_Console::Markov_CommandManager* MarkovCommand();
-  const Markov_Console::Markov_CommandManager* MarkovCommand()const;
+  Markov_Console::Markov_CommandManagerVar* MarkovCommand();
+  const Markov_Console::Markov_CommandManagerVar* MarkovCommand()const;
   virtual void	keyPressEvent ( QKeyEvent * e );
 
 
@@ -117,20 +124,10 @@ private:
   QString tail;
   QLabel* message;
 
-  // Temporary interface
-public:
-  virtual bool isEmpty() const;
-  virtual bool isValid() const;
-  virtual bool isCompleted() const;
-  virtual bool hasExecuted() const;
-  virtual std::string currentError() const;
 
-  // ExpressionView interface
-public:
-  virtual void update();
 
 protected:
-  virtual std::string chooseFromList(const std::vector<std::string> list) const;
+  virtual std::string chooseFromList(const std::vector<std::string> list) const{}
 };
 
 

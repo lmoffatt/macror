@@ -7,6 +7,180 @@
 
 #include <fstream>
 
+
+namespace Markov_Console
+{
+  ///  destructor
+  LoadCommandVar::~LoadCommandVar(){}
+
+
+
+  LoadCommandVar::LoadCommandVar(Markov_CommandManagerVar* cm)
+    : Markov_IO::Implements_ValueId("load"
+                                    , ""
+                                    ,"Displays help on subject"
+                                    ,"Help command\n"
+                                     " returns help on subject\n"
+                                     " subject can be either a command"
+                                    )
+      ,ABC_CommandVar(cm
+                    ,"load"
+                    , ""
+                    ,"Displays help on subject"
+                    ,"Help command\n"
+                     " returns help on subject\n"
+                     " subject can be either a command"
+                    ,{}
+                    ,{{"filename","","",""}})
+  {}
+
+  /// runs the command on the command manager and returns true if succeeds
+  bool LoadCommandVar::processTokens(Markov_IO::Token_Stream &t)
+  {
+    if (t.currToken().str()!=id())
+      return false;
+    t.advance(1);
+
+    std::string loadFileName;
+    std::vector<std::string> varnames;
+    if (t.eof()||t.currToken().tok()==Markov_IO::Token_New::EOL)
+      {
+        loadFileName="macror.txt";
+      }
+    else if (t.currToken().tok()==Markov_IO::Token_New::STRING)
+      {
+        loadFileName=t.currToken().str();
+        t.advance(1);
+
+      }
+    else if (t.currToken().tok()==Markov_IO::Token_New::IDENTIFIER)
+
+      {
+        loadFileName=t.currToken().str();
+        t.advance(1);
+      }
+    else
+      {
+        cm_->getIO()->putError("unexpected Token; expected Name, found other");
+        return false;
+      }
+    if (t.eof()||t.currToken().tok()==Markov_IO::Token_New::EOL)
+      {
+        if (!t.eof())
+          t.advance(1);
+        return run(loadFileName,varnames);
+      }
+    else while (!(t.eof()||t.currToken().tok()==Markov_IO::Token_New::EOL))
+      {
+        switch(t.currToken().tok())
+          {
+          case Markov_IO::Token_New::IDENTIFIER:
+            varnames.push_back(t.currToken().str());
+            t.advance(1);
+            break;
+          default:
+            std::string tokenString=t.currToken().str();
+
+            cm_->getIO()->putError("unexpected Token; expected Name, found other"
+                                   +tokenString);
+            return false;
+          }
+      }
+    return run(loadFileName,varnames);
+
+  }
+
+  bool LoadCommandVar::run(const std::string &fname
+                           ,const std::vector<std::string> &varnames)
+
+  {
+    std::string filename=fname;
+    // is filename or dirname?
+    if (!Markov_IO::IsDir(filename))
+      {
+        if (filename.find(".")==std::string::npos)
+          {
+            filename+=".txt";
+          }
+        std::string path;
+        Markov_IO::FileDir d(cm_->getDir());
+        if (!Markov_IO::IsFile(filename))
+          path=d.DirName()+"/"+filename;
+        else
+          path=filename;
+        {
+          std::ifstream f(path.c_str());
+          if(!f)
+            {
+              //path+=".txt";
+              f.close();
+              f.open(path.c_str());
+              if (!f)
+                {
+                  cm_->putErrorOut("invalid name "+path);
+                  return false;
+                }
+            }
+          std::size_t numVar=0;
+          std::string varname;
+          //safeGetline allow loading windows files in linux
+          //TODO: check if it loads linux files in windows
+
+          Markov_IO::Token_Stream tok(&f);
+
+          if (Markov_IO::safeGetline(f,varname))
+            {
+              MacroVersion_=cm_->getVersion(varname);
+              if (MacroVersion_>0)
+                {
+                  cm_->putOut("Format of version "+varname+"\n");
+                  varname.clear();
+                }
+              varname.clear();
+
+            }
+          else
+            return false;
+
+          while (true)
+            {
+              auto v=getValueFromStream(tok);
+              if (v!=nullptr)
+                {
+                  numVar++;
+                  auto w=cm_->getMeasureFromValue(v);
+                  if (w!=nullptr)
+                    cm_->pushChild(w);
+                  else
+                    cm_->pushChild(v);
+
+                }
+              else if (!f.eof())
+                {
+
+                  std::string m="unrecognized variable; read text ";
+                  m+=tok.putTokenBuffer();
+                  cm_->putErrorOut(m);
+                  f.close();
+                  return false;
+                }
+              if (f.eof())
+                break;
+              tok.cleanRead();
+            }
+          cm_->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
+        return true;
+        }
+
+      }
+   // else  is a dirname
+  }
+
+
+
+}
+
+
 namespace Markov_Console
 {
   ///  destructor

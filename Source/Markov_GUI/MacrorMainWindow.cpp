@@ -21,9 +21,9 @@ MacrorMainWindow::MacrorMainWindow(QWidget *parent,
     QMainWindow(parent),
     commandWindow(new MacrorCommandWindow(this,cm)),
     commandHistory(new MacrorCommandHistory(cm,parent)),
-    //modelsWindow(new MacrorModelsWindow(cm,parent)),
-    //patchsWindow(new MacrorPatchsWindow(cm,parent)),
-    //experimentsWindow(new MacrorExperimentsWindow(cm,parent)),
+    modelsWindow(new ABC_ObjectsWindow(cm,Markov_Mol::ABC_Markov_Model::ClassName(),parent)),
+    patchsWindow(new ABC_ObjectsWindow(cm,Markov_Mol::ABC_PatchModel::ClassName(),parent)),
+    experimentsWindow(new ABC_ObjectsWindow(cm,Markov_IO::ABC_Experiment::ClassName(),parent)),
     //graphWindows(),
     cm_(cm)
 {

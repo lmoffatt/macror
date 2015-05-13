@@ -345,6 +345,13 @@ std::istream& operator>> (std::istream& s, M_Matrix<double>& A);
 template
 std::ostream& operator<< (std::ostream& s,const M_Matrix<double>& A);
 
+
+    template
+    std::istream& operator>> (std::istream& s, M_Matrix<int>& A);
+
+    template
+    std::ostream& operator<< (std::ostream& s,const M_Matrix<int>& A);
+
 template
 std::istream& operator>> (std::istream& s, M_Matrix<std::size_t>& A);
 

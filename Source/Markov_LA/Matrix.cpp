@@ -1,9 +1,9 @@
 /*!
  * @file Matrix.cpp Implementation of Matrix class, friend functions and
                      Relational Operators
-
+                     
  @see Matrix.h
-
+ 
  */
 #include "Markov_LA/auxiliarRelational.h"
 #include "Markov_LA/ToleranceComparison.h"
@@ -17,8 +17,8 @@ namespace Markov_LA
   /** @name Default and Copy Constructor, Assignment and Destructor
      */
   //@{
-
-
+  
+  
   /*!
     @brief Default constructor
     @post zero columns, zero rows and NULL pointer (no space assigned).
@@ -29,27 +29,27 @@ namespace Markov_LA
     _ncols(std::size_t(0)),
     _ncells(std::size_t(0)),
     _data(0) {}
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
   /**
     Regular Copy Constructor.
     It creates an independent object whose structure and values are equal
     to the sample object.
-
+    
     @param sample matrix whose structure and values are copied
-
+    
     @post  the created object owns its resources, it can alter its values without
            affecting the sample object. Subsequent operations on the
            original object do not affect the duplicate either. That is,
            this!=&other.\n\n
-
+           
     @post  the creted object is equal to the sample\n
            that is the ::operator==() aplied on *this and sample returns true\n\n
-
+           
     @see  operator=()(const M_Matrix<T>&)
     */
   template<typename T>
@@ -65,13 +65,13 @@ namespace Markov_LA
       (*this)[i] = sample[i];
  */
   }
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
+  
   /**
      Regular Asignment operator
      @post \p (*this)[i]=sample[i] for all \p 0<=i<size(*this)
@@ -105,12 +105,12 @@ namespace Markov_LA
       };
     return *this;
   }
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
   /**
      Destructor, it deallocate the internal pointer.
      @post memory deallocated
@@ -121,21 +121,21 @@ namespace Markov_LA
     //  if (_data>0)
     //	delete [] _data;
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   //@}
-
-
-
-
-
+  
+  
+  
+  
+  
   /** @name Other Constructors and Assigments
      */
   //@{
-
+  
   /*!
     Copy constructor with type cast
     @param anOtherKind matrix that is copied
@@ -153,11 +153,11 @@ namespace Markov_LA
     for (std::size_t i = 0; i < size(anOtherKind); ++i)
       (*this)[i] = T(anOtherKind[i]);
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
      Constructor of defined size, allocates memory, values not initialized.
      @post specified memory is allocated
@@ -175,11 +175,11 @@ namespace Markov_LA
       //_data((_ncells>0)?new T[_ncells]:NULL)
       _data(_ncells)
   {}
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
      Constructor with initialized values
      @post (*this)[i]==data[i] for  0<=i< min(size(*this),data.size())
@@ -196,15 +196,15 @@ namespace Markov_LA
     _data(_ncells)
   {
     ASSERT_EQ(nrows_*ncols_,data.size());
-
+    
     for (size_t i=0; i<_ncells; ++i)
       _data[i]=data[i];
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
     Constructor from a string using the istream shift operator.
     @pre the string has to be formatted in the same way as the I/O operators
@@ -224,12 +224,12 @@ namespace Markov_LA
     if (Markov_IO::ToValue<M_Matrix<T> >(s,temp))
       *this=temp;
   }
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
   /**
      Asignment operator to a Matrix of another type S
      @tparam S typename of the elements of the sample matrix
@@ -253,13 +253,13 @@ namespace Markov_LA
   template
   M_Matrix<double>&
   M_Matrix<double>::operator=(const M_Matrix<std::size_t>& x);
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
+  
   /**
      Asigns a given value to all the elements
      @post \p (*this)[i]=X for all \p 0<=i<size(*this)
@@ -271,16 +271,16 @@ namespace Markov_LA
     for (std::size_t i=0; i<_ncells; ++i) _data[i]=X;
     return *this;
   }
-
-
+  
+  
   //@}
-
-
+  
+  
   /** @name Member Inspectors and Modifiers of the data in the matrix
      */
   //@{
-
-
+  
+  
   /**
     Direct Access to the value of the \a nth element.
     @param n accessed index
@@ -297,11 +297,11 @@ namespace Markov_LA
     ASSERT_LESS(n, size(*this));
     return _data[n];
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
     Constant Access to the value of the \a nth element.
     @param n accessed index
@@ -312,19 +312,19 @@ namespace Markov_LA
                    colums indexes
     @see operator()[std::size_t] for changing the value
     */
-
+  
   template<typename T>
   const T& M_Matrix<T>::operator[](std::size_t n) const
   {
     if (n>=size(*this))
-    ASSERT_LESS(n, size(*this));
+      ASSERT_LESS(n, size(*this));
     return _data[n];
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
     Direct access to the value of the \p i row and the \p j column.
     @pre \p i<nrows(*this)
@@ -332,21 +332,21 @@ namespace Markov_LA
     @warning run-time error is likely if i*ncols()+j>=size(*this)
     @post \p (*this)(i,j)==(*this)[i*ncols()+j]
     */
-
+  
   template<typename T>
   T&  M_Matrix<T>::operator() (std::size_t i,std::size_t j)
   {
     if (_nrows<=i)
-       ASSERT_LESS(i,_nrows);//number of rows
+      ASSERT_LESS(i,_nrows);//number of rows
     if (_ncols<=j)
-    ASSERT_LESS(j,_ncols); //number of columns
-     return (*this)[i*_ncols+j];
+      ASSERT_LESS(j,_ncols); //number of columns
+    return (*this)[i*_ncols+j];
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
     Constant access to the value of the \p i row and the \p j column.
     @pre \p i<nrows(*this)
@@ -361,16 +361,16 @@ namespace Markov_LA
     ASSERT_LESS(j,_ncols); //number of columns
     return (*this)[i*_ncols+j];
   }
-
-
+  
+  
   //@}
-
-
-
+  
+  
+  
   /** @name  Accesing all the values of a Row or Column at once
      */
   //@{
-
+  
   /**
     Replacement of the ith Row.
     @param iRow the extracted row (0 is the first as always in C)
@@ -386,7 +386,7 @@ namespace Markov_LA
     internal structure (i.e., ncols and nrows) is ignored.
     @post assert the precoditions
     */
-
+  
   template<typename T>
   M_Matrix<T>&  M_Matrix<T>::operator() (std::size_t iRow,
                                          std::string /*dummy*/,
@@ -398,11 +398,11 @@ namespace Markov_LA
       this->operator()(iRow,j)=newValues[j];
     return *this;
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
     Replacement of the jth Column.
     @param newValues contains the numbers used to relace jth Column
@@ -418,8 +418,8 @@ namespace Markov_LA
     newValues
     @post assert the precoditions
     */
-
-
+  
+  
   template<typename T>
   M_Matrix<T>&  M_Matrix<T>::operator() (const std::string /*dummy*/,
                                          std::size_t jColumn,
@@ -427,7 +427,7 @@ namespace Markov_LA
   {
     ASSERT_LESS(jColumn,ncols(*this));//number of rows
     ASSERT_EQ(size(newValues),nrows(*this)); //number of columns
-
+    
     for (std::size_t i=0; i<std::min(nrows(*this),size(newValues)); i++)
       this->operator()(i,jColumn)=newValues[i];
     //  assert(ndim>1);
@@ -435,11 +435,11 @@ namespace Markov_LA
     //  assert(j<n[1]); //number of columns
     return *this;
   }
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
     Copy of the ith Row
     @pre iRow is smaller than nrows(*this)
@@ -448,7 +448,7 @@ namespace Markov_LA
     extraction
     \returns a 1-row ncols Matrix with the values of the ith row
     */
-
+  
   template<typename T>
   M_Matrix<T>  M_Matrix<T>::operator() (std::size_t iRow,
                                         const std::string /*dummy*/
@@ -460,12 +460,12 @@ namespace Markov_LA
       out[j]=this->operator()(iRow,j);
     return out;
   }
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
   /**
     Copy of the jth Column
     @pre jColumn is smaller than ncols(*this)
@@ -474,7 +474,7 @@ namespace Markov_LA
     from row extraction
     \returns a nrows 1-column Matrix with the values of the jth column
     */
-
+  
   template<typename T>
   M_Matrix<T>  M_Matrix<T>::operator() (std::string /*dummy*/,
                                         std::size_t jColumn
@@ -486,47 +486,52 @@ namespace Markov_LA
       out[i]=(*this)(i,jColumn);
     return out;
   }
-
+  
   //@}
-
-
+  
+  
   /** @name template class M_Matrix<T> instantiations
      */
   //@{
-
+  
   /** Instantation to double
       */
   template class M_Matrix<double>;
-
-
+  
+  
+  
+  /** Instantation to int
+      */
+  template class M_Matrix<int>;
+  
   /** Instantation to std::size_t
       */
   template class M_Matrix<std::size_t>;
   //@}
-
-
+  
+  
   /** @name template class M_Matrix<T> member instantiations
      */
   //@{
-
+  
   /** Instantation of typecast std::size_t to double
       */
   template  M_Matrix<double>::M_Matrix(const M_Matrix<std::size_t>&);
-
-
-
+  
+  
+  
   /** Instantation of typecast std::size_t to double
       */
   template  M_Matrix<std::size_t>::M_Matrix(const M_Matrix<double>&);
-
+  
   //@}
-
-
+  
+  
   /** @name Functions friend of M_Matrix<T> inspecting its size
      */
   //@{
-
-
+  
+  
   /**
     Get the Number of elements (cells) of the matrix
     @post size(x)=nrows(x)*ncols(x)
@@ -536,20 +541,20 @@ namespace Markov_LA
   {
     return x._ncells;
   }
-
-
-
-
+  
+  
+  
+  
   /**
     Get the Number of rows of the matrix
-
+    
     */
   template <typename T>
   std::size_t nrows(const M_Matrix<T>& x)
   {return x._nrows;}
-
-
-
+  
+  
+  
   /**
     Get the Number of columns of the matrix
     */
@@ -558,54 +563,76 @@ namespace Markov_LA
   {
     return x._ncols;
   }
-
+  
   //@}
-
+  
   //@}
-
-
+  
+  
   /** @name Template Instantiations of size Inspectors
      */
   //@{
-
+  
   /**
      Instantiation for double
     */
   template size_t size(const M_Matrix<double>& x);
   /**
+     Instantiation for int
+    */
+  template size_t size(const M_Matrix<int>& x);
+  /**
      Instantiation for std::size_t
     */
   template size_t size(const M_Matrix<std::size_t>& x);
-
-
+  
+  
   /**
      Instantiation for double
     */
   template
   size_t nrows(const M_Matrix<double>& x);
   /**
+     Instantiation for int
+    */
+  template
+  size_t nrows(const M_Matrix<int>& x);
+  
+  /**
      Instantiation for std::size_t
     */
   template
   size_t nrows(const M_Matrix<std::size_t>& x);
-
-
-
+  
+  
+  
   /**
      Instantiation for double
     */
   template
   size_t ncols(const M_Matrix<double>& x);
+  
+  /**
+     Instantiation for int
+    */
+  template
+  size_t ncols(const M_Matrix<int>& x);
+  
+  
+  
   /**
      Instantiation for std::size_t
     */
   template
   size_t ncols(const M_Matrix<std::size_t>& x);
-
-
+  
+  
+  
+  
+  
   //@}
-
-
+  
+  
   /** @name  Friend Swap Operator
      */
   //@{
@@ -615,7 +642,7 @@ namespace Markov_LA
  @post the Matrices are interchanged
  @remarks it swaps pointers, so it is fast
 */
-
+  
   template<typename S>
   void swap(M_Matrix<S>& x, M_Matrix<S>& y)
   {
@@ -624,12 +651,12 @@ namespace Markov_LA
     std::swap(x._ncells, y._ncells);
     std::swap(x._data, y._data);
   }
-
+  
   //@}
-
-
-
-
+  
+  
+  
+  
   /** @name  Template Instantiation of Friend Swap Operator
      */
   //@{
@@ -638,19 +665,19 @@ namespace Markov_LA
     */
   template void swap(M_Matrix<double>& x,
   M_Matrix<double>& y);
-
+  
   /**
      Instantiation for std::size_t
     */
   template void swap(M_Matrix<std::size_t>& x,
   M_Matrix<std::size_t>& y);
-
+  
   //@}
-
+  
   /** @name  Relational operators on M_Matrix<T>
      */
   //@{
-
+  
   /**
     Matrix Equality Operator
     @returns true only if all the elements are equal
@@ -680,18 +707,18 @@ namespace Markov_LA
         return true;
       }
   }
-
+  
   /** UnEqual Operator based on the Equality Operator.
     @see operator==(const M_Matrix<T>&,const M_Matrix<T>&)
     */
-
+  
   template<typename T>
   bool operator!=(const M_Matrix<T>& x, const M_Matrix<T>& y)
   {
     return !(x == y);
   }
-
-
+  
+  
   /** Minor Operator based on a Lexicographic Comparison.
      It uses as keys each one of the elements of the Matrix,
      starting from (*this)[0]
@@ -713,7 +740,7 @@ namespace Markov_LA
         if (tol.isLess(x[i], y[i])) return true;
       }
   }
-
+  
   /** Major Operator based on the Minor Operator.
     @see operator<(const M_Matrix<T>&,const M_Matrix<T>&)
     */
@@ -722,7 +749,7 @@ namespace Markov_LA
   {
     return y < x;
   }
-
+  
   /** MinorEqual Operator based on the Minor Operator.
     @see operator<(const M_Matrix<T>&,const M_Matrix<T>&)
     */
@@ -731,21 +758,21 @@ namespace Markov_LA
   {
     return !(y < x);
   }
-
+  
   /** MajorEqual Operator based on the Minor Operator.
     @see operator<(const M_Matrix<T>&,const M_Matrix<T>&)
     */
-
+  
   template<typename T>
   bool operator>=(const M_Matrix<T>& x, const M_Matrix<T>& y)
   {
     return !(x < y);
   }
-
+  
   //@}
-
-
-
+  
+  
+  
   /**  Double Operator. Converts a one by one matrix to a double.
       Assert that its a one by one matrix.
       @pre  ncols()==nrows()==size()==1
@@ -758,101 +785,112 @@ namespace Markov_LA
     ASSERT_EQ(size(matrix),1);
     return matrix[0];
   }
-
+  
   template double ToDouble(const M_Matrix<double>& matrix);
-
-
-
-
-
+  
+  
+  
+  
+  
   /**
     @name Template Instantiation of Relational Operators on Matrix
      */
   //@{
-
-
+  
+  
   /** Instantation to double
     */
   template bool operator ==(const M_Matrix<double>& x,
   const M_Matrix<double>& y);
-
-
-
+  
+  
+  
   /** Instantation to std::size_t
     */
   template bool operator ==(const M_Matrix<std::size_t>& x,
   const M_Matrix<std::size_t>& y);
-
-
+  
+  
   /** Instantation to double
     */
-  template  bool operator < (const M_Matrix<double>& x,const M_Matrix<double>& y);
-
-                            /** Instantation to std::size_           */
-
-
-                            template
-                            bool operator < (const M_Matrix<std::size_t>& x,
-                                            const M_Matrix<std::size_t>& y);
-
-
-                                            /** Instantation to double
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  */
-                                            template
-                                            bool operator>(const M_Matrix<double>& x,
-                            const M_Matrix<double>& y);
-
-
-                            /** Instantation to std::size_t
-                                                                                                                                                       */
-                            template
-                           bool operator>(const M_Matrix<std::size_t>& x,
-  const M_Matrix<std::size_t>& y);
-
-
-  /** Instantation to double
-    */
-  template
-  bool operator<=(const M_Matrix<double>& x,
-  const M_Matrix<double>& y);
-
-
-  /** Instantation to std::size_t
-    */
-  template
-  bool operator<=(const M_Matrix<std::size_t>& x,
-  const M_Matrix<std::size_t>& y);
-
-
-  /** Instantation to double
-    */
-  template
-  bool operator>=(const M_Matrix<double>& x,
-  const M_Matrix<double>& y);
-
-
-  /** Instantation to std::size_t
-    */
-  template
-  bool operator>=(const M_Matrix<std::size_t>& x,
-  const M_Matrix<std::size_t>& y);
-
-
-  /** Instantation to double
-    */
-  template
-  bool operator!=(const M_Matrix<double>& x,
-  const M_Matrix<double>& y);
-
-
-  /** Instantation to std::size_t
-    */
-  template
-  bool operator!=(const M_Matrix<std::size_t>& x,
-  const M_Matrix<std::size_t>& y);
-
-
-  //@}
+  template  bool operator<(const M_Matrix<double>& x,
+                          const M_Matrix<double>& y);
+  
+                          template  
+                          bool operator<(const M_Matrix<int>& x,
+                                        const M_Matrix<int>& y);
+                                                   /** Instantation to std::size_           */
+                                                   
+                                                   
+                                                   template
+                                                   bool operator < (const M_Matrix<std::size_t>& x,
+                                                                   const M_Matrix<std::size_t>& y);
+                                                                   
+                                                                   
+                                                                   /** Instantation to double
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   */
+                                                                   template
+                                                                   bool operator>(const M_Matrix<double>& x,
+                                                   const M_Matrix<double>& y);
+                                                   
+                                                   
+                                                   /** Instantation to std::size_t
+                                                                                                                                                                                                                                                                                                                                        */
+                                                   template
+                                                   bool operator>(const M_Matrix<std::size_t>& x,
+                          const M_Matrix<std::size_t>& y);
+                          
+                          
+                          /** Instantation to double
+                                                                              */
+                          template
+                          bool operator<=(const M_Matrix<double>& x,
+                          const M_Matrix<double>& y);
+                          
+                          /** Instantation to int
+                                                                              */
+                          template
+                          bool operator<=(const M_Matrix<int>& x,
+                          const M_Matrix<int>& y);
+                          
+                          
+                          /** Instantation to std::size_t
+                                                                              */
+                          template
+                          bool operator<=(const M_Matrix<std::size_t>& x,
+                          const M_Matrix<std::size_t>& y);
+                          
+                          
+                          /** Instantation to double
+                                                                              */
+                          template
+                          bool operator>=(const M_Matrix<double>& x,
+                          const M_Matrix<double>& y);
+                          
+                          
+                          /** Instantation to std::size_t
+                                                                              */
+                          template
+                          bool operator>=(const M_Matrix<std::size_t>& x,
+                          const M_Matrix<std::size_t>& y);
+                          
+                          
+                          /** Instantation to double
+                                                                              */
+                          template
+                          bool operator!=(const M_Matrix<double>& x,
+                          const M_Matrix<double>& y);
+                          
+                          
+                          /** Instantation to std::size_t
+                                                                              */
+                          template
+                          bool operator!=(const M_Matrix<std::size_t>& x,
+                          const M_Matrix<std::size_t>& y);
+                          
+                          
+                          //@}
 } //namespace Markov_LA
-
-
+                          
+                          
+                          

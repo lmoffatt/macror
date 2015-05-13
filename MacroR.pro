@@ -33,10 +33,7 @@ HEADERS += \
     Include/Markov_GUI/MacrorMainWindow.h \
     Include/Markov_GUI/MacrorCommandWindow.h \
     Include/Markov_GUI/MacrorCommandHistory.h \
-    Include/Markov_GUI/MacrorModelsWindow.h \
     Include/Markov_GUI/ABC_ObjectsWindow.h \
-    Include/Markov_GUI/MacrorPatchsWindow.h \
-    Include/Markov_GUI/MacrorExperimentsWindow.h \
     Include/Markov_Plot/GraphWindow.h \
     Include/Markov_Plot/Scale.h \
     Include/Markov_Plot/XY_PlotData.h \
@@ -65,11 +62,7 @@ SOURCES += \
     Source/Markov_GUI/MacrorMainWindow.cpp \
     Source/Markov_GUI/MacrorCommandWindow.cpp \
     Source/Markov_GUI/MacrorCommandHistory.cpp \
-    Source/Markov_GUI/MacrorModelsWindow.cpp \
     Source/Markov_GUI/ABC_ObjectsWindow.cpp \
-    Source/Markov_GUI/MacrorModelsWindow.cpp \
-    Source/Markov_GUI/MacrorPatchsWindow.cpp \
-    Source/Markov_GUI/MacrorExperimentsWindow.cpp \
     Source/Markov_Plot/GraphWindow.cpp \
     Source/Markov_Plot/Scale.cpp \
     Source/Markov_Plot/XY_PlotData.cpp \

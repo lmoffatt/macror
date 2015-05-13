@@ -520,6 +520,12 @@ bool ToValue(const std::string& str,T*& value)
   bool ToValue(const std::string& str,Markov_LA::M_Matrix<std::size_t>& T);
 
 
+  /*!
+    Implementation for Markov_LA::M_Matrix<int>
+  */
+  template
+  bool ToValue(const std::string& str,Markov_LA::M_Matrix<int>& T);
+
 
   template
   bool ToValue(const std::string& str,bool& T);

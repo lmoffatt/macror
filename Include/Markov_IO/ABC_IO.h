@@ -315,6 +315,13 @@ namespace Markov_IO
 
     /// put a string to the output source
     virtual void put(const std::string&)=0;
+     void put(char c)
+    {
+      std::string s;
+      s.push_back(c);
+      put(s);
+    }
+
     virtual void putError(const std::string& ) =0;
 
     virtual std::string getItemFromList(const std::string& title,

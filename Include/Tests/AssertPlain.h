@@ -62,7 +62,7 @@ inline void catchExit(int message)
 #endif
 
 #ifndef NDEBUG
-#   define ASSERT_FALSE(condition) \
+#   define ASSERT_false(condition) \
     do { \
 	if (condition) { \
 	    std::cerr.precision(std::numeric_limits<double>::digits10+2);\
@@ -78,12 +78,12 @@ inline void catchExit(int message)
 	} \
        } while (false)
 #else
-#   define ASSERT_FALSE(condition) do { } while (false)
+#   define ASSERT_false(condition) do { } while (false)
 #endif
 
 
 #ifndef NDEBUG
-#   define ASSERT_FALSE_M(condition,message) \
+#   define ASSERT_false_M(condition,message) \
     do { \
 	if (condition) { \
 	    std::cerr.precision(std::numeric_limits<double>::digits10+2);\
@@ -101,7 +101,7 @@ inline void catchExit(int message)
 	} \
        } while (false)
 #else
-#   define ASSERT_FALSE_M(condition,message) do { } while (false)
+#   define ASSERT_false_M(condition,message) do { } while (false)
 #endif
 
 
@@ -239,7 +239,7 @@ inline void catchExit(int message)
 #endif
 
 #ifndef NDEBUG
-#   define ASSERT_FALSE(condition) \
+#   define ASSERT_false(condition) \
     do { \
 	if (condition) { \
 	    std::cerr.precision(std::numeric_limits<double>::digits10+2);\
@@ -249,12 +249,12 @@ inline void catchExit(int message)
 	} \
        } while (false)
 #else
-#   define ASSERT_FALSE(condition) do { } while (false)
+#   define ASSERT_false(condition) do { } while (false)
 #endif
 
 
 #ifndef NDEBUG
-#   define ASSERT_FALSE_M(condition,message) \
+#   define ASSERT_false_M(condition,message) \
     do { \
 	if (condition) { \
 	    std::cerr.precision(std::numeric_limits<double>::digits10+2);\
@@ -265,7 +265,7 @@ inline void catchExit(int message)
 	} \
        } while (false)
 #else
-#   define ASSERT_FALSE_M(condition,message) do { } while (false)
+#   define ASSERT_false_M(condition,message) do { } while (false)
 #endif
 
 

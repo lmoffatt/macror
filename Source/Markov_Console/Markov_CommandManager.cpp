@@ -49,22 +49,13 @@ namespace Markov_Console
 {
 
 
-  bool Markov_CommandManagerVar::push_CommandLine(std::string &line)
-  {
-    Markov_IO::Token_Stream t;
-   // io_->move_cursor();
-    t.getToken()<<line<<"\n";
-    return processTokens(t);
-
-  }
-
 
 
   bool Markov_CommandManagerVar::processTokens(Markov_IO::Token_Stream &t)
   {
     if (t.currToken().tok()==Markov_IO::Token_New::IDENTIFIER)
       {
-        auto id=t.currToken().id();
+        auto id=t.currToken().str();
         if (has_command(id))
           {
             return getCommand(id)->processTokens(t);
@@ -123,9 +114,11 @@ namespace Markov_Console
 
   Markov_CommandManagerVar::Markov_CommandManagerVar():
     io_(nullptr),
+    e(new ExpressionManager(this)),
+
     dir_{Markov_IO::getWorkingPath()},
     cmds{},
-    vars{},
+    variables_{},
     varByType{},
     varsl{},
     tokens{},
@@ -133,14 +126,15 @@ namespace Markov_Console
     h("")
 
   {
+
     //    auto dirs=Markov_IO::getSubDirs(dir_);
     //    filesl=LoadFiles(getDir());
     //    autoCmptByKind[ABC_Command::directory()]=Autocomplete(dirs);
     //    autoCmptByKind[ABC_Command::fileName()]=LoadFiles(getDir());
 
-    //    Loadcommands();
+           Loadcommands();
     //    cmdsl=Autocomplete(cmds);
-    //    LoadTypes();
+        LoadTypes();
   }
 
 
@@ -279,7 +273,7 @@ namespace Markov_Console
 
   std::size_t Markov_CommandManagerVar::getVersion(const std::string& line)
   {
-    if (line.find("MacroR")==0)
+    if ((line.find("MacroR")!=line.npos)||(line.find("MacroConsole")!=line.npos))
       {
         std::size_t n=line.find_last_of('.');
         if (n!=line.npos)
@@ -320,14 +314,14 @@ namespace Markov_Console
     if (!has_child(v->id()))
       {
         pushChild(v);
-        vars[v->id()]=v;
+        variables_[v->id()]=v;
         autoCmptByCategories[idVarName()].push_back(v->id());
       }
   }
 
 
   bool Markov_CommandManagerVar::has_var(const std::string& name)const{
-    return (vars.find(name)!=vars.end());
+    return (variables_.find(name)!=variables_.end());
   }
 
 

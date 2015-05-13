@@ -55,34 +55,34 @@ MacrorCommandWindow::~MacrorCommandWindow()
 
 void MacrorCommandWindow::commandLine(const QString& line)
 {
-  if (!graphCommandLine(line))
-    {
-      MarkovCommand()->add_tokens(line.toStdString());
-      if (MarkovCommand()->next_instruction())
-        emit commandLineExecuted(line);
-    }
+//  if (!graphCommandLine(line))
+//    {
+//      MarkovCommand()->add_tokens(line.toStdString());
+//      if (MarkovCommand()->next_instruction())
+//        emit commandLineExecuted(line);
+//    }
 }
 
 void MacrorCommandWindow::addCommandLine(const QString& line)
 {
-  MarkovCommand()->add_tokens(line.toStdString());
+//  MarkovCommand()->add_tokens(line.toStdString());
 
-  moveCursor(QTextCursor::End);
-  insertPlainText(line);
+//  moveCursor(QTextCursor::End);
+//  insertPlainText(line);
 
-  cmdLine=line;
+//  cmdLine=line;
 
-  textCursor().movePosition(QTextCursor::EndOfLine);
+//  textCursor().movePosition(QTextCursor::EndOfLine);
 
-  textCursor().insertText("\n");
+//  textCursor().insertText("\n");
 
-  commandLine(cmdLine);
-  put(">>");
-  cm_->clear_tokens();
-  cmdLine.clear();
-  cmdWord.clear();
-  tail.clear();
-  cm_->getH().reset();
+//  commandLine(cmdLine);
+//  put(">>");
+////  cm_->clear_tokens();
+//  cmdLine.clear();
+//  cmdWord.clear();
+//  tail.clear();
+//  cm_->getH().reset();
 }
 
 
@@ -108,18 +108,18 @@ bool MacrorCommandWindow::graphCommandLine(const QString& line)
 
 bool MacrorCommandWindow::plot(const QString& line)
 {
-  if (MarkovCommand()->checkVariable(line.toStdString(),Markov_IO::ABC_Experiment::ClassName()))
-    {
-      Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
-            MarkovCommand()->getVar(line.toStdString()));
-      Markov_Plot::GraphicPage* g=Markov_Plot::plot(0,MarkovCommand(),e->id(),*e);
-      mw_->createGraph(g);
+//  if (MarkovCommand()->checkVariable(line.toStdString(),Markov_IO::ABC_Experiment::ClassName()))
+//    {
+//      Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
+//            MarkovCommand()->getVar(line.toStdString()));
+//      Markov_Plot::GraphicPage* g=Markov_Plot::plot(0,MarkovCommand(),e->id(),*e);
+//      mw_->createGraph(g);
 
 
-      return true;
+//      return true;
 
-    }
-  else return false;
+//    }
+//  else return false;
 }
 
 // TODO: replace with ABC_Var logic
@@ -165,7 +165,7 @@ void MacrorCommandWindow::next_instruction()
 
 }
 
-Markov_Console::Markov_CommandManager* MacrorCommandWindow::MarkovCommand()
+Markov_Console::Markov_CommandManagerVar *MacrorCommandWindow::MarkovCommand()
 {
   return cm_;
 }
@@ -223,13 +223,13 @@ MacrorCommandWindow::MarkovCommand()const
 
 bool MacrorCommandWindow::lastCommandResult()const
 {
-  return MarkovCommand()->lastCommandResult();
+//  return MarkovCommand()->lastCommandResult();
 }
 
 void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
 {
 
-  Markov_IO::Key k=static_cast<Markov_IO::Key>(e->key());
+  Markov_IO::Key k=QKeyToKey(e);
   cm_->KeyEvent(k);
 
 }
@@ -254,6 +254,8 @@ void MacrorCommandWindow::put(const std::string& s)
   moveCursor(QTextCursor::End);
   repaint();
 }
+
+
 
 /// put a string to the output source
 void MacrorCommandWindow::putError(const std::string& s)

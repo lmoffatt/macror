@@ -172,5 +172,8 @@ const T& ToleranceComparison<T>::RelativeTolerance()const
 
 
 template class ToleranceComparison<double>;
+template class ToleranceComparison<int>;
 template class ToleranceComparison<std::size_t>;
+
+
 }

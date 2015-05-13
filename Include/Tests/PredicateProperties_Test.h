@@ -67,7 +67,7 @@ public:
 	    for (std::size_t j=0; j<x_.size();j++)
 	    {
 		if (Op_(x_[i],x_[j]))
-		    ASSERT_FALSE_M(Op_(x_[j],x_[i]),Op_<<"  "<<x_[i]<<"  "<<x_[j]);
+		    ASSERT_false_M(Op_(x_[j],x_[i]),Op_<<"  "<<x_[i]<<"  "<<x_[j]);
 		}
 	}
 	return true;
@@ -102,7 +102,7 @@ public:
     {
 	for (std::size_t i=0; i<x_.size();i++)
 	{
-	    ASSERT_FALSE_M(Op_(x_[i],x_[i]),Op_<<"  "<<x_[i]);
+	    ASSERT_false_M(Op_(x_[i],x_[i]),Op_<<"  "<<x_[i]);
 	}
 	return true;
     }

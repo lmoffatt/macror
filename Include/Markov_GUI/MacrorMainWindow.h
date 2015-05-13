@@ -9,9 +9,7 @@
 
 #include "Markov_GUI/MacrorCommandWindow.h"
 #include "Markov_GUI/MacrorCommandHistory.h"
-#include "Markov_GUI/MacrorModelsWindow.h"
-#include "Markov_GUI/MacrorPatchsWindow.h"
-#include "Markov_GUI/MacrorExperimentsWindow.h"
+#include"Markov_GUI/ABC_ObjectsWindow.h"
 
 #include "Markov_Plot/GraphicPage.h"
 #include "Markov_Plot/GraphView.h"
@@ -162,10 +160,10 @@ private:
 
     MacrorCommandHistory *commandHistory;
 
-    MacrorModelsWindow * modelsWindow;
+    ABC_ObjectsWindow * modelsWindow;
 
-    MacrorPatchsWindow * patchsWindow;
-    MacrorExperimentsWindow * experimentsWindow;
+    ABC_ObjectsWindow * patchsWindow;
+    ABC_ObjectsWindow * experimentsWindow;
 
     QList<Markov_Plot::GraphicPage*> graphWindows;
 
