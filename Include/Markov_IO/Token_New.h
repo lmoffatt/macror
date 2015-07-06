@@ -120,10 +120,7 @@ namespace Markov_IO {
 
     static std::string toString(Value identifier);
 
-    char popLastChar();
-
-    bool CharIsSuccesfullyFeed(char ch);
-
+    
 
 
     Token_New();
@@ -136,14 +133,45 @@ namespace Markov_IO {
 
     Token_New(const std::string &d);
 
-     Token_New(Value v);
+    Token_New(Value v);
 
     explicit Token_New(char ch);
 
     friend class Token_Stream;
 
+    enum DAF{
+      S_Init, S_Partial, S_Final
+    };
+
+
+    void clear();
+
+    bool pushChar(char c);
+
+    char popLastChar();
+
+    bool CharIsSuccesfullyFeed(char ch);
+
+
+
+    bool isFinal()const
+    {
+      return myState_==S_Final;
+    }
+    bool isInitial()const
+    {
+      return myState_==S_Init;
+    }
+
+    bool isValid()const
+    {
+      return curr_tok!=INVALID;
+    }
+
+   static bool canBePartial(Value v);
   private:
     Value curr_tok;
+    DAF myState_;
     double number_;
     int int_;
     std::size_t size_;
@@ -154,6 +182,13 @@ namespace Markov_IO {
 
 
   class ABC_Value;
+
+
+
+
+
+
+
 
 
   class streamLike
@@ -380,7 +415,7 @@ namespace Markov_IO {
           id=t_.at(posParserTok_).str();
           idclass=t_.at(posParserTok_+2).str();
           posParserTok_+=3;
-          return false;
+          return true;
         }
       else
         return false;

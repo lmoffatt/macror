@@ -132,9 +132,9 @@ namespace Markov_Console
     //    autoCmptByKind[ABC_Command::directory()]=Autocomplete(dirs);
     //    autoCmptByKind[ABC_Command::fileName()]=LoadFiles(getDir());
 
-           Loadcommands();
+    Loadcommands();
     //    cmdsl=Autocomplete(cmds);
-        LoadTypes();
+    LoadTypes();
   }
 
 
@@ -152,6 +152,22 @@ namespace Markov_Console
     return STRINGIZE(HELP_PATH);
   }
 
+  std::string Markov_CommandManagerVar::whichCategory(const std::string &candidate, const Markov_IO::ABC_Value *categories)
+  {
+
+  }
+
+  bool Markov_CommandManagerVar::setDir(const std::string &dir)
+  {
+    if (!Markov_IO::IsDir(dir))
+      return false;
+    dir_=dir;
+    autoCmptByCategories[directory()]=Autocomplete(Markov_IO::getSubDirs(dir));
+     //TODO: include this former functionality (list of macror files)
+    // filesl=LoadFiles(dir);
+    return true;
+  }
+
 
 
 
@@ -162,7 +178,7 @@ namespace Markov_Console
   }
 
 
-  std::string Markov_CommandManagerVar::buildVersion()const
+  std::string ProgramVersion::buildVersion()
   {
     std::string d=Markov_IO::getExecutableDir();
     std::string fname=STRINGIZE(GIT_VER_PATH);
@@ -180,7 +196,7 @@ namespace Markov_Console
     return lineHash;
   }
 
-  std::string Markov_CommandManagerVar::buildDate()const
+  std::string ProgramVersion::buildDate()
   {
     std::string d=Markov_IO::getExecutableDir();
     std::string fname=STRINGIZE(GIT_VER_PATH);
@@ -199,7 +215,7 @@ namespace Markov_Console
     return lineDate;
   }
 
-  std::string Markov_CommandManagerVar::uncommitedFiles()const
+  std::string ProgramVersion::uncommitedFiles()
   {
     std::string d=Markov_IO::getExecutableDir();
     std::string fname=STRINGIZE(UNCOMMITED_PATH);
@@ -222,7 +238,7 @@ namespace Markov_Console
     return lineUncommited;
   }
 
-  std::string Markov_CommandManagerVar::wellcomeMessage(unsigned ncols)const
+  std::string ProgramVersion::wellcomeMessage(unsigned ncols)const
   {
     std::string wllc;
     std::string decorating_line(ncols,'#');
@@ -265,30 +281,10 @@ namespace Markov_Console
   }
 
 
-  std::string Markov_CommandManagerVar::version()const
+  std::string ProgramVersion::version()const
   {
     std::string version="MacroConsole 0.1";
     return version;
-  }
-
-  std::size_t Markov_CommandManagerVar::getVersion(const std::string& line)
-  {
-    if ((line.find("MacroR")!=line.npos)||(line.find("MacroConsole")!=line.npos))
-      {
-        std::size_t n=line.find_last_of('.');
-        if (n!=line.npos)
-          {
-            std::string num=line.substr(n+1);
-            std::size_t ver;
-            if (Markov_IO::ToValue(num,ver))
-              return ver;
-            else
-              return 0;
-          }
-        else
-          return 0;
-      }
-    return 0;
   }
 
 
@@ -311,6 +307,31 @@ namespace Markov_Console
 
   void Markov_CommandManagerVar::add_var(Markov_IO::ABC_Var *v)
   {
+    if (v!=nullptr)
+      {
+        Markov_IO::ABC_Value* c=getClass(v->myVar());
+        auto d=c->toIndicatedVar(v);
+
+        if (d!=nullptr)
+          {
+            delete v;
+            if (!has_var(d->id()))
+              push_var(d);
+            else
+              delete d;
+          }
+        else
+          {
+            if (!has_var(v->id()))
+              push_var(v);
+            else
+              delete v;
+          }
+      }
+ }
+
+    void Markov_CommandManagerVar::push_var(Markov_IO::ABC_Var *v)
+{
     if (!has_child(v->id()))
       {
         pushChild(v);
@@ -336,24 +357,6 @@ namespace Markov_Console
 
   }
 
-
-  bool Markov_CommandManagerVar::processVariable(ExpressionManager &e){
-    auto t=e.tokens();
-    Markov_IO::ABC_Value* d=Markov_IO::ABC_Value::getValueFromStream(t);
-    if (d!=nullptr)
-      {
-        Markov_IO::ABC_Value* c=getClass(d->myVar());
-        d=c->toIndicatedVar(d);
-        if (d!=nullptr)
-          // TODO: decide who takes care of removing c moveFromData or processVariable
-
-          return true;
-        else
-          return false;
-      }
-    else
-      return false;
-  }
 
 
 
@@ -888,23 +891,6 @@ namespace Markov_Console
 
   }
 
-  void Markov_CommandManager::process(ExpressionManager &e)
-  {
-
-
-    /// command or variable definition?
-    /// variable definition is identifier colon known class identifier
-    /// command is identifier equals known command identifier
-    /// or known command identifier.
-    ///
-
-    if (processCommand(e))
-      ;
-    else if (processVariable(e))
-      ;
-    else
-      ;
-  }
 
   ABC_Command* Markov_CommandManager::getCommand(const Markov_IO::Token_New& t)
   {
@@ -921,22 +907,6 @@ namespace Markov_Console
   }
 
 
-  bool Markov_CommandManager::processCommand(ExpressionManager &e)
-  {
-    ABC_Command* c=getCommand(e.at(0));
-    if (c!=nullptr)
-      return c->run(e.tokens());
-    else if (e.at(1).tok()==Markov_IO::Token_New::ASSIGN)
-      {
-        c=getCommand(e.at(2));
-        if (c!=nullptr)
-          return c->run(e.tokens());
-        else
-          return false;
-      }
-    else
-      return false;
-  }
 
   Markov_IO::ABC_Value* Markov_CommandManager::getClass(std::string name)
   {
@@ -950,23 +920,6 @@ namespace Markov_Console
   }
 
 
-  bool Markov_CommandManager::processVariable(ExpressionManager &e){
-    auto t=e.tokens();
-    Markov_IO::ABC_Value* d=Markov_IO::ABC_Value::getValueFromStream(t);
-    if (d!=nullptr)
-      {
-        Markov_IO::ABC_Value* c=getClass(d->myVar());
-        d=c->toIndicatedVar(d);
-        if (d!=nullptr)
-          // TODO: decide who takes care of removing c moveFromData or processVariable
-
-          return true;
-        else
-          return false;
-      }
-    else
-      return false;
-  }
 
 
 
@@ -1175,7 +1128,7 @@ namespace Markov_Console
     auto l=getChildList();
     for (std::string el:l)
       {
-        if (getChild(el,className)!=nullptr)
+        if (idToValue(el,className)!=nullptr)
           {
             list.push_back(el);
           }

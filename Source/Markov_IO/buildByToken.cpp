@@ -1,4 +1,5 @@
 #include "Markov_IO/buildByToken.h"
+#include "Markov_Console/Markov_CommandManager.h"
 
 namespace Markov_IO {
 
@@ -721,19 +722,272 @@ namespace Markov_IO {
 
   }
 
+  bool build_Command_Input::pushToken(Token_New t)
+  {
+    switch (mystate)
+      {
+      case S_Init:
+        if (t.tok()==Token_New::IDENTIFIER)
+          {
+
+            if (cm_->has_command(t.str()))
+              {
+                cmd_=cm_->getCommand(t.str());
+                input_=cmd_->toPlainMeasure();
+                if (hasAllInputs(input_))
+                  mystate=S_Input_Final;
+                else
+                  mystate=S_ID_Final;
+                return true;
+              }
+            else return false;
+          }
+        else return false;
+        break;
+      case  S_Mandatory_Final:
+        if (t.tok()==Token_New::EOL)
+          {
+            mystate=S_Final;
+            return true;
+          }
+      case S_ID_Final:
+      case S_Input_Partial:
+        if (processVariableInput(t))
+          {
+            if (hasAllInputs(input_))
+              mystate=S_Input_Final;
+            else if (hasAllMandatoryInputs(cmd_,input_))
+              mystate=S_Mandatory_Final;
+            else
+              mystate=S_Input_Partial;
+            return true;
+
+          }
+        else return false;
+        break;
+
+     case S_Input_Final:
+        if (t.tok()==Token_New::EOL)
+          {
+            mystate=S_Final;
+            return true;
+          }
+      case S_Final:
+      default:
+        return false;
+        break;
+
+      }
+
+  }
+
+  std::set<std::string> build_Command_Input::alternativesNext() const
+  {
+    switch (mystate)
+      {
+      case S_Init:
+        return cm_->getCommandList();
+        break;
+      case S_ID_Final:
+        return {Token_New::toString(Token_New::BEGIN)};
+        break;
+      case S_Header_2:
+        return {Token_New::toString(Token_New::EOL)};
+        break;
+
+      case S_Header_Final:
+      case S_Field_Partial:
+        return v_.alternativesNext();
+      case S_Field_Final:
+
+        {
+          auto out =v_.alternativesNext();
+          out.insert(x_->myVar());
+          return out;
+        }
+      case S_END_2:
+        return {Token_New::toString(Token_New::END)};
+        break;
+      case S_END_Final:
+        return {Token_New::toString(Token_New::EOL)};
+        break;
+        break;
+      case S_Final:
+      default:
+        return {};
+        break;
+      }
+  }
+
+
+  std::set<std::string> build_Command_Input::alternativesNext() const
+  {
+
+  }
+
+  Token_New build_Command_Input::popBackToken()
+  {
+
+  }
+
+  Implements_Complex_Value *build_Command_Input::unloadVar()
+  {
+
+  }
+
+  bool build_Command_Input::unPop(Implements_Complex_Value *var)
+  {
+
+  }
 
 
 
+  bool build_Command_Input::hasAllInputs(const ABC_Value *v)
+  {
+    if (v==nullptr)
+      return false;
+    else
+      {
+        for (unsigned i=0; i<v->numChilds(); ++i)
+          {
+            auto o=v->idToValue(v->ith_ChildName(i));
+            if ((o==nullptr)||(o->refId().empty()))
+              return false;
+          }
+        return true;
+      }
+  }
+
+  bool build_Command_Input::hasAllMandatoryInputs(Markov_Console::ABC_CommandVar *cmd
+                                                  , const ABC_Value *v)
+  {
+    if (v==nullptr)
+      return false;
+    else
+      {
+        for (unsigned i=0; i<v->numChilds(); ++i)
+          {
+            std::string name=v->ith_ChildName(i);
+            if (cmd->isMandatory(name))
+              {
+                auto o=v->idToValue(v->ith_ChildName(i));
+
+                if ((o==nullptr)||(o->refId().empty()))
+                  return false;
+              }
+          }
+        return true;
+      }
+
+  }
+
+  bool build_Command_Input::processVariableInput( Token_New input)
+  {
+    switch (input.tok())
+      {
+      case Token_New::IDENTIFIER:
+        {
+          auto o=cm_->idToValue(input.str());
+          if (o!=nullptr)
+            {
+              for (unsigned i=0; i<input_->numChilds(); ++i)
+                {
+                  std::string idith=input_->ith_ChildName(i);
+                  auto oith=input_->idToValue(idith);
+                  if ((oith->refId().empty())&&o->complyClass(oith->myVar()))
+                    {
+                      auto r=dynamic_cast<Implements_Refer_Var*>(oith);
+                      r->setRefId(input.str());
+                      return true;
+                    }
+
+                }
+              return false;
+
+            }
+          else
+            {
+              for (unsigned i=0; i<input_->numChilds(); ++i)
+                {
+                  std::string idith=input_->ith_ChildName(i);
+                  auto oith=input_->idToValue(idith);
+                  if ((oith->refId().empty())
+                      &&oith->myVar()
+                      ==Implements_Simple_Value<std::string>::ClassName())
+                    {
+                      auto onew=new Implements_Simple_Value<std::string>(*oith);
+                      onew->setValue(input.str());
+                      input_->pushChild(onew);
+                      return true;
+                    }
+
+                }
+              return false;
+
+            }
+
+        }
+        break;
+      case Token_New::REAL:
+      case Token_New::INTEGER:
+      case Token_New::UNSIGNED:
+
+        {
+          for (unsigned i=0; i<input_->numChilds(); ++i)
+            {
+              std::string idith=input_->ith_ChildName(i);
+              auto oith=input_->idToValue(idith);
+              if (input.isReal()
+                  &&oith->refId().empty()
+                  &&oith->myVar()
+                  ==Implements_Simple_Value<double>::ClassName())
+                {
+                  auto onew=new Implements_Simple_Value<double>(*oith);
+                  onew->setValue(input.realValue());
+                  input_->pushChild(onew);
+                  return true;
+                }
+              else if (input.isInteger()
+                       &&oith->refId().empty()
+                       &&oith->myVar()
+                       ==Implements_Simple_Value<int>::ClassName())
+                {
+                  auto onew=new Implements_Simple_Value<int>(*oith);
+                  onew->setValue(input.intval());
+                  input_->pushChild(onew);
+                  return true;
+                }
+              else if (input.isCount()
+                       &&oith->refId().empty()
+                       &&oith->myVar()
+                       ==Implements_Simple_Value<std::size_t>::ClassName())
+                {
+                  auto onew=new Implements_Simple_Value<std::size_t>(*oith);
+                  onew->setValue(input.count());
+                  input_->pushChild(onew);
+                  return true;
+                }
 
 
 
+            }
+          return false;
+
+        }
 
 
-
-
-
-
-
-
+      default:
+        return false;
+        break;
+      }
+  }
 
 }
+
+
+
+
+
+
+
+

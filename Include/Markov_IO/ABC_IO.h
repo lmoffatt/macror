@@ -179,8 +179,8 @@ namespace Markov_IO
   inline bool isOperator(Key k)
   {
     return (((k>=Key_Exclam)&&(k<Key_0))
-            ||(k>Key_9)&&(k<Key_A)
-            ||(k>Key_Z)&&(k<Key_a)
+            ||((k>Key_9)&&(k<Key_A))
+            ||((k>Key_Z)&&(k<Key_a))
             ||(k>Key_z)&&(k<=Key_AsciiTilde));
 
   }
@@ -315,12 +315,25 @@ namespace Markov_IO
 
     /// put a string to the output source
     virtual void put(const std::string&)=0;
-     void put(char c)
+
+    virtual void insertText(const std::string& s)=0;
+
+    virtual void insertErrorText(const std::string& s)=0;
+
+
+    void put(char c)
     {
       std::string s;
       s.push_back(c);
       put(s);
     }
+     void putError(char c)
+    {
+      std::string s;
+      s.push_back(c);
+      putError(s);
+    }
+
 
     virtual void putError(const std::string& ) =0;
 

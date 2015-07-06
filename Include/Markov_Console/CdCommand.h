@@ -4,7 +4,37 @@
 
 namespace Markov_Console
 {
-class CdCommand:public ABC_Command
+
+  class CdCommandVar:public ABC_CommandVar
+{
+public:
+    CdCommandVar(Markov_CommandManagerVar* cm);
+
+
+    /// virtual destructor
+    virtual ~CdCommandVar(){}
+
+
+
+    // ABC_Value interface
+  public:
+    virtual bool processTokens(Markov_IO::Token_Stream &t);
+
+  private:
+    virtual bool run(const std::string& dirName);
+
+
+  };
+
+
+
+
+
+
+
+
+
+  class CdCommand:public ABC_Command
 {
 public:
     CdCommand(Markov_CommandManager* cm);

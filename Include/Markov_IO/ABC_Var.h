@@ -20,6 +20,10 @@
 
 
 
+namespace Markov_Console {
+  class Markov_CommandManagerVar;
+}
+
 
 
 namespace  Markov_IO {
@@ -213,11 +217,21 @@ namespace  Markov_IO {
     //                      Abstract methods
     //******************************************************************
 
+
+    //**********************************************
+
+
     /// it returns a copy of the value representation of the object
     /// it works as a Parameter
     virtual ABC_Value* to_PlainValue() const =0;
 
     virtual ABC_Value* to_PlainValue(const ABC_Measure* measure)const =0;
+
+
+
+
+
+
 
 
     virtual Token_Stream toTokens()const=0;
@@ -232,6 +246,9 @@ namespace  Markov_IO {
     /// however it does not have the same parent
     virtual ABC_Value* clone()const=0;   //
 
+
+
+
     virtual std::string id()const=0;
     virtual void setId(const std::string& idName)=0;
 
@@ -239,7 +256,6 @@ namespace  Markov_IO {
     virtual std::string refId()const=0;
 
     virtual std::string myVar()const=0;
-
 
 
     virtual void setVar(const std::string& varname)=0;
@@ -271,15 +287,14 @@ namespace  Markov_IO {
     virtual void setParentValue(ABC_Value* par)=0;
 
     virtual std::string ith_ChildName(std::size_t i)const=0;
-    virtual std::string childVar(const std::string& idName)const=0;
 
-    virtual const ABC_Value* getChild(const std::string& name)const=0;
-    virtual ABC_Value* getChild(const std::string &name)=0;
+    virtual const ABC_Value* idToValue(const std::string& name)const=0;
+    virtual ABC_Value* idToValue(const std::string &name)=0;
     virtual void removeChild(const std::string& name)=0;
 
 
-    virtual const ABC_Value* getChild(const std::string& name,const std::string& kind)const=0;
-    virtual ABC_Value* getChild(const std::string &name, const std::string &kind) =0;
+    virtual const ABC_Value* idToValue(const std::string& name,const std::string& kind)const=0;
+    virtual ABC_Value* idToValue(const std::string &name, const std::string &kind) =0;
 
     virtual void pushChild(ABC_Value* var)=0;
 
@@ -360,7 +375,7 @@ namespace  Markov_IO {
     {
       if (v)
         {
-          auto m=getChild(v->myVar());
+          auto m=idToValue(v->myVar());
           if (m)
             return m->toIndicatedVar(v);
           else
@@ -372,7 +387,7 @@ namespace  Markov_IO {
 
     bool has_child(const std::string& name)const
     {
-      return getChild(name)!=nullptr;
+      return idToValue(name)!=nullptr;
     }
 
 
@@ -385,21 +400,6 @@ namespace  Markov_IO {
     }
 
     void pushIdChild(const std::string& id,ABC_Value* var);
-
-    bool sameFields(const ABC_Value* other)const
-    {
-      if ((other==nullptr)||(numChilds()!=other->numChilds()))
-        return false;
-      for (std::size_t i=0; i<numChilds(); ++i)
-        {
-          auto name=ith_ChildName(i);
-          auto cl=childVar(name);
-          auto o=other->getChild(name,cl);
-          if (o==nullptr)
-            return false;
-        }
-      return true;
-    }
 
 
 
@@ -463,6 +463,15 @@ namespace  Markov_IO {
     virtual ABC_Measure* toMeasure(const ABC_Value* source)const=0;
 
 
+    virtual ABC_Var* toPlainSameVar()const=0;
+
+
+    virtual ABC_Measure* toPlainMeasure()const=0;
+
+
+
+
+
 
     //******************************************************************
     //              protected static members
@@ -498,7 +507,7 @@ namespace  Markov_IO {
     {
       if ((parentValue()!=nullptr)&&(!isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_ValueId*>(parentValue()->getChild(id()));
+          auto s=dynamic_cast<Implements_ValueId*>(parentValue()->idToValue(id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -536,13 +545,12 @@ namespace  Markov_IO {
     const ABC_Value *parentValue() const override;
     virtual std::size_t numChilds() const override;
     virtual std::string ith_ChildName(std::size_t) const override;
-    virtual std::string childVar(const std::string &) const override;
-    virtual const ABC_Value* getChild(const std::string&)const override;
-    virtual ABC_Value* getChild(const std::string &) override;
+    virtual const ABC_Value* idToValue(const std::string& idName)const override;
+    virtual ABC_Value* idToValue(const std::string & idName) override;
 
     virtual void removeChild(const std::string& ) override;
-    virtual const ABC_Value* getChild(const std::string&, const std::string&)const  override;
-    virtual ABC_Value* getChild(const std::string &, const std::string &) override;
+    virtual const ABC_Value* idToValue(const std::string&idName, const std::string&varName)const  override;
+    virtual ABC_Value* idToValue(const std::string &idName, const std::string &varName) override;
     virtual void pushChild(ABC_Value *) override;
 
     virtual std::string refId()const override;
@@ -555,9 +563,9 @@ namespace  Markov_IO {
     virtual bool complyModes(const std::string m)const override
     {
       if ((parentValue()!=nullptr)
-          &&(parentValue()->getChild(myVar())!=nullptr))
+          &&(parentValue()->idToValue(myVar())!=nullptr))
         {
-          auto const mo=parentValue()->getChild(myVar())->modes();
+          auto const mo=parentValue()->idToValue(myVar())->modes();
           if(mo.find(m)!=mo.end())
             return true;
           else
@@ -614,6 +622,19 @@ namespace  Markov_IO {
     {
       return nullptr;
     }
+
+
+    virtual ABC_Value* toPlainMeasure()const override
+    {
+      return nullptr;
+    }
+
+
+    virtual ABC_Var* toPlainSameVar()const override
+    {
+      return nullptr;
+    }
+
 
   protected:
 
@@ -759,7 +780,7 @@ namespace  Markov_IO {
     {
       if ((this->parentValue()!=nullptr)&&(!this->isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_Simple_Value<T>*>(this->parentValue()->getChild(this->id()));
+          auto s=dynamic_cast<Implements_Simple_Value<T>*>(this->parentValue()->idToValue(this->id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -908,7 +929,7 @@ namespace  Markov_IO {
     {
       if ((parentValue()!=nullptr)&&(!isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_Complex_Value*>(parentValue()->getChild(id()));
+          auto s=dynamic_cast<Implements_Complex_Value*>(parentValue()->idToValue(id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -918,8 +939,7 @@ namespace  Markov_IO {
 
     virtual std::size_t numChilds() const override;
     virtual std::string ith_ChildName(std::size_t i) const override;
-    virtual std::string childVar(const std::string &idName) const override;
-    virtual const ABC_Value* getChild(const std::string& name)const override;
+    virtual const ABC_Value* idToValue(const std::string& name)const override;
 
 
     virtual ABC_Value* popLastChild()
@@ -927,7 +947,7 @@ namespace  Markov_IO {
       if (!ids_.empty())
         {
           std::string lastChild=ids_.back();
-          ABC_Value* out=getChild(lastChild);
+          ABC_Value* out=idToValue(lastChild);
           removeChild(lastChild);
           return out;
         }
@@ -959,10 +979,10 @@ namespace  Markov_IO {
 
     virtual void removeChild(const std::string& name)override;
 
-    virtual  ABC_Value* getChild(const std::string& name)override;
-    virtual const ABC_Value* getChild(const std::string& name,
+    virtual  ABC_Value* idToValue(const std::string& name)override;
+    virtual const ABC_Value* idToValue(const std::string& name,
                                       const std::string &myclass)const override;
-    virtual ABC_Value* getChild(const std::string& name, const std::string &myclass) override;
+    virtual ABC_Value* idToValue(const std::string& name, const std::string &myclass) override;
     virtual void pushChild(ABC_Value *var) override;
 
 
@@ -982,10 +1002,9 @@ namespace  Markov_IO {
       for (std::size_t i=0; i<other.numChilds(); ++i)
         {
           std::string name=other.ith_ChildName(i);
-          auto o=other.getChild(name);
+          auto o=other.idToValue(name);
           if (o!=nullptr)
             pushChild(o->clone());
-          childclss_[name]=other.childVar(name);
         }
     }
 
@@ -998,7 +1017,6 @@ namespace  Markov_IO {
       :
         Implements_ValueId(other),
         ids_(other.ids_),
-        childclss_(other.childclss_),
         vars_(other.vars_)
     {
       cloneChids();
@@ -1008,7 +1026,6 @@ namespace  Markov_IO {
     Implements_Complex_Value(Implements_Complex_Value&& other):
       Implements_ValueId(std::move(other)),
       ids_(std::move(other.ids_)),
-      childclss_(std::move(other.childclss_)),
       vars_(std::move(other.vars_))
     {
       resetChildsParent();
@@ -1021,7 +1038,6 @@ namespace  Markov_IO {
           privateDelete();
           Implements_ValueId::operator =(std::move(other));
           ids_=std::move(other.ids_);
-          childclss_=std::move(other.childclss_);
           vars_=std::move(other.vars_);
           resetChildsParent();
         }
@@ -1060,6 +1076,18 @@ namespace  Markov_IO {
 
     virtual bool processTokens( Token_Stream& t) override;
 
+
+
+    virtual ABC_Value* toPlainMeasure()const override
+    {
+      return nullptr;
+    }
+
+
+    virtual ABC_Var* toPlainSameVar()const override
+    {
+      return nullptr;
+    }
 
 
 
@@ -1105,7 +1133,6 @@ namespace  Markov_IO {
         }
     }
     std::vector<std::string> ids_;
-    std::map<std::string, std::string> childclss_;
     std::map<std::string,ABC_Value*> vars_;
 
   };
@@ -1167,7 +1194,7 @@ namespace  Markov_IO {
     {
       if ((this->parentValue()!=nullptr)&&(!this->isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_ValMethod_Var<C,T>*>(this->parentValue()->getChild(this->id()));
+          auto s=dynamic_cast<Implements_ValMethod_Var<C,T>*>(this->parentValue()->idToValue(this->id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -1881,7 +1908,7 @@ namespace  Markov_IO {
     {
       if ((this->parentValue()!=nullptr)&&(!this->isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_EnumMethod_Var<C,Enum>*>(this->parentValue()->getChild(this->id()));
+          auto s=dynamic_cast<Implements_EnumMethod_Var<C,Enum>*>(this->parentValue()->idToValue(this->id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -1973,7 +2000,7 @@ namespace  Markov_IO {
       if ((parentValue()!=nullptr)&&(!isRootedVariable()))
         {
 
-          C* r=dynamic_cast<C*>(parentValue()->getChild(id()));
+          C* r=dynamic_cast<C*>(parentValue()->idToValue(id()));
           if (r!=nullptr)
             *this=*r;
 
@@ -2031,7 +2058,7 @@ namespace  Markov_IO {
     {
       if ((parentValue()!=nullptr)&&(!isRootedVariable()))
         {
-          auto s=dynamic_cast<Implements_Class_Reflection<C>*>(parentValue()->getChild(id()));
+          auto s=dynamic_cast<Implements_Class_Reflection<C>*>(parentValue()->idToValue(id()));
           if (s!=nullptr)
             *this=*s;
 
@@ -2134,7 +2161,7 @@ namespace  Markov_IO {
       auto out= new Implements_Complex_Value(id(),myVar(),Tip(),WhatThis());
       for (std::size_t i=0; i<numChilds(); ++i)
         {
-          auto a=getChild(ith_ChildName(i));
+          auto a=idToValue(ith_ChildName(i));
           auto e=a->to_PlainValue();
           out->pushChild(e);
         }
@@ -2167,7 +2194,7 @@ namespace  Markov_IO {
     {
       for (std::size_t i=0; i<numChilds(); i++)
         {
-          ABC_Value* a=this->getChild(ith_ChildName(i));
+          ABC_Value* a=this->idToValue(ith_ChildName(i));
           ABCObject<C>* c=dynamic_cast<ABCObject<C>*>(a);
           if (c!=nullptr)
             {
@@ -2334,8 +2361,10 @@ namespace  Markov_IO {
     T default_;
     T min_;
     T max_;
-
   };
+
+
+
 
 
 
@@ -2370,7 +2399,14 @@ namespace  Markov_IO {
 
     }
 
+
+
     Implements_Refer_Var()=default;
+
+
+    bool tryToken(Markov_Console::Markov_CommandManagerVar* cm
+                  ,Token_New t);
+
 
   private:
     ABC_Value* refVar() ;
@@ -2385,11 +2421,11 @@ namespace  Markov_IO {
 
     virtual std::string ith_ChildName(std::size_t i)const  override;
 
-    virtual const ABC_Value* getChild(const std::string& name)const  override;
-    virtual ABC_Value* getChild(const std::string &name)  override;
+    virtual const ABC_Value* idToValue(const std::string& name)const  override;
+    virtual ABC_Value* idToValue(const std::string &name)  override;
 
-    virtual const ABC_Value* getChild(const std::string& name,const std::string& kind)const  override;
-    virtual ABC_Value* getChild(const std::string &name, const std::string &kind)  override;
+    virtual const ABC_Value* idToValue(const std::string& name,const std::string& kind)const  override;
+    virtual ABC_Value* idToValue(const std::string &name, const std::string &kind)  override;
 
 
     virtual void pushChild(ABC_Value* var) override;
@@ -2405,7 +2441,10 @@ namespace  Markov_IO {
   public:
 
     struct fieldDef{
-      std::string superClass; std::string className; std::string tip; std::string whatthis;
+      std::string superClass;
+      std::string tip;
+      std::string whatthis;
+      bool isMandatory;
 
     };
 
@@ -2416,15 +2455,31 @@ namespace  Markov_IO {
                              const std::map<std::string, fieldDef> m);
 
 
+    Implements_Complex_Class(){}
+
 
     virtual bool isInDomain(const ABC_Value *value) const  override;
     // ABC_Complex_Var interface
   public:
     virtual void push_back(const std::string& idName,
-                           const std::string& superclassname,
                            const std::string& classname,
                            const std::string& tip,
-                           const std::string& whatthis);
+                           const std::string& whatthis,
+                           bool mandatory);
+
+
+    virtual bool isMandatory(const std::string id)const;
+
+    virtual std::size_t numMandatoryChilds()const;
+
+    virtual ABC_Measure* toPlainMeasure()const override
+    {
+        return Implements_Complex_Value::to_PlainValue();
+    }
+
+
+  private:
+    std::set<std::string> isMandatory_;
 
 
   };
@@ -2557,7 +2612,7 @@ namespace  Markov_IO {
   template<>
   inline bool ABC_Value::getVal(const std::string &name, const ABC_Value  *& value) const
   {
-    const ABC_Value* o=getChild(name);
+    const ABC_Value* o=idToValue(name);
     if (o!=nullptr)
       {
         value=o;
@@ -2570,7 +2625,7 @@ namespace  Markov_IO {
   template<typename T>
   bool ABC_Value::getVal(const std::string &name, T &value) const
   {
-    auto a=getChild(name);
+    auto a=idToValue(name);
     if (a==nullptr)
       return false;
     const ABC_Simple_Value<T>* o=dynamic_cast<const ABC_Simple_Value<T>*>(a);
@@ -2597,7 +2652,7 @@ namespace  Markov_IO {
   template<typename T>
   bool ABC_Value::moveVal(const std::string &name, T &value)
   {
-    auto a=getChild(name);
+    auto a=idToValue(name);
     if (a==nullptr)
       return false;
     ABC_Simple_Value<T>* o=dynamic_cast<ABC_Simple_Value<T>*>(a);
@@ -2627,7 +2682,7 @@ namespace  Markov_IO {
   template<typename T>
   T& ABC_Value::getReference(const std::string &name, T &value)
   {
-    auto a=getChild(name);
+    auto a=idToValue(name);
     if (a==nullptr)
       return value;
 
@@ -2654,7 +2709,7 @@ namespace  Markov_IO {
   template<>
   inline ABC_Value*& ABC_Value::getReference(const std::string &name, ABC_Value  *& value)
   {
-    ABC_Value* o=getChild(name);
+    ABC_Value* o=idToValue(name);
     if (o!=nullptr)
       {
         value=o;
@@ -2807,7 +2862,7 @@ namespace  Markov_IO {
   template<typename T>
   bool ABC_Value::replaceValue(const std::string &name, const T &value)
   {
-    ABC_Value*p=getChild(name);
+    ABC_Value*p=idToValue(name);
     Implements_Simple_Value<T>* o=dynamic_cast<Implements_Simple_Value<T>*>(p);
 
     if (o!=nullptr)
@@ -2824,7 +2879,7 @@ namespace  Markov_IO {
   template<>
   inline  bool ABC_Value::replaceValue(const std::string &name, ABC_Value* const& value)
   {
-    if ((value==nullptr)||(value->id()!=name)||(getChild(name)==nullptr))
+    if ((value==nullptr)||(value->id()!=name)||(idToValue(name)==nullptr))
       return false;
     pushChild(value);
     return true;
@@ -2915,14 +2970,14 @@ namespace  Markov_IO {
   template<typename Enum>
   const Implements_Categorical<Enum> *Implements_Categorical<Enum>::myVarPtr() const
   {
-    return dynamic_cast<const Implements_Categorical<Enum>*>(parentValue()->getChild(myVar()));
+    return dynamic_cast<const Implements_Categorical<Enum>*>(parentValue()->idToValue(myVar()));
   }
 
 
   template<typename Enum>
   Implements_Categorical<Enum> *Implements_Categorical<Enum>::myVarPtr()
   {
-    return dynamic_cast< Implements_Categorical<Enum>*>(parentValue()->getChild(myVar()));
+    return dynamic_cast< Implements_Categorical<Enum>*>(parentValue()->idToValue(myVar()));
   }
 
 

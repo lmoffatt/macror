@@ -68,10 +68,91 @@ namespace Markov_IO {
       case HASH:
         return true;
         break;
+      case EMPTY:
+      case ANY:
+      case IDENTIFIER:
+      case STRING:
+      case INTEGER:
+      case UNSIGNED:
+      case REAL:
+      case INVALID:
+      case DCOLON://::
+      case  LEQ:// <=
+      case  EQ: //==
+      case  NEQ: //~=
+      case  GEQ: // >=
+      case  WHILE: //while
+      case  DO:  //do
+      case  IF: //if
+      case  THEN: // then
+      case  BEGIN: //begin
+      case  END: // end
+      case  ELSE: // else
+      case  SWITCH: //switch
+      case  CASE:// case
+
       default:
         return false;
         break;
       }
+  }
+
+
+
+
+
+  bool Token_New::canBePartial(Token_New::Value v)
+  {
+    switch (v) {
+      case EOL:
+      case PLUS:
+      case MUL:
+      case DIV:
+      case EXPONENT:
+      case COMMA:
+      case SEMICOLON:
+      case LP:
+      case RP:
+      case LSB:
+      case RSB:
+      case LCB:
+      case RCB:
+      case AND:
+      case OR:
+      case HASH:
+      case  DCOLON:
+      case  LEQ:
+      case  EQ:
+      case  NEQ:
+      case  GEQ:
+        return false;
+      case COLON:
+      case ASSIGN:
+      case NOT:
+      case LSS:
+      case GTR:
+      case DOT:
+      case MINUS:
+      case UNSIGNED:
+      case REAL:
+      case INTEGER:
+      case STRING:
+      case IDENTIFIER:
+      case INVALID:
+      case  WHILE:
+      case  DO:
+      case  IF:
+      case  THEN:
+      case  BEGIN:
+      case  END:
+      case  ELSE:
+      case  SWITCH:
+      case  CASE:
+        return true;
+
+
+      }
+
   }
 
   ///
@@ -90,12 +171,14 @@ namespace Markov_IO {
     int_=0;
     size_=0;
     number_=0;
+    myState_=S_Init;
     char ch;
 
     do {	// skip whitespace except '\en'
         if(!stream.get(ch))
           {
             curr_tok = END;
+            myState_=S_Final;
             return stream;
           }
       } while (isSpaceChar(ch));
@@ -104,6 +187,7 @@ namespace Markov_IO {
       case '\n':
         str_=ch;
         curr_tok=EOL;
+        myState_=S_Final;
         return stream;
         break;
       case '+':
@@ -121,17 +205,23 @@ namespace Markov_IO {
       case '|':
         str_=ch;
         curr_tok=Value(ch);
+        myState_=S_Final;
+
         return stream;
 
       case '#':
         str_=ch;
         curr_tok=HASH;
+        myState_=S_Final;
         return stream;
+
       case ':':
         if(!stream.get(ch))
           {
             str_=ch;
             curr_tok = COLON;
+            myState_=S_Final;
+
             stream.clear();
             return stream;
           }
@@ -139,6 +229,7 @@ namespace Markov_IO {
           {
             str_="::";
             curr_tok=DCOLON;
+            myState_=S_Final;
             return stream;
           }
         else
@@ -146,6 +237,8 @@ namespace Markov_IO {
             str_=":";
             stream.putback(ch);
             curr_tok=COLON;
+            myState_=S_Final;
+
             return stream;
           }
 
@@ -154,6 +247,8 @@ namespace Markov_IO {
           {
             str_="=";
             curr_tok = ASSIGN;
+            myState_=S_Final;
+
             stream.clear();
             return stream;
           }
@@ -161,6 +256,7 @@ namespace Markov_IO {
           {
             str_="==";
             curr_tok=EQ;
+            myState_=S_Final;
             return stream;
           }
         else
@@ -168,12 +264,14 @@ namespace Markov_IO {
             str_="=";
             stream.putback(ch);
             curr_tok=ASSIGN;
+            myState_=S_Final;
             return stream;
           }
       case '~':
         if(!stream.get(ch))
           {
             curr_tok = NOT;
+            myState_=S_Final;
             stream.clear();
             return stream;
           }
@@ -181,6 +279,7 @@ namespace Markov_IO {
           {
             str_="~=";
             curr_tok=NEQ;
+            myState_=S_Final;
             return stream;
           }
         else
@@ -188,12 +287,14 @@ namespace Markov_IO {
             stream.putback(ch);
             str_="~";
             curr_tok=NOT;
+            myState_=S_Final;
             return stream;
           }
       case '<':
         if(!stream.get(ch))
           {
             curr_tok = LSS;
+            myState_=S_Final;
             stream.clear();
             return stream;
           }
@@ -201,6 +302,8 @@ namespace Markov_IO {
           {
             str_="<=";
             curr_tok=LEQ;
+            myState_=S_Final;
+
             return stream;
           }
         else
@@ -214,6 +317,8 @@ namespace Markov_IO {
         if(!stream.get(ch))
           {
             curr_tok = GTR;
+            myState_=S_Final;
+
             stream.clear();
             return stream;
           }
@@ -221,6 +326,8 @@ namespace Markov_IO {
           {
             str_=">=";
             curr_tok=GEQ;
+            myState_=S_Final;
+
             return stream;
           }
         else
@@ -228,6 +335,7 @@ namespace Markov_IO {
             stream.putback(ch);
             str_=">";
             curr_tok=GTR;
+            myState_=S_Final;
             return stream;
           }
 
@@ -235,6 +343,8 @@ namespace Markov_IO {
         if(!stream.get(ch))
           {
             curr_tok = DOT;
+            myState_=S_Final;
+
             stream.clear();
             return stream;
           }
@@ -242,6 +352,7 @@ namespace Markov_IO {
           {
             str_="..";
             curr_tok=STRING;
+            myState_=S_Final;
 
             return stream;
           }
@@ -257,6 +368,8 @@ namespace Markov_IO {
         if(!stream.get(ch))
           {
             curr_tok = MINUS;
+            myState_=S_Final;
+
             stream.clear();
             return stream;
           }
@@ -264,6 +377,7 @@ namespace Markov_IO {
           {
             stream.putback(ch);
             curr_tok=MINUS;
+            myState_=S_Final;
             return stream;
           }
 
@@ -299,6 +413,8 @@ namespace Markov_IO {
             ss>>number_;
             if (!std::isdigit(ch))
               stream.putback(ch);
+            myState_=S_Final;
+
             return stream;
 
           }
@@ -317,11 +433,15 @@ namespace Markov_IO {
             catch (...)
             {
               curr_tok=INVALID;
+              myState_=S_Final;
+
               return stream;
             }
 
             if (!isdigit(ch))
               stream.putback(ch);
+            myState_=S_Final;
+
             return stream;
           }
         if (curr_tok==INTEGER)
@@ -334,6 +454,8 @@ namespace Markov_IO {
         catch(...){ curr_tok=INVALID;}
         if (!isdigit(ch))
           stream.putback(ch);
+        myState_=S_Final;
+
         return stream;
       case '"':
         str_.push_back(ch);
@@ -345,6 +467,8 @@ namespace Markov_IO {
             //error("missing `""` ");
             curr_tok=STRING;
             stream.setstate(stream.rdstate() | std::ios_base::failbit);
+            myState_=S_Final;
+
             return stream;
           }
         else
@@ -352,6 +476,8 @@ namespace Markov_IO {
             curr_tok=STRING;
             str_.push_back(ch);
           }
+        myState_=S_Final;
+
         return stream;
 
       default:			// NAME, NAME=, or error
@@ -365,6 +491,8 @@ namespace Markov_IO {
 
             curr_tok=toKeyword(str_);
             stream.clear();
+            myState_=S_Final;
+
             return stream;
           }
         else
@@ -385,19 +513,24 @@ namespace Markov_IO {
 
   double Token_New::realValue() const
   {
-    switch (curr_tok) {
-      case UNSIGNED:
-        return size_;
-      case INTEGER:
-        return int_;
-      case REAL:
-        return number_;
-      default:
-        return {};
-      } }
+    if (isFinal())
+      switch (curr_tok) {
+        case UNSIGNED:
+          return size_;
+        case INTEGER:
+          return int_;
+        case REAL:
+          return number_;
+        default:
+          return {};
+        }
+    else return {};
+
+  }
 
   int Token_New::intval() const
   {
+    if (!isFinal()) return {};
     switch (curr_tok) {
       case UNSIGNED:
         return size_;
@@ -413,6 +546,7 @@ namespace Markov_IO {
 
   std::size_t Token_New::count() const
   {
+    if (!isFinal()) return {};
     switch (curr_tok) {
       case UNSIGNED:
         return size_;
@@ -447,11 +581,15 @@ namespace Markov_IO {
 
   bool Token_New::isReal() const
   {
-    return (tok()==REAL)||(tok()==INTEGER)||(tok()==UNSIGNED);
+    if (!isFinal()) return false;
+    else
+      return (tok()==REAL)||(tok()==INTEGER)||(tok()==UNSIGNED);
   }
 
   bool Token_New::isInteger() const
   {
+    if (!isFinal()) return false;
+    else
     if ((tok()==INTEGER)||(tok()==UNSIGNED))
       return true;
     else if (tok()==REAL){
@@ -463,6 +601,9 @@ namespace Markov_IO {
 
   bool Token_New::isCount() const
   {
+    if (!isFinal()) return false;
+    else
+
     if (tok()==UNSIGNED)
       return true;
     else if ((tok()==INTEGER)){
@@ -683,236 +824,233 @@ namespace Markov_IO {
     char r=str_.back();
     str_.pop_back();
     curr_tok=toKeyword(str_);
-    switch (curr_tok) {
-      case UNSIGNED:
-        try {
-          size_=std::stoul(str_);
-
-        } catch (...) {
-          curr_tok=INVALID;
-        }
-        break;
-      case REAL:
-        try {
-          number_=std::stod(str_);
-        } catch (...) {
-          curr_tok=INVALID;
-        }
-        break;
-      case INTEGER:
-        try {
-          int_=std::stoi(str_);
-        } catch (...) {
-          curr_tok=INVALID;
-        }
-        break;
-      default:
-        break;
-      }
+    if (curr_tok==EMPTY)
+      myState_=S_Init;
+    else if (!canBePartial(curr_tok))
+      myState_=S_Final;
+    else
+      myState_=S_Partial;
     return r;
   }
   bool Token_New::CharIsSuccesfullyFeed(char ch)
   {
-    switch (curr_tok) {
-      case EMPTY:
+    if (myState_==S_Final)
+      return false;
+    else if (myState_==S_Init)
+      {
         curr_tok=toToken(ch);
-        str_.push_back(ch);
-        return true;
-        break;
-      case EOL:
-      case PLUS:
-      case MUL:
-      case DIV:
-      case EXPONENT:
-      case COMMA:
-      case SEMICOLON:
-      case LP:
-      case RP:
-      case LSB:
-      case RSB:
-      case LCB:
-      case RCB:
-      case AND:
-      case OR:
-      case HASH:
-      case  DCOLON:
-      case  LEQ:
-      case  EQ:
-      case  NEQ:
-      case  GEQ:
-      case  WHILE:
-      case  DO:
-      case  IF:
-      case  THEN:
-      case  BEGIN:
-      case  END:
-      case  ELSE:
-      case  SWITCH:
-      case  CASE:
-        return false;
-
-      case COLON:
-        if (ch==':')
-          {
-            curr_tok=DCOLON;
-            str_.push_back(ch);
-            return true;
-          }
-        else
+        if (curr_tok==INVALID)
           {
             return false;
           }
-      case ASSIGN:
-        if (ch=='=')
-          {
-            curr_tok=EQ;
-            str_.push_back(ch);
-            return true;
-          }
         else
           {
-            return false;
-          }
-      case NOT:
-        if (ch=='=')
-          {
-            curr_tok=NEQ;
             str_.push_back(ch);
+            if (oneCharIsEnough(curr_tok))
+              myState_=S_Final;
+            else
+              myState_=S_Partial;
             return true;
           }
-        else
-          {
-            return false;
-          }
-
-      case LSS:
-        if (ch=='=')
-          {
-            curr_tok=LEQ;
-            str_.push_back(ch);
-            return true;
-          }
-        else
-          {
-            return false;
-          }
-
-      case GTR:
-        if (ch=='=')
-          {
-            curr_tok=GEQ;
-            str_.push_back(ch);
-            return true;
-          }
-        else
-          {
-            return false;
-          }
-      case DOT:
-        if (ch=='.')
-          {
-            curr_tok=STRING;
-            str_.push_back(ch);
-            return true;
-          }
-        else
-          {
-            return false;
-          }
-      case MINUS:
-        if (isdigit(ch))
-          {
-            curr_tok=INTEGER;
-            str_.push_back(ch);
-            return true;
-          }
-        else
-          {
-            return false;
-          }
-      case UNSIGNED:
-        if (isdigit(ch))
-          {
-            str_.push_back(ch);
-            return true;
-          }
-        else if ((ch=='.')||(ch=='e')||(ch=='E'))
-          {
-            str_.push_back(ch);
-            curr_tok=REAL;
-            return true;
-          }
-        else
-          {
-            try {
-              size_=std::stoul(str_);
-            } catch (...) {
-              curr_tok=INVALID;
-            }
-            return false;
-          }
-      case REAL:
-        if (isdigit(ch)||ch=='E'||ch=='e'||ch=='.'
-            ||(((ch=='+')||(ch=='-'))&&((str_.back()=='e')||(str_.back()=='E'))))
-          {
-            str_.push_back(ch);
-            return true;
-          }
-        else
-          {
-            try {
-              number_=std::stod(str_);
-            } catch (...) {
-              curr_tok=INVALID;
-            }
-            return false;
-          }
-      case INTEGER:
-        if (isdigit(ch))
-          {
-            str_.push_back(ch);
-            return true;
-          }
-        else if ((ch=='.')||(ch=='e')||(ch=='E'))
-          {
-            curr_tok=REAL;
-            str_.push_back(ch);
-            return true;
-          }
-        else
-          {
-            try {
-              int_=std::stoi(str_);
-            } catch (...) {
-              curr_tok=INVALID;
-            }
-            return false;
-          }
-      case STRING:
-        if (str_.back()!='"')
-          {
-            str_.push_back(ch);
-            return true;
-          }
-        else
-          {
-            return false;
-          }
-      case IDENTIFIER:
-        if (isNameChar(ch))
-          {
-            str_.push_back(ch);
-            return true;
-          }
-        else
-          {
-            return false;
-          }
-      case INVALID:
-        {
-          return false;
-        }
       }
+    else if (!canBePartial(curr_tok))
+      {
+        myState_=S_Final;  // there is a logical error if we ever get here, since
+        // myState could not be S_Partial to begin with
+        return false;
+      }
+    else
+      switch (curr_tok) {
+        case COLON:
+          if (ch==':')
+            {
+              curr_tok=DCOLON;
+              str_.push_back(ch);
+              myState_=S_Final;
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+        case ASSIGN:
+          if (ch=='=')
+            {
+              curr_tok=EQ;
+              str_.push_back(ch);
+              myState_=S_Final;
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+        case NOT:
+          if (ch=='=')
+            {
+              curr_tok=NEQ;
+              str_.push_back(ch);
+              myState_=S_Final;
+
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+
+        case LSS:
+          if (ch=='=')
+            {
+              curr_tok=LEQ;
+              str_.push_back(ch);
+              myState_=S_Final;
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+
+        case GTR:
+          if (ch=='=')
+            {
+              curr_tok=GEQ;
+              str_.push_back(ch);
+              myState_=S_Final;
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+        case DOT:
+          if (ch=='.')
+            {
+              curr_tok=STRING;
+              str_.push_back(ch);
+              myState_=S_Final;
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+        case MINUS:
+          if (isdigit(ch))
+            {
+              curr_tok=INTEGER;
+              str_.push_back(ch);
+              myState_=S_Partial;  // it is already S_Partial, just for clarity
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+        case UNSIGNED:
+          if (isdigit(ch))
+            {
+              str_.push_back(ch);
+              myState_=S_Partial;
+              return true;
+            }
+          else if ((ch=='.')||(ch=='e')||(ch=='E'))
+            {
+              str_.push_back(ch);
+              curr_tok=REAL;
+              myState_=S_Partial;
+              return true;
+            }
+          else
+            {
+              try {
+                size_=std::stoul(str_);
+              } catch (...) {
+                curr_tok=INVALID;
+              }
+              myState_=S_Final;
+              return false;
+            }
+        case REAL:
+          if (isdigit(ch)||ch=='E'||ch=='e'||ch=='.'
+              ||(((ch=='+')||(ch=='-'))&&((str_.back()=='e')||(str_.back()=='E'))))
+            {
+              str_.push_back(ch);
+              myState_=S_Partial;
+              return true;
+            }
+          else
+            {
+              try {
+                number_=std::stod(str_);
+              } catch (...) {
+                curr_tok=INVALID;
+              }
+              myState_=S_Final;
+              return false;
+            }
+        case INTEGER:
+          if (isdigit(ch))
+            {
+              str_.push_back(ch);
+              myState_=S_Partial;
+              return true;
+            }
+          else if ((ch=='.')||(ch=='e')||(ch=='E'))
+            {
+              curr_tok=REAL;
+              str_.push_back(ch);
+              myState_=S_Partial;
+              return true;
+            }
+          else
+            {
+              try {
+                int_=std::stoi(str_);
+              } catch (...) {
+                curr_tok=INVALID;
+              }
+              myState_=S_Final;
+              return false;
+            }
+        case STRING:
+          if (str_.back()!='"')
+            {
+              str_.push_back(ch);
+              myState_=S_Partial;
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+        case IDENTIFIER:
+          if (isNameChar(ch))
+            {
+              str_.push_back(ch);
+              myState_=S_Partial;
+              return true;
+            }
+          else
+            {
+              myState_=S_Final;
+              return false;
+            }
+        case INVALID:
+          {
+            myState_=S_Partial;
+            return false;
+          }
+        }
 
   }
 
@@ -920,6 +1058,7 @@ namespace Markov_IO {
 
   Token_New::Token_New():
     curr_tok(EMPTY),
+    myState_(S_Init),
     number_(),
     int_(),
     size_(),
@@ -927,6 +1066,7 @@ namespace Markov_IO {
 
   Token_New::Token_New(double d):
     curr_tok{REAL},
+    myState_(S_Final),
     number_(d),
     int_{},
     size_{},
@@ -934,6 +1074,7 @@ namespace Markov_IO {
 
   Token_New::Token_New(int n):
     curr_tok{INTEGER},
+    myState_(S_Final),
     number_{},
     int_{n},
     size_{},
@@ -941,6 +1082,7 @@ namespace Markov_IO {
 
   Token_New::Token_New(std::size_t s):
     curr_tok{UNSIGNED},
+    myState_(S_Final),
     number_{},
     int_{},
     size_{s},
@@ -948,21 +1090,24 @@ namespace Markov_IO {
 
   Token_New::Token_New(const std::string& d):
     curr_tok{},
+    myState_(S_Final),
     number_{},
     str_{}{
     std::stringstream ss(d);
     get(ss);
   }
 
-   Token_New::Token_New(Token_New::Value v):
-      curr_tok{v},
-      number_{},
-      int_{},
-      size_{},
-      str_{toString(v)}{ }
+  Token_New::Token_New(Token_New::Value v):
+    curr_tok{v},
+    myState_(S_Final),
+    number_{},
+    int_{},
+    size_{},
+    str_{toString(v)}{ }
 
   Token_New::Token_New(char ch):
     curr_tok(toToken(ch)),
+    myState_(S_Final),
     number_(),
     int_(),
     size_(),
@@ -970,6 +1115,23 @@ namespace Markov_IO {
   {
     if (curr_tok!=STRING&&curr_tok!=EMPTY)
       str_.push_back(ch);
+  }
+
+  void Token_New::clear()
+  {
+    curr_tok=EMPTY;
+    myState_=S_Init;
+    number_={};
+    int_={};
+    size_={};
+    str_={};
+  }
+
+
+
+  bool Token_New::pushChar(char c)
+  {
+
   }
 
 

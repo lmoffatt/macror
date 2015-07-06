@@ -5,6 +5,27 @@
 
 namespace Markov_Console
 {
+
+  class ClearCommandVar: public ABC_CommandVar
+  {
+  public:
+      ClearCommandVar(Markov_CommandManagerVar* cm);
+
+      /// virtual destructor
+      virtual ~ClearCommandVar(){}
+
+
+
+     virtual bool processTokens(Markov_IO::Token_Stream &t);
+
+    private:
+      virtual bool run(const std::vector<std::string>& varnames);
+
+
+  };
+
+
+
 class ClearCommand:public ABC_Command
 {
 public:

@@ -80,7 +80,7 @@ bool WhoCommand::run(const std::string& className)
     for (std::size_t i=0;i<list.size();++i)
     {
         auto wN=list[i].size();
-        auto wC=cm_->getChild(list[i])->myVar().size();
+        auto wC=cm_->idToValue(list[i])->myVar().size();
         if (wN>widthName)
             widthName=wN;
 
@@ -92,8 +92,8 @@ bool WhoCommand::run(const std::string& className)
         ret.append(list[i]);
         std::size_t n=widthName-list[i].size()+3;
         ret.append(n,' ');
-        ret.append(cm_->getChild(list[i])->myVar());
-        n=widthClass-cm_->getChild(list[i])->myVar().size()+3;
+        ret.append(cm_->idToValue(list[i])->myVar());
+        n=widthClass-cm_->idToValue(list[i])->myVar().size()+3;
         ret.append(n,' ');
         ret += "\n";
     }

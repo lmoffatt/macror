@@ -34,8 +34,8 @@ namespace Markov_Console
 //      OptimizeCommand* optcm=new OptimizeCommand(this);
 //      cmds[optcm->commandName()]=optcm;
 
-//      CdCommand* cdCmd=new CdCommand(this);
-//      cmds[cdCmd->commandName()]=cdCmd;
+      CdCommandVar* cdCmd=new CdCommandVar(this);
+      cmds[cdCmd->id()]=cdCmd;
 
 //      DirCommand* dircmd=new DirCommand(this);
 //      cmds[dircmd->commandName()]=dircmd;
@@ -55,8 +55,8 @@ namespace Markov_Console
 //      MkdirCommand* mkdircmd=new MkdirCommand(this);
 //      cmds[mkdircmd->commandName()]=mkdircmd;
 
-//      ExitCommand* exitcmd=new ExitCommand(this);
-//      cmds[exitcmd->commandName()]=exitcmd;
+     ExitCommandVar* exitcmd=new ExitCommandVar(this);
+      cmds[exitcmd->id()]=exitcmd;
 
 //    //  EditCommand* editcmd=new EditCommand(this);
 //    //  cmds[editcmd->commandName()]=editcmd;

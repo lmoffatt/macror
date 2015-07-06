@@ -17,7 +17,7 @@ namespace Markov_Console
   class Markov_CommandManagerVar;
 
   // TODO: root ABC_Command in the hierarchy
-  class ABC_CommandVar : public Markov_IO::Implements_Complex_Value
+  class ABC_CommandVar : public Markov_IO::Implements_Complex_Class
   {
   public:
     virtual ~ABC_CommandVar();
@@ -71,6 +71,17 @@ namespace Markov_Console
       return {ClassName()};
     }
 
+
+    virtual bool isMandatoryInput(const std::string id)const
+    {
+      auto it=isMandatoryField_.find(id);
+      if (it!=isMandatoryField_.end())
+        {
+          return it->second;
+        }
+      else return false;
+    }
+
   protected:
     Markov_CommandManagerVar *cm_;
 
@@ -82,6 +93,10 @@ namespace Markov_Console
   public:
     virtual std::vector<std::string> complete(const std::string& hint);
     virtual bool check(const std::string& hint,const std::string& category){}
+
+    const Markov_IO::Implements_Complex_Class& InputClass()const;
+
+
   };
 
 

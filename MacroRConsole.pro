@@ -472,7 +472,8 @@ HEADERS += \
     Include/Markov_Console/MacorCoreApplication.h \
     Include/Markov_Console/ExpressionManager.h \
     Include/Markov_IO/Token_New.h \
-    Include/Markov_IO/buildByToken.h
+    Include/Markov_IO/buildByToken.h \
+    Include/Markov_Console/CoreManager.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \

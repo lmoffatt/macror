@@ -5,6 +5,25 @@
 
 namespace Markov_Console
 {
+
+class ExitCommandVar:public ABC_CommandVar
+{
+public:
+  ExitCommandVar(Markov_CommandManagerVar* cm);
+
+  /// virtual destructor
+  virtual ~ExitCommandVar(){}
+
+
+  virtual bool processTokens(Markov_IO::Token_Stream &t) override
+  {
+    exit(0);
+
+  }
+
+};
+
+
 class ExitCommand:public ABC_Command
 {
 public:

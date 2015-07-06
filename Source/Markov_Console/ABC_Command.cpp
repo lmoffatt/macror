@@ -11,13 +11,6 @@ namespace Markov_Console
 
 
 
-
-
-
-
-
-
-
   ABC_CommandVar::~ABC_CommandVar(){}
 
   ABC_CommandVar::ABC_CommandVar(Markov_CommandManagerVar *cm,
@@ -28,7 +21,7 @@ namespace Markov_Console
                                  std::vector<Markov_IO::Implements_ValueId> mandatoryInput,                         std::vector<Markov_IO::Implements_ValueId> OptionalInput)
     :
     Implements_ValueId(commandName,commandClass,tip,whatthis),
-    Markov_IO::Implements_Complex_Value(commandName,commandClass,tip,whatthis),
+    Markov_IO::Implements_Complex_Class(commandName,commandClass,tip,whatthis,{}),
     cm_(cm)
   {
 

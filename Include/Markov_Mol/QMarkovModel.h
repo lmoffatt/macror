@@ -470,7 +470,7 @@ namespace Markov_Mol
                   bool kok=source->getVal(par,Qc(state_i,state_j));
                   if (!kok)
                     {
-                      std::string msg="error in parameter value"+par+"="+source->getChild(par)->toString();
+                      std::string msg="error in parameter value"+par+"="+source->idToValue(par)->toString();
                       putErrorOut(msg);
                     }
                 }

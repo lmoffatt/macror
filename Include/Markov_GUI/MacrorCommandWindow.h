@@ -79,6 +79,8 @@ public:
   virtual void move_end();
 
   virtual void move_home(){}
+  void insertText(const std::string &s);
+  void insertErrorText(const std::string &s);
 protected:
 
 

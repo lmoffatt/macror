@@ -196,7 +196,7 @@ namespace Markov_Console
       }
     else
       {
-        auto v=cm_->getChild(varname);
+        auto v=cm_->idToValue(varname);
         if (v!=nullptr)
           {
             std::string s="current value of "+v->id();

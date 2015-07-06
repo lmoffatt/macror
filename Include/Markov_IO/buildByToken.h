@@ -4,6 +4,8 @@
 
 #include "Markov_IO/Token_New.h"
 #include "Markov_IO/ABC_Var.h"
+#include "Markov_Console/ABC_Command.h"
+
 
 
 
@@ -187,7 +189,7 @@ namespace Markov_IO {
 
 
   template<>
-  std::string buildByToken<double>::ClassName()
+   inline std::string buildByToken<double>::ClassName()
   {
     return "build_double";
   }
@@ -221,7 +223,7 @@ namespace Markov_IO {
   }
 
   template<>
-  std::string buildByToken<int>::ClassName()
+   inline std::string buildByToken<int>::ClassName()
   {
     return "build_int";
   }
@@ -254,7 +256,7 @@ namespace Markov_IO {
 
 
   template<>
-  std::string buildByToken<std::size_t>::ClassName()
+   inline std::string buildByToken<std::size_t>::ClassName()
   {
     return "build_count";
   }
@@ -288,7 +290,7 @@ namespace Markov_IO {
   }
 
   template<>
-  std::string buildByToken<std::string>::ClassName()
+   inline std::string buildByToken<std::string>::ClassName()
   {
     return "build_string";
   }
@@ -1098,7 +1100,7 @@ namespace Markov_IO {
   };
 
   template<>
-  bool Markov_IO::buildByToken<Markov_LA::M_Matrix<double> >::getValue(
+  inline bool Markov_IO::buildByToken<Markov_LA::M_Matrix<double> >::getValue(
       Token_New tok, double &v)
   {
     if (tok.isReal())
@@ -1111,7 +1113,7 @@ namespace Markov_IO {
   }
 
   template<>
-  bool Markov_IO::buildByToken<Markov_LA::M_Matrix<std::size_t> >::getValue(
+  inline  bool Markov_IO::buildByToken<Markov_LA::M_Matrix<std::size_t> >::getValue(
       Token_New tok, std::size_t &v)
   {
     if (tok.isCount())
@@ -1124,7 +1126,7 @@ namespace Markov_IO {
   }
 
   template<>
-  bool Markov_IO::buildByToken<Markov_LA::M_Matrix<int> >::getValue(
+   inline bool Markov_IO::buildByToken<Markov_LA::M_Matrix<int> >::getValue(
       Token_New tok, int &v)
   {
     if (tok.isInteger())
@@ -2930,15 +2932,73 @@ namespace Markov_IO {
 
 
   private:
+
     DFA mystate;
     Implements_Complex_Value* x_;
     build_ABC_Value v_;
 
-    // setter<buildByToken<C>,C>  set_;
   };
 
 
 
+
+  class build_Command_Input
+      :public ABC_Value_ByToken
+      {
+
+
+    // ABC_BuildByToken interface
+  public:
+    virtual bool pushToken(Token_New t);
+
+    std::set<std::string> alternativesNext()const;
+
+
+    virtual Token_New popBackToken();
+    virtual bool isFinal() const
+    {
+      return mystate==S_Final;
+    }
+    virtual bool isInitial() const
+    {
+      return mystate==S_Init;
+    }
+    virtual bool isHollow() const
+    {
+
+    }
+
+    // ABClass_buildByToken interface
+    build_Command_Input(Markov_Console::Markov_CommandManagerVar* cm):
+      cm_(cm){}
+
+
+  public:
+    virtual Implements_Complex_Value* unloadVar();
+    virtual bool unPop(Implements_Complex_Value* var);
+
+    enum DFA {
+      S_Init=0,
+      S_ID_Final,
+      S_Input_Partial,
+      S_Mandatory_Final,
+      S_Input_Final,
+
+      S_Final
+    } ;
+    
+  static bool hasAllInputs(const ABC_Value* v);
+  static bool hasAllMandatoryInputs(Markov_Console::ABC_CommandVar* cmd,
+                                    const ABC_Value* v);
+  bool processVariableInput(Token_New input);
+
+  private:
+
+    DFA mystate;
+    Markov_Console::Markov_CommandManagerVar *cm_;
+    Markov_Console::ABC_CommandVar* cmd_;
+    ABC_Value* input_;
+  };
 
 
 

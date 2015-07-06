@@ -7,7 +7,7 @@
 
 #include "Markov_Console/CommandHistory.h"
 #include "Markov_IO/ABC_IO.h"
-
+#include "Markov_IO/buildByToken.h"
 
 
 
@@ -24,78 +24,112 @@ class Markov_CommandManagerVar;
   public:
 
     ExpressionManager(Markov_CommandManagerVar *cm):
-      b_{},p_(0),previous_key(),categories_(),cm_(cm),v_(nullptr)
+      bu_{},tok_{},str_(),previous_key(),cm_(cm)
     {}
 
 
-    const Markov_IO::Token_New& at(std::size_t i) const
-    {
-      return b_.at(i);
-    }
-
-
-
-    Markov_IO::Token_Stream tokens()
-    {
-      return Markov_IO::Token_Stream(b_);
-    }
-
-    Markov_IO::Token_New& at(std::size_t i)
-    {
-      return b_[i];
-    }
 
     virtual void KeyEvent(Markov_IO::Key k);
 
-    void clear();
 
-    void clean();
+    bool push_back(char c);
+    bool push_back(Markov_IO::Token_New t);
+
+    char pop_back_char();
+    Markov_IO::Token_New pop_back_Token();
 
 
+    bool isEmpty()const
+    {
+      return bu_.isInitial();
+    }
+    bool isFinal()const
+    {
+      return bu_.isFinal();
+    }
 
   protected:
-    void move_Left();
 
+    // talking with internal representations: token and frame around var
+
+
+    std::string currentLine();
+
+
+
+    // talking with the interfase
+    void move_cursor(int i);
+
+    void erase_from_cursor(int i);
+
+    void appendText(const std::string& s);
+    void insertText(const std::string& s);
+
+    void appendText(char c);
+
+    void insertText(char c);
+
+
+    void appendErrorText(const std::string& s);
+    void insertErrorText(const std::string& s);
+
+    void appendErrorText(char c)
+    {
+      std::string s;
+      s.push_back(c);
+      appendErrorText(s);
+    }
+
+    void insertErrorText(char c);
+
+
+
+    // processing input from interfase
+    void move_Left();
     void backErase();
 
 
     void move_Right();
     void move_Home();
-
-    std::string currentLine() const;
-
     void history_up();
 
     void history_down();
     void suggestCompletion();
+    void putReturn();
+
+    void putText(char s);
+    void cleanFromCursor();
+    bool check();
+
+
+    // talking with command manager
+    void processVar();
+
+
+    //talking with history
+    std::string getHistoryUp(const std::string& line)const;
+    std::string getHistoryDown(const std::string& line)const;
+
+
+
+
 
     //bool putSpace();
 
 
 
 
-    bool putReturn();
-
-
-    bool putText(char s);
 
 
 
 
-    friend class ABC_CommandVar;
-    void getStringandCleanFromCursor();
-    bool check();
+
   private:
-    /// Internals
-    /// b_+currWord_ p_ is a
-    std::deque<Markov_IO::Token_New>  b_;
-    std::string currWord_;
-    std::size_t p_;  // position of cursor on the line
-    Markov_IO::Key previous_key;
-    std::vector<std::vector<std::pair<std::string,bool>>> categories_;
+    Markov_IO::build_ABC_Value  bu_;
+    Markov_IO::Token_New tok_;
+    std::string str_;
+    Markov_IO::Key previous_key={};
     Markov_CommandManagerVar *cm_;
-    Markov_IO::ABC_Value* v_;
-  public:
 
   };
 

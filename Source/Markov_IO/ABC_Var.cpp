@@ -537,7 +537,7 @@ namespace Markov_IO {
   {
     if (parentValue()==nullptr)
       return false;
-    else   return parentValue()->getChild(id())==this;
+    else   return parentValue()->idToValue(id())==this;
   }
 
   std::size_t Implements_ValueId::numChilds() const
@@ -550,32 +550,37 @@ namespace Markov_IO {
     return{};
   }
 
-  std::string Implements_ValueId::childVar(const std::string &) const
+
+
+  const ABC_Value *Implements_ValueId::idToValue(const std::string & idName) const
   {
-    return {};
+    if (parentValue()!=nullptr)
+      return parentValue()->idToValue(idName);
+    else return nullptr;
   }
 
-  const ABC_Value *Implements_ValueId::getChild(const std::string &) const
+  ABC_Value *Implements_ValueId::idToValue(const std::string &idName)
   {
-    return nullptr;
-  }
-
-  ABC_Value *Implements_ValueId::getChild(const std::string &)
-  {
-    return nullptr;
+    if (parentValue()!=nullptr)
+      return parentValue()->idToValue(idName);
+    else return nullptr;
   }
 
 
   void Implements_ValueId::removeChild(const std::string& ) {}
 
-  const ABC_Value *Implements_ValueId::getChild(const std::string &, const std::string &) const
+  const ABC_Value *Implements_ValueId::idToValue(const std::string &idName, const std::string &varName) const
   {
-    return nullptr;
+    if (parentValue()!=nullptr)
+      return parentValue()->idToValue(idName,varName);
+    else return nullptr;
   }
 
-  ABC_Value *Implements_ValueId::getChild(const std::string &, const std::string &)
+  ABC_Value *Implements_ValueId::idToValue(const std::string & idName, const std::string & varName)
   {
-    return nullptr;
+    if (parentValue()!=nullptr)
+      return parentValue()->idToValue(idName,varName);
+    else return nullptr;
   }
 
   void Implements_ValueId::pushChild(ABC_Value *)
@@ -601,7 +606,7 @@ namespace Markov_IO {
   ABC_Var *Implements_ValueId::myVarPtr()
   {
     if (parentValue()!=nullptr)
-      return parentValue()->getChild(myVar());
+      return parentValue()->idToValue(myVar());
     else
       return nullptr;
 
@@ -610,7 +615,7 @@ namespace Markov_IO {
   const ABC_Value *Implements_ValueId::myVarPtr() const
   {
     if (parentValue()!=nullptr)
-      return parentValue()->getChild(myVar());
+      return parentValue()->idToValue(myVar());
     else
       return nullptr;
 
@@ -768,7 +773,7 @@ Extract tip, whatthis, id and class from stream
   ABC_Value *Implements_Refer_Var::refVar()
   {
     if (parentValue()!=nullptr)
-      return parentValue()->getChild(refId(),myVar());
+      return parentValue()->idToValue(refId(),myVar());
     return
         nullptr;
   }
@@ -776,7 +781,7 @@ Extract tip, whatthis, id and class from stream
   const ABC_Value *Implements_Refer_Var::refVar() const
   {
     if (parentValue()!=nullptr)
-      return parentValue()->getChild(refId(),myVar());
+      return parentValue()->idToValue(refId(),myVar());
     return
         nullptr;
   }
@@ -788,6 +793,12 @@ Extract tip, whatthis, id and class from stream
                                              const std::string &whatthis):
     Implements_ValueId(idName,refClass,tip,whatthis),
     refId_(refName){
+
+  }
+
+  bool Implements_Refer_Var::tryToken(Markov_Console::Markov_CommandManagerVar *cm, Token_New t)
+  {
+
 
   }
 
@@ -809,21 +820,12 @@ Extract tip, whatthis, id and class from stream
     else
       {
         t.tokenAdvance(3);
-        if (!t.pos()<t.size())
-          return false;
-        else if(t.currToken().tok()!=Token_New::ASSIGN)
-          return false;
-        else if (!t.pos()+1<t.size())
-          return false;
-        else if (t.nextToken(1).tok()!=Token_New::MUL)
-          return false;
-        else if (!t.pos()+2<t.size())
-          return false;
-        else if (t.nextToken(2).tok()!=Token_New::IDENTIFIER)
-          return false;
-        else if (!t.pos()+3<t.size())
-          return false;
-        else if (t.nextToken(1).tok()!=Token_New::EOL)
+        if ((!t.pos()+3<t.size())
+            ||(t.currToken().tok()!=Token_New::ASSIGN)
+            ||(t.nextToken(1).tok()!=Token_New::MUL)
+            ||(t.nextToken(2).tok()!=Token_New::IDENTIFIER)
+            ||(t.nextToken(3).tok()!=Token_New::EOL)
+            )
           return false;
         else
           {
@@ -834,6 +836,8 @@ Extract tip, whatthis, id and class from stream
       }
   }
 
+
+
   std::string Implements_Refer_Var::ith_ChildName(std::size_t i) const
   {
     if (refVar()!=nullptr)
@@ -841,32 +845,32 @@ Extract tip, whatthis, id and class from stream
     else return {};
   }
 
-  const ABC_Value *Implements_Refer_Var::getChild(const std::string &name) const
+  const ABC_Value *Implements_Refer_Var::idToValue(const std::string &name) const
   {
     if (refVar()!=nullptr)
-      return refVar()->getChild(name);
-    else return {};
+      return refVar()->idToValue(name);
+    else return nullptr;
   }
 
-  ABC_Value *Implements_Refer_Var::getChild(const std::string &name)
+  ABC_Value *Implements_Refer_Var::idToValue(const std::string &name)
   {
     if (refVar()!=nullptr)
-      return refVar()->getChild(name);
-    else return {};
+      return refVar()->idToValue(name);
+    else return nullptr;
   }
 
-  const ABC_Value *Implements_Refer_Var::getChild(const std::string &name, const std::string &kind) const
+  const ABC_Value *Implements_Refer_Var::idToValue(const std::string &name, const std::string &kind) const
   {
     if (refVar()!=nullptr)
-      return refVar()->getChild(name,kind);
-    else return {};
+      return refVar()->idToValue(name,kind);
+    else return nullptr;
   }
 
-  ABC_Value *Implements_Refer_Var::getChild(const std::string &name, const std::string &kind)
+  ABC_Value *Implements_Refer_Var::idToValue(const std::string &name, const std::string &kind)
   {
     if (refVar()!=nullptr)
-      return refVar()->getChild(name,kind);
-    else return {};
+      return refVar()->idToValue(name,kind);
+    else return nullptr;
   }
 
   void Implements_Refer_Var::pushChild(ABC_Value *var)
@@ -884,8 +888,8 @@ Extract tip, whatthis, id and class from stream
     out.getToken()<<"begin"<<"\n";
     for (std::size_t i=0; i<numChilds(); i++)
       {
-        if (getChild(ith_ChildName(i))!=nullptr)
-          out.getToken()<<getChild(ith_ChildName(i))->toTokens();
+        if (idToValue(ith_ChildName(i))!=nullptr)
+          out.getToken()<<idToValue(ith_ChildName(i))->toTokens();
       }
     out.getToken()<<myVar()<<"end"<<"\n";
     return out;
@@ -900,15 +904,6 @@ Extract tip, whatthis, id and class from stream
       return false;
     else
       {
-        t.tokenAdvance(3);
-        if (!t.pos()<t.size())
-          return false;
-        else if(t.currToken().tok()!=Token_New::ASSIGN)
-          return false;
-        else if (!t.pos()+1<t.size())
-          return false;
-        else if (t.nextToken(1).tok()!=Token_New::MUL)
-          return false;
         if ( (!(t.pos()+1<t.size()))
              ||(t.currToken().tok()!=Token_New::BEGIN)
              ||(t.nextToken(1).tok()!=Token_New::EOL))
@@ -959,29 +954,21 @@ Extract tip, whatthis, id and class from stream
     return ids_[i];
   }
 
-  std::string Implements_Complex_Value::childVar(const std::string &idName) const
-  {
-    auto it=childclss_.find(idName);
-    if (it!=childclss_.end())
-      return it->second;
-    else
-      return {};
-  }
 
-  const ABC_Value *Implements_Complex_Value::getChild(const std::string &name) const
+
+  const ABC_Value *Implements_Complex_Value::idToValue(const std::string &name) const
   {
     auto it=vars_.find(name);
     if (it!=vars_.end())
       return it->second;
     else if (parentValue()!=nullptr)
-      return parentValue()->getChild(name);
+      return parentValue()->idToValue(name);
     else return nullptr;
   }
 
   void Implements_Complex_Value::removeChild(const std::string &name)
   { if (vars_.erase(name)>0)
       {
-        childclss_.erase(name);
         auto i=std::find(ids_.begin(),ids_.end(),name);
         if (i!=ids_.end())
           ids_.erase(i);
@@ -989,28 +976,28 @@ Extract tip, whatthis, id and class from stream
       }
   }
 
-  ABC_Value *Implements_Complex_Value::getChild(const std::string &name)
+  ABC_Value *Implements_Complex_Value::idToValue(const std::string &name)
   {
     auto it=vars_.find(name);
     if (it!=vars_.end())
       return it->second;
     else if (parentValue()!=nullptr)
-      return parentValue()->getChild(name);
+      return parentValue()->idToValue(name);
     else return nullptr;
   }
 
-  const ABC_Value *Implements_Complex_Value::getChild(const std::string &name, const std::string &myclass) const
+  const ABC_Value *Implements_Complex_Value::idToValue(const std::string &name, const std::string &myclass) const
   {
-    const ABC_Value* out=getChild(name);
+    const ABC_Value* out=idToValue(name);
     if ((out!=nullptr)&&(out->complyClass(myclass)))
       return out;
     else
       return nullptr;
   }
 
-  ABC_Value *Implements_Complex_Value::getChild(const std::string &name, const std::string &myclass)
+  ABC_Value *Implements_Complex_Value::idToValue(const std::string &name, const std::string &myclass)
   {
-    ABC_Value* out=getChild(name);
+    ABC_Value* out=idToValue(name);
     if ((out!=nullptr)&&(out->complyClass(myclass)))
       return out;
     else
@@ -1025,7 +1012,6 @@ Extract tip, whatthis, id and class from stream
         if (it==vars_.end())
           {
             ids_.push_back(var->id());
-            childclss_[var->id()]=var->myVar();
             vars_[var->id()]=var;
             var->setParentValue(this);
           }
@@ -1035,7 +1021,6 @@ Extract tip, whatthis, id and class from stream
               {
                 delete o ;
                 vars_[var->id()]=var;
-                childclss_[var->id()]=var->myVar();
               }
             var->setParentValue(this);
           }
@@ -1054,12 +1039,11 @@ Extract tip, whatthis, id and class from stream
       const std::string &whatthis,
       const std::vector<std::pair<std::string,std::string>>& childsNameClass):
     Implements_ValueId(id,className,tip, whatthis),
-    ids_(),childclss_{},vars_{}
+    ids_(),vars_{}
   {
     for (auto& e:childsNameClass)
       {
         ids_.push_back(e.first);
-        childclss_[e.first]=e.second;
       }
   }
 
@@ -1611,6 +1595,7 @@ the parameter className
 
 
 
+
   bool ABC_Value::isValidId(std::string name)
   {
     return Token_New(name).tok()==Token_New::IDENTIFIER;
@@ -1646,20 +1631,23 @@ the parameter className
 
 
 
-  Implements_Complex_Class::Implements_Complex_Class(const std::string &id,
-                                                     const std::string& className,
-                                                     const std::string &tip,
-                                                     const std::string &whatthis,
-                                                     const std::map<std::string,fieldDef> m):
+  Implements_Complex_Class
+  ::Implements_Complex_Class(const std::string &id,
+                             const std::string& className,
+                             const std::string &tip,
+                             const std::string &whatthis,
+                             const std::map<std::string,fieldDef> m):
     Implements_Complex_Value(id,className,tip,whatthis)
   {
     for (const auto& e:m)
       {
-        pushChild(new Implements_Refer_Var(e.first,
-                                           e.second.superClass,
-                                           e.second.className,
-                                           e.second.tip,
-                                           e.second.whatthis));
+        pushChild(new Implements_Refer_Var(e.first
+                                           ,e.second.superClass
+                                           ,{}
+                                           ,e.second.tip
+                                           ,e.second.whatthis));
+        if (e.second.isMandatory)
+          isMandatory_.insert(e.first);
       }
   }
 
@@ -1672,15 +1660,18 @@ the parameter className
       return false;
     if (value->myVar()!=id())
       return false;
-    if (numChilds()!=value->numChilds())
+    if (numMandatoryChilds()>value->numChilds())
       return false;
     for (std::size_t i=0; i<numChilds(); ++i)
       {
         auto iname=ith_ChildName(i);
-        auto valueVar=value->getChild(iname);
+        auto valueVar=value->idToValue(iname);
         if (valueVar==nullptr)
-          return false;
-        else if (!getChild(iname)->isInDomain(valueVar))
+          {
+            if (isMandatory(iname))
+              return false;
+          }
+        else if (!idToValue(iname)->isInDomain(valueVar))
           return false;
       }
     return true;
@@ -1691,12 +1682,24 @@ the parameter className
 
 
   void Implements_Complex_Class::push_back(const std::string &idName,
-                                           const std::string &superclassname,
                                            const std::string &classname,
                                            const std::string& tip,
-                                           const std::string& whatthis)
+                                           const std::string& whatthis,
+                                           bool mandatory)
   {
-    pushChild(new Implements_Refer_Var(idName,superclassname, classname,tip, whatthis));
+    pushChild(new Implements_Refer_Var(idName, classname,{},tip, whatthis));
+    if (mandatory)
+      isMandatory_.insert(idName);
+  }
+
+  bool Implements_Complex_Class::isMandatory(const std::string id) const
+  {
+    return isMandatory_.find(id)!=isMandatory_.end();
+  }
+
+  std::size_t Implements_Complex_Class::numMandatoryChilds() const
+  {
+    return  isMandatory_.size();
   }
 
 

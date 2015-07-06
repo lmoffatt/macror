@@ -41,6 +41,42 @@ namespace Markov_Console
 
   class ExpressionManager;
 
+
+
+
+  class ProgramVersion:public Markov_IO::Implements_Complex_Value
+    {
+  public:
+      ProgramVersion():
+        Markov_IO::Implements_ValueId("Program_Environment","","environment at file creation","")
+      ,Markov_IO::Implements_Complex_Value()
+      {
+        push_backVal("Program",programName());
+        push_backVal("ver",programVersion());
+        push_backVal("buildHash",buildVersion());
+        push_backVal("buildDate",buildDate());
+        push_backVal("UncommitedFiles",uncommitedFiles());
+      }
+
+      static std::string programName(){ return "MacroConsole";}
+
+      static std::string programVersion(){ return "0.2";}
+
+      static std::string buildVersion();
+      static std::string buildDate();
+      static std::string uncommitedFiles();
+
+      virtual std::string version()const;
+      virtual std::string wellcomeMessage(unsigned ncols=80)const;
+
+
+  };
+
+
+
+
+
+
   /**
   @brief Markov_CommandManager manages the commands
   to be executed, keep the declared variables and
@@ -51,14 +87,15 @@ namespace Markov_Console
 
 
 
+
+
+
+
   class Markov_CommandManagerVar: public Markov_IO::Implements_Complex_Value
   {
   public:
 
     virtual bool processTokens(Markov_IO::Token_Stream &t);
-
-
-
 
     virtual void KeyEvent(Markov_IO::Key k);
 
@@ -66,12 +103,7 @@ namespace Markov_Console
     Markov_CommandManagerVar();
     virtual ~Markov_CommandManagerVar();
 
-    std::string buildVersion()const;
-    std::string buildDate()const;
-    std::string uncommitedFiles()const;
-
-    virtual std::string version()const;
-    virtual std::string wellcomeMessage(unsigned ncols=80)const;
+    static std::string getHelpDir();
 
     static std::string directory()
     {
@@ -133,6 +165,10 @@ namespace Markov_Console
       return out;
 
     }
+    virtual std::string whichCategory(const std::string& candidate
+                                      , const ABC_Value* categories);
+
+
     virtual  std::string check(const std::string &hint, const std::string& category){
 
 
@@ -149,10 +185,7 @@ namespace Markov_Console
 
 
     virtual std::string  getDir()const {return dir_;}
-    virtual bool setDir(const std::string& dir)
-    {
-      dir_=dir;
-    }
+    virtual bool setDir(const std::string& dir);
 
     virtual Markov_IO::ABC_IO* getIO()const {return io_;}
     virtual void setIO(Markov_IO::ABC_IO* io){io_=io;}
@@ -161,6 +194,8 @@ namespace Markov_Console
     virtual CommandHistory& getH(){return h;}
 
     virtual void add_command(ABC_CommandVar* cmd);
+
+    virtual void add_var(Markov_IO::ABC_Var *v);
 
     ABC_CommandVar const* getCommand(const std::string& cmdlabel)const
     {
@@ -200,17 +235,19 @@ namespace Markov_Console
 
 
 
+    ProgramVersion& getProgram()
+    {
+      return program_ver_;
+    }
 
-
-    static std::size_t getVersion(const std::string& line);
-
-    static std::string getHelpDir();
 
 
   protected:
     Markov_IO::ABC_IO* io_;
 
     ExpressionManager* e;
+
+    ProgramVersion program_ver_;
 
     std::string dir_;
 
@@ -248,14 +285,19 @@ namespace Markov_Console
     }
 
     virtual ABC_Command *getCommand(const Markov_IO::Token_New &t){}
-    bool processVariable(ExpressionManager &e);
+
+
+    virtual std::set<std::string> getCommandList()const
+    {
+
+    }
     bool processCommand(ExpressionManager &e);
     Markov_IO::ABC_Value *getClass(std::string name);
 
-    void add_var(Markov_IO::ABC_Var *v);
 
 
 
+    void push_var(Markov_IO::ABC_Var *v);
   };
 
 
@@ -290,7 +332,6 @@ namespace Markov_Console
     virtual std::string add_single_token(const std::string &command);
 
     virtual std::string check_tokens();
-        virtual void process(ExpressionManager &e);
 
 
     //      virtual bool check_tokens(const Markov_IO::Token_Buffer &b, std::string candidate, std::string *errMessage);
@@ -457,8 +498,6 @@ namespace Markov_Console
     }
 
     virtual ABC_Command *getCommand(const Markov_IO::Token_New &t);
-    bool processVariable(ExpressionManager &e);
-    bool processCommand(ExpressionManager &e);
     Markov_IO::ABC_Value *getClass(std::string name);
   };
 

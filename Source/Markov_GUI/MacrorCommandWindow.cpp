@@ -23,6 +23,7 @@
 
 #include "Markov_Plot/XY_PlotData.h"
 
+#include <iostream>
 
 MacrorCommandWindow::MacrorCommandWindow(MacrorMainWindow *parent ,
                                          Markov_Console::Markov_CommandManagerVar *cm):
@@ -39,7 +40,7 @@ MacrorCommandWindow::MacrorCommandWindow(MacrorMainWindow *parent ,
 //  cm_->add_command(new MacrorCreateCommand(cm_));
 //  cm_->add_command(new Markov_GUI::CdCommandGUI(cm_,mw_));
   unsigned windowWidth=35;
-  put(cm_->wellcomeMessage(windowWidth));
+  put(cm_->getProgram().wellcomeMessage(windowWidth));
 
   put(">>");
 
@@ -178,7 +179,7 @@ QString MacrorCommandWindow::getDir()const
 std::string MacrorCommandWindow::getItemFromList(const std::string &title, const std::vector<std::string> &list, bool &ok, std::size_t current)
 {
  return Markov_GUI::MyInputDialog::getItem(this,title,list,&ok,current);
- 
+
 }
 
 std::string MacrorCommandWindow::getItemFromSeveralLists(const std::string &title, const std::map<std::string, std::vector<std::string> > &list, bool &ok, std::size_t current)
@@ -193,20 +194,28 @@ void MacrorCommandWindow::erase_from_cursor(int n)
   c.setPosition(c.position()+n,QTextCursor::KeepAnchor);
   c.removeSelectedText();
    setTextCursor(c);
+   repaint();
  }
 
 void MacrorCommandWindow::move_cursor(int n)
 {
-  auto c=textCursor();
-  c.setPosition(c.position()+n);
-  setTextCursor(c);
+
+  if (n>0)
+    {
+  for (int i=0; i<n; ++i)
+    moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
+    }
+  else
+    {
+      for (int i=0; i<-n; ++i)
+      moveCursor(QTextCursor::Left,QTextCursor::MoveAnchor);
+    }
+  repaint();
 }
 
 void MacrorCommandWindow::cleanLastLine()
 {
   moveCursor(QTextCursor::End);
-
-
 }
 
 void MacrorCommandWindow::move_end()
@@ -250,8 +259,18 @@ void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
 /// put a string to the output source
 void MacrorCommandWindow::put(const std::string& s)
 {
-  insertPlainText(s.c_str());
-  moveCursor(QTextCursor::End);
+  QString qs(s.c_str());
+  insertPlainText(qs);
+  std::size_t n=qs.size();
+  move_cursor(n);
+  repaint();
+}
+
+/// insert a string to the output source
+void MacrorCommandWindow::insertText(const std::string& s)
+{
+  QString qs(s.c_str());
+  insertPlainText(qs);
   repaint();
 }
 
@@ -260,10 +279,23 @@ void MacrorCommandWindow::put(const std::string& s)
 /// put a string to the output source
 void MacrorCommandWindow::putError(const std::string& s)
 {
-  textCursor().insertHtml("<font color=\"Red\">"+QString(s.c_str())+"</font><br>");
-  moveCursor(QTextCursor::End);
-
+  QString qs(s.c_str());
+  std::size_t n=qs.size();
+  textCursor().insertHtml("<font color=\"Red\">"+qs+"</font><br>");
+  move_cursor(n);
+  repaint();
 }
+
+
+/// insert a string to the output source
+void MacrorCommandWindow::insertErrorText(const std::string& s)
+{
+  QString qs(s.c_str());
+  textCursor().insertHtml("<font color=\"Red\">"+qs+"</font><br>");
+  repaint();
+}
+
+
 
 void MacrorCommandWindow::showMessage(const std::string &m)
 {
@@ -272,7 +304,7 @@ void MacrorCommandWindow::showMessage(const std::string &m)
   message->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   message->move(cursorRect().center().operator +=(QPoint(+10,-10)));
   message->show();
-
+repaint();
 }
 
 

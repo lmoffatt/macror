@@ -128,19 +128,6 @@ namespace Markov_Console
 
           Markov_IO::Token_Stream tok(&f);
 
-          if (Markov_IO::safeGetline(f,varname))
-            {
-              MacroVersion_=cm_->getVersion(varname);
-              if (MacroVersion_>0)
-                {
-                  cm_->putOut("Format of version "+varname+"\n");
-                  varname.clear();
-                }
-              varname.clear();
-
-            }
-          else
-            return false;
 
           while (true)
             {

@@ -261,7 +261,7 @@ namespace Markov_GUI {
 
       for (std::size_t i=0; i<var->numChilds(); i++)
         {
-          Markov_IO::ABC_Value * v=var->getChild(var->ith_ChildName(i));
+          Markov_IO::ABC_Value * v=var->idToValue(var->ith_ChildName(i));
           EditField* f=EditField::create(this,v);
           fieldsLayout->addWidget(f,row,1,f->nGridRowsHint()+1,f->nGridColumnsHint());
           row+=f->nGridRowsHint()+1;

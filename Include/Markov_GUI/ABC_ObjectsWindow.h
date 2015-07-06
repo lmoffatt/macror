@@ -29,7 +29,7 @@ public slots:
   {
     QList<QStandardItem*> list;
 
-    auto m=cm_->getChild(modelName.toStdString(),objectClass_);
+    auto m=cm_->idToValue(modelName.toStdString(),objectClass_);
     if (m!=nullptr)
     {
         list.append(new QStandardItem(modelName));

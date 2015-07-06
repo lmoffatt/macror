@@ -259,11 +259,11 @@ bool MacrorEditCommand::run(const std::string& varname)
     }
     else if (cm_->has_child(varname))
       {
-        auto p=cm_->getChild(varname)->to_PlainValue();
+        auto p=cm_->idToValue(varname)->to_PlainValue();
         p->setId(p->id()+"_edit");
         cm_->pushChild(p);
         Markov_GUI::EditVariableDialog*
-            eD=new Markov_GUI::EditVariableDialog(cm_->getChild(varname+"_edit"));
+            eD=new Markov_GUI::EditVariableDialog(cm_->idToValue(varname+"_edit"));
         eD->exec();
         return true;
 

@@ -39,10 +39,22 @@ std::string ExitCommand::commandName()const
 /// runs the command on the command manager and returns true if succeeds
 bool ExitCommand::run(std::deque<Token> & )
 {
-    exit(0);
+  exit(0);
 }
 
+ExitCommandVar::ExitCommandVar(Markov_CommandManagerVar *cm): Markov_IO::Implements_ValueId("exit"
+                                  , ""
+                                  ,"exit the program"
+                                  ,""
+                                  )
+    ,ABC_CommandVar(cm
+                  ,"exit"
+                  , ""
+                  ,"exit the program"
+                  ,""
+                  ,{}
+                  ,{})
+{}
 
 
 }
-

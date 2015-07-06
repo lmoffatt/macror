@@ -77,7 +77,7 @@ bool ShowCommand::run(const std::string& varname)
     }
     else if (cm_->has_child(varname))
       {
-        cm_->getIO()->put(cm_->getChild(varname)->toString());
+        cm_->getIO()->put(cm_->idToValue(varname)->toString());
       }
       else
     {
