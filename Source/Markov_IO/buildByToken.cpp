@@ -74,8 +74,7 @@ namespace Markov_IO {
       case S_ID_Partial:
         if (!id_.pushToken(t))
           {
-            std::string e= "Error in "+myClass()+" .";
-            ABC_BuildByToken::setErrorMessage(e+id_.errorMessage());
+            ABC_BuildByToken::setErrorMessage(&id_);
             return false;
           }
         else if (id_.isFinal())
@@ -106,16 +105,14 @@ namespace Markov_IO {
           }
         else
           {
-            std::string e= "Error in "+myClass()+" Expected ""="" found: ";
-            ABC_BuildByToken::setErrorMessage(e+t.str());
+            ABC_BuildByToken::setErrorsMessage({Token_New::BEGIN,Token_New::ASSIGN},t);
             return false;
           }
         break;
       case S_Var_Partial:
         if(!var_->pushToken(t))
           {
-            std::string e= "Error in "+myClass()+" .";
-            ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+            ABC_BuildByToken::setErrorMessage(var_);
             return false;
           }
         else if (var_->isFinal())
@@ -159,16 +156,20 @@ namespace Markov_IO {
           }
         else
           {
-            std::string e= "Error in "+myClass()+" Expected ""return"" found: ";
-            ABC_BuildByToken::setErrorMessage(e+t.str());
+            ABC_BuildByToken::setErrorsMessage({Token_New::MUL
+                                                ,Token_New::REAL
+                                                ,Token_New::UNSIGNED
+                                                ,Token_New::INTEGER
+                                                ,Token_New::IDENTIFIER
+                                                ,Token_New::EOL}
+                                               ,t);
             return false;
           }
         prevTokens_.push_back(t);
         for (auto to:prevTokens_)
           if (var_->pushToken(to))
             {
-              std::string e= "Error in "+myClass()+" .";
-              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              ABC_BuildByToken::setErrorMessage(var_);
               return false;
             }
 
@@ -202,8 +203,13 @@ namespace Markov_IO {
           }
         else
           {
-            std::string e= "Error in "+myClass()+" Unexpected token: .";
-            ABC_BuildByToken::setErrorMessage(e+t.str());
+            ABC_BuildByToken::setErrorsMessage({Token_New::LCB
+                                                ,Token_New::LSB
+                                                ,Token_New::REAL
+                                                ,Token_New::UNSIGNED
+                                                ,Token_New::INTEGER
+                                                }
+                                               ,t);
             return false;
           }
 
@@ -212,8 +218,7 @@ namespace Markov_IO {
         for (auto to:prevTokens_)
           if (var_->pushToken(to))
             {
-              std::string e= "Error in "+myClass()+" .";
-              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              ABC_BuildByToken::setErrorMessage(var_);
               return false;
             }
 
@@ -243,8 +248,13 @@ namespace Markov_IO {
           }
         else
           {
-            std::string e= "Error in "+myClass()+" Unexpected token: ";
-            ABC_BuildByToken::setErrorMessage(e+t.str());
+            ABC_BuildByToken::setErrorsMessage({Token_New::MUL
+                                                ,Token_New::REAL
+                                                ,Token_New::UNSIGNED
+                                                ,Token_New::INTEGER
+                                                ,Token_New::IDENTIFIER
+                                                ,Token_New::STRING}
+                                               ,t);
             return false;
           }
 
@@ -254,8 +264,7 @@ namespace Markov_IO {
         for (auto to:prevTokens_)
           if (var_->pushToken(to))
             {
-              std::string e= "Error in "+myClass()+" .";
-              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              ABC_BuildByToken::setErrorMessage(var_);
               return false;
             }
         mystate=S_Var_Partial;
@@ -274,8 +283,12 @@ namespace Markov_IO {
           }
         else
           {
-            std::string e= "Error in "+myClass()+" Expected real, identifier or string; found: ";
-            ABC_BuildByToken::setErrorMessage(e+t.str());
+            ABC_BuildByToken::setErrorsMessage({Token_New::REAL
+                                                ,Token_New::UNSIGNED
+                                                ,Token_New::INTEGER
+                                                ,Token_New::IDENTIFIER
+                                                ,Token_New::STRING}
+                                               ,t);
             return false;
           }
       case S_Set_or_Map2:
@@ -305,8 +318,7 @@ namespace Markov_IO {
           }
         else
           {
-            std::string e= "Error in "+myClass()+" Unexpected token: ";
-            ABC_BuildByToken::setErrorMessage(e+t.str());
+            ABC_BuildByToken::setErrorMessage({Token_New::COLON,previousTok_.tok()},t);
             return false;
           }
         prevTokens_.push_back(t);
@@ -314,8 +326,7 @@ namespace Markov_IO {
         for (auto to:prevTokens_)
           if (var_->pushToken(to))
             {
-              std::string e= "Error in "+myClass()+" .";
-              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              ABC_BuildByToken::setErrorMessage(var_);
               return false;
             }
         mystate=S_Var_Partial;
@@ -399,16 +410,21 @@ namespace Markov_IO {
           }
         else
           {
-            std::string e= "Error in "+myClass()+" Unexpected token: ";
-            ABC_BuildByToken::setErrorMessage(e+t.str());
+            ABC_BuildByToken::setErrorsMessage({Token_New::MUL
+                                                ,Token_New::REAL
+                                                ,Token_New::UNSIGNED
+                                                ,Token_New::INTEGER
+                                                ,Token_New::IDENTIFIER
+                                                ,Token_New::EOL}
+                                               ,t);
             return false;
-          }prevTokens_.push_back(t);
+          }
+        prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
           if (var_->pushToken(to))
             {
-              std::string e= "Error in "+myClass()+" .";
-              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              ABC_BuildByToken::setErrorMessage(var_);
               return false;
             }
         mystate=S_Var_Partial;

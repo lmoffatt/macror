@@ -23,7 +23,8 @@ namespace Markov_IO {
     std::set<std::string> mySuperClasses()const override;
 
     virtual bool pushToken(Token_New t)=0;
-    std::string errorMessage()const{
+    std::string errorMessage()const
+    {
       return error_;
     }
     virtual  std::set<std::string> alternativesNext()const=0;
@@ -50,6 +51,35 @@ namespace Markov_IO {
     {
       error_=err;
     }
+
+    void setErrorMessage(ABC_BuildByToken* child)
+    {
+      error_="Error in "+myClass()+" : "+child->errorMessage();
+    }
+
+    void setErrorMessage(Token_New::Value expected, Token_New found)
+    {
+      error_="Error in "+myClass()+" : expected: "
+          +Token_New::toString(expected)+"; found: "
+          +found.str();
+    }
+    void setErrorMessage(std::string expected, Token_New found)
+    {
+      error_="Error in "+myClass()+" : expected: "
+          +expected+"; found: "
+          +found.str();
+    }
+    void setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found)
+    {
+      std::string estr="Error in "+myClass()+" : expected: ";
+      for (auto ex:expected)
+        estr+=Token_New::toString(ex)+" or ";
+      estr.substr(0,estr.size()-3);
+      estr+="; found: " +found.str();
+      error_=estr;
+    }
+
+
     void clearErrorMessage()
     {
       error_.clear();
@@ -224,8 +254,7 @@ namespace Markov_IO {
   {
     if (!to.isReal())
       {
-        std::string err=to.str()+" is not a real number";
-        setErrorMessage(err);
+        setErrorMessage(Token_New::REAL,to);
         return false;
       }
     else
@@ -264,7 +293,7 @@ namespace Markov_IO {
     if (!to.isInteger())
       {
         std::string err=to.str()+" is not an integer number";
-        setErrorMessage(err);
+        setErrorMessage(Token_New::INTEGER,to);
         return false;
       }
     else
@@ -301,7 +330,7 @@ namespace Markov_IO {
   {
     if (!to.isCount())
       {
-        ABC_BuildByToken::setErrorMessage("Error. Expected positive integer; found: "+to.str());
+        setErrorMessage(Token_New::UNSIGNED,to);
         return false;
       }
     else
@@ -339,8 +368,7 @@ namespace Markov_IO {
   {
     if (to.tok()!=Token_New::IDENTIFIER)
       {
-        std::string err=to.str()+" is not an identifier";
-        setErrorMessage(err);
+        setErrorMessage(Token_New::IDENTIFIER,to);
         return false;
       }
     else
@@ -472,8 +500,7 @@ namespace Markov_IO {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
             {
-              std::string err="expected return; found:"+tok.str();
-              ABC_BuildByToken::setErrorMessage(err);
+              ABC_BuildByToken::setErrorMessage("end of line",tok);
               return false;
             }
           else
@@ -485,8 +512,7 @@ namespace Markov_IO {
         case S_Header2:
           if (tok.tok()!=Token_New::LSB)
             {
-              std::string err="expected left square bracket [; found: "+tok.str();
-              ABC_BuildByToken::setErrorMessage(err);
+              ABC_BuildByToken::setErrorMessage(Token_New::LSB,tok);
               return false;
             }
           else
@@ -500,7 +526,7 @@ namespace Markov_IO {
         case S_Data_Partial:
           if (!myChildState.pushToken(tok))
             {
-              ABC_BuildByToken::setErrorMessage(myChildState.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -526,7 +552,7 @@ namespace Markov_IO {
             }
           else if (!myChildState.pushToken(tok))
             {
-              ABC_BuildByToken::setErrorMessage(myChildState.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -754,7 +780,7 @@ namespace Markov_IO {
         case S_First_Partial:
           if (!first_.pushToken(tok))
             {
-              ABC_BuildByToken::setErrorMessage(first_.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&first_);
               return false;
             }
           else
@@ -769,7 +795,7 @@ namespace Markov_IO {
         case S_First_Final:
           if (tok.tok()!=Token_New::COLON)
             {
-              ABC_BuildByToken::setErrorMessage("Error. Expected colon "":"" found: "+ tok.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::COLON, tok);
               return false;
             }
           else
@@ -782,7 +808,7 @@ namespace Markov_IO {
         case S_Second_Partial:
           if (!second_.pushToken(tok))
             {
-              ABC_BuildByToken::setErrorMessage(second_.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&second_);
               return false;
             }
           else
@@ -988,7 +1014,7 @@ namespace Markov_IO {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
             {
-              ABC_BuildByToken::setErrorMessage("Error. Expected Return; found: "+tok.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::EOL, tok);
               return false;
             }
 
@@ -1211,7 +1237,7 @@ namespace Markov_IO {
       }
     else
       {
-        ABC_BuildByToken::setErrorMessage("Error. Expected real number; found: "+tok.str());
+        ABC_BuildByToken::setErrorMessage(Token_New::REAL, tok);
         return false;
       }
   }
@@ -1227,7 +1253,7 @@ namespace Markov_IO {
       }
     else
       {
-        ABC_BuildByToken::setErrorMessage("Error. Expected positive integer number; found: "+tok.str());
+        ABC_BuildByToken::setErrorMessage(Token_New::UNSIGNED, tok);
         return false;
       }  }
 
@@ -1242,7 +1268,7 @@ namespace Markov_IO {
       }
     else
       {
-        ABC_BuildByToken::setErrorMessage("Error. Expected integer number; found: "+tok.str());
+        ABC_BuildByToken::setErrorMessage(Token_New::INTEGER, tok);
         return false;
       }
   }
@@ -1361,8 +1387,7 @@ namespace Markov_IO {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
             {
-              ABC_BuildByToken::setErrorMessage(
-                    "Error in set. expected  Return, found:"+tok.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::EOL, tok);
               return false;
             }  else
             {
@@ -1373,9 +1398,8 @@ namespace Markov_IO {
         case S_Header2:
           if (tok.tok()!=Token_New::LCB)
             {
-              ABC_BuildByToken::setErrorMessage(
-                    "Error in set. expected  left curve bracket ""{"", found:"+tok.str());
-              return false;
+              ABC_BuildByToken::setErrorMessage(Token_New::LCB, tok);
+               return false;
             }   else
             {
               mystate=S_Header_Final;
@@ -1386,9 +1410,8 @@ namespace Markov_IO {
         case S_Data_Partial:
           if (!myChildState.pushToken(tok))
             {
-              ABC_BuildByToken::setErrorMessage(
-                    "Error in set: "+myChildState.errorMessage());
-              return false;
+              ABC_BuildByToken::setErrorMessage(&myChildState);
+                return false;
             }
           else
             {
@@ -1413,8 +1436,7 @@ namespace Markov_IO {
             }
           else if (!myChildState.pushToken(tok))
             {
-              ABC_BuildByToken::setErrorMessage(
-                    "Error in set: "+myChildState.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -1641,8 +1663,7 @@ namespace Markov_IO {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
             {
-              ABC_BuildByToken::setErrorMessage(
-                    "Error in Map. Expected enter. Found: "+tok.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::EOL,tok);
               return false;
             }
           else
@@ -1654,9 +1675,8 @@ namespace Markov_IO {
         case S_Header2:
           if (tok.tok()!=Token_New::LCB)
             {
-              ABC_BuildByToken::setErrorMessage(
-                    "Error in Map. Expected left curved bracket ""{"". Found: "+tok.str());
-              return false;
+              ABC_BuildByToken::setErrorMessage(Token_New::LCB,tok);
+               return false;
             }
           else
             {
@@ -1668,8 +1688,7 @@ namespace Markov_IO {
         case S_Data_Partial:
           if (!myChildState.pushToken(tok))
             {
-              ABC_BuildByToken::setErrorMessage(
-                    "Error in map: "+myChildState.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -1695,8 +1714,7 @@ namespace Markov_IO {
             }
           else if (!myChildState.pushToken(tok))
             {
-              ABC_BuildByToken::setErrorMessage(
-                    "Error in map: "+myChildState.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -1892,8 +1910,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in identifier. Expected hash ""#"" or identifier. Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorsMessage({Token_New::HASH,Token_New::IDENTIFIER},t);
               return false;
             }
           break;
@@ -1909,8 +1926,8 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in Tip. Expected a string. Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              std::string e= "wrong Tip. Expected a string. Received: ";
+              ABC_BuildByToken::setErrorMessage(e,t);
               return false;
             }
           break;
@@ -1923,7 +1940,7 @@ namespace Markov_IO {
           else
             {
               std::string e= "Error in Tip. Expected a return. Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(e,t);
               return false;
             }
           break;
@@ -1942,8 +1959,7 @@ namespace Markov_IO {
               return true;
             }
           else  {
-              std::string e= "Error in identifier. Expected hash ""#"" or identifier. Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorsMessage({Token_New::HASH,Token_New::IDENTIFIER},t);
               return false;
             }
           break;
@@ -1954,8 +1970,7 @@ namespace Markov_IO {
               return true;
             }
           else  {
-              std::string e= "Error in identifier. Expected hash ""#"". Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::HASH,t);
               return false;
             }
           break;
@@ -1970,8 +1985,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in identifier. Expected identifier. Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::STRING,t);
               return false;
             }       break;
         case WT3:
@@ -1982,9 +1996,8 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in identifier. Expected return. Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
-              return false;
+              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
+               return false;
             }   break;
 
         case ID0:
@@ -1998,8 +2011,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in identifier. Expected identifier. Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::IDENTIFIER,t);
               return false;
             }        break;
         case ID1:
@@ -2010,8 +2022,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in identifier. Expected COLON "":"". Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::COLON,t);
               return false;
             }
           break;
@@ -2026,9 +2037,8 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in identifier. Expected identifier. Received: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
-              return false;
+              ABC_BuildByToken::setErrorMessage(Token_New::IDENTIFIER,t);
+               return false;
             }
           break;
         case S_Final:
@@ -2265,8 +2275,6 @@ namespace Markov_IO {
         case S_ID_Partial:
           if (!build_Implements_ValueId::pushToken(t))
             {
-              std::string e= "Error in reference construction. In identifier definition we found";
-              ABC_BuildByToken::setErrorMessage(e+ABC_BuildByToken::errorMessage());
               return false;
             }
           else if (build_Implements_ValueId::isFinal())
@@ -2300,8 +2308,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e="Error in reference construction. Expected mul ""*"" found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::MUL,t);
               return false;
             } break;
 
@@ -2314,8 +2321,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e="Error in reference construction. Expected identifier; found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::IDENTIFIER,t);
               return false;
             }
           break;
@@ -2327,8 +2333,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e="Error in reference construction. Expected return; found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
               return false;
             }
           break;
@@ -2529,8 +2534,6 @@ namespace Markov_IO {
         case S_ID_Partial:
           if (!build_Implements_ValueId::pushToken(t))
             {
-              std::string e= "Error in "+myClass()+" construction. In identifier definition we found";
-              ABC_BuildByToken::setErrorMessage(e+ABC_BuildByToken::errorMessage());
               return false;
             }
           else if (build_Implements_ValueId::isFinal())
@@ -2552,8 +2555,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in "+myClass()+" construction. Expected ""="" found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::ASSIGN,t);
               return false;
             }
           break;
@@ -2561,8 +2563,7 @@ namespace Markov_IO {
         case S_Data_Partial:
           if (!data_.pushToken(t))
             {
-              std::string e= "Error in "+myClass()+" construction. ";
-              ABC_BuildByToken::setErrorMessage(e+data_.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&data_);
               return false;
             }
           else if (data_.isFinal())
@@ -2585,8 +2586,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in "+myClass()+" construction. Expected eol mark (return); found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
               return false;
             }
           break;
@@ -3081,8 +3081,6 @@ namespace Markov_IO {
         case S_ID_Partial:
           if (!build_Implements_ValueId::pushToken(t))
             {
-              std::string e= "Error in "+myClass()+" construction. In identifier definition we found";
-              ABC_BuildByToken::setErrorMessage(e+ABC_BuildByToken::errorMessage());
               return false;
             }
           else if (build_Implements_ValueId::isFinal())
@@ -3103,8 +3101,7 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in "+myClass()+" . Expected ""Begin"" Found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::BEGIN,t);
               return false;
             }
           break;
@@ -3116,16 +3113,14 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in "+myClass()+" . Expected eol return Found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
               return false;
             }break;
         case S_Header_Final:
         case S_Field_Partial:
           if (!v_.pushToken(t))
             {
-              std::string e= "Error in "+myClass()+" field: ";
-              ABC_BuildByToken::setErrorMessage(e+v_.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&v_);
               return false;
             }
           else if (v_.isFinal())
@@ -3149,11 +3144,10 @@ namespace Markov_IO {
             }
           else if (!v_.pushToken(t))
             {
-              std::string e= "Error in "+myClass()+" field: ";
-              ABC_BuildByToken::setErrorMessage(e+v_.errorMessage());
+              ABC_BuildByToken::setErrorMessage(&v_);
               return false;
             }
-            else if (v_.isFinal())
+          else if (v_.isFinal())
             {
               x_->pushChild(v_.unloadVar());
               mystate=S_Field_Final;
@@ -3170,11 +3164,10 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in "+myClass()+" Expected end. Found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::END,t);
               return false;
             }
-            break;
+          break;
         case S_END_Final:
           if (t.tok()==Token_New::EOL)
             {
@@ -3184,11 +3177,10 @@ namespace Markov_IO {
             }
           else
             {
-              std::string e= "Error in "+myClass()+" Expected eol. Found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
               return false;
             }
-            break;
+          break;
         case S_Final:
         default:
           return false;
