@@ -181,7 +181,7 @@ namespace Markov_IO
     return (((k>=Key_Exclam)&&(k<Key_0))
             ||((k>Key_9)&&(k<Key_A))
             ||((k>Key_Z)&&(k<Key_a))
-            ||(k>Key_z)&&(k<=Key_AsciiTilde));
+            ||((k>Key_z)&&(k<=Key_AsciiTilde)));
 
   }
 
@@ -189,7 +189,7 @@ namespace Markov_IO
   inline bool isAlpha(Key k)
   {
     return (((k>=Key_A)&&(k<=Key_Z))
-            ||(k>=Key_a)&&(k<=Key_z));
+            ||((k>=Key_a)&&(k<=Key_z)));
   }
 
   inline bool isNumber(Key k)

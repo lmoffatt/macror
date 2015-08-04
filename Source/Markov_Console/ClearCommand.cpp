@@ -90,7 +90,7 @@ namespace Markov_Console
                       ,"erases variables"
                       ,""
                       ,{}
-                      ,{{"","","",""}})
+                      ,0)
     {}
 
   bool ClearCommandVar::processTokens(Markov_IO::Token_Stream &t)

@@ -161,7 +161,6 @@ HEADERS += \
     Include/Markov_Mol/ABC_Noise.h \
     Include/Markov_Mol/ABC_MarkovModel.h \
     Include/Markov_Console/Markov_console.h \
-    Include/Markov_Plot/Markov_Plot_doxygen.h \
     Include/Markov_doxygen/A0_MacroRDoxy.h \
     Include/Markov_doxygen/A100_UserGuideDoxy.h \
     Include/Markov_doxygen/A10_UseCasesDoxy.h \

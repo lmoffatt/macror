@@ -211,6 +211,10 @@ namespace Markov_Console {
 
 
 
+  ExpressionManager::ExpressionManager(Markov_CommandManagerVar *cm):
+    bu_(cm),tok_{},str_(),previous_key(),cm_(cm)
+  {}
+
   void ExpressionManager::KeyEvent(Markov_IO::Key k)
   {
     switch(k)

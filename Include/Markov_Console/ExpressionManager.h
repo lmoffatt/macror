@@ -23,9 +23,7 @@ class Markov_CommandManagerVar;
   {
   public:
 
-    ExpressionManager(Markov_CommandManagerVar *cm):
-      bu_{},tok_{},str_(),previous_key(),cm_(cm)
-    {}
+    ExpressionManager(Markov_CommandManagerVar *cm);
 
 
 
@@ -130,7 +128,6 @@ class Markov_CommandManagerVar;
     std::string str_;
     Markov_IO::Key previous_key={};
     Markov_CommandManagerVar *cm_;
-
   };
 
 

@@ -17,10 +17,10 @@ namespace Markov_Console
   class Markov_CommandManagerVar;
 
   // TODO: root ABC_Command in the hierarchy
-  class ABC_CommandVar : public Markov_IO::Implements_Complex_Class
+  class ABC_CommandVar : public Markov_IO::Implements_Complex_Value
   {
   public:
-    virtual ~ABC_CommandVar();
+     ~ABC_CommandVar();
     /// virtual formated output
 
 
@@ -32,25 +32,19 @@ namespace Markov_Console
                    const std::string &commandClass,
                    const std::string &tip,
                    const std::string &whatthis,
-                   std::vector<Implements_ValueId> mandatoryInput,
-                   std::vector<Implements_ValueId> OptionalInput);
+                   std::vector<Implements_ValueId> Inputs,
+                   std::size_t numMandatory);
 
 
     ABC_CommandVar(){}
 
 
-  public:
-    virtual Markov_IO::Token_Stream toTokens() const
-    {
-      return {};
-    }
-
   protected:
-    virtual Markov_IO::ABC_Var *toSameVar(const Markov_IO::ABC_Value *) const
+     Markov_IO::ABC_Var *toSameVar(const Markov_IO::ABC_Value *) const
     {
       return nullptr;
     }
-    virtual Markov_IO::ABC_Measure *toMeasure(const Markov_IO::ABC_Value *) const
+     Markov_IO::ABC_Measure *toMeasure(const Markov_IO::ABC_Value *) const
     {
       return nullptr;
     }
@@ -61,40 +55,41 @@ namespace Markov_Console
       return "ABC_Command";
     }
 
-    virtual std::string myClass() const
+     std::string myClass() const
     {
       return ClassName();
     }
 
-    virtual std::set<std::string> mySuperClasses() const
+     std::set<std::string> mySuperClasses() const
     {
       return {ClassName()};
     }
 
 
-    virtual bool isMandatoryInput(const std::string id)const
+    std::size_t numMandatoryInputs()const
     {
-      auto it=isMandatoryField_.find(id);
-      if (it!=isMandatoryField_.end())
-        {
-          return it->second;
-        }
-      else return false;
+      return numMandatoryFields_;
     }
 
-  protected:
-    Markov_CommandManagerVar *cm_;
 
-    std::map<std::string,bool> isMandatoryField_;
+
 
 
 
     // ABC_Value interface
   public:
-    virtual std::vector<std::string> complete(const std::string& hint);
-    virtual bool check(const std::string& hint,const std::string& category){}
+    /// returns the Markov_CommandManager
+     Markov_CommandManagerVar* getCommandManager(){return cm_;}
 
-    const Markov_IO::Implements_Complex_Class& InputClass()const;
+
+     const Markov_CommandManagerVar* getCommandManager()const {return cm_;}
+
+
+  protected:
+    Markov_CommandManagerVar *cm_;
+
+   std::size_t numMandatoryFields_;
+
 
 
   };
@@ -113,17 +108,17 @@ namespace Markov_Console
       bool mandatory;
     };
 
-    virtual ~ABC_Command();
+     ~ABC_Command();
     /// virtual formated output
-    virtual std::ostream& put(std::ostream& s) const;
+     std::ostream& put(std::ostream& s) const;
 
     virtual bool operator==(const ABC_Command& other)const;
 
     /// hint about of the class nature
-    virtual std::string Tip()const;
+     std::string Tip()const;
 
     /// a short description of the class
-    virtual std::string WhatThis()const;
+     std::string WhatThis()const;
 
 
 

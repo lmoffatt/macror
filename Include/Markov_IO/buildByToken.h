@@ -5,7 +5,7 @@
 #include "Markov_IO/Token_New.h"
 #include "Markov_IO/ABC_Var.h"
 #include "Markov_Console/ABC_Command.h"
-
+#include <string>
 
 
 
@@ -14,37 +14,52 @@ namespace Markov_IO {
   class ABC_BuildByToken: public ABC_Base
   {
   public:
-    static std::string ClassName()
-    {
-      return "ABC_BuildByToken";
-    }
+    static std::string ClassName();
 
-    static std::set<std::string> SuperClasses()
-    {
-      return ABC_Base::SuperClasses()+ClassName();
-    }
+    static std::set<std::string> SuperClasses();
 
-    std::string myClass()const override
-    {
-      return ClassName();
+    std::string myClass()const override;
 
-    }
-
-    std::set<std::string> mySuperClasses()const override
-    {
-      return SuperClasses();
-    }
+    std::set<std::string> mySuperClasses()const override;
 
     virtual bool pushToken(Token_New t)=0;
+    std::string errorMessage()const{
+      return error_;
+    }
     virtual  std::set<std::string> alternativesNext()const=0;
     virtual Token_New popBackToken()=0;
     virtual bool isFinal()const=0;
     virtual bool isInitial()const=0;
     virtual bool isHollow()const=0;
-
-
-
     virtual ~ABC_BuildByToken(){}
+
+
+
+    ABC_Value* parent()
+    {
+      return parent_;
+    }
+
+    const ABC_Value* parent()const
+    {
+      return parent_;
+    }
+  protected:
+    ABC_BuildByToken(ABC_Value* p):parent_(p), error_(){}
+    void setErrorMessage(std::string err)
+    {
+      error_=err;
+    }
+    void clearErrorMessage()
+    {
+      error_.clear();
+    }
+
+  private:
+
+    ABC_Value* parent_;
+    std::string error_;
+
   };
 
   template<typename C>
@@ -76,15 +91,21 @@ namespace Markov_IO {
     virtual C unloadVar()=0;
     virtual bool unPop(C var)=0;
     virtual ~ABClass_buildByToken(){}
+  protected:
+    ABClass_buildByToken(ABC_Value* p):ABC_BuildByToken(p){}
+
   };
 
   class ABC_Value_ByToken:public ABClass_buildByToken<ABC_Value*>
   {
+  protected:
+    ABC_Value_ByToken(ABC_Value* p):ABClass_buildByToken<ABC_Value*>(p){}
+
   public:
 
     static std::string ClassName()
     {
-      return "ABC_BuildByToken";
+      return "ABC_Value_ByToken";
     }
 
     static std::set<std::string> SuperClasses()
@@ -134,13 +155,17 @@ namespace Markov_IO {
     }
 
 
-    buildByToken():
+    buildByToken(ABC_Value* parent):
+      ABClass_buildByToken<C>(parent),
       x_(),
-      isComplete_(false){}
+      isComplete_(false)
+    {
+
+    }
 
 
 
-    C unloadVar()
+    C unloadVar()override
     {
       auto out=x_;
       x_= {};
@@ -148,10 +173,10 @@ namespace Markov_IO {
       return out;
     }
 
-    bool pushToken(Token_New t);
+    bool pushToken(Token_New t)override;
 
 
-    std::set<std::string> alternativesNext()const
+    std::set<std::string> alternativesNext()const override
     {
       return {Implements_Simple_Value<C>::ClassName()};
     }
@@ -165,14 +190,14 @@ namespace Markov_IO {
       return true;
     }
 
-    Token_New popBackToken();
+    Token_New popBackToken() override;
 
     bool isFinal()const
     {
       return isComplete_;
     }
 
-    bool isInitial()const
+    bool isInitial()const override
     {
       return !isComplete_;
     }
@@ -189,7 +214,7 @@ namespace Markov_IO {
 
 
   template<>
-   inline std::string buildByToken<double>::ClassName()
+  inline std::string buildByToken<double>::ClassName()
   {
     return "build_double";
   }
@@ -198,9 +223,14 @@ namespace Markov_IO {
   inline  bool buildByToken<double>::pushToken(Token_New to)
   {
     if (!to.isReal())
-      return false;
+      {
+        std::string err=to.str()+" is not a real number";
+        setErrorMessage(err);
+        return false;
+      }
     else
       {
+        clearErrorMessage();
         x_=to.realValue();
         isComplete_=true;
         return true;
@@ -223,7 +253,7 @@ namespace Markov_IO {
   }
 
   template<>
-   inline std::string buildByToken<int>::ClassName()
+  inline std::string buildByToken<int>::ClassName()
   {
     return "build_int";
   }
@@ -232,7 +262,11 @@ namespace Markov_IO {
   inline  bool buildByToken<int>::pushToken(Token_New to)
   {
     if (!to.isInteger())
-      return false;
+      {
+        std::string err=to.str()+" is not an integer number";
+        setErrorMessage(err);
+        return false;
+      }
     else
       {
         x_=to.intval();
@@ -256,7 +290,7 @@ namespace Markov_IO {
 
 
   template<>
-   inline std::string buildByToken<std::size_t>::ClassName()
+  inline std::string buildByToken<std::size_t>::ClassName()
   {
     return "build_count";
   }
@@ -266,7 +300,10 @@ namespace Markov_IO {
   inline  bool buildByToken<std::size_t>::pushToken(Token_New to)
   {
     if (!to.isCount())
-      return false;
+      {
+        ABC_BuildByToken::setErrorMessage("Error. Expected positive integer; found: "+to.str());
+        return false;
+      }
     else
       {
         x_=to.count();
@@ -290,7 +327,7 @@ namespace Markov_IO {
   }
 
   template<>
-   inline std::string buildByToken<std::string>::ClassName()
+  inline std::string buildByToken<std::string>::ClassName()
   {
     return "build_string";
   }
@@ -301,7 +338,11 @@ namespace Markov_IO {
   inline  bool buildByToken<std::string>::pushToken(Token_New to)
   {
     if (to.tok()!=Token_New::IDENTIFIER)
-      return false;
+      {
+        std::string err=to.str()+" is not an identifier";
+        setErrorMessage(err);
+        return false;
+      }
     else
       {
         x_=to.str();
@@ -406,16 +447,18 @@ namespace Markov_IO {
 
     }
 
-    buildByToken():
+    buildByToken(ABC_Value* parent):
+      ABClass_buildByToken<std::vector<T>>(parent),
       mystate(S_Init),
       x_{},
-      myChildState(){}
+      myChildState(parent){}
 
 
-    buildByToken(std::vector<T> v):
+    buildByToken(ABC_Value* parent,std::vector<T> v):
+      ABClass_buildByToken<std::vector<T>>(parent),
       mystate(S_Init),
       x_{v},
-      myChildState{}{}
+      myChildState{parent}{}
 
 
 
@@ -428,7 +471,11 @@ namespace Markov_IO {
         {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
-            return false;
+            {
+              std::string err="expected return; found:"+tok.str();
+              ABC_BuildByToken::setErrorMessage(err);
+              return false;
+            }
           else
             {
               mystate=S_Header2;
@@ -437,9 +484,14 @@ namespace Markov_IO {
           break;
         case S_Header2:
           if (tok.tok()!=Token_New::LSB)
-            return false;
+            {
+              std::string err="expected left square bracket [; found: "+tok.str();
+              ABC_BuildByToken::setErrorMessage(err);
+              return false;
+            }
           else
             {
+              ABC_BuildByToken::clearErrorMessage();
               mystate=S_Header_Final;
               return true;
             }
@@ -447,7 +499,10 @@ namespace Markov_IO {
         case S_Header_Final:
         case S_Data_Partial:
           if (!myChildState.pushToken(tok))
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(myChildState.errorMessage());
+              return false;
+            }
           else
             {
               if(myChildState.isFinal())
@@ -470,7 +525,10 @@ namespace Markov_IO {
               return true;
             }
           else if (!myChildState.pushToken(tok))
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(myChildState.errorMessage());
+              return false;
+            }
           else
             {
               if(myChildState.isFinal())
@@ -668,14 +726,20 @@ namespace Markov_IO {
 
     }
 
-    buildByToken():
+    buildByToken(ABC_Value* parent):
+      ABClass_buildByToken<std::pair<K,T>>(parent),
       mystate(S_Init),
-      x_{}{}
+      x_{}
+    ,first_(parent)
+    ,second_(parent){}
 
 
-    buildByToken(std::vector<T> v):
+    buildByToken(ABC_Value* parent,std::pair<K,T> v):
+      ABClass_buildByToken<std::pair<K,T>>(parent),
       mystate(S_Init),
-      x_{}{}
+      x_{}
+    ,first_(parent)
+    ,second_(parent){}
 
 
 
@@ -689,7 +753,10 @@ namespace Markov_IO {
         case S_Init:
         case S_First_Partial:
           if (!first_.pushToken(tok))
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(first_.errorMessage());
+              return false;
+            }
           else
             {
               if (first_.isFinal())
@@ -701,7 +768,10 @@ namespace Markov_IO {
           break;
         case S_First_Final:
           if (tok.tok()!=Token_New::COLON)
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage("Error. Expected colon "":"" found: "+ tok.str());
+              return false;
+            }
           else
             {
               mystate=S_Separator_Final;
@@ -711,7 +781,10 @@ namespace Markov_IO {
         case S_Separator_Final:
         case S_Second_Partial:
           if (!second_.pushToken(tok))
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(second_.errorMessage());
+              return false;
+            }
           else
             {
               if(second_.isFinal())
@@ -892,12 +965,14 @@ namespace Markov_IO {
       return true;
     }
 
-    buildByToken():
+    buildByToken(ABC_Value* parent):
+      ABClass_buildByToken<Markov_LA::M_Matrix<T>>(parent),
       mystate(S_Init),
       x_{}{}
 
 
-    buildByToken(Markov_LA::M_Matrix<T> v):
+    buildByToken(ABC_Value* parent,Markov_LA::M_Matrix<T> v):
+      ABClass_buildByToken<Markov_LA::M_Matrix<T>>(parent),
       mystate(S_Init),
       x_{v}{}
 
@@ -912,7 +987,11 @@ namespace Markov_IO {
       switch (mystate) {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage("Error. Expected Return; found: "+tok.str());
+              return false;
+            }
+
           else
             {
               mystate=S_Header_Final;
@@ -949,7 +1028,13 @@ namespace Markov_IO {
                       mystate=S_Final;
                       return true;
                     }
-                  else return false;
+                  else
+                    {
+                      ABC_BuildByToken::setErrorMessage(
+                            "Error in matrix. nrows="+std::to_string(nRows_)
+                            +"  nCols="+std::to_string(nCols_));
+                      return false;
+                    }
 
                 }
               else if (nCols_==runCols_)
@@ -978,10 +1063,19 @@ namespace Markov_IO {
                       mystate=S_Final;
                       return true;
                     }
-                  else return false;
-                }
-              else return false;
-            }
+                  else
+                    {
+                      ABC_BuildByToken::setErrorMessage(
+                            "Error in matrix. nrows="+std::to_string(nRows_)
+                            +"  nCols="+std::to_string(nCols_));
+                      return false;
+                    }}
+              else  {
+                  ABC_BuildByToken::setErrorMessage(
+                        "Error in matrix. nrows="+std::to_string(nRows_)
+                        +"  nCols="+std::to_string(nCols_));
+                  return false;
+                }}
 
           else if (getValue(tok,v_))
             {
@@ -995,10 +1089,17 @@ namespace Markov_IO {
                   mystate=S_Data_Partial;
                   return true;
                 }
-              else return false;
-
+              else
+                {
+                  ABC_BuildByToken::setErrorMessage(
+                        "Error in matrix. nrows="+std::to_string(nRows_)
+                        +"  nCols="+std::to_string(nCols_)
+                        + "  running cols"+std::to_string(runCols_));
+                  return false;
+                }
             }
-          else return false;
+          else
+            return false;
           break;
         case S_Final:
         default:
@@ -1109,7 +1210,10 @@ namespace Markov_IO {
         return true;
       }
     else
-      return false;
+      {
+        ABC_BuildByToken::setErrorMessage("Error. Expected real number; found: "+tok.str());
+        return false;
+      }
   }
 
   template<>
@@ -1122,11 +1226,13 @@ namespace Markov_IO {
         return true;
       }
     else
-      return false;
-  }
+      {
+        ABC_BuildByToken::setErrorMessage("Error. Expected positive integer number; found: "+tok.str());
+        return false;
+      }  }
 
   template<>
-   inline bool Markov_IO::buildByToken<Markov_LA::M_Matrix<int> >::getValue(
+  inline bool Markov_IO::buildByToken<Markov_LA::M_Matrix<int> >::getValue(
       Token_New tok, int &v)
   {
     if (tok.isInteger())
@@ -1135,7 +1241,10 @@ namespace Markov_IO {
         return true;
       }
     else
-      return false;
+      {
+        ABC_BuildByToken::setErrorMessage("Error. Expected integer number; found: "+tok.str());
+        return false;
+      }
   }
 
 
@@ -1227,16 +1336,18 @@ namespace Markov_IO {
         return {};
     }
 
-    buildByToken():
+    buildByToken(ABC_Value* parent):
+      ABClass_buildByToken<std::set<T>>(parent),
       mystate(S_Header_Final),
       x_{},
-      myChildState(){}
+      myChildState(parent){}
 
 
-    buildByToken(std::set<T> v):
+    buildByToken(ABC_Value* parent,std::set<T> v):
+      ABClass_buildByToken<std::set<T>>(parent),
       mystate(S_Header_Final),
       x_{v},
-      myChildState{}{}
+      myChildState{parent}{}
 
 
 
@@ -1249,8 +1360,11 @@ namespace Markov_IO {
         {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
-            return false;
-          else
+            {
+              ABC_BuildByToken::setErrorMessage(
+                    "Error in set. expected  Return, found:"+tok.str());
+              return false;
+            }  else
             {
               mystate=S_Header2;
               return true;
@@ -1258,8 +1372,11 @@ namespace Markov_IO {
           break;
         case S_Header2:
           if (tok.tok()!=Token_New::LCB)
-            return false;
-          else
+            {
+              ABC_BuildByToken::setErrorMessage(
+                    "Error in set. expected  left curve bracket ""{"", found:"+tok.str());
+              return false;
+            }   else
             {
               mystate=S_Header_Final;
               return true;
@@ -1268,7 +1385,11 @@ namespace Markov_IO {
         case S_Header_Final:
         case S_Data_Partial:
           if (!myChildState.pushToken(tok))
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(
+                    "Error in set: "+myChildState.errorMessage());
+              return false;
+            }
           else
             {
               if(myChildState.isFinal())
@@ -1291,7 +1412,11 @@ namespace Markov_IO {
               return true;
             }
           else if (!myChildState.pushToken(tok))
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(
+                    "Error in set: "+myChildState.errorMessage());
+              return false;
+            }
           else
             {
               if(myChildState.isFinal())
@@ -1491,16 +1616,18 @@ namespace Markov_IO {
         return {};
     }
 
-    buildByToken():
+    buildByToken(ABC_Value* parent):
+      ABClass_buildByToken<std::map<K,T>>(parent),
       mystate(S_Header_Final),
       x_{},
-      myChildState{}{}
+      myChildState{parent}{}
 
 
-    buildByToken(std::map<K,T> v):
+    buildByToken(ABC_Value* parent,std::map<K,T> v):
+      ABClass_buildByToken<std::map<K,T>>(parent),
       mystate(S_Header_Final),
       x_{v},
-      myChildState{}{}
+      myChildState{parent}{}
 
 
 
@@ -1513,7 +1640,11 @@ namespace Markov_IO {
         {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(
+                    "Error in Map. Expected enter. Found: "+tok.str());
+              return false;
+            }
           else
             {
               mystate=S_Header2;
@@ -1522,7 +1653,11 @@ namespace Markov_IO {
           break;
         case S_Header2:
           if (tok.tok()!=Token_New::LCB)
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(
+                    "Error in Map. Expected left curved bracket ""{"". Found: "+tok.str());
+              return false;
+            }
           else
             {
               mystate=S_Header_Final;
@@ -1532,7 +1667,11 @@ namespace Markov_IO {
         case S_Header_Final:
         case S_Data_Partial:
           if (!myChildState.pushToken(tok))
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(
+                    "Error in map: "+myChildState.errorMessage());
+              return false;
+            }
           else
             {
               if(myChildState.isFinal())
@@ -1555,7 +1694,11 @@ namespace Markov_IO {
               return true;
             }
           else if (!myChildState.pushToken(tok))
-            return false;
+            {
+              ABC_BuildByToken::setErrorMessage(
+                    "Error in map: "+myChildState.errorMessage());
+              return false;
+            }
           else
             {
               if(myChildState.isFinal())
@@ -1673,6 +1816,7 @@ namespace Markov_IO {
       :public ABC_Value_ByToken
 
   {
+
   public:
 
 
@@ -1702,10 +1846,8 @@ namespace Markov_IO {
       S_Init=0, TIP1, TIP2,WT0_ID0,WT2,WT3,ID1,ID2,WT1,ID0,S_Final
     } ;
 
-
-
-
-    build_Implements_ValueId():
+    build_Implements_ValueId(ABC_Value* p):
+      ABC_Value_ByToken(p),
       id_(nullptr),
       idstate(S_Init){}
 
@@ -1740,20 +1882,37 @@ namespace Markov_IO {
             }
           else if (t.tok()==Token_New::IDENTIFIER)
             {
+
               idstate =ID1;
+              if (id_==nullptr)
+                id_=new Implements_ValueId;
               id_->setId(t.str());
+
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e= "Error in identifier. Expected hash ""#"" or identifier. Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case TIP1:
           if (t.tok()==Token_New::STRING)
             {
               idstate =TIP2;
+              if (id_==nullptr)
+                id_=new Implements_ValueId;
+
               id_->setTip(t.str());
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e= "Error in Tip. Expected a string. Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case TIP2:
           if (t.tok()==Token_New::EOL)
@@ -1761,7 +1920,12 @@ namespace Markov_IO {
               idstate =WT0_ID0;
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e= "Error in Tip. Expected a return. Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case WT0_ID0:
           if (t.tok()==Token_New::HASH)
@@ -1772,10 +1936,16 @@ namespace Markov_IO {
           else if (t.tok()==Token_New::IDENTIFIER)
             {
               idstate =ID1;
+              if (id_==nullptr)
+                id_=new Implements_ValueId;
               id_->setId(t.str());
               return true;
             }
-          else return false;
+          else  {
+              std::string e= "Error in identifier. Expected hash ""#"" or identifier. Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case WT1:
           if (t.tok()==Token_New::HASH)
@@ -1783,54 +1953,83 @@ namespace Markov_IO {
               idstate =WT2;
               return true;
             }
-          else return false;
+          else  {
+              std::string e= "Error in identifier. Expected hash ""#"". Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case WT2:
           if(t.tok()==Token_New::STRING)
             {
               idstate =WT3;
+              if (id_==nullptr)
+                id_=new Implements_ValueId;
               id_->setWhatThis(t.str());
               return true;
             }
-          else return false;
-          break;
+          else
+            {
+              std::string e= "Error in identifier. Expected identifier. Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }       break;
         case WT3:
           if (t.tok()==Token_New::EOL)
             {
               idstate =ID0;
               return true;
             }
-          else return false;
-          break;
+          else
+            {
+              std::string e= "Error in identifier. Expected return. Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }   break;
 
         case ID0:
           if (t.tok()==Token_New::IDENTIFIER)
             {
               idstate =ID1;
+              if (id_==nullptr)
+                id_=new Implements_ValueId;
               id_->setId(t.str());
               return true;
             }
-          else return false;
-          break;
+          else
+            {
+              std::string e= "Error in identifier. Expected identifier. Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }        break;
         case ID1:
           if (t.tok()==Token_New::COLON)
             {
               idstate =ID2;
               return true;
             }
-          else return false;
-
+          else
+            {
+              std::string e= "Error in identifier. Expected COLON "":"". Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case ID2:
           if (t.tok()==Token_New::IDENTIFIER)
             {
               idstate =S_Final;
+              if (id_==nullptr)
+                id_=new Implements_ValueId;
               id_->setVar(t.str());
               return true;
             }
           else
-            return false;
-
+            {
+              std::string e= "Error in identifier. Expected identifier. Received: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case S_Final:
         default:
@@ -1849,7 +2048,8 @@ namespace Markov_IO {
           id_=dynamic_cast<Implements_ValueId*>(var);
           return true;
         }
-      else return false;
+      else
+        return false;
     }
 
 
@@ -2012,14 +2212,15 @@ namespace Markov_IO {
 
 
 
-    build_Implements_Refer_Var():
+    build_Implements_Refer_Var(ABC_Value* p):
+      build_Implements_ValueId(p),
       mystate(S_Init),
       x_(new Implements_Refer_Var){
       setId(x_);
     }
 
-    build_Implements_Refer_Var(Implements_ValueId* id):
-      build_Implements_ValueId()
+    build_Implements_Refer_Var(ABC_Value* p,Implements_ValueId* id):
+      build_Implements_ValueId(p)
     ,mystate(S_ID_Final)
     ,x_(new Implements_Refer_Var(*id))
     {
@@ -2063,7 +2264,11 @@ namespace Markov_IO {
         case S_Init:
         case S_ID_Partial:
           if (!build_Implements_ValueId::pushToken(t))
-            return false;
+            {
+              std::string e= "Error in reference construction. In identifier definition we found";
+              ABC_BuildByToken::setErrorMessage(e+ABC_BuildByToken::errorMessage());
+              return false;
+            }
           else if (build_Implements_ValueId::isFinal())
             {
               mystate=S_ID_Final;
@@ -2080,7 +2285,12 @@ namespace Markov_IO {
               mystate=S_Header2;
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e="Error in reference construction. Expected assign ""="" found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case S_Header2:
           if (t.tok()==Token_New::MUL)
@@ -2088,8 +2298,12 @@ namespace Markov_IO {
               mystate=S_Header_Final;
               return true;
             }
-          else return false;
-          break;
+          else
+            {
+              std::string e="Error in reference construction. Expected mul ""*"" found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            } break;
 
         case S_Header_Final:
           if (t.tok()==Token_New::IDENTIFIER)
@@ -2098,7 +2312,12 @@ namespace Markov_IO {
               mystate=S_Data_Final;
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e="Error in reference construction. Expected identifier; found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case S_Data_Final:
           if (t.tok()==Token_New::EOL)
@@ -2106,7 +2325,12 @@ namespace Markov_IO {
               mystate=S_Final;
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e="Error in reference construction. Expected return; found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case S_Final:
         default:
@@ -2255,18 +2479,20 @@ namespace Markov_IO {
 
 
 
-    build_Implements_Simple_Value():
-      mystate(S_Init)
-      ,x_(new Implements_Simple_Value<T>)
-      ,data_(){
+    build_Implements_Simple_Value(ABC_Value* parent):
+      build_Implements_ValueId(parent)
+    ,mystate(S_Init)
+    ,x_(new Implements_Simple_Value<T>)
+    ,data_(parent){
       setId(x_);
     }
 
-    build_Implements_Simple_Value(Implements_ValueId* id):
-      build_Implements_ValueId()
+    build_Implements_Simple_Value(ABC_Value* parent,
+                                  Implements_ValueId* id):
+      build_Implements_ValueId(parent)
     ,mystate(S_ID_Final)
-      ,x_(new Implements_Simple_Value<T>(*id))
-    ,data_(){
+    ,x_(new Implements_Simple_Value<T>(*id))
+    ,data_(parent){
       setId(x_);
     }
 
@@ -2302,7 +2528,11 @@ namespace Markov_IO {
         case S_Init:
         case S_ID_Partial:
           if (!build_Implements_ValueId::pushToken(t))
-            return false;
+            {
+              std::string e= "Error in "+myClass()+" construction. In identifier definition we found";
+              ABC_BuildByToken::setErrorMessage(e+ABC_BuildByToken::errorMessage());
+              return false;
+            }
           else if (build_Implements_ValueId::isFinal())
             {
               mystate=S_ID_Final;
@@ -2320,12 +2550,21 @@ namespace Markov_IO {
               mystate=S_Header_Final;
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e= "Error in "+myClass()+" construction. Expected ""="" found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case S_Header_Final:
         case S_Data_Partial:
           if (!data_.pushToken(t))
-            return false;
+            {
+              std::string e= "Error in "+myClass()+" construction. ";
+              ABC_BuildByToken::setErrorMessage(e+data_.errorMessage());
+              return false;
+            }
           else if (data_.isFinal())
             {
               x_->setValue(data_.unloadVar());
@@ -2344,7 +2583,12 @@ namespace Markov_IO {
               mystate=S_Final;
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e= "Error in "+myClass()+" construction. Expected eol mark (return); found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case S_Final:
         default:
@@ -2515,10 +2759,145 @@ namespace Markov_IO {
 
 
 
-    build_ABC_Value():
+    build_ABC_Value(ABC_Var* p):
+      ABC_Value_ByToken(p),
       mystate{S_Init}
     ,x_(nullptr)
-    ,id_{}
+    ,id_(p)
+    ,var_(nullptr)
+    ,previousTok_{}
+    , prevTokens_{}{}
+
+
+
+
+    ABC_Value* unloadVar()
+    {
+      if (isFinal())
+        {
+          auto out=x_;
+          mystate=S_Init;
+          x_=nullptr;
+
+          return out;
+        }
+      else return nullptr;
+    }
+
+    bool  unPop(ABC_Value* var);
+
+
+    bool pushToken(Token_New t);
+
+
+
+    std::set<std::string> alternativesNext()const;
+
+
+    Token_New popBackToken();
+
+
+
+    bool isFinal()const
+    {
+      return mystate==S_Final;
+
+    }
+
+    bool isInitial()const
+    {
+      return mystate==S_Init;
+    }
+
+    virtual bool isHollow()const
+    {
+      switch (mystate) {
+        case       S_Init:
+        case     S_ID_Partial:
+        case     S_ID_Final:
+          return true;
+        case  S_Var_Partial:
+        case     S_Final:
+        case     S_NOT_Complex_Und:
+        case   S_SimpMult_Und:
+        case  S_Vec_Und:
+        case   S_Set_or_Map:
+        case     S_Set_or_Map2:
+        case S_Map_Und:
+        default:
+          return false;
+
+        }
+    }
+
+
+
+    static build_Implements_ValueId *createBuild_Value(ABC_Value *parent, ABC_Value *var);
+  private:
+    DFA mystate;
+    ABC_Value* x_;
+    build_Implements_ValueId   id_;
+    build_Implements_ValueId* var_;
+    Token_New previousTok_;
+    std::vector<Token_New> prevTokens_;
+
+    static std::vector<Token_New> definingState(build_Implements_ValueId* var,
+                                                DFA &mystate);
+
+
+
+
+    // buffer
+    // setter<buildByToken<C>,C>  set_;
+  };
+
+
+
+
+  class build_Statement
+      :public ABC_Value_ByToken
+  {
+  public:
+
+    static std::string ClassName()
+    {
+      return "build_Statement";
+    }
+
+    static std::set<std::string> SuperClasses()
+    {
+      return ABC_Value_ByToken::SuperClasses()+ClassName();
+    }
+
+    std::string myClass()const override
+    {
+      return ClassName();
+
+    }
+
+
+    enum DFA {
+      S_Init,
+      S_ID_Partial,
+      S_ID_Final,
+      S_Var_Partial,
+      S_Final,
+      S_NOT_Complex_Und,
+      S_SimpMult_Und,
+      S_Vec_Und,
+      S_Set_or_Map,
+      S_Set_or_Map2,
+      S_Map_Und
+    } ;
+
+
+
+
+    build_Statement(ABC_Var* p):
+      ABC_Value_ByToken(p),
+      mystate{S_Init}
+    ,x_(nullptr)
+    ,id_(p)
     ,var_(nullptr)
     ,previousTok_{}
     , prevTokens_{}{}
@@ -2592,7 +2971,7 @@ namespace Markov_IO {
     DFA mystate;
     ABC_Value* x_;
     build_Implements_ValueId   id_;
-    build_Implements_ValueId* var_;
+    ABC_Value_ByToken* var_;
     Token_New previousTok_;
     std::vector<Token_New> prevTokens_;
 
@@ -2605,6 +2984,7 @@ namespace Markov_IO {
     // buffer
     // setter<buildByToken<C>,C>  set_;
   };
+
 
 
 
@@ -2650,20 +3030,20 @@ namespace Markov_IO {
 
 
 
-    build_Implements_Complex_Value():
-      build_Implements_ValueId()
+    build_Implements_Complex_Value(ABC_Value* parent):
+      build_Implements_ValueId(parent)
     ,mystate(S_Init)
     ,x_(new Implements_Complex_Value)
-    ,v_()
+    ,v_(parent)
     {
       setId(x_);
     }
 
-    build_Implements_Complex_Value(Implements_ValueId* id):
-      build_Implements_ValueId()
+    build_Implements_Complex_Value(ABC_Value* parent,Implements_ValueId* id):
+      build_Implements_ValueId(parent)
     ,mystate(S_ID_Final)
     ,x_(new Implements_Complex_Value(*id))
-    ,v_()
+    ,v_(parent)
     {
       setId(x_);
     }
@@ -2700,7 +3080,11 @@ namespace Markov_IO {
         case S_Init:
         case S_ID_Partial:
           if (!build_Implements_ValueId::pushToken(t))
-            return false;
+            {
+              std::string e= "Error in "+myClass()+" construction. In identifier definition we found";
+              ABC_BuildByToken::setErrorMessage(e+ABC_BuildByToken::errorMessage());
+              return false;
+            }
           else if (build_Implements_ValueId::isFinal())
             {
               mystate=S_ID_Final;
@@ -2717,7 +3101,12 @@ namespace Markov_IO {
               mystate=S_Header_2;
               return true;
             }
-          else return false;
+          else
+            {
+              std::string e= "Error in "+myClass()+" . Expected ""Begin"" Found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
           break;
         case S_Header_2:
           if (t.tok()==Token_New::EOL)
@@ -2725,12 +3114,20 @@ namespace Markov_IO {
               mystate=S_Header_Final;
               return true;
             }
-          else return false;
-          break;
+          else
+            {
+              std::string e= "Error in "+myClass()+" . Expected eol return Found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }break;
         case S_Header_Final:
         case S_Field_Partial:
           if (!v_.pushToken(t))
-            return false;
+            {
+              std::string e= "Error in "+myClass()+" field: ";
+              ABC_BuildByToken::setErrorMessage(e+v_.errorMessage());
+              return false;
+            }
           else if (v_.isFinal())
             {
               x_->pushChild(v_.unloadVar());
@@ -2751,8 +3148,12 @@ namespace Markov_IO {
               return true;
             }
           else if (!v_.pushToken(t))
-            return false;
-          else if (v_.isFinal())
+            {
+              std::string e= "Error in "+myClass()+" field: ";
+              ABC_BuildByToken::setErrorMessage(e+v_.errorMessage());
+              return false;
+            }
+            else if (v_.isFinal())
             {
               x_->pushChild(v_.unloadVar());
               mystate=S_Field_Final;
@@ -2767,8 +3168,13 @@ namespace Markov_IO {
               mystate=S_END_Final;
               return true;
             }
-          else return false;
-          break;
+          else
+            {
+              std::string e= "Error in "+myClass()+" Expected end. Found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
+            break;
         case S_END_Final:
           if (t.tok()==Token_New::EOL)
             {
@@ -2776,8 +3182,13 @@ namespace Markov_IO {
 
               return true;
             }
-          else return false;
-          break;
+          else
+            {
+              std::string e= "Error in "+myClass()+" Expected eol. Found: ";
+              ABC_BuildByToken::setErrorMessage(e+t.str());
+              return false;
+            }
+            break;
         case S_Final:
         default:
           return false;
@@ -2944,7 +3355,7 @@ namespace Markov_IO {
 
   class build_Command_Input
       :public ABC_Value_ByToken
-      {
+  {
 
 
     // ABC_BuildByToken interface
@@ -2969,8 +3380,7 @@ namespace Markov_IO {
     }
 
     // ABClass_buildByToken interface
-    build_Command_Input(Markov_Console::Markov_CommandManagerVar* cm):
-      cm_(cm){}
+    build_Command_Input(Markov_Console::Markov_CommandManagerVar* cm);
 
 
   public:
@@ -2987,10 +3397,12 @@ namespace Markov_IO {
       S_Final
     } ;
     
-  static bool hasAllInputs(const ABC_Value* v);
-  static bool hasAllMandatoryInputs(Markov_Console::ABC_CommandVar* cmd,
-                                    const ABC_Value* v);
-  bool processVariableInput(Token_New input);
+    static bool hasAllInputs(const ABC_Value* v);
+    static bool hasAllMandatoryInputs(Markov_Console::ABC_CommandVar* cmd,
+                                      const ABC_Value* v);
+    bool processVariableInput(Token_New input);
+
+    std::set<std::string> inputAlternativeNext()const;
 
   private:
 

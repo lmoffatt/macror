@@ -10,7 +10,7 @@ namespace Markov_Bay
 class ABC_Distribution:public  ABC_ParametricDistributable
 {
 public:
-    virtual std::string mySuperClass()const;
+    virtual std::string mySuperClass()const override;
     static std::string ClassName();
 
     virtual ~ABC_Distribution();

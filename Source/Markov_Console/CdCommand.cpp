@@ -111,7 +111,7 @@ namespace Markov_Console
                     ,"display or change directory"
                     ,""
                     ,{}
-                    ,{{"","","",""}})
+                    ,0)
   {}
 
   bool CdCommandVar::processTokens(Markov_IO::Token_Stream &t)

@@ -4,6 +4,27 @@
 #include <string>
 #include "Markov_LA/Matrix.h"
 
+
+/*!
+* @namespace Markov_Plot
+* @brief  Library of graphical representations of kinetic models, Experiments
+ and Bayesian statistical results.
+*
+*/
+
+/**
+ * @file Plot.h Produces plots of the concentration of the agonist and of the
+  measured or simulated current.
+
+ */
+
+/**
+ * @file Plot.h Produces plots of the concentration of the agonist and of the
+  measured or simulated current.
+
+ */
+
+
 namespace Markov_Plot
 {
 

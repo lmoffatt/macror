@@ -30,8 +30,7 @@ namespace Markov_Console
                     ,"Help command\n"
                      " returns help on subject\n"
                      " subject can be either a command"
-                    ,{}
-                    ,{{"filename","","",""}})
+                    ,{{"filename","","",""}},0)
   {}
 
   /// runs the command on the command manager and returns true if succeeds

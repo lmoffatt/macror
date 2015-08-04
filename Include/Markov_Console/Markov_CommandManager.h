@@ -95,9 +95,9 @@ namespace Markov_Console
   {
   public:
 
-    virtual bool processTokens(Markov_IO::Token_Stream &t);
+     bool processTokens(Markov_IO::Token_Stream &t) override;
 
-    virtual void KeyEvent(Markov_IO::Key k);
+     void KeyEvent(Markov_IO::Key k);
 
 
     Markov_CommandManagerVar();

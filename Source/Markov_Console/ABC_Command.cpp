@@ -18,22 +18,18 @@ namespace Markov_Console
                                  const std::string &commandClass,
                                  const std::string &tip,
                                  const std::string &whatthis,
-                                 std::vector<Markov_IO::Implements_ValueId> mandatoryInput,                         std::vector<Markov_IO::Implements_ValueId> OptionalInput)
+                                 std::vector<Markov_IO::Implements_ValueId> Inputs,
+                                 std::size_t numMandatory)
     :
-    Implements_ValueId(commandName,commandClass,tip,whatthis),
-    Markov_IO::Implements_Complex_Class(commandName,commandClass,tip,whatthis,{}),
-    cm_(cm)
+      Implements_ValueId(commandName,commandClass,tip,whatthis),
+      Markov_IO::Implements_Complex_Value(commandName,commandClass,tip,whatthis,{}),
+      cm_(cm),
+      numMandatoryFields_(numMandatory)
   {
 
-    for (Implements_ValueId m:mandatoryInput)
+    for (Implements_ValueId m:Inputs)
       {
-        isMandatoryField_[m.id()]=true;
         pushChild(m.clone());
-      }
-    for (Implements_ValueId o:OptionalInput)
-      {
-        isMandatoryField_[o.id()]=false;
-        pushChild(o.clone());
       }
 
     cm_->pushChild(this);
@@ -41,10 +37,6 @@ namespace Markov_Console
 
   }
 
-  std::vector<std::string> ABC_CommandVar::complete(const std::string &hint)
-  {
-
-  }
   ///  formated output
 
 

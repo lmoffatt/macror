@@ -3,6 +3,29 @@
 
 namespace Markov_IO {
 
+  std::string ABC_BuildByToken::ClassName()
+  {
+    return "ABC_BuildByToken";
+  }
+
+  std::set<std::string> ABC_BuildByToken::SuperClasses()
+  {
+    return ABC_Base::SuperClasses()+ClassName();
+  }
+
+  std::string ABC_BuildByToken::myClass() const
+  {
+    return ClassName();
+
+  }
+
+  std::set<std::string> ABC_BuildByToken::mySuperClasses() const
+  {
+    return SuperClasses();
+  }
+
+
+
   template class buildByToken<double>;
   template class buildByToken<std::vector<double>>;
 
@@ -28,7 +51,7 @@ namespace Markov_IO {
   {
     if (x_!=var)
       {
-        auto v=createBuild_Value(var);
+        auto v=createBuild_Value(parent(),var);
         if (v!=nullptr)
           {
             delete x_;
@@ -51,6 +74,8 @@ namespace Markov_IO {
       case S_ID_Partial:
         if (!id_.pushToken(t))
           {
+            std::string e= "Error in "+myClass()+" .";
+            ABC_BuildByToken::setErrorMessage(e+id_.errorMessage());
             return false;
           }
         else if (id_.isFinal())
@@ -79,11 +104,18 @@ namespace Markov_IO {
             mystate=S_NOT_Complex_Und;
             return true;
           }
-        else return false;
+        else
+          {
+            std::string e= "Error in "+myClass()+" Expected ""="" found: ";
+            ABC_BuildByToken::setErrorMessage(e+t.str());
+            return false;
+          }
         break;
       case S_Var_Partial:
         if(!var_->pushToken(t))
           {
+            std::string e= "Error in "+myClass()+" .";
+            ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
             return false;
           }
         else if (var_->isFinal())
@@ -125,10 +157,21 @@ namespace Markov_IO {
             mystate=S_SimpMult_Und;
             return true;
           }
-        else return false;
+        else
+          {
+            std::string e= "Error in "+myClass()+" Expected ""return"" found: ";
+            ABC_BuildByToken::setErrorMessage(e+t.str());
+            return false;
+          }
         prevTokens_.push_back(t);
         for (auto to:prevTokens_)
-          if (var_->pushToken(to)) return false;
+          if (var_->pushToken(to))
+            {
+              std::string e= "Error in "+myClass()+" .";
+              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              return false;
+            }
+
         mystate=S_Var_Partial;
         return true;
         break;
@@ -157,11 +200,23 @@ namespace Markov_IO {
           {
             var_=new build_Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>(id_.unloadVar());
           }
-        else return false;
+        else
+          {
+            std::string e= "Error in "+myClass()+" Unexpected token: .";
+            ABC_BuildByToken::setErrorMessage(e+t.str());
+            return false;
+          }
+
         prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
-          if (var_->pushToken(to)) return false;
+          if (var_->pushToken(to))
+            {
+              std::string e= "Error in "+myClass()+" .";
+              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              return false;
+            }
+
         mystate=S_Var_Partial;
         return true;
         break;
@@ -186,12 +241,23 @@ namespace Markov_IO {
 
             var_=new build_Implements_Simple_Value<std::vector<std::string>>(id_.unloadVar());
           }
-        else return false;
+        else
+          {
+            std::string e= "Error in "+myClass()+" Unexpected token: ";
+            ABC_BuildByToken::setErrorMessage(e+t.str());
+            return false;
+          }
+
         // update var_ processing also all the tokens in buffer
         prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
-          if (var_->pushToken(to)) return false;
+          if (var_->pushToken(to))
+            {
+              std::string e= "Error in "+myClass()+" .";
+              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              return false;
+            }
         mystate=S_Var_Partial;
         return true;
         break;
@@ -206,7 +272,12 @@ namespace Markov_IO {
             mystate=S_Set_or_Map2;
             return true;
           }
-        else return false;
+        else
+          {
+            std::string e= "Error in "+myClass()+" Expected real, identifier or string; found: ";
+            ABC_BuildByToken::setErrorMessage(e+t.str());
+            return false;
+          }
       case S_Set_or_Map2:
         if (t.tok()==Token_New::COLON)
           {
@@ -228,14 +299,25 @@ namespace Markov_IO {
         else if ((previousTok_.tok()==Token_New::IDENTIFIER
                   ||previousTok_.tok()==Token_New::STRING)
                  &&(t.tok()==Token_New::IDENTIFIER
-                    ||t.tok()==Token_New::STRING))    {
+                    ||t.tok()==Token_New::STRING))
+          {
             var_=new build_Implements_Simple_Value<std::set<std::string>>(id_.unloadVar());
           }
-        else return false;
+        else
+          {
+            std::string e= "Error in "+myClass()+" Unexpected token: ";
+            ABC_BuildByToken::setErrorMessage(e+t.str());
+            return false;
+          }
         prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
-          if (var_->pushToken(to)) return false;
+          if (var_->pushToken(to))
+            {
+              std::string e= "Error in "+myClass()+" .";
+              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              return false;
+            }
         mystate=S_Var_Partial;
         return true;
 
@@ -315,11 +397,20 @@ namespace Markov_IO {
                     std::map<std::string,std::string>>(id_.unloadVar());
               }
           }
-        else return false;
-        prevTokens_.push_back(t);
+        else
+          {
+            std::string e= "Error in "+myClass()+" Unexpected token: ";
+            ABC_BuildByToken::setErrorMessage(e+t.str());
+            return false;
+          }prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
-          if (var_->pushToken(to)) return false;
+          if (var_->pushToken(to))
+            {
+              std::string e= "Error in "+myClass()+" .";
+              ABC_BuildByToken::setErrorMessage(e+var_->errorMessage());
+              return false;
+            }
         mystate=S_Var_Partial;
         return true;
         break;
@@ -484,7 +575,8 @@ namespace Markov_IO {
       }
   }
 
-  build_Implements_ValueId *build_ABC_Value::createBuild_Value(ABC_Value *var)
+  build_Implements_ValueId *build_ABC_Value::createBuild_Value(ABC_Value * parent,
+                                                               ABC_Value *var)
   {
     //TODO: this seems to be very uneficient.
     // I can think later of a better way..Like figuring out first all the superclasses of var and
@@ -492,97 +584,97 @@ namespace Markov_IO {
 
     if (var->complyClass(Implements_Complex_Value::ClassName()))
       {
-        return new build_Implements_Complex_Value;
+        return new build_Implements_Complex_Value(parent);
       }
     else if (var->complyClass(Implements_Refer_Var::ClassName()))
       {
-        return new build_Implements_Refer_Var;
+        return new build_Implements_Refer_Var(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<double>::ClassName()))
       {
-        return new build_Implements_Simple_Value<double>;
+        return new build_Implements_Simple_Value<double>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<int>::ClassName()))
       {
-        return new build_Implements_Simple_Value<int>;
+        return new build_Implements_Simple_Value<int>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::size_t>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::size_t>;
+        return new build_Implements_Simple_Value<std::size_t>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::string>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::string>;
+        return new build_Implements_Simple_Value<std::string>(parent);
       }
 
     // vectors
     else if (var->complyClass(Implements_Simple_Value<std::vector<double>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::vector<double>>;
+        return new build_Implements_Simple_Value<std::vector<double>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::vector<int>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::vector<int>>;
+        return new build_Implements_Simple_Value<std::vector<int>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::vector<std::size_t>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::vector<std::size_t>>;
+        return new build_Implements_Simple_Value<std::vector<std::size_t>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::vector<std::string>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::vector<std::string>>;
+        return new build_Implements_Simple_Value<std::vector<std::string>>(parent);
       }
     //sets
     else if (var->complyClass(Implements_Simple_Value<std::set<double>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::set<double>>;
+        return new build_Implements_Simple_Value<std::set<double>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::set<int>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::set<int>>;
+        return new build_Implements_Simple_Value<std::set<int>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::set<std::size_t>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::set<std::size_t>>;
+        return new build_Implements_Simple_Value<std::set<std::size_t>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::set<std::string>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::set<std::string>>;
+        return new build_Implements_Simple_Value<std::set<std::string>>(parent);
       }
 
     // matrix
 
     else if (var->complyClass(Implements_Simple_Value<Markov_LA::M_Matrix<double>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<Markov_LA::M_Matrix<double>>;
+        return new build_Implements_Simple_Value<Markov_LA::M_Matrix<double>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<Markov_LA::M_Matrix<int>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<Markov_LA::M_Matrix<int>>;
+        return new build_Implements_Simple_Value<Markov_LA::M_Matrix<int>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>;
+        return new build_Implements_Simple_Value<Markov_LA::M_Matrix<std::size_t>>(parent);
       }
 
     //maps
 
     else if (var->complyClass(Implements_Simple_Value<std::map<double,double>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<double,double>>;
+        return new build_Implements_Simple_Value<std::map<double,double>>(parent);
 
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<double,int>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<double,int>>;
+        return new build_Implements_Simple_Value<std::map<double,int>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<double,std::size_t>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<double,std::size_t>>;
+        return new build_Implements_Simple_Value<std::map<double,std::size_t>>(parent);
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<double,std::string>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<double,std::string>>;
+        return new build_Implements_Simple_Value<std::map<double,std::string>>(parent);
 
 
       }
@@ -591,24 +683,24 @@ namespace Markov_IO {
 
     else if (var->complyClass(Implements_Simple_Value<std::map<int,double>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<int,double>>;
+        return new build_Implements_Simple_Value<std::map<int,double>>(parent);
 
 
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<int,int>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<int,int>>;
+        return new build_Implements_Simple_Value<std::map<int,int>>(parent);
 
 
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<int,std::size_t>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<int,std::size_t>>;
+        return new build_Implements_Simple_Value<std::map<int,std::size_t>>(parent);
 
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<int,std::string>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<int,std::string>>;
+        return new build_Implements_Simple_Value<std::map<int,std::string>>(parent);
 
 
       }
@@ -619,25 +711,25 @@ namespace Markov_IO {
 
     else if (var->complyClass(Implements_Simple_Value<std::map<std::size_t,double>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<std::size_t,double>>;
+        return new build_Implements_Simple_Value<std::map<std::size_t,double>>(parent);
 
 
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<std::size_t,int>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<std::size_t,int>>;
+        return new build_Implements_Simple_Value<std::map<std::size_t,int>>(parent);
 
 
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<std::size_t,std::size_t>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<std::size_t,std::size_t>>;
+        return new build_Implements_Simple_Value<std::map<std::size_t,std::size_t>>(parent);
 
 
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<std::size_t,std::string>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<std::size_t,std::string>>;
+        return new build_Implements_Simple_Value<std::map<std::size_t,std::string>>(parent);
 
 
       }
@@ -646,27 +738,27 @@ namespace Markov_IO {
 
     else if (var->complyClass(Implements_Simple_Value<std::map<std::string,double>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<std::string,double>>;
+        return new build_Implements_Simple_Value<std::map<std::string,double>>(parent);
 
 
       }
     else if (var->complyClass(Implements_Simple_Value<std::map<std::string,int>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<std::string,int>>;
+        return new build_Implements_Simple_Value<std::map<std::string,int>>(parent);
 
 
       }
     else if (var->complyClass(Implements_Simple_Value<
                               std::map<std::string,std::size_t>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<std::string,std::size_t>>;
+        return new build_Implements_Simple_Value<std::map<std::string,std::size_t>>(parent);
 
 
       }
     else if (var->complyClass(Implements_Simple_Value<
                               std::map<std::string,std::string>>::ClassName()))
       {
-        return new build_Implements_Simple_Value<std::map<std::string,std::string>>;
+        return new build_Implements_Simple_Value<std::map<std::string,std::string>>(parent);
 
 
       }
@@ -766,7 +858,7 @@ namespace Markov_IO {
         else return false;
         break;
 
-     case S_Input_Final:
+      case S_Input_Final:
         if (t.tok()==Token_New::EOL)
           {
             mystate=S_Final;
@@ -791,27 +883,10 @@ namespace Markov_IO {
       case S_ID_Final:
         return {Token_New::toString(Token_New::BEGIN)};
         break;
-      case S_Header_2:
+      case S_Mandatory_Final:
         return {Token_New::toString(Token_New::EOL)};
         break;
 
-      case S_Header_Final:
-      case S_Field_Partial:
-        return v_.alternativesNext();
-      case S_Field_Final:
-
-        {
-          auto out =v_.alternativesNext();
-          out.insert(x_->myVar());
-          return out;
-        }
-      case S_END_2:
-        return {Token_New::toString(Token_New::END)};
-        break;
-      case S_END_Final:
-        return {Token_New::toString(Token_New::EOL)};
-        break;
-        break;
       case S_Final:
       default:
         return {};
@@ -820,15 +895,16 @@ namespace Markov_IO {
   }
 
 
-  std::set<std::string> build_Command_Input::alternativesNext() const
-  {
 
-  }
 
   Token_New build_Command_Input::popBackToken()
   {
 
   }
+
+  build_Command_Input::build_Command_Input(Markov_Console::Markov_CommandManagerVar *cm):
+    ABC_Value_ByToken(cm),
+    cm_(cm){}
 
   Implements_Complex_Value *build_Command_Input::unloadVar()
   {
@@ -868,7 +944,7 @@ namespace Markov_IO {
         for (unsigned i=0; i<v->numChilds(); ++i)
           {
             std::string name=v->ith_ChildName(i);
-            if (cmd->isMandatory(name))
+            if (1 /*cmd->isMandatory(name)*/)
               {
                 auto o=v->idToValue(v->ith_ChildName(i));
 
@@ -981,6 +1057,29 @@ namespace Markov_IO {
         break;
       }
   }
+
+  std::set<std::string> build_Command_Input::inputAlternativeNext() const
+  {
+    std::set<std::string> out;
+    for (unsigned i=0; i<input_->numChilds(); ++i)
+      {
+        std::string idith=input_->ith_ChildName(i);
+        auto oith=input_->idToValue(idith);
+        if ((oith->refId().empty()))
+          {
+            //if (cmd_->isMandatoryInput(idith))
+            out.insert("<"+oith->myVar()+">");
+            out.insert("["+oith->myVar()+"]");
+
+
+            //       out=out+ cm_->getChildList(oith->myVar());
+          }
+
+
+      }
+
+  }
+
 
 }
 
