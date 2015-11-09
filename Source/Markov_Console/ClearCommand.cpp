@@ -79,12 +79,12 @@ namespace Markov_Console
   }
 
   ClearCommandVar::ClearCommandVar(Markov_CommandManagerVar *cm)
-      : Markov_IO::Implements_ValueId("clear"
+      :/* Markov_IO::Implements_ValueId("clear"
                                       , ""
                                       ,"erases variables"
                                       ,""
                                       )
-      ,ABC_CommandVar(cm
+      ,*/ABC_CommandVar(cm
                       ,"clear"
                       , ""
                       ,"erases variables"

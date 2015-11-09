@@ -42,12 +42,12 @@ bool ExitCommand::run(std::deque<Token> & )
   exit(0);
 }
 
-ExitCommandVar::ExitCommandVar(Markov_CommandManagerVar *cm): Markov_IO::Implements_ValueId("exit"
+ExitCommandVar::ExitCommandVar(Markov_CommandManagerVar *cm): /*Markov_IO::Implements_ValueId("exit"
                                   , ""
                                   ,"exit the program"
                                   ,""
                                   )
-    ,ABC_CommandVar(cm
+    ,*/ABC_CommandVar(cm
                   ,"exit"
                   , ""
                   ,"exit the program"

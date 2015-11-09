@@ -99,60 +99,6 @@ namespace  Markov_IO {
   typedef ABC_Value ABC_Measure;
 
 
-  class ABC_Simple: public ABC_Put
-  {
-  public:
-
-
-    static std::string ClassName();
-
-    static std::set<std::string> SuperClasses();
-
-    /// si myClass==SomeClass::ClassName()  => static_cast<SomeClass*>(this)!=nullptr
-    virtual std::string myClass() const
-    {
-      return ClassName();
-    }
-
-
-
-    virtual std::set<std::string> mySuperClasses() const
-    {
-      return {ClassName()};
-    }
-
-
-    /// creates an empty object of the same class
-    virtual ABC_Simple * create()const=0;  // ABC_Put::create() // same myClass?
-
-    /// creates a stand alone copy of the object,
-    /// however it does not have the same parent
-    virtual ABC_Simple* clone()const=0;   //
-
-
-
-
-
-
-    virtual std::string toString()const;   //
-
-    virtual std::ostream& put(std::ostream& s) const
-    {
-      s<<toString();
-      return s;
-    }
-
-
-    virtual Token_Stream toTokens()const=0;
-
-
-
-    virtual bool processTokens(Token_Stream& t)=0;
-
-
-  };
-
-
 
 
 
@@ -487,7 +433,7 @@ namespace  Markov_IO {
 
 
 
-  class Implements_ValueId: virtual public ABC_Value
+  class Implements_ValueId:  public ABC_Value
   { // ABC_Var interface
   public:
 
@@ -518,14 +464,12 @@ namespace  Markov_IO {
 
 
     virtual std::string myVar() const override;
+
     virtual void setVar(const std::string& varname)override;
 
     virtual Token_Stream toTokens() const override;
 
     virtual bool processTokens( Token_Stream& tok) override;
-
-
-
 
     virtual std::string id()const override;
     virtual void setId(const std::string& IdName)override;
@@ -534,7 +478,6 @@ namespace  Markov_IO {
     virtual std::string WhatThis()const override;
     virtual void setTip(const std::string& tip)override;
     virtual void setWhatThis(const std::string& whatThis)override;
-
 
     bool isRootedVariable()const override;
 
@@ -600,9 +543,6 @@ namespace  Markov_IO {
     virtual void putErrorOut(const std::string& m)const;
 
 
-
-
-
     virtual ABC_Value* to_PlainValue() const override;
     virtual ABC_Value* to_PlainValue(const ABC_Measure* )const override
     {
@@ -641,14 +581,7 @@ namespace  Markov_IO {
     std::string tip_;
     std::string whatThis_;
 
-
-
   };
-
-
-
-
-
 
 
 
@@ -661,21 +594,21 @@ namespace  Markov_IO {
   class ABC_Simple_Value;
 
   template<typename T>
-  class ABC_Simple_Class:  public  virtual Implements_ValueId
+  class ABC_Simple_Class//:  public Implements_ValueId
   {
   public:
 
-    static std::string ClassName();
+//    static std::string ClassName();
 
-    static std::set<std::string> SuperClasses()
-    {
-      return ABC_Value::SuperClasses()+ClassName();
-    }
+//    static std::set<std::string> SuperClasses()
+//    {
+//      return ABC_Value::SuperClasses()+ClassName();
+//    }
 
-    virtual std::set<std::string> mySuperClasses()const override
-    {
-      return SuperClasses();
-    }
+//    virtual std::set<std::string> mySuperClasses()const override
+//    {
+//      return SuperClasses();
+//    }
 
     virtual T defaultValue()const=0;
     virtual T minValue()const=0;
@@ -691,9 +624,9 @@ namespace  Markov_IO {
 
 
 
-    virtual bool complyModes(const std::string mode)const override=0;
+//    virtual bool complyModes(const std::string mode)const override=0;
 
-    virtual std::set<std::string> modes()const override=0;
+//    virtual std::set<std::string> modes()const override=0;
     virtual ~ABC_Simple_Class(){}
   };
 
@@ -899,17 +832,10 @@ namespace  Markov_IO {
 
 
 
-  template<typename T>
-  class Implements_Simple_Measure: public  Implements_Simple_Value<T>, public ABC_Measure
-  {
-
-
-  };
 
 
 
-
-  class Implements_Complex_Value: virtual public  Implements_ValueId
+  class Implements_Complex_Value:  public  Implements_ValueId
   {
     // ABC_Var interface
   public:
@@ -1139,7 +1065,7 @@ namespace  Markov_IO {
 
 
   template<class C>
-  class ABCObject:  virtual public Implements_ValueId
+  class ABCObject // :  virtual public Implements_ValueId
   {
     // ABC_Var interface
   public:
@@ -2103,7 +2029,7 @@ namespace  Markov_IO {
                                 C* object,
                                 const std::string & tip,
                                 const std::string& whatthis):
-      Implements_ValueId(id,myVar,tip,whatthis),
+      //Implements_ValueId(id,myVar,tip,whatthis),
       Implements_Complex_Value(id,myVar,tip,whatthis),
       object_(object)
     {}
@@ -2112,7 +2038,7 @@ namespace  Markov_IO {
     Implements_Class_Reflection()=default;
 
     Implements_Class_Reflection(const Implements_Class_Reflection& other)
-      :  Implements_ValueId(other),
+      :  //Implements_ValueId(other),
         Implements_Complex_Value(other),
         object_(other.object_)
     {
@@ -2212,7 +2138,7 @@ namespace  Markov_IO {
   template<typename T>
   class Implements_Simple_Class:
       public ABC_Simple_Class<T>,
-      private Implements_Class_Reflection<Implements_Simple_Class<T>>
+      public Implements_Class_Reflection<Implements_Simple_Class<T>>
   {
     typedef Implements_Simple_Class<T> C;
     // ABC_Var interface
@@ -2299,7 +2225,7 @@ namespace  Markov_IO {
                             std::string className=ClassName(),
                             std::string tip="",
                             std::string whatthis=""):
-      Implements_ValueId(id,className,tip,whatthis),
+    //  Implements_ValueId(id,className,tip,whatthis),
       Implements_Class_Reflection<C>(id,className,this,tip,whatthis),
       mode_(modes),
       units_(measureunits),
@@ -3016,11 +2942,11 @@ namespace  Markov_IO {
 
 
 
-  template<typename T>
-  std::string ABC_Simple_Class<T>::ClassName()
-  {
-    return Implements_Simple_Value<T>::ClassName()+"_abs_SC";
-  }
+//  template<typename T>
+//  std::string ABC_Simple_Class<T>::ClassName()
+//  {
+//    return Implements_Simple_Value<T>::ClassName()+"_abs_SC";
+//  }
 
 
 }

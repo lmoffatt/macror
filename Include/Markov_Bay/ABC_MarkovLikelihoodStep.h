@@ -47,7 +47,7 @@ public:
       const std::string varName,
       const std::string & tip,
       const std::string& whatthis):
-    Implements_ValueId(id,varName,tip,whatthis),
+    //Implements_ValueId(id,varName,tip,whatthis),
     Implements_Class_Reflection<ABC_Markov_Likelihood_step>(id,varName,this,tip,whatthis)
   {
     push_backRefMethod("P_mean",
@@ -97,7 +97,7 @@ public:
 
 
   ABC_Markov_Likelihood_step(const ABC_Markov_Likelihood_step& other):
-    Implements_ValueId(other),
+    //Implements_ValueId(other),
     Implements_Class_Reflection<ABC_Markov_Likelihood_step>(other){}
 
 

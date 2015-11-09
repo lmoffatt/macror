@@ -127,7 +127,7 @@ namespace Markov_Bay
   {}
 
   Macro_R_step::Macro_R_step(const Macro_R_step& other):
-    Implements_ValueId(other),
+    //Implements_ValueId(other),
     ABC_Markov_Likelihood_step(other),
     model_A(other.model_A->clone()),
     Q_dt(other.Q_dt),

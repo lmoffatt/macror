@@ -39,7 +39,7 @@ std::string Macro_NR_step::ClassName()
 
 
 Macro_NR_step::Macro_NR_step(const Macro_NR_step& other):
-  Implements_ValueId(other),
+  //Implements_ValueId(other),
   ABC_Markov_Likelihood_step(other) ,
     model_A(other.model_A->clone()),
     Q_dt(other.Q_dt),

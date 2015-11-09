@@ -33,7 +33,7 @@ namespace Markov_Mol
     public:
       static std::string ClassName(){return "Q_matrix";}
         Q_matrix():
-      Implements_ValueId(Q_matrix::ClassName(),Q_matrix::ClassName(),"",""),
+      //Implements_ValueId(Q_matrix::ClassName(),Q_matrix::ClassName(),"",""),
       Implements_Simple_Class(Q_matrix::ClassName(),"s^-1",{"Q_MATRIX"})
       {}
     };
@@ -43,7 +43,7 @@ namespace Markov_Mol
     public:
       static std::string ClassName(){return "g_matrix";}
         g_matrix():
-          Implements_ValueId(ClassName(),ClassName(),"",""),
+      //    Implements_ValueId(ClassName(),ClassName(),"",""),
       Implements_Simple_Class(g_matrix::ClassName(),"1=max conductance",{"NOT_ALL_ZERO"}){}
     };
 
@@ -52,7 +52,7 @@ namespace Markov_Mol
     public:
       static std::string ClassName(){return "a_matrix";}
         a_matrix():
-          Implements_ValueId(ClassName(),ClassName(),"",""),
+      //    Implements_ValueId(ClassName(),ClassName(),"",""),
       Implements_Simple_Class(g_matrix::ClassName(),"agonist_count",{"NOT_ALL_ZERO"}){}
     };
 

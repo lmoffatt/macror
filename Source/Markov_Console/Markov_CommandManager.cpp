@@ -152,10 +152,79 @@ namespace Markov_Console
     return STRINGIZE(HELP_PATH);
   }
 
+  std::__cxx11::string Markov_CommandManagerVar::directory()
+  {
+    return "Directory";
+  }
+
+  std::__cxx11::string Markov_CommandManagerVar::idVarName()  {
+    return "IdVar";
+  }
+
+  std::__cxx11::string Markov_CommandManagerVar::idTypeName()
+  {
+    return "IdType";
+  }
+
+  std::__cxx11::string Markov_CommandManagerVar::fileName()
+  {
+    return "FileName";
+  }
+
+  std::__cxx11::string Markov_CommandManagerVar::testName()
+  {
+    return "IdTest";
+  }
+
+  std::__cxx11::string Markov_CommandManagerVar::idCommandName()
+  { return "IdCommand";}
+
+  std::vector<std::__cxx11::string> Markov_CommandManagerVar::complete(const std::__cxx11::string &hint, const std::__cxx11::string &category) const
+
+  {
+    auto it= autoCmptByCategories.find(category);
+    if (it!=autoCmptByCategories.end())
+      {
+        Autocomplete a=it->second;
+        return a.complete(hint);
+      }
+    else
+      {
+        return {};
+      }
+  }
+
+  std::map<std::__cxx11::string, std::vector<std::__cxx11::string> > Markov_CommandManagerVar::complete(const std::__cxx11::string &hint, const std::vector<std::pair<std::__cxx11::string, bool> > &categories) const
+  {
+    std::map<std::string,std::vector<std::string>> out;
+    for (std::pair<std::string,bool> cat:categories)
+      {
+        auto v=complete(hint,cat.first);
+        if (!v.empty())
+          out[cat.first]=v;
+      }
+    return out;
+
+  }
+
   std::string Markov_CommandManagerVar::whichCategory(const std::string &candidate, const Markov_IO::ABC_Value *categories)
   {
 
   }
+
+  std::__cxx11::string Markov_CommandManagerVar::check(const std::__cxx11::string &hint, const std::__cxx11::string &category){
+
+
+
+  }
+
+  std::__cxx11::string Markov_CommandManagerVar::check(const std::__cxx11::string &hint, const std::vector<std::pair<std::__cxx11::string, bool> > &categories)
+  {
+    std::string out;
+    return out;
+  }
+
+  std::__cxx11::string Markov_CommandManagerVar::getDir() const {return dir_;}
 
   bool Markov_CommandManagerVar::setDir(const std::string &dir)
   {
@@ -163,10 +232,16 @@ namespace Markov_Console
       return false;
     dir_=dir;
     autoCmptByCategories[directory()]=Autocomplete(Markov_IO::getSubDirs(dir));
-     //TODO: include this former functionality (list of macror files)
+    //TODO: include this former functionality (list of macror files)
     // filesl=LoadFiles(dir);
     return true;
   }
+
+  Markov_IO::ABC_IO *Markov_CommandManagerVar::getIO() const {return io_;}
+
+  void Markov_CommandManagerVar::setIO(Markov_IO::ABC_IO *io){io_=io;}
+
+  CommandHistory &Markov_CommandManagerVar::getH(){return h;}
 
 
 
@@ -328,10 +403,39 @@ namespace Markov_Console
               delete v;
           }
       }
- }
+  }
 
-    void Markov_CommandManagerVar::push_var(Markov_IO::ABC_Var *v)
-{
+  const ABC_CommandVar *Markov_CommandManagerVar::getCommand(const std::__cxx11::string &cmdlabel) const
+  {
+    auto it=cmds.find(cmdlabel);
+    if (it!=cmds.end())
+      return it->second;
+    else
+      return nullptr;
+  }
+
+  ABC_CommandVar *Markov_CommandManagerVar::getCommand(const std::__cxx11::string &cmdlabel)
+  {
+    auto it=cmds.find(cmdlabel);
+    if (it!=cmds.end())
+      return it->second;
+    else
+      return nullptr;
+  }
+
+  Markov_IO::ABC_Var *Markov_CommandManagerVar::getVar(const std::__cxx11::string &name)
+  {
+    auto it=variables_.find(name);
+    if (it!=variables_.end())
+      return it->second;
+    else
+      return nullptr;
+
+
+  }
+
+  void Markov_CommandManagerVar::push_var(Markov_IO::ABC_Var *v)
+  {
     if (!has_child(v->id()))
       {
         pushChild(v);
@@ -343,6 +447,28 @@ namespace Markov_Console
 
   bool Markov_CommandManagerVar::has_var(const std::string& name)const{
     return (variables_.find(name)!=variables_.end());
+  }
+
+  ProgramVersion &Markov_CommandManagerVar::getProgram()
+  {
+    return program_ver_;
+  }
+
+  void Markov_CommandManagerVar::putOut(const std::__cxx11::string &m) const
+  {
+    getIO()->put(m);
+  }
+
+  void Markov_CommandManagerVar::putErrorOut(const std::__cxx11::string &m) const
+  {
+    getIO()->putError(m);
+  }
+
+  ABC_Command *Markov_CommandManagerVar::getCommand(const Markov_IO::Token_New &t){}
+
+  std::set<std::__cxx11::string> Markov_CommandManagerVar::getCommandList() const
+  {
+
   }
 
 

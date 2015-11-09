@@ -100,12 +100,13 @@ namespace Markov_Console
   }
 
   CdCommandVar::CdCommandVar(Markov_CommandManagerVar *cm)
-    : Markov_IO::Implements_ValueId("cd"
-                                    , ""
-                                    ,"display or change directory"
-                                    ,""
-                                    )
-    ,ABC_CommandVar(cm
+    :
+//      Markov_IO::Implements_ValueId("cd"
+//                                    , ""
+//                                    ,"display or change directory"
+//                                    ,""
+//                                    ),
+      ABC_CommandVar(cm
                     ,"cd"
                     , ""
                     ,"display or change directory"

@@ -247,7 +247,7 @@ namespace Markov_Bay
 
 
   Macro_Aprox_step::Macro_Aprox_step(const Macro_Aprox_step& other):
-    Implements_ValueId(other),
+    //Implements_ValueId(other),
     ABC_Markov_Likelihood_step(other),
     step_(other.step_->clone()),
     model_A(other.model_A->clone()),

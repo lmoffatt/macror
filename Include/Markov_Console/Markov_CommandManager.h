@@ -48,8 +48,9 @@ namespace Markov_Console
     {
   public:
       ProgramVersion():
-        Markov_IO::Implements_ValueId("Program_Environment","","environment at file creation","")
-      ,Markov_IO::Implements_Complex_Value()
+   //     Markov_IO::Implements_ValueId("Program_Environment","","environment at file creation","")
+   //   ,
+        Markov_IO::Implements_Complex_Value("Program_Environment","","environment at file creation","")
       {
         push_backVal("Program",programName());
         push_backVal("ver",programVersion());
@@ -105,126 +106,59 @@ namespace Markov_Console
 
     static std::string getHelpDir();
 
-    static std::string directory()
-    {
-      return "Directory";
-    }
+    static std::string directory();
 
-    static std::string idVarName()  {
-      return "IdVar";
-    }
+    static std::string idVarName();
 
-    static std::string idTypeName()
-    {
-      return "IdType";
-    }
+    static std::string idTypeName();
 
-    static std::string fileName()
-    {
-      return "FileName";
-    }
+    static std::string fileName();
 
-    static std::string testName()
-    {
-      return "IdTest";
-    }
+    static std::string testName();
 
-    static std::string idCommandName()
-    { return "IdCommand";}
+    static std::string idCommandName();
 
 
     virtual  std::vector<std::string>
     complete(const std::string &hint,
-             const std::string& category)const
-
-    {
-      auto it= autoCmptByCategories.find(category);
-      if (it!=autoCmptByCategories.end())
-        {
-          Autocomplete a=it->second;
-          return a.complete(hint);
-        }
-      else
-        {
-          return {};
-        }
-    }
+             const std::string& category)const;
 
 
     virtual  std::map<std::string,std::vector<std::string>>
     complete(const std::string &hint,
-             const std::vector<std::pair<std::string, bool>>& categories)const
-    {
-      std::map<std::string,std::vector<std::string>> out;
-      for (std::pair<std::string,bool> cat:categories)
-        {
-          auto v=complete(hint,cat.first);
-          if (!v.empty())
-            out[cat.first]=v;
-        }
-      return out;
+             const std::vector<std::pair<std::string, bool>>& categories)const;
 
-    }
     virtual std::string whichCategory(const std::string& candidate
                                       , const ABC_Value* categories);
 
 
-    virtual  std::string check(const std::string &hint, const std::string& category){
-
-
-
-    }
+    virtual  std::string check(const std::string &hint, const std::string& category);
 
 
     virtual std::string check(const std::string &hint,
-                              const std::vector<std::pair<std::string,bool>>& categories)
-    {
-      std::string out;
-      return out;
-    }
+                              const std::vector<std::pair<std::string,bool>>& categories);
 
 
-    virtual std::string  getDir()const {return dir_;}
+    virtual std::string  getDir()const;
+
     virtual bool setDir(const std::string& dir);
 
-    virtual Markov_IO::ABC_IO* getIO()const {return io_;}
-    virtual void setIO(Markov_IO::ABC_IO* io){io_=io;}
+    virtual Markov_IO::ABC_IO* getIO()const;
+
+    virtual void setIO(Markov_IO::ABC_IO* io);
 
 
-    virtual CommandHistory& getH(){return h;}
+    virtual CommandHistory& getH();
 
     virtual void add_command(ABC_CommandVar* cmd);
 
     virtual void add_var(Markov_IO::ABC_Var *v);
 
-    ABC_CommandVar const* getCommand(const std::string& cmdlabel)const
-    {
-      auto it=cmds.find(cmdlabel);
-      if (it!=cmds.end())
-        return it->second;
-      else
-        return nullptr;
-    }
+    ABC_CommandVar const* getCommand(const std::string& cmdlabel)const;
 
-    ABC_CommandVar * getCommand(const std::string& cmdlabel)
-    {
-      auto it=cmds.find(cmdlabel);
-      if (it!=cmds.end())
-        return it->second;
-      else
-        return nullptr;
-    }
+    ABC_CommandVar * getCommand(const std::string& cmdlabel);
 
-    Markov_IO::ABC_Var* getVar(const std::string& name)
-    {
-      auto it=variables_.find(name);
-      if (it!=variables_.end())
-        return it->second;
-      else
-        return nullptr;
-
-
-    }
+    Markov_IO::ABC_Var* getVar(const std::string& name);
 
 
 
@@ -235,10 +169,7 @@ namespace Markov_Console
 
 
 
-    ProgramVersion& getProgram()
-    {
-      return program_ver_;
-    }
+    ProgramVersion& getProgram();
 
 
 
@@ -275,22 +206,13 @@ namespace Markov_Console
 
     // ABC_Environment interface
   public:
-    virtual void putOut(const std::string &m) const
-    {
-      getIO()->put(m);
-    }
-    virtual void putErrorOut(const std::string &m) const
-    {
-      getIO()->putError(m);
-    }
+    virtual void putOut(const std::string &m) const;
+    virtual void putErrorOut(const std::string &m) const;
 
-    virtual ABC_Command *getCommand(const Markov_IO::Token_New &t){}
+    virtual ABC_Command *getCommand(const Markov_IO::Token_New &t);
 
 
-    virtual std::set<std::string> getCommandList()const
-    {
-
-    }
+    virtual std::set<std::string> getCommandList()const;
     bool processCommand(ExpressionManager &e);
     Markov_IO::ABC_Value *getClass(std::string name);
 

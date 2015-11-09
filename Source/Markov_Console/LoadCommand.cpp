@@ -16,14 +16,15 @@ namespace Markov_Console
 
 
   LoadCommandVar::LoadCommandVar(Markov_CommandManagerVar* cm)
-    : Markov_IO::Implements_ValueId("load"
+    : /*Markov_IO::Implements_ValueId("load"
                                     , ""
                                     ,"Displays help on subject"
                                     ,"Help command\n"
                                      " returns help on subject\n"
                                      " subject can be either a command"
                                     )
-      ,ABC_CommandVar(cm
+      ,*/
+      ABC_CommandVar(cm
                     ,"load"
                     , ""
                     ,"Displays help on subject"

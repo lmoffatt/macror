@@ -21,7 +21,7 @@ namespace Markov_Console
                                  std::vector<Markov_IO::Implements_ValueId> Inputs,
                                  std::size_t numMandatory)
     :
-      Implements_ValueId(commandName,commandClass,tip,whatthis),
+      //Implements_ValueId(commandName,commandClass,tip,whatthis),
       Markov_IO::Implements_Complex_Value(commandName,commandClass,tip,whatthis,{}),
       cm_(cm),
       numMandatoryFields_(numMandatory)
