@@ -634,10 +634,20 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  class ABC_Simple_Value: public virtual Implements_ValueId
+  class ABC_Simple_Value: public  Implements_ValueId
   {
     // ABC_Var interface
   public:
+    ABC_Simple_Value(const std::string& name,
+                       const std::string& className,
+                       const std::string &tip,
+                       const std::string &whatthis):
+      Implements_ValueId(name,className,tip,whatthis){}
+
+    ABC_Simple_Value():Implements_ValueId(){}
+
+
+
     virtual T value()const=0;
     virtual void setValue(T val)=0;
     virtual void moveVal(T& ){}
@@ -783,7 +793,7 @@ namespace  Markov_IO {
                             std::string className=ClassName(),
                             const std::string& tip="",
                             const std::string& whatthis=""):
-      Implements_ValueId(id,className,tip,whatthis),
+      ABC_Simple_Value<T>(id,className,tip,whatthis),
       value_(val){}
 
 
@@ -794,7 +804,7 @@ namespace  Markov_IO {
 
 
     Implements_Simple_Value(const Implements_ValueId& id):
-      Implements_ValueId(id.id(),id.myVar(),id.Tip(),id.WhatThis()),
+      ABC_Simple_Value<T>(id.id(),id.myVar(),id.Tip(),id.WhatThis()),
       value_(){}
 
 
@@ -1214,7 +1224,7 @@ namespace  Markov_IO {
                              std::string className=ClassName(),
                              const std::string& tip="",
                              const std::string& whatthis=""):
-      Implements_ValueId(id,className,tip,whatthis),
+      ABC_Simple_Value<T>(id,className,tip,whatthis),
       objectPtr_(objectPtr),
       get_(getterMethod),
       set_(setterMethod)
@@ -1597,7 +1607,7 @@ namespace  Markov_IO {
                              std::string className=ClassName(),
                              const std::string& tip="",
                              const std::string& whatthis=""):
-      Implements_ValueId(id,className,tip,whatthis),
+      ABC_Simple_Value<T>(id,className,tip,whatthis),
       objectPtr_(object),
       rget_(refgetterMethod),
       rset_(refsetterMethod){}
@@ -1800,7 +1810,7 @@ namespace  Markov_IO {
                               std::string className=ClassName(),
                               const std::string& tip="",
                               const std::string& whatthis=""):
-      Implements_ValueId(id,className,tip,whatthis),
+      ABC_Simple_Value<Enum>(id,className,tip,whatthis),
       objectPtr_(objectPtr),
       get_(getterMethod),
       set_(setterMethod)
