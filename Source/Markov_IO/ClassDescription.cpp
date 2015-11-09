@@ -32,7 +32,7 @@ namespace Markov_IO
 
   namespace {
 
-    std::istream& extractClassName(std::string &line,
+    bool extractClassName(std::string &line,
                                    std::istream &stream,
                                    std::string &className
                                    );
@@ -1185,14 +1185,14 @@ Indexed constant access to the names of the elements
 
  */
 
-    std::istream& extractClassName(
+    bool extractClassName(
         std::string& line,
         std::istream& stream,
         std::string& className)
     {
       while (line.empty())
         if (!safeGetline(stream,line))
-          return stream;
+          return stream.good();
 
       RemoveComments(line);
 
@@ -1218,12 +1218,12 @@ Indexed constant access to the names of the elements
           isLackingBegin)
         {
           stream.setstate(stream.rdstate() | std::ios_base::failbit);
-          return stream;
+          return stream.good();
         }
 
       className=words[0];
       line.clear();
-      return stream;
+      return stream.good();
     }
 
 
@@ -1414,7 +1414,7 @@ Indexed constant access to the names of the elements
           std::stringstream ss(words[i]);
 
           double x;
-          bool isValid=(ss>>x);
+          bool isValid=bool(ss>>x);
           if ((!isValid)&&((words[i]!="nan")&&(words[i]!="-nan")))
             {
 
@@ -1452,7 +1452,7 @@ Indexed constant access to the names of the elements
             {
               std::stringstream ss(words[i]);
               double x;
-              bool isValid=(ss>>x);
+              bool isValid=bool(ss>>x);
 
               if ((!isValid)&&((words[i]!="nan")&&(words[i]!="-nan")))
                 {

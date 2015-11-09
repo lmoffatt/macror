@@ -247,7 +247,7 @@ namespace Markov_IO
 
     std::istringstream ss(str);
     extract_NaN_safe(ss,value);
-    bool res=(ss);
+    bool res=(ss.good());
     return res;
   }
 

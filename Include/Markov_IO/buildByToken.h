@@ -160,11 +160,15 @@ namespace Markov_IO {
   };
 
 
+
+
+
+
+
   template<typename C>
   class buildByToken: public ABClass_buildByToken<C>
   {
   public:
-
 
     static std::string ClassName();
 
@@ -1836,9 +1840,6 @@ namespace Markov_IO {
   {
 
   public:
-
-
-
     static std::string ClassName()
     {
       return "build_Implements_ValueId";

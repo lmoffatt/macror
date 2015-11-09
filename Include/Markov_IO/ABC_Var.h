@@ -108,9 +108,6 @@ namespace  Markov_IO {
 
     static std::set<std::string> SuperClasses();
 
-
-
-
     /// si myClass==SomeClass::ClassName()  => static_cast<SomeClass*>(this)!=nullptr
     virtual std::string myClass() const
     {
