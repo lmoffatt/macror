@@ -81,13 +81,30 @@ namespace Markov_Console {
     std::string s=this->suggestRest(n,tok_);
     if (!s.empty())
       {
-        //    tailText(io,str_);
+        push_back(io,s);
       }
 
   }
 
   void ExpressionManager::suggestAlternatives(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io)
   {
+    std::set<std::string> pos;
+    if (tok_.isInitial())
+      {
+        pos=bu_.alternativesNext(cm);
+      }
+    else{
+        auto n=bu_.alternativesNext(cm);
+
+        pos=conformant(n,tok_);
+      }
+    if (!pos.empty())
+      {
+        bool ok;
+        auto sel=io->getItemFromList("",{pos.begin(),pos.end()},ok,0);
+        if (ok)
+          push_back(io,sel);
+      }
 
   }
 
@@ -307,7 +324,7 @@ namespace Markov_Console {
 
   char ExpressionManager::pop_back_char()
   {
-   if (isEmpty())
+    if (isEmpty())
       return {};
     else if (!rejectedChars_.empty())
       {
@@ -364,7 +381,7 @@ namespace Markov_Console {
             std::string out=*lo;
             if (hint.size()==nh)
               out.push_back(' ');
-            return out;
+            return out.substr(hint.size());
 
           }
         else
