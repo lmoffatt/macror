@@ -5,175 +5,122 @@
 namespace Markov_Console {
 
 
-  void ExpressionManager::move_Left()
+  void ExpressionManager::move_Left(Markov_IO::ABC_IO * io)
   {
-    if (!isEmpty())
+    if (!io->isLineBegin())
       {
-        char c=pop_back_char();
-        str_.insert(str_.begin(),c);
-        move_cursor(-1);
+        pop_back_char();
+        io->move_cursor(-1);
       }
   }
 
-  void ExpressionManager::move_Right()
+  void ExpressionManager::move_Right(Markov_IO::ABC_IO * io)
   {
-    if (!str_.empty())
+    if (!io->isLineEnd())
       {
-        char c=str_.front();
-        str_.erase(0,1);
-        push_back(c);
+        char c=io->pop_next_char();
+        push_back(io,c);
       }
   }
 
 
-  void ExpressionManager::backErase()
+  void ExpressionManager::backErase(Markov_IO::ABC_IO * io)
   {
-    cleanFromCursor();
-    pop_back_char();
-    erase_from_cursor(-1);
-
+    if (!io->isLineBegin())
+      {
+        pop_back_char();
+        io->backErase();
+      }
   }  // else "beep?"
 
 
 
-  void ExpressionManager::move_Home()
+  void ExpressionManager::move_Home(Markov_IO::ABC_IO * io)
   {
-    if (!isEmpty())
+    if (!bu_.isInitial()||!tok_.isInitial())
       {
-        int n0=str_.size();
         while ((tok_.tok()!=Markov_IO::Token_New::EOL)&&(!bu_.isInitial()))
           {
-            str_.insert(0,tok_.str());
             tok_=bu_.popBackToken();
           }
-        move_cursor(-(str_.size())+n0);
+
       }
+    io->move_home();
   }
 
-  std::string ExpressionManager::currentLine()
+
+
+  void ExpressionManager::showErrorMessage(const std::__cxx11::string &s)
   {
-    std::string line;
-    std::vector<Markov_IO::Token_New> tv;
-    Markov_IO::Token_New to=tok_;
-    if (!isEmpty())
+
+  }
+
+  void ExpressionManager::showSuggestionMessage(const std::__cxx11::string &s)
+  {
+
+  }
+
+  void ExpressionManager::history_up( CommandHistory* ch,Markov_IO::ABC_IO * io)
+  {
+    std::string line=io->currentLine();
+    std::string tail=ch->up(line);
+    io->putTail(tail);
+  }
+
+  void ExpressionManager::history_down( CommandHistory* ch,Markov_IO::ABC_IO * io)
+  {
+    std::string line=io->currentLine();
+    std::string tail=ch->down(line);
+    io->putTail(tail);
+  }
+
+
+  void ExpressionManager::suggestCompletion(Markov_Console::Markov_CommandManagerVar* cm,Markov_IO::ABC_IO * io)
+  {
+    auto n=bu_.alternativesNext(cm);
+    std::string s=this->suggestRest(n,tok_);
+    if (!s.empty())
       {
-        while ((to.tok()!=Markov_IO::Token_New::EOL)&&(!bu_.isInitial()))
+        //    tailText(io,str_);
+      }
+
+  }
+
+  void ExpressionManager::suggestAlternatives(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io)
+  {
+
+  }
+
+
+
+  void ExpressionManager::putReturn(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io)
+  {
+
+    std::string t=io->getTail();
+    io->cleanToEndLine();
+    push_back(io,t);
+    push_back(io,'\n');
+    if (bu_.isFinal())
+      {
+        if (bu_.isCommand())
           {
-            line.insert(0,to.str());
-            to=bu_.popBackToken();
-            tv.push_back(to);
+            auto cmd=bu_.unloadCommand();
+            cm->run(cmd);
           }
-        for (int i=tv.size(); i>0; --i)
+        else
           {
-            bu_.pushToken(tv[i-1]);
+            cm->add_var(bu_.unloadVar());
           }
       }
-    return line;
-  }
-
-  void ExpressionManager::move_cursor(int i)
-  {
-    return cm_->getIO()->move_cursor(i);
-  }
-
-  void ExpressionManager::erase_from_cursor(int i)
-  {
-    return cm_->getIO()->erase_from_cursor(i);
-  }
-
-
-  void ExpressionManager::appendText(const std::string &s)
-  {
-    cm_->getIO()->put(s);
-
-  }
-
-  void ExpressionManager::insertText(const std::string &s)
-  {
-    if (str_.empty())
+    else if (!bu_.errorMessage().empty())
       {
-        str_=s;
+        io->putNewLine();
+        io->putError(bu_.errorMessage());
       }
-    else
-      {
-        erase_from_cursor(str_.size());
-        str_.insert(0,s);
-      }
-    cm_->getIO()->insertText(s);
-
-  }
-
-  void ExpressionManager::appendText(char c)
-  {
-    std::string s;
-    s.push_back(c);
-    appendText(s);
-  }
-
-  void ExpressionManager::insertText(char c)
-  {
-    std::string s;
-    s.push_back(c);
-    insertText(s);
-  }
-
-  void ExpressionManager::insertErrorText(const std::string &s)
-  {
-    if (str_.empty())
-      {
-        str_=s;
-      }
-    else
-      {
-        erase_from_cursor(str_.size());
-        str_.insert(0,s);
-      }
-    cm_->getIO()->insertErrorText(s);
-
-  }
-
-  void ExpressionManager::insertErrorText(char c)
-  {
-    std::string s;
-    s.push_back(c);
-    insertErrorText(s);
-  }
-
-  void ExpressionManager::history_up()
-  {
-    std::string line=currentLine();
-    cleanFromCursor();
-    std::string tail=getHistoryUp(line);
-    insertText(tail);
-    str_=tail;
-  }
-
-  void ExpressionManager::history_down()
-  {
-    std::string line=currentLine();
-    cleanFromCursor();
-    std::string tail=getHistoryDown(line);
-    insertText(tail);
-    str_=tail;
-  }
-
-  void ExpressionManager::cleanFromCursor()
-  {
-    std::size_t n=str_.size();
-    str_.clear();
-    erase_from_cursor(n);
-  }
-
-
-  void ExpressionManager::suggestCompletion()
-  {
-  }
-
-
-
-  void ExpressionManager::putReturn()
-  {
-    putText('\n');
+    bu_.clear();
+    io->freshLine();
+    tok_.clear();
+    rejectedChars_.clear();
   }
 
 
@@ -181,28 +128,12 @@ namespace Markov_Console {
   {
   }
 
-  void ExpressionManager::processVar()
-  {
-    if (bu_.isFinal())
-      cm_->add_var(bu_.unloadVar());
-  }
-
-  std::string ExpressionManager::getHistoryUp(const std::string &line) const
-  {
-    return cm_->getH().up(line);
-  }
-
-  std::string ExpressionManager::getHistoryDown(const std::string &line) const
-  {
-    return cm_->getH().down(line);
-  }
 
 
-  void ExpressionManager::putText(char c)       // here lies the core of the logic
+
+  void ExpressionManager::putText(Markov_IO::ABC_IO *io,char c)       // here lies the core of the logic
   {
-    if (!str_.empty())
-       cleanFromCursor();
-    push_back(c);
+    push_back(io,c);
 
   }
 
@@ -212,107 +143,126 @@ namespace Markov_Console {
 
 
   ExpressionManager::ExpressionManager(Markov_CommandManagerVar *cm):
-    bu_(cm),tok_{},str_(),previous_key(),cm_(cm)
+    bu_(cm),tok_{},previous_key(),rejectedChars_()
   {}
 
-  void ExpressionManager::KeyEvent(Markov_IO::Key k)
+  void ExpressionManager::KeyEvent(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io, CommandHistory& ch, Markov_IO::Key k)
   {
     switch(k)
       {
       case Markov_IO::Key_Home:
-        move_Home();
+        move_Home(io);
         break;
       case Markov_IO::Key_Left:
-        move_Left();
+        move_Left(io);
         break;
       case Markov_IO::Key_Backspace:
-        backErase();
+        backErase(io);
         break;
       case Markov_IO::Key_Right:
-        move_Right();
+        move_Right(io);
         break;
       case Markov_IO::Key_Up:
-        history_up();
+        history_up(&ch,io);
         break;
       case Markov_IO::Key_Down:
-        history_down();
+        history_down(&ch,io);
         break;
 
       case Markov_IO::Key_Tab:
-        suggestCompletion();
+        if (previous_key!=Markov_IO::Key_Tab)
+          suggestCompletion(cm,io);
+        else
+          suggestAlternatives(cm,io);
         break;
       case Markov_IO::Key_PageUp:
       case Markov_IO::Key_PageDown:
         break;
       case Markov_IO::Key_Space:
-        putText(' ');
+        putText(io,' ');
         break;
       case Markov_IO::Key_Return:
-        putReturn();
+        putReturn(cm,io);
         break;
       default:
-        putText(Markov_IO::toText(k));
+        if (Markov_IO::isText(k))
+          putText(io,Markov_IO::toText(k));
         break;
       }
     previous_key=k;
   }
 
-  bool ExpressionManager::push_back(char c)
+  bool ExpressionManager::push_back(Markov_IO::ABC_IO * io,char c)
   {
-    if ((!tok_.CharIsSuccesfullyFeed(c)))  // either token is full or char is invalid
+    if (!rejectedChars_.empty())
+      {
+        rejectedChars_.push_back(c);
+        io->putError(c);
+        return false;
+      }
+    else if ((!tok_.CharIsSuccesfullyFeed(c)))  // either token is full or char is invalid
       {
         if (tok_.isFinal())                  // token is full
           //(but char remains to be processed)
           {
             if(!bu_.pushToken(tok_))           //  does the var reject the token ?
               {
-                std::string to=tok_.str();
-                int n=-to.size();
-                erase_from_cursor(n);
-                to.push_back(c);
-                insertErrorText(to);         // write error, wrong token as tail
+                rejectedChars_=tok_.str();
                 tok_.clear();
+                io->erase_from_cursor_backward(rejectedChars_);
+                if (c!='\n')
+                  {
+                    rejectedChars_.push_back(c);
+                    // write error, wrong token as tail
+                  }
+                io->putError(rejectedChars_);
+                return false;
               }
             else
               {
-                if (bu_.isFinal())              // var accepts token, is var  complete?
-                  {
-                    processVar();
-                  }
                 tok_.clear();
                 if (!tok_.CharIsSuccesfullyFeed(c))     // this means it is an invalid char
                   // an empty token always accept
                   //a valid chars
                   {
-                    insertErrorText(c);
+                    io->putError(c);
+                    rejectedChars_.push_back(c);
+                    return false;
+                    //    io->putError(c);
                   }
                 else if (tok_.isFinal())              // char is accepted,
                   //is the token full?
                   {
                     if(!bu_.pushToken(tok_))          // is the full token rejected  ?
                       {
-                        insertErrorText(c);  // write error, wrong token as tail
                         tok_.clear();
+                        io->putError(c);
+                        rejectedChars_.push_back(c);
+
+                        return false;
+                        //  io->putError(c);  // write error, wrong token as tail
                       }
                     else                               // token accepted
                       {
-                        appendText(c);
-                        if (bu_.isFinal())
-                          {
-                            processVar();
-                          }
+                        io->put(c);
+                        tok_.clear();
+                        return true;
                       }
                   }
                 else                // token is partial
                   {
-                    appendText(c);
+                    io->put(c);
+                    return true;
                   }
               }
           }
 
         else                  // the given char is invalid, the token is still being filled
           {
-            insertErrorText(c);
+            rejectedChars_.push_back(c);
+            io->putError(c);
+            return false;
+
           }
       }
     else                                // char is incorporated into token
@@ -320,34 +270,52 @@ namespace Markov_Console {
         {
           if(!bu_.pushToken(tok_))           //  does the var reject the token ?
             {
-              str_=tok_.str();
-              int n=-str_.size()+1;          // +1 because of the incorporated char
-              erase_from_cursor(n);
-              insertErrorText(str_);         // write error, wrong token as tail
+              tok_.popLastChar();
+              rejectedChars_=tok_.str();
+              io->erase_from_cursor_backward(rejectedChars_);
+              rejectedChars_.push_back(c);
+              io->putError(rejectedChars_);         // write error, wrong token as tail
               tok_.clear();
+              return false;
+
             }
           else                                  // the token is good
             {
-              appendText(c);                    // print new char
-              if (bu_.isFinal())              // var accepts token, is var  complete?
-                {
-                  processVar();               // var is complete , execute it
-                }
+              tok_.clear();
+              if (c!='\n')
+                io->put(c);                    // print new char
+              return true;
 
             }
         }
       else                   // token is partial
         {
-          appendText(c);
+          io->put(c);
+          return true;
         }
+
+  }
+
+  bool ExpressionManager::push_back(Markov_IO::ABC_IO * io, const std::__cxx11::string &s)
+  {
+    bool result=true;
+    for (auto c:s)
+      result=push_back(io,c);
+    return result;
 
   }
 
   char ExpressionManager::pop_back_char()
   {
-    if (isEmpty())
+   if (isEmpty())
       return {};
-    else  if (!tok_.isInitial())
+    else if (!rejectedChars_.empty())
+      {
+        char r=rejectedChars_.back();
+        rejectedChars_.pop_back();
+        return r;
+      }
+    else if (!tok_.isInitial())
       return tok_.popLastChar();
     else
       {
@@ -357,9 +325,79 @@ namespace Markov_Console {
 
   }
 
+  bool ExpressionManager::isEmpty() const
+  {
+    return bu_.isInitial()&&tok_.isInitial()&&rejectedChars_.empty();
+  }
+
+  bool ExpressionManager::isFinal() const
+  {
+    return bu_.isFinal();
+  }
+
+  std::string ExpressionManager::suggestRest(const std::set<std::string> &items, Markov_IO::Token_New tok)
+  {
+
+    std::string hint=tok.str();
+    std::size_t nh=hint.size();
+    auto lo=items.lower_bound(hint);
+    std::string hintup=hint;
+    hintup.back()++;
+    auto up=items.upper_bound(hintup);
+    while ((lo==up)&& !hint.empty())
+      {
+        hint.pop_back();
+        lo=items.lower_bound(hint);
+        hintup=hint;
+        hintup.back()++;
+        items.upper_bound(hintup);
+
+      }
+    if (lo==up)
+      return {};
+    else
+      {
+        --up;
+
+        if (lo==up)
+          {
+            std::string out=*lo;
+            if (hint.size()==nh)
+              out.push_back(' ');
+            return out;
+
+          }
+        else
+          {
+            std::string los=*lo;
+            std::string ups=*up;
+            std::size_t i=0;
+            std::size_t n=std::min(los.size(), ups.size());
+            while((i<n) &&(los[i]==ups[i])) ++i;
+            std::string out=los.substr(0,n);
+            return out;
+          }
+
+      }
+  }
+
+  std::set<std::__cxx11::string> ExpressionManager::conformant(const std::set<std::__cxx11::string> &items, Markov_IO::Token_New tok)
+  {
+    std::string hint=tok.str();
+    auto lo=items.lower_bound(hint);
+    std::string hintup=hint;
+    hintup.back()++;
+    auto up=items.upper_bound(hintup);
+
+    return {lo,up};
+  }
 
 
 
 }
+
+
+
+
 
 

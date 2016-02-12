@@ -9,10 +9,10 @@ namespace Markov_Console
   CdCommand::~CdCommand(){}
 
 
-
   CdCommand::CdCommand(Markov_CommandManager* cm)
     :ABC_Command(cm,
-                 "cd",{{
+                 commandName(),
+  {{
                  "dir",ABC_Command::directory(),false}},{})
   {
   }
@@ -31,6 +31,7 @@ namespace Markov_Console
            " returns help on subject\n"
            " subject can be either a command";
   }
+
 
   std::string CdCommand::commandName()const
   {
@@ -101,26 +102,28 @@ namespace Markov_Console
 
   CdCommandVar::CdCommandVar(Markov_CommandManagerVar *cm)
     :
-//      Markov_IO::Implements_ValueId("cd"
-//                                    , ""
-//                                    ,"display or change directory"
-//                                    ,""
-//                                    ),
       ABC_CommandVar(cm
-                    ,"cd"
-                    , ""
-                    ,"display or change directory"
-                    ,""
-                    ,{}
-                    ,0)
-  {}
+                     ,ClassName()
+                     ,ClassName()
+                     ,"display or change directory"
+                     ,""
+                     ,0)
+  {
+    pushChild(new Markov_IO::Implements_Simple_Value<std::string>(true,"destination",RelativeDirectoryPath::ClassName()
+                                                                  ,"landing directory"
+                                                                  ,"relative address of the landing directory"));
+
+  }
+
+  CdCommandVar::~CdCommandVar(){}
+
 
   bool CdCommandVar::processTokens(Markov_IO::Token_Stream &t)
   {
     if ((t.currToken().tok()==Markov_IO::Token_New::IDENTIFIER)
         &&(t.currToken().str()==id()))
-        ++t;
-        else
+      ++t;
+    else
       return false;
 
     std::string dirName;
@@ -169,6 +172,12 @@ namespace Markov_Console
       }
 
   }
+
+
+
+
+
+
 
 
 }

@@ -13,6 +13,89 @@
 
 namespace Markov_Console
 {
+
+  class Path: Markov_IO::Implements_Simple_Class<std::string>
+  {
+  public:
+
+    Path():
+      Markov_IO::Implements_Simple_Class<std::string>(ClassName(),"",{})
+    {}
+
+    static std::string ClassName(){return"Path";}
+  };
+
+  class HelpSubject: public Markov_IO::Implements_Identifier_Class
+  {
+  public:
+
+    HelpSubject():
+      Implements_Identifier_Class(ClassName(),"topics with help available","each topic that has a help is in this list",{})
+    {
+
+    }
+
+
+
+    static std::string ClassName(){return"HelpSubject";}
+  };
+
+
+
+
+  class RelativeDirectoryPath: Markov_IO::Implements_Simple_Class<std::string>
+  {
+  public:
+
+    RelativeDirectoryPath():
+      Implements_Simple_Class<std::string>(ClassName(),"",{})
+    {}
+
+    static std::string ClassName()
+    {
+      return "RelativeDirectoryPath";
+    }
+
+  };
+
+
+  class MacrorFilePath: Markov_IO::Implements_Simple_Class<std::string>
+  {
+  public:
+
+    MacrorFilePath():
+      Implements_Simple_Class<std::string>(ClassName(),"",{})
+    {}
+
+    static std::string ClassName()
+    {
+      return "MacrorFilePath";
+    }
+
+  };
+
+
+
+  class VariableNameList: Markov_IO::Implements_Simple_Class<std::string>
+  {
+  public:
+
+    VariableNameList():
+      Implements_Simple_Class<std::string>(ClassName(),"",{})
+    {}
+
+    static std::string ClassName()
+    {
+      return "VariableNameList";
+    }
+
+  };
+
+
+
+
+
+
   class Markov_CommandManager;
   class Markov_CommandManagerVar;
 
@@ -32,67 +115,60 @@ namespace Markov_Console
                    const std::string &commandClass,
                    const std::string &tip,
                    const std::string &whatthis,
-                   std::vector<Implements_ValueId> Inputs,
                    std::size_t numMandatory);
 
 
-    ABC_CommandVar(){}
+    ABC_CommandVar();
+
+
 
 
   protected:
-     Markov_IO::ABC_Var *toSameVar(const Markov_IO::ABC_Value *) const
-    {
-      return nullptr;
-    }
-     Markov_IO::ABC_Measure *toMeasure(const Markov_IO::ABC_Value *) const
-    {
-      return nullptr;
-    }
+     Markov_IO::ABC_Var *toSameVar(const Markov_IO::ABC_Value *) const;
+     Markov_IO::ABC_Measure *toMeasure(const Markov_IO::ABC_Value *) const;
+
+     ABC_CommandVar(const ABC_CommandVar& one):
+       Markov_IO::Implements_Complex_Value(one),
+       cm_(one.cm_),
+       numMandatoryFields_(one.numMandatoryFields_){}
+
 
   public:
-    static std::string ClassName()
-    {
-      return "ABC_Command";
-    }
+    static std::string ClassName();
+    static std::string FileName(){return "FileNamePath";}
+    static std::string ValuesList(){return "ValuesList";}
+    static std::string VariablesList(){return "VariablesList";}
+    static std::string ClassesList(){return "ClassesList";}
+    static std::string CommandList(){return "CommandList";}
 
-     std::string myClass() const
-    {
-      return ClassName();
-    }
+     std::string myClass() const;
 
-     std::set<std::string> mySuperClasses() const
-    {
-      return {ClassName()};
-    }
+     std::set<std::string> mySuperClasses() const;
 
 
-    std::size_t numMandatoryInputs()const
-    {
-      return numMandatoryFields_;
-    }
-
-
-
+    std::size_t numMandatoryInputs()const;
 
 
 
     // ABC_Value interface
   public:
     /// returns the Markov_CommandManager
-     Markov_CommandManagerVar* getCommandManager(){return cm_;}
+     Markov_CommandManagerVar* getCommandManager();
 
 
-     const Markov_CommandManagerVar* getCommandManager()const {return cm_;}
+     const Markov_CommandManagerVar* getCommandManager()const;
 
-
+     virtual bool run(ABC_CommandVar*)const=0;
+     virtual ABC_CommandVar* clone() const=0;
   protected:
     Markov_CommandManagerVar *cm_;
 
-   std::size_t numMandatoryFields_;
+    std::size_t numMandatoryFields_;
 
 
+    // ABC_Put interface
 
-  };
+ };
 
 
 

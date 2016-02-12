@@ -47,6 +47,8 @@
 
 
 
+#include "Markov_Console/ABC_Command.h"
+
 namespace Markov_Console
 {
 
@@ -58,6 +60,20 @@ void Markov_CommandManagerVar::LoadTypes()
     this->pushChild(new Markov_Mol::Q_Markov_Model::a_matrix());
     this->pushChild(new Markov_Mol::Q_Markov_Model::g_matrix());
     this->pushChild(new Markov_Mol::Q_Markov_Model::Q_matrix());
+    auto i=new Markov_Console::HelpSubject();
+    this->pushChild(i);
+    idLists_.insert({HelpSubject::ClassName(),i});
+
+
+
+
+}
+
+void Markov_CommandManagerVar::UpdateIdLists()
+{
+  Markov_IO::Implements_Identifier_Class* h=idLists_[HelpSubject::ClassName()];
+  h->add_Identifiers(this->getChildList());
+
 
 }
 }

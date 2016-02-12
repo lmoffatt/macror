@@ -32,10 +32,7 @@ namespace Markov_Mol
     {
     public:
       static std::string ClassName(){return "Q_matrix";}
-        Q_matrix():
-      //Implements_ValueId(Q_matrix::ClassName(),Q_matrix::ClassName(),"",""),
-      Implements_Simple_Class(Q_matrix::ClassName(),"s^-1",{"Q_MATRIX"})
-      {}
+        Q_matrix();
     };
 
     class g_matrix:public Markov_IO::Implements_Simple_Class<Markov_LA::M_Matrix<double>>

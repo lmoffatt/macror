@@ -15,12 +15,18 @@ public:
   virtual ~ExitCommandVar(){}
 
 
-  virtual bool processTokens(Markov_IO::Token_Stream &t) override
+  virtual bool processTokens(Markov_IO::Token_Stream &t) override;
+  virtual bool run(ABC_CommandVar *) const;
+
+
+
+
+  // ABC_Put interface
+public:
+  virtual ExitCommandVar *clone() const override
   {
-    exit(0);
-
+    return new ExitCommandVar(*this);
   }
-
 };
 
 

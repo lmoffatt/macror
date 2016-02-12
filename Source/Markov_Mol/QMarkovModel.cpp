@@ -1800,6 +1800,11 @@ namespace Markov_Mol
 
   }
 
+  Q_Markov_Model::Q_matrix::Q_matrix():
+    //Implements_ValueId(Q_matrix::ClassName(),Q_matrix::ClassName(),"",""),
+    Implements_Simple_Class(Q_matrix::ClassName(),"s^-1",{"Q_MATRIX"})
+  {}
+
 
 
 

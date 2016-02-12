@@ -35,15 +35,14 @@ MacrorCommandWindow::MacrorCommandWindow(MacrorMainWindow *parent ,
   cm_->setIO(this);
 
   //TODO: add them later
-//  cm_->add_command(new MacrorEditCommand(cm_));
-//  cm_->add_command(new MacrorExitCommand(cm_,mw_));
-//  cm_->add_command(new MacrorCreateCommand(cm_));
-//  cm_->add_command(new Markov_GUI::CdCommandGUI(cm_,mw_));
+  //  cm_->add_command(new MacrorEditCommand(cm_));
+  //  cm_->add_command(new MacrorExitCommand(cm_,mw_));
+  //  cm_->add_command(new MacrorCreateCommand(cm_));
+  //  cm_->add_command(new Markov_GUI::CdCommandGUI(cm_,mw_));
   unsigned windowWidth=35;
   put(cm_->getProgram().wellcomeMessage(windowWidth));
 
-  put(">>");
-
+  freshLine();
   //  connect(this, SIGNAL(blockCountChanged(int)),
   //          this, SLOT(next_instruction()));
 
@@ -56,34 +55,34 @@ MacrorCommandWindow::~MacrorCommandWindow()
 
 void MacrorCommandWindow::commandLine(const QString& line)
 {
-//  if (!graphCommandLine(line))
-//    {
-//      MarkovCommand()->add_tokens(line.toStdString());
-//      if (MarkovCommand()->next_instruction())
-//        emit commandLineExecuted(line);
-//    }
+  //  if (!graphCommandLine(line))
+  //    {
+  //      MarkovCommand()->add_tokens(line.toStdString());
+  //      if (MarkovCommand()->next_instruction())
+  //        emit commandLineExecuted(line);
+  //    }
 }
 
 void MacrorCommandWindow::addCommandLine(const QString& line)
 {
-//  MarkovCommand()->add_tokens(line.toStdString());
+  //  MarkovCommand()->add_tokens(line.toStdString());
 
-//  moveCursor(QTextCursor::End);
-//  insertPlainText(line);
+  //  moveCursor(QTextCursor::End);
+  //  insertPlainText(line);
 
-//  cmdLine=line;
+  //  cmdLine=line;
 
-//  textCursor().movePosition(QTextCursor::EndOfLine);
+  //  textCursor().movePosition(QTextCursor::EndOfLine);
 
-//  textCursor().insertText("\n");
+  //  textCursor().insertText("\n");
 
-//  commandLine(cmdLine);
-//  put(">>");
-////  cm_->clear_tokens();
-//  cmdLine.clear();
-//  cmdWord.clear();
-//  tail.clear();
-//  cm_->getH().reset();
+  //  commandLine(cmdLine);
+  //  put(">>");
+  ////  cm_->clear_tokens();
+  //  cmdLine.clear();
+  //  cmdWord.clear();
+  //  tail.clear();
+  //  cm_->getH().reset();
 }
 
 
@@ -109,18 +108,18 @@ bool MacrorCommandWindow::graphCommandLine(const QString& line)
 
 bool MacrorCommandWindow::plot(const QString& line)
 {
-//  if (MarkovCommand()->checkVariable(line.toStdString(),Markov_IO::ABC_Experiment::ClassName()))
-//    {
-//      Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
-//            MarkovCommand()->getVar(line.toStdString()));
-//      Markov_Plot::GraphicPage* g=Markov_Plot::plot(0,MarkovCommand(),e->id(),*e);
-//      mw_->createGraph(g);
+  //  if (MarkovCommand()->checkVariable(line.toStdString(),Markov_IO::ABC_Experiment::ClassName()))
+  //    {
+  //      Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(
+  //            MarkovCommand()->getVar(line.toStdString()));
+  //      Markov_Plot::GraphicPage* g=Markov_Plot::plot(0,MarkovCommand(),e->id(),*e);
+  //      mw_->createGraph(g);
 
 
-//      return true;
+  //      return true;
 
-//    }
-//  else return false;
+  //    }
+  //  else return false;
 }
 
 // TODO: replace with ABC_Var logic
@@ -178,7 +177,7 @@ QString MacrorCommandWindow::getDir()const
 
 std::string MacrorCommandWindow::getItemFromList(const std::string &title, const std::vector<std::string> &list, bool &ok, std::size_t current)
 {
- return Markov_GUI::MyInputDialog::getItem(this,title,list,&ok,current);
+  return Markov_GUI::MyInputDialog::getItem(this,title,list,&ok,current);
 
 }
 
@@ -188,39 +187,60 @@ std::string MacrorCommandWindow::getItemFromSeveralLists(const std::string &titl
 
 }
 
-void MacrorCommandWindow::erase_from_cursor(int n)
+void MacrorCommandWindow::erase_from_cursor_forward(std::__cxx11::string s)
 {
+  QString qs(s.c_str());
   QTextCursor c=textCursor();
-  c.setPosition(c.position()+n,QTextCursor::KeepAnchor);
+  c.setPosition(c.position()+qs.size(),QTextCursor::KeepAnchor);
   c.removeSelectedText();
-   setTextCursor(c);
-   repaint();
- }
+  setTextCursor(c);
+  repaint();
+}
+void MacrorCommandWindow::erase_from_cursor_backward(std::__cxx11::string s)
+{
+  QString qs(s.c_str());
+  QTextCursor c=textCursor();
+  c.setPosition(c.position()-qs.size(),QTextCursor::KeepAnchor);
+  c.removeSelectedText();
+  setTextCursor(c);
+  repaint();
+}
 
 void MacrorCommandWindow::move_cursor(int n)
 {
 
   if (n>0)
     {
-  for (int i=0; i<n; ++i)
-    moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
+      for (int i=0; i<n; ++i)
+        moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
     }
   else
     {
       for (int i=0; i<-n; ++i)
-      moveCursor(QTextCursor::Left,QTextCursor::MoveAnchor);
+        moveCursor(QTextCursor::Left,QTextCursor::MoveAnchor);
     }
   repaint();
 }
 
-void MacrorCommandWindow::cleanLastLine()
+void MacrorCommandWindow::cleanToEndLine()
 {
-  moveCursor(QTextCursor::End);
+  auto c=textCursor();
+  c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
+  c.removeSelectedText();
+  setTextCursor(c);
+  repaint();
 }
 
 void MacrorCommandWindow::move_end()
 {
   moveCursor(QTextCursor::End);
+}
+
+bool MacrorCommandWindow::isLineBegin() const
+{
+  auto pos= textCursor().positionInBlock();
+  return pos==cm_->getProgram().spacer().size();
+
 }
 
 
@@ -232,7 +252,7 @@ MacrorCommandWindow::MarkovCommand()const
 
 bool MacrorCommandWindow::lastCommandResult()const
 {
-//  return MarkovCommand()->lastCommandResult();
+  //  return MarkovCommand()->lastCommandResult();
 }
 
 void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
@@ -259,41 +279,43 @@ void	MacrorCommandWindow::keyPressEvent ( QKeyEvent * e )
 /// put a string to the output source
 void MacrorCommandWindow::put(const std::string& s)
 {
-  QString qs(s.c_str());
-  insertPlainText(qs);
-  std::size_t n=qs.size();
-  move_cursor(n);
+  if (s.find_first_not_of(" ")==s.npos)
+    {
+      textCursor().insertText(s.c_str());
+
+    }
+  else
+    {
+      QString qs(s.c_str());
+      qs.replace('\n',"<br>");
+      qs.prepend("<font color=\"Black\">").append("</font>");
+      //std::size_t n=qs.size();
+      textCursor().insertHtml(qs);
+      //move_cursor(n);
+    }
   repaint();
 }
 
-/// insert a string to the output source
-void MacrorCommandWindow::insertText(const std::string& s)
-{
-  QString qs(s.c_str());
-  insertPlainText(qs);
-  repaint();
-}
+
 
 
 
 /// put a string to the output source
 void MacrorCommandWindow::putError(const std::string& s)
 {
+  auto c=textCursor();
   QString qs(s.c_str());
-  std::size_t n=qs.size();
-  textCursor().insertHtml("<font color=\"Red\">"+qs+"</font><br>");
-  move_cursor(n);
+  qs.replace('\n',"<br>");
+
+  //std::size_t n=qs.size();
+  textCursor().insertHtml("<font color=\"Red\">"+qs+"</font>");
+  //move_cursor(n);
+  setTextCursor(c);
   repaint();
 }
 
 
-/// insert a string to the output source
-void MacrorCommandWindow::insertErrorText(const std::string& s)
-{
-  QString qs(s.c_str());
-  textCursor().insertHtml("<font color=\"Red\">"+qs+"</font><br>");
-  repaint();
-}
+
 
 
 
@@ -304,7 +326,100 @@ void MacrorCommandWindow::showMessage(const std::string &m)
   message->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   message->move(cursorRect().center().operator +=(QPoint(+10,-10)));
   message->show();
-repaint();
+  repaint();
+}
+
+std::__cxx11::string MacrorCommandWindow::spacer() const
+{
+  return cm_->getProgram().spacer();
 }
 
 
+
+
+
+void MacrorCommandWindow::putNewLine()
+{
+  auto c=textCursor();
+  c.movePosition(QTextCursor::EndOfLine,QTextCursor::MoveAnchor);
+  c.insertText("\n");
+  setTextCursor(c);
+  repaint();
+}
+
+void MacrorCommandWindow::freshLine()
+{
+  putNewLine();
+  put(cm_->getProgram().spacer().c_str());
+  repaint();
+
+}
+
+bool MacrorCommandWindow::isLineEnd() const
+{
+  return textCursor().atEnd();
+
+}
+
+std::__cxx11::string MacrorCommandWindow::currentLine() const
+{
+  if (isLineBegin())
+    return "";
+  else
+    {
+      auto c=textCursor();
+      c.movePosition(QTextCursor::StartOfBlock,QTextCursor::KeepAnchor);
+      std::string lastBlock=c.selectedText().toStdString();
+      if (lastBlock.substr(0,2)==cm_->getProgram().spacer())
+        lastBlock.erase(0,2);
+      return lastBlock;
+    }
+}
+
+char MacrorCommandWindow::pop_next_char()
+{
+  auto c= textCursor();
+  c.movePosition(QTextCursor::Right,QTextCursor::KeepAnchor);
+  auto s=c.selectedText();
+  c.removeSelectedText();
+  return s.toStdString()[0];
+
+}
+
+void MacrorCommandWindow::backErase()
+{
+  if (!isLineEnd())
+    {
+      auto c=textCursor();
+      c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
+      c.removeSelectedText();
+      setTextCursor(c);
+    }
+  textCursor().deletePreviousChar();
+  repaint();
+}
+
+void MacrorCommandWindow::putTail(const std::__cxx11::string &text)
+{
+  if (!isLineEnd())
+    {
+      auto c=textCursor();
+      c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
+      c.removeSelectedText();
+      setTextCursor(c);
+    }
+  auto c2=textCursor();
+  auto p=c2.position();
+  c2.insertText(text.c_str());
+
+  c2.setPosition(p);
+  setTextCursor(c2);
+  repaint();
+}
+
+std::__cxx11::string MacrorCommandWindow::getTail()
+{
+  auto c=textCursor();
+  c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
+  return c.selectedText().toStdString();
+}

@@ -89,7 +89,6 @@ namespace Markov_Console
                       , ""
                       ,"erases variables"
                       ,""
-                      ,{}
                       ,0)
     {}
 

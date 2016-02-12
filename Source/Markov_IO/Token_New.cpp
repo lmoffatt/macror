@@ -126,6 +126,7 @@ namespace Markov_IO {
       case  NEQ:
       case  GEQ:
         return false;
+      case EMPTY:
       case COLON:
       case ASSIGN:
       case NOT:
@@ -490,6 +491,7 @@ namespace Markov_IO {
               stream.putback(ch);
 
             curr_tok=toKeyword(str_);
+            str_.push_back(' ');
             stream.clear();
             myState_=S_Final;
 
@@ -509,6 +511,11 @@ namespace Markov_IO {
   std::string Token_New::str() const
   {
     return str_;
+  }
+
+  std::string Token_New::identifier() const
+  {
+    return str_.substr(0,str_.find_first_of(" "));
   }
 
   double Token_New::realValue() const
@@ -590,13 +597,13 @@ namespace Markov_IO {
   {
     if (!isFinal()) return false;
     else
-    if ((tok()==INTEGER)||(tok()==UNSIGNED))
-      return true;
-    else if (tok()==REAL){
-        if (number_-std::floor(number_)==0)
-          return true;
-        else return false;}
-    else return false;
+      if ((tok()==INTEGER)||(tok()==UNSIGNED))
+        return true;
+      else if (tok()==REAL){
+          if (number_-std::floor(number_)==0)
+            return true;
+          else return false;}
+      else return false;
   }
 
   bool Token_New::isCount() const
@@ -604,16 +611,16 @@ namespace Markov_IO {
     if (!isFinal()) return false;
     else
 
-    if (tok()==UNSIGNED)
-      return true;
-    else if ((tok()==INTEGER)){
-        if (int_>=0) return true;
-        else return false;}
-    else if (tok()==REAL){
-        if ((number_>=0)&&(number_-floor(number_)==0))
-          return true;
-        else return false;}
-    else return false;
+      if (tok()==UNSIGNED)
+        return true;
+      else if ((tok()==INTEGER)){
+          if (int_>=0) return true;
+          else return false;}
+      else if (tok()==REAL){
+          if ((number_>=0)&&(number_-floor(number_)==0))
+            return true;
+          else return false;}
+      else return false;
 
   }
 
@@ -1043,7 +1050,13 @@ namespace Markov_IO {
           else
             {
               myState_=S_Final;
-              return false;
+              if (isSpaceChar(ch))
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case INVALID:
           {

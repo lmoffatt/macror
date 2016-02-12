@@ -67,9 +67,12 @@ namespace Markov_Console
       static std::string buildDate();
       static std::string uncommitedFiles();
 
+      static std::string mySpacer(){return ">>";}
+
       virtual std::string version()const;
       virtual std::string wellcomeMessage(unsigned ncols=80)const;
 
+      virtual std::string spacer()const{return mySpacer();}
 
   };
 
@@ -154,6 +157,20 @@ namespace Markov_Console
 
     virtual void add_var(Markov_IO::ABC_Var *v);
 
+    virtual void run(ABC_CommandVar *v)
+    {
+      if (v!=nullptr)
+        {
+      auto c=getCommand(v->id());
+      if (c!=nullptr)
+        {
+          c->run(v);
+        }
+        }
+    }
+
+
+
     ABC_CommandVar const* getCommand(const std::string& cmdlabel)const;
 
     ABC_CommandVar * getCommand(const std::string& cmdlabel);
@@ -167,6 +184,8 @@ namespace Markov_Console
     virtual bool has_var(const std::string& name)const;
 
 
+    
+const Markov_IO::Implements_Identifier_Class* getIdList(const std::string& name)const;
 
 
     ProgramVersion& getProgram();
@@ -189,6 +208,11 @@ namespace Markov_Console
 
     std::map<std::string, std::map<std::string, Markov_IO::ABC_Var*> > varByType;
 
+
+    std::map<std::string,Markov_IO::Implements_Identifier_Class*> idLists_;
+
+
+
     Autocomplete varsl;
 
     std::map<std::string,Autocomplete> autoCmptByCategories;
@@ -203,6 +227,7 @@ namespace Markov_Console
     virtual void Loadcommands();
     virtual void LoadTypes();
 
+    virtual void UpdateIdLists();
 
     // ABC_Environment interface
   public:

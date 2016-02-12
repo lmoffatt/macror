@@ -23,11 +23,11 @@ namespace Markov_Console
     std::string line;
     while (Markov_IO::safeGetline(fs,line))
       {
-       // if (line.substr(0,3)!="%--")
-          {
-            lines.push_back(line);
-            pos++;
-          }
+        // if (line.substr(0,3)!="%--")
+        {
+          lines.push_back(line);
+          pos++;
+        }
       }
 
   }
@@ -39,7 +39,7 @@ namespace Markov_Console
     std::fstream fs(filename_,std::ios_base::app|std::ios_base::out);
 
     if (!fs.is_open())
-    fs.open(filename_,std::ios_base::app|std::ios_base::out);
+      fs.open(filename_,std::ios_base::app|std::ios_base::out);
     fs<<commandLine<<std::endl;
     reset();
   }
@@ -57,59 +57,81 @@ namespace Markov_Console
 
   std::string CommandHistory::up(const std::string& startText)
   {
-    if (startText.empty())
-      {
-        if (pos>0) pos--;
-        else
-            return "";
-        if (lines.empty())
-          return "";
-        else
-          if (pos<lines.size())
-          return lines[pos];
-         else
-            return "";
-      }
+    if (lines.empty())
+      return "";
     else
       {
-        std::size_t n=startText.size();
-        if (pos==0)
-            return "";
-        while((pos>0)&&(startText.compare(lines.at(pos-1).substr(0,n))!=0))
-          --pos;
-        if (pos>0)
-          --pos;
+        if (startText.empty())
+          {
+            std::string prev{};
+            if (pos<lines.size())
+              prev=lines[pos];
+            else
+              pos=lines.size()-1;
+            while ((pos>0)&&(lines[pos].empty()||lines[pos][0]=='%'||lines[pos]==prev))
+              --pos;
+            if (lines[pos][0]=='%')
+              return "";
+            else
+              return lines[pos];
+          }
 
-        if (startText.compare(lines.at(pos).substr(0,n))==0)
-          return lines[pos].substr(n);
         else
-            return "";
+          {
+            std::size_t n=startText.size();
+            if (pos==0)
+              return "";
+            std::string prev{};
+            if (pos<lines.size())
+              prev=lines[pos];
+            else
+              pos=lines.size()-1;
+            while((pos>0)&&((lines[pos]==prev)||(startText.compare(lines.at(pos).substr(0,n))!=0)))
+              --pos;
+
+            if (startText.compare(lines.at(pos).substr(0,n))==0)
+              return lines[pos].substr(n);
+            else
+              return "";
+          }
+
       }
   }
   std::string CommandHistory::down(const std::string& startText)
   {
-    if (startText.empty())
-      {
-        if (pos<lines.size()) pos++;
-        if (pos!=lines.size())
-          return lines[pos];
-        else
-          return "";
-      }
+    if (lines.empty())
+      return "";
     else
       {
-        std::size_t n=startText.size();
-        while((pos+1<lines.size())&&(startText.compare(lines.at(pos+1).substr(0,n))!=0))
-          ++pos;
-        if (pos<lines.size()) ++pos;
-        if ((pos<lines.size())&&(startText.compare(lines.at(pos).substr(0,n))==0))
-          return lines[pos].substr(n);
+        if (startText.empty())
+          {
+            std::string prev{};
+            if (pos<lines.size())
+              prev=lines[pos];
+            else
+              pos=lines.size()-1;
+            while ((pos<lines.size())&&(lines[pos].empty()||lines[pos][0]=='%'||prev==lines[pos])) pos++;
+            if (pos!=lines.size())
+              return lines[pos];
+            else
+              return "";
+          }
         else
-          return std::string();
+          {
+            std::size_t n=startText.size();
+            std::string prev{};
+            if (pos<lines.size())
+              prev=lines[pos];
+            while((pos<lines.size())&&((prev==lines[pos])||(startText.compare(lines.at(pos).substr(0,n))!=0)))
+              ++pos;
+            if ((pos<lines.size())&&(startText.compare(lines.at(pos).substr(0,n))==0))
+              return lines[pos].substr(n);
+            else
+              return std::string();
+          }
       }
+
   }
-
-
   std::string CommandHistory::history()const
   {
     std::string out;

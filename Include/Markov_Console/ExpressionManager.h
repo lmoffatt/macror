@@ -19,6 +19,12 @@ namespace Markov_Console {
 
 class Markov_CommandManagerVar;
 
+
+
+
+
+
+
   class ExpressionManager
   {
   public:
@@ -27,86 +33,65 @@ class Markov_CommandManagerVar;
 
 
 
-    virtual void KeyEvent(Markov_IO::Key k);
-
-
-    bool push_back(char c);
-    bool push_back(Markov_IO::Token_New t);
-
-    char pop_back_char();
-    Markov_IO::Token_New pop_back_Token();
-
-
-    bool isEmpty()const
-    {
-      return bu_.isInitial();
-    }
-    bool isFinal()const
-    {
-      return bu_.isFinal();
-    }
+    virtual void KeyEvent(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io, CommandHistory& ch, Markov_IO::Key k);
 
   protected:
 
+    bool push_back(Markov_IO::ABC_IO *io, char c);
+    bool push_back(Markov_IO::ABC_IO * io, const std::string& s);
+
+    char pop_back_char();
+
+
+    bool isEmpty()const;
+    bool isFinal()const;
+
+
     // talking with internal representations: token and frame around var
 
+    static std::string suggestRest(const std::set<std::string>& items, Markov_IO::Token_New tok);
+    static std::set<std::string> conformant(const std::set<std::string>& ids,Markov_IO::Token_New tok);
 
-    std::string currentLine();
 
 
 
     // talking with the interfase
-    void move_cursor(int i);
-
-    void erase_from_cursor(int i);
-
-    void appendText(const std::string& s);
-    void insertText(const std::string& s);
-
-    void appendText(char c);
-
-    void insertText(char c);
 
 
-    void appendErrorText(const std::string& s);
-    void insertErrorText(const std::string& s);
 
-    void appendErrorText(char c)
-    {
-      std::string s;
-      s.push_back(c);
-      appendErrorText(s);
-    }
 
-    void insertErrorText(char c);
 
+    void showErrorMessage(const std::string& s);
+
+    void showSuggestionMessage(const std::string& s);
 
 
     // processing input from interfase
-    void move_Left();
-    void backErase();
+    void move_Left(Markov_IO::ABC_IO *io);
+    void backErase(Markov_IO::ABC_IO *io);
 
 
-    void move_Right();
-    void move_Home();
-    void history_up();
+    void move_Right(Markov_IO::ABC_IO * io);
+    void move_Home(Markov_IO::ABC_IO * io);
+    void history_up( CommandHistory* ch,Markov_IO::ABC_IO * io);
 
-    void history_down();
-    void suggestCompletion();
-    void putReturn();
+    void history_down( CommandHistory *ch, Markov_IO::ABC_IO *io);
+    void suggestCompletion(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io);
+    void suggestAlternatives(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io);
 
-    void putText(char s);
-    void cleanFromCursor();
+
+    void putReturn(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io);
+
+    void putText(Markov_IO::ABC_IO * io, char s);
+    void cleanFromCursor(Markov_IO::ABC_IO * io);
     bool check();
 
 
-    // talking with command manager
-    void processVar();
 
 
     //talking with history
-    std::string getHistoryUp(const std::string& line)const;
-    std::string getHistoryDown(const std::string& line)const;
+    std::string getHistoryUp(const CommandHistory* ch,const std::string& line)const;
+    std::string getHistoryDown(const CommandHistory *ch, const std::string& line)const;
 
 
 
@@ -123,11 +108,12 @@ class Markov_CommandManagerVar;
 
 
   private:
-    Markov_IO::build_ABC_Value  bu_;
+    Markov_IO::build_Statement  bu_;
     Markov_IO::Token_New tok_;
-    std::string str_;
     Markov_IO::Key previous_key={};
-    Markov_CommandManagerVar *cm_;
+    std::string rejectedChars_;
+     // Markov_CommandManagerVar *cm_;
+
   };
 
 

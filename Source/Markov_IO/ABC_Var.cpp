@@ -7,11 +7,8 @@
 
 namespace Markov_IO {
 
-  template<>
-  std::string Implements_Simple_Value<std::string>::ClassName()
-  {
-    return "Simple_name_var";
-  }
+
+
 
   template<>
   std::string Implements_Simple_Value<double>::ClassName()
@@ -87,12 +84,6 @@ namespace Markov_IO {
   {
     return "Simple_count_set_var";
   }
-
-
-
-
-
-
 
 
 
@@ -621,6 +612,26 @@ namespace Markov_IO {
 
   }
 
+  bool Implements_ValueId::complyModes(const std::string m) const
+  {
+    if ((parentValue()!=nullptr)
+        &&(parentValue()->idToValue(myVar())!=nullptr))
+      {
+        auto const mo=parentValue()->idToValue(myVar())->modes();
+        if(mo.find(m)!=mo.end())
+          return true;
+        else
+          return false;
+      }
+    else return false;
+  }
+
+  std::set<std::string> Implements_ValueId::modes() const
+  {
+
+    return {};
+  }
+
 
   Implements_ValueId::Implements_ValueId(const std::string &name,
                                          const std::string &className,
@@ -643,6 +654,8 @@ namespace Markov_IO {
     whatThis_(other.WhatThis())
   {}
 
+  Implements_ValueId::~Implements_ValueId(){}
+
   void Implements_ValueId::putOut(const std::string &m) const
   {
     if ((parentValue()!=nullptr)&& (parentValue()!=this))
@@ -664,6 +677,33 @@ namespace Markov_IO {
     return nullptr;
   }
 
+  ABC_Value *Implements_ValueId::to_PlainValue(const ABC_Measure *) const
+  {
+    return nullptr;
+  }
+
+  ABC_Value *Implements_ValueId::toMeasure(const ABC_Value *) const
+  {
+    return nullptr;
+  }
+
+  ABC_Var *Implements_ValueId::toSameVar(const ABC_Value *) const
+  {
+    return nullptr;
+  }
+
+  ABC_Value *Implements_ValueId::toPlainMeasure() const
+  {
+    return nullptr;
+  }
+
+  ABC_Var *Implements_ValueId::toPlainSameVar() const
+  {
+    return nullptr;
+  }
+
+
+
 
 
   void Implements_ValueId::setParentValue(ABC_Value *par)
@@ -684,6 +724,28 @@ namespace Markov_IO {
 
 
 
+
+  ABC_Value *Implements_ValueId::create() const
+  {
+    return new Implements_ValueId;
+  }
+
+  Implements_ValueId *Implements_ValueId::clone() const
+  {
+    return new Implements_ValueId(*this);
+  }
+
+  void Implements_ValueId::reset()
+  {
+    if ((parentValue()!=nullptr)&&(!isRootedVariable()))
+      {
+        auto s=dynamic_cast<Implements_ValueId*>(parentValue()->idToValue(id()));
+        if (s!=nullptr)
+          *this=*s;
+
+      }
+
+  }
 
   std::string Implements_ValueId::myVar() const
   {
@@ -770,20 +832,29 @@ Extract tip, whatthis, id and class from stream
     return refId_;
   }
 
+  void Implements_Refer_Var::setRefId(const std::string &ref_id)
+  {
+    refId_=ref_id;
+  }
+
   ABC_Value *Implements_Refer_Var::refVar()
   {
     if (parentValue()!=nullptr)
       return parentValue()->idToValue(refId(),myVar());
-    return
-        nullptr;
+    else return   nullptr;
   }
 
   const ABC_Value *Implements_Refer_Var::refVar() const
   {
     if (parentValue()!=nullptr)
       return parentValue()->idToValue(refId(),myVar());
-    return
-        nullptr;
+    else
+      return nullptr;
+  }
+
+  Implements_Refer_Var *Implements_Refer_Var::clone() const
+  {
+    return new Implements_Refer_Var(*this);
   }
   ///Constructor for use as Base
   Implements_Refer_Var::Implements_Refer_Var(const std::string& idName,
@@ -796,11 +867,13 @@ Extract tip, whatthis, id and class from stream
 
   }
 
-  bool Implements_Refer_Var::tryToken(Markov_Console::Markov_CommandManagerVar *cm, Token_New t)
-  {
-
+  Implements_Refer_Var::Implements_Refer_Var(const Implements_ValueId &id):
+    Implements_ValueId(id.id(),id.myVar(),id.Tip(),id.WhatThis()),
+    refId_(){
 
   }
+
+
 
 
 
@@ -939,9 +1012,70 @@ Extract tip, whatthis, id and class from stream
 
   }
 
+  ABC_Value *Implements_Complex_Value::toPlainMeasure() const
+  {
+    return nullptr;
+  }
+
+  ABC_Var *Implements_Complex_Value::toPlainSameVar() const
+  {
+    return nullptr;
+  }
+
+  ABC_Value *Implements_Complex_Value::to_PlainValue() const
+  {
+    return new Implements_Complex_Value(*this);
+  }
+
+  void Implements_Complex_Value::cloneChids()
+  {
+    for (auto& it:vars_)
+      {
+        if (it.second!=nullptr)
+          {
+            ABC_Value* n=it.second->clone();
+
+            it.second=n;
+          }
+      }
+  }
+
+  void Implements_Complex_Value::resetChildsParent()
+  {
+    for (auto& it:vars_)
+      {
+        if (it.second!=nullptr)
+          {
+            it.second->setParentValue(this);
+          }
+      }
+  }
+
   std::string Implements_Complex_Value::ClassName()
   {
     return "Implements_Complex_Var";
+  }
+
+  Implements_Complex_Value *Implements_Complex_Value::create() const
+  {
+    return new Implements_Complex_Value;
+  }
+
+  Implements_Complex_Value *Implements_Complex_Value::clone() const
+  {
+    return new Implements_Complex_Value(*this);
+  }
+
+  void Implements_Complex_Value::reset()
+  {
+    if ((parentValue()!=nullptr)&&(!isRootedVariable()))
+      {
+        auto s=dynamic_cast<Implements_Complex_Value*>(parentValue()->idToValue(id()));
+        if (s!=nullptr)
+          *this=*s;
+
+      }
+
   }
 
   std::size_t Implements_Complex_Value::numChilds() const
@@ -964,6 +1098,40 @@ Extract tip, whatthis, id and class from stream
     else if (parentValue()!=nullptr)
       return parentValue()->idToValue(name);
     else return nullptr;
+  }
+
+  ABC_Value *Implements_Complex_Value::popLastChild()
+  {
+    if (!ids_.empty())
+      {
+        std::string lastChild=ids_.back();
+        ABC_Value* out=idToValue(lastChild);
+        removeChild(lastChild);
+        return out;
+      }
+    else
+      return nullptr;
+  }
+
+  std::vector<std::string> Implements_Complex_Value::getChildList(const std::string &className) const
+  {
+    if (className.empty())
+      return ids_;
+    else
+      {
+        std::vector<std::string> out;
+        for (std::string s:ids_)
+          {
+            auto it=vars_.find(s);
+            if (it!=vars_.end())
+              {
+                ABC_Value* v=it->second;
+                if (v->complyClass(className))
+                  out.push_back(s);
+              }
+          }
+        return out;
+      }
   }
 
   void Implements_Complex_Value::removeChild(const std::string &name)
@@ -1047,6 +1215,74 @@ Extract tip, whatthis, id and class from stream
       }
   }
 
+  Implements_Complex_Value::Implements_Complex_Value(const ABC_Value &other):
+    Implements_ValueId(other)
+  {
+
+    for (std::size_t i=0; i<other.numChilds(); ++i)
+      {
+        std::string name=other.ith_ChildName(i);
+        auto o=other.idToValue(name);
+        if (o!=nullptr)
+          pushChild(o->clone());
+      }
+  }
+
+  Implements_Complex_Value::Implements_Complex_Value(const Implements_Complex_Value &other)
+    :
+      Implements_ValueId(other),
+      ids_(other.ids_),
+      vars_(other.vars_)
+  {
+    cloneChids();
+    resetChildsParent();
+  }
+
+  Implements_Complex_Value::Implements_Complex_Value(Implements_Complex_Value &&other):
+    Implements_ValueId(std::move(other)),
+    ids_(std::move(other.ids_)),
+    vars_(std::move(other.vars_))
+  {
+    resetChildsParent();
+  }
+
+  Implements_Complex_Value &Implements_Complex_Value::operator=(Implements_Complex_Value &&other)
+  {
+    if (this!=&other)
+      {
+        privateDelete();
+        Implements_ValueId::operator =(std::move(other));
+        ids_=std::move(other.ids_);
+        vars_=std::move(other.vars_);
+        resetChildsParent();
+      }
+    return *this;
+  }
+
+  Implements_Complex_Value &Implements_Complex_Value::operator=(const Implements_Complex_Value &other)
+  {
+    if (this!=&other)
+      {
+        *this=Implements_Complex_Value(other);
+        resetChildsParent();
+
+      }
+    return *this;
+  }
+
+  void Implements_Complex_Value::privateDelete()
+  {
+    for (auto& id:vars_)
+      {
+        auto o=id.second;
+        delete o;
+      }
+  }
+
+  Implements_Complex_Value::~Implements_Complex_Value(){
+    privateDelete();
+  }
+
 
 
 
@@ -1070,6 +1306,48 @@ Extract tip, whatthis, id and class from stream
       {
         out+=i.toString();
       }
+    return out;
+  }
+
+  std::ostream &ABC_Value::put(std::ostream &s) const
+  {
+    s<<toString();
+    return s;
+  }
+
+  ABC_Value *ABC_Value::toIndicatedVar(const ABC_Value *source) const
+  {
+    if (source->myVar()==id())
+      return toMeasure(source);
+    else if (source->myVar()==myClass())
+      return toSameVar(source);
+    else return nullptr;
+  }
+
+  ABC_Measure *ABC_Value::getMeasureFromValue(ABC_Value *v)
+  {
+    if (v)
+      {
+        auto m=idToValue(v->myVar());
+        if (m)
+          return m->toIndicatedVar(v);
+        else
+          return nullptr;
+      }
+    else
+      return nullptr;
+  }
+
+  bool ABC_Value::has_child(const std::string &name) const
+  {
+    return idToValue(name)!=nullptr;
+  }
+
+  std::vector<std::string> ABC_Value::getChildList() const
+  {
+    std::vector<std::string> out(numChilds());
+    for (std::size_t i=0; i<numChilds(); i++)
+      out[i]=ith_ChildName(i);
     return out;
   }
 
@@ -1584,6 +1862,18 @@ the parameter className
 
   }
 
+  ABC_Value::~ABC_Value(){}
+
+  std::string ABC_Value::myClass() const
+  {
+    return ClassName();
+  }
+
+  std::set<std::string> ABC_Value::mySuperClasses() const
+  {
+    return {ClassName()};
+  }
+
 
 
 
@@ -1618,6 +1908,44 @@ the parameter className
     auto s= mySuperClasses();
     bool ret= s.find(classname)!=s.end();
     return ret;
+  }
+
+  bool ABC_Value::complyVar(const std::string &var, std::string *errormessage) const
+  {
+    if (myVar()==var)
+      {
+        if (errormessage!=nullptr)
+          *errormessage=id()+"is defined as a"+var+" var";
+        return true;
+      }
+    else if (complyClass(var))
+      {
+        if (errormessage!=nullptr)
+          *errormessage=id()+" complies to "+var+" class";
+        return true;
+      }
+    else if ((idToValue(var)!=nullptr))
+      {
+        if (idToValue(var)->isValueOfThisVar(this))
+          {
+            if (errormessage!=nullptr)
+              *errormessage=id()+ " follows "+var+" requirements";
+            return true;
+          }
+        else
+          {
+            if (errormessage!=nullptr)
+              *errormessage=id()+ " does not follow "+var+" requirements";
+            return false;
+
+          }
+      }
+    else
+      {
+        if (errormessage!=nullptr)
+          *errormessage=var+" is not defined as a Variable";
+         return false;
+      }
   }
 
   void ABC_Value::pushIdChild(const std::string &id, ABC_Value *var)
@@ -1700,6 +2028,35 @@ the parameter className
   std::size_t Implements_Complex_Class::numMandatoryChilds() const
   {
     return  isMandatory_.size();
+  }
+
+  std::string ABC_Base::ClassName()
+  {
+    return "ABC_Base";
+  }
+
+  std::set<std::string> ABC_Base::SuperClasses()
+  {
+    return {ClassName()};
+  }
+
+  std::string ABC_Base::myClass() const
+  {
+    return ClassName();
+  }
+
+  std::set<std::string> ABC_Base::mySuperClasses() const
+  {
+    return SuperClasses();
+  }
+
+  std::ostream &operator<<(std::ostream &os, std::vector<std::string> data)
+  {
+    for (const auto& s:data)
+      {
+        os<<s<<"\t";
+      }
+    return os;
   }
 
 

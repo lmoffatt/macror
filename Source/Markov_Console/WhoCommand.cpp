@@ -101,5 +101,28 @@ bool WhoCommand::run(const std::string& className)
     return true;
 }
 
+WhoCommandVar::WhoCommandVar(Markov_CommandManagerVar *cm):
+ABC_CommandVar(cm
+               ,ClassName()
+               , ""
+               ,"working variables"
+               ,"who command\n"
+                " returns list of working variables"
+               ,0)
+{}
+bool WhoCommandVar::run() const
+{
+  auto list=cm_->getChildList();
+  for (auto& s:list)
+  cm_->putOut(s+"\t");
+  return true;
+
+}
+
+bool WhoCommandVar::run(ABC_CommandVar *) const
+{
+  return run();
+}
+
 }
 

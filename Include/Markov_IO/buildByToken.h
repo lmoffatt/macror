@@ -5,15 +5,20 @@
 #include "Markov_IO/Token_New.h"
 #include "Markov_IO/ABC_Var.h"
 #include "Markov_Console/ABC_Command.h"
+#include "Markov_IO/Validator.h"
 #include <string>
 
 
 
 namespace Markov_IO {
 
+
+
   class ABC_BuildByToken: public ABC_Base
   {
   public:
+    enum MODE {DECLARATION,ASIGNATION,INITIALIZATION, UNDEFINED};
+
     static std::string ClassName();
 
     static std::set<std::string> SuperClasses();
@@ -22,73 +27,85 @@ namespace Markov_IO {
 
     std::set<std::string> mySuperClasses()const override;
 
-    virtual bool pushToken(Token_New t)=0;
-    std::string errorMessage()const
+    MODE mode()const
     {
-      return error_;
+      return mode_;
     }
-    virtual  std::set<std::string> alternativesNext()const=0;
+
+    void setDeclaration()
+    {
+      mode_=DECLARATION;
+    }
+    void setInitialization()
+    {
+      mode_=INITIALIZATION;
+    }
+    void setAssignation()
+    {
+      mode_=ASIGNATION;
+    }
+
+    bool isDeclaration()const
+    {
+      return mode_==DECLARATION;
+    }
+
+    bool isAssignation()const
+    {
+      return mode_==ASIGNATION;
+    }
+    bool isInitialization()const
+    {
+      return mode_==INITIALIZATION;
+    }
+
+
+    virtual bool pushToken(Token_New t)=0;
+    std::string errorMessage()const;
+    virtual  std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const=0;
     virtual Token_New popBackToken()=0;
     virtual bool isFinal()const=0;
     virtual bool isInitial()const=0;
     virtual bool isHollow()const=0;
-    virtual ~ABC_BuildByToken(){}
 
 
 
-    ABC_Value* parent()
-    {
-      return parent_;
-    }
+    virtual ~ABC_BuildByToken();
 
-    const ABC_Value* parent()const
-    {
-      return parent_;
-    }
-  protected:
-    ABC_BuildByToken(ABC_Value* p):parent_(p), error_(){}
-    void setErrorMessage(std::string err)
-    {
-      error_=err;
-    }
-
-    void setErrorMessage(ABC_BuildByToken* child)
-    {
-      error_="Error in "+myClass()+" : "+child->errorMessage();
-    }
-
-    void setErrorMessage(Token_New::Value expected, Token_New found)
-    {
-      error_="Error in "+myClass()+" : expected: "
-          +Token_New::toString(expected)+"; found: "
-          +found.str();
-    }
-    void setErrorMessage(std::string expected, Token_New found)
-    {
-      error_="Error in "+myClass()+" : expected: "
-          +expected+"; found: "
-          +found.str();
-    }
-    void setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found)
-    {
-      std::string estr="Error in "+myClass()+" : expected: ";
-      for (auto ex:expected)
-        estr+=Token_New::toString(ex)+" or ";
-      estr.substr(0,estr.size()-3);
-      estr+="; found: " +found.str();
-      error_=estr;
-    }
-
-
-    void clearErrorMessage()
+    virtual void clear()
     {
       error_.clear();
     }
+
+    ABC_Value* parent();
+
+    const ABC_Value* parent()const;
+  protected:
+    MODE mode_=UNDEFINED;
+    ABC_BuildByToken(ABC_Value* p);
+    void setErrorMessage(std::string err);
+
+    void setErrorMessage(ABC_BuildByToken* child);
+
+    void setErrorMessage(Token_New::Value expected, Token_New found);
+    void setErrorMessage(std::string expected, Token_New found);
+    void setErrorMessage(const Markov_Console::ABC_CommandVar *cmd, const std::string &error);
+    void setErrorMessage(const Markov_Console::ABC_CommandVar *cmd
+                         , const ABC_Value *input, const std::string &error);
+
+    void setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found);
+
+
+    void clearErrorMessage();
+
+    virtual void setErrorMessage(const Markov_Console::ABC_CommandVar *cmd, const ABC_Value *input, Token_New found);
+
 
   private:
 
     ABC_Value* parent_;
     std::string error_;
+
 
   };
 
@@ -119,6 +136,7 @@ namespace Markov_IO {
 
 
     virtual C unloadVar()=0;
+
     virtual bool unPop(C var)=0;
     virtual ~ABClass_buildByToken(){}
   protected:
@@ -155,6 +173,7 @@ namespace Markov_IO {
     }
 
     virtual ~ABC_Value_ByToken(){}
+    virtual void clear()=0;
 
 
   };
@@ -194,6 +213,7 @@ namespace Markov_IO {
       x_(),
       isComplete_(false)
     {
+      ABC_BuildByToken::mode_=ABC_BuildByToken::INITIALIZATION;
 
     }
 
@@ -201,21 +221,27 @@ namespace Markov_IO {
 
     C unloadVar()override
     {
-      auto out=x_;
+      auto out=std::move(x_);
       x_= {};
       isComplete_=false;
+      ABC_BuildByToken::mode_=ABC_BuildByToken::UNDEFINED;
       return out;
     }
 
     bool pushToken(Token_New t)override;
 
 
-    std::set<std::string> alternativesNext()const override
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
     {
       return {Implements_Simple_Value<C>::ClassName()};
     }
 
 
+    void clear()override
+    {
+      ABC_BuildByToken::clear();
+      isComplete_=false;
+    }
 
     bool unPop(C var) override
     {
@@ -241,9 +267,11 @@ namespace Markov_IO {
       return !isComplete_;
     }
 
+
   private:
     C x_;
     bool isComplete_;
+
   };
 
 
@@ -483,7 +511,10 @@ namespace Markov_IO {
       ABClass_buildByToken<std::vector<T>>(parent),
       mystate(S_Init),
       x_{},
-      myChildState(parent){}
+      myChildState(parent){
+      ABC_BuildByToken::mode_=ABC_BuildByToken::INITIALIZATION;
+
+    }
 
 
     buildByToken(ABC_Value* parent,std::vector<T> v):
@@ -638,7 +669,7 @@ namespace Markov_IO {
         }
     }
 
-    std::set<std::string> alternativesNext()const
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
@@ -649,11 +680,11 @@ namespace Markov_IO {
           return {Token_New::toString(Token_New::LSB)};
         case S_Header_Final:
         case S_Data_Partial:
-          return myChildState.alternativesNext();
+          return myChildState.alternativesNext(cm);
           break;
         case S_Data_Final:
           {
-            auto out=myChildState.alternativesNext();
+            auto out=myChildState.alternativesNext(cm);
             out.insert(Token_New::toString(Token_New::RSB));
             return out;
           }
@@ -666,6 +697,14 @@ namespace Markov_IO {
 
     }
 
+void clear()override
+{
+  ABC_BuildByToken::clear();
+  mystate=S_Init;
+  x_.clear();
+  myChildState.clear();
+
+}
 
   private:
     DAF mystate;
@@ -701,6 +740,8 @@ namespace Markov_IO {
     {
       return SuperClasses();
     }
+
+
 
     enum DAF {S_Init,S_First_Partial,S_First_Final,S_Separator_Final,S_Second_Partial,S_Final} ;
 
@@ -761,7 +802,10 @@ namespace Markov_IO {
       mystate(S_Init),
       x_{}
     ,first_(parent)
-    ,second_(parent){}
+    ,second_(parent){
+      ABC_BuildByToken::mode_=ABC_BuildByToken::INITIALIZATION;
+
+    }
 
 
     buildByToken(ABC_Value* parent,std::pair<K,T> v):
@@ -881,19 +925,19 @@ namespace Markov_IO {
         }
     }
 
-    std::set<std::string> alternativesNext()const
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
         case S_Init:
         case S_First_Partial:
-          return first_.alternativesNext();
+          return first_.alternativesNext(cm);
           break;
         case S_First_Final:
           return {Token_New::toString(Token_New::COLON)};
         case S_Separator_Final:
         case S_Second_Partial:
-          return second_.alternativesNext();
+          return second_.alternativesNext(cm);
           break;
         case S_Final:
         default:
@@ -902,7 +946,13 @@ namespace Markov_IO {
         }
 
     }
-
+    void clear()override
+    {
+      ABC_BuildByToken::clear();
+      mystate=S_Init;
+      first_.clear();
+      second_.clear();
+    }
 
   private:
     DAF mystate;
@@ -998,7 +1048,10 @@ namespace Markov_IO {
     buildByToken(ABC_Value* parent):
       ABClass_buildByToken<Markov_LA::M_Matrix<T>>(parent),
       mystate(S_Init),
-      x_{}{}
+      x_{}{
+      ABC_BuildByToken::mode_=ABC_BuildByToken::INITIALIZATION;
+
+    }
 
 
     buildByToken(ABC_Value* parent,Markov_LA::M_Matrix<T> v):
@@ -1189,7 +1242,7 @@ namespace Markov_IO {
       else return {};
     }
 
-    std::set<std::string> alternativesNext()const
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
@@ -1214,7 +1267,16 @@ namespace Markov_IO {
 
     }
 
+    void clear()override
+    {
+      ABC_BuildByToken::clear();
+      isComplete_=false;
+      mystate=S_Init;
+      x_.clear();
+      buffer_.clear();
+      hasFixedSize_=false;
 
+    }
   private:
     bool getValue(Token_New tok, T& v);
     DAF mystate;
@@ -1403,7 +1465,7 @@ namespace Markov_IO {
           if (tok.tok()!=Token_New::LCB)
             {
               ABC_BuildByToken::setErrorMessage(Token_New::LCB, tok);
-               return false;
+              return false;
             }   else
             {
               mystate=S_Header_Final;
@@ -1415,7 +1477,7 @@ namespace Markov_IO {
           if (!myChildState.pushToken(tok))
             {
               ABC_BuildByToken::setErrorMessage(&myChildState);
-                return false;
+              return false;
             }
           else
             {
@@ -1521,7 +1583,7 @@ namespace Markov_IO {
         }
     }
 
-    std::set<std::string> alternativesNext()const
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
@@ -1532,11 +1594,11 @@ namespace Markov_IO {
           return {Token_New::toString(Token_New::LCB)};
         case S_Header_Final:
         case S_Data_Partial:
-          return myChildState.alternativesNext();
+          return myChildState.alternativesNext(cm);
           break;
         case S_Data_Final:
           {
-            auto out=myChildState.alternativesNext();
+            auto out=myChildState.alternativesNext(cm);
             out.insert(Token_New::toString(Token_New::RCB));
             return out;
           }
@@ -1549,6 +1611,15 @@ namespace Markov_IO {
 
     }
 
+
+    void clear()override
+    {
+      ABC_BuildByToken::clear();
+      mystate=S_Init;
+      x_.clear();
+      myChildState.clear();
+
+    }
 
   private:
     DAF mystate;
@@ -1646,7 +1717,10 @@ namespace Markov_IO {
       ABClass_buildByToken<std::map<K,T>>(parent),
       mystate(S_Header_Final),
       x_{},
-      myChildState{parent}{}
+      myChildState{parent}{
+      ABC_BuildByToken::mode_=ABC_BuildByToken::INITIALIZATION;
+
+    }
 
 
     buildByToken(ABC_Value* parent,std::map<K,T> v):
@@ -1680,7 +1754,7 @@ namespace Markov_IO {
           if (tok.tok()!=Token_New::LCB)
             {
               ABC_BuildByToken::setErrorMessage(Token_New::LCB,tok);
-               return false;
+              return false;
             }
           else
             {
@@ -1799,7 +1873,7 @@ namespace Markov_IO {
         }
     }
 
-    std::set<std::string> alternativesNext()const override
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
     {
       switch (mystate)
         {
@@ -1810,11 +1884,11 @@ namespace Markov_IO {
           return {Token_New::toString(Token_New::LCB)};
         case S_Header_Final:
         case S_Data_Partial:
-          return myChildState.alternativesNext();
+          return myChildState.alternativesNext(cm);
           break;
         case S_Data_Final:
           {
-            auto out=myChildState.alternativesNext();
+            auto out=myChildState.alternativesNext(cm);
             out.insert(Token_New::toString(Token_New::RCB));
             return out;
           }
@@ -1827,6 +1901,14 @@ namespace Markov_IO {
 
     }
 
+    void clear()override
+    {
+      ABC_BuildByToken::clear();
+      mystate=S_Init;
+      x_.clear();
+      myChildState.clear();
+
+    }
 
   private:
     DAF mystate;
@@ -1890,6 +1972,14 @@ namespace Markov_IO {
       else return nullptr;
     }
 
+    void clear()override
+    {
+      ABClass_buildByToken::clear();
+      delete id_;
+      idstate=S_Init;
+      id_=new Implements_ValueId;
+    }
+
     bool pushToken(Token_New t) override
     {
       switch (idstate) {
@@ -1901,13 +1991,11 @@ namespace Markov_IO {
             }
           else if (t.tok()==Token_New::IDENTIFIER)
             {
-
-              idstate =ID1;
               if (id_==nullptr)
                 id_=new Implements_ValueId;
               id_->setId(t.str());
 
-              return true;
+              idstate =ID1;
             }
           else
             {
@@ -1998,7 +2086,7 @@ namespace Markov_IO {
           else
             {
               ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
-               return false;
+              return false;
             }   break;
 
         case ID0:
@@ -2039,7 +2127,7 @@ namespace Markov_IO {
           else
             {
               ABC_BuildByToken::setErrorMessage(Token_New::IDENTIFIER,t);
-               return false;
+              return false;
             }
           break;
         case S_Final:
@@ -2064,7 +2152,7 @@ namespace Markov_IO {
     }
 
 
-    std::set<std::string> alternativesNext()const override
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
     {
       switch (idstate ) {
         case S_Init:
@@ -2190,6 +2278,7 @@ namespace Markov_IO {
     DFA idstate;
 
     // setter<buildByToken<C>,C>  set_;
+
   };
 
 
@@ -2238,6 +2327,14 @@ namespace Markov_IO {
       setId(x_);
     }
 
+    void clear()override
+    {
+      ABClass_buildByToken::clear();
+      delete x_;
+      mystate=S_Init;
+      x_=new Implements_Refer_Var;
+      setId(x_);
+    }
 
 
     Implements_Refer_Var * unloadVar()
@@ -2345,14 +2442,14 @@ namespace Markov_IO {
         }
     }
 
-    std::set<std::string> alternativesNext()const
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
 
         case S_Init:
         case S_ID_Partial:
-          return build_Implements_ValueId::alternativesNext();
+          return build_Implements_ValueId::alternativesNext(cm);
           break;
         case S_ID_Final:
           return {Token_New::toString(Token_New::ASSIGN)};
@@ -2446,6 +2543,8 @@ namespace Markov_IO {
     }
 
     ~build_Implements_Refer_Var(){}
+
+
   private:
     DFA mystate;
     Implements_Refer_Var* x_;
@@ -2508,6 +2607,7 @@ namespace Markov_IO {
     Implements_Simple_Value<T> * unloadVar()
     {
       auto out=x_;
+      ABC_BuildByToken::clear();
       mystate=S_Init;
       x_=new Implements_Simple_Value<T>;
       return out;
@@ -2600,20 +2700,20 @@ namespace Markov_IO {
 
     }
 
-    std::set<std::string> alternativesNext()const
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
         case S_Init:
         case S_ID_Partial:
-          return build_Implements_ValueId::alternativesNext();
+          return build_Implements_ValueId::alternativesNext(cm);
           break;
         case S_ID_Final:
           return {Token_New::toString(Token_New::ASSIGN)};
           break;
         case S_Header_Final:
         case S_Data_Partial:
-          return data_.alternativesNext();
+          return data_.alternativesNext(cm);
           break;
         case S_Data_Final:
           return {Token_New::toString(Token_New::EOL)};
@@ -2708,6 +2808,8 @@ namespace Markov_IO {
           return false;
         }
     }
+
+
   private:
     DFA mystate;
     Implements_ValueId id_;
@@ -2719,34 +2821,31 @@ namespace Markov_IO {
 
 
 
-
+  /*!
+   * \brief The build_ABC_Value class
+   *  sets the grammar of the command line
+   *
+   */
 
   class build_ABC_Value
       :public ABC_Value_ByToken
   {
   public:
 
-    static std::string ClassName()
-    {
-      return "build_ABC_Value";
-    }
+    static std::string ClassName();
 
-    static std::set<std::string> SuperClasses()
-    {
-      return ABC_Value_ByToken::SuperClasses()+ClassName();
-    }
+    static std::set<std::string> SuperClasses();
 
-    std::string myClass()const override
-    {
-      return ClassName();
-
-    }
+    std::string myClass()const override;
 
 
     enum DFA {
       S_Init,
+
+
       S_ID_Partial,
       S_ID_Final,
+
       S_Var_Partial,
       S_Final,
       S_NOT_Complex_Und,
@@ -2760,30 +2859,13 @@ namespace Markov_IO {
 
 
 
-    build_ABC_Value(ABC_Var* p):
-      ABC_Value_ByToken(p),
-      mystate{S_Init}
-    ,x_(nullptr)
-    ,id_(p)
-    ,var_(nullptr)
-    ,previousTok_{}
-    , prevTokens_{}{}
+    build_ABC_Value(ABC_Var* p);
 
 
+    void clear()override;
 
 
-    ABC_Value* unloadVar()
-    {
-      if (isFinal())
-        {
-          auto out=x_;
-          mystate=S_Init;
-          x_=nullptr;
-
-          return out;
-        }
-      else return nullptr;
-    }
+    ABC_Value* unloadVar();
 
     bool  unPop(ABC_Value* var);
 
@@ -2792,44 +2874,18 @@ namespace Markov_IO {
 
 
 
-    std::set<std::string> alternativesNext()const;
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
 
 
     Token_New popBackToken();
 
 
 
-    bool isFinal()const
-    {
-      return mystate==S_Final;
+    bool isFinal()const;
 
-    }
+    bool isInitial()const;
 
-    bool isInitial()const
-    {
-      return mystate==S_Init;
-    }
-
-    virtual bool isHollow()const
-    {
-      switch (mystate) {
-        case       S_Init:
-        case     S_ID_Partial:
-        case     S_ID_Final:
-          return true;
-        case  S_Var_Partial:
-        case     S_Final:
-        case     S_NOT_Complex_Und:
-        case   S_SimpMult_Und:
-        case  S_Vec_Und:
-        case   S_Set_or_Map:
-        case     S_Set_or_Map2:
-        case S_Map_Und:
-        default:
-          return false;
-
-        }
-    }
+    virtual bool isHollow()const;
 
 
 
@@ -2839,6 +2895,8 @@ namespace Markov_IO {
     ABC_Value* x_;
     build_Implements_ValueId   id_;
     build_Implements_ValueId* var_;
+
+
     Token_New previousTok_;
     std::vector<Token_New> prevTokens_;
 
@@ -2854,6 +2912,98 @@ namespace Markov_IO {
 
 
 
+  class build_Command_Input
+      :public ABC_Value_ByToken
+  {
+
+
+    // ABC_BuildByToken interface
+  public:
+    virtual bool pushToken(Token_New t);
+
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
+
+
+    virtual Token_New popBackToken();
+    virtual bool isFinal() const
+    {
+      return mystate==S_Final;
+    }
+    virtual bool isInitial() const
+    {
+      return mystate==S_Init;
+    }
+    virtual bool isHollow() const
+    {
+
+    }
+
+    // ABClass_buildByToken interface
+    build_Command_Input(Markov_Console::Markov_CommandManagerVar* cm);
+
+
+  public:
+    virtual Markov_Console::ABC_CommandVar * unloadVar() override;
+
+    void clear()override;
+
+    virtual bool unPop(ABC_Value * var)override;
+
+    virtual const Markov_Console::ABC_CommandVar* command()const
+    {
+      return cmd_;
+    }
+    virtual  Markov_Console::ABC_CommandVar* command()
+    {
+      return cmd_;
+    }
+
+
+    enum DFA {
+      S_Init=0,
+      S_ID_Final,
+      S_Input_Partial,
+      S_Mandatory_Final,
+      S_Input_Final,
+      S_Final
+    } ;
+
+    static bool hasAllInputs(const Markov_Console::ABC_CommandVar *v);
+    static bool hasAllMandatoryInputs(const Markov_Console::ABC_CommandVar* cmd);
+
+
+    bool processVariableInput(Token_New input);
+
+    std::set<std::string> inputAlternativeNext()const;
+
+    static bool hasNoInput(const ABC_Value *v);
+    static bool hasNoOptionalInput(Markov_Console::ABC_CommandVar *cmd, const ABC_Value *v);
+    static  Token_New popLastInput(ABC_Value *v);
+    static ABC_Value *nextInput(ABC_Value *v);
+  private:
+
+    DFA mystate;
+    Markov_Console::Markov_CommandManagerVar *cm_;
+    Markov_Console::ABC_CommandVar* cmd_;
+
+    // ABC_Base interface
+  public:
+
+    static std::string ClassName();
+
+    static std::set<std::string> SuperClasses();
+
+    virtual std::__cxx11::string myClass() const override;
+    virtual std::set<std::__cxx11::string> mySuperClasses() const override;
+
+   };
+
+
+
+  /*!
+   * \brief The build_Statement class
+   * decide if it is either command, variable declaration, initialization or asignation
+   */
 
   class build_Statement
       :public ABC_Value_ByToken
@@ -2879,54 +3029,93 @@ namespace Markov_IO {
 
     enum DFA {
       S_Init,
-      S_ID_Partial,
-      S_ID_Final,
-      S_Var_Partial,
-      S_Final,
-      S_NOT_Complex_Und,
-      S_SimpMult_Und,
-      S_Vec_Und,
-      S_Set_or_Map,
-      S_Set_or_Map2,
-      S_Map_Und
+      S_Command_Partial,
+      S_Command_Final,
+      S_Expression_Partial,
+      S_Expression_Final,
     } ;
 
 
 
 
-    build_Statement(ABC_Var* p):
-      ABC_Value_ByToken(p),
-      mystate{S_Init}
-    ,x_(nullptr)
-    ,id_(p)
-    ,var_(nullptr)
-    ,previousTok_{}
-    , prevTokens_{}{}
+    build_Statement(Markov_Console::Markov_CommandManagerVar* p);
 
 
+    void clear()override
+    {
+      ABClass_buildByToken::clear();
+      delete cmv_;
+      v_.clear();
+      c_.clear();
+      mystate=S_Init;
+      x_=nullptr;
+      cmv_=nullptr;
 
+    }
 
     ABC_Value* unloadVar()
     {
-      if (isFinal())
+      if (mystate==S_Command_Final)
         {
+
           auto out=x_;
           mystate=S_Init;
           x_=nullptr;
+          cmv_=nullptr;
 
           return out;
         }
-      else return nullptr;
+      else
+        {
+          ABClass_buildByToken::setErrorMessage("cannot unload beacause it is not in final state");
+
+          return nullptr;
+
+        }
     }
 
-    bool  unPop(ABC_Value* var);
+    bool isCommand()const
+    {
+      return mystate==S_Command_Final
+          || mystate==S_Command_Partial;
+    }
+    bool isVar()const
+    {
+      return mystate==S_Expression_Final
+          || mystate==S_Expression_Partial;
+
+    }
+
+
+    Markov_Console::ABC_CommandVar* unloadCommand()
+    {
+      if (mystate==S_Command_Final)
+        {
+          auto out=cmv_;
+          mystate=S_Init;
+          x_=nullptr;
+          cmv_=nullptr;
+
+          return out;
+        }
+      else
+        {
+          return nullptr;
+          ABClass_buildByToken::setErrorMessage(cmv_,"cannot unload because it is not in final state");
+        }
+    }
+
+    bool  unPop(ABC_Value* var)
+    {
+      return false;
+    }
 
 
     bool pushToken(Token_New t);
 
 
 
-    std::set<std::string> alternativesNext()const;
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
 
 
     Token_New popBackToken();
@@ -2935,7 +3124,8 @@ namespace Markov_IO {
 
     bool isFinal()const
     {
-      return mystate==S_Final;
+      return mystate==S_Expression_Final
+          || mystate==S_Command_Final;
 
     }
 
@@ -2948,17 +3138,12 @@ namespace Markov_IO {
     {
       switch (mystate) {
         case       S_Init:
-        case     S_ID_Partial:
-        case     S_ID_Final:
+        case     S_Command_Partial:
+        case     S_Expression_Partial:
           return true;
-        case  S_Var_Partial:
-        case     S_Final:
-        case     S_NOT_Complex_Und:
-        case   S_SimpMult_Und:
-        case  S_Vec_Und:
-        case   S_Set_or_Map:
-        case     S_Set_or_Map2:
-        case S_Map_Und:
+        case     S_Command_Final:
+        case     S_Expression_Final:
+
         default:
           return false;
 
@@ -2967,24 +3152,21 @@ namespace Markov_IO {
 
 
 
+
+
+
     static build_Implements_ValueId *createBuild_Value(ABC_Value *var);
   private:
     DFA mystate;
     ABC_Value* x_;
-    build_Implements_ValueId   id_;
-    ABC_Value_ByToken* var_;
-    Token_New previousTok_;
-    std::vector<Token_New> prevTokens_;
+    Markov_Console::ABC_CommandVar *cmv_;
 
-    static std::vector<Token_New> definingState(build_Implements_ValueId* var,
-                                                DFA &mystate);
+    build_ABC_Value   v_;
+    build_Command_Input c_;
 
 
-
-
-    // buffer
-    // setter<buildByToken<C>,C>  set_;
   };
+
 
 
 
@@ -3049,7 +3231,14 @@ namespace Markov_IO {
       setId(x_);
     }
 
-
+    void clear()override
+    {
+      ABClass_buildByToken::clear();
+      delete x_;
+      mystate=S_Init;
+      x_=new Implements_Complex_Value;
+      setId(x_);
+    }
 
 
     Implements_Complex_Value* unloadVar()
@@ -3191,13 +3380,13 @@ namespace Markov_IO {
 
 
 
-    std::set<std::string> alternativesNext()const
+    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
         case S_Init:
         case S_ID_Partial:
-          return build_Implements_ValueId::alternativesNext();
+          return build_Implements_ValueId::alternativesNext(cm);
           break;
         case S_ID_Final:
           return {Token_New::toString(Token_New::BEGIN)};
@@ -3208,11 +3397,11 @@ namespace Markov_IO {
 
         case S_Header_Final:
         case S_Field_Partial:
-          return v_.alternativesNext();
+          return v_.alternativesNext(cm);
         case S_Field_Final:
 
           {
-            auto out =v_.alternativesNext();
+            auto out =v_.alternativesNext(cm);
             out.insert(x_->myVar());
             return out;
           }
@@ -3346,66 +3535,59 @@ namespace Markov_IO {
 
 
 
-  class build_Command_Input
-      :public ABC_Value_ByToken
+
+
+
+  template <typename T>
+  ABC_Validator::State Validate(std::string& input,size_t &pos);
+
+
+  template<>
+  inline
+  ABC_Validator::State Validate<std::string> (std::string&  ,size_t &)
+  {
+    return ABC_Validator::Acceptable;
+  }
+
+  template<>
+  inline
+  ABC_Validator::State Validate<double>(std::string&  input,std::size_t &pos)
   {
 
 
-    // ABC_BuildByToken interface
-  public:
-    virtual bool pushToken(Token_New t);
+    std::stod(input,&pos);
 
-    std::set<std::string> alternativesNext()const;
+    std::string rest=input.substr(pos);
+    if (rest.empty()||(rest.find_first_not_of(" ")==rest.npos))
+      return ABC_Validator::Acceptable;
+    else if (((rest==".")&&input.find_first_of(".")==pos)
+             || (((rest=="e")||(rest=="E")||(rest=="e-")||(rest=="E-"))
+                 &&(rest.find_first_of("eE")==pos)))
+      return ABC_Validator::Intermediate;
+    else return ABC_Validator::Invalid;
+  }
 
+  template<>
+  inline
+  ABC_Validator::State Validate<int>(std::string&  input,size_t &pos)
+  {
+    int i=std::stoi(input,&pos);
+    std::string rest=input.substr(pos);
+    if (rest.empty()||(rest.find_first_not_of(" ")==rest.npos))
+      return ABC_Validator::Acceptable;
+    else  return ABC_Validator::Invalid;
+  }
 
-    virtual Token_New popBackToken();
-    virtual bool isFinal() const
-    {
-      return mystate==S_Final;
-    }
-    virtual bool isInitial() const
-    {
-      return mystate==S_Init;
-    }
-    virtual bool isHollow() const
-    {
-
-    }
-
-    // ABClass_buildByToken interface
-    build_Command_Input(Markov_Console::Markov_CommandManagerVar* cm);
-
-
-  public:
-    virtual Implements_Complex_Value* unloadVar();
-    virtual bool unPop(Implements_Complex_Value* var);
-
-    enum DFA {
-      S_Init=0,
-      S_ID_Final,
-      S_Input_Partial,
-      S_Mandatory_Final,
-      S_Input_Final,
-
-      S_Final
-    } ;
-    
-    static bool hasAllInputs(const ABC_Value* v);
-    static bool hasAllMandatoryInputs(Markov_Console::ABC_CommandVar* cmd,
-                                      const ABC_Value* v);
-    bool processVariableInput(Token_New input);
-
-    std::set<std::string> inputAlternativeNext()const;
-
-  private:
-
-    DFA mystate;
-    Markov_Console::Markov_CommandManagerVar *cm_;
-    Markov_Console::ABC_CommandVar* cmd_;
-    ABC_Value* input_;
-  };
-
-
+  template<>
+  inline
+  ABC_Validator::State Validate<std::size_t>(std::string&  input,size_t &pos)
+  {
+    int i=std::stoul(input,&pos);
+    std::string rest=input.substr(pos);
+    if (rest.empty()||(rest.find_first_not_of(" ")==rest.npos))
+      return ABC_Validator::Acceptable;
+    else  return ABC_Validator::Invalid;
+  }
 
 
 

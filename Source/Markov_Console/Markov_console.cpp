@@ -120,7 +120,7 @@ namespace Markov_Console
                   pos=pos0;
                 else
                   {
-                    erase_from_cursor(c.size());
+                    erase_from_cursor_forward(c.size());
                     c=list[pos];
                     std::cout<<c;
                   }
@@ -138,7 +138,7 @@ namespace Markov_Console
                   pos=pos0;
                 else
                   {
-                    erase_from_cursor(c.size());
+                    erase_from_cursor_forward(c.size());
                     c=list[pos];
                     std::cout<<c;
                   }
@@ -280,7 +280,7 @@ namespace Markov_Console
 #endif
 
 
-  void Markov_Console::erase_from_cursor(int n)
+  void Markov_Console::erase_from_cursor_forward(int n)
   {
     if (n<0)
       {
@@ -698,6 +698,11 @@ namespace Markov_Console
     cm->next_instruction();
     return 0;
 
+  }
+
+  std::__cxx11::string Markov_Console::spacer() const
+  {
+    return cmV->getProgram().spacer();
   }
 
 

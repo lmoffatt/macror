@@ -17,22 +17,32 @@ namespace Markov_Console
 
   LoadCommandVar::LoadCommandVar(Markov_CommandManagerVar* cm)
     : /*Markov_IO::Implements_ValueId("load"
-                                    , ""
-                                    ,"Displays help on subject"
-                                    ,"Help command\n"
-                                     " returns help on subject\n"
-                                     " subject can be either a command"
-                                    )
-      ,*/
+                                        , ""
+                                        ,"Displays help on subject"
+                                        ,"Help command\n"
+                                         " returns help on subject\n"
+                                         " subject can be either a command"
+                                        )
+          ,*/
       ABC_CommandVar(cm
-                    ,"load"
-                    , ""
-                    ,"Displays help on subject"
-                    ,"Help command\n"
-                     " returns help on subject\n"
-                     " subject can be either a command"
-                    ,{{"filename","","",""}},0)
-  {}
+                     ,ClassName()
+                     , ""
+                     ,"Displays help on subject"
+                     ,"Help command\n"
+                      " returns help on subject\n"
+                      " subject can be either a command"
+                     ,0)
+  {
+    pushChild(new Markov_IO::Implements_Simple_Value<std::string>(true,FileName()
+                                                                  ,MacrorFilePath::ClassName()
+                                                                  ,"macror file to be loaded"
+                                                                  ,""));
+    pushChild(new Markov_IO::Implements_Simple_Value<std::set<std::string> >(true,
+                                                                             VariablesList()
+                                                                             ,VariableNameList::ClassName(),"list of files to be loaded",""
+                                                                             ));
+
+  }
 
   /// runs the command on the command manager and returns true if succeeds
   bool LoadCommandVar::processTokens(Markov_IO::Token_Stream &t)
@@ -91,10 +101,12 @@ namespace Markov_Console
   }
 
   bool LoadCommandVar::run(const std::string &fname
-                           ,const std::vector<std::string> &varnames)
+                           ,const std::vector<std::string> &varnames)const
 
   {
     std::string filename=fname;
+    if (filename.empty())
+      filename="macror.txt";
     // is filename or dirname?
     if (!Markov_IO::IsDir(filename))
       {
@@ -155,15 +167,25 @@ namespace Markov_Console
                 break;
               tok.cleanRead();
             }
-          cm_->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
-        return true;
+          cm_->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path);
+          return true;
         }
 
       }
-   // else  is a dirname
+    // else  is a dirname
   }
 
+  bool LoadCommandVar::run(ABC_CommandVar *var) const
+  {
+    std::string filename;
+    var->getVal(FileName(),filename);
+    std::vector<std::string> varnames;
+    var->getVal(VariablesList(),varnames);
+    return run(filename,varnames);
+ }
 
+
+  static std::string ClassName() {return "load";}
 
 }
 

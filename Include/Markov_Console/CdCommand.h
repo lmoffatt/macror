@@ -5,6 +5,10 @@
 namespace Markov_Console
 {
 
+
+
+
+
   class CdCommandVar:public ABC_CommandVar
 {
 public:
@@ -12,7 +16,7 @@ public:
 
 
     /// virtual destructor
-    virtual ~CdCommandVar(){}
+    virtual ~CdCommandVar();
 
 
 
@@ -24,6 +28,23 @@ public:
     virtual bool run(const std::string& dirName);
 
 
+
+    // ABC_CommandVar interface
+  public:
+    virtual bool run(ABC_CommandVar *input) const override
+    {
+      if (input!=nullptr)
+        {
+
+        }
+    }
+
+    // ABC_Put interface
+  public:
+    virtual CdCommandVar *clone() const override
+    {
+      return new CdCommandVar(*this);
+    }
   };
 
 

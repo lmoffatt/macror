@@ -18,10 +18,21 @@ namespace Markov_Console
 
      virtual bool processTokens(Markov_IO::Token_Stream &t);
 
+
     private:
       virtual bool run(const std::vector<std::string>& varnames);
 
 
+
+      // ABC_CommandVar interface
+  public:
+      virtual bool run(ABC_CommandVar *) const override
+      {
+      }
+      virtual ClearCommandVar* clone() const
+      {
+        return new ClearCommandVar(*this);
+      }
   };
 
 

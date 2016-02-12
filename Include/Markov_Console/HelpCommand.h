@@ -5,6 +5,35 @@
 
 namespace Markov_Console
 {
+
+  class HelpCommandVar: public ABC_CommandVar
+  {
+  public:
+      HelpCommandVar(Markov_CommandManagerVar* cm);
+
+      /// virtual destructor
+      virtual ~HelpCommandVar(){}
+
+      static std::string HelpSubjectName(){return "HelpSubjectName";}
+
+      static std::string ClassName(){return "help";}
+  private:
+      bool run(std::string subject) const;
+
+      bool run()const;
+      // ABC_CommandVar interface
+  public:
+      virtual bool run(ABC_CommandVar *var) const override;
+
+      // ABC_Put interface
+  public:
+      virtual HelpCommandVar *clone() const override
+      {
+        return new HelpCommandVar(*this);
+      }
+  };
+
+
 class HelpCommand: public ABC_Command
 {
 public:

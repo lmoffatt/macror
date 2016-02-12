@@ -16,11 +16,25 @@ namespace Markov_Console
 
       virtual bool processTokens(Markov_IO::Token_Stream &t) override;
 
+      static std::string FileName(){return "FileNamePath";}
+      static std::string VariablesList(){return "VariablesList";}
+      static std::string ClassName(){return "load";}
+
   private:
       bool run(const std::string& fname,
-                           const std::vector<std::string>& varnames);
+                           const std::vector<std::string>& varnames) const;
 
       size_t MacroVersion_;
+
+
+      // ABC_CommandVar interface
+  public:
+      virtual bool run(ABC_CommandVar * var) const override;
+
+      virtual LoadCommandVar* clone()const
+      {
+        return new LoadCommandVar(*this);
+      }
 
   };
 

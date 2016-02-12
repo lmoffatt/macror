@@ -15,12 +15,12 @@ namespace Markov_IO
     Key_Backspace = 0x01000003,
     Key_Return = 0x01000004,
     Key_Enter = 0x01000005,                       //located in keypad
-    //        Key_Insert = 0x01000006,
-    //        Key_Delete = 0x01000007,
-    //        Key_Pause = 0x01000008,
-    //        Key_Print = 0x01000009,
-    //        Key_SysReq = 0x0100000a,
-    //        Key_Clear = 0x0100000b,
+    Key_Insert = 0x01000006,
+    Key_Delete = 0x01000007,
+    Key_Pause = 0x01000008,
+    Key_Print = 0x01000009,
+    Key_SysReq = 0x0100000a,
+    Key_Clear = 0x0100000b,
     Key_Home = 0x01000010,                // cursor movement
     Key_End = 0x01000011,
     Key_Left = 0x01000012,
@@ -29,25 +29,25 @@ namespace Markov_IO
     Key_Down = 0x01000015,
     Key_PageUp = 0x01000016,
     Key_PageDown = 0x01000017,
-    //        Key_Shift = 0x01000020,                // modifiers
-    //        Key_Control = 0x01000021,
-    //        Key_Meta = 0x01000022,
-    //        Key_Alt = 0x01000023,
-    //        Key_CapsLock = 0x01000024,
-    //        Key_NumLock = 0x01000025,
-    //        Key_ScrollLock = 0x01000026,
-    //        Key_F1 = 0x01000030,                // function keys
-    //        Key_F2 = 0x01000031,
-    //        Key_F3 = 0x01000032,
-    //        Key_F4 = 0x01000033,
-    //        Key_F5 = 0x01000034,
-    //        Key_F6 = 0x01000035,
-    //        Key_F7 = 0x01000036,
-    //        Key_F8 = 0x01000037,
-    //        Key_F9 = 0x01000038,
-    //        Key_F10 = 0x01000039,
-    //        Key_F11 = 0x0100003a,
-    //        Key_F12 = 0x0100003b,
+    Key_Shift = 0x01000020,                // modifiers
+    Key_Control = 0x01000021,
+    Key_Meta = 0x01000022,
+    Key_Alt = 0x01000023,
+    Key_CapsLock = 0x01000024,
+    Key_NumLock = 0x01000025,
+    Key_ScrollLock = 0x01000026,
+    Key_F1 = 0x01000030,                // function keys
+    Key_F2 = 0x01000031,
+    Key_F3 = 0x01000032,
+    Key_F4 = 0x01000033,
+    Key_F5 = 0x01000034,
+    Key_F6 = 0x01000035,
+    Key_F7 = 0x01000036,
+    Key_F8 = 0x01000037,
+    Key_F9 = 0x01000038,
+    Key_F10 = 0x01000039,
+    Key_F11 = 0x0100003a,
+    Key_F12 = 0x0100003b,
     //        Key_F13 = 0x0100003c,
     //        Key_F14 = 0x0100003d,
     //        Key_F15 = 0x0100003e,
@@ -176,6 +176,13 @@ namespace Markov_IO
     Key_BraceRight = 0x7d,
     Key_AsciiTilde = 0x7e,
   };
+
+  inline bool isText(Key k)
+  {
+    return (((k>Key_Unknown)&&(k<=Key_AsciiTilde)));
+  }
+
+
   inline bool isOperator(Key k)
   {
     return (((k>=Key_Exclam)&&(k<Key_0))
@@ -316,9 +323,9 @@ namespace Markov_IO
     /// put a string to the output source
     virtual void put(const std::string&)=0;
 
-    virtual void insertText(const std::string& s)=0;
+    virtual void putNewLine()=0;
 
-    virtual void insertErrorText(const std::string& s)=0;
+    virtual void freshLine()=0;
 
 
     void put(char c)
@@ -327,7 +334,7 @@ namespace Markov_IO
       s.push_back(c);
       put(s);
     }
-     void putError(char c)
+    void putError(char c)
     {
       std::string s;
       s.push_back(c);
@@ -352,13 +359,36 @@ namespace Markov_IO
 
     virtual void showMessage(const std::string& m)=0;
 
+    virtual bool isLineBegin()const=0;
+
+    virtual bool isLineEnd()const=0;
+    virtual std::string currentLine()const=0;
+
     virtual void move_cursor(int n)=0;
 
-    virtual void erase_from_cursor(int n)=0;
+    virtual char pop_next_char()=0;
+
+
+
+    virtual void erase_from_cursor_forward(std::string s)=0;
+    virtual void erase_from_cursor_backward(std::string s)=0;
+
+
     
+    virtual void backErase()=0;
+
     virtual void move_end()=0;
     virtual void move_home()=0;
 
+    virtual void cleanToEndLine()=0;
+
+
+    virtual void putTail(const std::string& text)=0;
+
+
+    virtual std::string getTail()=0;
+
+    virtual std::string spacer()const=0;
 
   };
 

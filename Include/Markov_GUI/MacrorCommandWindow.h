@@ -57,6 +57,8 @@ public:
 
   virtual void showMessage(const std::string &m);
 
+  std::string spacer()const override;
+
 
   bool lastCommandResult()const;
 
@@ -70,17 +72,18 @@ public:
                           bool &ok,
                           std::size_t current);
 
-  virtual void erase_from_cursor(int n);
+  virtual void erase_from_cursor_forward(std::string s) override;
+  virtual void erase_from_cursor_backward(std::string s) override;
 
-  virtual void move_cursor(int n);
+  virtual void move_cursor(int n) override;
 
-  virtual void cleanLastLine();
+  virtual void cleanToEndLine() override;
 
-  virtual void move_end();
+  virtual void move_end() override;
 
-  virtual void move_home(){}
-  void insertText(const std::string &s);
-  void insertErrorText(const std::string &s);
+  virtual void move_home()override{}
+
+  virtual bool isLineBegin()const override;
 protected:
 
 
@@ -119,17 +122,23 @@ private:
 
   MacrorMainWindow* mw_;
   Markov_Console::Markov_CommandManagerVar* cm_;
-  int cursorPosition;
-  int previous_key;
-  QString cmdLine;
-  QString cmdWord;
-  QString tail;
   QLabel* message;
 
 
 
 protected:
   virtual std::string chooseFromList(const std::vector<std::string> list) const{}
+
+  // ABC_IO interface
+public:
+  virtual void putNewLine() override;
+  virtual void freshLine() override;
+  virtual bool isLineEnd() const override;
+  virtual std::__cxx11::string currentLine() const override;
+  virtual char pop_next_char() override;
+  virtual void backErase() override;
+  virtual void putTail(const std::__cxx11::string &text) override;
+  virtual std::__cxx11::string getTail() override;
 };
 
 

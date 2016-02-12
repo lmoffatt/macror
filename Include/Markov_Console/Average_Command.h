@@ -4,6 +4,36 @@
 
 namespace Markov_Console
 {
+
+  class AverageCommandVar:public ABC_CommandVar
+{
+public:
+    AverageCommandVar(Markov_CommandManagerVar* cm);
+
+
+    /// virtual destructor
+    virtual ~AverageCommandVar(){}
+
+    // ABC_Value interface
+  public:
+    virtual bool processTokens(Markov_IO::Token_Stream &t);
+
+  private:
+
+    void run(const std::string &experiment_in, const std::string &experiment_out, const std::string &options_in);
+
+    // ABC_CommandVar interface
+  public:
+    virtual bool run(ABC_CommandVar *) const override
+    {
+    }
+
+  };
+
+
+
+
+
 class AverageCommand:public ABC_Command
 {
 public:

@@ -92,9 +92,9 @@ QMAKE_LFLAGS_DEBUG += -fopenmp
 
 
 
-QMAKE_CXXFLAGS_RELEASE -=-O2
+#QMAKE_CXXFLAGS_RELEASE -=-O2
 
-QMAKE_CXXFLAGS_RELEASE +=-O3
+#QMAKE_CXXFLAGS_RELEASE +=-O3
 
 
 HEADERS += \
@@ -305,12 +305,12 @@ SOURCES +=  \
     Source/Markov_LA/matrixMaxMin.cpp \
     Source/Markov_LA/matrixMath.cpp \
     Source/Markov_LA/matrixIO.cpp \
-    Source/Markov_LA/matrixInverse.cpp \
     Source/Markov_LA/matrixInit.cpp \
     Source/Markov_LA/matrixExp.cpp \
     Source/Markov_LA/matrixAssigmentOp.cpp \
     Source/Markov_LA/matrixAritmetic.cpp \
     Source/Markov_LA/Matrix.cpp \
+    Source/Markov_LA/matrixInverse.cpp \
     Source/Markov_LA/auxiliarRelational.cpp \
     Source/Markov_LA/auxiliarMath.cpp \
     Source/Markov_Mol/QMarkovModel.cpp \
@@ -472,7 +472,9 @@ HEADERS += \
     Include/Markov_Console/ExpressionManager.h \
     Include/Markov_IO/Token_New.h \
     Include/Markov_IO/buildByToken.h \
-    Include/Markov_Console/CoreManager.h
+    Include/Markov_Console/CoreManager.h \
+    Include/Markov_IO/Validator.h \
+    Include/Markov_IO/Table.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \

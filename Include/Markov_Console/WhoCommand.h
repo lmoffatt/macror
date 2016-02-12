@@ -4,15 +4,41 @@
 
 namespace Markov_Console
 {
-class WhoCommand:public ABC_Command
-{
-public:
+
+  class WhoCommandVar:public ABC_CommandVar
+  {
+  public:
+    WhoCommandVar(Markov_CommandManagerVar* cm);
+
+    /// virtual destructor
+    virtual ~WhoCommandVar(){}
+
+
+    static std::string ClassName(){return "who";}
+
+  private:
+    bool run() const;
+
+
+
+    // ABC_CommandVar interface
+  public:
+    virtual bool run(ABC_CommandVar * ) const override;
+    virtual WhoCommandVar* clone()const
+    {
+      return new WhoCommandVar(*this);
+    }
+  };
+
+  class WhoCommand:public ABC_Command
+  {
+  public:
     WhoCommand(Markov_CommandManager* cm);
 
     /// virtual destructor
     virtual ~WhoCommand();
 
-        /// hint about of the class nature
+    /// hint about of the class nature
     virtual std::string Tip()const;
 
     /// a short description of the class
@@ -26,7 +52,7 @@ public:
     /// runs the command for a list of parameters
     virtual bool run(const std::string& className);
 
-};
+  };
 
 
 }

@@ -94,6 +94,7 @@ namespace Markov_IO {
     std::istream& get(std::istream& stream);
     std::string str()const;
 
+    std::string identifier()const;
 
     double realValue()const;
     int  intval()const;
@@ -103,6 +104,9 @@ namespace Markov_IO {
     Value tok()const;
 
     std::string toString()const;
+
+    template<typename T>
+    bool toValue(T& val)const;
 
     bool isReal()const;
     bool isInteger()const;
@@ -132,6 +136,14 @@ namespace Markov_IO {
     explicit Token_New(std::size_t s);
 
     Token_New(const std::string &d);
+
+    static Token_New toToken(const std::string &d, std::size_t& pos)
+    {
+      pos=0;
+      Token_New t;
+      while ((pos<d.size()) && t.CharIsSuccesfullyFeed(d[pos])) ++pos;
+      return t;
+    }
 
     Token_New(Value v);
 
@@ -179,6 +191,59 @@ namespace Markov_IO {
 
   };
 
+
+
+  template<>
+  inline
+  bool Token_New::toValue(double& val)const
+  {
+    if (!isReal())
+      return false;
+    else
+      {
+        val=realValue();
+        return true;
+      }
+  }
+
+  template<>
+  inline
+  bool Token_New::toValue(std::size_t& val)const
+  {
+    if (!isCount())
+      return false;
+    else
+      {
+        val=count();
+        return true;
+      }
+  }
+
+  template<>
+  inline
+  bool Token_New::toValue(int& val)const
+  {
+    if (!isInteger())
+      return false;
+    else
+      {
+        val=intval();
+        return true;
+      }
+  }
+
+  template<>
+  inline
+  bool Token_New::toValue(std::string& val)const
+  {
+    if (!isValid())
+      return false;
+    else
+      {
+        val=str();
+        return true;
+      }
+  }
 
 
   class ABC_Value;

@@ -18,7 +18,6 @@ namespace Markov_Console
                                  const std::string &commandClass,
                                  const std::string &tip,
                                  const std::string &whatthis,
-                                 std::vector<Markov_IO::Implements_ValueId> Inputs,
                                  std::size_t numMandatory)
     :
       //Implements_ValueId(commandName,commandClass,tip,whatthis),
@@ -27,15 +26,45 @@ namespace Markov_Console
       numMandatoryFields_(numMandatory)
   {
 
-    for (Implements_ValueId m:Inputs)
-      {
-        pushChild(m.clone());
-      }
 
     cm_->pushChild(this);
-
-
   }
+
+  ABC_CommandVar::ABC_CommandVar(){}
+
+  Markov_IO::ABC_Var *ABC_CommandVar::toSameVar(const Markov_IO::ABC_Value *) const
+  {
+    return nullptr;
+  }
+
+  Markov_IO::ABC_Measure *ABC_CommandVar::toMeasure(const Markov_IO::ABC_Value *) const
+  {
+    return nullptr;
+  }
+
+  std::string ABC_CommandVar::ClassName()
+  {
+    return "ABC_Command";
+  }
+
+  std::string ABC_CommandVar::myClass() const
+  {
+    return ClassName();
+  }
+
+  std::set<std::string> ABC_CommandVar::mySuperClasses() const
+  {
+    return {ClassName()};
+  }
+
+  std::size_t ABC_CommandVar::numMandatoryInputs() const
+  {
+    return numMandatoryFields_;
+  }
+
+  Markov_CommandManagerVar *ABC_CommandVar::getCommandManager(){return cm_;}
+
+  const Markov_CommandManagerVar *ABC_CommandVar::getCommandManager() const {return cm_;}
 
   ///  formated output
 

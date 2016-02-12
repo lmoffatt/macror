@@ -52,7 +52,7 @@ public:
 
     virtual void move_cursor(int n);
 
-    virtual void erase_from_cursor(int n);
+    virtual void erase_from_cursor_forward(int n);
 
     virtual void showMessage(const std::string &m);
 
@@ -60,6 +60,10 @@ public:
     int exec();
     int exec(const std::string fileCommandName);
 
+
+    // ABC_IO interface
+public:
+    virtual std::__cxx11::string spacer() const override;
 };
 
 }

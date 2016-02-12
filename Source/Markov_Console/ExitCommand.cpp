@@ -42,19 +42,27 @@ bool ExitCommand::run(std::deque<Token> & )
   exit(0);
 }
 
-ExitCommandVar::ExitCommandVar(Markov_CommandManagerVar *cm): /*Markov_IO::Implements_ValueId("exit"
-                                  , ""
-                                  ,"exit the program"
-                                  ,""
-                                  )
-    ,*/ABC_CommandVar(cm
+ExitCommandVar::ExitCommandVar(Markov_CommandManagerVar *cm):
+    ABC_CommandVar(cm
                   ,"exit"
                   , ""
                   ,"exit the program"
                   ,""
-                  ,{}
-                  ,{})
+                  ,0)
 {}
+
+bool ExitCommandVar::processTokens(Markov_IO::Token_Stream &t)
+{
+  delete cm_;
+  exit(0);
+
+}
+
+bool ExitCommandVar::run(ABC_CommandVar *) const
+{
+  delete cm_;
+  exit(0);
+}
 
 
 }

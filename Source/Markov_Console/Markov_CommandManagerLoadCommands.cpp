@@ -25,8 +25,8 @@ namespace Markov_Console
 {
   void Markov_CommandManagerVar::Loadcommands()
   {
-//      HelpCommand* hlp=new HelpCommand(this);
-//      cmds[hlp->commandName()]=hlp;
+      HelpCommandVar* hlp=new HelpCommandVar(this);
+      cmds[hlp->id()]=hlp;
 
 //      SimulateCommand* sim=new SimulateCommand(this);
 //      cmds[sim->commandName()]=sim;
@@ -61,8 +61,8 @@ namespace Markov_Console
 //    //  EditCommand* editcmd=new EditCommand(this);
 //    //  cmds[editcmd->commandName()]=editcmd;
 
-//      WhoCommand* whocmd=new WhoCommand(this);
-//      cmds[whocmd->commandName()]=whocmd;
+      WhoCommandVar* whocmd=new WhoCommandVar(this);
+      cmds[whocmd->id()]=whocmd;
 
 //      ClearCommand* clearcmd=new ClearCommand(this);
 //      cmds[clearcmd->commandName()]=clearcmd;

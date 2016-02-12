@@ -121,7 +121,13 @@ namespace Markov_LA
 	M_Matrix<T>  operator() (std::string /*dummy*/,
 				 std::size_t jColumn) const;
 
-
+        void clear()
+        {
+          _nrows=0;
+          _ncols=0;
+          _ncells=0;
+          _data.clear();
+        }
 
 
     private:
