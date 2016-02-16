@@ -515,7 +515,12 @@ namespace Markov_IO {
 
   std::string Token_New::identifier() const
   {
-    return str_.substr(0,str_.find_first_of(" "));
+    return identifier(str_);
+  }
+
+  std::__cxx11::string Token_New::identifier(const std::__cxx11::string idWithSPace)
+  {
+       return  idWithSPace.substr(0,idWithSPace.find_first_of(" "));
   }
 
   double Token_New::realValue() const

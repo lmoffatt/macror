@@ -266,6 +266,8 @@ namespace  Markov_IO {
 
     virtual bool setThisValue(Token_New tok,std::string* error=nullptr)=0;
 
+    virtual std::set<std::string> alternativeValues(Markov_Console::Markov_CommandManagerVar * cm)const=0;
+
 
 
 
@@ -528,6 +530,12 @@ namespace  Markov_IO {
         *error=id()+"is a "+myClass()+": it cannot be set with a single token";
       return false;
     }
+
+    virtual std::set<std::string> alternativeValues(Markov_Console::Markov_CommandManagerVar * cm)const override
+    {
+        return {};
+
+     }
   };
 
 
@@ -822,8 +830,18 @@ namespace  Markov_IO {
         return true;
     }
 
+    
+
     // ABC_Value interface
   public:
+    virtual std::set<std::string> alternativeValues(Markov_Console::Markov_CommandManagerVar * cm)const override
+    {
+      if (this->myVarPtr()!=nullptr)
+        return this->myVarPtr()->alternativeValues(cm);
+      else
+        return {};
+
+     }
     virtual bool setThisValue(Token_New tok, std::string *error) override
     {
       *error=tok.str()+" is not of "+ClassName();
@@ -2441,6 +2459,17 @@ namespace  Markov_IO {
         }
 
     }
+  
+  
+    virtual std::set<std::string> alternativeValues(Markov_Console::Markov_CommandManagerVar * cm)const override
+    {
+      if (this->myVarPtr()!=nullptr)
+        return this->myVarPtr()->alternativeValues(cm);
+      else
+        return {};
+
+     }
+  
   };
 
 
@@ -3084,6 +3113,8 @@ namespace  Markov_IO {
     const std::set<std::string>& idSet()const {return ids_;}
 
 
+
+
   private:
     std::set<std::string> ids_;
 
@@ -3116,6 +3147,14 @@ namespace  Markov_IO {
           *error_message=val+" not in "+id()+" list";
           return false;
         }
+    }
+
+
+    // ABC_Value interface
+  public:
+    virtual std::set<std::__cxx11::string> alternativeValues(Markov_Console::Markov_CommandManagerVar *cm) const override
+    {
+      return idSet();
     }
   };
 

@@ -95,6 +95,7 @@ namespace Markov_IO {
     std::string str()const;
 
     std::string identifier()const;
+    static std::string identifier(const std::string idWithSPace);
 
     double realValue()const;
     int  intval()const;
@@ -238,6 +239,11 @@ namespace Markov_IO {
   {
     if (!isValid())
       return false;
+    if (this->myState_==IDENTIFIER)
+      {
+        val=identifier();
+        return true;
+      }
     else
       {
         val=str();

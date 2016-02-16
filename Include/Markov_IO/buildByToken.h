@@ -62,7 +62,7 @@ namespace Markov_IO {
 
     virtual bool pushToken(Token_New t)=0;
     std::string errorMessage()const;
-    virtual  std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const=0;
+    virtual  std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const=0;
     virtual Token_New popBackToken()=0;
     virtual bool isFinal()const=0;
     virtual bool isInitial()const=0;
@@ -231,9 +231,9 @@ namespace Markov_IO {
     bool pushToken(Token_New t)override;
 
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
     {
-      return {Implements_Simple_Value<C>::ClassName()};
+      return {myClass(),{Implements_Simple_Value<C>::ClassName()}};
     }
 
 
@@ -669,15 +669,15 @@ namespace Markov_IO {
         }
     }
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
         case S_Init:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
         case S_Header2:
-          return {Token_New::toString(Token_New::LSB)};
+          return {myClass(),{Token_New::toString(Token_New::LSB)}};
         case S_Header_Final:
         case S_Data_Partial:
           return myChildState.alternativesNext(cm);
@@ -685,7 +685,7 @@ namespace Markov_IO {
         case S_Data_Final:
           {
             auto out=myChildState.alternativesNext(cm);
-            out.insert(Token_New::toString(Token_New::RSB));
+            out.second.insert(Token_New::toString(Token_New::RSB));
             return out;
           }
           break;
@@ -925,7 +925,7 @@ void clear()override
         }
     }
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
@@ -934,7 +934,7 @@ void clear()override
           return first_.alternativesNext(cm);
           break;
         case S_First_Final:
-          return {Token_New::toString(Token_New::COLON)};
+          return {myClass(),{Token_New::toString(Token_New::COLON)}};
         case S_Separator_Final:
         case S_Second_Partial:
           return second_.alternativesNext(cm);
@@ -1242,22 +1242,22 @@ void clear()override
       else return {};
     }
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
         case S_Init:
-          return {Token_New::toString(Token_New::EOL)
-                  ,Implements_Simple_Value<T>::ClassName()};
+          return {myClass(),{Token_New::toString(Token_New::EOL)
+                  ,Implements_Simple_Value<T>::ClassName()}};
           break;
         case S_Header_Final:
           if (!hasFixedSize_&&((nCols_==0)||(runCols_==0)))
-            return {Token_New::toString(Token_New::EOL)
-                    ,Implements_Simple_Value<T>::ClassName()};
+            return {myClass(),{Token_New::toString(Token_New::EOL)
+                    ,Implements_Simple_Value<T>::ClassName()}};
           else if ((runCols_==nCols_)||(hasFixedSize_&&(runRows_==nRows_)))
-            return {Token_New::toString(Token_New::EOL)};
+            return {myClass(),{Token_New::toString(Token_New::EOL)}};
           else
-            return {Implements_Simple_Value<T>::ClassName()};
+            return {myClass(),{Implements_Simple_Value<T>::ClassName()}};
           break;
         case S_Final:
         default:
@@ -1583,15 +1583,15 @@ void clear()override
         }
     }
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
         case S_Init:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
         case S_Header2:
-          return {Token_New::toString(Token_New::LCB)};
+          return {myClass(),{Token_New::toString(Token_New::LCB)}};
         case S_Header_Final:
         case S_Data_Partial:
           return myChildState.alternativesNext(cm);
@@ -1599,7 +1599,7 @@ void clear()override
         case S_Data_Final:
           {
             auto out=myChildState.alternativesNext(cm);
-            out.insert(Token_New::toString(Token_New::RCB));
+            out.second.insert(Token_New::toString(Token_New::RCB));
             return out;
           }
           break;
@@ -1873,15 +1873,15 @@ void clear()override
         }
     }
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
     {
       switch (mystate)
         {
         case S_Init:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
         case S_Header2:
-          return {Token_New::toString(Token_New::LCB)};
+          return {myClass(),{Token_New::toString(Token_New::LCB)}};
         case S_Header_Final:
         case S_Data_Partial:
           return myChildState.alternativesNext(cm);
@@ -1889,7 +1889,7 @@ void clear()override
         case S_Data_Final:
           {
             auto out=myChildState.alternativesNext(cm);
-            out.insert(Token_New::toString(Token_New::RCB));
+            out.second.insert(Token_New::toString(Token_New::RCB));
             return out;
           }
           break;
@@ -2152,42 +2152,42 @@ void clear()override
     }
 
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
     {
       switch (idstate ) {
         case S_Init:
-          return {Token_New::toString(Token_New::HASH)
-                  ,"variable_identifier"};
+          return {myClass(),{Token_New::toString(Token_New::HASH)
+                  ,"variable_identifier"}};
           break;
 
           break;
         case TIP1:
-          return {"tip_string"};
+          return {myClass(),{"tip_string"}};
           break;
         case TIP2:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
         case WT0_ID0:
-          return {Token_New::toString(Token_New::HASH)
-                  ,"variable_identifier"};
+          return {myClass(),{Token_New::toString(Token_New::HASH)
+                  ,"variable_identifier"}};
           break;
         case WT1:
-          return {Token_New::toString(Token_New::HASH)};
+          return {myClass(),{Token_New::toString(Token_New::HASH)}};
           break;
         case WT2:
-          return {"what_this"};
+          return {myClass(),{"what_this"}};
           break;
         case WT3:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
         case ID0:
-          return {"variable_identifier"};
+          return {myClass(),{"variable_identifier"}};
           break;
         case ID1:
-          return {Token_New::toString(Token_New::COLON)};
+          return {myClass(),{Token_New::toString(Token_New::COLON)}};
           break;
         case ID2:
-          return {"variable_type"};
+          return {myClass(),{"variable_type"}};
           break;
         case S_Final:
         default:
@@ -2442,7 +2442,7 @@ void clear()override
         }
     }
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
@@ -2452,16 +2452,16 @@ void clear()override
           return build_Implements_ValueId::alternativesNext(cm);
           break;
         case S_ID_Final:
-          return {Token_New::toString(Token_New::ASSIGN)};
+          return {myClass(),{Token_New::toString(Token_New::ASSIGN)}};
           break;
         case S_Header2:
-          return {Token_New::toString(Token_New::MUL)};
+          return {myClass(),{Token_New::toString(Token_New::MUL)}};
           break;
         case S_Header_Final:
-          return {"variable_identifier"};
+          return {myClass(),{"variable_identifier"}};
           break;
         case S_Data_Final:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
         case S_Final:
         default:
@@ -2700,7 +2700,7 @@ void clear()override
 
     }
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
@@ -2709,14 +2709,14 @@ void clear()override
           return build_Implements_ValueId::alternativesNext(cm);
           break;
         case S_ID_Final:
-          return {Token_New::toString(Token_New::ASSIGN)};
+          return {myClass(),{Token_New::toString(Token_New::ASSIGN)}};
           break;
         case S_Header_Final:
         case S_Data_Partial:
           return data_.alternativesNext(cm);
           break;
         case S_Data_Final:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
         case S_Final:
         default:
@@ -2874,7 +2874,7 @@ void clear()override
 
 
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
 
 
     Token_New popBackToken();
@@ -2921,7 +2921,7 @@ void clear()override
   public:
     virtual bool pushToken(Token_New t);
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
 
 
     virtual Token_New popBackToken();
@@ -2974,17 +2974,18 @@ void clear()override
 
     bool processVariableInput(Token_New input);
 
-    std::set<std::string> inputAlternativeNext()const;
+    std::pair<std::string,std::set<std::string>> inputAlternativeNext(Markov_Console::Markov_CommandManagerVar *cm)const;
 
     static bool hasNoInput(const ABC_Value *v);
     static bool hasNoOptionalInput(Markov_Console::ABC_CommandVar *cmd, const ABC_Value *v);
     static  Token_New popLastInput(ABC_Value *v);
-    static ABC_Value *nextInput(ABC_Value *v);
+    static ABC_Value *nextInput(Markov_Console::ABC_CommandVar *v, std::size_t& iInputField);
   private:
 
     DFA mystate;
     Markov_Console::Markov_CommandManagerVar *cm_;
     Markov_Console::ABC_CommandVar* cmd_;
+    mutable std::size_t iInputField_=0;
 
     // ABC_Base interface
   public:
@@ -3115,7 +3116,7 @@ void clear()override
 
 
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
 
 
     Token_New popBackToken();
@@ -3380,7 +3381,7 @@ void clear()override
 
 
 
-    std::set<std::string> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const
     {
       switch (mystate)
         {
@@ -3389,10 +3390,10 @@ void clear()override
           return build_Implements_ValueId::alternativesNext(cm);
           break;
         case S_ID_Final:
-          return {Token_New::toString(Token_New::BEGIN)};
+          return {myClass(),{Token_New::toString(Token_New::BEGIN)}};
           break;
         case S_Header_2:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
 
         case S_Header_Final:
@@ -3402,14 +3403,14 @@ void clear()override
 
           {
             auto out =v_.alternativesNext(cm);
-            out.insert(x_->myVar());
+            out.second.insert(x_->myVar());
             return out;
           }
         case S_END_2:
-          return {Token_New::toString(Token_New::END)};
+          return {myClass(),{Token_New::toString(Token_New::END)}};
           break;
         case S_END_Final:
-          return {Token_New::toString(Token_New::EOL)};
+          return {myClass(),{Token_New::toString(Token_New::EOL)}};
           break;
           break;
         case S_Final:

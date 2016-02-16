@@ -78,7 +78,7 @@ namespace Markov_Console {
   void ExpressionManager::suggestCompletion(Markov_Console::Markov_CommandManagerVar* cm,Markov_IO::ABC_IO * io)
   {
     auto n=bu_.alternativesNext(cm);
-    std::string s=this->suggestRest(n,tok_);
+    std::string s=this->suggestRest(n.second,tok_);
     if (!s.empty())
       {
         push_back(io,s);
@@ -88,7 +88,7 @@ namespace Markov_Console {
 
   void ExpressionManager::suggestAlternatives(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io)
   {
-    std::set<std::string> pos;
+    std::pair<std::string,std::set<std::string>> pos;
     if (tok_.isInitial())
       {
         pos=bu_.alternativesNext(cm);
@@ -96,12 +96,12 @@ namespace Markov_Console {
     else{
         auto n=bu_.alternativesNext(cm);
 
-        pos=conformant(n,tok_);
+        pos={n.first,conformant(n.second,tok_)};
       }
-    if (!pos.empty())
+    if (!pos.second.empty())
       {
         bool ok;
-        auto sel=io->getItemFromList("",{pos.begin(),pos.end()},ok,0);
+        auto sel=io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
         if (ok)
           push_back(io,sel);
       }
