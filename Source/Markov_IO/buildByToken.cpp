@@ -1283,7 +1283,8 @@ namespace Markov_IO {
 
 
 
-  ABC_Value* theNextInput(Markov_Console::ABC_CommandVar *v,std::size_t& iInputField,bool restart)
+
+  ABC_Value* build_Command_Input::nextInput(Markov_Console::ABC_CommandVar *v,std::size_t& iInputField)
   {
 
     std::string idith=v->ith_ChildName(iInputField);
@@ -1296,19 +1297,8 @@ namespace Markov_IO {
           }
     if (iInputField<v->numChilds())
       return oith;
-    else if (restart)
-      {
-        iInputField=v->numMandatoryInputs();
-        return theNextInput(v,iInputField,false);
-      }
+    else return nullptr;
 
-
-  }
-
-  ABC_Value* build_Command_Input::nextInput(Markov_Console::ABC_CommandVar *v,std::size_t& iInputField)
-  {
-
-     return theNextInput(v,iInputField,iInputField>v->numMandatoryInputs());
 
   }
 
@@ -1398,14 +1388,24 @@ namespace Markov_IO {
     else
       {
         std::string errorF;
+        bool res=oith->setThisValue(input,&errorF);
+
+        std::size_t iend=iInputField_;
         std::string errorTotal;
-        while (iInputField_<cmd_->numChilds()&&(!oith->setThisValue(input,&errorF)))
+
+        while (!res)
           {
             errorTotal+=errorF;
             errorF.clear();
-            oith=theNextInput(cmd_,iInputField_,false);
+            ++iInputField_;
+            if (iInputField_>=cmd_->numChilds())
+              iInputField_=cmd_->numMandatoryInputs();
+            if (iInputField_==iend)
+              break;
+            oith=nextInput(cmd_,iInputField_);
+            res=oith->setThisValue(input,&errorF);
           }
-        if (iInputField_<cmd_->numChilds())
+        if (res)
           return true;
         else
           {
