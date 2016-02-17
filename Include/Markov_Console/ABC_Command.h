@@ -43,6 +43,7 @@ namespace Markov_Console
 
 
 
+
   class RelativeDirectoryPath: Markov_IO::Implements_Simple_Class<std::string>
   {
   public:

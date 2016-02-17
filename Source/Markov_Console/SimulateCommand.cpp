@@ -34,6 +34,42 @@ namespace Markov_Console
       )
   {}
 
+  SimulateCommandVar::SimulateCommandVar(Markov_CommandManagerVar *cm):
+    ABC_CommandVar(cm
+                   ,ClassName()
+                   ,""
+                   ,"simulates an experiment"
+                   ,ClassName()+" command\n"
+                    " simulates \n"
+                   ,0)
+  {
+     pushChild(new Markov_IO::Implements_Refer_Var(PatchIn(),
+                                                   Markov_Mol::ABC_PatchModel::ClassName(),"",
+                                                   "patch model in"
+                                                   ,"the patch that is to be modeled"));
+
+     pushChild(new Markov_IO::Implements_Refer_Var(ExperimentIn(),
+                                                   Markov_Mol::ABC_Experiment::ClassName(),"",
+                                                   "experiment in"
+                                                   ,"the experiment that is to be modeled"));
+
+     pushChild(new Markov_IO::Implements_Simple_Value<std::string>(true,
+                                                                   ExperimentOut()
+                                                                   ,SimulationId::ClassName()
+                                                                   ,"unique identifier for simulation"
+                                                                   ,"an identifier for the subject"));
+     pushChild(new Markov_IO::Implements_Simple_Value<std::size_t>(true,
+                                                                   NumReplicates()
+                                                                   ,HelpSubject::ClassName()
+                                                                   ,"subject to be clarified"
+                                                                   ,"an identifier for the subject"));
+  }
+
+  SimulateCommandVar *SimulateCommandVar::clone() const
+  {
+    return new SimulateCommandVar(*this);
+  }
+
 
 
 
@@ -42,25 +78,9 @@ namespace Markov_Console
     return "simulate";
   }
 
-
-
-
-  bool SimulateCommand::run(const std::vector<std::string>& InputValue,
-                            const std::vector<std::string>& OutputValue)
+  bool SimulateCommand::run(const std::vector<std::__cxx11::string> &InputValue, const std::vector<std::__cxx11::string> &OutputValue)
   {
 
-
-    std::string patch_in=InputValue[0];
-    std::string experiment_in=InputValue[1];
-
-    std::size_t num_replicates=1;
-    if (!InputValue[2].empty())
-      num_replicates=std::stoul(InputValue[2]);
-
-    std::string options_in=InputValue[3];
-    std::string experiment_out=OutputValue[0];
-
-    return run(patch_in,experiment_in,experiment_out,num_replicates,options_in);
   }
 
   bool SimulateCommand::run(const std::string &patch_in,
@@ -99,6 +119,71 @@ namespace Markov_Console
     return true;
 
 
+  }
+
+
+
+
+
+  bool SimulateCommandVar::run(const std::string &patch_in,
+                            const std::string &experiment_in,
+                            const std::string &experiment_out,
+                            std::size_t num_replicates,
+                            const std::string &options_in)
+  {
+    int64_t tini=Markov_IO::getTimeMs();
+
+
+
+    Markov_IO::ABC_Experiment* e=dynamic_cast<Markov_IO::ABC_Experiment*>(cm_->getVar(experiment_in));
+    Markov_Mol::ABC_PatchModel* p=dynamic_cast<Markov_Mol::ABC_PatchModel*>(cm_->getVar(patch_in));
+    Markov_IO::ABC_Options*   o=dynamic_cast<Markov_IO::ABC_Options*>(cm_->getVar(options_in));
+    if (o==nullptr)
+      o=new Markov_Mol::SimulationOptions();
+
+    Markov_IO::Experiment* sim =new
+        Markov_IO::Experiment(p->run(*e,num_replicates,*o));
+
+    getCommandManager()->removeChild(experiment_out);
+    //getCommandManager()->pushIdChild(experiment_out,sim);
+
+    int64_t tend=Markov_IO::getTimeMs();
+    std::size_t telap=tend-tini;
+    std::string timestr=Markov_IO::ToString(telap);
+
+    getCommandManager()->getIO()->put("simulation "+experiment_out+ " created succesfully in "+timestr+"ms");
+    return true;
+
+
+  }
+
+  bool SimulateCommandVar::run(ABC_CommandVar *v) const
+  {
+
+
+
+  }
+
+  SimulateCommandVar::SimulationId::SimulationId(Markov_CommandManagerVar *cm):
+    Implements_New_Identifier_Class(ClassName()
+                                    ,Markov_IO::ABC_Experiment::ClassName()
+                                    ,defaultIdentifier()
+                                    ,cm
+                                    ,"Simulation identifier"
+                                    ,"an unique identifier for a particular simulation"){}
+
+  SimulateCommandVar::NumberOfRepetitions::NumberOfRepetitions(Markov_CommandManagerVar *cm):
+    Implements_Simple_Class<std::size_t>(ClassName()
+                                         ,"repetitions"
+                                         ,{}
+                                         ,1
+                                         ,1
+                                         ,1e6
+                                         ,""
+                                         ,"number of simulations replica"
+                                         ,"repetitions of the simulation with different random nubmers")
+  ,
+  cm_(cm){
   }
 
 

@@ -28,8 +28,8 @@ namespace Markov_Console
       HelpCommandVar* hlp=new HelpCommandVar(this);
       cmds[hlp->id()]=hlp;
 
-//      SimulateCommand* sim=new SimulateCommand(this);
-//      cmds[sim->commandName()]=sim;
+     SimulateCommandVar* sim=new SimulateCommandVar(this);
+      cmds[sim->id()]=sim;
 
 //      OptimizeCommand* optcm=new OptimizeCommand(this);
 //      cmds[optcm->commandName()]=optcm;

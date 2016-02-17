@@ -1891,6 +1891,29 @@ the parameter className
     return Token_New(name).tok()==Token_New::IDENTIFIER;
   }
 
+  std::__cxx11::string ABC_Value::nextId(const std::__cxx11::string &idTemplate)
+  {
+    auto n=getVersionNumber(idTemplate);
+
+    if (n!=std::string::npos)
+      {
+        ++n;
+        return idTemplate.substr(0,idTemplate.find_last_of('_')+1)+std::to_string(n);
+      }
+    else
+      return idTemplate+"_0";
+  }
+
+  std::size_t ABC_Value::getVersionNumber(const std::__cxx11::string &id)
+  {
+    std::stringstream ss(id.substr(id.find_last_of('_')));
+    std::size_t n;
+    if (ss>>n)
+      return n;
+    else
+      return std::string::npos;
+  }
+
   std::string ABC_Value::ClassName()
   {
     return "ABC_Var";
@@ -2057,6 +2080,56 @@ the parameter className
         os<<s<<"\t";
       }
     return os;
+  }
+
+  bool Implements_New_Identifier_Class::isInDomain(const ABC_Value *value) const
+  {
+    const ABC_Simple_Value<std::string>* o=dynamic_cast<const ABC_Simple_Value<std::string>*>(value);
+
+    if (o!=nullptr)
+      {
+        return cm_->idToValue(o->value())==nullptr;
+      }
+    else
+      {
+        return false;
+      }
+  }
+
+  bool Implements_New_Identifier_Class::checkValue(const std::__cxx11::string &val, std::__cxx11::string *error_message) const
+  {
+     if (!isValidId(val))
+
+       {
+         *error_message="not a valid id";
+         return false;
+       }
+     else if(cm_->idToValue(val)!=nullptr)
+           {
+             *error_message="existant id";
+         return false;
+           }
+     else
+       return true;
+  }
+
+  std::set<std::__cxx11::string> Implements_New_Identifier_Class::alternativeValues(Markov_Console::Markov_CommandManagerVar *cm) const
+  {
+    auto s=cm->getIdList(identifierType())->idSet();
+
+    std::set<std::string> out;
+    if (cm->idToValue(defaultValue())==nullptr)
+      out.insert(defaultValue());
+
+    for (std::string e:s)
+      {
+        std::string id_0=nextId(e);
+        while (cm->idToValue(id_0)!=nullptr)
+          id_0=nextId(id_0);
+        out.insert(id_0);
+      }
+    return out;
+
   }
 
 

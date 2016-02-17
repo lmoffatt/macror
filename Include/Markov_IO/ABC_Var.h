@@ -134,6 +134,9 @@ namespace  Markov_IO {
 
     static bool isValidId(std::string name);
 
+    static std::string nextId(const std::string& idTemplate);
+    static std::size_t getVersionNumber(const std::string& id);
+
     static std::string ClassName();
 
     static std::set<std::string> SuperClasses();
@@ -3158,6 +3161,52 @@ namespace  Markov_IO {
     }
   };
 
+
+
+
+
+
+  class Implements_New_Identifier_Class: public Implements_Simple_Class<std::string>
+  {
+  public:
+    static std::string ClassName(){return "Implements_New_Identifier_Class";}
+    std::string myClass()const override {return ClassName();}
+
+    std::string identifierType()const {return identifierType_;}
+
+
+    Implements_New_Identifier_Class(const std::string& id
+                                   ,const std::string& IdentifierType
+                                    ,const std::string& defaultIdentifier
+                                    , Markov_Console::Markov_CommandManagerVar* cm
+                                    , const std::string& tip
+                                ,const std::string& whatthis
+                                )
+      :
+        Implements_Simple_Class<std::string>(id,"",{},defaultIdentifier
+                                             ,"","",ClassName(),tip,whatthis)
+     ,identifierType_(IdentifierType),cm_(cm)
+    {}
+
+
+  private:
+    std::string identifierType_;
+    Markov_Console::Markov_CommandManagerVar* cm_;
+
+
+    // ABC_Value interface
+  public:
+    virtual bool isInDomain(const ABC_Value *value) const override;
+
+    // ABC_Simple_Class interface
+  public:
+    virtual bool checkValue(const std::string &val, std::__cxx11::string *error_message) const override;
+
+
+    // ABC_Value interface
+  public:
+    virtual std::set<std::__cxx11::string> alternativeValues(Markov_Console::Markov_CommandManagerVar *cm) const override;
+  };
 
 
 
