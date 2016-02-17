@@ -44,6 +44,7 @@ namespace Markov_IO {
       INVALID,
 
       EOL='\n',
+      HASH='#',
       PLUS='+',
       MINUS='-',
       MUL='*',
@@ -67,7 +68,6 @@ namespace Markov_IO {
       OR='|',
       LSS='<',
       GTR='>',
-      HASH, // '#',
 
       DCOLON,//::
       LEQ,// <=
@@ -239,7 +239,7 @@ namespace Markov_IO {
   {
     if (!isValid())
       return false;
-    if (this->myState_==IDENTIFIER)
+    if (this->tok()==IDENTIFIER)
       {
         val=identifier();
         return true;

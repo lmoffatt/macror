@@ -745,6 +745,7 @@ namespace Markov_IO {
       case '}':
       case '~':
       case '&':
+      case '#':
       case '|':
       case '>':
       case '<':
@@ -1034,7 +1035,7 @@ namespace Markov_IO {
               return false;
             }
         case STRING:
-          if (str_.back()!='"')
+          if ((str_.size()==1)||(str_.back()!='"'))
             {
               str_.push_back(ch);
               myState_=S_Partial;

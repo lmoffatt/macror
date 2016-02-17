@@ -14,12 +14,12 @@ namespace Markov_Console {
       }
   }
 
-  void ExpressionManager::move_Right(Markov_IO::ABC_IO * io)
+  void ExpressionManager::move_Right(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io)
   {
     if (!io->isLineEnd())
       {
         char c=io->pop_next_char();
-        push_back(io,c);
+        push_back(cm,io,c);
       }
   }
 
@@ -81,7 +81,7 @@ namespace Markov_Console {
     std::string s=this->suggestRest(n.second,tok_);
     if (!s.empty())
       {
-        push_back(io,s);
+        push_back(cm,io,s);
       }
 
   }
@@ -103,7 +103,7 @@ namespace Markov_Console {
         bool ok;
         auto sel=io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
         if (ok)
-          push_back(io,sel);
+          push_back(cm,io,sel);
       }
 
   }
@@ -115,8 +115,8 @@ namespace Markov_Console {
 
     std::string t=io->getTail();
     io->cleanToEndLine();
-    push_back(io,t);
-    push_back(io,'\n');
+    push_back(cm,io,t);
+    push_back(cm,io,'\n');
     if (bu_.isFinal())
       {
         if (bu_.isCommand())
@@ -128,14 +128,15 @@ namespace Markov_Console {
           {
             cm->add_var(bu_.unloadVar());
           }
+        bu_.clear();
+        io->freshLine();
+
       }
     else if (!bu_.errorMessage().empty())
       {
         io->putNewLine();
         io->putError(bu_.errorMessage());
       }
-    bu_.clear();
-    io->freshLine();
     tok_.clear();
     rejectedChars_.clear();
   }
@@ -148,9 +149,9 @@ namespace Markov_Console {
 
 
 
-  void ExpressionManager::putText(Markov_IO::ABC_IO *io,char c)       // here lies the core of the logic
+  void ExpressionManager::putText(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO *io,char c)       // here lies the core of the logic
   {
-    push_back(io,c);
+    push_back(cm,io,c);
 
   }
 
@@ -177,7 +178,7 @@ namespace Markov_Console {
         backErase(io);
         break;
       case Markov_IO::Key_Right:
-        move_Right(io);
+        move_Right(cm,io);
         break;
       case Markov_IO::Key_Up:
         history_up(&ch,io);
@@ -196,20 +197,20 @@ namespace Markov_Console {
       case Markov_IO::Key_PageDown:
         break;
       case Markov_IO::Key_Space:
-        putText(io,' ');
+        putText(cm,io,' ');
         break;
       case Markov_IO::Key_Return:
         putReturn(cm,io);
         break;
       default:
         if (Markov_IO::isText(k))
-          putText(io,Markov_IO::toText(k));
+          putText(cm,io,Markov_IO::toText(k));
         break;
       }
     previous_key=k;
   }
 
-  bool ExpressionManager::push_back(Markov_IO::ABC_IO * io,char c)
+  bool ExpressionManager::push_back(Markov_CommandManagerVar* cm,Markov_IO::ABC_IO * io,char c)
   {
     if (!rejectedChars_.empty())
       {
@@ -222,7 +223,7 @@ namespace Markov_Console {
         if (tok_.isFinal())                  // token is full
           //(but char remains to be processed)
           {
-            if(!bu_.pushToken(tok_))           //  does the var reject the token ?
+            if(!bu_.pushToken(cm,tok_))           //  does the var reject the token ?
               {
                 rejectedChars_=tok_.str();
                 tok_.clear();
@@ -250,7 +251,7 @@ namespace Markov_Console {
                 else if (tok_.isFinal())              // char is accepted,
                   //is the token full?
                   {
-                    if(!bu_.pushToken(tok_))          // is the full token rejected  ?
+                    if(!bu_.pushToken(cm,tok_))          // is the full token rejected  ?
                       {
                         tok_.clear();
                         io->putError(c);
@@ -285,7 +286,7 @@ namespace Markov_Console {
     else                                // char is incorporated into token
       if (tok_.isFinal())                 // is the token full?
         {
-          if(!bu_.pushToken(tok_))           //  does the var reject the token ?
+          if(!bu_.pushToken(cm,tok_))           //  does the var reject the token ?
             {
               tok_.popLastChar();
               rejectedChars_=tok_.str();
@@ -313,11 +314,11 @@ namespace Markov_Console {
 
   }
 
-  bool ExpressionManager::push_back(Markov_IO::ABC_IO * io, const std::__cxx11::string &s)
+  bool ExpressionManager::push_back(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io, const std::__cxx11::string &s)
   {
     bool result=true;
     for (auto c:s)
-      result=push_back(io,c);
+      result=push_back(cm,io,c);
     return result;
 
   }

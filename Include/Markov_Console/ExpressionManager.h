@@ -37,8 +37,8 @@ class Markov_CommandManagerVar;
 
   protected:
 
-    bool push_back(Markov_IO::ABC_IO *io, char c);
-    bool push_back(Markov_IO::ABC_IO * io, const std::string& s);
+    bool push_back(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO *io, char c);
+    bool push_back(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io, const std::string& s);
 
     char pop_back_char();
 
@@ -71,7 +71,7 @@ class Markov_CommandManagerVar;
     void backErase(Markov_IO::ABC_IO *io);
 
 
-    void move_Right(Markov_IO::ABC_IO * io);
+    void move_Right(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io);
     void move_Home(Markov_IO::ABC_IO * io);
     void history_up( CommandHistory* ch,Markov_IO::ABC_IO * io);
 
@@ -82,7 +82,7 @@ class Markov_CommandManagerVar;
 
     void putReturn(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io);
 
-    void putText(Markov_IO::ABC_IO * io, char s);
+    void putText(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io, char s);
     void cleanFromCursor(Markov_IO::ABC_IO * io);
     bool check();
 

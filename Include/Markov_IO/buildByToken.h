@@ -60,7 +60,7 @@ namespace Markov_IO {
     }
 
 
-    virtual bool pushToken(Token_New t)=0;
+    virtual bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t)=0;
     std::string errorMessage()const;
     virtual  std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const=0;
     virtual Token_New popBackToken()=0;
@@ -228,7 +228,7 @@ namespace Markov_IO {
       return out;
     }
 
-    bool pushToken(Token_New t)override;
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t)override;
 
 
     std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
@@ -282,7 +282,7 @@ namespace Markov_IO {
   }
 
   template<>
-  inline  bool buildByToken<double>::pushToken(Token_New to)
+  inline  bool buildByToken<double>::pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New to)
   {
     if (!to.isReal())
       {
@@ -320,7 +320,7 @@ namespace Markov_IO {
   }
 
   template<>
-  inline  bool buildByToken<int>::pushToken(Token_New to)
+  inline  bool buildByToken<int>::pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New to)
   {
     if (!to.isInteger())
       {
@@ -358,7 +358,7 @@ namespace Markov_IO {
 
 
   template<>
-  inline  bool buildByToken<std::size_t>::pushToken(Token_New to)
+  inline  bool buildByToken<std::size_t>::pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New to)
   {
     if (!to.isCount())
       {
@@ -396,7 +396,7 @@ namespace Markov_IO {
 
 
   template<>
-  inline  bool buildByToken<std::string>::pushToken(Token_New to)
+  inline  bool buildByToken<std::string>::pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New to)
   {
     if (to.tok()!=Token_New::IDENTIFIER)
       {
@@ -528,7 +528,7 @@ namespace Markov_IO {
     ~buildByToken(){
     }
 
-    bool pushToken(Token_New tok)
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New tok)
     {
       switch (mystate)
         {
@@ -559,7 +559,7 @@ namespace Markov_IO {
           break;
         case S_Header_Final:
         case S_Data_Partial:
-          if (!myChildState.pushToken(tok))
+          if (!myChildState.pushToken(cm,tok))
             {
               ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
@@ -585,7 +585,7 @@ namespace Markov_IO {
               mystate=S_Final;
               return true;
             }
-          else if (!myChildState.pushToken(tok))
+          else if (!myChildState.pushToken(cm,tok))
             {
               ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
@@ -820,13 +820,13 @@ void clear()override
     ~buildByToken(){
     }
 
-    bool pushToken(Token_New tok)
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New tok)
     {
       switch (mystate)
         {
         case S_Init:
         case S_First_Partial:
-          if (!first_.pushToken(tok))
+          if (!first_.pushToken(cm,tok))
             {
               ABC_BuildByToken::setErrorMessage(&first_);
               return false;
@@ -854,7 +854,7 @@ void clear()override
           break;
         case S_Separator_Final:
         case S_Second_Partial:
-          if (!second_.pushToken(tok))
+          if (!second_.pushToken(cm,tok))
             {
               ABC_BuildByToken::setErrorMessage(&second_);
               return false;
@@ -1064,7 +1064,7 @@ void clear()override
     ~buildByToken(){
     }
 
-    bool pushToken(Token_New tok)
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New tok)
     {
 
       switch (mystate) {
@@ -1446,7 +1446,7 @@ void clear()override
     ~buildByToken(){
     }
 
-    bool pushToken(Token_New tok)
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New tok)
     {
       switch (mystate)
         {
@@ -1474,7 +1474,7 @@ void clear()override
           break;
         case S_Header_Final:
         case S_Data_Partial:
-          if (!myChildState.pushToken(tok))
+          if (!myChildState.pushToken(cm,tok))
             {
               ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
@@ -1500,7 +1500,7 @@ void clear()override
               mystate=S_Final;
               return true;
             }
-          else if (!myChildState.pushToken(tok))
+          else if (!myChildState.pushToken(cm,tok))
             {
               ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
@@ -1734,7 +1734,7 @@ void clear()override
     ~buildByToken(){
     }
 
-    bool pushToken(Token_New tok) override
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New tok) override
     {
       switch (mystate)
         {
@@ -1764,7 +1764,7 @@ void clear()override
           break;
         case S_Header_Final:
         case S_Data_Partial:
-          if (!myChildState.pushToken(tok))
+          if (!myChildState.pushToken(cm,tok))
             {
               ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
@@ -1790,7 +1790,7 @@ void clear()override
               mystate=S_Final;
               return true;
             }
-          else if (!myChildState.pushToken(tok))
+          else if (!myChildState.pushToken(cm,tok))
             {
               ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
@@ -1980,7 +1980,7 @@ void clear()override
       id_=new Implements_ValueId;
     }
 
-    bool pushToken(Token_New t) override
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t) override
     {
       switch (idstate) {
         case S_Init:
@@ -2157,7 +2157,7 @@ void clear()override
       switch (idstate ) {
         case S_Init:
           return {myClass(),{Token_New::toString(Token_New::HASH)
-                  ,"variable_identifier"}};
+                  ,"[variable_identifier]"}};
           break;
 
           break;
@@ -2365,13 +2365,13 @@ void clear()override
       else return false;
     }
 
-    bool pushToken(Token_New t)
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t)
     {
       switch (mystate)
         {
         case S_Init:
         case S_ID_Partial:
-          if (!build_Implements_ValueId::pushToken(t))
+          if (!build_Implements_ValueId::pushToken(cm,t))
             {
               return false;
             }
@@ -2627,13 +2627,13 @@ void clear()override
 
     }
 
-    bool pushToken(Token_New t)
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t)
     {
       switch (mystate)
         {
         case S_Init:
         case S_ID_Partial:
-          if (!build_Implements_ValueId::pushToken(t))
+          if (!build_Implements_ValueId::pushToken(cm,t))
             {
               return false;
             }
@@ -2662,7 +2662,7 @@ void clear()override
           break;
         case S_Header_Final:
         case S_Data_Partial:
-          if (!data_.pushToken(t))
+          if (!data_.pushToken(cm,t))
             {
               ABC_BuildByToken::setErrorMessage(&data_);
               return false;
@@ -2870,7 +2870,7 @@ void clear()override
     bool  unPop(ABC_Value* var);
 
 
-    bool pushToken(Token_New t);
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t);
 
 
 
@@ -2919,7 +2919,7 @@ void clear()override
 
     // ABC_BuildByToken interface
   public:
-    virtual bool pushToken(Token_New t);
+    virtual bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t);
 
     std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
 
@@ -2983,7 +2983,6 @@ void clear()override
   private:
 
     DFA mystate;
-    Markov_Console::Markov_CommandManagerVar *cm_;
     Markov_Console::ABC_CommandVar* cmd_;
     mutable std::size_t iInputField_=0;
 
@@ -3112,7 +3111,7 @@ void clear()override
     }
 
 
-    bool pushToken(Token_New t);
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t);
 
 
 
@@ -3264,13 +3263,13 @@ void clear()override
       else return false;
     }
 
-    bool pushToken(Token_New t)
+    bool pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t)
     {
       switch (mystate)
         {
         case S_Init:
         case S_ID_Partial:
-          if (!build_Implements_ValueId::pushToken(t))
+          if (!build_Implements_ValueId::pushToken(cm,t))
             {
               return false;
             }
@@ -3309,7 +3308,7 @@ void clear()override
             }break;
         case S_Header_Final:
         case S_Field_Partial:
-          if (!v_.pushToken(t))
+          if (!v_.pushToken(cm,t))
             {
               ABC_BuildByToken::setErrorMessage(&v_);
               return false;
@@ -3333,7 +3332,7 @@ void clear()override
               mystate=S_END_2;
               return true;
             }
-          else if (!v_.pushToken(t))
+          else if (!v_.pushToken(cm,t))
             {
               ABC_BuildByToken::setErrorMessage(&v_);
               return false;
