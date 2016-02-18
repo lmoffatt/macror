@@ -550,11 +550,9 @@ namespace Markov_IO {
     else return nullptr;
   }
 
-  ABC_Value *Implements_ValueId::idToValue(const std::string &idName)
+  ABC_Value *Implements_ValueId::idToValue(const std::string &)
   {
-    if (parentValue()!=nullptr)
-      return parentValue()->idToValue(idName);
-    else return nullptr;
+    return nullptr;
   }
 
 
@@ -567,11 +565,9 @@ namespace Markov_IO {
     else return nullptr;
   }
 
-  ABC_Value *Implements_ValueId::idToValue(const std::string & idName, const std::string & varName)
+  ABC_Value *Implements_ValueId::idToValue(const std::string & , const std::string & )
   {
-    if (parentValue()!=nullptr)
-      return parentValue()->idToValue(idName,varName);
-    else return nullptr;
+    return nullptr;
   }
 
   void Implements_ValueId::pushChild(ABC_Value *)
@@ -580,9 +576,15 @@ namespace Markov_IO {
 
 
 
-  ABC_Value *Implements_ValueId::parentValue()
+  bool Implements_ValueId::isMyParent(const ABC_Value* aParent) const
   {
-    return p_;
+    if (p_==nullptr)
+      return false;
+    else if (aParent==p_)
+       return true;
+    else
+      return p_->isMyParent(aParent);
+
   }
   const ABC_Value *Implements_ValueId::parentValue() const
   {
@@ -594,10 +596,10 @@ namespace Markov_IO {
   }
 
 
-  ABC_Var *Implements_ValueId::myVarPtr()
+  ABC_Var *Implements_ValueId::myVarPtr(ABC_Value* parent)
   {
-    if (parentValue()!=nullptr)
-      return parentValue()->idToValue(myVar());
+    if (isMyParent(parent))
+      return parent->idToValue(myVar());
     else
       return nullptr;
 
@@ -739,7 +741,7 @@ namespace Markov_IO {
   {
     if ((parentValue()!=nullptr)&&(!isRootedVariable()))
       {
-        auto s=dynamic_cast<Implements_ValueId*>(parentValue()->idToValue(id()));
+        auto s=dynamic_cast<const Implements_ValueId*>(parentValue()->idToValue(id()));
         if (s!=nullptr)
           *this=*s;
 
@@ -837,12 +839,7 @@ Extract tip, whatthis, id and class from stream
     refId_=ref_id;
   }
 
-  ABC_Value *Implements_Refer_Var::refVar()
-  {
-    if (parentValue()!=nullptr)
-      return parentValue()->idToValue(refId(),myVar());
-    else return   nullptr;
-  }
+
 
   const ABC_Value *Implements_Refer_Var::refVar() const
   {
@@ -925,11 +922,9 @@ Extract tip, whatthis, id and class from stream
     else return nullptr;
   }
 
-  ABC_Value *Implements_Refer_Var::idToValue(const std::string &name)
+  ABC_Value *Implements_Refer_Var::idToValue(const std::string &)
   {
-    if (refVar()!=nullptr)
-      return refVar()->idToValue(name);
-    else return nullptr;
+     return nullptr;
   }
 
   const ABC_Value *Implements_Refer_Var::idToValue(const std::string &name, const std::string &kind) const
@@ -941,15 +936,12 @@ Extract tip, whatthis, id and class from stream
 
   ABC_Value *Implements_Refer_Var::idToValue(const std::string &name, const std::string &kind)
   {
-    if (refVar()!=nullptr)
-      return refVar()->idToValue(name,kind);
-    else return nullptr;
+     return nullptr;
   }
 
-  void Implements_Refer_Var::pushChild(ABC_Value *var)
+  void Implements_Refer_Var::pushChild(ABC_Value *)
   {
-    if (refVar()!=nullptr)
-      refVar()->pushChild(var);
+
   }
 
 
@@ -1070,7 +1062,7 @@ Extract tip, whatthis, id and class from stream
   {
     if ((parentValue()!=nullptr)&&(!isRootedVariable()))
       {
-        auto s=dynamic_cast<Implements_Complex_Value*>(parentValue()->idToValue(id()));
+        auto s=dynamic_cast<const Implements_Complex_Value*>(parentValue()->idToValue(id()));
         if (s!=nullptr)
           *this=*s;
 
@@ -1149,8 +1141,6 @@ Extract tip, whatthis, id and class from stream
     auto it=vars_.find(name);
     if (it!=vars_.end())
       return it->second;
-    else if (parentValue()!=nullptr)
-      return parentValue()->idToValue(name);
     else return nullptr;
   }
 
