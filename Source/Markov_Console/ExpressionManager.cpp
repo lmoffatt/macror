@@ -212,6 +212,7 @@ namespace Markov_Console {
 
   bool ExpressionManager::push_back(Markov_CommandManagerVar* cm,Markov_IO::ABC_IO * io,char c)
   {
+
     if (!rejectedChars_.empty())
       {
         rejectedChars_.push_back(c);
@@ -223,7 +224,8 @@ namespace Markov_Console {
         if (tok_.isFinal())                  // token is full
           //(but char remains to be processed)
           {
-            if(!bu_.pushToken(cm,tok_))           //  does the var reject the token ?
+            std::string error;
+            if(!bu_.pushToken(tok_,error))           //  does the var reject the token ?
               {
                 rejectedChars_=tok_.str();
                 tok_.clear();
@@ -251,7 +253,8 @@ namespace Markov_Console {
                 else if (tok_.isFinal())              // char is accepted,
                   //is the token full?
                   {
-                    if(!bu_.pushToken(cm,tok_))          // is the full token rejected  ?
+                    std::string error;
+                    if(!bu_.pushToken(tok_,error))          // is the full token rejected  ?
                       {
                         tok_.clear();
                         io->putError(c);
@@ -286,7 +289,9 @@ namespace Markov_Console {
     else                                // char is incorporated into token
       if (tok_.isFinal())                 // is the token full?
         {
-          if(!bu_.pushToken(cm,tok_))           //  does the var reject the token ?
+          std::string error;
+
+          if(!bu_.pushToken(tok_,error))           //  does the var reject the token ?
             {
               tok_.popLastChar();
               rejectedChars_=tok_.str();

@@ -204,7 +204,7 @@ namespace  Markov_IO {
     ///FIXME: see what to to with it
     virtual const ABC_Var* myVarPtr()const=0;
 
-    virtual ABC_Var* myVarPtr(ABC_Value* parent)=0;
+    virtual ABC_Var* myVarPtr(ABC_Value* parent)const=0;
 
 
 
@@ -235,7 +235,7 @@ namespace  Markov_IO {
 
     virtual const ABC_Value* idToValue(const std::string& name)const=0;
     virtual ABC_Value* idToValue(const std::string &name)=0;
-    virtual void removeChild(const std::string& name)=0;
+    virtual bool removeChild(const std::string& name)=0;
 
 
     virtual const ABC_Value* idToValue(const std::string& name,const std::string& kind)const=0;
@@ -244,6 +244,7 @@ namespace  Markov_IO {
     virtual void pushChild(ABC_Value* var)=0;
 
 
+    //TODO: probably remove putOut and PutErrorOut and state explicitely the IO
     virtual void putOut(const std::string& m)const=0;
     virtual void putErrorOut(const std::string& m)const=0;
 
@@ -267,9 +268,9 @@ namespace  Markov_IO {
     virtual std::string myClass() const;
 
 
-    virtual bool setThisValue(Token_New tok,std::string* error=nullptr)=0;
+    virtual bool setThisValue(Token_New tok,std::string& error)=0;
 
-    virtual std::set<std::string> alternativeValues(Markov_Console::Markov_CommandManagerVar * cm)const=0;
+    virtual std::set<std::string> alternativeValues()const=0;
 
 
 
@@ -331,7 +332,7 @@ namespace  Markov_IO {
 
 
     template<typename T>
-    bool checkValue(const std::string& name, T& value)const;
+    bool checkValue(const std::string& varName, T& value, std::string& errorMessage)const;
 
 
     template<typename T>
@@ -360,6 +361,9 @@ namespace  Markov_IO {
                                 Enum i,
                                 const std::string& tip="",
                                 const std::string & whatthis="");
+
+
+
 
 
 
@@ -441,7 +445,7 @@ namespace  Markov_IO {
     virtual const ABC_Value* idToValue(const std::string& idName)const override;
     virtual ABC_Value* idToValue(const std::string &) override;
 
-    virtual void removeChild(const std::string& ) override;
+    virtual bool removeChild(const std::string& ) override;
     virtual const ABC_Value* idToValue(const std::string&idName, const std::string&varName)const  override;
     virtual ABC_Value* idToValue(const std::string &, const std::string &) override;
     virtual void pushChild  (ABC_Value *) override;
@@ -449,7 +453,7 @@ namespace  Markov_IO {
     virtual std::string refId()const override;
 
     //TODO: there are two concepts here: the current holder of the id in parent and the var that is pointed by myVar
-    virtual ABC_Var* myVarPtr(ABC_Value* parent) override;
+    virtual ABC_Var* myVarPtr(ABC_Value* parent) const override;
     virtual const ABC_Value* myVarPtr() const  override;
 
 
@@ -527,14 +531,13 @@ namespace  Markov_IO {
 
     // ABC_Value interface
   public:
-    virtual bool setThisValue(Token_New tok, std::string *error) override
+    virtual bool setThisValue(Token_New tok, std::string &error) override
     {
-      if (error!=nullptr)
-        *error=id()+"is a "+myClass()+": it cannot be set with a single token";
+      error=id()+"is a "+myClass()+": it cannot be set with a single token";
       return false;
     }
 
-    virtual std::set<std::string> alternativeValues(Markov_Console::Markov_CommandManagerVar * cm)const override
+    virtual std::set<std::string> alternativeValues()const override
     {
       return {};
 
@@ -577,7 +580,7 @@ namespace  Markov_IO {
     virtual void setminValue(T val)=0;
     virtual void setmaxValue(T val)=0;
 
-    virtual bool checkValue(const T& val, std::string* error_message=nullptr)const=0;
+    virtual bool checkValue(const T& val, std::string& error_message)const=0;
 
 
     virtual std::string units()const=0;
@@ -617,7 +620,7 @@ namespace  Markov_IO {
 
     virtual T& refval()=0;
 
-    virtual bool checkValue(const T& val, std::string* error=nullptr)const=0;
+    virtual bool checkValue(const T& val, std::string& error)const=0;
 
 
     static std::set<std::string> SuperClasses()
@@ -825,7 +828,7 @@ namespace  Markov_IO {
 
     // ABC_Simple_Value interface
   public:
-    virtual bool checkValue(const T &val, std::string * error=nullptr) const override
+    virtual bool checkValue(const T &val, std::string& error) const override
     {
       if (this->motherClassType()!=nullptr)
         return this->motherClassType()->checkValue(val,error);
@@ -837,17 +840,17 @@ namespace  Markov_IO {
 
     // ABC_Value interface
   public:
-    virtual std::set<std::string> alternativeValues(Markov_Console::Markov_CommandManagerVar * cm)const override
+    virtual std::set<std::string> alternativeValues()const override
     {
       if (this->myVarPtr()!=nullptr)
-        return this->myVarPtr()->alternativeValues(cm);
+        return this->myVarPtr()->alternativeValues();
       else
         return {};
 
     }
-    virtual bool setThisValue(Token_New tok, std::string *error) override
+    virtual bool setThisValue(Token_New tok, std::string &error) override
     {
-      *error=tok.str()+" is not of "+ClassName();
+      error=tok.str()+" is not of "+ClassName();
       return false;
     }
   };
@@ -862,7 +865,7 @@ namespace  Markov_IO {
 
   template<>
   inline
-  bool Implements_Simple_Value<int>::setThisValue(Token_New tok, std::string *error)
+  bool Implements_Simple_Value<int>::setThisValue(Token_New tok, std::string& error)
   {
     int v;
     if (tok.toValue(v))
@@ -876,8 +879,7 @@ namespace  Markov_IO {
       }
     else
       {
-        if (error!=nullptr)
-          *error=tok.str()+" is not of "+ClassName();
+        error=tok.str()+" is not of "+ClassName();
         return false;
       }
   }
@@ -885,7 +887,7 @@ namespace  Markov_IO {
 
   template<>
   inline
-  bool Implements_Simple_Value<std::string>::setThisValue(Token_New tok, std::string *error)
+  bool Implements_Simple_Value<std::string>::setThisValue(Token_New tok, std::string& error)
   {
     std::string s;
     if (tok.toValue(s))
@@ -899,8 +901,7 @@ namespace  Markov_IO {
       }
     else
       {
-        if (error!=nullptr)
-          *error=tok.str()+" is not of "+ClassName();
+        error=tok.str()+" is not of "+ClassName();
         return false;
       }
   }
@@ -931,7 +932,7 @@ namespace  Markov_IO {
     std::vector<std::string> getChildList(const std::string& className="")const;
 
 
-    virtual void removeChild(const std::string& name)override;
+    virtual bool removeChild(const std::string& name)override;
 
     virtual const ABC_Value* idToValue(const std::string& name,
                                        const std::string &myclass)const override;
@@ -1261,7 +1262,7 @@ namespace  Markov_IO {
 
     // ABC_Simple_Value interface
   public:
-    virtual bool checkValue(const T &val,std::string* error=nullptr) const override
+    virtual bool checkValue(const T &val,std::string& error) const override
     {
       if (this->motherClassType()!=nullptr)
         return this->motherClassType()->checkValue(val,error);
@@ -1674,7 +1675,7 @@ namespace  Markov_IO {
 
     // ABC_Simple_Value interface
   public:
-    virtual bool checkValue(const T &val, std::string* error=nullptr) const override
+    virtual bool checkValue(const T &val, std::string& error) const override
     {
       if (this->motherClassType()!=nullptr)
         return this->motherClassType()->checkValue(val,error);
@@ -1914,7 +1915,7 @@ namespace  Markov_IO {
 
     // ABC_Simple_Value interface
   public:
-    virtual bool checkValue(const Enum &, std::string* error=nullptr) const override
+    virtual bool checkValue(const Enum &, std::string& error) const override
     {
       return true;
     }
@@ -1960,7 +1961,7 @@ namespace  Markov_IO {
 
 
     virtual const Implements_Categorical* myVarPtr()const override;
-    virtual Implements_Categorical* myVarPtr(ABC_Value* aParent) override;
+    virtual Implements_Categorical* myVarPtr(ABC_Value* aParent) const override;
 
 
     virtual Implements_Categorical<Enum> *to_PlainValue() const override;
@@ -2343,18 +2344,16 @@ namespace  Markov_IO {
 
     // ABC_Simple_Class interface
   public:
-    virtual bool checkValue(const T &val, std::string* error_message=nullptr) const override
+    virtual bool checkValue(const T &val, std::string& error_message) const override
     {
       if ((minValue()!=emptyValue())&&(val<minValue()))
         {
-          if (error_message!=nullptr)
-            *error_message=ValueToString(val)+" is less than the minimal value "+ValueToString(minValue());
+          error_message=ValueToString(val)+" is less than the minimal value "+ValueToString(minValue());
           return false;
         }
       else if ((maxValue()!=emptyValue())&&(val>maxValue()))
         {
-          if (error_message!=nullptr)
-            *error_message=ValueToString(val)+" is more than the maximal value "+ValueToString(maxValue());
+          error_message=ValueToString(val)+" is more than the maximal value "+ValueToString(maxValue());
           return false;
         }
       else return true;
@@ -2436,7 +2435,7 @@ namespace  Markov_IO {
 
     // ABC_Value interface
   public:
-    virtual bool setThisValue(Token_New tok, std::string *error) override
+    virtual bool setThisValue(Token_New tok, std::string& error) override
     {
       auto o=parentValue()->idToValue(tok.str());
       if (o!=nullptr)
@@ -2449,13 +2448,13 @@ namespace  Markov_IO {
             }
           else
             {
-              *error=whyComplies;
+              error=whyComplies;
               return false;
             }
         }
       else
         {
-          *error=tok.str()+" variable was not found";
+          error=tok.str()+" variable was not found";
           return false;
 
         }
@@ -2463,10 +2462,10 @@ namespace  Markov_IO {
     }
 
 
-    virtual std::set<std::string> alternativeValues(Markov_Console::Markov_CommandManagerVar * cm)const override
+    virtual std::set<std::string> alternativeValues()const override
     {
       if (this->myVarPtr()!=nullptr)
-        return this->myVarPtr()->alternativeValues(cm);
+        return this->myVarPtr()->alternativeValues();
       else
         return {};
 
@@ -2759,20 +2758,27 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  bool ABC_Value::checkValue(const std::string &name, T &value) const
+  bool ABC_Value::checkValue(const std::string &varName, T &value, std::__cxx11::string &errorMessage) const
   {
-    auto a=idToValue(name);
+    auto a=idToValue(varName);
     if (a==nullptr)
-      return false;
-    const ABC_Simple_Value<T>* o=dynamic_cast<const ABC_Simple_Value<T>*>(a);
-
-    if (o!=nullptr)
       {
-        return o->checkValue(value);
+        errorMessage=varName+" is not a registered identifier";
+        return false;
       }
     else
       {
-        return false;
+        const ABC_Simple_Class<T>* o=dynamic_cast<const ABC_Simple_Class<T>*>(a);
+
+        if (o!=nullptr)
+          {
+            return o->checkValue(value,errorMessage);
+          }
+        else
+          {
+            errorMessage=varName+" is not a "+ABC_Simple_Value<T>::ClassName();
+            return false;
+          }
       }
   }
 
@@ -3029,7 +3035,7 @@ namespace  Markov_IO {
 
 
   template<typename Enum>
-  Implements_Categorical<Enum> *Implements_Categorical<Enum>::myVarPtr(ABC_Value* v)
+  Implements_Categorical<Enum> *Implements_Categorical<Enum>::myVarPtr(ABC_Value* v)const
   {
     if (isMyParent(v))
       {
@@ -3145,13 +3151,13 @@ namespace  Markov_IO {
 
     // ABC_Simple_Class interface
   public:
-    virtual bool checkValue(const std::string &val, std::__cxx11::string *error_message) const override
+    virtual bool checkValue(const std::string &val, std::__cxx11::string& error_message) const override
     {
       if(ids_.find(val)!=ids_.end())
         return true;
       else
         {
-          *error_message=val+" not in "+id()+" list";
+          error_message=val+" not in "+id()+" list";
           return false;
         }
     }
@@ -3159,7 +3165,7 @@ namespace  Markov_IO {
 
     // ABC_Value interface
   public:
-    virtual std::set<std::__cxx11::string> alternativeValues(Markov_Console::Markov_CommandManagerVar *cm) const override
+    virtual std::set<std::__cxx11::string> alternativeValues() const override
     {
       return idSet();
     }
@@ -3204,12 +3210,12 @@ namespace  Markov_IO {
 
     // ABC_Simple_Class interface
   public:
-    virtual bool checkValue(const std::string &val, std::__cxx11::string *error_message) const override;
+    virtual bool checkValue(const std::string &val, std::__cxx11::string& error_message) const override;
 
 
     // ABC_Value interface
   public:
-    virtual std::set<std::__cxx11::string> alternativeValues(Markov_Console::Markov_CommandManagerVar *cm) const override;
+    virtual std::set<std::__cxx11::string> alternativeValues() const override;
   };
 
 

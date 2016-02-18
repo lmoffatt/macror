@@ -556,7 +556,7 @@ namespace Markov_IO {
   }
 
 
-  void Implements_ValueId::removeChild(const std::string& ) {}
+  bool Implements_ValueId::removeChild(const std::string& ) {return false;}
 
   const ABC_Value *Implements_ValueId::idToValue(const std::string &idName, const std::string &varName) const
   {
@@ -596,7 +596,7 @@ namespace Markov_IO {
   }
 
 
-  ABC_Var *Implements_ValueId::myVarPtr(ABC_Value* parent)
+  ABC_Var *Implements_ValueId::myVarPtr(ABC_Value* parent) const
   {
     if (isMyParent(parent))
       return parent->idToValue(myVar());
@@ -651,7 +651,7 @@ namespace Markov_IO {
   Implements_ValueId::Implements_ValueId(const ABC_Value &other):
     id_(other.id()),
     var_(other.myVar()),
-    p_(const_cast<ABC_Value*>(other.parentValue())),
+    p_(other.parentValue()),
     tip_(other.Tip()),
     whatThis_(other.WhatThis())
   {}
@@ -1126,13 +1126,22 @@ Extract tip, whatthis, id and class from stream
       }
   }
 
-  void Implements_Complex_Value::removeChild(const std::string &name)
+  bool Implements_Complex_Value::removeChild(const std::string &name)
   { if (vars_.erase(name)>0)
       {
         auto i=std::find(ids_.begin(),ids_.end(),name);
         if (i!=ids_.end())
-          ids_.erase(i);
-
+          {
+            ids_.erase(i);
+            return true;
+          }
+        else {
+            return false;
+          }
+      }
+    else
+      {
+        return false;
       }
   }
 
@@ -2086,39 +2095,39 @@ the parameter className
       }
   }
 
-  bool Implements_New_Identifier_Class::checkValue(const std::__cxx11::string &val, std::__cxx11::string *error_message) const
+  bool Implements_New_Identifier_Class::checkValue(const std::__cxx11::string &val, std::__cxx11::string &error_message) const
   {
      if (!isValidId(val))
 
        {
-         *error_message="not a valid id";
+         error_message="not a valid id";
          return false;
        }
      else if(cm_->idToValue(val)!=nullptr)
            {
-             *error_message="existant id";
+             error_message="existant id";
          return false;
            }
      else
        return true;
   }
 
-  std::set<std::__cxx11::string> Implements_New_Identifier_Class::alternativeValues(Markov_Console::Markov_CommandManagerVar *cm) const
+  std::set<std::__cxx11::string> Implements_New_Identifier_Class::alternativeValues() const
   {
-    auto s=cm->getIdList(identifierType())->idSet();
+//    auto s=parentValue()->getIdList(identifierType())->idSet();
 
-    std::set<std::string> out;
-    if (cm->idToValue(defaultValue())==nullptr)
-      out.insert(defaultValue());
+//    std::set<std::string> out;
+//    if (cm->idToValue(defaultValue())==nullptr)
+//      out.insert(defaultValue());
 
-    for (std::string e:s)
-      {
-        std::string id_0=nextId(e);
-        while (cm->idToValue(id_0)!=nullptr)
-          id_0=nextId(id_0);
-        out.insert(id_0);
-      }
-    return out;
+//    for (std::string e:s)
+//      {
+//        std::string id_0=nextId(e);
+//        while (cm->idToValue(id_0)!=nullptr)
+//          id_0=nextId(id_0);
+//        out.insert(id_0);
+//      }
+//    return out;
 
   }
 

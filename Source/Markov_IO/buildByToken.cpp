@@ -31,17 +31,14 @@ namespace Markov_IO {
 
   ABC_BuildByToken::~ABC_BuildByToken(){}
 
-  ABC_Value *ABC_BuildByToken::parent()
-  {
-    return parent_;
-  }
+
 
   const ABC_Value *ABC_BuildByToken::parent() const
   {
     return parent_;
   }
 
-  ABC_BuildByToken::ABC_BuildByToken(ABC_Value *p):parent_(p), error_(){}
+  ABC_BuildByToken::ABC_BuildByToken(const ABC_Value *p):parent_(p), error_(){}
 
   void ABC_BuildByToken::setErrorMessage(std::string err)
   {
@@ -153,7 +150,7 @@ namespace Markov_IO {
 
   }
 
-  build_ABC_Value::build_ABC_Value(ABC_Var *p):
+  build_ABC_Value::build_ABC_Value(const ABC_Var *p):
     ABC_Value_ByToken(p),
     mystate{S_Init}
   ,x_(nullptr)
@@ -205,13 +202,13 @@ namespace Markov_IO {
       return true;
   }
 
-  bool build_ABC_Value::pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t)
+  bool build_ABC_Value::pushToken( Token_New t, std::string& errorMessage)
   {
     switch (mystate)
       {
       case S_Init:
       case S_ID_Partial:
-        if (!id_.pushToken(cm,t))
+        if (!id_.pushToken(t,errorMessage))
           {
             ABC_BuildByToken::setErrorMessage(&id_);
             return false;
@@ -232,7 +229,7 @@ namespace Markov_IO {
         if (t.tok()==Token_New::BEGIN)
           {
             var_=new build_Implements_Complex_Value(id_.unloadVar());
-            var_->pushToken(cm,t);
+            var_->pushToken(t,errorMessage);
             mystate=S_Var_Partial;
             return true;
           }
@@ -249,7 +246,7 @@ namespace Markov_IO {
           }
         break;
       case S_Var_Partial:
-        if(!var_->pushToken(cm,t))
+        if(!var_->pushToken(t,errorMessage))
           {
             ABC_BuildByToken::setErrorMessage(var_);
             return false;
@@ -306,7 +303,7 @@ namespace Markov_IO {
           }
         prevTokens_.push_back(t);
         for (auto to:prevTokens_)
-          if (var_->pushToken(cm,to))
+          if (var_->pushToken(to,errorMessage))
             {
               ABC_BuildByToken::setErrorMessage(var_);
               return false;
@@ -355,7 +352,7 @@ namespace Markov_IO {
         prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
-          if (var_->pushToken(cm,to))
+          if (var_->pushToken(to, errorMessage))
             {
               ABC_BuildByToken::setErrorMessage(var_);
               return false;
@@ -401,7 +398,7 @@ namespace Markov_IO {
         prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
-          if (var_->pushToken(cm,to))
+          if (var_->pushToken(to, errorMessage))
             {
               ABC_BuildByToken::setErrorMessage(var_);
               return false;
@@ -463,7 +460,7 @@ namespace Markov_IO {
         prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
-          if (var_->pushToken(cm,to))
+          if (var_->pushToken(to, errorMessage))
             {
               ABC_BuildByToken::setErrorMessage(var_);
               return false;
@@ -561,7 +558,7 @@ namespace Markov_IO {
         prevTokens_.push_back(t);
 
         for (auto to:prevTokens_)
-          if (var_->pushToken(cm,to))
+          if (var_->pushToken(to, errorMessage))
             {
               ABC_BuildByToken::setErrorMessage(var_);
               return false;
@@ -762,7 +759,7 @@ namespace Markov_IO {
       }
   }
 
-  build_Implements_ValueId *build_ABC_Value::createBuild_Value(ABC_Value * parent,
+  build_Implements_ValueId *build_ABC_Value::createBuild_Value(const ABC_Value * parent,
                                                                ABC_Value *var)
   {
     //TODO: this seems to be very uneficient.
@@ -1001,7 +998,7 @@ namespace Markov_IO {
 
   }
 
-  bool build_Command_Input::pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t)
+  bool build_Command_Input::pushToken( Token_New t, std::string& errorMessage)
   {
     switch (mystate)
       {
@@ -1009,9 +1006,9 @@ namespace Markov_IO {
         if (t.tok()==Token_New::IDENTIFIER)
           {
 
-            if (cm->has_command(t.identifier()))
+            if (cm_->has_command(t.identifier()))
               {
-                cmd_=cm->getCommand(t.identifier())->clone();
+                cmd_=cm_->getCommand(t.identifier())->clone();
                 if (hasAllInputs(cmd_))
                   mystate=S_Input_Final;
                 else if (hasAllMandatoryInputs(cmd_))
@@ -1089,7 +1086,7 @@ namespace Markov_IO {
       case S_ID_Final:
       case S_Input_Partial:
       case S_Mandatory_Final:
-        return inputAlternativeNext(cm);
+        return inputAlternativeNext();
         break;
       case S_Final:
         return {cmd_->id(),{Token_New::toString(Token_New::EOL)}};
@@ -1152,8 +1149,9 @@ namespace Markov_IO {
 
 
   build_Command_Input::build_Command_Input(Markov_Console::Markov_CommandManagerVar *cm):
-    ABC_Value_ByToken(cm),
-    mystate(S_Init)
+    ABC_Value_ByToken(cm)
+   , cm_(cm)
+   , mystate(S_Init)
   , cmd_(nullptr)
 
   ,iInputField_(0){}
@@ -1376,7 +1374,7 @@ namespace Markov_IO {
     else if (iInputField_<cmd_->numMandatoryInputs())
       {
         std::string error;
-        if (oith->setThisValue(input,&error))
+        if (oith->setThisValue(input,error))
           return true;
         else
           {
@@ -1387,7 +1385,7 @@ namespace Markov_IO {
     else
       {
         std::string errorF;
-        bool res=oith->setThisValue(input,&errorF);
+        bool res=oith->setThisValue(input,errorF);
 
         std::size_t iend=iInputField_;
         std::string errorTotal;
@@ -1402,7 +1400,7 @@ namespace Markov_IO {
             if (iInputField_==iend)
               break;
             oith=nextInput(cmd_,iInputField_);
-            res=oith->setThisValue(input,&errorF);
+            res=oith->setThisValue(input,errorF);
           }
         if (res)
           return true;
@@ -1415,7 +1413,7 @@ namespace Markov_IO {
       }
   }
 
-  std::pair<std::string, std::set<std::string>> build_Command_Input::inputAlternativeNext(Markov_Console::Markov_CommandManagerVar*cm) const
+  std::pair<std::string, std::set<std::string>> build_Command_Input::inputAlternativeNext() const
   {
     ABC_Value* oith=nextInput(cmd_,iInputField_);
 
@@ -1425,7 +1423,7 @@ namespace Markov_IO {
       }
     else
       {
-        return {oith->id(),oith->alternativeValues(cm)};
+        return {oith->id(),oith->alternativeValues()};
       }
 
 
@@ -1439,12 +1437,12 @@ namespace Markov_IO {
   ,v_(p)
   ,c_(p){}
 
-  bool build_Statement::pushToken(const Markov_Console::Markov_CommandManagerVar* cm, Token_New t)
+  bool build_Statement::pushToken( Token_New t, std::string& errorMessage)
   {
     switch (mystate)
       {
       case S_Init:
-        if (c_.pushToken(cm,t))
+        if (c_.pushToken(t, errorMessage))
           {
             if (c_.isFinal())
               {
@@ -1459,7 +1457,7 @@ namespace Markov_IO {
                 return true;
               }
           }
-        else if (v_.pushToken(cm,t))
+        else if (v_.pushToken(t, errorMessage))
           {
             mystate=S_Expression_Partial;
             return true;
@@ -1475,7 +1473,7 @@ namespace Markov_IO {
           }
         break;
       case S_Command_Partial:
-        if (!c_.pushToken(cm,t))
+        if (!c_.pushToken(t, errorMessage))
           {
             ABClass_buildByToken::setErrorMessage(c_.errorMessage());
             return false;
@@ -1494,7 +1492,7 @@ namespace Markov_IO {
           }
         break;
       case S_Expression_Partial:
-        if (!v_.pushToken(cm,t))
+        if (!v_.pushToken(t, errorMessage))
           {
             ABClass_buildByToken::setErrorMessage(v_.errorMessage());
             return false;
