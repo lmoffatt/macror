@@ -99,7 +99,7 @@ namespace Markov_Console
   {
   public:
 
-     bool processTokens(Markov_IO::Token_Stream &t) override;
+   //  bool processTokens(Markov_IO::Token_Stream &t) override;
 
      void KeyEvent(Markov_IO::Key k);
 
@@ -107,7 +107,7 @@ namespace Markov_Console
     Markov_CommandManagerVar();
     virtual ~Markov_CommandManagerVar();
 
-    static std::string getHelpDir();
+ //   static std::string getHelpDir();
 
     static std::string directory();
 
@@ -122,24 +122,16 @@ namespace Markov_Console
     static std::string idCommandName();
 
 
-    virtual  std::vector<std::string>
-    complete(const std::string &hint,
-             const std::string& category)const;
+//    virtual  std::vector<std::string>
+//    complete(const std::string &hint,
+//             const std::string& category)const;
 
 
-    virtual  std::map<std::string,std::vector<std::string>>
-    complete(const std::string &hint,
-             const std::vector<std::pair<std::string, bool>>& categories)const;
-
-    virtual std::string whichCategory(const std::string& candidate
-                                      , const ABC_Value* categories);
+//    virtual  std::map<std::string,std::vector<std::string>>
+//    complete(const std::string &hint,
+//             const std::vector<std::pair<std::string, bool>>& categories)const;
 
 
-    virtual  std::string check(const std::string &hint, const std::string& category);
-
-
-    virtual std::string check(const std::string &hint,
-                              const std::vector<std::pair<std::string,bool>>& categories);
 
 
     virtual std::string  getDir()const;
@@ -153,7 +145,6 @@ namespace Markov_Console
 
     virtual CommandHistory& getH();
 
-    virtual void add_command(ABC_CommandVar* cmd);
 
     virtual void add_var(Markov_IO::ABC_Var *v);
 

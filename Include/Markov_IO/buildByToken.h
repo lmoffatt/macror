@@ -264,15 +264,21 @@ namespace Markov_IO {
 
     virtual bool isHollow()const override
     {
-      return !isComplete_;
+        return !isComplete_;
     }
 
 
-  private:
+  protected:
     C x_;
     bool isComplete_;
+    std::string varType_;
 
   };
+
+
+
+
+
 
 
   template<>
@@ -405,6 +411,7 @@ namespace Markov_IO {
       }
     else
       {
+
         x_=to.str();
         isComplete_=true;
         return true;

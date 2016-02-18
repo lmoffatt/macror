@@ -50,7 +50,7 @@ namespace Markov_Console
 
 
 
-
+/*
   bool Markov_CommandManagerVar::processTokens(Markov_IO::Token_Stream &t)
   {
     if (t.currToken().tok()==Markov_IO::Token_New::IDENTIFIER)
@@ -101,7 +101,7 @@ namespace Markov_Console
 
 
 
-
+*/
 
 
 
@@ -150,10 +150,10 @@ namespace Markov_Console
 
 
 
-  std::string Markov_CommandManagerVar::getHelpDir()
-  {
-    return STRINGIZE(HELP_PATH);
-  }
+//  std::string Markov_CommandManagerVar::getHelpDir()
+//  {
+//    return STRINGIZE(HELP_PATH);
+//  }
 
   std::string Markov_CommandManagerVar::directory()
   {
@@ -182,50 +182,37 @@ namespace Markov_Console
   std::string Markov_CommandManagerVar::idCommandName()
   { return "IdCommand";}
 
-  std::vector<std::string> Markov_CommandManagerVar::complete(const std::string &hint, const std::string &category) const
+//  std::vector<std::string> Markov_CommandManagerVar::complete(const std::string &hint, const std::string &category) const
 
-  {
-    auto it= autoCmptByCategories.find(category);
-    if (it!=autoCmptByCategories.end())
-      {
-        Autocomplete a=it->second;
-        return a.complete(hint);
-      }
-    else
-      {
-        return {};
-      }
-  }
+//  {
+//    auto it= autoCmptByCategories.find(category);
+//    if (it!=autoCmptByCategories.end())
+//      {
+//        Autocomplete a=it->second;
+//        return a.complete(hint);
+//      }
+//    else
+//      {
+//        return {};
+//      }
+//  }
 
-  std::map<std::string, std::vector<std::string> > Markov_CommandManagerVar::complete(const std::string &hint, const std::vector<std::pair<std::string, bool> > &categories) const
-  {
-    std::map<std::string,std::vector<std::string>> out;
-    for (std::pair<std::string,bool> cat:categories)
-      {
-        auto v=complete(hint,cat.first);
-        if (!v.empty())
-          out[cat.first]=v;
-      }
-    return out;
+//  std::map<std::string, std::vector<std::string> > Markov_CommandManagerVar::complete(const std::string &hint, const std::vector<std::pair<std::string, bool> > &categories) const
+//  {
+//    std::map<std::string,std::vector<std::string>> out;
+//    for (std::pair<std::string,bool> cat:categories)
+//      {
+//        auto v=complete(hint,cat.first);
+//        if (!v.empty())
+//          out[cat.first]=v;
+//      }
+//    return out;
 
-  }
-
-  std::string Markov_CommandManagerVar::whichCategory(const std::string &candidate, const Markov_IO::ABC_Value *categories)
-  {
-
-  }
-
-  std::string Markov_CommandManagerVar::check(const std::string &hint, const std::string &category){
+//  }
 
 
 
-  }
 
-  std::string Markov_CommandManagerVar::check(const std::string &hint, const std::vector<std::pair<std::string, bool> > &categories)
-  {
-    std::string out;
-    return out;
-  }
 
   std::string Markov_CommandManagerVar::getDir() const {return dir_;}
 
@@ -368,15 +355,6 @@ namespace Markov_Console
 
 
 
-  void Markov_CommandManagerVar::add_command(ABC_CommandVar *cmd)
-  {
-    if (!has_child(cmd->id()))
-      {
-        pushChild(cmd);
-        cmds[cmd->id()]=cmd;
-        autoCmptByCategories[idCommandName()].push_back(cmd->id());
-      }
-  }
 
 
   bool Markov_CommandManagerVar::has_command(const std::string& name)const{
