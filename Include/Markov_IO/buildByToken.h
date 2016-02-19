@@ -81,22 +81,22 @@ namespace Markov_IO {
   protected:
     MODE mode_=UNDEFINED;
     ABC_BuildByToken(const ABC_Value* p);
-    void setErrorMessage(std::string err);
+    std::string getErrorMessage  (std::string err);
 
-    void setErrorMessage(ABC_BuildByToken* child);
+    std::string getErrorMessage  (ABC_BuildByToken* child);
 
-    void setErrorMessage(Token_New::Value expected, Token_New found);
-    void setErrorMessage(std::string expected, Token_New found);
-    void setErrorMessage(const Markov_Console::ABC_CommandVar *cmd, const std::string &error);
-    void setErrorMessage(const Markov_Console::ABC_CommandVar *cmd
-                         , const ABC_Value *input, const std::string &error);
+    std::string getErrorMessage  (Token_New::Value expected, Token_New found);
+    std::string getErrorMessage  (std::string expected, Token_New found);
+    std::string getErrorMessage  (const Markov_Console::ABC_CommandVar *cmd, const std::string &error);
+    std::string getErrorMessage  (const Markov_Console::ABC_CommandVar *cmd
+                                , const ABC_Value *input, const std::string &error);
 
-    void setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found);
+    std::__cxx11::string setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found);
 
 
     void clearErrorMessage();
 
-    virtual void setErrorMessage(const Markov_Console::ABC_CommandVar *cmd, const ABC_Value *input, Token_New found);
+    virtual std::__cxx11::string getErrorMessage  (const Markov_Console::ABC_CommandVar *cmd, const ABC_Value *input, Token_New found);
 
 
   private:
@@ -300,7 +300,7 @@ namespace Markov_IO {
   {
     if (!to.isReal())
       {
-        setErrorMessage(Token_New::REAL,to);
+        errorMessage=ABC_BuildByToken::getErrorMessage  (Token_New::REAL,to);
         return false;
       }
     else
@@ -319,7 +319,7 @@ namespace Markov_IO {
         else
           {
             errorMessage=myClass()+" has no parent variable";
-          }  clearErrorMessage();
+          }
       }
   }
 
@@ -350,7 +350,7 @@ namespace Markov_IO {
     if (!to.isInteger())
       {
         std::string err=to.str()+" is not an integer number";
-        setErrorMessage(Token_New::INTEGER,to);
+        errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::INTEGER,to);
         return false;
       }
     else
@@ -399,7 +399,7 @@ namespace Markov_IO {
   {
     if (!to.isCount())
       {
-        setErrorMessage(Token_New::UNSIGNED,to);
+        errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::UNSIGNED,to);
         return false;
       }
     else
@@ -463,7 +463,7 @@ namespace Markov_IO {
       {
         errorMessage=myClass()+" has no parent variable";
       }
-    }
+  }
 
   template<>
   inline  Token_New buildByToken<std::string>::popBackToken()
@@ -589,7 +589,7 @@ namespace Markov_IO {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
             {
-              ABC_BuildByToken::setErrorMessage("end of line",tok);
+              errorMessage= ABC_BuildByToken:: ABC_BuildByToken::getErrorMessage   ("end of line",tok);
               return false;
             }
           else
@@ -601,12 +601,11 @@ namespace Markov_IO {
         case S_Header2:
           if (tok.tok()!=Token_New::LSB)
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::LSB,tok);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::LSB,tok);
               return false;
             }
           else
             {
-              ABC_BuildByToken::clearErrorMessage();
               mystate=S_Header_Final;
               return true;
             }
@@ -615,7 +614,6 @@ namespace Markov_IO {
         case S_Data_Partial:
           if (!myChildState.pushToken(tok, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -641,7 +639,6 @@ namespace Markov_IO {
             }
           else if (!myChildState.pushToken(tok, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -882,7 +879,7 @@ namespace Markov_IO {
         case S_First_Partial:
           if (!first_.pushToken(tok, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&first_);
+              errorMessage= ABC_BuildByToken::getErrorMessage(errorMessage);
               return false;
             }
           else
@@ -897,7 +894,7 @@ namespace Markov_IO {
         case S_First_Final:
           if (tok.tok()!=Token_New::COLON)
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::COLON, tok);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::COLON, tok);
               return false;
             }
           else
@@ -910,7 +907,7 @@ namespace Markov_IO {
         case S_Second_Partial:
           if (!second_.pushToken(tok, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&second_);
+              errorMessage= ABC_BuildByToken::getErrorMessage(errorMessage);
               return false;
             }
           else
@@ -1125,7 +1122,7 @@ namespace Markov_IO {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::EOL, tok);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL, tok);
               return false;
             }
 
@@ -1167,7 +1164,7 @@ namespace Markov_IO {
                     }
                   else
                     {
-                      ABC_BuildByToken::setErrorMessage(
+                      errorMessage= ABC_BuildByToken::getErrorMessage   (
                             "Error in matrix. nrows="+std::to_string(nRows_)
                             +"  nCols="+std::to_string(nCols_));
                       return false;
@@ -1202,19 +1199,19 @@ namespace Markov_IO {
                     }
                   else
                     {
-                      ABC_BuildByToken::setErrorMessage(
+                      errorMessage= ABC_BuildByToken::getErrorMessage   (
                             "Error in matrix. nrows="+std::to_string(nRows_)
                             +"  nCols="+std::to_string(nCols_));
                       return false;
                     }}
               else  {
-                  ABC_BuildByToken::setErrorMessage(
+                  errorMessage= ABC_BuildByToken::getErrorMessage   (
                         "Error in matrix. nrows="+std::to_string(nRows_)
                         +"  nCols="+std::to_string(nCols_));
                   return false;
                 }}
 
-          else if (getValue(tok,v_))
+          else if (getValue(tok,v_,errorMessage))
             {
               if ((nCols_==0)||(runCols_<nCols_))
                 {
@@ -1228,7 +1225,7 @@ namespace Markov_IO {
                 }
               else
                 {
-                  ABC_BuildByToken::setErrorMessage(
+                  errorMessage= ABC_BuildByToken::getErrorMessage   (
                         "Error in matrix. nrows="+std::to_string(nRows_)
                         +"  nCols="+std::to_string(nCols_)
                         + "  running cols"+std::to_string(runCols_));
@@ -1332,7 +1329,7 @@ namespace Markov_IO {
 
     }
   private:
-    bool getValue(Token_New tok, T& v);
+    bool getValue(Token_New tok, T& v,std::string& errorMessage);
     DAF mystate;
     Markov_LA::M_Matrix<T> x_;
     T v_;
@@ -1348,7 +1345,7 @@ namespace Markov_IO {
 
   template<>
   inline bool Markov_IO::buildByToken<Markov_LA::M_Matrix<double> >::getValue(
-      Token_New tok, double &v)
+      Token_New tok, double &v,std::string& errorMessage)
   {
     if (tok.isReal())
       {
@@ -1357,14 +1354,14 @@ namespace Markov_IO {
       }
     else
       {
-        ABC_BuildByToken::setErrorMessage(Token_New::REAL, tok);
+        errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::REAL, tok);
         return false;
       }
   }
 
   template<>
   inline  bool Markov_IO::buildByToken<Markov_LA::M_Matrix<std::size_t> >::getValue(
-      Token_New tok, std::size_t &v)
+      Token_New tok, std::size_t &v, std::string& errorMessage)
   {
     if (tok.isCount())
       {
@@ -1373,13 +1370,13 @@ namespace Markov_IO {
       }
     else
       {
-        ABC_BuildByToken::setErrorMessage(Token_New::UNSIGNED, tok);
+        errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::UNSIGNED, tok);
         return false;
       }  }
 
   template<>
   inline bool Markov_IO::buildByToken<Markov_LA::M_Matrix<int> >::getValue(
-      Token_New tok, int &v)
+      Token_New tok, int &v, std::string& errorMessage)
   {
     if (tok.isInteger())
       {
@@ -1388,7 +1385,7 @@ namespace Markov_IO {
       }
     else
       {
-        ABC_BuildByToken::setErrorMessage(Token_New::INTEGER, tok);
+        errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::INTEGER, tok);
         return false;
       }
   }
@@ -1507,7 +1504,7 @@ namespace Markov_IO {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::EOL, tok);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL, tok);
               return false;
             }  else
             {
@@ -1518,7 +1515,7 @@ namespace Markov_IO {
         case S_Header2:
           if (tok.tok()!=Token_New::LCB)
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::LCB, tok);
+              errorMessage=ABC_BuildByToken:: ABC_BuildByToken::getErrorMessage   (Token_New::LCB, tok);
               return false;
             }   else
             {
@@ -1530,7 +1527,6 @@ namespace Markov_IO {
         case S_Data_Partial:
           if (!myChildState.pushToken(tok, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -1556,7 +1552,6 @@ namespace Markov_IO {
             }
           else if (!myChildState.pushToken(tok, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -1795,7 +1790,7 @@ namespace Markov_IO {
         case S_Init:
           if (tok.tok()!=Token_New::EOL)
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::EOL,tok);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL,tok);
               return false;
             }
           else
@@ -1807,7 +1802,7 @@ namespace Markov_IO {
         case S_Header2:
           if (tok.tok()!=Token_New::LCB)
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::LCB,tok);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::LCB,tok);
               return false;
             }
           else
@@ -1820,7 +1815,6 @@ namespace Markov_IO {
         case S_Data_Partial:
           if (!myChildState.pushToken(tok, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -1846,7 +1840,6 @@ namespace Markov_IO {
             }
           else if (!myChildState.pushToken(tok, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&myChildState);
               return false;
             }
           else
@@ -2036,7 +2029,8 @@ namespace Markov_IO {
 
     bool pushToken(Token_New t, std::string& errorMessage) override
     {
-      switch (idstate) {
+      switch (idstate)
+        {
         case S_Init:
           if (t.tok()==Token_New::HASH)
             {
@@ -2047,14 +2041,16 @@ namespace Markov_IO {
             {
               if (parent()->idToValue(t.identifier())!=nullptr)
                 {
-
+                  errorMessage="occupied identifier";
+                  return false;
                 }
-              parent()->isValidId(t.identifier());
-              if (id_==nullptr)
-                id_=new Implements_ValueId;
-              id_->setId(t.str());
-
-              idstate =ID1;
+              else
+                {
+                  if (id_==nullptr)
+                    id_=new Implements_ValueId;
+                  id_->setId(t.identifier());
+                  idstate =ID1;
+                }
             }
           else
             {
@@ -2075,7 +2071,7 @@ namespace Markov_IO {
           else
             {
               std::string e= "wrong Tip. Expected a string. Received: ";
-              ABC_BuildByToken::setErrorMessage(e,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (e,t);
               return false;
             }
           break;
@@ -2088,7 +2084,7 @@ namespace Markov_IO {
           else
             {
               std::string e= "Error in Tip. Expected a return. Received: ";
-              ABC_BuildByToken::setErrorMessage(e,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (e,t);
               return false;
             }
           break;
@@ -2118,7 +2114,7 @@ namespace Markov_IO {
               return true;
             }
           else  {
-              ABC_BuildByToken::setErrorMessage(Token_New::HASH,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::HASH,t);
               return false;
             }
           break;
@@ -2133,7 +2129,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::STRING,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::STRING,t);
               return false;
             }       break;
         case WT3:
@@ -2144,7 +2140,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL,t);
               return false;
             }   break;
 
@@ -2159,7 +2155,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::IDENTIFIER,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::IDENTIFIER,t);
               return false;
             }        break;
         case ID1:
@@ -2170,7 +2166,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::COLON,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::COLON,t);
               return false;
             }
           break;
@@ -2185,7 +2181,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::IDENTIFIER,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::IDENTIFIER,t);
               return false;
             }
           break;
@@ -2453,7 +2449,7 @@ namespace Markov_IO {
           else
             {
               std::string e="Error in reference construction. Expected assign ""="" found: ";
-              ABC_BuildByToken::setErrorMessage(e+t.str());
+              errorMessage= ABC_BuildByToken::getErrorMessage   (e+t.str());
               return false;
             }
           break;
@@ -2465,7 +2461,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::MUL,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::MUL,t);
               return false;
             } break;
 
@@ -2478,7 +2474,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::IDENTIFIER,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::IDENTIFIER,t);
               return false;
             }
           break;
@@ -2490,7 +2486,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL,t);
               return false;
             }
           break;
@@ -2715,7 +2711,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::ASSIGN,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::ASSIGN,t);
               return false;
             }
           break;
@@ -2723,7 +2719,7 @@ namespace Markov_IO {
         case S_Data_Partial:
           if (!data_.pushToken(t, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&data_);
+              errorMessage=ABClass_buildByToken::getErrorMessage(errorMessage);
               return false;
             }
           else if (data_.isFinal())
@@ -2746,7 +2742,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL,t);
               return false;
             }
           break;
@@ -3126,7 +3122,7 @@ namespace Markov_IO {
         }
       else
         {
-          ABClass_buildByToken::setErrorMessage("cannot unload beacause it is not in final state");
+//         errorMessage=ABClass_buildByToken::ABC_BuildByToken::getErrorMessage  ("cannot unload beacause it is not in final state");
 
           return nullptr;
 
@@ -3160,7 +3156,7 @@ namespace Markov_IO {
       else
         {
           return nullptr;
-          ABClass_buildByToken::setErrorMessage(cmv_,"cannot unload because it is not in final state");
+          ABClass_buildByToken::ABC_BuildByToken::getErrorMessage  (cmv_,"cannot unload because it is not in final state");
         }
     }
 
@@ -3350,7 +3346,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::BEGIN,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::BEGIN,t);
               return false;
             }
           break;
@@ -3362,14 +3358,14 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL,t);
               return false;
             }break;
         case S_Header_Final:
         case S_Field_Partial:
           if (!v_.pushToken(t,errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&v_);
+              errorMessage=ABClass_buildByToken::getErrorMessage(errorMessage);
               return false;
             }
           else if (v_.isFinal())
@@ -3393,7 +3389,7 @@ namespace Markov_IO {
             }
           else if (!v_.pushToken(t,errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(&v_);
+              errorMessage=ABClass_buildByToken::getErrorMessage(errorMessage);
               return false;
             }
           else if (v_.isFinal())
@@ -3413,7 +3409,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::END,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::END,t);
               return false;
             }
           break;
@@ -3426,7 +3422,7 @@ namespace Markov_IO {
             }
           else
             {
-              ABC_BuildByToken::setErrorMessage(Token_New::EOL,t);
+              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL,t);
               return false;
             }
           break;

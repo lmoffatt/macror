@@ -37,8 +37,8 @@ class Markov_CommandManagerVar;
 
   protected:
 
-    bool push_back(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO *io, char c);
-    bool push_back(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io, const std::string& s);
+    bool push_back(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO *io, char c, std::string& errorMessage);
+    bool push_back(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io, const std::string& s, std::__cxx11::string &errorMessage);
 
     char pop_back_char();
 

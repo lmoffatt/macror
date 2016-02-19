@@ -24,10 +24,7 @@ namespace Markov_IO {
     return SuperClasses();
   }
 
-  std::string ABC_BuildByToken::errorMessage() const
-  {
-    return error_;
-  }
+
 
   ABC_BuildByToken::~ABC_BuildByToken(){}
 
@@ -38,47 +35,45 @@ namespace Markov_IO {
     return parent_;
   }
 
-  ABC_BuildByToken::ABC_BuildByToken(const ABC_Value *p):parent_(p), error_(){}
+  ABC_BuildByToken::ABC_BuildByToken(const ABC_Value *p):parent_(p){}
 
-  void ABC_BuildByToken::setErrorMessage(std::string err)
+
+
+
+  std::string ABC_BuildByToken::getErrorMessage(std::string errorMessage)
   {
-    error_=err;
+    return "Error in "+myClass()+" : "+errorMessage;
   }
 
-  void ABC_BuildByToken::setErrorMessage(ABC_BuildByToken *child)
+  std::string ABC_BuildByToken::getErrorMessage(Token_New::Value expected, Token_New found)
   {
-    error_="Error in "+myClass()+" : "+child->errorMessage();
-  }
-
-  void ABC_BuildByToken::setErrorMessage(Token_New::Value expected, Token_New found)
-  {
-    error_="Error in "+myClass()+" : expected: "
+    return "Error in "+myClass()+" : expected: "
         +Token_New::toString(expected)+"; found: "
         +found.str();
   }
 
-  void ABC_BuildByToken::setErrorMessage(std::string expected, Token_New found)
+  std::string ABC_BuildByToken::getErrorMessage(std::string expected, Token_New found)
   {
-    error_="Error in "+myClass()+" : expected: "
+    return "Error in "+myClass()+" : expected: "
         +expected+"; found: "
         +found.str();
   }
 
-  void ABC_BuildByToken::setErrorMessage(const Markov_Console::ABC_CommandVar* cmd,
+  std::string ABC_BuildByToken::getErrorMessage(const Markov_Console::ABC_CommandVar* cmd,
                                          const ABC_Value* input, const std::string& error)
   {
     std::string err="Error in command: "+cmd->id() +", field: "+input->id()+" "+error;
-    error_=err;
+    return err;
   }
 
-  void ABC_BuildByToken::setErrorMessage(const Markov_Console::ABC_CommandVar* cmd,const std::string& error)
+  std::string ABC_BuildByToken::getErrorMessage(const Markov_Console::ABC_CommandVar* cmd,const std::string& error)
   {
     std::string err="Error in "+myClass()+" for command "+cmd->id() +" "+error;
-    error_=err;
+    return err;
   }
 
 
-  void ABC_BuildByToken::setErrorMessage(const Markov_Console::ABC_CommandVar* cmd,
+  std::string  ABC_BuildByToken::getErrorMessage(const Markov_Console::ABC_CommandVar* cmd,
                                          const ABC_Value* input, Token_New found)
   {
     std::string err="Error in "+myClass()+" for command "+cmd->id() +"  : expected: ";
@@ -91,25 +86,21 @@ namespace Markov_IO {
       }
     err.substr(0,err.size()-3);
     err+="; found: " +found.str();
-    error_=err;
+    return err;
   }
 
 
 
-  void ABC_BuildByToken::setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found)
+  std::string ABC_BuildByToken::setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found)
   {
     std::string estr="Error in "+myClass()+" : expected: ";
     for (auto ex:expected)
       estr+=Token_New::toString(ex)+" or ";
     estr.substr(0,estr.size()-3);
     estr+="; found: " +found.str();
-    error_=estr;
+    return estr;
   }
 
-  void ABC_BuildByToken::clearErrorMessage()
-  {
-    error_.clear();
-  }
 
 
 
@@ -210,7 +201,7 @@ namespace Markov_IO {
       case S_ID_Partial:
         if (!id_.pushToken(t,errorMessage))
           {
-            ABC_BuildByToken::setErrorMessage(&id_);
+           errorMessage= ABC_BuildByToken::getErrorMessage(errorMessage);
             return false;
           }
         else if (id_.isFinal())
@@ -248,7 +239,7 @@ namespace Markov_IO {
       case S_Var_Partial:
         if(!var_->pushToken(t,errorMessage))
           {
-            ABC_BuildByToken::setErrorMessage(var_);
+            errorMessage= ABC_BuildByToken::getErrorMessage(errorMessage);
             return false;
           }
         else if (var_->isFinal())
@@ -305,7 +296,7 @@ namespace Markov_IO {
         for (auto to:prevTokens_)
           if (var_->pushToken(to,errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(var_);
+              errorMessage= ABC_BuildByToken::getErrorMessage(errorMessage);
               return false;
             }
 
@@ -354,7 +345,7 @@ namespace Markov_IO {
         for (auto to:prevTokens_)
           if (var_->pushToken(to, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(var_);
+              errorMessage=ABC_BuildByToken::getErrorMessage(errorMessage);
               return false;
             }
 
@@ -400,7 +391,7 @@ namespace Markov_IO {
         for (auto to:prevTokens_)
           if (var_->pushToken(to, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(var_);
+              errorMessage=ABC_BuildByToken::getErrorMessage(errorMessage);
               return false;
             }
         mystate=S_Var_Partial;
@@ -454,7 +445,7 @@ namespace Markov_IO {
           }
         else
           {
-            ABC_BuildByToken::setErrorMessage({Token_New::COLON,previousTok_.tok()},t);
+            ABC_BuildByToken::getErrorMessage({Token_New::COLON,previousTok_.tok()},t);
             return false;
           }
         prevTokens_.push_back(t);
@@ -462,7 +453,7 @@ namespace Markov_IO {
         for (auto to:prevTokens_)
           if (var_->pushToken(to, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(var_);
+              errorMessage=ABC_BuildByToken::getErrorMessage(errorMessage);
               return false;
             }
         mystate=S_Var_Partial;
@@ -560,7 +551,7 @@ namespace Markov_IO {
         for (auto to:prevTokens_)
           if (var_->pushToken(to, errorMessage))
             {
-              ABC_BuildByToken::setErrorMessage(var_);
+              errorMessage=ABC_BuildByToken::getErrorMessage(errorMessage);
               return false;
             }
         mystate=S_Var_Partial;
@@ -1017,13 +1008,13 @@ namespace Markov_IO {
               }
             else
               {
-                setErrorMessage("a valid command",t);
+                getErrorMessage("a valid command",t);
                 return false;
               }
           }
         else
           {
-            setErrorMessage("a valid command",t);
+            getErrorMessage("a valid command",t);
 
             return false;
           }
@@ -1368,7 +1359,7 @@ namespace Markov_IO {
 
     if (oith==nullptr)
       {
-        ABC_BuildByToken::setErrorMessage(cmd_,"no inputs left");
+        ABC_BuildByToken::getErrorMessage(cmd_,"no inputs left");
         return false;
       }
     else if (iInputField_<cmd_->numMandatoryInputs())
@@ -1378,7 +1369,7 @@ namespace Markov_IO {
           return true;
         else
           {
-            setErrorMessage(cmd_,oith,error);
+            getErrorMessage(cmd_,oith,error);
             return false;
           }
       }
@@ -1406,7 +1397,7 @@ namespace Markov_IO {
           return true;
         else
           {
-            setErrorMessage(cmd_,errorTotal);
+            getErrorMessage(cmd_,errorTotal);
             return false;
           }
 
@@ -1467,7 +1458,7 @@ namespace Markov_IO {
             if (t.tok()==Token_New::EOL)
               return true;
             else
-              setErrorMessage(t.str()+": unknown command or variable");
+              errorMessage=getErrorMessage(t.str()+": unknown command or variable");
 
             return false;
           }
@@ -1475,7 +1466,7 @@ namespace Markov_IO {
       case S_Command_Partial:
         if (!c_.pushToken(t, errorMessage))
           {
-            ABClass_buildByToken::setErrorMessage(c_.errorMessage());
+            errorMessage=ABClass_buildByToken::getErrorMessage(errorMessage);
             return false;
           }
         else
@@ -1494,7 +1485,7 @@ namespace Markov_IO {
       case S_Expression_Partial:
         if (!v_.pushToken(t, errorMessage))
           {
-            ABClass_buildByToken::setErrorMessage(v_.errorMessage());
+            errorMessage=ABC_BuildByToken::getErrorMessage(errorMessage);
             return false;
           }
         else
