@@ -1240,23 +1240,11 @@ namespace Markov_Console
     return list;
   }
 
-  std::vector<std::string> Markov_CommandManager::getVarsList(std::string className)const
-  {
-    std::vector<std::string> list;
-    auto l=getChildList();
-    for (std::string el:l)
-      {
-        if (idToValue(el,className)!=nullptr)
-          {
-            list.push_back(el);
-          }
-      }
-    return list;
-  }
 
 
 
-  std::vector<std::string> Markov_CommandManager::getVarsList()
+
+  std::vector<std::__cxx11::string> Markov_CommandManager::getVarsList()
   {
     std::vector<std::string> varList;
     for (std::map<std::string,Markov_IO::ABC_Saveable*>::const_iterator it
@@ -1267,7 +1255,7 @@ namespace Markov_Console
 
       }
 
-    auto l=getChildList();
+    auto l=getDataList();
     varList.insert(varList.begin(),l.begin(),l.end());
     return varList;
   }

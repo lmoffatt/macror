@@ -121,7 +121,7 @@ bool SaveCommand::run(
      {
          f<<getCommandManager()->version()<<std::endl;
          std::size_t i=0;
-         auto variablenames=cm_->getChildList();
+         auto variablenames=cm_->getDataList();
          for (auto name : variablenames)
          {
              f<<cm_->idToValue(name)->toString();

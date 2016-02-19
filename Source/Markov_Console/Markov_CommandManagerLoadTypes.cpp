@@ -72,7 +72,7 @@ void Markov_CommandManagerVar::LoadTypes()
 void Markov_CommandManagerVar::UpdateIdLists()
 {
   Markov_IO::Implements_Identifier_Class* h=idLists_[HelpSubject::ClassName()];
-  h->add_Identifiers(this->getChildList());
+  h->add_Identifiers(this->getDataList());
 
 
 }

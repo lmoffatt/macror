@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <algorithm>
+
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
@@ -41,14 +42,80 @@ namespace  Markov_IO {
   template<class C,typename T>
   using refsetter=T&(C::*)();
 
+  using valuePredicate=bool(*)(const ABC_Value*);
+  using valueStringPredicate=bool(*)(const ABC_Value*, const std::string&);
 
 
+  using namePredicate=bool(*)(const std::string&);
+
+  template<typename C>
+  struct Cls
+  {
+    static std::string name() { return C::ClassName() ;}
+  };
+
+  template<typename C>
+  struct Cls<C*>
+  {
+    static std::string name() { return C::ClassName() ;}
+  };
 
 
+  template<typename T>
+  struct Cls<std::vector<T>>
+  {
+    static std::string name() { return "vector_of_"+Cls<T>::name() ;}
+  };
+
+  template<typename T>
+  struct Cls<std::set<T>>
+  {
+    static std::string name() {return "set_of_"+Cls<T>::name();}
+  };
+
+  template<typename K,typename T>
+  struct Cls<std::pair<K,T>>
+  {
+    static std::string name() { return "pair_of_"+Cls<K>::name()+"_and_"+Cls<T>::name() ;}
+  };
+
+  template<typename K,typename T>
+  struct Cls<std::map<K,T>>
+  {
+    static std::string name(){return "map_of_"+Cls<K>::name()+"_on_"+Cls<T>::name();}
+  };
 
 
+  template<typename T>
+  struct Cls<Markov_LA::M_Matrix<T>>
+  {
+    static std::string name() { return "matrix_of_"+Cls<T>::name() ;}
+  };
 
 
+  template<>
+  struct Cls<int>
+  {
+    static std::string name() {return "integer";}
+  };
+
+  template<>
+  struct Cls<double>
+  {
+    static std::string name(){return "double";}
+  };
+
+  template<>
+  struct Cls<std::string>
+  {
+    static std::string name(){return "string";}
+  };
+
+  template<>
+  struct Cls<std::size_t>
+  {
+    static std::string name(){return "count";}
+  };
 
 
 
@@ -61,6 +128,8 @@ namespace  Markov_IO {
 
   std::set<std::string> operator+(std::set<std::string> &&ss1,
                                   std::set<std::string> &&ss2);
+
+
 
 
 
@@ -171,6 +240,13 @@ namespace  Markov_IO {
     virtual void clear()=0;
 
 
+    /// indicates if it is a variable
+    virtual bool isVar()const{ return false;}
+
+
+    virtual bool isData()const {return false;}
+
+    virtual bool isCommand()const {return false;}
 
 
     virtual Token_Stream toTokens()const=0;
@@ -309,8 +385,12 @@ namespace  Markov_IO {
 
     bool has_child(const std::string& name)const;
 
+    std::set<std::__cxx11::string> getListComplying(const std::string& var)const;
 
-    std::vector<std::string> getChildList()const;
+    std::set<std::__cxx11::string> getDataList()const;
+    virtual std::set<std::__cxx11::string> getChildList(valuePredicate P)const;
+    virtual std::set<std::__cxx11::string> getChildList(valueStringPredicate P,const std::string& name)const;
+
 
     void pushIdChild(const std::string& id,ABC_Value* var);
 
@@ -923,13 +1003,20 @@ namespace  Markov_IO {
 
     virtual std::size_t numChilds() const override;
     virtual std::string ith_ChildName(std::size_t i) const override;
+
+    virtual  std::set<std::string>
+    getChildList(valuePredicate P) const override;
+    virtual std::set<std::string>
+    getChildList(valueStringPredicate P,const std::string& name)const override;
+
+
     virtual const ABC_Value* idToValue(const std::string& name)const override;
     virtual  ABC_Value* idToValue(const std::string& name)override;
 
 
+
     virtual ABC_Value* popLastChild();
 
-    std::vector<std::string> getChildList(const std::string& className="")const;
 
 
     virtual bool removeChild(const std::string& name)override;
@@ -3078,6 +3165,9 @@ namespace  Markov_IO {
     ss1.insert(ss2.begin(),ss2.end());
     return ss1;
   }
+
+
+
 
   template<typename T>
   inline std::set<std::string> getLables(const std::map<std::string,T>& m)

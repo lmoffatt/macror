@@ -89,7 +89,7 @@ namespace Markov_IO {
     std::string getErrorMessage  (std::string expected, Token_New found);
     std::string getErrorMessage  (const Markov_Console::ABC_CommandVar *cmd, const std::string &error);
     std::string getErrorMessage  (const Markov_Console::ABC_CommandVar *cmd
-                                , const ABC_Value *input, const std::string &error);
+                                  , const ABC_Value *input, const std::string &error);
 
     std::__cxx11::string setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found);
 
@@ -113,7 +113,7 @@ namespace Markov_IO {
   public:
     static std::string ClassName()
     {
-      return "ABC_BuildByToken";
+      return "ABC_BuildByToken_"+Cls<C>::name();
     }
 
     static std::set<std::string> SuperClasses()
@@ -187,7 +187,10 @@ namespace Markov_IO {
   {
   public:
 
-    static std::string ClassName();
+    static std::string ClassName()
+    {
+      return "build_"+Cls<C>::name();
+    }
 
     static std::set<std::string> SuperClasses()
     {
@@ -236,12 +239,42 @@ namespace Markov_IO {
       return out;
     }
 
-    bool pushToken(Token_New t, std::string& errorMessage)override;
+    bool pushToken(Token_New t, std::string& errorMessage)override
+    {
+      C d;
+      if (!t.toValue(d))
+        {
+          errorMessage=t.str()+ " is not a "+Cls<C>::name();
+        }
+      else  if (ABClass_buildByToken<C>::parent()!=nullptr)
+        {
+          if (ABClass_buildByToken<C>::parent()->checkValue(varType_,d,errorMessage))
+            {
+              x_=d;
+              isComplete_=true;
+              return true;
+            }
+          else return false;
+        }
+      else
+        {
+          errorMessage=myClass()+" has no parent variable";
+        }
+    }
+
 
 
     std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
     {
-      return {myClass(),{Implements_Simple_Value<C>::ClassName()}};
+      if (ABClass_buildByToken<C>::parent()!=nullptr)
+        {
+          auto a=ABClass_buildByToken<C>::parent()->idToValue(varType_)->alternativeValues();
+          return {varType_,a};
+        }
+      else
+        {
+          return {varType_,{Implements_Simple_Value<C>::ClassName()}};
+        }
     }
 
 
@@ -258,7 +291,17 @@ namespace Markov_IO {
       return true;
     }
 
-    Token_New popBackToken() override;
+    Token_New popBackToken() override
+    {
+      if (isFinal())
+        {
+          Token_New to(x_);
+          isComplete_=false;
+          return to;
+        }
+      else
+        return {};
+    }
 
     bool isFinal()const
     {
@@ -289,194 +332,6 @@ namespace Markov_IO {
 
 
 
-  template<>
-  inline std::string buildByToken<double>::ClassName()
-  {
-    return "build_double";
-  }
-
-  template<>
-  inline  bool buildByToken<double>::pushToken(Token_New to, std::string& errorMessage)
-  {
-    if (!to.isReal())
-      {
-        errorMessage=ABC_BuildByToken::getErrorMessage  (Token_New::REAL,to);
-        return false;
-      }
-    else
-      {
-        auto n=to.realValue();
-        if (parent()!=nullptr)
-          {
-            if (parent()->checkValue(varType_,n,errorMessage))
-              {
-                x_=n;
-                isComplete_=true;
-                return true;
-              }
-            else return false;
-          }
-        else
-          {
-            errorMessage=myClass()+" has no parent variable";
-          }
-      }
-  }
-
-
-
-  template<>
-  inline  Token_New buildByToken<double>::popBackToken()
-  {
-    if (isFinal())
-      {
-        Token_New to(x_);
-        isComplete_=false;
-        return to;
-      }
-    else
-      return {};
-  }
-
-  template<>
-  inline std::string buildByToken<int>::ClassName()
-  {
-    return "build_int";
-  }
-
-  template<>
-  inline  bool buildByToken<int>::pushToken(Token_New to, std::string& errorMessage)
-  {
-    if (!to.isInteger())
-      {
-        std::string err=to.str()+" is not an integer number";
-        errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::INTEGER,to);
-        return false;
-      }
-    else
-      {
-        if (parent()!=nullptr)
-          {
-            auto n=to.intval();
-            if (parent()->checkValue(varType_,n,errorMessage))
-              {
-                x_=n;
-                isComplete_=true;
-                return true;
-              }
-            else return false;
-          }
-        else
-          {
-            errorMessage=myClass()+" has no parent variable";
-          }
-      }
-  }
-
-  template<>
-  inline  Token_New buildByToken<int>::popBackToken()
-  {
-    if (isFinal())
-      {
-        Token_New to(x_);
-        isComplete_=false;
-        return to;
-      }
-    else
-      return {};
-  }
-
-
-  template<>
-  inline std::string buildByToken<std::size_t>::ClassName()
-  {
-    return "build_count";
-  }
-
-
-  template<>
-  inline  bool buildByToken<std::size_t>::pushToken(Token_New to, std::string& errorMessage)
-  {
-    if (!to.isCount())
-      {
-        errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::UNSIGNED,to);
-        return false;
-      }
-    else
-      {
-        if (parent()!=nullptr)
-          {
-            auto n=to.count();
-            if (parent()->checkValue(varType_,n,errorMessage))
-              {
-                x_=n;
-                isComplete_=true;
-                return true;
-              }
-            else return false;
-          }
-        else
-          {
-            errorMessage=myClass()+" has no parent variable";
-          }
-      }
-  }
-
-
-  template<>
-  inline  Token_New buildByToken<std::size_t>::popBackToken()
-  {
-    if (isFinal())
-      {
-        Token_New to(x_);
-        isComplete_=false;
-        return to;
-      }
-    else
-      return {};
-  }
-
-  template<>
-  inline std::string buildByToken<std::string>::ClassName()
-  {
-    return "build_string";
-  }
-
-
-
-  template<>
-  inline  bool buildByToken<std::string>::pushToken(Token_New to, std::string& errorMessage)
-  {
-    std::string s=to.str();
-
-    if (parent()!=nullptr)
-      {
-        if (parent()->checkValue(varType_,s,errorMessage))
-          {
-            x_=to.str();
-            isComplete_=true;
-            return true;
-          }
-        else return false;
-      }
-    else
-      {
-        errorMessage=myClass()+" has no parent variable";
-      }
-  }
-
-  template<>
-  inline  Token_New buildByToken<std::string>::popBackToken()
-  {
-    if (isFinal())
-      {
-        Token_New to(x_);
-        isComplete_=false;
-        return to;
-      }
-    else
-      return {};
-  }
 
   template<typename T>
   class buildByToken<std::vector<T> >
@@ -486,7 +341,7 @@ namespace Markov_IO {
 
     static std::string ClassName()
     {
-      return "Build_vector";
+      return "Build_vector_of_"+Cls<T>::name();
     }
 
     static std::set<std::string> SuperClasses()
@@ -773,7 +628,7 @@ namespace Markov_IO {
 
     static std::string ClassName()
     {
-      return "Build_pair";
+      return "Build_pair_"+Cls<K>::name()+"_"+Cls<T>::name();
     }
 
     static std::set<std::string> SuperClasses()
@@ -1022,7 +877,7 @@ namespace Markov_IO {
 
     static std::string ClassName()
     {
-      return "Build_Matrix";
+      return "Build_Matrix_of_"+Cls<T>::name();
     }
 
     static std::set<std::string> SuperClasses()
@@ -1969,369 +1824,59 @@ namespace Markov_IO {
   {
 
   public:
-    static std::string ClassName()
-    {
-      return "build_Implements_ValueId";
-    }
+    static std::string ClassName();
 
-    static std::set<std::string> SuperClasses()
-    {
-      return ABC_Value_ByToken::SuperClasses()+ClassName();
-    }
+    static std::set<std::string> SuperClasses();
 
-    std::string myClass()const override
-    {
-      return ClassName();
+    std::string myClass()const override;
 
-    }
-
-    std::set<std::string> mySuperClasses()const override
-    {
-      return SuperClasses();
-    }
+    std::set<std::string> mySuperClasses()const override;
 
     enum DFA {
       S_Init=0, TIP1, TIP2,WT0_ID0,WT2,WT3,ID1,ID2,WT1,ID0,S_Final
     } ;
 
-    build_Implements_ValueId(const ABC_Value* p):
-      ABC_Value_ByToken(p),
-      id_(nullptr),
-      idstate(S_Init){}
+    build_Implements_ValueId(const ABC_Value* p);
 
 
-    void setId(Implements_ValueId* id)
-    {
-      delete id_;
-      id_=id;
-    }
+    void setId(Implements_ValueId* id);
 
 
-    Implements_ValueId* unloadVar() override
-    {
-      if (isFinal())
-        {
-          auto out=id_;
-          idstate=S_Init;
-          id_=new Implements_ValueId;
-          return out;
-        }
-      else return nullptr;
-    }
+    Implements_ValueId* unloadVar() override;
 
-    void clear()override
-    {
-      ABClass_buildByToken::clear();
-      delete id_;
-      idstate=S_Init;
-      id_=new Implements_ValueId;
-    }
+    void clear()override;
 
-    bool pushToken(Token_New t, std::string& errorMessage) override
-    {
-      switch (idstate)
-        {
-        case S_Init:
-          if (t.tok()==Token_New::HASH)
-            {
-              idstate=TIP1;
-              return true;
-            }
-          else if (t.tok()==Token_New::IDENTIFIER)
-            {
-              if (parent()->idToValue(t.identifier())!=nullptr)
-                {
-                  errorMessage="occupied identifier";
-                  return false;
-                }
-              else
-                {
-                  if (id_==nullptr)
-                    id_=new Implements_ValueId;
-                  id_->setId(t.identifier());
-                  idstate =ID1;
-                }
-            }
-          else
-            {
-              ABC_BuildByToken::setErrorsMessage({Token_New::HASH,Token_New::IDENTIFIER},t);
-              return false;
-            }
-          break;
-        case TIP1:
-          if (t.tok()==Token_New::STRING)
-            {
-              idstate =TIP2;
-              if (id_==nullptr)
-                id_=new Implements_ValueId;
+    bool pushToken(Token_New t, std::string& errorMessage) override;
 
-              id_->setTip(t.str());
-              return true;
-            }
-          else
-            {
-              std::string e= "wrong Tip. Expected a string. Received: ";
-              errorMessage= ABC_BuildByToken::getErrorMessage   (e,t);
-              return false;
-            }
-          break;
-        case TIP2:
-          if (t.tok()==Token_New::EOL)
-            {
-              idstate =WT0_ID0;
-              return true;
-            }
-          else
-            {
-              std::string e= "Error in Tip. Expected a return. Received: ";
-              errorMessage= ABC_BuildByToken::getErrorMessage   (e,t);
-              return false;
-            }
-          break;
-        case WT0_ID0:
-          if (t.tok()==Token_New::HASH)
-            {
-              idstate =WT1;
-              return true;
-            }
-          else if (t.tok()==Token_New::IDENTIFIER)
-            {
-              idstate =ID1;
-              if (id_==nullptr)
-                id_=new Implements_ValueId;
-              id_->setId(t.str());
-              return true;
-            }
-          else  {
-              ABC_BuildByToken::setErrorsMessage({Token_New::HASH,Token_New::IDENTIFIER},t);
-              return false;
-            }
-          break;
-        case WT1:
-          if (t.tok()==Token_New::HASH)
-            {
-              idstate =WT2;
-              return true;
-            }
-          else  {
-              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::HASH,t);
-              return false;
-            }
-          break;
-        case WT2:
-          if(t.tok()==Token_New::STRING)
-            {
-              idstate =WT3;
-              if (id_==nullptr)
-                id_=new Implements_ValueId;
-              id_->setWhatThis(t.str());
-              return true;
-            }
-          else
-            {
-              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::STRING,t);
-              return false;
-            }       break;
-        case WT3:
-          if (t.tok()==Token_New::EOL)
-            {
-              idstate =ID0;
-              return true;
-            }
-          else
-            {
-              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL,t);
-              return false;
-            }   break;
-
-        case ID0:
-          if (t.tok()==Token_New::IDENTIFIER)
-            {
-              idstate =ID1;
-              if (id_==nullptr)
-                id_=new Implements_ValueId;
-              id_->setId(t.str());
-              return true;
-            }
-          else
-            {
-              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::IDENTIFIER,t);
-              return false;
-            }        break;
-        case ID1:
-          if (t.tok()==Token_New::COLON)
-            {
-              idstate =ID2;
-              return true;
-            }
-          else
-            {
-              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::COLON,t);
-              return false;
-            }
-          break;
-        case ID2:
-          if (t.tok()==Token_New::IDENTIFIER)
-            {
-              idstate =S_Final;
-              if (id_==nullptr)
-                id_=new Implements_ValueId;
-              id_->setVar(t.str());
-              return true;
-            }
-          else
-            {
-              errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::IDENTIFIER,t);
-              return false;
-            }
-          break;
-        case S_Final:
-        default:
-          return false;
-          break;
-        }
-    }
-
-    virtual bool  unPop(ABC_Value* var) override
-    {
-      if (var->complyClass(Implements_ValueId::ClassName()))
-        {
-          idstate =S_Final;
-          if (id_!=var)
-            delete id_;
-          id_=dynamic_cast<Implements_ValueId*>(var);
-          return true;
-        }
-      else
-        return false;
-    }
+    virtual bool  unPop(ABC_Value* var) override;
 
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override
-    {
-      switch (idstate ) {
-        case S_Init:
-          return {myClass(),{Token_New::toString(Token_New::HASH)
-                    ,"[variable_identifier]"}};
-          break;
-
-          break;
-        case TIP1:
-          return {myClass(),{"tip_string"}};
-          break;
-        case TIP2:
-          return {myClass(),{Token_New::toString(Token_New::EOL)}};
-          break;
-        case WT0_ID0:
-          return {myClass(),{Token_New::toString(Token_New::HASH)
-                    ,"variable_identifier"}};
-          break;
-        case WT1:
-          return {myClass(),{Token_New::toString(Token_New::HASH)}};
-          break;
-        case WT2:
-          return {myClass(),{"what_this"}};
-          break;
-        case WT3:
-          return {myClass(),{Token_New::toString(Token_New::EOL)}};
-          break;
-        case ID0:
-          return {myClass(),{"variable_identifier"}};
-          break;
-        case ID1:
-          return {myClass(),{Token_New::toString(Token_New::COLON)}};
-          break;
-        case ID2:
-          return {myClass(),{"variable_type"}};
-          break;
-        case S_Final:
-        default:
-          return {};
-          break;
-        }
-    }
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const override;
 
 
-    Token_New popBackToken() override
-    {
-      switch (idstate ) {
-        case S_Final:
-          idstate =ID2;
-          return Token_New(id_->myVar());
-          break;
-        case ID2:
-          idstate =ID1;
-          return Token_New(Token_New::COLON);
-          break;
-        case ID1:
-          if (!id_->Tip().empty()&&!id_->WhatThis().empty())
-            idstate =ID0;
-          else if (!id_->Tip().empty())
-            idstate =WT0_ID0;
-          else
-            idstate =S_Init;
-          return Token_New(id_->id());
-          break;
-        case ID0:
-          idstate =WT3;
-          return Token_New(Token_New::EOL);
-          break;
-        case WT3:
-          idstate =WT2;
-          return Token_New(id_->WhatThis());
-          break;
-        case WT2:
-          idstate =WT1;
-          return Token_New(Token_New::HASH);
-          break;
-        case WT1:
-          idstate =WT0_ID0;
-          return Token_New(Token_New::HASH);
-          break;
-        case WT0_ID0:
-          idstate =TIP2;
-          return Token_New(Token_New::EOL);
-          break;
-        case TIP2:
-          idstate =TIP1;
-          return Token_New(id_->Tip());
-          break;
-        case TIP1:
-          idstate =S_Init;
-          return Token_New(Token_New::HASH);
-          break;
-        case S_Init:
-        default:
-          return {};
-          break;
-
-
-        }
-    }
+    Token_New popBackToken() override;
 
 
 
-    bool isFinal()const override
-    {
-      return idstate==S_Final;
-    }
-    bool isInitial()const override
-    {
-      return idstate==S_Init;
-    }
+    bool isFinal()const override;
+    bool isInitial()const override;
 
-    virtual bool isHollow()const override
-    {
-      return isInitial();
-    }
+    virtual bool isHollow()const override;
 
-    ~build_Implements_ValueId(){}
+    ~build_Implements_ValueId();
 
 
   private:
+    bool pushToken_Id(Token_New t, std::string& errorMessage);
+    bool pushToken_tip(Token_New t, std::__cxx11::string &errorMessage);
+    bool pushToken_whatthis(Token_New t, std::__cxx11::string &errorMessage);
+    bool pushToken_var(Token_New t, std::__cxx11::string &errorMessage);
+    std::pair<std::string,std::set<std::string>> alternativesNext_var()const ;
+
+
     Implements_ValueId* id_;
     DFA idstate;
-
+    std::string varType_;
     // setter<buildByToken<C>,C>  set_;
 
   };
@@ -3122,7 +2667,7 @@ namespace Markov_IO {
         }
       else
         {
-//         errorMessage=ABClass_buildByToken::ABC_BuildByToken::getErrorMessage  ("cannot unload beacause it is not in final state");
+          //         errorMessage=ABClass_buildByToken::ABC_BuildByToken::getErrorMessage  ("cannot unload beacause it is not in final state");
 
           return nullptr;
 

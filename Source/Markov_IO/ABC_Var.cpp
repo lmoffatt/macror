@@ -1,5 +1,6 @@
 #include <numeric>
 #include <iostream>
+#include <iterator>
 #include "Markov_IO/ABC_Var.h"
 #include "Markov_Console/ExpressionManager.h"
 
@@ -581,7 +582,7 @@ namespace Markov_IO {
     if (p_==nullptr)
       return false;
     else if (aParent==p_)
-       return true;
+      return true;
     else
       return p_->isMyParent(aParent);
 
@@ -924,7 +925,7 @@ Extract tip, whatthis, id and class from stream
 
   ABC_Value *Implements_Refer_Var::idToValue(const std::string &)
   {
-     return nullptr;
+    return nullptr;
   }
 
   const ABC_Value *Implements_Refer_Var::idToValue(const std::string &name, const std::string &kind) const
@@ -936,7 +937,7 @@ Extract tip, whatthis, id and class from stream
 
   ABC_Value *Implements_Refer_Var::idToValue(const std::string &name, const std::string &kind)
   {
-     return nullptr;
+    return nullptr;
   }
 
   void Implements_Refer_Var::pushChild(ABC_Value *)
@@ -1080,6 +1081,37 @@ Extract tip, whatthis, id and class from stream
     return ids_[i];
   }
 
+  std::set<std::__cxx11::string> Implements_Complex_Value::getChildList(valuePredicate P) const
+  {
+    std::set<std::string> out;
+    std::copy_if(ids_.begin(),ids_.end(),std::inserter(out,out.end())
+                 ,[this,P](std::string id){return P(this->idToValue(id));});
+    if (parentValue()!=nullptr)
+      {
+        auto outP=parentValue()->getChildList(P);
+        out.insert(outP.begin(),outP.end());
+        return out;
+      }
+    else
+      return out;
+  }
+
+  std::set<std::__cxx11::string> Implements_Complex_Value::getChildList(valueStringPredicate P, const std::__cxx11::string &name) const
+  {
+    std::set<std::string> out;
+    std::copy_if(ids_.begin(),ids_.end(),std::inserter(out,out.end())
+                 ,[this,P,name](std::string id){return P(this->idToValue(id),name);});
+    if (parentValue()!=nullptr)
+      {
+        auto outP=parentValue()->getChildList(P,name);
+        out.insert(outP.begin(),outP.end());
+        return out;
+      }
+    else
+      return out;
+
+  }
+
 
 
   const ABC_Value *Implements_Complex_Value::idToValue(const std::string &name) const
@@ -1105,26 +1137,6 @@ Extract tip, whatthis, id and class from stream
       return nullptr;
   }
 
-  std::vector<std::string> Implements_Complex_Value::getChildList(const std::string &className) const
-  {
-    if (className.empty())
-      return ids_;
-    else
-      {
-        std::vector<std::string> out;
-        for (std::string s:ids_)
-          {
-            auto it=vars_.find(s);
-            if (it!=vars_.end())
-              {
-                ABC_Value* v=it->second;
-                if (v->complyClass(className))
-                  out.push_back(s);
-              }
-          }
-        return out;
-      }
-  }
 
   bool Implements_Complex_Value::removeChild(const std::string &name)
   { if (vars_.erase(name)>0)
@@ -1342,12 +1354,38 @@ Extract tip, whatthis, id and class from stream
     return idToValue(name)!=nullptr;
   }
 
-  std::vector<std::string> ABC_Value::getChildList() const
+  std::set<std::__cxx11::string> ABC_Value::getListComplying(const std::__cxx11::string &var) const
   {
-    std::vector<std::string> out(numChilds());
-    for (std::size_t i=0; i<numChilds(); i++)
-      out[i]=ith_ChildName(i);
-    return out;
+    return getChildList(
+          [](const ABC_Value* v,const std::string& va){return v->complyVar(va );}
+    ,var);
+  }
+
+  std::set<std::string> ABC_Value::getDataList() const
+  {
+    return getChildList([](const ABC_Var* v){return v->isData();});
+  }
+
+
+
+  std::set<std::string> ABC_Value::getChildList(valuePredicate P) const
+  {
+
+    if (parentValue()!=nullptr)
+      return parentValue()->getChildList(P);
+    else
+      return {};
+
+  }
+
+
+  std::set<std::__cxx11::string> ABC_Value::getChildList(valueStringPredicate P, const std::__cxx11::string &name) const
+  {
+    if (parentValue()!=nullptr)
+      return parentValue()->getChildList(P,name);
+    else
+      return {};
+
   }
 
 
@@ -1966,7 +2004,7 @@ the parameter className
       {
         if (errormessage!=nullptr)
           *errormessage=var+" is not defined as a Variable";
-         return false;
+        return false;
       }
   }
 
@@ -2097,37 +2135,37 @@ the parameter className
 
   bool Implements_New_Identifier_Class::checkValue(const std::__cxx11::string &val, std::__cxx11::string &error_message) const
   {
-     if (!isValidId(val))
+    if (!isValidId(val))
 
-       {
-         error_message="not a valid id";
-         return false;
-       }
-     else if(cm_->idToValue(val)!=nullptr)
-           {
-             error_message="existant id";
-         return false;
-           }
-     else
-       return true;
+      {
+        error_message="not a valid id";
+        return false;
+      }
+    else if(cm_->idToValue(val)!=nullptr)
+      {
+        error_message="existant id";
+        return false;
+      }
+    else
+      return true;
   }
 
   std::set<std::__cxx11::string> Implements_New_Identifier_Class::alternativeValues() const
   {
-//    auto s=parentValue()->getIdList(identifierType())->idSet();
+    //    auto s=parentValue()->getIdList(identifierType())->idSet();
 
-//    std::set<std::string> out;
-//    if (cm->idToValue(defaultValue())==nullptr)
-//      out.insert(defaultValue());
+    //    std::set<std::string> out;
+    //    if (cm->idToValue(defaultValue())==nullptr)
+    //      out.insert(defaultValue());
 
-//    for (std::string e:s)
-//      {
-//        std::string id_0=nextId(e);
-//        while (cm->idToValue(id_0)!=nullptr)
-//          id_0=nextId(id_0);
-//        out.insert(id_0);
-//      }
-//    return out;
+    //    for (std::string e:s)
+    //      {
+    //        std::string id_0=nextId(e);
+    //        while (cm->idToValue(id_0)!=nullptr)
+    //          id_0=nextId(id_0);
+    //        out.insert(id_0);
+    //      }
+    //    return out;
 
   }
 

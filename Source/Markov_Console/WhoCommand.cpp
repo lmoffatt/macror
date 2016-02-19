@@ -65,7 +65,10 @@ bool WhoCommand::run(const std::string& className)
     output_.clear();
     std::vector<std::string> list;
     if (className.empty())
-        list=cm_->getChildList();
+       {auto  l=cm_->getDataList();
+        list.insert(list.end(),l.begin(),l.end());
+
+      }
     else  if (cm_->has_child(className))
     {
         list.push_back(className);
@@ -112,7 +115,7 @@ ABC_CommandVar(cm
 {}
 bool WhoCommandVar::run() const
 {
-  auto list=cm_->getChildList();
+  auto list=cm_->getDataList();
   for (auto& s:list)
   cm_->putOut(s+"\t");
   return true;

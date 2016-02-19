@@ -299,7 +299,19 @@ const Markov_IO::Implements_Identifier_Class* getIdList(const std::string& name)
 
     virtual std::vector<std::string> getVarsList();
     virtual std::vector<std::string> getVarsList(Markov_IO::ABC_Saveable* varType)const;
-    virtual std::vector<std::string> getVarsList(std::string className)const;
+    virtual std::vector<std::string> getVarsList(std::string className)const
+    {
+      std::vector<std::string> list;
+      auto l=getListComplying(className);
+      for (std::string el:l)
+        {
+          if (idToValue(el,className)!=nullptr)
+            {
+              list.push_back(el);
+            }
+        }
+      return list;
+    }
 
     virtual std::vector<std::string> getTypesList();
 

@@ -48,7 +48,7 @@ private slots:
   virtual void actualize()
   {
     clear();
-    auto names=cm_->getChildList(objectClass_);
+    auto names=cm_->getListComplying(objectClass_);
 
     for (auto name:names)
       {

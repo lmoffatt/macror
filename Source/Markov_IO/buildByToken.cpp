@@ -60,7 +60,7 @@ namespace Markov_IO {
   }
 
   std::string ABC_BuildByToken::getErrorMessage(const Markov_Console::ABC_CommandVar* cmd,
-                                         const ABC_Value* input, const std::string& error)
+                                                const ABC_Value* input, const std::string& error)
   {
     std::string err="Error in command: "+cmd->id() +", field: "+input->id()+" "+error;
     return err;
@@ -74,7 +74,7 @@ namespace Markov_IO {
 
 
   std::string  ABC_BuildByToken::getErrorMessage(const Markov_Console::ABC_CommandVar* cmd,
-                                         const ABC_Value* input, Token_New found)
+                                                 const ABC_Value* input, Token_New found)
   {
     std::string err="Error in "+myClass()+" for command "+cmd->id() +"  : expected: ";
     for (unsigned i=0; i<input->numChilds(); ++i)
@@ -201,7 +201,7 @@ namespace Markov_IO {
       case S_ID_Partial:
         if (!id_.pushToken(t,errorMessage))
           {
-           errorMessage= ABC_BuildByToken::getErrorMessage(errorMessage);
+            errorMessage= ABC_BuildByToken::getErrorMessage(errorMessage);
             return false;
           }
         else if (id_.isFinal())
@@ -577,54 +577,54 @@ namespace Markov_IO {
         break;
       case S_ID_Final:
         return {"class or object",{Token_New::toString(Token_New::BEGIN)
-                , Token_New::toString(Token_New::ASSIGN)}};
+                  , Token_New::toString(Token_New::ASSIGN)}};
         break;
       case S_NOT_Complex_Und:
         return {"simple object",{Token_New::toString(Token_New::EOL)
-                ,Token_New::toString(Token_New::MUL)
-                ,Implements_Simple_Value<double>::ClassName()
-                ,Implements_Simple_Value<std::size_t>::ClassName()
-                ,Implements_Simple_Value<int>::ClassName()
-                ,Implements_Simple_Value<std::string>::ClassName()}};
+                  ,Token_New::toString(Token_New::MUL)
+                  ,Implements_Simple_Value<double>::ClassName()
+                  ,Implements_Simple_Value<std::size_t>::ClassName()
+                  ,Implements_Simple_Value<int>::ClassName()
+                  ,Implements_Simple_Value<std::string>::ClassName()}};
         break;
       case S_SimpMult_Und:
         return {"complex object",{Token_New::toString(Token_New::LSB)  //map or set
-                ,Token_New::toString(Token_New::LCB)  //vector
-                ,Implements_Simple_Value<double>::ClassName()   //matrix of doubles
-                ,Implements_Simple_Value<std::size_t>::ClassName()  // matrix of counts
-                ,Implements_Simple_Value<int>::ClassName()}};  //matrix of integers
+                  ,Token_New::toString(Token_New::LCB)  //vector
+                  ,Implements_Simple_Value<double>::ClassName()   //matrix of doubles
+                  ,Implements_Simple_Value<std::size_t>::ClassName()  // matrix of counts
+                  ,Implements_Simple_Value<int>::ClassName()}};  //matrix of integers
         break;
       case S_Vec_Und:
         return {"Vector of",{Implements_Simple_Value<double>::ClassName()
-                ,Implements_Simple_Value<std::size_t>::ClassName()
-                ,Implements_Simple_Value<int>::ClassName()
-                ,Implements_Simple_Value<std::string>::ClassName()}};
+                  ,Implements_Simple_Value<std::size_t>::ClassName()
+                  ,Implements_Simple_Value<int>::ClassName()
+                  ,Implements_Simple_Value<std::string>::ClassName()}};
         break;
       case S_Set_or_Map:
         return {"set or map",{Implements_Simple_Value<double>::ClassName()
-                ,Implements_Simple_Value<std::size_t>::ClassName()
-                ,Implements_Simple_Value<int>::ClassName()
-                ,Implements_Simple_Value<std::string>::ClassName()}};
+                  ,Implements_Simple_Value<std::size_t>::ClassName()
+                  ,Implements_Simple_Value<int>::ClassName()
+                  ,Implements_Simple_Value<std::string>::ClassName()}};
         break;
       case S_Set_or_Map2:
         switch (previousTok_.tok()) {
           case Token_New::REAL:
             return {"map or set",{Token_New::toString(Token_New::COLON)  //map
-                    ,Implements_Simple_Value<double>::ClassName()}}; //set of doubles
+                      ,Implements_Simple_Value<double>::ClassName()}}; //set of doubles
             break;
           case Token_New::INTEGER:
             return {"map or set",{Token_New::toString(Token_New::COLON)  //map
-                    ,Implements_Simple_Value<int>::ClassName()}}; //set of doubles
+                      ,Implements_Simple_Value<int>::ClassName()}}; //set of doubles
             break;
           case Token_New::UNSIGNED:
             return {"map or set",{Token_New::toString(Token_New::COLON)  //map
-                    ,Implements_Simple_Value<std::size_t>::ClassName()}}; //set of doubles
+                      ,Implements_Simple_Value<std::size_t>::ClassName()}}; //set of doubles
             break;
           case Token_New::IDENTIFIER:
           case Token_New::STRING:
 
             return {"map or set",{Token_New::toString(Token_New::COLON)  //map
-                    ,Implements_Simple_Value<std::string>::ClassName()}}; //set of doubles
+                      ,Implements_Simple_Value<std::string>::ClassName()}}; //set of doubles
             break;
 
           default:
@@ -634,9 +634,9 @@ namespace Markov_IO {
         break;
       case S_Map_Und:
         return {"map ",{Implements_Simple_Value<double>::ClassName()
-                ,Implements_Simple_Value<std::size_t>::ClassName()
-                ,Implements_Simple_Value<int>::ClassName()
-                ,Implements_Simple_Value<std::string>::ClassName()}};
+                  ,Implements_Simple_Value<std::size_t>::ClassName()
+                  ,Implements_Simple_Value<int>::ClassName()
+                  ,Implements_Simple_Value<std::string>::ClassName()}};
         break;
       case S_Var_Partial:
         return var_->alternativesNext(cm);
@@ -1141,8 +1141,8 @@ namespace Markov_IO {
 
   build_Command_Input::build_Command_Input(Markov_Console::Markov_CommandManagerVar *cm):
     ABC_Value_ByToken(cm)
-   , cm_(cm)
-   , mystate(S_Init)
+  , cm_(cm)
+  , mystate(S_Init)
   , cmd_(nullptr)
 
   ,iInputField_(0){}
@@ -1278,11 +1278,11 @@ namespace Markov_IO {
     std::string idith=v->ith_ChildName(iInputField);
     auto oith=v->idToValue(idith);
     while ((iInputField<v->numChilds())&&((oith==nullptr)||(!oith->empty())))
-          {
-              ++iInputField;
-            idith=v->ith_ChildName(iInputField);
-            oith=v->idToValue(idith);
-          }
+      {
+        ++iInputField;
+        idith=v->ith_ChildName(iInputField);
+        oith=v->idToValue(idith);
+      }
     if (iInputField<v->numChilds())
       return oith;
     else return nullptr;
@@ -1418,7 +1418,7 @@ namespace Markov_IO {
       }
 
 
-    }
+  }
 
   build_Statement::build_Statement(Markov_Console::Markov_CommandManagerVar *p):
     ABC_Value_ByToken(p),
@@ -1573,7 +1573,413 @@ namespace Markov_IO {
 
   }
 
+  std::__cxx11::string build_Implements_ValueId::ClassName()
+  {
+    return "build_Implements_ValueId";
+  }
+
+  std::set<std::__cxx11::string> build_Implements_ValueId::SuperClasses()
+  {
+    return ABC_Value_ByToken::SuperClasses()+ClassName();
+  }
+
+  std::__cxx11::string build_Implements_ValueId::myClass() const
+  {
+    return ClassName();
+
+  }
+
+  std::set<std::__cxx11::string> build_Implements_ValueId::mySuperClasses() const
+  {
+    return SuperClasses();
+  }
+
+  build_Implements_ValueId::build_Implements_ValueId(const ABC_Value *p):
+    ABC_Value_ByToken(p),
+    id_(nullptr),
+    idstate(S_Init){}
+
+  void build_Implements_ValueId::setId(Implements_ValueId *id)
+  {
+    delete id_;
+    id_=id;
+  }
+
+  Implements_ValueId *build_Implements_ValueId::unloadVar()
+  {
+    if (isFinal())
+      {
+        auto out=id_;
+        idstate=S_Init;
+        id_=new Implements_ValueId;
+        return out;
+      }
+    else return nullptr;
+  }
+
+  void build_Implements_ValueId::clear()
+  {
+    ABClass_buildByToken::clear();
+    delete id_;
+    idstate=S_Init;
+    id_=new Implements_ValueId;
+  }
+
+  bool build_Implements_ValueId::pushToken(Token_New t, std::__cxx11::string &errorMessage)
+  {
+    switch (idstate)
+      {
+      case S_Init:
+        if (t.tok()==Token_New::HASH)
+          {
+            idstate=TIP1;
+            return true;
+          }
+        else if (t.tok()==Token_New::IDENTIFIER)
+          {
+            if (pushToken_Id(t,errorMessage))
+              {
+                idstate =ID1;
+                return true;
+              }
+          }
+        else
+          {
+            ABC_BuildByToken::setErrorsMessage({Token_New::HASH,Token_New::IDENTIFIER},t);
+            return false;
+          }
+        break;
+      case TIP1:
+        if (t.tok()==Token_New::STRING)
+          {
+            idstate =TIP2;
+            if (id_==nullptr)
+              id_=new Implements_ValueId;
+            id_->setTip(t.str());
+            return true;
+          }
+        else
+          {
+            std::string e= "wrong Tip. Expected a string. Received: ";
+            errorMessage= ABC_BuildByToken::getErrorMessage   (e,t);
+            return false;
+          }
+        break;
+      case TIP2:
+        if (t.tok()==Token_New::EOL)
+          {
+            idstate =WT0_ID0;
+            return true;
+          }
+        else
+          {
+            std::string e= "Error in Tip. Expected a return. Received: ";
+            errorMessage= ABC_BuildByToken::getErrorMessage   (e,t);
+            return false;
+          }
+        break;
+      case WT0_ID0:
+        if (t.tok()==Token_New::HASH)
+          {
+            idstate =WT1;
+            return true;
+          }
+        else if (t.tok()==Token_New::IDENTIFIER)
+          {
+            if (pushToken_Id(t,errorMessage))
+              {
+                idstate =ID1;
+                return true;
+              }
+            else
+              return false;
+          }
+        else  {
+            ABC_BuildByToken::setErrorsMessage({Token_New::HASH,Token_New::IDENTIFIER},t);
+            return false;
+          }
+        break;
+      case WT1:
+        if (t.tok()==Token_New::HASH)
+          {
+            idstate =WT2;
+            return true;
+          }
+        else  {
+            errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::HASH,t);
+            return false;
+          }
+        break;
+      case WT2:
+        if(t.tok()==Token_New::STRING)
+          {
+            idstate =WT3;
+            if (id_==nullptr)
+              id_=new Implements_ValueId;
+            id_->setWhatThis(t.str());
+            return true;
+          }
+        else
+          {
+            errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::STRING,t);
+            return false;
+          }       break;
+      case WT3:
+        if (t.tok()==Token_New::EOL)
+          {
+            idstate =ID0;
+            return true;
+          }
+        else
+          {
+            errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::EOL,t);
+            return false;
+          }   break;
+
+      case ID0:
+        if (t.tok()==Token_New::IDENTIFIER)
+          {
+            if (pushToken_Id(t,errorMessage))
+              {
+                idstate =ID1;
+                return true;
+              }
+            else return false;
+          }
+        else
+          {
+            errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::IDENTIFIER,t);
+            return false;
+          }        break;
+      case ID1:
+        if (t.tok()==Token_New::COLON)
+          {
+            idstate =ID2;
+            return true;
+          }
+        else
+          {
+            errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::COLON,t);
+            return false;
+          }
+        break;
+      case ID2:
+        if (t.tok()==Token_New::IDENTIFIER)
+          {
+            if (pushToken_var(t,errorMessage))
+              {
+                idstate =S_Final;
+                return true;
+              }
+            else
+              return false;
+          }
+        else
+          {
+            errorMessage= ABC_BuildByToken::getErrorMessage   (Token_New::IDENTIFIER,t);
+            return false;
+          }
+        break;
+      case S_Final:
+      default:
+        return false;
+        break;
+      }
+  }
+
+  bool build_Implements_ValueId::unPop(ABC_Value *var)
+  {
+    if (var->complyClass(Implements_ValueId::ClassName()))
+      {
+        idstate =S_Final;
+        if (id_!=var)
+          delete id_;
+        id_=dynamic_cast<Implements_ValueId*>(var);
+        return true;
+      }
+    else
+      return false;
+  }
+
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > build_Implements_ValueId::alternativesNext(Markov_Console::Markov_CommandManagerVar *cm) const
+  {
+    switch (idstate ) {
+      case S_Init:
+        return {myClass(),{Token_New::toString(Token_New::HASH)
+                  ,"["+Implements_New_Identifier_Class::ClassName()+"]"}};
+        break;
+
+        break;
+      case TIP1:
+        return {myClass(),{"tip_string"}};
+        break;
+      case TIP2:
+        return {myClass(),{Token_New::toString(Token_New::EOL)}};
+        break;
+      case WT0_ID0:
+        if (parent()!=nullptr)
+          {
+
+        return {myClass(),{Token_New::toString(Token_New::HASH)
+                  ,"variable_identifier"}};
+        }
+        break;
+      case WT1:
+        return {myClass(),{Token_New::toString(Token_New::HASH)}};
+        break;
+      case WT2:
+        return {myClass(),{"what_this"}};
+        break;
+      case WT3:
+        return {myClass(),{Token_New::toString(Token_New::EOL)}};
+        break;
+      case ID0:
+        return {myClass(),{"variable_identifier"}};
+        break;
+      case ID1:
+        return {myClass(),{Token_New::toString(Token_New::COLON)}};
+        break;
+      case ID2:
+        return {myClass(),{"variable_type"}};
+        break;
+      case S_Final:
+      default:
+        return {};
+        break;
+      }
+  }
+
+  Token_New build_Implements_ValueId::popBackToken()
+  {
+    switch (idstate ) {
+      case S_Final:
+        idstate =ID2;
+        return Token_New(id_->myVar());
+        break;
+      case ID2:
+        idstate =ID1;
+        return Token_New(Token_New::COLON);
+        break;
+      case ID1:
+        if (!id_->Tip().empty()&&!id_->WhatThis().empty())
+          idstate =ID0;
+        else if (!id_->Tip().empty())
+          idstate =WT0_ID0;
+        else
+          idstate =S_Init;
+        return Token_New(id_->id());
+        break;
+      case ID0:
+        idstate =WT3;
+        return Token_New(Token_New::EOL);
+        break;
+      case WT3:
+        idstate =WT2;
+        return Token_New(id_->WhatThis());
+        break;
+      case WT2:
+        idstate =WT1;
+        return Token_New(Token_New::HASH);
+        break;
+      case WT1:
+        idstate =WT0_ID0;
+        return Token_New(Token_New::HASH);
+        break;
+      case WT0_ID0:
+        idstate =TIP2;
+        return Token_New(Token_New::EOL);
+        break;
+      case TIP2:
+        idstate =TIP1;
+        return Token_New(id_->Tip());
+        break;
+      case TIP1:
+        idstate =S_Init;
+        return Token_New(Token_New::HASH);
+        break;
+      case S_Init:
+      default:
+        return {};
+        break;
 
 
+      }
+  }
 
+  bool build_Implements_ValueId::isFinal() const
+  {
+    return idstate==S_Final;
+  }
+
+  bool build_Implements_ValueId::isInitial() const
+  {
+    return idstate==S_Init;
+  }
+
+  bool build_Implements_ValueId::isHollow() const
+  {
+    return isInitial();
+  }
+
+  build_Implements_ValueId::~build_Implements_ValueId(){}
+
+  bool build_Implements_ValueId::pushToken_Id(Token_New t, std::__cxx11::string &errorMessage)
+  {
+    if (parent()->idToValue(t.identifier())!=nullptr)
+      {
+        errorMessage="occupied identifier";
+        return false;
+      }
+    else
+      {
+        if (id_==nullptr)
+          id_=new Implements_ValueId;
+        id_->setId(t.identifier());
+        return true;
+      }
+  }
+
+  bool build_Implements_ValueId::pushToken_var(Token_New t, std::__cxx11::string &errorMessage)
+  {
+    if (parent()!=nullptr)
+      {
+        auto v=parent()->idToValue(t.identifier());
+        if (v!=nullptr)
+          {
+            if (v->complyVar(varType_,&errorMessage))
+              {
+                if (id_==nullptr)
+                  id_=new Implements_ValueId;
+                id_->setVar(t.str());
+                return true;
+              }
+            else
+              {
+                return false;
+              }
+          }
+        else return false;
+      }
+
+    else return false;
+  }
+
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > build_Implements_ValueId::alternativesNext_var() const
+  {
+    if (varType_.empty())
+      {
+        auto s= parent()->getChildList(
+              [](const ABC_Value* v){return v->isVar();});
+        return {"select a variable type",s};
+      }
+    else
+      {
+        auto s=parent()->getChildList(
+              [](const ABC_Value* v,const std::string& va){return v->complyVar(va );}
+        ,varType_);
+        return {"select a"+varType_,s};
+      }
+
+  }
 }
+
