@@ -2715,7 +2715,7 @@ namespace Markov_IO {
 
 
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
+    std::pair<std::string,std::set<std::string>>   alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
 
 
     Token_New popBackToken();

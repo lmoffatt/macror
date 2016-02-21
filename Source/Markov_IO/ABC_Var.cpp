@@ -1366,6 +1366,17 @@ Extract tip, whatthis, id and class from stream
     return getChildList([](const ABC_Var* v){return v->isData();});
   }
 
+  std::set<std::__cxx11::string> ABC_Value::getVarList() const
+  {
+    return getChildList([](const ABC_Var* v){return v->isVar();});
+  }
+
+  std::set<std::__cxx11::string> ABC_Value::getCommandList() const
+  {
+    return getChildList([](const ABC_Var* v){return v->isCommand();});
+
+  }
+
 
 
   std::set<std::string> ABC_Value::getChildList(valuePredicate P) const

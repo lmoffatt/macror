@@ -388,9 +388,11 @@ namespace  Markov_IO {
     std::set<std::__cxx11::string> getListComplying(const std::string& var)const;
 
     std::set<std::__cxx11::string> getDataList()const;
+    std::set<std::__cxx11::string> getVarList()const;
+    std::set<std::__cxx11::string> getCommandList()const;
+
     virtual std::set<std::__cxx11::string> getChildList(valuePredicate P)const;
     virtual std::set<std::__cxx11::string> getChildList(valueStringPredicate P,const std::string& name)const;
-
 
     void pushIdChild(const std::string& id,ABC_Value* var);
 

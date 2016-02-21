@@ -197,10 +197,7 @@ const Markov_IO::Implements_Identifier_Class* getIdList(const std::string& name)
     std::map<std::string, Markov_IO::ABC_Var*> variables_;
 
 
-    std::map<std::string, std::map<std::string, Markov_IO::ABC_Var*> > varByType;
-
-
-    std::map<std::string,Markov_IO::Implements_Identifier_Class*> idLists_;
+     std::map<std::string,Markov_IO::Implements_Identifier_Class*> idLists_;
 
 
 
@@ -231,9 +228,6 @@ const Markov_IO::Implements_Identifier_Class* getIdList(const std::string& name)
     virtual std::set<std::string> getCommandList()const;
     bool processCommand(ExpressionManager &e);
     Markov_IO::ABC_Value *getClass(std::string name);
-
-
-
 
     void push_var(Markov_IO::ABC_Var *v);
   };

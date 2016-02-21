@@ -451,6 +451,8 @@ namespace Markov_Console
 
 
 
+
+
   // TODO: implement with help files
   /// hint about of the class nature
   std::string ABC_Command::Tip()const
@@ -482,6 +484,11 @@ namespace Markov_Console
   void ABC_Command::errorMessage(const std::string& errmsg)
   {
     errorMessage_=errmsg;
+  }
+
+  bool ABC_Command::isCommand() const
+  {
+    return true;
   }
 
 

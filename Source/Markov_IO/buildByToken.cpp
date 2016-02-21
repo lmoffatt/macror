@@ -1072,7 +1072,7 @@ namespace Markov_IO {
     switch (mystate)
       {
       case S_Init:
-        return {"command",cm->getCommandList()};
+        return {"command",parent()->getCommandList()};
         break;
       case S_ID_Final:
       case S_Input_Partial:
@@ -1968,15 +1968,12 @@ namespace Markov_IO {
   {
     if (varType_.empty())
       {
-        auto s= parent()->getChildList(
-              [](const ABC_Value* v){return v->isVar();});
+        auto s= parent()->getVarList();
         return {"select a variable type",s};
       }
     else
       {
-        auto s=parent()->getChildList(
-              [](const ABC_Value* v,const std::string& va){return v->complyVar(va );}
-        ,varType_);
+        auto s=parent()->getListComplying(varType_);
         return {"select a"+varType_,s};
       }
 

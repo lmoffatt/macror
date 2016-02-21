@@ -119,7 +119,6 @@ namespace Markov_Console
     dir_{Markov_IO::getWorkingPath()},
     cmds{},
     variables_{},
-    varByType{},
     varsl{},
     tokens{},
     lastCmdRst{},

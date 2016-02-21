@@ -199,6 +199,9 @@ namespace Markov_Console
 
 
 
+
+
+
     // TODO: constructor based on vector of tuples
 
     ABC_Command(Markov_CommandManager* cm,
@@ -304,6 +307,10 @@ namespace Markov_Console
     std::vector<bool> outputMandatory_;
 
 
+
+    // ABC_Value interface
+  public:
+    virtual bool isCommand() const override;
   };
 
 
