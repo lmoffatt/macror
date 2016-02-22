@@ -187,14 +187,14 @@ namespace Markov_IO_New {
 
     virtual T* getValue()=0;
 
-    virtual bool setValue(const T& val)=0;
+    virtual bool setValue(T* val)=0;
 
     virtual ~ABC_Value_Typed(){}
   };
 
 
   template<typename T>
-  class Implements_Value_Typed: ABC_Value_Typed<T>
+  class Implements_Value_New: ABC_Value_Typed<T>
   {
     static std::string ClassName()
     {
@@ -211,40 +211,41 @@ namespace Markov_IO_New {
   public:
     virtual bool empty() const override
     {
-      return empty_;
+      return data_==nullptr;
     }
 
     virtual void reset() override
     {
-      data_={};
-      empty_=true;
+      delete data_;
+      data_=nullptr;
     }
     // ABC_Value_Typed interface
   public:
     virtual const T *getValue() const override
     {
-      return &data_;
+      return data_;
     }
     virtual T *getValue() override
     {
-      return &data_;
+      return data_;
     }
-    virtual bool setValue(const T &val) override
+    virtual bool setValue(T *val) override
     {
+      delete data_;
       data_=val;
-      empty_=false;
       return true;
     }
 
-    Implements_Value_Typed(T datum):
-      data_(datum),empty_(false){}
+    Implements_Value_New(T* datum):
+      data_(datum){}
 
 
-    Implements_Value_Typed():
-      data_{},empty_(true){}
+    Implements_Value_New():
+      data_{nullptr}{}
+
+    ~Implements_Value_New(){delete data_;}
   private:
-    T data_;
-    bool empty_;
+    T* data_;
   };
 
 
@@ -259,10 +260,24 @@ namespace Markov_IO_New {
     ABC_Value_New* value;
     std::string tip;
     std::string whathis;
+    static std::string ClassName(){return "Var_id";}
   };
 
 
+  template <typename T>
+  struct Var_idT
+  {
+    std::string id;
+    std::string var;
+    ABC_Value_Typed<T>* value;
+    std::string tip;
+    std::string whathis;
+    static std::string ClassName(){return "Var_id_of"+Cls<T>::name();}
+   };
+
   class ABC_Type_of_Value;
+  template <typename T>
+  class ABC_Typed_Value;
 
   class ABC_Var_New: public ABC_Value_Typed<Var_id>
   {
@@ -284,7 +299,7 @@ namespace Markov_IO_New {
     virtual const ABC_Value_New* value()const=0;
 
     virtual const ABC_Complex_Var_New* parent()const =0;
-    virtual void setParentValue(ABC_Complex_Var_New* par)=0;
+    virtual void setParentValue(const ABC_Complex_Var_New* par)=0;
 
     virtual std::string id()const=0;
 
@@ -303,11 +318,121 @@ namespace Markov_IO_New {
     virtual const ABC_Type_of_Value* getType()const=0;
 
 
-    virtual ~ABC_Var_New();
+    virtual ~ABC_Var_New(){}
 
   };
 
+  template<typename T>
+  class Implements_Var_New: public ABC_Var_New
+  {
+    // ABC_Value_New interface
+  public:
+    static std::string ClassName()
+    {
+      return "Implements_Var_New_of"+Cls<T>::name();
+    }
 
+    virtual std::string myClass()const override
+    {
+      return ClassName();
+    }
+
+    virtual const ABC_Complex_Var_New* parent()const override
+    {
+      return p_;
+    }
+    virtual void setParentValue(const ABC_Complex_Var_New* par) override
+    {
+      p_=par;
+    }
+
+    virtual std::string id()const override
+    {
+      return v_.id;
+    }
+
+
+    virtual std::string Tip()const override
+    {
+      return v_.tip;
+    }
+    virtual std::string WhatThis()const override
+    {
+      return v_.whathis;
+    }
+
+    virtual void setId(const std::string& idName) override
+    {
+      v_.id=idName;
+    }
+
+
+    virtual std::string refId()const override
+    {
+      return v_.id;
+    }
+
+    virtual std::string myType()const override
+    {
+      return v_.var;
+    }
+
+    virtual ABC_Value_Typed<T>* value()
+    {
+      return v_.value;
+    }
+
+    virtual const ABC_Value_Typed<T>* value()const
+    {
+      return v_.value;
+    }
+
+
+    virtual const ABC_Typed_Value<T>* getType()const
+    {
+      return parent()->idToValueTyped(myType());
+
+    }
+
+
+    virtual ~Implements_Var_New(){
+      delete v_.value;
+    }
+
+
+
+    // ABC_Value_New interface
+  public:
+    virtual bool empty() const override
+    {
+      return value()->empty();
+    }
+    virtual void reset() override
+    {
+      value()->reset();
+    }
+
+    // ABC_Value_Typed interface
+  private:
+    virtual const Var_id *getValue() const override
+    {
+      return &v_;
+    }
+    virtual Var_id *getValue() override
+    {
+      return &v_;
+    }
+    virtual bool setValue(Var_id *val) override
+    {
+      v_=*val;
+      return true;
+    }
+
+  private:
+    const ABC_Complex_Var_New* p_;
+    Var_idT<T> v_;
+
+  };
 
 
   class Token_New
@@ -587,6 +712,36 @@ namespace Markov_IO_New {
 
 
   template<typename T>
+  class Implements_Type_New:public ABC_Type_of_Value
+  {
+  public:
+    static std::string ClassName()
+    {
+      return "Implements_Type_New"+Cls<T>::name();
+    }
+
+    virtual std::string myClass()const override
+    {
+      return ClassName();
+    }
+
+
+    virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const=0;
+
+    virtual bool get(T*& v, ABC_Input* istream,std::string* error )const=0;
+
+    virtual ABClass_buildByToken<T>* getBuildByToken()const=0;
+
+
+    virtual ~Implements_Type_New(){}
+
+
+  };
+
+
+
+
+  template<typename T>
   class ABC_Var_Typed_New: public ABC_Var_New
   {
 
@@ -615,7 +770,9 @@ namespace Markov_IO_New {
   };
 
 
-  class ABC_Complex_Var_New: public ABC_Var_Typed_New<std::map<std::string,ABC_Var_New*>>
+
+
+ class ABC_Complex_Var_New: public ABC_Var_Typed_New<std::map<std::string,ABC_Var_New*>>
   {
   public:
     static std::string ClassName()
@@ -635,11 +792,37 @@ namespace Markov_IO_New {
 
     virtual const ABC_Type_of_Value* idToValueType(const std::string& name)const=0;
 
+    template<typename T>
+    const ABC_Typed_Value<T>* idToValueTyped(const std::string& name)
+    {
+        return dynamic_cast<const ABC_Typed_Value<T>*>(idToValueType(name));
+     }
 
     virtual bool removeChild(const std::string& name)=0;
     virtual void pushChild(ABC_Var_New* var)=0;
   };
 
+
+class ABC_Command: public ABC_Var_New
+{
+
+
+
+
+
+};
+
+
+
+
+
+
+
+
+
+  ///--------------------------------------------------------------------
+  ///-------------------------------------------------------------------
+  ///
 
   /// Template implementations
   ///
@@ -682,6 +865,7 @@ namespace Markov_IO_New {
       return false;
 
   }
+
 
 
 
