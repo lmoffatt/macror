@@ -106,32 +106,15 @@ namespace Markov_IO_New {
   };
 
 
+   class ABC_Var_New;
+   class ABC_Value_New;
 
 
+  template<class T>
+  T dynamicCast(ABC_Var_New* v, std::string* whyNot);
 
-  template<class L,class R>
-  L dynamicCast(R v, std::string* whyNot)
-  {
-    auto r=dynamic_cast<L>(v);
-    if (r==nullptr)
-      {
-        *whyNot=v.id()+ "is not a "+Cls<L>::name();
-      }
-    return r;
-
-  }
-  template<class L,class R>
-  L dynamicCast(R* v, std::string* whyNot)
-  {
-    auto r=dynamic_cast<L>(v);
-    if (r==nullptr)
-      {
-        *whyNot=v->id()+ "is not a "+Cls<L>::name();
-      }
-    return r;
-
-  }
-
+  template<class T>
+  T dynamicCast(ABC_Value_New* v, std::string* whyNot);
 
   std::set<std::string> operator+(std::set<std::string>&& tok1,
                                   std::string &&s);
@@ -210,7 +193,7 @@ namespace Markov_IO_New {
 
     virtual T* getValued()=0;
 
-    virtual bool setValue(T* val)=0;
+    virtual bool setValue(T* val,std::string *whyNot)=0;
 
     virtual ~ABC_Value_Typed(){}
   };
@@ -219,8 +202,9 @@ namespace Markov_IO_New {
   class ABC_Typed_Value;
 
   template<typename T>
-  class Implements_Value_New: ABC_Value_Typed<T>
+  class Implements_Value_New: public ABC_Value_Typed<T>
   {
+  public:
     static std::string ClassName()
     {
       return "Implements_Value_Typed"+Cls<T>::name();
@@ -236,13 +220,13 @@ namespace Markov_IO_New {
   public:
     virtual bool empty() const override
     {
-      return data_==nullptr;
+      return empty_;
     }
 
     virtual void reset() override
     {
-      delete data_;
-      data_=nullptr;
+      *data_={};
+      empty_=true;
     }
     // ABC_Value_Typed interface
   public:
@@ -254,25 +238,27 @@ namespace Markov_IO_New {
     {
       return data_;
     }
-    virtual bool setValue(T *val) override
+    virtual bool setValue(T *val,std::string *whyNot) override
     {
       delete data_;
       data_=val;
+      empty_=false;
       return true;
     }
 
 
 
     Implements_Value_New():
-      data_{nullptr}{}
+      data_{new T{}}, empty_(true){}
     Implements_Value_New(T* datum):
-      data_(datum){}
+      data_(datum), empty_(false){}
 
     ~Implements_Value_New(){delete data_;}
 
   private:
 
     T* data_;
+    bool empty_;
   };
 
 
@@ -282,25 +268,16 @@ namespace Markov_IO_New {
 
   struct Var_id
   {
-    std::string id;
+    std::string idName;
     std::string var;
     ABC_Value_New* value;
     std::string tip;
     std::string whathis;
     static std::string ClassName(){return "Var_id";}
+    std::string id()const {return idName;}
   };
 
 
-  template <typename T>
-  struct Var_idT
-  {
-    std::string id;
-    std::string var;
-    ABC_Value_Typed<T>* value;
-    std::string tip;
-    std::string whathis;
-    static std::string ClassName(){return "Var_id_of"+Cls<T>::name();}
-  };
 
   class ABC_Type_of_Value;
   template <typename T>
@@ -342,9 +319,6 @@ namespace Markov_IO_New {
     virtual std::string myType()const=0;
 
 
-    virtual const ABC_Type_of_Value* getType()const=0;
-
-
     virtual ~ABC_Var_New(){}
 
   };
@@ -375,7 +349,7 @@ namespace Markov_IO_New {
 
     virtual std::string id()const override
     {
-      return v_.id;
+      return v_.idName;
     }
 
 
@@ -390,13 +364,13 @@ namespace Markov_IO_New {
 
     virtual void setId(const std::string& idName) override
     {
-      v_.id=idName;
+      v_.idName=idName;
     }
 
 
     virtual std::string refId()const override
     {
-      return v_.id;
+      return v_.idName;
     }
 
     virtual std::string myType()const override
@@ -406,20 +380,15 @@ namespace Markov_IO_New {
 
     virtual ABC_Value_Typed<T>* value()
     {
-      return v_.value;
+      return x_;
     }
 
     virtual const ABC_Value_Typed<T>* value()const
     {
-      return v_.value;
+      return x_;
     }
 
 
-    virtual const ABC_Typed_Value<T>* getType()const
-    {
-      return parent()->idToValueTyped(myType());
-
-    }
 
 
     virtual ~Implements_Var_New()
@@ -438,11 +407,12 @@ namespace Markov_IO_New {
     }
     virtual void reset() override
     {
+      delete x_;
       value()->reset();
     }
 
     // ABC_Value_Typed interface
-  private:
+  public:
     virtual const Var_id *getValued() const override
     {
       return &v_;
@@ -451,21 +421,34 @@ namespace Markov_IO_New {
     {
       return &v_;
     }
-    virtual bool setValue(Var_id *val) override
+    virtual bool setValue(Var_id *val,std::string *whyNot) override
     {
-      v_=*val;
-      return true;
+      auto x= (dynamicCast<Implements_Value_New<T>*>(v_.value,whyNot));
+      if (x==nullptr)
+        return false;
+      else
+        {
+          x_=x;
+          v_=*val;
+          return true;
+        }
     }
-
     Implements_Var_New(const Implements_ComplexVar_New* parent,
-                       Var_idT<T> idv):
+                       const std::string& id,
+                       const std::string& var,
+                       const std::string& tip,
+                       const std::string& whatthis):
       p_(parent),
-      v_(idv){}
+      x_(new Implements_Value_New<T>()),
+      v_({id,var,x_,tip,whatthis}){
+      v_.value=x_;
+    }
 
 
   private:
     const Implements_ComplexVar_New* p_;
-    Var_idT<T> v_;
+    Implements_Value_New<T>* x_;
+    Var_id v_;
 
   };
 
@@ -879,6 +862,10 @@ namespace Markov_IO_New {
 
     virtual ABC_BuildByToken* getBuildByToken()const=0;
 
+    virtual ABC_Value_New* empty_Value()const=0;
+
+    virtual ABC_Value_New* default_Value()const=0;
+
 
     virtual std::set<std::string> alternativeNext()const=0;
 
@@ -904,40 +891,38 @@ namespace Markov_IO_New {
 
     virtual bool isInDomain(const ABC_Value_New* v, std::string *whyNot)const
     {
-      auto x=dynamic_cast<const ABC_Value_Typed<T>* >(v);
+      auto x=dynamicCast<const ABC_Value_Typed<T>* >(v,whyNot);
       if (x==nullptr)
         {
-          *whyNot="class mismatch: "+storedClass()+" and "+v->storedClass();
           return false;
         }
       else
         return isInDomain(x->getValued(),whyNot);
     }
 
-    virtual bool put(const ABC_Value_New* v,ABC_Output* ostream,std::string* error)const
+    virtual bool put(const ABC_Value_New* v,ABC_Output* ostream,std::string* whyNot)const
     {
-      auto x=dynamic_cast<const ABC_Value_Typed<T>* >(v);
+      auto x=dynamicCast<const ABC_Value_Typed<T>* >(v,whyNot);
       if (x==nullptr)
         {
-          *error="class mismatch: "+storedClass()+" and "+v->storedClass();
           return false;
         }
       else
-        return put(x->getValued(),ostream,error);
+        return put(x->getValued(),ostream,whyNot);
     }
 
-    virtual bool get(ABC_Value_New* v, ABC_Input* istream,std::string* error )const
+    virtual bool get(ABC_Value_New* v, ABC_Input* istream,std::string* whyNot )const
     {
-      auto x=dynamic_cast<ABC_Value_Typed<T>* >(v);
+      auto x=dynamicCast<ABC_Value_Typed<T>* >(v,whyNot);
       if (x==nullptr)
         {
-          *error="class mismatch: "+storedClass()+" and "+v->storedClass();
           return false;
         }
       else
-        return get(x->getValued(),istream,error);
+        return get(x->getValued(),istream,whyNot);
 
     }
+
 
 
 
@@ -947,6 +932,11 @@ namespace Markov_IO_New {
     virtual bool get(T*& v, ABC_Input* istream,std::string* whyNot )const=0;
 
     virtual ABClass_buildByToken<T>* getBuildByToken()const=0;
+
+    virtual T* getEmpty_Valued()const=0;
+
+    virtual T* getDefault_Valued()const=0;
+
 
     virtual bool isInDomain(const T &val, std::__cxx11::string *whyNot) const;
 
@@ -1032,7 +1022,6 @@ namespace Markov_IO_New {
     virtual void setId(const std::__cxx11::string &idName) override;
     virtual std::__cxx11::string refId() const override;
     virtual std::__cxx11::string myType() const override;
-    virtual const ABC_Type_of_Value *getType() const override;
 
   };
 
@@ -1086,7 +1075,7 @@ namespace Markov_IO_New {
     }
 
     template<typename T>
-    const ABC_Typed_Value<T>* idToValueTyped(const std::string& name,std::string *whyNot)
+    const ABC_Typed_Value<T>* idToValueTyped(const std::string& name,std::string *whyNot)const
     {
       auto it=m_->find(name);
       if (it!=m_->end())
@@ -1131,6 +1120,12 @@ namespace Markov_IO_New {
           return false;
         }
     }
+
+
+
+
+
+
 
     bool hasName(const std::string& name, std::string* whoHasIt)const
     {
@@ -1177,6 +1172,8 @@ namespace Markov_IO_New {
 
 
 
+
+
     virtual bool removeChild(const std::string& name)
     {
       return m_->erase(name)==1;
@@ -1185,10 +1182,22 @@ namespace Markov_IO_New {
 
     virtual void pushChild(ABC_Var_New* var)
     {
-     (*m_)[var->id()]=var;
+      (*m_)[var->id()]=var;
     }
 
 
+
+    Implements_ComplexVar_New(const Implements_ComplexVar_New* parent,
+                              const std::string& id
+                              ,const std::string& var
+                              ,const std::string& tip
+                              ,const std::string& whatthis):
+      Implements_Var_New(parent,
+                         id,var,tip,whatthis)
+    {
+
+      m_=this->getValued()->value->getValue<std::map<std::string,ABC_Var_New*>>();
+    }
 
 
     // ABC_Value_Typed interface
@@ -1222,6 +1231,42 @@ namespace Markov_IO_New {
   /// Template implementations
   ///
   ///
+
+
+
+
+
+
+  template<class L>
+  L dynamicCast(ABC_Var_New* v, std::string* whyNot)
+  {
+    auto r=dynamic_cast<L>(v);
+    if (r==nullptr)
+      {
+        *whyNot=v->id()+ "is not a "+Cls<L>::name();
+      }
+    return r;
+
+  }
+
+  template<class L>
+  L dynamicCast(ABC_Value_New* v, std::string* whyNot)
+  {
+    auto r=dynamic_cast<L>(v);
+    if (r==nullptr)
+      {
+        *whyNot=v->myClass()+ "is not a "+Cls<L>::name();
+      }
+    return r;
+
+  }
+
+
+
+
+
+
+
   template<typename T>
   const T* ABC_Value_New::getValue()const
   {
@@ -1265,6 +1310,8 @@ namespace Markov_IO_New {
 
 
 }
+
+
 
 
 #ifdef dsgds
