@@ -183,9 +183,9 @@ namespace Markov_IO_New {
       return Cls<T>::name();
     }
 
-    virtual const T* getValue()const=0;
+    virtual const T* getValued()const=0;
 
-    virtual T* getValue()=0;
+    virtual T* getValued()=0;
 
     virtual bool setValue(T* val)=0;
 
@@ -221,11 +221,11 @@ namespace Markov_IO_New {
     }
     // ABC_Value_Typed interface
   public:
-    virtual const T *getValue() const override
+    virtual const T *getValued() const override
     {
       return data_;
     }
-    virtual T *getValue() override
+    virtual T *getValued() override
     {
       return data_;
     }
@@ -414,11 +414,11 @@ namespace Markov_IO_New {
 
     // ABC_Value_Typed interface
   private:
-    virtual const Var_id *getValue() const override
+    virtual const Var_id *getValued() const override
     {
       return &v_;
     }
-    virtual Var_id *getValue() override
+    virtual Var_id *getValued() override
     {
       return &v_;
     }
@@ -610,8 +610,41 @@ namespace Markov_IO_New {
   };
 
 
-  class ABC_Output;
-  class ABC_Input;
+  class ABC_Output
+  {
+  public:
+    virtual void put(const std::string& s)=0;
+    virtual void put(double x)=0;
+    virtual void put(int n)=0;
+    virtual void put(std::size_t n)=0;
+    virtual void put(char c)=0;
+
+    template<typename T>
+    void put(const std::vector<T>& v)
+    {
+      put('[');
+      for (auto& e:v)
+       { put(e); put('\t');}
+      put(']');
+    }
+
+    virtual ~ABC_Output(){}
+  };
+
+  class ABC_Input
+  {
+  public:
+
+    virtual  bool get( std::string& s,std::string* whyNot)=0;
+    virtual  bool get(double& x,std::string* whyNot)=0;
+    virtual  bool get(int& n,std::string* whyNot)=0;
+    virtual  bool get(std::size_t& n,std::string* whyNot)=0;
+    virtual  bool get(char& c,std::string* whyNot)=0;
+
+    template<typename T>
+    bool get(T& x, std::string* error);
+    virtual ~ABC_Input(){}
+  };
 
   class ABC_BuildByToken
   {
@@ -657,6 +690,140 @@ namespace Markov_IO_New {
   };
 
 
+  template<typename C>
+  class buildByToken: public ABClass_buildByToken<C>
+  {
+  public:
+
+    static std::string ClassName()
+    {
+      return "build_"+Cls<C>::name();
+    }
+
+    static std::set<std::string> SuperClasses()
+    {
+      return ABClass_buildByToken<C>::SuperClasses()+ClassName();
+    }
+
+    std::string myClass()const override
+    {
+      return ClassName();
+
+    }
+
+    std::set<std::string> mySuperClasses()const override
+    {
+      return SuperClasses();
+    }
+
+
+
+    buildByToken(const ABC_Complex_Var_New* parent,const std::string vartype):
+      ABClass_buildByToken<C>(parent),
+      x_(),
+      isComplete_(false),
+      varType_(vartype)
+    {
+
+    }
+
+
+    C unloadVar()override
+    {
+      auto out=std::move(x_);
+      x_= {};
+      isComplete_=false;
+      return out;
+    }
+
+    bool pushToken(Token_New t, std::string& errorMessage)override
+    {
+      C d;
+      if (!t.toValue(d))
+        {
+          errorMessage=t.str()+ " is not a "+Cls<C>::name();
+        }
+      else  if (ABClass_buildByToken<C>::parent()!=nullptr)
+        {
+          if (ABClass_buildByToken<C>::parent()->checkValue(varType_,d,errorMessage))
+            {
+              x_=d;
+              isComplete_=true;
+              return true;
+            }
+          else return false;
+        }
+      else
+        {
+          errorMessage=myClass()+" has no parent variable";
+        }
+    }
+
+
+
+    std::pair<std::string,std::set<std::string>> alternativesNext()const override
+    {
+      if (this->parent()!=nullptr)
+        {
+          std::set<std::string> a=this->parent()->idToValueType(varType_)->alternativeNext();
+          return {varType_,a};
+        }
+      else
+        {
+          return {varType_,{Cls<C>::name()}};
+        }
+    }
+
+
+    void clear()override
+    {
+      ABC_BuildByToken::clear();
+      isComplete_=false;
+    }
+
+    bool unPop(C var) override
+    {
+      x_=var;
+      isComplete_=true;
+      return true;
+    }
+
+    Token_New popBackToken() override
+    {
+      if (isFinal())
+        {
+          Token_New to(x_);
+          isComplete_=false;
+          return to;
+        }
+      else
+        return {};
+    }
+
+    bool isFinal()const
+    {
+      return isComplete_;
+    }
+
+    bool isInitial()const override
+    {
+      return !isComplete_;
+    }
+
+    virtual bool isHollow()const override
+    {
+      return !isComplete_;
+    }
+
+
+  protected:
+    C x_;
+    bool isComplete_;
+    std::string varType_;
+
+  };
+
+
 
   class ABC_Type_of_Value:public ABC_Var_New
   {
@@ -671,13 +838,17 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
-
     virtual bool put(const ABC_Value_New* v,ABC_Output* ostream,std::string* error)const=0;
 
     virtual bool get(ABC_Value_New* v, ABC_Input* istream,std::string* error )const=0;
 
     virtual ABC_BuildByToken* getBuildByToken()const=0;
 
+
+    virtual std::set<std::string> alternativeNext()const=0;
+
+
+    virtual bool isInDomain(const ABC_Value_New* v, std::string *whyNot)const=0;
 
 
   };
@@ -696,13 +867,55 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
+    virtual bool isInDomain(const ABC_Value_New* v, std::string *whyNot)const
+    {
+      auto x=dynamic_cast<const ABC_Value_Typed<T>* >(v);
+      if (x==nullptr)
+        {
+          *whyNot="class mismatch: "+storedClass()+" and "+v->storedClass();
+          return false;
+        }
+       else
+        return isInDomain(x->getValued(),whyNot);
+    }
+
+    virtual bool put(const ABC_Value_New* v,ABC_Output* ostream,std::string* error)const
+    {
+      auto x=dynamic_cast<const ABC_Value_Typed<T>* >(v);
+      if (x==nullptr)
+        {
+          *error="class mismatch: "+storedClass()+" and "+v->storedClass();
+          return false;
+        }
+      else
+        return put(x->getValued(),ostream,error);
+    }
+
+    virtual bool get(ABC_Value_New* v, ABC_Input* istream,std::string* error )const
+    {
+      auto x=dynamic_cast<ABC_Value_Typed<T>* >(v);
+      if (x==nullptr)
+        {
+          *error="class mismatch: "+storedClass()+" and "+v->storedClass();
+          return false;
+        }
+      else
+        return get(x->getValued(),istream,error);
+
+    }
+
+
+
 
     virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const=0;
 
-    virtual bool get(T*& v, ABC_Input* istream,std::string* error )const=0;
+    virtual bool get(T*& v, ABC_Input* istream,std::string* whyNot )const=0;
 
     virtual ABClass_buildByToken<T>* getBuildByToken()const=0;
 
+    virtual bool isInDomain(T &val, std::__cxx11::string *whyNot) const;
+
+    virtual bool isInDomain(const T& val, std::string* whyNot)const =0;
 
     virtual ~ABC_Typed_Value(){}
 
@@ -712,7 +925,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class Implements_Type_New:public ABC_Type_of_Value
+  class Implements_Type_New:public ABC_Typed_Value<T>
   {
   public:
     static std::string ClassName()
@@ -726,14 +939,36 @@ namespace Markov_IO_New {
     }
 
 
-    virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const=0;
+    virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const
+    {
+      ostream->put(*v);
+      return true;
+    }
 
-    virtual bool get(T*& v, ABC_Input* istream,std::string* error )const=0;
+    virtual bool get(T*& v, ABC_Input* istream,std::string* error )const
+    {
 
-    virtual ABClass_buildByToken<T>* getBuildByToken()const=0;
+      if (!istream->get(v,error))
+        return false;
+      else
+        return isInDomain(*v);
+    }
+
+    virtual std::set<std::string> alternativeNext()const
+    {
+             return {};
+    }
+
+    virtual buildByToken<T>* getBuildByToken()const
+    {
+        return new buildByToken<T>(this->parent(),this->id());
+    }
 
 
     virtual ~Implements_Type_New(){}
+
+
+  private:
 
 
   };
@@ -833,7 +1068,7 @@ class ABC_Command: public ABC_Var_New
     if (storedClass()==Cls<T>::name())
       {
         auto v =dynamic_cast<const ABC_Value_Typed<T>*>(this);
-        return v->getValue();
+        return v->getValued();
       }
     else
       return nullptr;
@@ -845,7 +1080,7 @@ class ABC_Command: public ABC_Var_New
     if (storedClass()==Cls<T>::name())
       {
         auto v =dynamic_cast< ABC_Value_Typed<T>*>(this);
-        return v->getValue();
+        return v->getValued();
       }
     else
       return nullptr;
