@@ -1060,7 +1060,7 @@ namespace Markov_IO_New {
 
     virtual bool get(ABC_Value_New* v, ABC_Input* istream,std::string* error )const=0;
 
-    virtual ABC_BuildByToken* getBuildByToken()const=0;
+    virtual ABC_BuildByToken* getBuildByToken(const Implements_ComplexVar_New* cm)const=0;
 
     virtual ABC_Value_New* empty_Value()const=0;
 
@@ -1077,10 +1077,17 @@ namespace Markov_IO_New {
                                        const std::string& tip,
                                        const std::string& whathis)const=0;
 
-    virtual std::set<std::string> alternativeNext()const=0;
+    virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const=0;
 
 
     virtual bool isInDomain(const ABC_Value_New* v, std::string *whyNot)const=0;
+
+    virtual Implements_ComplexVar_New* getComplexVarRep(const ABC_Var_New* var,std::string* whyNot)const=0;
+
+    virtual ABC_Var_New* getClassRep(const Implements_ComplexVar_New* cvar  ,std::string* whyNot)const=0;
+
+
+    virtual bool fillEditingFrame(Implements_ComplexVar_New*& fillingFrame)const =0;
 
     ABC_Type_of_Value (const Implements_ComplexVar_New* parent,
                        const std::string& id
@@ -1146,8 +1153,20 @@ namespace Markov_IO_New {
 
     virtual bool get(T*& v, ABC_Input* istream,std::string* whyNot )const=0;
 
-    virtual ABClass_buildByToken<T>* getBuildByToken()const=0;
+    virtual ABClass_buildByToken<T>* getBuildByToken(const Implements_ComplexVar_New* cm)const=0;
 
+    virtual Implements_ComplexVar_New* getComplexVarRep(const ABC_Var_New* var,std::string* whyNot)const override
+    {
+      auto varT=dynamicCast<const Implements_Var_New<T>*>(var,whyNot);
+      if (varT!=nullptr)
+        return getComplexVarTyeped_Rep(varT,whyNot);
+      else
+        return nullptr;
+    }
+
+    virtual Implements_ComplexVar_New* getComplexVarTyeped_Rep(const Implements_Var_New<T>* var,std::string* whyNot)const=0;
+
+    virtual Implements_Var_New<T>* getClassRep(const Implements_ComplexVar_New* cvar  ,std::string* whyNot)const override=0;
 
     virtual T* getDefault_Valued()const=0;
 
@@ -1172,7 +1191,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class Implements_Type_New:public ABC_Typed_Value<T>
+  class Implements_Data_Type_New:public ABC_Typed_Value<T>
   {
   public:
 
@@ -1183,7 +1202,7 @@ namespace Markov_IO_New {
 
     static std::string ClassName()
     {
-      return "Implements_Type_New"+Cls<T>::name();
+      return "Implements_Data_Type_New"+Cls<T>::name();
     }
 
     virtual std::string myClass()const override
@@ -1207,76 +1226,332 @@ namespace Markov_IO_New {
         return isInDomain(*v,whyNot);
     }
 
-    virtual std::set<std::string> alternativeNext()const
+    virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
     {
       return {};
     }
 
-    virtual buildByToken<T>* getBuildByToken()const
+    virtual buildByToken<T>* getBuildByToken(const Implements_ComplexVar_New* cm)const
     {
-      return new buildByToken<T>(this->parent(),this->id());
+      return new buildByToken<T>(cm,this->id());
     }
 
 
-    virtual ~Implements_Type_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
 
-    Implements_Type_New(const Implements_ComplexVar_New* parent,
-                        const std::string& id
-                        ,const std::string& var
-                        ,const std::string& tip
-                        ,const std::string& whatthis
-                        ,typePredicate complyPred
-                        ,typeValue  defaultValue):
-       ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
-     ,comply_(complyPred)
-     ,default_(defaultValue)
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
+                             const std::string& id
+                             ,const std::string& var
+                             ,const std::string& tip
+                             ,const std::string& whatthis
+                             ,typePredicate complyPred
+                             ,typeValue  defaultValue):
+      ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
+    ,comply_(complyPred)
+    ,default_(defaultValue)
     {}
 
 
 
 
   protected:
-     typePredicate comply_;
-     typeValue default_;
+    typePredicate comply_;
+    typeValue default_;
 
 
 
-     // ABC_Type_of_Value interface
+    // ABC_Type_of_Value interface
   public:
-     virtual Implements_Value_New<T>* empty_Value()const override
-     {
-        return new Implements_Value_New<T>();
-     }
+    virtual Implements_Value_New<T>* empty_Value()const override
+    {
+      return new Implements_Value_New<T>();
+    }
 
 
-     virtual Implements_Var_New<T> *empty_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
-     {
-       return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,empty_Value());
-     }
+    virtual Implements_Var_New<T> *empty_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
+    {
+      return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,empty_Value());
+    }
 
 
-     virtual Implements_Value_New<T> *default_Value() const override
-     {
-        return Implements_Value_New<T>(getDefault_Valued());
-     }
+    virtual Implements_Value_New<T> *default_Value() const override
+    {
+      return Implements_Value_New<T>(getDefault_Valued());
+    }
 
-     virtual Implements_Var_New<T> *default_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
-     {
-       return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,default_Value());
-     }
+    virtual Implements_Var_New<T> *default_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
+    {
+      return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,default_Value());
+    }
 
 
 
-     // ABC_Typed_Value interface
+    // ABC_Typed_Value interface
   public:
-       virtual T *getDefault_Valued() const override
-     {
-       if (default_!=nullptr)
-       return (*default_)(this);
-       else
-         return new T{};
-     }
+    virtual T *getDefault_Valued() const override
+    {
+      if (default_!=nullptr)
+        return (*default_)(this);
+      else
+        return new T{};
+    }
+  };
+
+
+  template<typename T>
+  class Implements_Class_Type_New:public ABC_Typed_Value<T>
+  {
+  public:
+
+    using typePredicate= bool(*)(const T&,const Implements_Class_Type_New<T>*, std::string*);
+
+    using getEmptyObject=T*(*)(const Implements_Class_Type_New<T>*, std::string*);
+
+    using plainPredicate
+    = bool(*)(const std::map<std::string,ABC_Var_New*>*,const Implements_Class_Type_New<T>*, std::string*);
+
+    using getEmptyMap=std::map<std::string,ABC_Var_New*>* (*)(const Implements_Class_Type_New<T>*, std::string*);
+
+    using getMap=std::map<std::string,ABC_Var_New*>* (*)(const T&, const Implements_Class_Type_New<T>*, std::string*);
+
+    using getObject= T* (*)(const std::map<std::string,ABC_Var_New*>*,const Implements_Class_Type_New<T>*,std::string*);
+
+
+    static std::string ClassName()
+    {
+      return "Implements_Class_Type_New_of"+Cls<T>::name();
+    }
+
+    virtual std::string myClass()const override
+    {
+      return ClassName();
+    }
+
+
+    virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const
+    {
+
+      ostream->put(*v);
+      return true;
+    }
+
+    virtual bool get(T*& v, ABC_Input* istream,std::string* whyNot )const
+    {
+
+      if (!istream->get(v,whyNot))
+        return false;
+      else
+        return isInDomain(*v,whyNot);
+    }
+
+    virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
+    {
+      return {};
+    }
+
+    virtual buildByToken<T>* getBuildByToken(const Implements_ComplexVar_New* cm)const
+    {
+      return new buildByToken<T>(cm,this->id());
+    }
+
+
+    virtual ~Implements_Class_Type_New(){}
+
+
+    Implements_Class_Type_New(const Implements_ComplexVar_New* parent,
+                              const std::string& id
+                              ,const std::string& var
+                              ,const std::string& tip
+                              ,const std::string& whatthis
+                              ,typePredicate complyPred
+                              ,plainPredicate mapComply
+                              ,getEmptyObject  defaultValue
+                              ,getEmptyMap eMap
+                              ,getMap map
+                              ,getObject obj):
+      ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
+    ,comply_(complyPred)
+    ,mapComply_(mapComply)
+    ,default_(defaultValue)
+    ,toEMap_(eMap)
+    ,toMap_(map)
+    ,toObj_(obj)
+    {}
+
+
+
+
+  protected:
+    typePredicate comply_;
+    plainPredicate mapComply_;
+    getEmptyObject default_;
+    getEmptyMap toEMap_;
+    getObject toObj_;
+    getMap toMap_;
+
+
+
+    // ABC_Type_of_Value interface
+  public:
+    virtual Implements_Value_New<T>* empty_Value()const override
+    {
+      return new Implements_Value_New<T>();
+    }
+
+
+    virtual Implements_Var_New<T> *empty_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
+    {
+      return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,empty_Value());
+    }
+
+
+    virtual Implements_Value_New<T> *default_Value() const override
+    {
+      return Implements_Value_New<T>(getDefault_Valued());
+    }
+
+    virtual Implements_Var_New<T> *default_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
+    {
+      return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,default_Value());
+    }
+
+
+
+    // ABC_Typed_Value interface
+  public:
+    virtual T *getDefault_Valued() const override
+    {
+      if (default_!=nullptr)
+        return (*default_)(this);
+      else
+        return new T{};
+    }
+
+    // ABC_Type_of_Value interface
+  public:
+    virtual Implements_Var_New<T>* getClassRep(const Implements_ComplexVar_New *m, std::__cxx11::string *whyNot) const override
+    {
+      auto o=(*toObj_)(m->value()->getValued(),this,whyNot);
+      if (o!=nullptr)
+        return Implements_Var_New<T>
+            (m->parent(),m->id(),m->myType(),m->Tip(),m->WhatThis()
+             ,new Implements_Value_New<T>(o));
+      else
+        return nullptr;
+
+    }
+
+
+    virtual bool fillEditingFrame(Implements_ComplexVar_New *&fillingFrame) const override;
+
+    // ABC_Typed_Value interface
+  public:
+    virtual Implements_ComplexVar_New *getComplexVarTyeped_Rep(const Implements_Var_New<T> *var, std::__cxx11::string *whyNot) const override
+    {
+
+    }
+  };
+
+
+
+
+  template<typename T>
+  class Implements_Command_Type_New:public ABC_Typed_Value<T>
+  {
+  public:
+
+    using plainPredicate
+    = bool(*)(const std::map<std::string,ABC_Var_New*>*,const Implements_Command_Type_New<T>*, std::string*);
+
+    using getEmptyMap=std::map<std::string,ABC_Var_New*>* (*)(const Implements_Command_Type_New<T>*, std::string*);
+
+    using runCommand= T* (*)(const std::map<std::string,ABC_Var_New*>*
+    ,const Implements_Command_Type_New<T>*,std::string*);
+
+
+    static std::string ClassName()
+    {
+      return "Implements_Command_Type_New"+Cls<T>::name();
+    }
+
+    virtual std::string myClass()const override
+    {
+      return ClassName();
+    }
+
+
+
+    virtual ~Implements_Command_Type_New(){}
+
+
+    Implements_Command_Type_New(const Implements_ComplexVar_New* parent,
+                                const std::string& id
+                                ,const std::string& var
+                                ,const std::string& tip
+                                ,const std::string& whatthis
+                                ,plainPredicate mapComply
+    ,getEmptyMap toEmMap
+    ,runCommand run_):
+      ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
+    ,mapComply_(mapComply)
+    ,toEmMap_(toEmMap)
+    ,run_(run_)
+    {}
+
+
+
+
+  protected:
+    plainPredicate mapComply_;
+    getEmptyMap toEmMap_;
+    runCommand run_;
+
+
+
+    // ABC_Type_of_Value interface
+  public:
+    virtual Implements_Value_New<T>* empty_Value()const override
+    {
+      return new Implements_Value_New<T>();
+    }
+
+
+    virtual Implements_Var_New<T> *empty_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
+    {
+      return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,empty_Value());
+    }
+
+
+    virtual Implements_Value_New<T> *default_Value() const override
+    {
+    }
+
+    virtual Implements_Var_New<T> *default_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
+    {
+      return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,default_Value());
+    }
+
+
+
+    // ABC_Typed_Value interface
+  public:
+
+    // ABC_Type_of_Value interface
+  public:
+    virtual Implements_Var_New<T>* getClassRep(const Implements_ComplexVar_New *m, std::__cxx11::string *whyNot) const override
+    {
+    }
+
+
+    virtual bool fillEditingFrame(Implements_ComplexVar_New *&fillingFrame) const override;
+
+    // ABC_Typed_Value interface
+  public:
+    virtual Implements_ComplexVar_New *getComplexVarTyeped_Rep(const Implements_Var_New<T> *var, std::__cxx11::string *whyNot) const override
+    {
+
+    }
   };
 
 
