@@ -1,6 +1,66 @@
 #include "Markov_IO/buildByToken.h"
 #include "Markov_Console/Markov_CommandManager.h"
 
+#include "Markov_IO/Var.h"
+
+namespace Markov_IO_New {
+
+
+
+
+  ABC_BuildByToken::~ABC_BuildByToken(){}
+
+
+
+  const Implements_ComplexVar_New* ABC_BuildByToken::parent() const
+  {
+    return parent_;
+  }
+
+
+
+  ABC_BuildByToken::ABC_BuildByToken(const Implements_ComplexVar_New *p
+                                     ):parent_(p){}
+
+
+
+
+
+
+
+
+  template class buildByToken<double>;
+  template class buildByToken<std::vector<double>>;
+
+
+  template class buildByToken<int>;
+  template class buildByToken<std::vector<int>>;
+
+  template class buildByToken<std::size_t>;
+  template class buildByToken<std::vector<std::size_t>>;
+
+  template class buildByToken<std::string>;
+  template class buildByToken<std::vector<std::string>>;
+
+
+
+  template class buildByToken<std::set<double>>;
+
+
+
+  template class buildByToken<Markov_LA::M_Matrix<double>>;
+
+
+
+}
+
+
+
+
+
+
+
+
 namespace Markov_IO {
 
   std::string ABC_BuildByToken::ClassName()

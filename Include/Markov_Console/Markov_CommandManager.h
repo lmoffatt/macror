@@ -1,6 +1,67 @@
 #ifndef MARKOV_COMMANDMANAGER_H
 #define MARKOV_COMMANDMANAGER_H
 
+
+#include "Markov_IO/Var.h"
+#include "Markov_IO/ABC_IO.h"
+
+
+namespace Markov_IO_New
+{
+  class ExpressionManager;
+  class CommandHistory;
+
+
+
+  /**
+  @brief Markov_CommandManager manages the commands
+  to be executed, keep the declared variables and
+  allow to make runs.
+
+  @warning declared variables in MacroR languaje can't be redeclared.
+  */
+
+
+
+  class Markov_CommandManagerVar: public Implements_ComplexVar_New
+  {
+  public:
+
+   //  bool processTokens(Markov_IO::Token_Stream &t) override;
+
+     void KeyEvent(Key k);
+
+
+    Markov_CommandManagerVar();
+    virtual ~Markov_CommandManagerVar();
+
+
+    virtual ABC_IO* getIO()const;
+
+    virtual void setIO(ABC_IO* io);
+
+
+    virtual CommandHistory& getH();
+
+
+
+  protected:
+    Markov_IO::ABC_IO* io_;
+
+    ExpressionManager* e;
+
+
+    bool lastCmdRst;
+
+
+  };
+
+
+
+
+}
+
+
 #include <map>
 #include <vector>
 #include <deque>

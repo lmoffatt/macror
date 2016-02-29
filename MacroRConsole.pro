@@ -475,7 +475,8 @@ HEADERS += \
     Include/Markov_Console/CoreManager.h \
     Include/Markov_IO/Validator.h \
     Include/Markov_IO/Table.h \
-    Include/Markov_IO/Var.h
+    Include/Markov_IO/Var.h \
+    Include/Markov_IO/Cls.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
