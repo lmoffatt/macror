@@ -1727,8 +1727,19 @@ namespace Markov_IO_New {
                 {
                   var_=varB_->unloadVar();
                   valueType_=parent()->idToType(var_,whyNot,objective);
-                  mystate =S_Final;
-                  return true;
+                  if (valueType_==nullptr)
+                    return false;
+                  else
+                    {
+                      valueB_=valueType_->getBuildByToken(parent(),whyNot,objective);
+                      if (valueB_==nullptr)
+                        return false;
+                      else
+                        {
+                          mystate =S_HEADER_Final;
+                          return true;
+                        }
+                    }
                 }
               else
                 return false;
@@ -1738,6 +1749,29 @@ namespace Markov_IO_New {
               *whyNot=objective+": is not an identifier";
               return false;
             }
+          break;
+        case S_HEADER_Final:
+        case S_DATA_PARTIAL:
+          if (!valueB_->pushToken(tok, whyNot,objective))
+            return false;
+          else
+            {
+              if(valueB_->isFinal())
+                {
+                  x_=valueType_->getValueFromId
+                      .push_back(valueBuild_->unloadVar());
+                  mystate=S_Data_Final;
+                  return true;
+                }
+              else
+                {
+                  mystate=S_Data_Partial;
+                  return true;
+                }
+            }
+          break;
+         default:
+          return false;
           break;
         case S_Final:
         default:
@@ -1808,12 +1842,12 @@ namespace Markov_IO_New {
     const Implements_Data_Type_New<ABC_Var_New> * varType_;
     buildByToken<std::string>* idB_;
     buildByToken<std::string>* varB_;
-    ABC_BuildByToken* valueB_;
     std::string id_;
     std::string var_;
     std::string tip_;
     std::string whatthis_;
     const ABC_Type_of_Value* valueType_;
+    ABC_BuildByToken* valueB_;
     ABC_Var_New* x_;
     bool pushToken_tip(Token_New t, std::__cxx11::string &errorMessage);
     bool pushToken_whatthis(Token_New t, std::__cxx11::string &errorMessage);
@@ -1823,6 +1857,337 @@ namespace Markov_IO_New {
 
 
   };
+
+
+
+
+  class build_Command_Input
+      :public ABClass_buildByToken<ABC_Command_New*>
+  {
+
+
+    // ABC_BuildByToken interface
+  public:
+
+    static std::string ClassName()
+    {
+      return "build_Command_Input";
+    }
+
+    std::string myClass()const override
+    {
+      return ClassName();
+    }
+
+    virtual bool pushToken(Token_New t, std::string* errorMessage, const std::string& masterObjective) override
+
+    {
+      const std::string objective=masterObjective+": "+ClassName()+" pushToken("+t.str()+") fails: ";
+      switch (mystate)
+        {
+        case S_Init:
+          if (t.tok()==Token_New::IDENTIFIER)
+            {
+              if (cm_->has_command(t.identifier()))
+                {
+                  cmd_=cm_->getCommand(t.identifier())->clone();
+                  if (hasAllInputs(cmd_))
+                    mystate=S_Input_Final;
+                  else if (hasAllMandatoryInputs(cmd_))
+                    mystate=S_Mandatory_Final;
+                  return true;
+                }
+              else
+                {
+                  getErrorMessage("a valid command",t);
+                  return false;
+                }
+            }
+          else
+            {
+              getErrorMessage("a valid command",t);
+
+              return false;
+            }
+          break;
+        case  S_Mandatory_Final:
+          if (t.tok()==Token_New::EOL)
+            {
+              mystate=S_Final;
+              return true;
+            }
+          else if (processVariableInput(t))
+            {
+              if (hasAllInputs(cmd_))
+                mystate=S_Input_Final;
+              else mystate=S_Mandatory_Final;
+              return true;
+
+            }
+          else return false;
+
+          break;
+        case S_ID_Final:
+        case S_Input_Partial:
+          if (processVariableInput(t))
+            {
+              if (hasAllInputs(cmd_))
+                mystate=S_Input_Final;
+              else if (hasAllMandatoryInputs(cmd_))
+                mystate=S_Mandatory_Final;
+              else
+                mystate=S_Input_Partial;
+              return true;
+
+            }
+          else return false;
+          break;
+
+        case S_Input_Final:
+          if (t.tok()==Token_New::EOL)
+            {
+              mystate=S_Final;
+              return true;
+            }
+        case S_Final:
+        default:
+          return false;
+          break;
+
+        }
+
+    }
+
+
+    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_CommandManagerVar* cm_)const;
+
+
+    virtual Token_New popBackToken();
+    virtual bool isFinal() const
+    {
+      return mystate==S_Final;
+    }
+    virtual bool isInitial() const
+    {
+      return mystate==S_Init;
+    }
+    virtual bool isHollow() const
+    {
+
+    }
+
+    // ABClass_buildByToken interface
+    build_Command_Input(Implements_ComplexVar_New* cm);
+
+
+  public:
+    virtual ABC_Command_New * unloadVar() override;
+
+    void clear()override;
+
+    virtual bool unPop(ABC_Command_New * var)override;
+
+    virtual const ABC_Command_New* command()const
+    {
+      return cmd_;
+    }
+    virtual  ABC_Command_New* command()
+    {
+      return cmd_;
+    }
+
+
+    enum DFA {
+      S_Init=0,
+      S_ID_Final,
+      S_Input_Partial,
+      S_Mandatory_Final,
+      S_Input_Final,
+      S_Final
+    } ;
+
+    static bool hasAllInputs(const ABC_Command_New *v);
+    static bool hasAllMandatoryInputs(const ABC_Command_New* cmd);
+
+
+    bool processVariableInput(Token_New input);
+
+    std::pair<std::string,std::set<std::string>> inputAlternativeNext()const;
+
+  private:
+    DFA mystate;
+    buildByToken<std::string>* idCommandB_;
+    Implements_Command_Fields* cmd_;
+
+
+    // ABC_Base interface
+
+
+  };
+
+
+
+
+
+  /*!
+   * \brief The build_Statement class
+   * decide if it is either command, variable declaration, initialization or asignation
+   */
+
+  class build_Statement
+      :public ABC_BuildByToken
+  {
+  public:
+
+    static std::string ClassName()
+    {
+      return "build_Statement";
+    }
+
+    std::string myClass()const override
+    {
+      return ClassName();
+
+    }
+    enum DFA {
+      S_Init,
+      S_Command_Partial,
+      S_Command_Final,
+      S_Expression_Partial,
+      S_Expression_Final,
+    } ;
+
+    build_Statement(Markov_CommandManagerVar* p);
+
+
+    void clear()override
+    {
+      ABClass_buildByToken::clear();
+      delete cmv_;
+      v_.clear();
+      c_.clear();
+      mystate=S_Init;
+      x_=nullptr;
+      cmv_=nullptr;
+
+    }
+
+    ABC_Value* unloadVar()
+    {
+      if (mystate==S_Command_Final)
+        {
+
+          auto out=x_;
+          mystate=S_Init;
+          x_=nullptr;
+          cmv_=nullptr;
+
+          return out;
+        }
+      else
+        {
+          //         errorMessage=ABClass_buildByToken::ABC_BuildByToken::getErrorMessage  ("cannot unload beacause it is not in final state");
+
+          return nullptr;
+
+        }
+    }
+
+    bool isCommand()const
+    {
+      return mystate==S_Command_Final
+          || mystate==S_Command_Partial;
+    }
+    bool isVar()const
+    {
+      return mystate==S_Expression_Final
+          || mystate==S_Expression_Partial;
+
+    }
+
+
+    ABC_Command_New* unloadCommand()
+    {
+      if (mystate==S_Command_Final)
+        {
+          auto out=cmv_;
+          mystate=S_Init;
+          x_=nullptr;
+          cmv_=nullptr;
+
+          return out;
+        }
+      else
+        {
+          return nullptr;
+          ABClass_buildByToken::ABC_BuildByToken::getErrorMessage  (cmv_,"cannot unload because it is not in final state");
+        }
+    }
+
+    bool  unPop(ABC_Value* var)
+    {
+      return false;
+    }
+
+
+    bool pushToken(Token_New t, std::string& errorMessage);
+
+
+
+    std::pair<std::string,std::set<std::string>>   alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
+
+
+    Token_New popBackToken();
+
+
+
+    bool isFinal()const
+    {
+      return mystate==S_Expression_Final
+          || mystate==S_Command_Final;
+
+    }
+
+    bool isInitial()const
+    {
+      return mystate==S_Init;
+    }
+
+    virtual bool isHollow()const
+    {
+      switch (mystate) {
+        case       S_Init:
+        case     S_Command_Partial:
+        case     S_Expression_Partial:
+          return true;
+        case     S_Command_Final:
+        case     S_Expression_Final:
+
+        default:
+          return false;
+
+        }
+    }
+
+
+
+
+
+
+    static build_Implements_ValueId *createBuild_Value(ABC_Value *var);
+  private:
+    DFA mystate;
+    Implements_Command_Fields* x_;
+    ABC_Command_New *cmv_;
+
+    buildABC_Var   v_;
+    build_Command_Input c_;
+
+
+  };
+
+
+
 
 
 

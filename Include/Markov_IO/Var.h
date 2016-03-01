@@ -691,6 +691,12 @@ namespace Markov_IO_New {
 
 
 
+  class Implements_Command_Fields: public Implements_ComplexVar_New
+  {
+
+  };
+
+
   class ABC_BuildByToken;
 
   class ABC_Type_of_Value:public Implements_ComplexVar_New
@@ -720,6 +726,11 @@ namespace Markov_IO_New {
                                    const std::string& id,
                                    const std::string& tip,
                                    const std::string& whathis)const=0;
+
+    virtual ABC_Var_New* makeVar(const Implements_ComplexVar_New* parent,
+                                 const std::string& id,
+                                 const std::string& tip,
+                                 const std::string& whathis)const=0;
 
 
     virtual ABC_Value_New* default_Value()const=0;
@@ -853,7 +864,7 @@ namespace Markov_IO_New {
 
     virtual bool get(T*& v, ABC_Input* istream,std::string* whyNot )const=0;
 
- //  virtual ABClass_buildByToken<T>* getBuildByToken(const Implements_ComplexVar_New* cm,std::string *whyNot, const std::string& masterObjective)const override=0;
+    //  virtual ABClass_buildByToken<T>* getBuildByToken(const Implements_ComplexVar_New* cm,std::string *whyNot, const std::string& masterObjective)const override=0;
 
     virtual Implements_ComplexVar_New* getComplexVarRep(const ABC_Var_New* var,std::string* whyNot, const std::string& masterObjective)const override
     {
@@ -1113,7 +1124,7 @@ namespace Markov_IO_New {
     const Implements_Data_Type_New<T>* elemType_;
     typePredicate comply_;
     typeValue default_;
-   };
+  };
 
 
   template<typename T>
@@ -1227,7 +1238,7 @@ namespace Markov_IO_New {
     const Implements_Data_Type_New<T>* elemType_;
     typePredicate comply_;
     typeValue default_;
-   };
+  };
 
 
 
@@ -1349,7 +1360,7 @@ namespace Markov_IO_New {
     const Implements_Data_Type_New<T>* elemType_;
     typePredicate comply_;
     typeValue default_;
-   };
+  };
 
 
   template<typename K, typename T>
@@ -1462,7 +1473,7 @@ namespace Markov_IO_New {
     const Implements_Data_Type_New<std::pair<K,T>>* elemType_;
     typePredicate comply_;
     typeValue default_;
-   };
+  };
 
 
 
@@ -1510,7 +1521,7 @@ namespace Markov_IO_New {
 
     virtual ABClass_buildByToken<ABC_Var_New*>* getBuildByToken(const Implements_ComplexVar_New* cm, std::string *whyNot, const std::string masterObjective)const
     {
-    //  return new buildByToken<ABC_Var_New>(cm,this);
+      //  return new buildByToken<ABC_Var_New>(cm,this);
     }
 
 
@@ -1563,18 +1574,18 @@ namespace Markov_IO_New {
 
     virtual ABC_Var_New *empty_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
     {
-  //    return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,empty_Value());
+      //    return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,empty_Value());
     }
 
 
     virtual ABC_Value_New *default_Value() const override
     {
- //     return Implements_Value_New<T>(getDefault_Valued());
+      //     return Implements_Value_New<T>(getDefault_Valued());
     }
 
     virtual ABC_Var_New*default_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
     {
-   //   return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,default_Value());
+      //   return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,default_Value());
     }
 
 
@@ -1591,6 +1602,10 @@ namespace Markov_IO_New {
   {
 
   };
+
+
+
+
 
 
 
@@ -1903,34 +1918,38 @@ namespace Markov_IO_New {
     }
   };
 
+  class Markov_CommandManagerVar;
 
 
-
-
-  template<typename T>
-  class Implements_Command_Type_New:public ABC_Typed_Value<T>
+  class Implements_Command_Type_New:public ABC_Typed_Value<Implements_Command_Fields>
   {
   public:
 
     using plainPredicate
-    = bool(*)(const std::map<std::string,ABC_Var_New*>*,const Implements_Command_Type_New<T>*, std::string*);
+    = bool(*)
+    (const std::map<std::string,ABC_Var_New*>*,const Implements_Command_Type_New*, std::string*, const std::string&);
 
-    using getEmptyMap=std::map<std::string,ABC_Var_New*>* (*)(const Implements_Command_Type_New<T>*, std::string*);
+    using getEmptyMap
+    =std::map<std::string,ABC_Var_New*>* (*)
+    (const Implements_Command_Type_New*, std::string*, const std::string&);
 
-    using runCommand= T* (*)(const std::map<std::string,ABC_Var_New*>*
-    ,const Implements_Command_Type_New<T>*,std::string*);
+    using runCommand
+    = void (*)
+    (Markov_CommandManagerVar* cm
+    , const std::map<std::string,ABC_Var_New*>*
+    ,const Implements_Command_Type_New*
+    ,std::string*, const std::string&);
 
 
     static std::string ClassName()
     {
-      return "Implements_Command_Type_New"+Cls<T>::name();
+      return "Implements_Command_Type_New";
     }
 
     virtual std::string myClass()const override
     {
       return ClassName();
     }
-
 
 
     virtual ~Implements_Command_Type_New(){}
@@ -1944,43 +1963,36 @@ namespace Markov_IO_New {
                                 ,plainPredicate mapComply
                                 ,getEmptyMap toEmMap
                                 ,runCommand run_):
-      ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
+      ABC_Typed_Value<Implements_Command_Fields>(parent,id,var,tip,whatthis)
     ,mapComply_(mapComply)
     ,toEmMap_(toEmMap)
     ,run_(run_)
     {}
-
-
-
 
   protected:
     plainPredicate mapComply_;
     getEmptyMap toEmMap_;
     runCommand run_;
 
-
-
     // ABC_Type_of_Value interface
   public:
-    virtual Implements_Value_New<T>* empty_Value()const override
-    {
-      return new Implements_Value_New<T>();
-    }
-
-
-    virtual Implements_Var_New<T> *empty_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
-    {
-      return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,empty_Value());
-    }
-
-
-    virtual Implements_Value_New<T> *default_Value() const override
+    virtual ABC_Value_New* empty_Value()const override
     {
     }
 
-    virtual Implements_Var_New<T> *default_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
+
+    virtual Implements_Command_Fields *empty_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
     {
-      return new Implements_Var_New<T>(parent,idN,this->id(),tip,whathis,default_Value());
+    }
+
+
+    virtual ABC_Value_New *default_Value() const override
+    {
+    }
+
+    virtual Implements_Command_Fields *default_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
+    {
+
     }
 
 
@@ -1990,33 +2002,15 @@ namespace Markov_IO_New {
 
     // ABC_Type_of_Value interface
   public:
-    virtual Implements_Var_New<T>* getClassRep(const Implements_ComplexVar_New *m, std::__cxx11::string *whyNot) const override
-    {
-    }
 
 
     virtual bool fillEditingFrame(Implements_ComplexVar_New *&fillingFrame) const override;
 
     // ABC_Typed_Value interface
   public:
-    virtual Implements_ComplexVar_New *getComplexVarTyeped_Rep(const Implements_Var_New<T> *var, std::__cxx11::string *whyNot) const override
-    {
-
-    }
-  };
+     };
 
 
-
-
-
-  class ABC_Command: public ABC_Var_New
-  {
-
-
-
-
-
-  };
 
 
 
