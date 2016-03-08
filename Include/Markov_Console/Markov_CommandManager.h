@@ -43,12 +43,20 @@ namespace Markov_IO_New
 
     virtual CommandHistory& getH();
 
+    const Implements_Var_Data_Type* getVarType()
+    {
+      return vt_;
+    }
+
 
 
   protected:
     Markov_IO::ABC_IO* io_;
 
+    Implements_Var_Data_Type* vt_;
+
     ExpressionManager* e;
+
 
 
     bool lastCmdRst;

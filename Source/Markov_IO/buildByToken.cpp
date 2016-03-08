@@ -8,7 +8,6 @@ namespace Markov_IO_New {
 
 
 
-  ABC_BuildByToken::~ABC_BuildByToken(){}
 
 
 
@@ -49,6 +48,20 @@ namespace Markov_IO_New {
 
 
   template class buildByToken<Markov_LA::M_Matrix<double>>;
+
+
+  build_Statement::build_Statement(Markov_CommandManagerVar *p):
+    build_Statement(p,p->getVarType()){}
+
+  build_Statement::build_Statement(Markov_CommandManagerVar *p, const Implements_Var_Data_Type *varType):
+    ABC_BuildByToken(p),
+    mystate(S_Init),
+    v_({p, varType}),
+    c_(p),
+    cmv_(nullptr),
+    x_(nullptr)
+
+  {}
 
 
 

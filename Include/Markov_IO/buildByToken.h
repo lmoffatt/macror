@@ -59,7 +59,7 @@ namespace Markov_IO_New {
         {
           return false;
         }
-      else if (varType_->isInDomain(d,whyNot,objective))
+      else if (varType_->isInDomain(this->parent(),d,whyNot,objective))
         {
           x_=d;
           isComplete_=true;
@@ -71,15 +71,14 @@ namespace Markov_IO_New {
 
 
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(const Implements_ComplexVar_New* cm)const override
+    std::pair<std::string,std::set<std::string>> alternativesNext()const override
     {
-      return {"",varType_->alternativeNext(cm)};
+      return {"",varType_->alternativeNext(this->parent())};
     }
 
 
     void clear()override
     {
-      ABC_BuildByToken::clear();
       isComplete_=false;
     }
 
@@ -353,7 +352,7 @@ namespace Markov_IO_New {
         }
     }
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(const Implements_ComplexVar_New* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext()const
     {
       switch (mystate)
         {
@@ -364,11 +363,11 @@ namespace Markov_IO_New {
           return {myClass(),{Token_New::toString(Token_New::LSB)}};
         case S_Header_Final:
         case S_Data_Partial:
-          return valueBuild_->alternativesNext(cm);
+          return valueBuild_->alternativesNext();
           break;
         case S_Data_Final:
           {
-            auto out=valueBuild_->alternativesNext(cm);
+            auto out=valueBuild_->alternativesNext();
             out.second.insert(Token_New::toString(Token_New::RSB));
             return out;
           }
@@ -383,7 +382,6 @@ namespace Markov_IO_New {
 
     void clear()override
     {
-      ABC_BuildByToken::clear();
       mystate=S_Init;
       x_.clear();
       valueBuild_->clear();
@@ -591,19 +589,19 @@ namespace Markov_IO_New {
         }
     }
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(Implements_ComplexVar_New* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext()const
     {
       switch (mystate)
         {
         case S_Init:
         case S_First_Partial:
-          return first_.alternativesNext(cm);
+          return first_.alternativesNext();
           break;
         case S_First_Final:
           return {myClass(),{Token_New::toString(Token_New::COLON)}};
         case S_Separator_Final:
         case S_Second_Partial:
-          return second_.alternativesNext(cm);
+          return second_.alternativesNext();
           break;
         case S_Final:
         default:
@@ -899,7 +897,7 @@ namespace Markov_IO_New {
       else return {};
     }
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(Implements_ComplexVar_New* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext()const
     {
       /*
       switch (mystate)
@@ -927,7 +925,6 @@ namespace Markov_IO_New {
 
     void clear()override
     {
-      ABC_BuildByToken::clear();
       isComplete_=false;
       mystate=S_Init;
       x_.clear();
@@ -1226,7 +1223,7 @@ namespace Markov_IO_New {
         }
     }
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(Implements_ComplexVar_New* cm)const
+    std::pair<std::string,std::set<std::string>> alternativesNext()const
     {
       switch (mystate)
         {
@@ -1237,11 +1234,11 @@ namespace Markov_IO_New {
           return {myClass(),{Token_New::toString(Token_New::LCB)}};
         case S_Header_Final:
         case S_Data_Partial:
-          return valueBuild_->alternativesNext(cm);
+          return valueBuild_->alternativesNext();
           break;
         case S_Data_Final:
           {
-            auto out=valueBuild_->alternativesNext(cm);
+            auto out=valueBuild_->alternativesNext();
             out.second.insert(Token_New::toString(Token_New::RCB));
             return out;
           }
@@ -1257,7 +1254,6 @@ namespace Markov_IO_New {
 
     void clear()override
     {
-      ABC_BuildByToken::clear();
       mystate=S_Init;
       x_.clear();
       valueBuild_->clear();
@@ -1510,7 +1506,7 @@ namespace Markov_IO_New {
         }
     }
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(Implements_ComplexVar_New* cm)const override
+    std::pair<std::string,std::set<std::string>> alternativesNext()const override
     {
       switch (mystate)
         {
@@ -1521,11 +1517,11 @@ namespace Markov_IO_New {
           return {myClass(),{Token_New::toString(Token_New::LCB)}};
         case S_Header_Final:
         case S_Data_Partial:
-          return valueBuild_->alternativesNext(cm);
+          return valueBuild_->alternativesNext();
           break;
         case S_Data_Final:
           {
-            auto out=valueBuild_->alternativesNext(cm);
+            auto out=valueBuild_->alternativesNext();
             out.second.insert(Token_New::toString(Token_New::RCB));
             return out;
           }
@@ -1578,7 +1574,8 @@ namespace Markov_IO_New {
       S_Final
     } ;
 
-    bool pushToken(Token_New tok, std::string* whyNot,const std::string masterObjective)
+    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override
+
     {
       const std::string objective=masterObjective+": "+ClassName()+" rejected token"+tok.str();
       switch (mystate)
@@ -1758,20 +1755,16 @@ namespace Markov_IO_New {
             {
               if(valueB_->isFinal())
                 {
-                  x_=valueType_->getValueFromId
-                      .push_back(valueBuild_->unloadVar());
-                  mystate=S_Data_Final;
+                  x_=valueB_->unloadVar_New(parent(),id_,var_,tip_,whatthis_);
+                  mystate=S_Final;
                   return true;
                 }
               else
                 {
-                  mystate=S_Data_Partial;
+                  mystate=S_DATA_PARTIAL;
                   return true;
                 }
             }
-          break;
-         default:
-          return false;
           break;
         case S_Final:
         default:
@@ -1782,12 +1775,21 @@ namespace Markov_IO_New {
 
 
 
-    bool isFinal()const override;
-    bool isInitial()const override;
+    bool isFinal()const override
+    {
 
-    virtual bool isHollow()const override;
+    }
+    bool isInitial()const override
+    {
 
-    ~buildABC_Var();
+    }
+
+    virtual bool isHollow()const override
+    {
+
+    }
+
+    ~buildABC_Var(){}
 
 
 
@@ -1811,7 +1813,7 @@ namespace Markov_IO_New {
     }
 
     buildABC_Var(const Implements_ComplexVar_New* parent,
-                 const Implements_Data_Type_New<ABC_Var_New>* varType):
+                 const Implements_Var_Data_Type* varType):
       ABClass_buildByToken<ABC_Var_New*>(parent)
     ,mystate(S_Init)
     ,x_{}
@@ -1832,14 +1834,13 @@ namespace Markov_IO_New {
 
     void clear()override
     {
-      ABC_BuildByToken::clear();
       mystate=S_Init;
 
     }
 
   private:
     DFA mystate;
-    const Implements_Data_Type_New<ABC_Var_New> * varType_;
+    const Implements_Data_Type_New<ABC_Var_New*> * varType_;
     buildByToken<std::string>* idB_;
     buildByToken<std::string>* varB_;
     std::string id_;
@@ -1849,20 +1850,41 @@ namespace Markov_IO_New {
     const ABC_Type_of_Value* valueType_;
     ABC_BuildByToken* valueB_;
     ABC_Var_New* x_;
-    bool pushToken_tip(Token_New t, std::__cxx11::string &errorMessage);
-    bool pushToken_whatthis(Token_New t, std::__cxx11::string &errorMessage);
-    std::pair<std::string,std::set<std::string>> alternativesNext_var()const ;
+    bool pushToken_tip(Token_New t, std::__cxx11::string &errorMessage)
+    {
+
+    }
+
+    bool pushToken_whatthis(Token_New t, std::__cxx11::string &errorMessage)
+    {
+
+    }
+
+    std::pair<std::string,std::set<std::string>> alternativesNext_var()const
+    {
+
+    }
 
 
 
 
+
+    // ABC_BuildByToken interface
+  public:
+    virtual std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > alternativesNext() const override
+    {
+
+    }
+    virtual Token_New popBackToken() override{
+
+    }
   };
 
 
 
 
   class build_Command_Input
-      :public ABClass_buildByToken<ABC_Command_New*>
+      :public ABClass_buildByToken<Implements_Command_Fields*>
   {
 
 
@@ -1879,7 +1901,7 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
-    virtual bool pushToken(Token_New t, std::string* errorMessage, const std::string& masterObjective) override
+    virtual bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective) override
 
     {
       const std::string objective=masterObjective+": "+ClassName()+" pushToken("+t.str()+") fails: ";
@@ -1888,9 +1910,11 @@ namespace Markov_IO_New {
         case S_Init:
           if (t.tok()==Token_New::IDENTIFIER)
             {
-              if (cm_->has_command(t.identifier()))
+              if (parent()->hasCommand(t.identifier()))
                 {
-                  cmd_=cm_->getCommand(t.identifier())->clone();
+                  cmdty_=parent()->idToCommand(t.identifier(),whyNot);
+                  cmd_=cmdty_->getCommandField();
+
                   if (hasAllInputs(cmd_))
                     mystate=S_Input_Final;
                   else if (hasAllMandatoryInputs(cmd_))
@@ -1899,14 +1923,11 @@ namespace Markov_IO_New {
                 }
               else
                 {
-                  getErrorMessage("a valid command",t);
                   return false;
                 }
             }
           else
             {
-              getErrorMessage("a valid command",t);
-
               return false;
             }
           break;
@@ -1959,10 +1980,17 @@ namespace Markov_IO_New {
     }
 
 
-    std::pair<std::string,std::set<std::string>> alternativesNext(Markov_CommandManagerVar* cm_)const;
+    std::pair<std::string,std::set<std::string>> alternativesNext()const override
+    {
+
+    }
 
 
-    virtual Token_New popBackToken();
+    virtual Token_New popBackToken()
+    {
+
+    }
+
     virtual bool isFinal() const
     {
       return mystate==S_Final;
@@ -1977,24 +2005,31 @@ namespace Markov_IO_New {
     }
 
     // ABClass_buildByToken interface
-    build_Command_Input(Implements_ComplexVar_New* cm);
+    build_Command_Input(Implements_ComplexVar_New* cm):
+      ABClass_buildByToken<Implements_Command_Fields*>(cm)
+    ,mystate(S_Init)
+    ,idCommandB_(Implements_Command_Type_New::getBuildIdCommand()),
+    cmdty_(nullptr),cmd_(nullptr){}
+
 
 
   public:
-    virtual ABC_Command_New * unloadVar() override;
-
-    void clear()override;
-
-    virtual bool unPop(ABC_Command_New * var)override;
-
-    virtual const ABC_Command_New* command()const
+    virtual Implements_Command_Fields* unloadVar() override
     {
-      return cmd_;
+
     }
-    virtual  ABC_Command_New* command()
+
+    void clear()override
     {
-      return cmd_;
+
     }
+
+    virtual bool unPop(Implements_Command_Fields*  var)override
+    {
+
+    }
+
+
 
 
     enum DFA {
@@ -2006,17 +2041,25 @@ namespace Markov_IO_New {
       S_Final
     } ;
 
-    static bool hasAllInputs(const ABC_Command_New *v);
-    static bool hasAllMandatoryInputs(const ABC_Command_New* cmd);
+    static bool hasAllInputs(const Implements_Command_Fields *v)
+    {
+
+    }
+
+    static bool hasAllMandatoryInputs(const Implements_Command_Fields* cmd)
+    {
+
+    }
 
 
-    bool processVariableInput(Token_New input);
+    bool processVariableInput(Token_New input){}
 
     std::pair<std::string,std::set<std::string>> inputAlternativeNext()const;
 
   private:
     DFA mystate;
     buildByToken<std::string>* idCommandB_;
+    const Implements_Command_Type_New* cmdty_;
     Implements_Command_Fields* cmd_;
 
 
@@ -2057,12 +2100,17 @@ namespace Markov_IO_New {
       S_Expression_Final,
     } ;
 
-    build_Statement(Markov_CommandManagerVar* p);
 
+    build_Statement(Markov_CommandManagerVar *p);
+
+    build_Statement(Markov_CommandManagerVar* p,
+                    const Implements_Var_Data_Type *varType);
+
+
+    virtual ~build_Statement(){}
 
     void clear()override
     {
-      ABClass_buildByToken::clear();
       delete cmv_;
       v_.clear();
       c_.clear();
@@ -2072,7 +2120,7 @@ namespace Markov_IO_New {
 
     }
 
-    ABC_Value* unloadVar()
+    ABC_Var_New* unloadVar()
     {
       if (mystate==S_Command_Final)
         {
@@ -2106,38 +2154,24 @@ namespace Markov_IO_New {
     }
 
 
-    ABC_Command_New* unloadCommand()
+    Implements_Command_Fields* unloadCommand()
     {
-      if (mystate==S_Command_Final)
-        {
-          auto out=cmv_;
-          mystate=S_Init;
-          x_=nullptr;
-          cmv_=nullptr;
-
-          return out;
-        }
-      else
-        {
-          return nullptr;
-          ABClass_buildByToken::ABC_BuildByToken::getErrorMessage  (cmv_,"cannot unload because it is not in final state");
-        }
     }
 
-    bool  unPop(ABC_Value* var)
+    bool  unPop(ABC_Var_New* var)
     {
       return false;
     }
 
 
-    bool pushToken(Token_New t, std::string& errorMessage);
 
 
 
-    std::pair<std::string,std::set<std::string>>   alternativesNext(Markov_Console::Markov_CommandManagerVar* cm)const;
 
+    Token_New popBackToken()
+    {
 
-    Token_New popBackToken();
+    }
 
 
 
@@ -2174,16 +2208,104 @@ namespace Markov_IO_New {
 
 
 
-    static build_Implements_ValueId *createBuild_Value(ABC_Value *var);
   private:
     DFA mystate;
-    Implements_Command_Fields* x_;
-    ABC_Command_New *cmv_;
-
     buildABC_Var   v_;
     build_Command_Input c_;
 
 
+    Implements_Command_Fields* cmv_;
+    ABC_Var_New* x_;
+
+    // ABC_BuildByToken interface
+  public:
+    virtual bool pushToken(Token_New t, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) override
+
+    {
+      const std::string objective=masterObjective;
+      switch (mystate)
+        {
+        case S_Init:
+          if (c_.pushToken(t, whyNot,objective))
+            {
+              if (c_.isFinal())
+                {
+                  cmv_=c_.unloadVar();
+                  mystate=S_Command_Final;
+                  return true;
+                }
+              else
+                {
+                  mystate=S_Command_Partial;
+                  return true;
+                }
+            }
+          else if (v_.pushToken(t, whyNot, objective))
+            {
+              mystate=S_Expression_Partial;
+              return true;
+            }
+          else
+            {
+              if (t.tok()==Token_New::EOL)
+                return true;
+              else
+                {
+                  *whyNot=objective+": unknown command or variable";
+                  return false;
+                }
+            }
+          break;
+        case S_Command_Partial:
+          if (!c_.pushToken(t, whyNot,objective))
+            {
+              return false;
+            }
+          else
+            {
+              if (c_.isFinal())
+                {
+                  cmv_=c_.unloadVar();
+                  mystate=S_Command_Final;
+                }
+              else
+                mystate=S_Command_Partial;
+              return true;
+            }
+          break;
+        case S_Expression_Partial:
+          if (!v_.pushToken(t, whyNot,objective))
+            {
+              return false;
+            }
+          else
+            {
+              if (v_.isFinal())
+                {
+                  mystate=S_Expression_Final;
+                  x_=v_.unloadVar();
+
+                }
+              else
+                mystate=S_Expression_Partial;
+              return true;
+            }
+          break;
+        case S_Command_Final:
+        case S_Expression_Final:
+        default:
+          return false;
+          break;
+        }
+
+    }
+    virtual std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > alternativesNext() const override
+    {
+
+    }
+    virtual ABC_Var_New *unloadVar_New(const Implements_ComplexVar_New *p, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis) override{
+
+    }
   };
 
 

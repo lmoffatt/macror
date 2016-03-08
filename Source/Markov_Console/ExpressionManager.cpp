@@ -20,7 +20,7 @@ namespace Markov_IO_New {
       {
         std::string errorMessage;
         char c=io->pop_next_char();
-        push_back(cm,io,c,errorMessage);
+        push_back(cm,io,c,&errorMessage);
       }
   }
 
@@ -40,7 +40,7 @@ namespace Markov_IO_New {
   {
     if (!bu_.isInitial()||!tok_.isInitial())
       {
-        while ((tok_.tok()!=Markov_IO::Token_New::EOL)&&(!bu_.isInitial()))
+        while ((tok_.tok()!=Token_New::EOL)&&(!bu_.isInitial()))
           {
             tok_=bu_.popBackToken();
           }
@@ -78,12 +78,12 @@ namespace Markov_IO_New {
 
   void ExpressionManager::suggestCompletion(Markov_CommandManagerVar* cm,ABC_IO * io)
   {
-    auto n=bu_.alternativesNext(cm);
-    std::string s=this->suggestRest(n.second,tok_);
+    auto n=bu_.alternativesNext();
+    std::string s=suggestRest(n.second,tok_);
     if (!s.empty())
       {
         std::string errorMessage;
-        push_back(cm,io,s,errorMessage);
+        push_back(cm,io,s,&errorMessage);
       }
 
   }
@@ -93,10 +93,10 @@ namespace Markov_IO_New {
     std::pair<std::string,std::set<std::string>> pos;
     if (tok_.isInitial())
       {
-        pos=bu_.alternativesNext(cm);
+        pos=bu_.alternativesNext();
       }
     else{
-        auto n=bu_.alternativesNext(cm);
+        auto n=bu_.alternativesNext();
 
         pos={n.first,conformant(n.second,tok_)};
       }
@@ -106,7 +106,7 @@ namespace Markov_IO_New {
         auto sel=io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
         std::string err;
         if (ok)
-          push_back(cm,io,sel,err);
+          push_back(cm,io,sel,&err);
       }
 
   }
@@ -119,18 +119,18 @@ namespace Markov_IO_New {
     std::string t=io->getTail();
     io->cleanToEndLine();
     std::string errorMessage;
-    push_back(cm,io,t,errorMessage);
-    push_back(cm,io,'\n',errorMessage);
+    push_back(cm,io,t,&errorMessage);
+    push_back(cm,io,'\n',&errorMessage);
     if (bu_.isFinal())
       {
         if (bu_.isCommand())
           {
             auto cmd=bu_.unloadCommand();
-            cm->run(cmd);
+            //cm->run(cmd);
           }
         else
           {
-            cm->add_var(bu_.unloadVar());
+            //cm->add_var(bu_.unloadVar());
           }
         bu_.clear();
         io->freshLine();
@@ -156,7 +156,7 @@ namespace Markov_IO_New {
   void ExpressionManager::putText(Markov_CommandManagerVar *cm,ABC_IO *io,char c)       // here lies the core of the logic
   {
     std::string err;
-    push_back(cm,io,c,err);
+    push_back(cm,io,c,&err);
 
   }
 
@@ -169,54 +169,55 @@ namespace Markov_IO_New {
     bu_(cm),tok_{},previous_key(),rejectedChars_()
   {}
 
-  void ExpressionManager::KeyEvent(Markov_CommandManagerVar *cm, ABC_IO * io, CommandHistory& ch, Markov_IO::Key k)
+  void ExpressionManager::KeyEvent(Markov_CommandManagerVar *cm, ABC_IO * io, CommandHistory& ch, Key k)
   {
     switch(k)
       {
-      case Markov_IO::Key_Home:
+      case Key_Home:
         move_Home(io);
         break;
-      case Markov_IO::Key_Left:
+      case Key_Left:
         move_Left(io);
         break;
-      case Markov_IO::Key_Backspace:
+      case Key_Backspace:
         backErase(io);
         break;
-      case Markov_IO::Key_Right:
+      case Key_Right:
         move_Right(cm,io);
         break;
-      case Markov_IO::Key_Up:
+      case Key_Up:
         history_up(&ch,io);
         break;
-      case Markov_IO::Key_Down:
+      case Key_Down:
         history_down(&ch,io);
         break;
 
-      case Markov_IO::Key_Tab:
-        if (previous_key!=Markov_IO::Key_Tab)
+      case Key_Tab:
+        if (previous_key!=Key_Tab)
           suggestCompletion(cm,io);
         else
           suggestAlternatives(cm,io);
         break;
-      case Markov_IO::Key_PageUp:
-      case Markov_IO::Key_PageDown:
+      case Key_PageUp:
+      case Key_PageDown:
         break;
-      case Markov_IO::Key_Space:
+      case Key_Space:
         putText(cm,io,' ');
         break;
-      case Markov_IO::Key_Return:
+      case Key_Return:
         putReturn(cm,io);
         break;
       default:
-        if (Markov_IO::isText(k))
-          putText(cm,io,Markov_IO::toText(k));
+        if (isText(k))
+          putText(cm,io,toText(k));
         break;
       }
     previous_key=k;
   }
 
-  bool ExpressionManager::push_back(Markov_CommandManagerVar* cm, ABC_IO * io, char c,  std::__cxx11::string &error)
+  bool ExpressionManager::push_back(Markov_CommandManagerVar* cm, ABC_IO * io, char c,  std::__cxx11::string *error)
   {
+    const std::string objective="";
 
     if (!rejectedChars_.empty())
       {
@@ -229,7 +230,7 @@ namespace Markov_IO_New {
         if (tok_.isFinal())                  // token is full
           //(but char remains to be processed)
           {
-            if(!bu_.pushToken(tok_,error))           //  does the var reject the token ?
+            if(!bu_.pushToken(tok_,error,""))           //  does the var reject the token ?
               {
                 rejectedChars_=tok_.str();
                 tok_.clear();
@@ -257,7 +258,7 @@ namespace Markov_IO_New {
                 else if (tok_.isFinal())              // char is accepted,
                   //is the token full?
                   {
-                    if(!bu_.pushToken(tok_,error))          // is the full token rejected  ?
+                    if(!bu_.pushToken(tok_,error,objective))          // is the full token rejected  ?
                       {
                         tok_.clear();
                         io->putError(c);
@@ -293,7 +294,7 @@ namespace Markov_IO_New {
       if (tok_.isFinal())                 // is the token full?
         {
 
-          if(!bu_.pushToken(tok_,error))           //  does the var reject the token ?
+          if(!bu_.pushToken(tok_,error,objective))           //  does the var reject the token ?
             {
               tok_.popLastChar();
               rejectedChars_=tok_.str();
@@ -321,7 +322,7 @@ namespace Markov_IO_New {
 
   }
 
-  bool ExpressionManager::push_back(Markov_CommandManagerVar *cm,ABC_IO * io, const std::__cxx11::string &s,std::string& errorMessage)
+  bool ExpressionManager::push_back(Markov_CommandManagerVar *cm,ABC_IO * io, const std::__cxx11::string &s,std::string* errorMessage)
   {
     bool result=true;
     for (auto c:s)
@@ -360,7 +361,7 @@ namespace Markov_IO_New {
     return bu_.isFinal();
   }
 
-  std::string ExpressionManager::suggestRest(const std::set<std::string> &items, Markov_IO::Token_New tok)
+  std::string ExpressionManager::suggestRest(const std::set<std::string> &items, Token_New tok)
   {
 
     std::string hint=tok.str();
@@ -406,7 +407,7 @@ namespace Markov_IO_New {
       }
   }
 
-  std::set<std::__cxx11::string> ExpressionManager::conformant(const std::set<std::__cxx11::string> &items, Markov_IO::Token_New tok)
+  std::set<std::__cxx11::string> ExpressionManager::conformant(const std::set<std::__cxx11::string> &items, Token_New tok)
   {
     std::string hint=tok.str();
     auto lo=items.lower_bound(hint);

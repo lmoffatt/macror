@@ -481,7 +481,8 @@ HEADERS += \
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
     Source/Markov_Console/BayesianAutocomplete.cpp \
-    Source/Markov_Console/ExpressionManager.cpp
+    Source/Markov_Console/ExpressionManager.cpp \
+    Source/Markov_IO/Var.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

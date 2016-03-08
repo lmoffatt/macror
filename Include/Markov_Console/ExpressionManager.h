@@ -29,8 +29,8 @@ namespace Markov_IO_New {
 
   protected:
 
-    bool push_back(Markov_CommandManagerVar *cm, ABC_IO *io, char c, std::string& errorMessage);
-    bool push_back(Markov_CommandManagerVar *cm, ABC_IO * io, const std::string& s, std::__cxx11::string &errorMessage);
+    bool push_back(Markov_CommandManagerVar *cm, ABC_IO *io, char c, std::__cxx11::string *errorMessage);
+    bool push_back(Markov_CommandManagerVar *cm, ABC_IO * io, const std::string& s, std::__cxx11::string *errorMessage);
 
     char pop_back_char();
 
@@ -41,8 +41,8 @@ namespace Markov_IO_New {
 
     // talking with internal representations: token and frame around var
 
-    static std::string suggestRest(const std::set<std::string>& items, Markov_IO::Token_New tok);
-    static std::set<std::string> conformant(const std::set<std::string>& ids,Markov_IO::Token_New tok);
+    static std::string suggestRest(const std::set<std::string>& items, Token_New tok);
+    static std::set<std::string> conformant(const std::set<std::string>& ids,Token_New tok);
 
 
 

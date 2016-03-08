@@ -1952,15 +1952,15 @@ the parameter className
       return idTemplate+"_0";
   }
 
-  std::size_t ABC_Value::getVersionNumber(const std::__cxx11::string &id)
-  {
-    std::stringstream ss(id.substr(id.find_last_of('_')));
-    std::size_t n;
-    if (ss>>n)
-      return n;
-    else
-      return std::string::npos;
-  }
+    std::size_t ABC_Value::getVersionNumber(const std::__cxx11::string &id)
+    {
+      std::stringstream ss(id.substr(id.find_last_of('_')));
+      std::size_t n;
+      if (ss>>n)
+        return n;
+      else
+        return std::string::npos;
+    }
 
   std::string ABC_Value::ClassName()
   {

@@ -10,6 +10,9 @@
 
 namespace Markov_IO_New {
 
+
+
+
   template<typename C>
   struct Cls
   {
@@ -79,6 +82,14 @@ namespace Markov_IO_New {
     static std::string name(){return "count";}
   };
 
+  template<typename T>
+  std::set<std::string> getMapKeys(const std::map<std::string,T>& m)
+  {
+    std::set<std::string> o;
+    for (auto& e:m)
+      o.insert(e.first);
+    return o;
+  }
 
 
 }

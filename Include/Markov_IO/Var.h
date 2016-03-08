@@ -85,6 +85,12 @@ namespace Markov_IO_New {
 
     virtual void reset()=0;
 
+    virtual ABC_Value_New* clone()const=0;
+    virtual ABC_Value_New* create()const=0;
+
+
+
+
     virtual ~ABC_Value_New(){}
 
     /// template methods
@@ -104,6 +110,14 @@ namespace Markov_IO_New {
 
   };
 
+  template <typename T>
+  void reset(T& x)
+  {
+    x=T{};
+  }
+
+
+
 
   template<class T>
   class ABC_Var_Typed;
@@ -119,6 +133,10 @@ namespace Markov_IO_New {
       return "ABC_Value_Typed_of_"+Cls<T>::name();
     }
 
+    virtual ABC_Value_Typed<T>* clone()const=0;
+    virtual ABC_Value_Typed<T>* create()const=0;
+
+
     virtual std::string myClass()const
     {
       return ClassName();
@@ -129,17 +147,20 @@ namespace Markov_IO_New {
       return Cls<T>::name();
     }
 
-    virtual const T* getValued()const=0;
+    virtual const T& getValued()const=0;
 
-    virtual T* getValued()=0;
+    virtual T& getValued()=0;
 
-    virtual bool setValue(T* val,std::string *whyNot, const std::string& masterObjective)=0;
+    virtual bool setValue(T val,std::string *whyNot, const std::string& masterObjective)=0;
 
     virtual ~ABC_Value_Typed(){}
   };
 
   template <typename T>
   class ABC_Typed_Value;
+
+
+
 
   template<typename T>
   class Implements_Value_New: public ABC_Value_Typed<T>
@@ -165,23 +186,37 @@ namespace Markov_IO_New {
 
     virtual void reset() override
     {
-      *data_={};
+      data_=T{};
       empty_=true;
     }
+
+
+
     // ABC_Value_Typed interface
   public:
-    virtual const T *getValued() const override
+    virtual Implements_Value_New<T>* clone() const
+    {
+      return new Implements_Value_New(data_);
+
+    }
+
+    virtual Implements_Value_New<T>* create() const
+    {
+      return new Implements_Value_New();
+
+    }
+
+    virtual const T& getValued() const override
     {
       return data_;
     }
-    virtual T *getValued() override
+    virtual T& getValued() override
     {
       return data_;
     }
-    virtual bool setValue(T *val,std::string *whyNot, const std::string& masterObjective) override
+    virtual bool setValue(T val,std::string *whyNot, const std::string& masterObjective) override
     {
-      delete data_;
-      data_=val;
+      data_=std::move(val);
       empty_=false;
       return true;
     }
@@ -189,21 +224,29 @@ namespace Markov_IO_New {
 
 
     Implements_Value_New():
-      data_{new T{}}, empty_(true){}
-    Implements_Value_New(T* datum):
-      data_(datum), empty_(false){}
+      data_{}, empty_(true){}
+    Implements_Value_New(T datum):
+      data_(std::move(datum)), empty_(false){}
 
-    ~Implements_Value_New(){delete data_;}
+    ~Implements_Value_New(){}
 
   protected:
 
-    T* data_;
+    T data_;
     bool empty_;
   };
 
 
 
   class Implements_ComplexVar_New;
+
+
+  struct type_tip_Whatthis
+  {
+    std::string varType;
+    std::string tip;
+    std::string whatthis;
+  };
 
 
   struct Var_id
@@ -217,14 +260,13 @@ namespace Markov_IO_New {
   };
 
 
-  typedef std::pair<Var_id,ABC_Value_New*> Var_id_val;
 
 
   class ABC_Type_of_Value;
   template <typename T>
   class ABC_Typed_Value;
 
-  class ABC_Var_New: public ABC_Value_Typed<Var_id_val>
+  class ABC_Var_New: public ABC_Value_New
   {
 
     // ABC_Value_New interface
@@ -290,33 +332,33 @@ namespace Markov_IO_New {
 
     virtual std::string id()const override
     {
-      return v_.first.idName;
+      return id_;
     }
 
 
     virtual std::string Tip()const override
     {
-      return v_.first.tip;
+      return tip_;
     }
     virtual std::string WhatThis()const override
     {
-      return v_.first.whathis;
+      return whatthis_;
     }
 
     virtual void setId(const std::string& idName) override
     {
-      v_.first.idName=idName;
+      id_=idName;
     }
 
 
     virtual std::string refId()const override
     {
-      return v_.first.idName;
+      return id();
     }
 
     virtual std::string myType()const override
     {
-      return v_.first.var;
+      return var_;
     }
 
     virtual Implements_Value_New<T>* value()
@@ -330,11 +372,21 @@ namespace Markov_IO_New {
     }
 
 
+    virtual Implements_Value_New<T>* clone()const
+    {
+      return x_->clone();
+    }
+
+    virtual Implements_Value_New<T>* create()const
+    {
+      return x_->create();
+    }
+
 
 
     virtual ~Implements_Var_New()
     {
-      delete v_.second;
+      delete x_;
     }
 
 
@@ -348,32 +400,12 @@ namespace Markov_IO_New {
     }
     virtual void reset() override
     {
-      delete x_;
       value()->reset();
     }
 
     // ABC_Value_Typed interface
   public:
-    virtual const Var_id_val *getValued() const override
-    {
-      return &v_;
-    }
-    virtual Var_id_val *getValued() override
-    {
-      return &v_;
-    }
-    virtual bool setValue(Var_id_val *val,std::string *whyNot, const std::string& masterObjective) override
-    {
-      auto x= (dynamicCast<Implements_Value_New<T>*>(v_.second,whyNot,masterObjective));
-      if (x==nullptr)
-        return false;
-      else
-        {
-          x_=x;
-          v_=*val;
-          return true;
-        }
-    }
+
     Implements_Var_New(const Implements_ComplexVar_New* parent,
                        const std::string& id,
                        const std::string& var,
@@ -381,16 +413,43 @@ namespace Markov_IO_New {
                        const std::string& whatthis
                        ,Implements_Value_New<T>* data=new Implements_Value_New<T>):
       p_(parent),
-      x_(data),
-      v_({{id,var,tip,whatthis},data}){
-    }
+      id_(id),var_(var),tip_(tip),whatthis_(whatthis),
+      x_(data)
+    {}
+    Implements_Var_New(const Implements_ComplexVar_New* parent,
+                       const std::string& id,
+                       const std::string& var,
+                       T x,
+                       const std::string& tip,
+                       const std::string& whatthis):
+      p_(parent),
+      id_(id),var_(var),tip_(tip),whatthis_(whatthis),
+      x_(new Implements_Value_New<T>(std::move(x)))
+    {}
+
+    Implements_Var_New(const Implements_ComplexVar_New* parent,
+                       const std::string& id,
+                       const type_tip_Whatthis& ttw,
+                       T x):
+      Implements_Var_New(parent,id,ttw.varType,x,ttw.tip,ttw.whatthis){}
 
 
   protected:
     const Implements_ComplexVar_New* p_;
+    std::string id_;
+    std::string var_;
+    std::string tip_;
+    std::string whatthis_;
     Implements_Value_New<T>* x_;
-    Var_id_val v_;
 
+
+
+    // ABC_Value_New interface
+  public:
+    virtual std::__cxx11::string storedClass() const override
+    {
+      return Cls<T>::name();
+    }
   };
 
 
@@ -428,12 +487,16 @@ namespace Markov_IO_New {
     virtual  bool get(char& c,std::string* whyNot)=0;
 
     template<typename T>
-    bool get(T& x, std::string* error, const std::string& masterObjective);
+    bool get(T& x, std::string* error, const std::string& masterObjective)
+    {
+
+    }
+
     virtual ~ABC_Input(){}
   };
 
 
-  class ABC_Command_New;
+  class Implements_Command_Type_New;
 
   template<typename T>
   class ABC_Typed_Value;
@@ -441,6 +504,36 @@ namespace Markov_IO_New {
   class Implements_ComplexVar_New: public Implements_Var_New<std::map<std::string,ABC_Var_New*>>
   {
   public:
+    class F
+    {
+    public:
+      static std::string belongingType()
+      {
+        return "belongingType";
+      }
+    };
+
+
+    class G
+    {
+    public:
+      static std::string gettypeOfId(const Implements_ComplexVar_New* self)
+      {
+        std::string belongType;
+        std::string whyNot;
+        if (self->getValueFromId(F::belongingType(),belongType,&whyNot,""))
+          return belongType;
+        else
+          {
+            return "";
+          }
+
+      }
+      static void pushTypeOfId(Implements_ComplexVar_New* self,
+                               std::string belongType);
+
+    };
+
     static std::string ClassName()
     {
       return "Implements_ComplexVar_New";
@@ -465,14 +558,14 @@ namespace Markov_IO_New {
         }
     }
 
-    ABC_Var_New* idToVar(const std::string& name, std::string* whyNot)
+    ABC_Var_New* idToVar(const std::string& name, std::string* whyNot, const std::string & masterObective)
     {
       auto it=vars_->find(name);
       if (it!=vars_->end())
         return it->second;
       else
         {
-          *whyNot=name+" is not a var of "+id();
+          *whyNot=masterObective+": "+name+" is not a var of "+id();
           return nullptr;
         }
     }
@@ -506,6 +599,23 @@ namespace Markov_IO_New {
 
     }
 
+
+    const Implements_Command_Type_New* idToCommand(const std::string& name, std::string *whyNot)const
+    {
+      auto it=cmds_->find(name);
+      if (it!=cmds_->end())
+        return it->second;
+      else if (this->parent()!=nullptr)
+        return  parent()->idToCommand(name, whyNot);
+      else
+        {
+          *whyNot=name+" is not a command of "+id();
+          return nullptr;
+        }
+    }
+
+
+
     template<typename T>
     const ABC_Typed_Value<T>* idToTyped(
         const std::string& name
@@ -532,10 +642,13 @@ namespace Markov_IO_New {
 
     template<typename T>
     bool getValueFromId(const std::string& name
-                        , const T*& value
+                        , T& value
                         ,std::string* whyNot, const std::string& masterObjective)const
     {
-      const std::string objective=masterObjective+": "+ name+" is not a "+Cls<T>::name();
+
+      std::string objective;
+      if (whyNot!=nullptr)
+        objective=masterObjective+": "+ name+" is not a "+Cls<T>::name();
 
       auto it=vars_->find(name);
       if (it!=vars_->end())
@@ -547,7 +660,8 @@ namespace Markov_IO_New {
             }
           else if (v->empty())
             {
-              *whyNot=objective+": varType not found";
+              if (whyNot!=nullptr)
+                *whyNot=objective+": varType not found";
               return false;
             }
           else
@@ -567,18 +681,52 @@ namespace Markov_IO_New {
     }
 
 
-    bool hasName(const std::string& name, std::string* whoHasIt)const
+    bool hasName(const std::string& name
+                 , std::string* whyNot
+                 ,const std::string &masterObjective)const
     {
+      const std::string objective=masterObjective+ ": "+name+"is not in "+id();
       if (vars_->find(name)!=vars_->end())
         {
-          *whoHasIt=id();
+          return true;
+        }
+      if (parent()==nullptr)
+        {
+          *whyNot=objective;
+          return false;
+        }
+      else return parent()->hasName(name, whyNot,objective);
+    }
+
+    bool hasNameofType(const std::string& name, const std::string& type,
+                        std::string* whyNot
+                       ,const std::string &masterObjective)const;
+
+
+    bool isNameUnOcuppied(const std::string& name,std::string* whyNot,const std::string masterObjective)const
+    {
+      auto it=vars_->find(name);
+      if (it!=vars_->end())
+        {
+          const ABC_Var_New* v=it->second;
+          *whyNot=masterObjective+": "+name+" is currently a"+v->myType()+" in "+id();
+        }
+      else if (parent()!=nullptr)
+        return parent()->isNameUnOcuppied(name,whyNot,masterObjective);
+      else
+        return true;
+    }
+
+
+    bool hasCommand(const std::string& name)const
+    {if (cmds_->find(name)!=cmds_->end())
+        {
           return true;
         }
       if (parent()==nullptr)
         return false;
-      else return parent()->hasName(name, whoHasIt);
+      else return parent()->hasCommand(name);
     }
-
 
     template <typename T>
     bool insertChild(const std::string& idN,
@@ -590,13 +738,7 @@ namespace Markov_IO_New {
                      , const std::string& masterObjective)
     {
       const std::string objective=masterObjective+": "+id()+"cannot insert"+idN;
-      std::string whoHasIt;
-      if (hasName(idN,&whoHasIt))
-        {
-          *whyNot=objective+": id exists in"+whoHasIt;
-          return false;
-        }
-      else
+      if (isNameUnOcuppied(idN,whyNot,objective))
         {
           auto v=idToTyped<T>(var,whyNot,objective);
           if (v==nullptr)
@@ -609,7 +751,11 @@ namespace Markov_IO_New {
                 {
                   pushChild(new Implements_Var_New(this,{idN,var,value,tip,whatthis}));
                   return true;
-                }}}
+                }}
+        }
+      else
+        return false;
+
     }
 
 
@@ -645,7 +791,7 @@ namespace Markov_IO_New {
 
 
     void pushType(ABC_Type_of_Value* varT);
-    void pushCommand(ABC_Command_New* cmd);
+    void pushCommand(Implements_Command_Type_New* cmd);
 
 
 
@@ -659,7 +805,7 @@ namespace Markov_IO_New {
                          id,var,tip,whatthis)
     {
 
-      vars_=this->value()->getValued();
+      vars_=&(this->value()->getValued());
     }
 
 
@@ -674,6 +820,8 @@ namespace Markov_IO_New {
     }
 
 
+    std::set<std::string> getIdsOfType(const std::string& varType)const;
+
 
 
 
@@ -683,7 +831,7 @@ namespace Markov_IO_New {
   private:
     std::map<std::string,ABC_Var_New*>* vars_;
     std::map<std::string,ABC_Type_of_Value*>* types_;
-    std::map<std::string,ABC_Command_New*>* cmds_;
+    std::map<std::string,Implements_Command_Type_New*>* cmds_;
 
 
 
@@ -694,6 +842,7 @@ namespace Markov_IO_New {
   class Implements_Command_Fields: public Implements_ComplexVar_New
   {
 
+
   };
 
 
@@ -702,6 +851,8 @@ namespace Markov_IO_New {
   class ABC_Type_of_Value:public Implements_ComplexVar_New
   {
   public:
+
+
     static std::string ClassName()
     {
       return "ABC_Type_of_Value";
@@ -743,7 +894,7 @@ namespace Markov_IO_New {
     virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const=0;
 
 
-    virtual bool isInDomain(const ABC_Value_New* v, std::string *whyNot)const=0;
+    virtual bool isInDomain(const Implements_ComplexVar_New* cm,const ABC_Value_New* v, std::string *whyNot)const=0;
 
     virtual Implements_ComplexVar_New* getComplexVarRep(const ABC_Var_New* var,std::string* whyNot,const std::string& masterObjective)const=0;
 
@@ -768,19 +919,24 @@ namespace Markov_IO_New {
 
     virtual bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)=0;
 
-    virtual  std::pair<std::string,std::set<std::string>> alternativesNext(
-        const Implements_ComplexVar_New* cm)const=0;
+    virtual  std::pair<std::string,std::set<std::string>> alternativesNext()const=0;
 
     virtual Token_New popBackToken()=0;
     virtual bool isFinal()const=0;
     virtual bool isInitial()const=0;
     virtual bool isHollow()const=0;
 
-    virtual ~ABC_BuildByToken();
+    virtual ~ABC_BuildByToken(){}
 
     virtual void clear()=0;
 
     const Implements_ComplexVar_New* parent()const;
+
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)=0;
 
   protected:
     ABC_BuildByToken(const Implements_ComplexVar_New* p);
@@ -800,11 +956,29 @@ namespace Markov_IO_New {
 
     virtual bool unPop(T var)=0;
     virtual ~ABClass_buildByToken(){}
+
+
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)
+    {
+      if (isFinal())
+        {
+          T x=unloadVar();
+          return new Implements_Var_New<T>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
+
   protected:
     ABClass_buildByToken(const Implements_ComplexVar_New* p):ABC_BuildByToken(p){}
 
   };
 
+  
 
   template<typename T>
   class ABC_Typed_Value:public ABC_Type_of_Value
@@ -820,7 +994,7 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
-    virtual bool isInDomain(const ABC_Value_New* v, std::string *whyNot, const std::string& masterObjective)const
+    virtual bool isInDomain(const Implements_ComplexVar_New* cm,const ABC_Value_New* v, std::string *whyNot, const std::string& masterObjective)const
     {
       const std::string objective=masterObjective+": "+id()+ "do not has it in domain";
       auto x=dynamicCast<const ABC_Value_Typed<T>* >(v,whyNot,objective);
@@ -829,30 +1003,16 @@ namespace Markov_IO_New {
           return false;
         }
       else
-        return isInDomain(x->getValued(),whyNot,objective);
+        return isInDomain(cm,x->getValued(),whyNot,objective);
     }
 
     virtual bool put(const ABC_Value_New* v,ABC_Output* ostream
                      ,std::string* whyNot, const std::string& masterObjective)const
     {
-      auto x=dynamicCast<const ABC_Value_Typed<T>* >(v,whyNot,masterObjective);
-      if (x==nullptr)
-        {
-          return false;
-        }
-      else
-        return put(x->getValued(),ostream,whyNot,masterObjective);
     }
 
     virtual bool get(ABC_Value_New* v, ABC_Input* istream,std::string* whyNot , const std::string& masterObjective)const
     {
-      auto x=dynamicCast<ABC_Value_Typed<T>* >(v,whyNot,masterObjective);
-      if (x==nullptr)
-        {
-          return false;
-        }
-      else
-        return get(x->getValued(),istream,whyNot,masterObjective);
 
     }
 
@@ -879,11 +1039,11 @@ namespace Markov_IO_New {
 
     virtual Implements_Var_New<T>* getClassRep(const Implements_ComplexVar_New* cvar  ,std::string* whyNot)const override=0;
 
-    virtual T* getDefault_Valued()const=0;
+    virtual T getDefault_Valued()const=0;
 
 
-    virtual bool isInDomain(const T &val, std::__cxx11::string *whyNot
-                            ,const std::string masterObjective ) const;
+    virtual bool isInDomain(const Implements_ComplexVar_New* cm,const T &val, std::__cxx11::string *whyNot
+                            ,const std::string masterObjective ) const=0;
 
 
     virtual ~ABC_Typed_Value(){}
@@ -910,10 +1070,14 @@ namespace Markov_IO_New {
   {
   public:
 
-    using typePredicate= bool(*)(const T&,const Implements_ComplexVar_New*);
+    using typePredicate= bool(*)(const Implements_ComplexVar_New*,const T&,const Implements_ComplexVar_New*,
+    std::string *WhyNot, const std::string objective);
 
-    using typeValue=T*(*)(const Implements_ComplexVar_New*);
+    using typeValue=T(*)(const Implements_ComplexVar_New*,const Implements_ComplexVar_New*);
 
+
+    using getSet=std::set<std::string>(*)(const Implements_ComplexVar_New*,
+    const Implements_ComplexVar_New*);
 
     static std::string ClassName()
     {
@@ -926,19 +1090,25 @@ namespace Markov_IO_New {
     }
 
 
+    virtual bool isInDomain(const Implements_ComplexVar_New* cm,const T &val, std::__cxx11::string *whyNot,const std::string masterObjective ) const
+    {
+      return (*comply_)(cm,val,this,whyNot,masterObjective);
+    }
+
+
     virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const
     {
       ostream->put(*v);
       return true;
     }
 
-    virtual bool get(T*& v, ABC_Input* istream,std::string* whyNot )const
+    virtual bool get(T& v, ABC_Input* istream,std::string* whyNot )const
     {
 
       if (!istream->get(v,whyNot))
         return false;
       else
-        return isInDomain(*v,whyNot);
+        return isInDomain(this->parent(),v,whyNot,"");
     }
 
     virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
@@ -961,19 +1131,36 @@ namespace Markov_IO_New {
                              ,const std::string& tip
                              ,const std::string& whatthis
                              ,typePredicate complyPred
-                             ,typeValue  defaultValue):
+                             ,typeValue  defaultValue
+                             ,getSet alterNext):
       ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
     ,comply_(complyPred)
     ,default_(defaultValue)
+    ,alternativeNext_(alterNext)
     {}
 
+
+    Implements_Data_Type_New(const Implements_ComplexVar_New *parent):
+      Implements_Data_Type_New(
+        parent,Cls<T>::name
+        ,ClassName()
+        ,"regular "+Cls<T>::name()
+        ,"just a "+Cls<T>::name()+ "nothing special"
+        ,[](const T&,const Implements_ComplexVar_New*,
+        std::string *WhyNot, const std::string objective)
+    {return true;}
+    ,[](const Implements_ComplexVar_New*)
+    {return T{};}
+    ,[](const Implements_ComplexVar_New*, const Implements_ComplexVar_New*)
+    {return std::set<std::string>();})
+    {}
 
 
 
   protected:
     typePredicate comply_;
     typeValue default_;
-
+    getSet alternativeNext_;
 
 
     // ABC_Type_of_Value interface
@@ -992,7 +1179,7 @@ namespace Markov_IO_New {
 
     virtual Implements_Value_New<T> *default_Value() const override
     {
-      return Implements_Value_New<T>(getDefault_Valued());
+   //   return Implements_Value_New<T>(getDefault_Valued());
     }
 
     virtual Implements_Var_New<T> *default_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
@@ -1004,23 +1191,30 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-    virtual T *getDefault_Valued() const override
+    virtual T getDefault_Valued() const override
     {
       if (default_!=nullptr)
-        return (*default_)(this);
+        return (*default_)(this,this);
       else
-        return new T{};
+        return T{};
     }
   };
+
+
+
+
+
+
 
   template<typename T>
   class Implements_Data_Type_New<std::vector<T>>:public ABC_Typed_Value<std::vector<T>>
   {
   public:
 
-    using typePredicate= bool(*)(const std::vector<T>&,const Implements_ComplexVar_New*);
+    using typePredicate= bool(*)(const Implements_ComplexVar_New*,const std::vector<T>&,const Implements_ComplexVar_New*,
+    std::string *WhyNot, const std::string objective);
 
-    using typeValue=std::vector<T>*(*)(const Implements_ComplexVar_New*);
+    using typeValue=std::vector<T>(*)(const Implements_ComplexVar_New*);
 
 
     static std::string ClassName()
@@ -1112,12 +1306,12 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-    virtual std::vector<T> *getDefault_Valued() const override
+    virtual std::vector<T> getDefault_Valued() const override
     {
       if (default_!=nullptr)
         return (*default_)(this);
       else
-        return new std::vector<T>{};
+        return std::vector<T>{};
     }
 
   protected:
@@ -1132,9 +1326,10 @@ namespace Markov_IO_New {
   {
   public:
 
-    using typePredicate= bool(*)(const std::set<T>&,const Implements_ComplexVar_New*);
+    using typePredicate= bool(*)(const Implements_ComplexVar_New*,const std::set<T>&,const Implements_ComplexVar_New*,
+    std::string *WhyNot, const std::string objective);
 
-    using typeValue=std::set<T>*(*)(const Implements_ComplexVar_New*);
+    using typeValue=std::set<T>(*)(const Implements_ComplexVar_New*);
 
 
     static std::string ClassName()
@@ -1226,12 +1421,12 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-    virtual std::set<T> *getDefault_Valued() const override
+    virtual std::set<T> getDefault_Valued() const override
     {
       if (default_!=nullptr)
         return (*default_)(this);
       else
-        return new std::set<T>{};
+        return std::set<T>{};
     }
 
   protected:
@@ -1247,9 +1442,10 @@ namespace Markov_IO_New {
   {
   public:
 
-    using typePredicate= bool(*)(const std::pair<K,T>&,const Implements_ComplexVar_New*);
+    using typePredicate= bool(*)(const Implements_ComplexVar_New*,const std::pair<K,T>&,const Implements_ComplexVar_New*,
+    std::string *WhyNot, const std::string objective);
 
-    using typeValue=std::pair<K,T>*(*)(const Implements_ComplexVar_New*);
+    using typeValue=std::pair<K,T>(*)(const Implements_ComplexVar_New*);
 
 
     static std::string ClassName()
@@ -1347,7 +1543,7 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-    virtual T *getDefault_Valued() const override
+    virtual T getDefault_Valued() const override
     {
       if (default_!=nullptr)
         return (*default_)(this);
@@ -1368,9 +1564,10 @@ namespace Markov_IO_New {
   {
   public:
 
-    using typePredicate= bool(*)(const std::map<K,T>&,const Implements_ComplexVar_New*);
+    using typePredicate= bool(*)(const Implements_ComplexVar_New*,const std::map<K,T>&,const Implements_ComplexVar_New*,
+    std::string *WhyNot, const std::string objective);
 
-    using typeValue=std::map<K,T>*(*)(const Implements_ComplexVar_New*);
+    using typeValue=std::map<K,T>(*)(const Implements_ComplexVar_New*);
 
 
     static std::string ClassName()
@@ -1461,7 +1658,7 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-    virtual T *getDefault_Valued() const override
+    virtual T getDefault_Valued() const override
     {
       if (default_!=nullptr)
         return (*default_)(this);
@@ -1480,14 +1677,19 @@ namespace Markov_IO_New {
 
 
   template<>
-  class Implements_Data_Type_New<ABC_Var_New>:public ABC_Typed_Value<ABC_Var_New>
+  class Implements_Data_Type_New<ABC_Var_New*>:public ABC_Typed_Value<ABC_Var_New*>
   {
   public:
 
-    using typePredicate= bool(*)(const ABC_Var_New&,const Implements_ComplexVar_New*);
+    using typePredicate= bool(*)(const Implements_ComplexVar_New*,
+    const ABC_Var_New*&,const Implements_ComplexVar_New*,
+    std::string *WhyNot, const std::string objective);
 
-    using typeValue=ABC_Var_New*(*)(const Implements_ComplexVar_New*);
+    using typeValue=ABC_Var_New*(*)(const Implements_ComplexVar_New*,
+    const Implements_ComplexVar_New*);
 
+    using getSet=std::set<std::string>(*)(const Implements_ComplexVar_New*,
+    const Implements_ComplexVar_New*);
 
     static std::string ClassName()
     {
@@ -1500,7 +1702,7 @@ namespace Markov_IO_New {
     }
 
 
-    virtual bool put(const ABC_Var_New* v,ABC_Output* ostream,std::string* error)const
+    virtual bool put(const ABC_Var_New*& v,ABC_Output* ostream,std::string* error)const
     {
       return true;
     }
@@ -1511,35 +1713,14 @@ namespace Markov_IO_New {
       if (!istream->get(v,whyNot, masterObjective))
         return false;
       else
-        return isInDomain(*v,whyNot,masterObjective);
+        return isInDomain(v->parent(),v,whyNot,masterObjective);
     }
 
     virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
     {
-      return {};
+      return (*alterNext_)(cm,this);
     }
 
-    virtual ABClass_buildByToken<ABC_Var_New*>* getBuildByToken(const Implements_ComplexVar_New* cm, std::string *whyNot, const std::string masterObjective)const
-    {
-      //  return new buildByToken<ABC_Var_New>(cm,this);
-    }
-
-
-    virtual buildByToken<std::string>* getNewIdentifierBuildByToken(const Implements_ComplexVar_New* cm)const
-    {
-
-    }
-
-    virtual buildByToken<std::string>* getVarIdentifierBuildByToken(const Implements_ComplexVar_New* cm)const
-    {
-
-    }
-
-
-    virtual ABClass_buildByToken<ABC_Value_New*>* getValueBuildByToken(const Implements_ComplexVar_New* cm)const
-    {
-
-    }
 
     virtual ~Implements_Data_Type_New(){}
 
@@ -1550,10 +1731,12 @@ namespace Markov_IO_New {
                              ,const std::string& tip
                              ,const std::string& whatthis
                              ,typePredicate complyPred
-                             ,typeValue  defaultValue):
-      ABC_Typed_Value<ABC_Var_New>(parent,id,var,tip,whatthis)
+                             ,typeValue  defaultValue
+                             ,getSet alterativNext):
+      ABC_Typed_Value<ABC_Var_New*>(parent,id,var,tip,whatthis)
     ,comply_(complyPred)
     ,default_(defaultValue)
+    ,alterNext_(alterativNext)
     {}
 
 
@@ -1562,6 +1745,9 @@ namespace Markov_IO_New {
   protected:
     typePredicate comply_;
     typeValue default_;
+    getSet  alterNext_;
+
+    Implements_Data_Type_New<std::string>* idType_;
 
 
 
@@ -1592,18 +1778,271 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-    virtual ABC_Var_New *getDefault_Valued() const override
+    virtual ABC_Var_New* getDefault_Valued() const override
     {
     }
   };
 
 
+
+
+
   class Implements_Identifier_Type_New: public Implements_Data_Type_New<std::string>
   {
+  public:
+
+
+    static std::string ClassName()
+    {
+      return "Implements_Identifier_Type_New";
+    }
+    virtual std::string myClass()const override
+    {
+      return ClassName();
+    }
+
+
+
+    Implements_Identifier_Type_New(const Implements_ComplexVar_New* parent,
+                                   const std::string& varTypeOfId
+                                   ,typePredicate complyPred
+                                   ,typeValue  defaultValue
+                                   ,getSet alterNext);
+
+    std::size_t static getVersionNumber(const std::string &id)
+    {
+      std::stringstream ss(id.substr(id.find_last_of('_')));
+      std::size_t n;
+      if (ss>>n)
+        return n;
+      else
+        return std::string::npos;
+    }
+
+    static std::string nextId(const std::string &idTemplate)
+    {
+      auto n=getVersionNumber(idTemplate);
+
+      if (n!=std::string::npos)
+        {
+          ++n;
+          return idTemplate.substr(0,idTemplate.find_last_of('_')+1)+std::to_string(n);
+        }
+      else
+        return idTemplate+"_0";
+    }
+    static bool isNewId(const std::string& idCandidate,
+                        const Implements_ComplexVar_New* cm,
+                        std::string *WhyNot, const std::string objective)
+    {
+      return cm->isNameUnOcuppied(idCandidate,WhyNot,objective);
+    }
+
+
+
+  };
+
+  class Implements_Var_Identifier_Type_New: public Implements_Identifier_Type_New
+  {
+  public:
+    static std::string ClassName()
+    {
+      return "Implements_Var_Identifier_Type_New";
+    }
+
+    std::string myClass()const override
+    {
+      return ClassName();
+    }
+
+    static bool isOfThisType(const Implements_ComplexVar_New* cm,
+                             const std::string& name
+                             ,const Implements_ComplexVar_New* self,
+                             std::string *WhyNot, const std::string objective)
+    {
+      std::string varType=G::gettypeOfId(self);
+      const ABC_Var_New* v=cm->idToVar(name,WhyNot);
+      const ABC_Type_of_Value* t=cm->idToType(varType,WhyNot,objective);
+      if ((v==nullptr)||(t==nullptr))
+        return false;
+      else if (t->isInDomain(cm,v->value(),WhyNot))
+        return true;
+      else
+        return false;
+    }
+
+    static std::string getDefaultValue(const Implements_ComplexVar_New* cm,
+                                       const Implements_ComplexVar_New* self)
+    {
+      auto s=suggestedNames(cm,self);
+      if (s.empty())
+        return "";
+      else
+        return *s.begin();
+
+    }
+
+
+    static std::set<std::string> suggestedNames(const Implements_ComplexVar_New* cm,
+                                                const Implements_ComplexVar_New* self)
+    {
+      std::string varType=G::gettypeOfId(self);
+      return cm->getIdsOfType(varType);
+    }
+
+
+    Implements_Var_Identifier_Type_New(const Implements_ComplexVar_New* parent,
+                                       const std::string varType):
+      Implements_Identifier_Type_New(parent,varType,&isOfThisType,&getDefaultValue,&suggestedNames){}
+
+  };
+
+  class Implements_Type_Identifier_Type_New: public Implements_Identifier_Type_New
+  {
+  public:
+    static std::string ClassName()
+    {
+      return "Implements_Type_Identifier_Type_New";
+    }
+
+    std::string myClass()const override
+    {
+      return ClassName();
+    }
 
   };
 
 
+
+  class Implements_New_Identifier_Type_New:public Implements_Identifier_Type_New
+  {
+  public:
+
+    static std::string ClassName()
+    {
+      return "Implements_New_Identifier_Type_New";
+    }
+    virtual std::string myClass()const override
+    {
+      return ClassName();
+    }
+
+    static bool isNewIdentifier(const Implements_ComplexVar_New* cm,
+                                const std::string& name
+                                ,const Implements_ComplexVar_New*,
+                                std::string *WhyNot, const std::string objective)
+    {
+      return cm->isNameUnOcuppied(name,WhyNot,objective);
+    }
+
+    static std::string getDefaultValue(const Implements_ComplexVar_New* cm,const Implements_ComplexVar_New* self)
+    {
+      std::string typevar=G::gettypeOfId(self);
+      if (!typevar.empty())
+        return "my"+typevar;
+      else
+        return {};
+    }
+
+
+    static std::set<std::string> suggestedNames(const Implements_ComplexVar_New* cm,
+                                                const Implements_ComplexVar_New* self)
+    {
+
+    }
+
+    /// precondition: belongingtype has to be a type of parent!!
+    /// it does not check that
+
+    Implements_New_Identifier_Type_New(const Implements_ComplexVar_New* parent,
+                                       const std::string& belongingtype):
+      Implements_Identifier_Type_New(parent,belongingtype,&isNewIdentifier,&getDefaultValue,&suggestedNames)
+    {
+    }
+
+
+
+
+
+
+
+
+  };
+
+
+
+
+
+  class Implements_Var_Data_Type: public Implements_Data_Type_New<ABC_Var_New*>
+  {
+  public:
+    static std::string typeOfId(const Implements_ComplexVar_New* self)
+    {
+      std::string belongType;
+      std::string whyNot;
+      if (self->getValueFromId(F::belongingType(),belongType,&whyNot,""))
+        return belongType;
+      else
+        {
+          return "";
+        }
+
+    }
+
+    static bool isVar(const Implements_ComplexVar_New* cm
+                      ,const ABC_Var_New*& v,const Implements_ComplexVar_New* ,
+                      std::string *WhyNot, const std::string objective)
+    {
+      return cm->hasName(v->id(),WhyNot,objective);
+    }
+
+    static ABC_Var_New* defaultVar(const Implements_ComplexVar_New*,
+                                   const Implements_ComplexVar_New*)
+    {
+      return nullptr;
+    }
+
+    static std::set<std::string> suggestedVars(const Implements_ComplexVar_New* cm,
+                                               const Implements_ComplexVar_New* self)
+    {
+
+      auto vartype=G::gettypeOfId(self);
+      return cm->getIdsOfType(vartype);
+    }
+
+
+
+    virtual ABClass_buildByToken<ABC_Var_New*>*
+    getBuildByToken(const Implements_ComplexVar_New* cm, std::string *whyNot, const std::string masterObjective)const;
+
+
+    virtual buildByToken<std::string>* getNewIdentifierBuildByToken(const Implements_ComplexVar_New* cm)const;
+
+    virtual buildByToken<std::string>* getVarIdentifierBuildByToken(const Implements_ComplexVar_New* cm)const
+    {
+
+    }
+
+
+    virtual ABClass_buildByToken<ABC_Value_New*>* getValueBuildByToken(const Implements_ComplexVar_New* cm)const
+    {
+
+    }
+
+
+    Implements_Var_Data_Type(const Implements_ComplexVar_New* cm):
+      Implements_Data_Type_New<ABC_Var_New*>(cm,
+                                             ClassName(),ClassName(),"",""
+                                             ,&isVar,&defaultVar,&suggestedVars){}
+
+
+    Implements_Var_Data_Type(const Implements_ComplexVar_New* cm,
+                             const std::string& varType):
+      Implements_Data_Type_New<ABC_Var_New*>(cm,"id_"+varType,ClassName(),"","",&isVar,&defaultVar,&suggestedVars){}
+
+
+
+  };
 
 
 
@@ -1614,7 +2053,7 @@ namespace Markov_IO_New {
   {
   public:
 
-    using typePredicate= bool(*)(const T&,const Implements_Class_Type_New<T>*, std::string*);
+    using typePredicate= bool(*)(const Implements_ComplexVar_New*,const T&,const Implements_Class_Type_New<T>*, std::string*);
 
     using getEmptyObject=T*(*)(const Implements_Class_Type_New<T>*, std::string*);
 
@@ -1730,7 +2169,7 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-    virtual T *getDefault_Valued() const override
+    virtual T getDefault_Valued() const override
     {
       if (default_!=nullptr)
         return (*default_)(this);
@@ -1769,18 +2208,18 @@ namespace Markov_IO_New {
   {
   public:
 
-    using typePredicate= bool(*)(const T&,const Implements_Parameters_Type_New<T>*, std::string*);
+    using typePredicate= bool(*)(const Implements_ComplexVar_New*,const T&,const Implements_Parameters_Type_New<T>*, std::string*);
 
-    using getEmptyObject=T*(*)(const Implements_Parameters_Type_New<T>*, std::string*);
+    using getEmptyObject=T(*)(const Implements_Parameters_Type_New<T>*, std::string*);
 
     using plainPredicate
     = bool(*)(const std::map<std::string,Implements_Value_New<double>*>*,const Implements_Parameters_Type_New<T>*, std::string*);
 
-    using getEmptyMap=std::map<std::string,ABC_Var_New*>* (*)(const Implements_Parameters_Type_New<T>*, std::string*);
+    using getEmptyMap=std::map<std::string,ABC_Var_New*> (*)(const Implements_Parameters_Type_New<T>*, std::string*);
 
-    using getMap=std::map<std::string,ABC_Var_New*>* (*)(const T&, const Implements_Parameters_Type_New<T>*, std::string*);
+    using getMap=std::map<std::string,ABC_Var_New*> (*)(const T&, const Implements_Parameters_Type_New<T>*, std::string*);
 
-    using getObject= T* (*)(const std::map<std::string,ABC_Var_New*>*,const Implements_Class_Type_New<T>*,std::string*);
+    using getObject= T (*)(const std::map<std::string,ABC_Var_New*>*,const Implements_Class_Type_New<T>*,std::string*);
 
 
     static std::string ClassName()
@@ -1794,14 +2233,14 @@ namespace Markov_IO_New {
     }
 
 
-    virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const
+    virtual bool put(const Implements_ComplexVar_New* cm,const T& v,ABC_Output* ostream,std::string* error)const
     {
 
-      ostream->put(*v);
+      ostream->put(v);
       return true;
     }
 
-    virtual bool get(T*& v, ABC_Input* istream,std::string* whyNot )const
+    virtual bool get(const Implements_ComplexVar_New* cm,T& v, ABC_Input* istream,std::string* whyNot )const
     {
 
       if (!istream->get(v,whyNot))
@@ -1885,10 +2324,10 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-    virtual T *getDefault_Valued() const override
+    virtual T getDefault_Valued() const override
     {
       if (default_!=nullptr)
-        return (*default_)(this);
+        return (*default_)(this,this);
       else
         return new T{};
     }
@@ -1921,7 +2360,7 @@ namespace Markov_IO_New {
   class Markov_CommandManagerVar;
 
 
-  class Implements_Command_Type_New:public ABC_Typed_Value<Implements_Command_Fields>
+  class Implements_Command_Type_New:public ABC_Typed_Value<Implements_Command_Fields*>
   {
   public:
 
@@ -1951,6 +2390,8 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
+    static buildByToken<std::string>* getBuildIdCommand(){}
+
 
     virtual ~Implements_Command_Type_New(){}
 
@@ -1963,7 +2404,7 @@ namespace Markov_IO_New {
                                 ,plainPredicate mapComply
                                 ,getEmptyMap toEmMap
                                 ,runCommand run_):
-      ABC_Typed_Value<Implements_Command_Fields>(parent,id,var,tip,whatthis)
+      ABC_Typed_Value<Implements_Command_Fields*>(parent,id,var,tip,whatthis)
     ,mapComply_(mapComply)
     ,toEmMap_(toEmMap)
     ,run_(run_)
@@ -1980,6 +2421,11 @@ namespace Markov_IO_New {
     {
     }
 
+
+    Implements_Command_Fields* getCommandField()const
+    {
+
+    }
 
     virtual Implements_Command_Fields *empty_Var(const Implements_ComplexVar_New *parent, const std::__cxx11::string &idN, const std::__cxx11::string &tip, const std::__cxx11::string &whathis) const override
     {
@@ -2008,7 +2454,7 @@ namespace Markov_IO_New {
 
     // ABC_Typed_Value interface
   public:
-     };
+  };
 
 
 
@@ -2147,10 +2593,8 @@ namespace Markov_IO_New {
   inline
   bool Implements_ComplexVar_New::insertChild(const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, std::__cxx11::string *whyNot, const std::string& masterObjective)
   {
-    std::string whoHasIt;
-    if (hasName(id,&whoHasIt))
+    if (!this->isNameUnOcuppied(id,whyNot,masterObjective))
       {
-        *whyNot=id+" exists in"+whoHasIt;
         return false;
       }
     else
