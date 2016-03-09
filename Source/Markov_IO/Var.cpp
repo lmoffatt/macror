@@ -80,6 +80,46 @@ namespace Markov_IO_New {
 
   }
 
+  void Implements_ComplexVar_New::G::pushTypeOfElement(Implements_ComplexVar_New *self, std::__cxx11::string typeOfElement)
+  {
+    self->pushChild(new Implements_Var_New<std::string>(
+                      self,F::elementType()
+                      ,Implements_Type_Identifier_Type_New::ClassName(),
+                      std::move(typeOfElement),
+                      "",""));
+
+  }
+
+  void Implements_ComplexVar_New::G::pushTypeOfKey(Implements_ComplexVar_New *self, std::__cxx11::string typeOfKey)
+  {
+    self->pushChild(new Implements_Var_New<std::string>(
+                      self,F::keyType()
+                      ,Implements_Type_Identifier_Type_New::ClassName(),
+                      std::move(typeOfKey),
+                      "",""));
+
+  }
+
+
+
+
+
+
+
+
+
+  template<typename T>
+  Implements_Data_Type_New<std::vector<T> >::Implements_Data_Type_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, const std::__cxx11::string elementVar, Implements_Data_Type_New<std::vector<T> >::typePredicate complyPred, Implements_Data_Type_New<std::vector<T> >::typeValue defaultValue):
+    ABC_Typed_Value<std::vector<T> >(parent,id,var,tip,whatthis)
+  ,comply_(complyPred)
+  ,default_(defaultValue)
+  {
+    Implements_ComplexVar_New::G::pushTypeOfElement(this,elementVar);
+  }
+
+
+
+
 
 
 

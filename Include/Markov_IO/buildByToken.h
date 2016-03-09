@@ -33,7 +33,7 @@ namespace Markov_IO_New {
     }
 
     buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Data_Type_New<T>* typeVar):
+                 const ABC_Typed_Value<T>* typeVar):
       ABClass_buildByToken<T>(parent),
       x_(),
       isComplete_(false),
@@ -79,6 +79,7 @@ namespace Markov_IO_New {
 
     void clear()override
     {
+      x_={};
       isComplete_=false;
     }
 
@@ -93,8 +94,9 @@ namespace Markov_IO_New {
     {
       if (isFinal())
         {
-          Token_New to(x_);
+          Token_New to(std::move(x_));
           isComplete_=false;
+          x_={};
           return to;
         }
       else
@@ -118,7 +120,7 @@ namespace Markov_IO_New {
 
 
   protected:
-    const Implements_Data_Type_New<T>* varType_;
+    const ABC_Typed_Value<T>* varType_;
     T x_;
     bool isComplete_;
   };
@@ -182,7 +184,10 @@ namespace Markov_IO_New {
       if (isFinal())
         {
           mystate=S_Init;
-          return x_;
+         auto o=std::move(x_);
+         x_={};
+         return o;
+
         }
       else
         return {};
@@ -190,7 +195,7 @@ namespace Markov_IO_New {
 
     bool unPop(std::vector<T> var)
     {
-      x_=var;
+      x_=std::move(var);
       mystate=S_Final;
       return true;
 
@@ -470,7 +475,7 @@ namespace Markov_IO_New {
     }
 
     buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Data_Type_New<std::pair<K,T>>* typeVar):
+                 const ABC_Typed_Value<std::pair<K,T>>* typeVar):
       ABClass_buildByToken<std::pair<K,T>>(parent),
       mystate(S_Init),
       x_(),
@@ -702,7 +707,7 @@ namespace Markov_IO_New {
     }
 
     buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Data_Type_New<Markov_LA::M_Matrix<T>>* typeVar):
+                 const ABC_Typed_Value<Markov_LA::M_Matrix<T>>* typeVar):
       ABClass_buildByToken<Markov_LA::M_Matrix<T>>(parent),
       mystate(S_Init),
       x_{},
@@ -936,7 +941,7 @@ namespace Markov_IO_New {
     bool getValue(Token_New tok, T& v,std::string* whyNot, const std::string& masterObjective);
     DAF mystate;
     Markov_LA::M_Matrix<T> x_;
-    const Implements_Data_Type_New<Markov_LA::M_Matrix<T>>* dataType_;
+    const ABC_Typed_Value<Markov_LA::M_Matrix<T>>* dataType_;
 
 
     T v_;
@@ -1263,7 +1268,7 @@ namespace Markov_IO_New {
   private:
     DAF mystate;
     std::set<T> x_;
-    const Implements_Data_Type_New<std::set<T>>* dataType_;
+    const ABC_Typed_Value<std::set<T>>* dataType_;
     buildByToken<T>* valueBuild_;
   };
 
@@ -1355,7 +1360,7 @@ namespace Markov_IO_New {
 
 
     buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Data_Type_New<std::map<K,T>>* typeVar):
+                 const ABC_Typed_Value<std::map<K,T>>* typeVar):
       ABClass_buildByToken<std::map<K,T>>(parent),
       mystate(S_Header_Final),
       x_{},
@@ -1546,7 +1551,7 @@ namespace Markov_IO_New {
   private:
     DAF mystate;
     std::map<K,T> x_;
-    Implements_Data_Type_New<std::map<K,T>>* varType_;
+    ABC_Typed_Value<std::map<K,T>>* varType_;
     buildByToken<std::pair<K,T>> valueBuild_;
 
   };
