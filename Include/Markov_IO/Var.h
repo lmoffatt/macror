@@ -101,24 +101,23 @@ namespace Markov_IO_New {
   template<class T>
   class ABC_Var_Typed;
 
-  template<class T>
-  class ABC_Value_Typed: public ABC_Value_New
-  {
 
-    // ABC_Value_New interface
+    template <typename T>
+  class ABC_Typed_Value;
+
+
+
+
+  template<typename T>
+  class Implements_Value_New: public ABC_Value_New
+  {
   public:
     static std::string ClassName()
     {
-      return "ABC_Value_Typed_of_"+Cls<T>::name();
+      return "Implements_Value_Typed"+Cls<T>::name();
     }
 
-    virtual ABC_Value_Typed<T>* clone()const=0;
-    virtual ABC_Value_Typed<T>* create()const=0;
-
-
-
-
-    virtual std::string myClass()const
+    virtual std::string myClass()const override
     {
       return ClassName();
     }
@@ -128,37 +127,6 @@ namespace Markov_IO_New {
       return Cls<T>::name();
 
     }
-
-    virtual const T& getValued()const=0;
-
-    virtual T& getValued()=0;
-
-    virtual bool setValue(T val,std::string *whyNot, const std::string& masterObjective)=0;
-
-    virtual ~ABC_Value_Typed(){}
-  };
-
-  
-    template <typename T>
-  class ABC_Typed_Value;
-
-
-
-
-  template<typename T>
-  class Implements_Value_New: public ABC_Value_Typed<T>
-  {
-  public:
-    static std::string ClassName()
-    {
-      return "Implements_Value_Typed"+Cls<T>::name();
-    }
-
-    virtual std::string myClass()const
-    {
-      return ClassName();
-    }
-
 
     // ABC_Value_New interface
   public:
@@ -175,44 +143,30 @@ namespace Markov_IO_New {
 
 
 
-    // ABC_Value_Typed interface
+    // Implements_Value_New interface
   public:
-    virtual Implements_Value_New<T>* clone() const
+    virtual Implements_Value_New<T>* clone() const override
     {
       return new Implements_Value_New(data_);
 
     }
 
-    virtual Implements_Value_New<T>* create() const
+    virtual Implements_Value_New<T>* create() const override
     {
       return new Implements_Value_New();
 
     }
 
-    template<typename S>
-    Implements_Value_New<T>* castTo(Implements_Value_New<S>* v)
-    {
-      S x=v->getValued ();
-      T y=dynamic_cast<T> (x);
-      return new Implements_Value_New<T>(y);
-    }
 
-
-
-
-
-
-
-
-    virtual const T& getValued() const override
+    virtual const T& getValued() const
     {
       return data_;
     }
-    virtual T& getValued() override
+    virtual T& getValued()
     {
       return data_;
     }
-    virtual bool setValue(T val,std::string *whyNot, const std::string& masterObjective) override
+    virtual bool setValue(T val,std::string *whyNot, const std::string& masterObjective)
     {
       data_=std::move(val);
       empty_=false;
@@ -401,7 +355,7 @@ namespace Markov_IO_New {
       value()->reset();
     }
 
-    // ABC_Value_Typed interface
+    // Implements_Value_New interface
   public:
 
     Implements_Var_New(const Implements_ComplexVar_New* parent,
@@ -737,7 +691,7 @@ namespace Markov_IO_New {
       auto it=vars_->find(name);
       if (it!=vars_->end())
         {
-          auto v=dynamicCast<const ABC_Value_Typed<T>*>(it->second,whyNot,objective);
+          auto v=dynamicCast<const Implements_Value_New<T>*>(it->second,whyNot,objective);
           if (v==nullptr)
             {
               return false;
@@ -910,7 +864,7 @@ namespace Markov_IO_New {
 
 
 
-    // ABC_Value_Typed interface
+    // Implements_Value_New interface
 
   private:
     std::map<std::string,ABC_Var_New*>* vars_;
@@ -1070,7 +1024,7 @@ namespace Markov_IO_New {
     virtual bool isInDomain(const Implements_ComplexVar_New* cm,const ABC_Value_New* v, std::string *whyNot, const std::string& masterObjective)const
     {
       const std::string objective=masterObjective+": "+id()+ "do not has it in domain";
-      auto x=dynamicCast<const ABC_Value_Typed<T>* >(v,whyNot,objective);
+      auto x=dynamicCast<const Implements_Value_New<T>* >(v,whyNot,objective);
       if (x==nullptr)
         {
           return false;
@@ -2604,7 +2558,7 @@ namespace Markov_IO_New {
   {
     if (storedClass()==Cls<T>::name())
       {
-        auto v =dynamic_cast<const ABC_Value_Typed<T>*>(this);
+        auto v =dynamic_cast<const Implements_Value_New<T>*>(this);
         return v->getValued();
       }
     else
@@ -2616,7 +2570,7 @@ namespace Markov_IO_New {
   {
     if (storedClass()==Cls<T>::name())
       {
-        auto v =dynamic_cast< ABC_Value_Typed<T>*>(this);
+        auto v =dynamic_cast< Implements_Value_New<T>*>(this);
         return v->getValued();
       }
     else
@@ -2629,7 +2583,7 @@ namespace Markov_IO_New {
   {
     if (storedClass()==Cls<T>::name())
       {
-        auto v =dynamic_cast< ABC_Value_Typed<T>*>(this);
+        auto v =dynamic_cast< Implements_Value_New<T>*>(this);
         v->setValue(val);
         return true;
       }
