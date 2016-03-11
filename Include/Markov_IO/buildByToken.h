@@ -19,7 +19,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class buildByToken: public ABClass_buildByToken<T>
+  class buildByToken: public ABC_BuildByToken
   {
   public:
 
@@ -34,7 +34,7 @@ namespace Markov_IO_New {
 
     buildByToken(const Implements_ComplexVar_New* parent,
                  const ABC_Typed_Value<T>* typeVar):
-      ABClass_buildByToken<T>(parent),
+      ABC_BuildByToken(parent),
       x_(),
       isComplete_(false),
       varType_(typeVar)
@@ -43,7 +43,7 @@ namespace Markov_IO_New {
     }
 
 
-    T unloadVar()override
+    T unloadVar()
     {
       auto out=std::move(x_);
       x_= {};
@@ -83,12 +83,30 @@ namespace Markov_IO_New {
       isComplete_=false;
     }
 
-    bool unPop(T var) override
+    bool unPop(T var)
     {
       x_=var;
       isComplete_=true;
       return true;
     }
+
+
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)
+    {
+      if (isFinal())
+        {
+          T x=unloadVar();
+          return new Implements_Var_New<T>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
+
+
 
     Token_New popBackToken() override
     {
@@ -130,7 +148,7 @@ namespace Markov_IO_New {
 
   template<typename T>
   class buildByToken<std::vector<T> >
-      :public ABClass_buildByToken<std::vector<T>>
+      :public ABC_BuildByToken
   {
   public:
 
@@ -203,7 +221,7 @@ namespace Markov_IO_New {
 
     buildByToken(const Implements_ComplexVar_New* parent,
                  const Implements_Data_Type_New<std::vector<T>>* vecType):
-      ABClass_buildByToken<std::vector<T>>(parent),
+      ABC_BuildByToken(parent),
       mystate(S_Init),
       x_{},
       valueBuild_(vecType->getElementBuildByToken(parent))
@@ -212,6 +230,20 @@ namespace Markov_IO_New {
 
     }
 
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)
+    {
+      if (isFinal())
+        {
+          std::vector<T> x=unloadVar();
+          return new Implements_Var_New<std::vector<T>>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
 
 
 
@@ -404,8 +436,7 @@ namespace Markov_IO_New {
 
   template<typename K, typename T>
   class buildByToken<std::pair<K,T> >
-      :public ABClass_buildByToken<std::pair<K,T>>
-  {
+      :public ABC_BuildByToken  {
   public:
 
     static std::string ClassName()
@@ -466,6 +497,24 @@ namespace Markov_IO_New {
         return {};
     }
 
+
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)
+    {
+      if (isFinal())
+        {
+          std::pair<K,T> x=unloadVar();
+          return new Implements_Var_New<std::pair<K,T>>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
+
+
+
     bool unPop(std::pair<K,T> var) override
     {
       x_=var;
@@ -476,7 +525,7 @@ namespace Markov_IO_New {
 
     buildByToken(const Implements_ComplexVar_New* parent,
                  const ABC_Typed_Value<std::pair<K,T>>* typeVar):
-      ABClass_buildByToken<std::pair<K,T>>(parent),
+      ABC_BuildByToken(parent),
       mystate(S_Init),
       x_(),
       first_(typeVar->getKeyBuildByToken(parent))
@@ -634,7 +683,7 @@ namespace Markov_IO_New {
 
   template<typename T>
   class buildByToken<Markov_LA::M_Matrix<T> >
-      :public ABClass_buildByToken<Markov_LA::M_Matrix<T>>
+      :public ABC_BuildByToken
   {
   public:
 
@@ -699,6 +748,25 @@ namespace Markov_IO_New {
         return {};
     }
 
+
+
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)
+    {
+      if (isFinal())
+        {
+          Markov_LA::M_Matrix<T> x=unloadVar();
+          return new Implements_Var_New<Markov_LA::M_Matrix<T>>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
+
+
+
     bool unPop(Markov_LA::M_Matrix<T> var)
     {
       x_=var;
@@ -708,7 +776,7 @@ namespace Markov_IO_New {
 
     buildByToken(const Implements_ComplexVar_New* parent,
                  const ABC_Typed_Value<Markov_LA::M_Matrix<T>>* typeVar):
-      ABClass_buildByToken<Markov_LA::M_Matrix<T>>(parent),
+      ABC_BuildByToken(parent),
       mystate(S_Init),
       x_{},
       dataType_(typeVar)
@@ -1005,9 +1073,7 @@ namespace Markov_IO_New {
 
   template<typename T>
   class buildByToken<std::set<T>>
-      :public ABClass_buildByToken<std::set<T>>
-
-  {
+      :public ABC_BuildByToken  {
   public:
 
     static std::string ClassName()
@@ -1080,11 +1146,12 @@ namespace Markov_IO_New {
 
     buildByToken(const Implements_ComplexVar_New* parent,
                  const Implements_Data_Type_New<std::set<T>>* typeVar):
-      ABClass_buildByToken<std::set<T>>(parent),
+      ABC_BuildByToken(parent),
       mystate(S_Header_Final),
       x_{},
       dataType_(typeVar),
       valueBuild_(typeVar->getElementBuildByToken(parent)){}
+
 
 
     ~buildByToken(){
@@ -1265,6 +1332,21 @@ namespace Markov_IO_New {
 
     }
 
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)
+    {
+      if (isFinal())
+        {
+          std::set<T> x=unloadVar();
+          return new Implements_Var_New<std::set<T>>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
+
   private:
     DAF mystate;
     std::set<T> x_;
@@ -1275,7 +1357,7 @@ namespace Markov_IO_New {
 
   template<typename K, typename T>
   class buildByToken<std::map<K,T>>
-      :public ABClass_buildByToken<std::map<K,T>>
+      :public ABC_BuildByToken
 
   {
   public:
@@ -1288,7 +1370,7 @@ namespace Markov_IO_New {
 
     static std::set<std::string> SuperClasses()
     {
-      return ABClass_buildByToken<std::map<K,T>>::SuperClasses()+ClassName();
+      return buildByToken<std::map<K,T>>::SuperClasses()+ClassName();
     }
 
     std::string myClass()const override
@@ -1361,7 +1443,7 @@ namespace Markov_IO_New {
 
     buildByToken(const Implements_ComplexVar_New* parent,
                  const ABC_Typed_Value<std::map<K,T>>* typeVar):
-      ABClass_buildByToken<std::map<K,T>>(parent),
+      ABC_BuildByToken(parent),
       mystate(S_Header_Final),
       x_{},
       varType_(typeVar),
@@ -1548,6 +1630,23 @@ namespace Markov_IO_New {
 
     }
 
+
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)
+    {
+      if (isFinal())
+        {
+          std::map<K,T> x=unloadVar();
+          return new Implements_Var_New<std::map<K,T>>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
+
+
   private:
     DAF mystate;
     std::map<K,T> x_;
@@ -1556,9 +1655,9 @@ namespace Markov_IO_New {
 
   };
 
-
-  class buildABC_Var
-      :public ABClass_buildByToken<ABC_Var_New*>
+  template<>
+  class buildByToken<ABC_Var_New*>
+      :public ABC_BuildByToken
 
   {
 
@@ -1794,8 +1893,22 @@ namespace Markov_IO_New {
 
     }
 
-    ~buildABC_Var(){}
+    ~buildByToken(){}
 
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)
+    {
+      if (isFinal())
+        {
+          ABC_Var_New* x=unloadVar();
+          return new Implements_Var_New<ABC_Var_New*>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
 
 
     ABC_Var_New* unloadVar()
@@ -1817,9 +1930,9 @@ namespace Markov_IO_New {
 
     }
 
-    buildABC_Var(const Implements_ComplexVar_New* parent,
+    buildByToken(const Implements_ComplexVar_New* parent,
                  const Implements_Var_Data_Type* varType):
-      ABClass_buildByToken<ABC_Var_New*>(parent)
+      ABC_BuildByToken(parent)
     ,mystate(S_Init)
     ,x_{}
     , idB_(varType->getNewIdentifierBuildByToken(parent))
@@ -1889,7 +2002,7 @@ namespace Markov_IO_New {
 
 
   class build_Command_Input
-      :public ABClass_buildByToken<Implements_Command_Fields*>
+      :public ABC_BuildByToken//public buildByToken<Implements_Command_Fields*>
   {
 
 
@@ -2011,7 +2124,7 @@ namespace Markov_IO_New {
 
     // ABClass_buildByToken interface
     build_Command_Input(Implements_ComplexVar_New* cm):
-      ABClass_buildByToken<Implements_Command_Fields*>(cm)
+      ABC_BuildByToken(cm)
     ,mystate(S_Init)
     ,idCommandB_(Implements_Command_Type_New::getBuildIdCommand()),
     cmdty_(nullptr),cmd_(nullptr){}
@@ -2019,7 +2132,7 @@ namespace Markov_IO_New {
 
 
   public:
-    virtual Implements_Command_Fields* unloadVar() override
+    virtual Implements_Command_Fields* unloadVar()
     {
 
     }
@@ -2029,7 +2142,7 @@ namespace Markov_IO_New {
 
     }
 
-    virtual bool unPop(Implements_Command_Fields*  var)override
+    virtual bool unPop(Implements_Command_Fields*  var)
     {
 
     }
@@ -2071,6 +2184,13 @@ namespace Markov_IO_New {
     // ABC_Base interface
 
 
+
+    // ABC_BuildByToken interface
+  public:
+    virtual ABC_Var_New *unloadVar_New(const Implements_ComplexVar_New *p, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis) override
+    {
+
+    }
   };
 
 
@@ -2215,7 +2335,7 @@ namespace Markov_IO_New {
 
   private:
     DFA mystate;
-    buildABC_Var   v_;
+    buildByToken<ABC_Var_New*>   v_;
     build_Command_Input c_;
 
 

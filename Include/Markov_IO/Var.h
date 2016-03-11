@@ -904,7 +904,7 @@ namespace Markov_IO_New {
     virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const=0;
 
 
-    virtual bool isInDomain(const Implements_ComplexVar_New* cm,const ABC_Value_New* v, std::string *whyNot)const=0;
+    virtual bool isInDomain(const Implements_ComplexVar_New* domain,const ABC_Value_New* v, std::string *whyNot)const=0;
 
     virtual Implements_ComplexVar_New* getComplexVarRep(const ABC_Var_New* var,std::string* whyNot,const std::string& masterObjective)const=0;
 
@@ -954,36 +954,6 @@ namespace Markov_IO_New {
   };
 
 
-  template<typename T>
-  class ABClass_buildByToken: public ABC_BuildByToken
-  {
-  public:
-
-    virtual T unloadVar()=0;
-
-    virtual bool unPop(T var)=0;
-    virtual ~ABClass_buildByToken(){}
-
-
-    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
-                                       const std::string& id,
-                                       const std::string& var,
-                                       const std::string& tip,
-                                       const std::string& whatthis)
-    {
-      if (isFinal())
-        {
-          T x=unloadVar();
-          return new Implements_Var_New<T>(p,id,var,x,tip,whatthis);
-        }
-      else
-        return nullptr;
-    }
-
-  protected:
-    ABClass_buildByToken(const Implements_ComplexVar_New* p):ABC_BuildByToken(p){}
-
-  };
 
   
 
@@ -2009,8 +1979,7 @@ namespace Markov_IO_New {
 
 
 
-    virtual ABClass_buildByToken<ABC_Var_New*>*
-    getBuildByToken(const Implements_ComplexVar_New* cm, std::string *whyNot, const std::string masterObjective)const;
+    virtual buildByToken<ABC_Var_New *> *getBuildByToken(const Implements_ComplexVar_New* cm, std::string *whyNot, const std::string masterObjective)const;
 
 
     virtual buildByToken<std::string>* getNewIdentifierBuildByToken(const Implements_ComplexVar_New* cm)const;
@@ -2021,7 +1990,7 @@ namespace Markov_IO_New {
     }
 
 
-    virtual ABClass_buildByToken<ABC_Value_New*>* getValueBuildByToken(const Implements_ComplexVar_New* cm)const
+    virtual buildByToken<ABC_Value_New*>* getValueBuildByToken(const Implements_ComplexVar_New* cm)const
     {
 
     }

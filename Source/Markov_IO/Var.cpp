@@ -53,9 +53,9 @@ namespace Markov_IO_New {
 
 
 
-  ABClass_buildByToken<ABC_Var_New *> *Implements_Var_Data_Type::getBuildByToken(const Implements_ComplexVar_New *cm, std::__cxx11::string *whyNot, const std::__cxx11::string masterObjective) const
+  buildByToken<ABC_Var_New*> *Implements_Var_Data_Type::getBuildByToken(const Implements_ComplexVar_New *cm, std::__cxx11::string *whyNot, const std::__cxx11::string masterObjective) const
   {
-    return new buildABC_Var(cm,this);
+    return new buildByToken<ABC_Var_New*>(cm,this);
   }
 
   buildByToken<std::__cxx11::string> *Implements_Var_Data_Type::getNewIdentifierBuildByToken(const Implements_ComplexVar_New *cm) const
