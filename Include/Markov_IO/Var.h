@@ -90,8 +90,9 @@ namespace Markov_IO_New {
 
 
 
-
     virtual ~ABC_Value_New(){}
+
+
 
     /// template methods
     ///
@@ -137,6 +138,8 @@ namespace Markov_IO_New {
     virtual ABC_Value_Typed<T>* create()const=0;
 
 
+
+
     virtual std::string myClass()const
     {
       return ClassName();
@@ -145,6 +148,7 @@ namespace Markov_IO_New {
     virtual std::__cxx11::string storedClass() const override
     {
       return Cls<T>::name();
+
     }
 
     virtual const T& getValued()const=0;
@@ -156,7 +160,8 @@ namespace Markov_IO_New {
     virtual ~ABC_Value_Typed(){}
   };
 
-  template <typename T>
+  
+    template <typename T>
   class ABC_Typed_Value;
 
 
@@ -205,6 +210,21 @@ namespace Markov_IO_New {
       return new Implements_Value_New();
 
     }
+
+    template<typename S>
+    Implements_Value_New<T>* castTo(Implements_Value_New<S>* v)
+    {
+      S x=v->getValued ();
+      T y=dynamic_cast<T> (x);
+      return new Implements_Value_New<T>(y);
+    }
+
+
+
+
+
+
+
 
     virtual const T& getValued() const override
     {
@@ -949,7 +969,7 @@ namespace Markov_IO_New {
 
     virtual bool put(const ABC_Value_New* v,ABC_Output* ostream,std::string* error)const=0;
 
-    virtual bool get(ABC_Value_New* v, ABC_Input* istream,std::string* error )const=0;
+    virtual bool get(ABC_Value_New*& v, ABC_Input* istream,std::string* error )const=0;
 
     virtual ABC_BuildByToken* getBuildByToken(
         const Implements_ComplexVar_New* cm
@@ -961,12 +981,6 @@ namespace Markov_IO_New {
                                    const std::string& id,
                                    const std::string& tip,
                                    const std::string& whathis)const=0;
-
-    virtual ABC_Var_New* makeVar(const Implements_ComplexVar_New* parent,
-                                 const std::string& id,
-                                 const std::string& tip,
-                                 const std::string& whathis)const=0;
-
 
     virtual ABC_Value_New* default_Value()const=0;
 
@@ -983,9 +997,6 @@ namespace Markov_IO_New {
     virtual Implements_ComplexVar_New* getComplexVarRep(const ABC_Var_New* var,std::string* whyNot,const std::string& masterObjective)const=0;
 
     virtual ABC_Var_New* getClassRep(const Implements_ComplexVar_New* cvar  ,std::string* whyNot)const=0;
-
-
-    virtual bool fillEditingFrame(Implements_ComplexVar_New*& fillingFrame)const =0;
 
     ABC_Type_of_Value (const Implements_ComplexVar_New* parent,
                        const std::string& id
@@ -1095,7 +1106,7 @@ namespace Markov_IO_New {
     {
     }
 
-    virtual bool get(ABC_Value_New* v, ABC_Input* istream,std::string* whyNot , const std::string& masterObjective)const
+    virtual bool get(ABC_Value_New*& v, ABC_Input* istream,std::string* whyNot , const std::string& masterObjective)const
     {
 
     }
@@ -1104,9 +1115,9 @@ namespace Markov_IO_New {
 
 
 
-    virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const=0;
+    virtual bool put(const T& v,ABC_Output* ostream,std::string* error)const=0;
 
-    virtual bool get(T*& v, ABC_Input* istream,std::string* whyNot )const=0;
+    virtual bool get(T& v, ABC_Input* istream,std::string* whyNot )const=0;
 
     //  virtual ABClass_buildByToken<T>* getBuildByToken(const Implements_ComplexVar_New* cm,std::string *whyNot, const std::string& masterObjective)const override=0;
 
@@ -1179,10 +1190,9 @@ namespace Markov_IO_New {
       return (*comply_)(cm,val,this,whyNot,masterObjective);
     }
 
-
-    virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const
+   virtual bool put(const T& v,ABC_Output* ostream,std::string* error)const
     {
-      ostream->put(*v);
+      ostream->put(v);
       return true;
     }
 
@@ -1777,7 +1787,7 @@ namespace Markov_IO_New {
     }
 
 
-    virtual bool put(const ABC_Var_New*& v,ABC_Output* ostream,std::string* error)const
+    virtual bool put(const ABC_Var_New* &v,ABC_Output* ostream,std::string* error)const
     {
       return true;
     }
@@ -2153,7 +2163,7 @@ namespace Markov_IO_New {
     }
 
 
-    virtual bool put(const T* v,ABC_Output* ostream,std::string* error)const
+    virtual bool put(const T& v,ABC_Output* ostream,std::string* error)const
     {
 
       ostream->put(*v);
@@ -2266,8 +2276,6 @@ namespace Markov_IO_New {
 
     }
 
-
-    virtual bool fillEditingFrame(Implements_ComplexVar_New *&fillingFrame) const override;
 
     // ABC_Typed_Value interface
   public:
@@ -2422,8 +2430,6 @@ namespace Markov_IO_New {
     }
 
 
-    virtual bool fillEditingFrame(Implements_ComplexVar_New *&fillingFrame) const override;
-
     // ABC_Typed_Value interface
   public:
     virtual Implements_ComplexVar_New *getComplexVarTyeped_Rep(const Implements_Var_New<T> *var, std::__cxx11::string *whyNot) const override
@@ -2518,17 +2524,6 @@ namespace Markov_IO_New {
 
 
 
-    // ABC_Typed_Value interface
-  public:
-
-    // ABC_Type_of_Value interface
-  public:
-
-
-    virtual bool fillEditingFrame(Implements_ComplexVar_New *&fillingFrame) const override;
-
-    // ABC_Typed_Value interface
-  public:
   };
 
 
