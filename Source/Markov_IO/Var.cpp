@@ -32,7 +32,7 @@ namespace Markov_IO_New {
   std::set<std::__cxx11::string> Implements_ComplexVar_New::getIdsOfType(const std::__cxx11::string &varType) const
   {
     std::string whyNot;
-    const std::string objective;
+    std::string objective;
     if (varType.empty())
       return getMapKeys(*vars_);
     else
