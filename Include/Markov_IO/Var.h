@@ -16,27 +16,6 @@
 namespace Markov_IO_New {
 
 
-  // forward declarations
-
-
-
-  template<class C,typename T>
-  using setter=void (C::*)(T);
-
-  template<class C,typename T>
-  using getter=T(C::*)()const;
-
-  template<class C,typename T>
-  using refgetter=const T&(C::*)()const;
-
-  template<class C,typename T>
-  using refsetter=T&(C::*)();
-
-  //using valuePredicate=bool(*)(const ABC_Value*);
-  //  using valueStringPredicate=bool(*)(const ABC_Value*, const std::string&);
-
-
-  using namePredicate=bool(*)(const std::string&);
 
   class ABC_Var_New;
   class ABC_Value_New;
@@ -77,7 +56,6 @@ namespace Markov_IO_New {
     {
       return ClassName();
     }
-
 
     virtual std::string storedClass() const=0;
 
