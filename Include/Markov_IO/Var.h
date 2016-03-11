@@ -98,11 +98,7 @@ namespace Markov_IO_New {
 
 
 
-  template<class T>
-  class ABC_Var_Typed;
-
-
-    template <typename T>
+  template <typename T>
   class ABC_Typed_Value;
 
 
@@ -218,7 +214,7 @@ namespace Markov_IO_New {
   template <typename T>
   class ABC_Typed_Value;
 
-  class ABC_Var_New: public ABC_Value_New
+  class ABC_Var_New//: public ABC_Value_New
   {
 
     // ABC_Value_New interface
@@ -228,7 +224,7 @@ namespace Markov_IO_New {
       return "ABC_Value_New";
     }
 
-    virtual std::string myClass()const override
+    virtual std::string myClass()const
     {
       return ClassName();
     }
@@ -344,16 +340,6 @@ namespace Markov_IO_New {
 
 
 
-    // ABC_Value_New interface
-  public:
-    virtual bool empty() const override
-    {
-      return value()->empty();
-    }
-    virtual void reset() override
-    {
-      value()->reset();
-    }
 
     // Implements_Value_New interface
   public:
@@ -396,12 +382,6 @@ namespace Markov_IO_New {
 
 
 
-    // ABC_Value_New interface
-  public:
-    virtual std::__cxx11::string storedClass() const override
-    {
-      return Cls<T>::name();
-    }
   };
 
 
@@ -916,7 +896,7 @@ namespace Markov_IO_New {
 
     virtual ABC_Value_New* default_Value()const=0;
 
-    virtual ABC_Value_New* default_Var(const Implements_ComplexVar_New* parent,
+    virtual ABC_Var_New* default_Var(const Implements_ComplexVar_New* parent,
                                        const std::string& id,
                                        const std::string& tip,
                                        const std::string& whathis)const=0;

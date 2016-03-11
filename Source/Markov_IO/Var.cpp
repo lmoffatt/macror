@@ -22,8 +22,8 @@ namespace Markov_IO_New {
           return false;
         else
           {
-            auto v=it->second;
-            return t->isInDomain(parent(),v,whyNot);
+            const ABC_Var_New* v=it->second;
+            return t->isInDomain(parent(),v->value(),whyNot);
           }
       }
 
