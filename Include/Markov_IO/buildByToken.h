@@ -1900,7 +1900,6 @@ namespace Markov_IO_New {
 
     void clear()override
     {
-      ABC_BuildByToken::clear();
       mystate=S_Init;
       x_.clear();
       valueBuild_->clear();
