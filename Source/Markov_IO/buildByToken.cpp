@@ -65,6 +65,544 @@ namespace Markov_IO_New {
 
 
 
+
+  bool build_Command_Input::pushToken(Token_New t, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+
+  {
+    const std::string objective=masterObjective+": "+ClassName()+" pushToken("+t.str()+") fails: ";
+    switch (mystate)
+      {
+      case S_Init:
+        if (t.tok()==Token_New::IDENTIFIER)
+          {
+            if (parent()->hasCommand(t.identifier()))
+              {
+                cmdty_=parent()->idToCommand(t.identifier(),whyNot);
+                cmd_=cmdty_->getCommandField();
+
+                if (hasAllInputs(cmd_))
+                  mystate=S_Input_Final;
+                else if (hasAllMandatoryInputs(cmd_))
+                  mystate=S_Mandatory_Final;
+                return true;
+              }
+            else
+              {
+                return false;
+              }
+          }
+        else
+          {
+            return false;
+          }
+        break;
+      case  S_Mandatory_Final:
+        if (t.tok()==Token_New::EOL)
+          {
+            mystate=S_Final;
+            return true;
+          }
+        else if (processVariableInput(t))
+          {
+            if (hasAllInputs(cmd_))
+              mystate=S_Input_Final;
+            else mystate=S_Mandatory_Final;
+            return true;
+
+          }
+        else return false;
+
+        break;
+      case S_ID_Final:
+      case S_Input_Partial:
+        if (processVariableInput(t))
+          {
+            if (hasAllInputs(cmd_))
+              mystate=S_Input_Final;
+            else if (hasAllMandatoryInputs(cmd_))
+              mystate=S_Mandatory_Final;
+            else
+              mystate=S_Input_Partial;
+            return true;
+
+          }
+        else return false;
+        break;
+
+      case S_Input_Final:
+        if (t.tok()==Token_New::EOL)
+          {
+            mystate=S_Final;
+            return true;
+          }
+      case S_Final:
+      default:
+        return false;
+        break;
+
+      }
+
+  }
+
+
+  bool buildByToken<ABC_Var_New *>::pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+
+  {
+    const std::string objective=masterObjective+": "+ClassName()+" rejected token"+tok.str();
+    switch (mystate)
+      {
+      case S_Init:
+        if (tok.tok()==Token_New::HASH)
+          {
+            mystate=TIP1;
+            return true;
+          }
+        else if (tok.tok()==Token_New::IDENTIFIER)
+          {
+            if (idB_->pushToken(tok,whyNot,objective))
+              {
+                mystate =ID1;
+                return true;
+              }
+            else
+              {
+                return false;
+              }
+          }
+        else
+          {
+            *whyNot=objective+": is not a \"#\" nor an identifier";
+            return false;
+          }
+        break;
+      case TIP1:
+        if (tok.tok()==Token_New::STRING)
+          {
+            mystate =TIP2;
+            tip_=tok.str();
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not a string";
+            return false;
+          }
+        break;
+      case TIP2:
+        if (tok.tok()==Token_New::EOL)
+          {
+            mystate =WT0_ID0;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not an end of line";
+            return false;
+          }
+        break;
+      case WT0_ID0:
+        if (tok.tok()==Token_New::HASH)
+          {
+            mystate =WT1;
+            return true;
+          }
+        else if (tok.tok()==Token_New::IDENTIFIER)
+          {
+            if (idB_->pushToken(tok,whyNot,objective))
+              {
+                id_=idB_->unloadVar();
+                mystate =ID1;
+                return true;
+              }
+            else
+              return false;
+          }
+        else
+          {
+            *whyNot=objective+": is not an identifier, nor a \"#\"";
+
+            return false;
+          }
+        break;
+      case WT1:
+        if (tok.tok()==Token_New::HASH)
+          {
+            mystate =WT2;
+            return true;
+          }
+        else  {
+            *whyNot=objective+": is not a \"#\"";
+
+            return false;
+          }
+        break;
+      case WT2:
+        if(tok.tok()==Token_New::STRING)
+          {
+            mystate =WT3;
+            whatthis_=tok.str();
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not a string";
+            return false;
+          }       break;
+      case WT3:
+        if (tok.tok()==Token_New::EOL)
+          {
+            mystate =ID0;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not a string";
+            return false;
+          }   break;
+
+      case ID0:
+        if (tok.tok()==Token_New::IDENTIFIER)
+          {
+            if (idB_->pushToken(tok,whyNot,objective))
+              {
+                id_=idB_->unloadVar();
+                mystate =ID1;
+                return true;
+              }
+            else return false;
+          }
+        else
+          {
+            *whyNot=objective+": is not an identifier";
+            return false;
+          }        break;
+      case ID1:
+        if (tok.tok()==Token_New::COLON)
+          {
+            mystate =ID2;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not a \":\"";
+            return false;
+          }
+        break;
+      case ID2:
+        if (tok.tok()==Token_New::IDENTIFIER)
+          {
+            if (varB_->pushToken(tok,whyNot,objective))
+              {
+                var_=varB_->unloadVar();
+                valueType_=parent()->idToType(var_,whyNot,objective);
+                if (valueType_==nullptr)
+                  return false;
+                else
+                  {
+                    valueB_=valueType_->getBuildByToken(parent());
+                    if (valueB_==nullptr)
+                      return false;
+                    else
+                      {
+                        mystate =S_HEADER_Final;
+                        return true;
+                      }
+                  }
+              }
+            else
+              return false;
+          }
+        else
+          {
+            *whyNot=objective+": is not an identifier";
+            return false;
+          }
+        break;
+      case S_HEADER_Final:
+      case S_DATA_PARTIAL:
+        if (!valueB_->pushToken(tok, whyNot,objective))
+          return false;
+        else
+          {
+            if(valueB_->isFinal())
+              {
+                x_=valueB_->unloadVar_New(parent(),id_,var_,tip_,whatthis_);
+                mystate=S_Final;
+                return true;
+              }
+            else
+              {
+                mystate=S_DATA_PARTIAL;
+                return true;
+              }
+          }
+        break;
+      case S_Final:
+      default:
+        return false;
+        break;
+      }
+  }
+
+
+  buildByToken<ABC_Var_New *>::buildByToken(const Implements_ComplexVar_New *parent, const Implements_Var_Data_Type *varType):
+    ABC_BuildByToken(parent)
+  ,mystate(S_Init)
+  ,x_{}
+  , idB_(varType->getNewIdentifierBuildByToken(parent))
+  , varB_(varType->getVarIdentifierBuildByToken(parent))
+  ,valueB_(varType->getValueBuildByToken(parent))
+  ,varType_(varType)
+  {
+
+  }
+
+  buildByToken<ABC_Var_New *>::buildByToken(const Implements_ComplexVar_New *parent, const Implements_Field_Data_Type *fieldType):
+    ABC_BuildByToken(parent)
+  ,mystate(S_Init)
+  ,x_{}
+  , idB_(fieldType->getNewIdentifierBuildByToken(parent))
+  , varB_(fieldType->getVarIdentifierBuildByToken(parent))
+  ,valueB_(fieldType->getValueBuildByToken(parent))
+  ,varType_(fieldType)
+  {
+
+  }
+
+
+  ABC_Var_New *buildByToken<ABC_Var_New *>::unloadVar_New(const Implements_ComplexVar_New *p, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis)
+  {
+    if (isFinal())
+      {
+        ABC_Var_New* x=unloadVar();
+        return new Implements_Var_New<ABC_Var_New*>(p,id,var,x,tip,whatthis);
+      }
+    else
+      return nullptr;
+  }
+
+
+
+
+  ABC_Var_New *buildByToken<std::map<std::string, ABC_Var_New *> >::unloadVar_New(const Implements_ComplexVar_New *p, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis)
+  {
+    if (isFinal())
+      {
+        std::map<std::string,ABC_Var_New*> x=unloadVar();
+        return new Implements_Var_New<std::map<std::string,ABC_Var_New*>>(p,id,var,x,tip,whatthis);
+      }
+    else
+      return nullptr;
+  }
+
+
+
+
+
+  buildByToken<std::map<std::string, ABC_Var_New *> >::
+  buildByToken(const Implements_ComplexVar_New *parent
+               ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>> *typeVar):
+     ABC_BuildByToken(parent),
+     mystate(S_Header_Final),
+     x_{},
+     varType_(typeVar)
+   {}
+
+
+
+  bool buildByToken<std::map<std::string, ABC_Var_New *>>::
+  pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  {
+    const std::string objective=masterObjective+" : "+ClassName()+"::pushToken("+
+        tok.str()+")";
+    switch (mystate)
+      {
+      case S_Init:
+        if (tok.tok()!=Token_New::EOL)
+          {
+            *whyNot=objective+": is not end of line";
+            return false;
+          }
+        else
+          {
+            mystate=S_Header2;
+            return true;
+          }
+        break;
+      case S_Header2:
+        if (tok.tok()!=Token_New::LCB)
+          {
+            *whyNot=objective+": is not { ";
+            return false;
+          }
+        else
+          {
+            mystate=S_Header_Final;
+            return true;
+          }
+        break;
+      case S_Header_Final:
+      case S_Data_Partial:
+        if (!valueBuild_->pushToken(tok, whyNot,objective))
+          {
+            return false;
+          }
+        else
+          {
+            if(valueBuild_->isFinal())
+              {
+                ABC_Var_New* v=valueBuild_->unloadVar();
+                x_.insert({v->id(),v});
+                mystate=S_Data_Final;
+                    return true;
+              }
+            else
+              {
+                mystate=S_Data_Partial;
+                return true;
+              }
+          }
+        break;
+      case S_Data_Final:
+        if (tok.tok()==Token_New::RCB)
+          {
+            mystate=S_Final;
+            return true;
+          }
+        else if (!valueBuild_->pushToken(tok, whyNot,objective))
+          {
+            return false;
+          }
+        else
+          {
+            if(valueBuild_->isFinal())
+              {
+                ABC_Var_New* v=valueBuild_->unloadVar();
+                x_.insert({v->id(),v});
+                mystate=S_Data_Final;
+                return true;
+              }
+            else
+              {
+                mystate=S_Data_Partial;
+                return true;
+              }
+          }
+        break;
+      case S_Final:
+      default:
+        return false;
+        break;
+      }
+
+  }
+
+
+
+  Token_New buildByToken<std::map<std::string, ABC_Var_New *> >::popBackToken()
+  {
+    switch (mystate)
+      {
+      case S_Init:
+        return {};
+        break;
+      case S_Header2:
+        mystate=S_Header_Final;
+        return Token_New(Token_New::EOL);
+        break;
+      case S_Header_Final:
+        mystate=S_Header2;
+        return Token_New(Token_New::LCB);
+        break;
+      case S_Data_Partial:
+        {
+          auto out= valueBuild_->popBackToken();
+          if (valueBuild_->isInitial())
+            {
+              if (x_.empty())
+                mystate=S_Header_Final;
+              else
+                mystate=S_Data_Final;
+            }
+          else mystate=S_Data_Partial;
+          return out;
+        }
+        break;
+      case S_Data_Final:
+        {
+          std::pair<std::string,ABC_Var_New*> d=*(--x_.end());
+          x_.erase(--x_.end());
+          valueBuild_->unPop(d.second);
+          auto to=valueBuild_->popBackToken();
+          if (valueBuild_->isInitial())
+            {
+              if (x_.empty())
+                mystate=S_Header_Final;
+              else
+                mystate=S_Data_Final;
+            }
+          else mystate=S_Data_Partial;
+          return to;
+        }
+        break;
+      case S_Final:
+        mystate=S_Data_Final;
+        return Token_New(Token_New::RCB);
+        break;
+      default:
+        return {};
+        break;
+      }
+  }
+
+
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
+  {
+    switch (mystate)
+      {
+      case S_Init:
+        return {myClass(),{Token_New::toString(Token_New::EOL)}};
+        break;
+      case S_Header2:
+        return {myClass(),{Token_New::toString(Token_New::LCB)}};
+      case S_Header_Final:
+      case S_Data_Partial:
+        return valueBuild_->alternativesNext();
+        break;
+      case S_Data_Final:
+        {
+          auto out=valueBuild_->alternativesNext();
+          out.second.insert(Token_New::toString(Token_New::RCB));
+          return out;
+        }
+        break;
+      case S_Final:
+      default:
+        return {};
+        break;
+      }
+
+  }
+
+
+
+
+
+
+
+  build_Command_Input::build_Command_Input(Implements_ComplexVar_New *cm):
+    ABC_BuildByToken(cm)
+  ,mystate(S_Init)
+  ,idCommandB_(Implements_Command_Type_New::getBuildIdCommand()),
+    cmdty_(nullptr),cmd_(nullptr){}
+
+
+
+
+
+
+
+
 }
 
 

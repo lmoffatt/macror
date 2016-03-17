@@ -15,6 +15,69 @@
 
 namespace Markov_IO_New {
 
+  class Implements_ComplexVar_New;
+  class ABC_Var_New;
+  template<typename T>
+  class ABC_Typed_Value;
+
+  class ABC_Type_of_Value;
+  template <typename T>
+  class Implements_Var_New;
+
+  template <typename T>
+  class Implements_Data_Type_New;
+
+
+  class Implements_Var_Data_Type;
+
+
+  class Implements_Field_Data_Type;
+
+  class Implements_Complex_Data_Type;
+
+  class Implements_Command_Fields;
+
+  class Implements_Command_Type_New;
+
+  class Markov_CommandManagerVar;
+
+  class ABC_BuildByToken
+  {
+  public:
+
+    virtual std::string myClass()const=0;
+
+    virtual bool pushToken(Token_New t
+                           , std::string* whyNot
+                           , const std::string& masterObjective)=0;
+
+    virtual  std::pair<std::string,std::set<std::string>> alternativesNext()const=0;
+
+    virtual Token_New popBackToken()=0;
+    virtual bool isFinal()const=0;
+    virtual bool isInitial()const=0;
+    virtual bool isHollow()const=0;
+
+    virtual ~ABC_BuildByToken(){}
+
+    virtual void clear()=0;
+
+    const Implements_ComplexVar_New* parent()const;
+
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis)=0;
+
+  protected:
+    ABC_BuildByToken(const Implements_ComplexVar_New* p);
+
+  private:
+
+    const Implements_ComplexVar_New* parent_;
+  };
+
 
 
 
@@ -51,23 +114,7 @@ namespace Markov_IO_New {
       return out;
     }
 
-    bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override
-    {
-      const std::string objective=masterObjective+": "+"Token "+t.str()+" was not accepted by "+ClassName();
-      T d;
-      if (!t.toValue(d, whyNot,objective))
-        {
-          return false;
-        }
-      else if (varType_->isInDomain(this->parent(),d,whyNot,objective))
-        {
-          x_=d;
-          isComplete_=true;
-          return true;
-        }
-      else
-        return false;
-    }
+    bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override;
 
 
 
@@ -85,17 +132,17 @@ namespace Markov_IO_New {
 
     bool unPop(T var)
     {
-      x_=var;
+      x_=std::move(var);
       isComplete_=true;
       return true;
     }
 
 
-    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
-                                       const std::string& id,
-                                       const std::string& var,
-                                       const std::string& tip,
-                                       const std::string& whatthis)
+    virtual Implements_Var_New<T>* unloadVar_New(const Implements_ComplexVar_New* p,
+                                                 const std::string& id,
+                                                 const std::string& var,
+                                                 const std::string& tip,
+                                                 const std::string& whatthis)
     {
       if (isFinal())
         {
@@ -165,10 +212,6 @@ namespace Markov_IO_New {
     enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final};
 
 
-    void setVar(std::vector<T> var)
-    {
-      x_=var;
-    }
 
     bool isFinal()const override
     {
@@ -202,9 +245,9 @@ namespace Markov_IO_New {
       if (isFinal())
         {
           mystate=S_Init;
-         auto o=std::move(x_);
-         x_={};
-         return o;
+          auto o=std::move(x_);
+          x_={};
+          return o;
 
         }
       else
@@ -230,11 +273,11 @@ namespace Markov_IO_New {
 
     }
 
-    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
-                                       const std::string& id,
-                                       const std::string& var,
-                                       const std::string& tip,
-                                       const std::string& whatthis)
+    virtual Implements_Var_New<std::vector<T>>* unloadVar_New(const Implements_ComplexVar_New* p,
+                                                              const std::string& id,
+                                                              const std::string& var,
+                                                              const std::string& tip,
+                                                              const std::string& whatthis)
     {
       if (isFinal())
         {
@@ -394,10 +437,10 @@ namespace Markov_IO_New {
       switch (mystate)
         {
         case S_Init:
-          return {myClass(),{Token_New::toString(Token_New::EOL)}};
+          return {"",{Token_New::toString(Token_New::EOL)}};
           break;
         case S_Header2:
-          return {myClass(),{Token_New::toString(Token_New::LSB)}};
+          return {"",{Token_New::toString(Token_New::LSB)}};
         case S_Header_Final:
         case S_Data_Partial:
           return valueBuild_->alternativesNext();
@@ -454,10 +497,7 @@ namespace Markov_IO_New {
     enum DAF {S_Init,S_First_Partial,S_First_Final,S_Separator_Final,S_Second_Partial,S_Final} ;
 
 
-    void setVar(std::pair<K,T> var)
-    {
-      x_=var;
-    }
+
 
     bool isFinal()const
     {
@@ -491,6 +531,7 @@ namespace Markov_IO_New {
       if (isFinal())
         {
           mystate=S_Init;
+
           return x_;
         }
       else
@@ -515,7 +556,7 @@ namespace Markov_IO_New {
 
 
 
-    bool unPop(std::pair<K,T> var) override
+    bool unPop(std::pair<K,T> var)
     {
       x_=var;
       mystate=S_Final;
@@ -562,7 +603,7 @@ namespace Markov_IO_New {
           if (tok.tok()!=Token_New::COLON)
             {
 
-              whyNot=objective+" : as a colon was expected";
+              *whyNot=objective+" : as a colon was expected";
               return false;
             }
           else
@@ -706,10 +747,7 @@ namespace Markov_IO_New {
     enum DAF {S_Init,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
 
 
-    void setVar(Markov_LA::M_Matrix<T> var)
-    {
-      x_=var;
-    }
+
 
     bool isFinal()const
     {
@@ -1092,10 +1130,7 @@ namespace Markov_IO_New {
     enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
 
 
-    void setVar(std::set<T> var)
-    {
-      x_=var;
-    }
+
 
     bool isFinal()const
     {
@@ -1361,16 +1396,9 @@ namespace Markov_IO_New {
 
   {
   public:
-
-
     static std::string ClassName()
     {
-      return "Build_pair";
-    }
-
-    static std::set<std::string> SuperClasses()
-    {
-      return buildByToken<std::map<K,T>>::SuperClasses()+ClassName();
+      return "buildByToken_of_map_"+Cls<K>::name()+"_to_"+Cls<T>::name();
     }
 
     std::string myClass()const override
@@ -1379,19 +1407,10 @@ namespace Markov_IO_New {
 
     }
 
-    std::set<std::string> mySuperClasses()const override
-    {
-      return SuperClasses();
-    }
-
 
     enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
 
 
-    void setVar(std::map<K,T> var)
-    {
-      x_=var;
-    }
 
     bool isFinal()const
     {
@@ -1655,6 +1674,11 @@ namespace Markov_IO_New {
 
   };
 
+
+
+
+
+
   template<>
   class buildByToken<ABC_Var_New*>
       :public ABC_BuildByToken
@@ -1678,204 +1702,7 @@ namespace Markov_IO_New {
       S_Final
     } ;
 
-    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override
-
-    {
-      const std::string objective=masterObjective+": "+ClassName()+" rejected token"+tok.str();
-      switch (mystate)
-        {
-        case S_Init:
-          if (tok.tok()==Token_New::HASH)
-            {
-              mystate=TIP1;
-              return true;
-            }
-          else if (tok.tok()==Token_New::IDENTIFIER)
-            {
-              if (idB_->pushToken(tok,whyNot,objective))
-                {
-                  mystate =ID1;
-                  return true;
-                }
-              else
-                {
-                  return false;
-                }
-            }
-          else
-            {
-              *whyNot=objective+": is not a \"#\" nor an identifier";
-              return false;
-            }
-          break;
-        case TIP1:
-          if (tok.tok()==Token_New::STRING)
-            {
-              mystate =TIP2;
-              tip_=tok.str();
-              return true;
-            }
-          else
-            {
-              *whyNot=objective+": is not a string";
-              return false;
-            }
-          break;
-        case TIP2:
-          if (tok.tok()==Token_New::EOL)
-            {
-              mystate =WT0_ID0;
-              return true;
-            }
-          else
-            {
-              *whyNot=objective+": is not an end of line";
-              return false;
-            }
-          break;
-        case WT0_ID0:
-          if (tok.tok()==Token_New::HASH)
-            {
-              mystate =WT1;
-              return true;
-            }
-          else if (tok.tok()==Token_New::IDENTIFIER)
-            {
-              if (idB_->pushToken(tok,whyNot,objective))
-                {
-                  id_=idB_->unloadVar();
-                  mystate =ID1;
-                  return true;
-                }
-              else
-                return false;
-            }
-          else
-            {
-              *whyNot=objective+": is not an identifier, nor a \"#\"";
-
-              return false;
-            }
-          break;
-        case WT1:
-          if (tok.tok()==Token_New::HASH)
-            {
-              mystate =WT2;
-              return true;
-            }
-          else  {
-              *whyNot=objective+": is not a \"#\"";
-
-              return false;
-            }
-          break;
-        case WT2:
-          if(tok.tok()==Token_New::STRING)
-            {
-              mystate =WT3;
-              whatthis_=tok.str();
-              return true;
-            }
-          else
-            {
-              *whyNot=objective+": is not a string";
-              return false;
-            }       break;
-        case WT3:
-          if (tok.tok()==Token_New::EOL)
-            {
-              mystate =ID0;
-              return true;
-            }
-          else
-            {
-              *whyNot=objective+": is not a string";
-              return false;
-            }   break;
-
-        case ID0:
-          if (tok.tok()==Token_New::IDENTIFIER)
-            {
-              if (idB_->pushToken(tok,whyNot,objective))
-                {
-                  id_=idB_->unloadVar();
-                  mystate =ID1;
-                  return true;
-                }
-              else return false;
-            }
-          else
-            {
-              *whyNot=objective+": is not an identifier";
-              return false;
-            }        break;
-        case ID1:
-          if (tok.tok()==Token_New::COLON)
-            {
-              mystate =ID2;
-              return true;
-            }
-          else
-            {
-              *whyNot=objective+": is not a \":\"";
-              return false;
-            }
-          break;
-        case ID2:
-          if (tok.tok()==Token_New::IDENTIFIER)
-            {
-              if (varB_->pushToken(tok,whyNot,objective))
-                {
-                  var_=varB_->unloadVar();
-                  valueType_=parent()->idToType(var_,whyNot,objective);
-                  if (valueType_==nullptr)
-                    return false;
-                  else
-                    {
-                      valueB_=valueType_->getBuildByToken(parent(),whyNot,objective);
-                      if (valueB_==nullptr)
-                        return false;
-                      else
-                        {
-                          mystate =S_HEADER_Final;
-                          return true;
-                        }
-                    }
-                }
-              else
-                return false;
-            }
-          else
-            {
-              *whyNot=objective+": is not an identifier";
-              return false;
-            }
-          break;
-        case S_HEADER_Final:
-        case S_DATA_PARTIAL:
-          if (!valueB_->pushToken(tok, whyNot,objective))
-            return false;
-          else
-            {
-              if(valueB_->isFinal())
-                {
-                  x_=valueB_->unloadVar_New(parent(),id_,var_,tip_,whatthis_);
-                  mystate=S_Final;
-                  return true;
-                }
-              else
-                {
-                  mystate=S_DATA_PARTIAL;
-                  return true;
-                }
-            }
-          break;
-        case S_Final:
-        default:
-          return false;
-          break;
-        }
-    }
+    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
 
 
 
@@ -1899,16 +1726,7 @@ namespace Markov_IO_New {
                                        const std::string& id,
                                        const std::string& var,
                                        const std::string& tip,
-                                       const std::string& whatthis)
-    {
-      if (isFinal())
-        {
-          ABC_Var_New* x=unloadVar();
-          return new Implements_Var_New<ABC_Var_New*>(p,id,var,x,tip,whatthis);
-        }
-      else
-        return nullptr;
-    }
+                                       const std::string& whatthis);
 
 
     ABC_Var_New* unloadVar()
@@ -1931,18 +1749,11 @@ namespace Markov_IO_New {
     }
 
     buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Var_Data_Type* varType):
-      ABC_BuildByToken(parent)
-    ,mystate(S_Init)
-    ,x_{}
-    , idB_(varType->getNewIdentifierBuildByToken(parent))
-    , varB_(varType->getVarIdentifierBuildByToken(parent))
-    ,valueB_(varType->getValueBuildByToken(parent))
-    ,varType_(varType)
-    {
+                 const Implements_Var_Data_Type* varType);
 
-    }
 
+    buildByToken(const Implements_ComplexVar_New* parent,
+                 const Implements_Field_Data_Type* fieldType);
 
 
 
@@ -1956,9 +1767,10 @@ namespace Markov_IO_New {
 
     }
 
-  private:
+  protected:
     DFA mystate;
     const Implements_Data_Type_New<ABC_Var_New*> * varType_;
+
     buildByToken<std::string>* idB_;
     buildByToken<std::string>* varB_;
     std::string id_;
@@ -2000,6 +1812,123 @@ namespace Markov_IO_New {
 
 
 
+  template<>
+  class buildByToken<std::map<std::string,ABC_Var_New*>>
+      :public ABC_BuildByToken
+  {
+  public:
+    static std::string ClassName()
+    {
+      return "buildByToken_of_map_string_to_ABC_Var_New";
+    }
+    std::string myClass()const override
+    {
+      return ClassName();
+
+    }
+
+
+
+
+    enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
+
+
+
+    bool isFinal()const
+    {
+      return mystate==S_Final;
+    }
+
+    bool isInitial()const override
+    {
+      return mystate==S_Header_Final;
+    }
+
+
+    virtual bool isHollow()const override
+    {
+      switch (mystate) {
+        case S_Init:
+        case S_Header2:
+        case S_Header_Final:
+          return true;
+          break;
+        case S_Data_Partial:
+        case S_Data_Final:
+        case S_Final:
+        default:
+          return false;
+        }
+    }
+
+
+    bool unPop(std::map<std::string,ABC_Var_New*> var)
+    {
+      x_=var;
+      mystate=S_Final;
+      return true;
+
+    }
+
+    std::map<std::string,ABC_Var_New*> unloadVar()
+    {
+      if (isFinal())
+        {
+          mystate=S_Header_Final;
+          return x_;
+        }
+      else
+        return {};
+    }
+
+
+    buildByToken(const Implements_ComplexVar_New* parent,
+                 const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* typeVar);
+
+
+
+    ~buildByToken(){
+    }
+
+    bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override;
+
+
+
+    Token_New popBackToken() override;
+
+    std::pair<std::string,std::set<std::string>> alternativesNext()const override;
+
+    void clear()override
+    {
+      ABC_BuildByToken::clear();
+      mystate=S_Init;
+      x_.clear();
+      valueBuild_->clear();
+
+    }
+
+
+    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                       const std::string& id,
+                                       const std::string& var,
+                                       const std::string& tip,
+                                       const std::string& whatthis);
+
+
+  private:
+    DAF mystate;
+    std::map<std::string,ABC_Var_New*> x_;
+    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varType_;
+    buildByToken<ABC_Var_New*>* valueBuild_;
+
+  };
+
+
+
+  
+
+  
+
 
   class build_Command_Input
       :public ABC_BuildByToken//public buildByToken<Implements_Command_Fields*>
@@ -2019,83 +1948,7 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
-    virtual bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective) override
-
-    {
-      const std::string objective=masterObjective+": "+ClassName()+" pushToken("+t.str()+") fails: ";
-      switch (mystate)
-        {
-        case S_Init:
-          if (t.tok()==Token_New::IDENTIFIER)
-            {
-              if (parent()->hasCommand(t.identifier()))
-                {
-                  cmdty_=parent()->idToCommand(t.identifier(),whyNot);
-                  cmd_=cmdty_->getCommandField();
-
-                  if (hasAllInputs(cmd_))
-                    mystate=S_Input_Final;
-                  else if (hasAllMandatoryInputs(cmd_))
-                    mystate=S_Mandatory_Final;
-                  return true;
-                }
-              else
-                {
-                  return false;
-                }
-            }
-          else
-            {
-              return false;
-            }
-          break;
-        case  S_Mandatory_Final:
-          if (t.tok()==Token_New::EOL)
-            {
-              mystate=S_Final;
-              return true;
-            }
-          else if (processVariableInput(t))
-            {
-              if (hasAllInputs(cmd_))
-                mystate=S_Input_Final;
-              else mystate=S_Mandatory_Final;
-              return true;
-
-            }
-          else return false;
-
-          break;
-        case S_ID_Final:
-        case S_Input_Partial:
-          if (processVariableInput(t))
-            {
-              if (hasAllInputs(cmd_))
-                mystate=S_Input_Final;
-              else if (hasAllMandatoryInputs(cmd_))
-                mystate=S_Mandatory_Final;
-              else
-                mystate=S_Input_Partial;
-              return true;
-
-            }
-          else return false;
-          break;
-
-        case S_Input_Final:
-          if (t.tok()==Token_New::EOL)
-            {
-              mystate=S_Final;
-              return true;
-            }
-        case S_Final:
-        default:
-          return false;
-          break;
-
-        }
-
-    }
+    virtual bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective) override;
 
 
     std::pair<std::string,std::set<std::string>> alternativesNext()const override
@@ -2123,11 +1976,7 @@ namespace Markov_IO_New {
     }
 
     // ABClass_buildByToken interface
-    build_Command_Input(Implements_ComplexVar_New* cm):
-      ABC_BuildByToken(cm)
-    ,mystate(S_Init)
-    ,idCommandB_(Implements_Command_Type_New::getBuildIdCommand()),
-    cmdty_(nullptr),cmd_(nullptr){}
+    build_Command_Input(Implements_ComplexVar_New* cm);
 
 
 

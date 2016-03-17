@@ -2,7 +2,7 @@
 #define EXPRESSIONMANAGER
 
 #include "Markov_IO/ABC_IO.h"
-#include "Markov_IO/buildByToken.h"
+#include "Markov_IO/buildByTokenTempl.h"
 
 namespace Markov_IO_New {
 

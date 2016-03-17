@@ -1,4 +1,5 @@
 #include "Markov_IO/Var.h"
+#include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_IO/buildByToken.h"
 
 namespace Markov_IO_New {
@@ -90,6 +91,16 @@ namespace Markov_IO_New {
 
   }
 
+  void Implements_ComplexVar_New::G::pushFieldName(Implements_ComplexVar_New *self, std::__cxx11::string fdId)
+  {
+     self->pushChild(new Implements_Var_New<std::string>(
+                       self,F::fieldName()
+                       ,Implements_New_Identifier_Type_New::ClassName()
+                       ,std::move(fdId)
+                       ,"id of the field of a complex var",
+                       "unique identifier of the field for a given complex var"));
+  }
+
   void Implements_ComplexVar_New::G::pushTypeOfKey(Implements_ComplexVar_New *self, std::__cxx11::string typeOfKey)
   {
     self->pushChild(new Implements_Var_New<std::string>(
@@ -109,14 +120,25 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  Implements_Data_Type_New<std::vector<T> >::Implements_Data_Type_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, const std::__cxx11::string elementVar, Implements_Data_Type_New<std::vector<T> >::typePredicate complyPred, Implements_Data_Type_New<std::vector<T> >::typeValue defaultValue):
+  Implements_Data_Type_New<std::vector<T> >::Implements_Data_Type_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, const std::__cxx11::string elementVar, Implements_Data_Type_New<std::vector<T> >::typePredicate complyPred,                                                                      Implements_Data_Type_New<std::vector<T> >::typeElementPredicate elemeComply,Implements_Data_Type_New<std::vector<T> >::typeValue defaultValue):
     ABC_Typed_Value<std::vector<T> >(parent,id,var,tip,whatthis)
   ,comply_(complyPred)
+  ,elemComply_(elemeComply)
   ,default_(defaultValue)
   {
     Implements_ComplexVar_New::G::pushTypeOfElement(this,elementVar);
   }
 
+  const Implements_Field_Data_Type * Implements_Data_Type_New<Implements_ComplexVar_New *>::nextField(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *> &m)const
+  {
+    return (*nextField_)(cm,m,this);
+  }
+
+  buildByToken<ABC_Var_New *> Implements_Data_Type_New<Implements_ComplexVar_New *>::getFieldBuildByToken(const Implements_ComplexVar_New *cm, std::map<std::__cxx11::string, ABC_Var_New *> m) const
+  {
+    const Implements_Field_Data_Type* f=nextField(cm,m);
+    return buildByToken<ABC_Var_New*>(cm,f);
+  }
 
 
 
