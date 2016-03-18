@@ -8,6 +8,7 @@
 #include "Markov_LA/Matrix.h"
 #include "Markov_IO/Var.h"
 
+
 #include <string>
 #include <set>
 #include <map>
@@ -88,7 +89,7 @@ namespace Markov_IO_New {
 
     static std::string ClassName()
     {
-      return "buildByToken_of"+Cls<T>::name();
+      return "buildByToken_of_"+Cls<T>::name();
     }
     std::string myClass()const override
     {
@@ -98,9 +99,10 @@ namespace Markov_IO_New {
     buildByToken(const Implements_ComplexVar_New* parent,
                  const ABC_Typed_Value<T>* typeVar):
       ABC_BuildByToken(parent),
+      varType_(typeVar),
       x_(),
-      isComplete_(false),
-      varType_(typeVar)
+      isComplete_(false)
+
     {
 
     }
@@ -115,8 +117,6 @@ namespace Markov_IO_New {
     }
 
     bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override;
-
-
 
     std::pair<std::string,std::set<std::string>> alternativesNext()const override
     {
@@ -259,7 +259,6 @@ namespace Markov_IO_New {
       x_=std::move(var);
       mystate=S_Final;
       return true;
-
     }
 
     buildByToken(const Implements_ComplexVar_New* parent,
@@ -267,17 +266,18 @@ namespace Markov_IO_New {
       ABC_BuildByToken(parent),
       mystate(S_Init),
       x_{},
-      valueBuild_(vecType->getElementBuildByToken(parent))
-    ,varType_(vecType)
+      valueBuild_(vecType->getElementBuildByToken(parent)),
+      varType_(vecType)
     {
 
     }
 
-    virtual Implements_Var_New<std::vector<T>>* unloadVar_New(const Implements_ComplexVar_New* p,
-                                                              const std::string& id,
-                                                              const std::string& var,
-                                                              const std::string& tip,
-                                                              const std::string& whatthis)
+    virtual Implements_Var_New<std::vector<T>>*
+    unloadVar_New(const Implements_ComplexVar_New* p,
+                  const std::string& id,
+                  const std::string& var,
+                  const std::string& tip,
+                  const std::string& whatthis)
     {
       if (isFinal())
         {
@@ -294,7 +294,7 @@ namespace Markov_IO_New {
     ~buildByToken(){
     }
 
-    bool pushToken(Token_New tok, std::string* whyNot,const std::string masterObjective)
+    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)
     {
       const std::string objective=masterObjective+": rejected token"+tok.str();
 
@@ -473,7 +473,6 @@ namespace Markov_IO_New {
     std::vector<T> x_;
     buildByToken<T>* valueBuild_;
     const Implements_Data_Type_New<std::vector<T>> * varType_;
-    //   bool isComplete_;
   };
 
 

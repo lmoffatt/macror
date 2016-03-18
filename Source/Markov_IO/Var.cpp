@@ -4,6 +4,28 @@
 
 namespace Markov_IO_New {
 
+  template class Implements_Var_New<double>;
+
+  template class Implements_Var_New<std::vector<double>>;
+
+   template class Implements_Var_New<std::set<double>>;
+
+   template class Implements_Var_New<Markov_LA::M_Matrix<double>>;
+
+
+  template class Implements_Data_Type_New<double>;
+
+  template class Implements_Data_Type_New<std::vector<double>> ;
+
+
+
+
+
+  template class Implements_Data_Type_New<Markov_LA::M_Matrix<double>>;
+
+  template class Implements_Data_Type_New<std::map<std::string,double>> ;
+
+
   bool Implements_ComplexVar_New::hasNameofType(const std::__cxx11::string &name, const std::__cxx11::string &type, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
   {
     auto it=vars_->find(name);
@@ -66,7 +88,7 @@ namespace Markov_IO_New {
 
   Implements_Identifier_Type_New::Implements_Identifier_Type_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &varTypeOfId, Implements_Data_Type_New::typePredicate complyPred, Implements_Data_Type_New::typeValue defaultValue, Implements_Data_Type_New::getSet alterNext):
     Implements_Data_Type_New<std::string>(parent,"id_"+varTypeOfId,ClassName()
-                                          ,"id of a "+varTypeOfId,"",complyPred,defaultValue,alterNext)
+                                          ,"id of a "+varTypeOfId,"","",complyPred,defaultValue,alterNext)
   {
     G::pushTypeOfId(this,varTypeOfId);
   }
@@ -119,15 +141,21 @@ namespace Markov_IO_New {
 
 
 
-  template<typename T>
-  Implements_Data_Type_New<std::vector<T> >::Implements_Data_Type_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, const std::__cxx11::string elementVar, Implements_Data_Type_New<std::vector<T> >::typePredicate complyPred,                                                                      Implements_Data_Type_New<std::vector<T> >::typeElementPredicate elemeComply,Implements_Data_Type_New<std::vector<T> >::typeValue defaultValue):
-    ABC_Typed_Value<std::vector<T> >(parent,id,var,tip,whatthis)
-  ,comply_(complyPred)
-  ,elemComply_(elemeComply)
-  ,default_(defaultValue)
+  template<typename T, template<typename> class C>
+  Implements_Container_Type_New<T,C>::Implements_Container_Type_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, const std::__cxx11::string elementVar, Implements_Container_Type_New<T,C>::typePredicate complyPred, Implements_Container_Type_New<T,C>::typeElementPredicate elemeComply, Implements_Container_Type_New<T,C>::typeValue defaultValue, Implements_Container_Type_New<T,C>::getSet alternN):
+    Implements_Base_Type_New<C<T>>(parent,id,var,tip,whatthis,C<T>(),complyPred,defaultValue,alternN),
+    elemComply_(elemeComply)
   {
     Implements_ComplexVar_New::G::pushTypeOfElement(this,elementVar);
+
   }
+
+
+
+
+
+
+
 
   const Implements_Field_Data_Type * Implements_Data_Type_New<Implements_ComplexVar_New *>::nextField(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *> &m)const
   {

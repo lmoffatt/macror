@@ -5,12 +5,6 @@
 
 namespace Markov_IO_New {
 
-
-
-
-
-
-
   const Implements_ComplexVar_New* ABC_BuildByToken::parent() const
   {
     return parent_;
@@ -40,8 +34,6 @@ namespace Markov_IO_New {
 
   template class buildByToken<std::string>;
   template class buildByToken<std::vector<std::string>>;
-
-
 
   template class buildByToken<std::set<double>>;
 
