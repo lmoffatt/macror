@@ -700,7 +700,7 @@ namespace Markov_Console
 
   }
 
-  std::__cxx11::string Markov_Console::spacer() const
+  std::string Markov_Console::spacer() const
   {
     return cmV->getProgram().spacer();
   }

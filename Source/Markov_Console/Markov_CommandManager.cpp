@@ -429,7 +429,7 @@ namespace Markov_Console
     return (variables_.find(name)!=variables_.end());
   }
 
-  const Markov_IO::Implements_Identifier_Class *Markov_CommandManagerVar::getIdList(const std::__cxx11::string &name) const
+  const Markov_IO::Implements_Identifier_Class *Markov_CommandManagerVar::getIdList(const std::string &name) const
   {
     auto it=idLists_.find(name);
     if (it!=idLists_.end())
@@ -1243,7 +1243,7 @@ namespace Markov_Console
 
 
 
-  std::vector<std::__cxx11::string> Markov_CommandManager::getVarsList()
+  std::vector<std::string> Markov_CommandManager::getVarsList()
   {
     std::vector<std::string> varList;
     for (std::map<std::string,Markov_IO::ABC_Saveable*>::const_iterator it

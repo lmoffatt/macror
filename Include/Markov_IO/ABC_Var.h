@@ -385,14 +385,14 @@ namespace  Markov_IO {
 
     bool has_child(const std::string& name)const;
 
-    std::set<std::__cxx11::string> getListComplying(const std::string& var)const;
+    std::set<std::string> getListComplying(const std::string& var)const;
 
-    std::set<std::__cxx11::string> getDataList()const;
-    std::set<std::__cxx11::string> getVarList()const;
-    std::set<std::__cxx11::string> getCommandList()const;
+    std::set<std::string> getDataList()const;
+    std::set<std::string> getVarList()const;
+    std::set<std::string> getCommandList()const;
 
-    virtual std::set<std::__cxx11::string> getChildList(valuePredicate P)const;
-    virtual std::set<std::__cxx11::string> getChildList(valueStringPredicate P,const std::string& name)const;
+    virtual std::set<std::string> getChildList(valuePredicate P)const;
+    virtual std::set<std::string> getChildList(valueStringPredicate P,const std::string& name)const;
 
     void pushIdChild(const std::string& id,ABC_Value* var);
 
@@ -2847,7 +2847,7 @@ namespace  Markov_IO {
 
 
   template<typename T>
-  bool ABC_Value::checkValue(const std::string &varName, T &value, std::__cxx11::string &errorMessage) const
+  bool ABC_Value::checkValue(const std::string &varName, T &value, std::string &errorMessage) const
   {
     auto a=idToValue(varName);
     if (a==nullptr)
@@ -3243,7 +3243,7 @@ namespace  Markov_IO {
 
     // ABC_Simple_Class interface
   public:
-    virtual bool checkValue(const std::string &val, std::__cxx11::string& error_message) const override
+    virtual bool checkValue(const std::string &val, std::string& error_message) const override
     {
       if(ids_.find(val)!=ids_.end())
         return true;
@@ -3257,7 +3257,7 @@ namespace  Markov_IO {
 
     // ABC_Value interface
   public:
-    virtual std::set<std::__cxx11::string> alternativeValues() const override
+    virtual std::set<std::string> alternativeValues() const override
     {
       return idSet();
     }
@@ -3302,12 +3302,12 @@ namespace  Markov_IO {
 
     // ABC_Simple_Class interface
   public:
-    virtual bool checkValue(const std::string &val, std::__cxx11::string& error_message) const override;
+    virtual bool checkValue(const std::string &val, std::string& error_message) const override;
 
 
     // ABC_Value interface
   public:
-    virtual std::set<std::__cxx11::string> alternativeValues() const override;
+    virtual std::set<std::string> alternativeValues() const override;
   };
 
 

@@ -134,11 +134,11 @@ public:
   virtual void putNewLine() override;
   virtual void freshLine() override;
   virtual bool isLineEnd() const override;
-  virtual std::__cxx11::string currentLine() const override;
+  virtual std::string currentLine() const override;
   virtual char pop_next_char() override;
   virtual void backErase() override;
-  virtual void putTail(const std::__cxx11::string &text) override;
-  virtual std::__cxx11::string getTail() override;
+  virtual void putTail(const std::string &text) override;
+  virtual std::string getTail() override;
 };
 
 

@@ -118,7 +118,7 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
-    virtual std::__cxx11::string storedClass() const override
+    virtual std::string storedClass() const override
     {
       return Cls<T>::name();
 
@@ -248,6 +248,11 @@ namespace Markov_IO_New {
     virtual std::string refId()const=0;
 
     virtual std::string myType()const=0;
+
+    bool isOfThisType(const Implements_ComplexVar_New* cm,
+                              const std::string generalType,
+                              std::string* whyNot
+                              ,const std::string masterObjective)const;
 
 
     virtual ~ABC_Var_New(){}

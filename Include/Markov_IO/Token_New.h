@@ -101,9 +101,9 @@ namespace Markov_IO_New {
     template<typename T>
     bool toValue(T& val, std::string *whyNot, const std::string& masterObjective)const;
 
-    bool isReal(std::string *whyNot, const std::__cxx11::string &masterObjective)const;
-    bool isInteger(std::__cxx11::string *whyNot, const std::string& masterObjective)const;
-    bool isCount(std::__cxx11::string *whyNot, const std::string& masterObjective)const;
+    bool isReal(std::string *whyNot, const std::string &masterObjective)const;
+    bool isInteger(std::string *whyNot, const std::string& masterObjective)const;
+    bool isCount(std::string *whyNot, const std::string& masterObjective)const;
 
 
 
@@ -168,7 +168,7 @@ namespace Markov_IO_New {
       return myState_==S_Init;
     }
 
-    bool isValid(std::__cxx11::string *whyNot,const std::string &masterObjective)const
+    bool isValid(std::string *whyNot,const std::string &masterObjective)const
     {
       const std::string objective="Token "+str()+ " is not valid";
       if (curr_tok==INVALID)

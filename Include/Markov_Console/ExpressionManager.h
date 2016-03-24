@@ -29,8 +29,8 @@ namespace Markov_IO_New {
 
   protected:
 
-    bool push_back(Markov_CommandManagerVar *cm, ABC_IO *io, char c, std::__cxx11::string *errorMessage);
-    bool push_back(Markov_CommandManagerVar *cm, ABC_IO * io, const std::string& s, std::__cxx11::string *errorMessage);
+    bool push_back(Markov_CommandManagerVar *cm, ABC_IO *io, char c, std::string *errorMessage);
+    bool push_back(Markov_CommandManagerVar *cm, ABC_IO * io, const std::string& s, std::string *errorMessage);
 
     char pop_back_char();
 
@@ -149,7 +149,7 @@ class Markov_CommandManagerVar;
   protected:
 
     bool push_back(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO *io, char c, std::string& errorMessage);
-    bool push_back(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io, const std::string& s, std::__cxx11::string &errorMessage);
+    bool push_back(Markov_CommandManagerVar *cm, Markov_IO::ABC_IO * io, const std::string& s, std::string &errorMessage);
 
     char pop_back_char();
 

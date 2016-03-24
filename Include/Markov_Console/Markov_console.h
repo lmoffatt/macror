@@ -63,7 +63,7 @@ public:
 
     // ABC_IO interface
 public:
-    virtual std::__cxx11::string spacer() const override;
+    virtual std::string spacer() const override;
 };
 
 }

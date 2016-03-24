@@ -1081,7 +1081,7 @@ Extract tip, whatthis, id and class from stream
     return ids_[i];
   }
 
-  std::set<std::__cxx11::string> Implements_Complex_Value::getChildList(valuePredicate P) const
+  std::set<std::string> Implements_Complex_Value::getChildList(valuePredicate P) const
   {
     std::set<std::string> out;
     std::copy_if(ids_.begin(),ids_.end(),std::inserter(out,out.end())
@@ -1096,7 +1096,7 @@ Extract tip, whatthis, id and class from stream
       return out;
   }
 
-  std::set<std::__cxx11::string> Implements_Complex_Value::getChildList(valueStringPredicate P, const std::__cxx11::string &name) const
+  std::set<std::string> Implements_Complex_Value::getChildList(valueStringPredicate P, const std::string &name) const
   {
     std::set<std::string> out;
     std::copy_if(ids_.begin(),ids_.end(),std::inserter(out,out.end())
@@ -1354,7 +1354,7 @@ Extract tip, whatthis, id and class from stream
     return idToValue(name)!=nullptr;
   }
 
-  std::set<std::__cxx11::string> ABC_Value::getListComplying(const std::__cxx11::string &var) const
+  std::set<std::string> ABC_Value::getListComplying(const std::string &var) const
   {
     return getChildList(
           [](const ABC_Value* v,const std::string& va){return v->complyVar(va );}
@@ -1366,12 +1366,12 @@ Extract tip, whatthis, id and class from stream
     return getChildList([](const ABC_Var* v){return v->isData();});
   }
 
-  std::set<std::__cxx11::string> ABC_Value::getVarList() const
+  std::set<std::string> ABC_Value::getVarList() const
   {
     return getChildList([](const ABC_Var* v){return v->isVar();});
   }
 
-  std::set<std::__cxx11::string> ABC_Value::getCommandList() const
+  std::set<std::string> ABC_Value::getCommandList() const
   {
     return getChildList([](const ABC_Var* v){return v->isCommand();});
 
@@ -1390,7 +1390,7 @@ Extract tip, whatthis, id and class from stream
   }
 
 
-  std::set<std::__cxx11::string> ABC_Value::getChildList(valueStringPredicate P, const std::__cxx11::string &name) const
+  std::set<std::string> ABC_Value::getChildList(valueStringPredicate P, const std::string &name) const
   {
     if (parentValue()!=nullptr)
       return parentValue()->getChildList(P,name);
@@ -1939,7 +1939,7 @@ the parameter className
     return Token_New(name).tok()==Token_New::IDENTIFIER;
   }
 
-  std::__cxx11::string ABC_Value::nextId(const std::__cxx11::string &idTemplate)
+  std::string ABC_Value::nextId(const std::string &idTemplate)
   {
     auto n=getVersionNumber(idTemplate);
 
@@ -1952,7 +1952,7 @@ the parameter className
       return idTemplate+"_0";
   }
 
-    std::size_t ABC_Value::getVersionNumber(const std::__cxx11::string &id)
+    std::size_t ABC_Value::getVersionNumber(const std::string &id)
     {
       std::stringstream ss(id.substr(id.find_last_of('_')));
       std::size_t n;
@@ -2144,7 +2144,7 @@ the parameter className
       }
   }
 
-  bool Implements_New_Identifier_Class::checkValue(const std::__cxx11::string &val, std::__cxx11::string &error_message) const
+  bool Implements_New_Identifier_Class::checkValue(const std::string &val, std::string &error_message) const
   {
     if (!isValidId(val))
 
@@ -2161,7 +2161,7 @@ the parameter className
       return true;
   }
 
-  std::set<std::__cxx11::string> Implements_New_Identifier_Class::alternativeValues() const
+  std::set<std::string> Implements_New_Identifier_Class::alternativeValues() const
   {
     //    auto s=parentValue()->getIdList(identifierType())->idSet();
 

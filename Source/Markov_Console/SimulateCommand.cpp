@@ -78,7 +78,7 @@ namespace Markov_Console
     return "simulate";
   }
 
-  bool SimulateCommand::run(const std::vector<std::__cxx11::string> &InputValue, const std::vector<std::__cxx11::string> &OutputValue)
+  bool SimulateCommand::run(const std::vector<std::string> &InputValue, const std::vector<std::string> &OutputValue)
   {
 
   }

@@ -11,6 +11,12 @@
 namespace Markov_IO_New {
 
 
+   template<typename T>
+    T* clone(T const* x)
+    {
+      return x->clone();
+    }
+
 
 
   template<typename C>
@@ -89,6 +95,30 @@ namespace Markov_IO_New {
     for (auto& e:m)
       o.insert(e.first);
     return o;
+  }
+
+  template<>
+  int *clone<int>(int const * x)
+  {
+    return new int(*x);
+  }
+
+  template<>
+  double *clone<double>(double const * x)
+  {
+    return new double(*x);
+  }
+
+  template<>
+  std::size_t *clone<std::size_t>(std::size_t const * x)
+  {
+    return new std::size_t(*x);
+  }
+
+  template<>
+  std::string *clone<std::string>(std::string const * x)
+  {
+    return new std::string(*x);
   }
 
 

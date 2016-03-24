@@ -187,7 +187,7 @@ std::string MacrorCommandWindow::getItemFromSeveralLists(const std::string &titl
 
 }
 
-void MacrorCommandWindow::erase_from_cursor_forward(std::__cxx11::string s)
+void MacrorCommandWindow::erase_from_cursor_forward(std::string s)
 {
   QString qs(s.c_str());
   QTextCursor c=textCursor();
@@ -196,7 +196,7 @@ void MacrorCommandWindow::erase_from_cursor_forward(std::__cxx11::string s)
   setTextCursor(c);
   repaint();
 }
-void MacrorCommandWindow::erase_from_cursor_backward(std::__cxx11::string s)
+void MacrorCommandWindow::erase_from_cursor_backward(std::string s)
 {
   QString qs(s.c_str());
   QTextCursor c=textCursor();
@@ -329,7 +329,7 @@ void MacrorCommandWindow::showMessage(const std::string &m)
   repaint();
 }
 
-std::__cxx11::string MacrorCommandWindow::spacer() const
+std::string MacrorCommandWindow::spacer() const
 {
   return cm_->getProgram().spacer();
 }
@@ -361,7 +361,7 @@ bool MacrorCommandWindow::isLineEnd() const
 
 }
 
-std::__cxx11::string MacrorCommandWindow::currentLine() const
+std::string MacrorCommandWindow::currentLine() const
 {
   if (isLineBegin())
     return "";
@@ -399,7 +399,7 @@ void MacrorCommandWindow::backErase()
   repaint();
 }
 
-void MacrorCommandWindow::putTail(const std::__cxx11::string &text)
+void MacrorCommandWindow::putTail(const std::string &text)
 {
   if (!isLineEnd())
     {
@@ -417,7 +417,7 @@ void MacrorCommandWindow::putTail(const std::__cxx11::string &text)
   repaint();
 }
 
-std::__cxx11::string MacrorCommandWindow::getTail()
+std::string MacrorCommandWindow::getTail()
 {
   auto c=textCursor();
   c.movePosition(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);

@@ -10,10 +10,7 @@ namespace Markov_IO_New {
     return parent_;
   }
 
-
-
-  ABC_BuildByToken::ABC_BuildByToken(const Implements_ComplexVar_New *p
-                                     ):parent_(p){}
+  ABC_BuildByToken::ABC_BuildByToken(const Implements_ComplexVar_New *p):parent_(p){}
 
 
 
@@ -42,6 +39,7 @@ namespace Markov_IO_New {
   template class buildByToken<Markov_LA::M_Matrix<double>>;
 
 
+
   build_Statement::build_Statement(Markov_CommandManagerVar *p):
     build_Statement(p,p->getVarType()){}
 
@@ -58,7 +56,7 @@ namespace Markov_IO_New {
 
 
 
-  bool build_Command_Input::pushToken(Token_New t, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  bool build_Command_Input::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
 
   {
     const std::string objective=masterObjective+": "+ClassName()+" pushToken("+t.str()+") fails: ";
@@ -137,7 +135,7 @@ namespace Markov_IO_New {
   }
 
 
-  bool buildByToken<ABC_Var_New *>::pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  bool buildByToken<ABC_Var_New *>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
 
   {
     const std::string objective=masterObjective+": "+ClassName()+" rejected token"+tok.str();
@@ -362,7 +360,7 @@ namespace Markov_IO_New {
   }
 
 
-  ABC_Var_New *buildByToken<ABC_Var_New *>::unloadVar_New(const Implements_ComplexVar_New *p, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis)
+  ABC_Var_New *buildByToken<ABC_Var_New *>::unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis)
   {
     if (isFinal())
       {
@@ -376,7 +374,7 @@ namespace Markov_IO_New {
 
 
 
-  ABC_Var_New *buildByToken<std::map<std::string, ABC_Var_New *> >::unloadVar_New(const Implements_ComplexVar_New *p, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis)
+  ABC_Var_New *buildByToken<std::map<std::string, ABC_Var_New *> >::unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis)
   {
     if (isFinal())
       {
@@ -403,7 +401,7 @@ namespace Markov_IO_New {
 
 
   bool buildByToken<std::map<std::string, ABC_Var_New *>>::
-  pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
   {
     const std::string objective=masterObjective+" : "+ClassName()+"::pushToken("+
         tok.str()+")";
@@ -548,7 +546,7 @@ namespace Markov_IO_New {
   }
 
 
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
+  std::pair<std::string, std::set<std::string> > buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
   {
     switch (mystate)
       {
@@ -1894,22 +1892,22 @@ namespace Markov_IO {
   }
 
 
-  std::__cxx11::string build_Command_Input::ClassName()
+  std::string build_Command_Input::ClassName()
   {
     return "build_Command_Input";
   }
 
-  std::set<std::__cxx11::string> build_Command_Input::SuperClasses()
+  std::set<std::string> build_Command_Input::SuperClasses()
   {
     return ABC_Value_ByToken::SuperClasses()+ClassName();
   }
 
-  std::__cxx11::string build_Command_Input::myClass() const
+  std::string build_Command_Input::myClass() const
   {
     return ClassName();
   }
 
-  std::set<std::__cxx11::string> build_Command_Input::mySuperClasses() const
+  std::set<std::string> build_Command_Input::mySuperClasses() const
   {
     return SuperClasses();
   }
@@ -2176,23 +2174,23 @@ namespace Markov_IO {
 
   }
 
-  std::__cxx11::string build_Implements_ValueId::ClassName()
+  std::string build_Implements_ValueId::ClassName()
   {
     return "build_Implements_ValueId";
   }
 
-  std::set<std::__cxx11::string> build_Implements_ValueId::SuperClasses()
+  std::set<std::string> build_Implements_ValueId::SuperClasses()
   {
     return ABC_Value_ByToken::SuperClasses()+ClassName();
   }
 
-  std::__cxx11::string build_Implements_ValueId::myClass() const
+  std::string build_Implements_ValueId::myClass() const
   {
     return ClassName();
 
   }
 
-  std::set<std::__cxx11::string> build_Implements_ValueId::mySuperClasses() const
+  std::set<std::string> build_Implements_ValueId::mySuperClasses() const
   {
     return SuperClasses();
   }
@@ -2228,7 +2226,7 @@ namespace Markov_IO {
     id_=new Implements_ValueId;
   }
 
-  bool build_Implements_ValueId::pushToken(Token_New t, std::__cxx11::string &errorMessage)
+  bool build_Implements_ValueId::pushToken(Token_New t, std::string &errorMessage)
   {
     switch (idstate)
       {
@@ -2404,7 +2402,7 @@ namespace Markov_IO {
       return false;
   }
 
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > build_Implements_ValueId::alternativesNext(Markov_Console::Markov_CommandManagerVar *cm) const
+  std::pair<std::string, std::set<std::string> > build_Implements_ValueId::alternativesNext(Markov_Console::Markov_CommandManagerVar *cm) const
   {
     switch (idstate ) {
       case S_Init:
@@ -2526,7 +2524,7 @@ namespace Markov_IO {
 
   build_Implements_ValueId::~build_Implements_ValueId(){}
 
-  bool build_Implements_ValueId::pushToken_Id(Token_New t, std::__cxx11::string &errorMessage)
+  bool build_Implements_ValueId::pushToken_Id(Token_New t, std::string &errorMessage)
   {
     if (parent()->idToValue(t.identifier())!=nullptr)
       {
@@ -2542,7 +2540,7 @@ namespace Markov_IO {
       }
   }
 
-  bool build_Implements_ValueId::pushToken_var(Token_New t, std::__cxx11::string &errorMessage)
+  bool build_Implements_ValueId::pushToken_var(Token_New t, std::string &errorMessage)
   {
     if (parent()!=nullptr)
       {
@@ -2567,7 +2565,7 @@ namespace Markov_IO {
     else return false;
   }
 
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > build_Implements_ValueId::alternativesNext_var() const
+  std::pair<std::string, std::set<std::string> > build_Implements_ValueId::alternativesNext_var() const
   {
     if (varType_.empty())
       {
@@ -2581,5 +2579,7 @@ namespace Markov_IO {
       }
 
   }
+
+
 }
 

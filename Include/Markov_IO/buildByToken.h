@@ -1755,11 +1755,6 @@ namespace Markov_IO_New {
                  const Implements_Field_Data_Type* fieldType);
 
 
-
-
-
-
-
     void clear()override
     {
       mystate=S_Init;
@@ -1779,12 +1774,12 @@ namespace Markov_IO_New {
     const ABC_Type_of_Value* valueType_;
     ABC_BuildByToken* valueB_;
     ABC_Var_New* x_;
-    bool pushToken_tip(Token_New t, std::__cxx11::string &errorMessage)
+    bool pushToken_tip(Token_New t, std::string &errorMessage)
     {
 
     }
 
-    bool pushToken_whatthis(Token_New t, std::__cxx11::string &errorMessage)
+    bool pushToken_whatthis(Token_New t, std::string &errorMessage)
     {
 
     }
@@ -1800,7 +1795,7 @@ namespace Markov_IO_New {
 
     // ABC_BuildByToken interface
   public:
-    virtual std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > alternativesNext() const override
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
     {
 
     }
@@ -1865,8 +1860,7 @@ namespace Markov_IO_New {
     {
       x_=var;
       mystate=S_Final;
-      return true;
-
+     return true;
     }
 
     std::map<std::string,ABC_Var_New*> unloadVar()
@@ -1874,7 +1868,9 @@ namespace Markov_IO_New {
       if (isFinal())
         {
           mystate=S_Header_Final;
-          return x_;
+          auto o=std::move(x_);
+          x_={};
+          return std::move(o);
         }
       else
         return {};
@@ -1886,8 +1882,7 @@ namespace Markov_IO_New {
 
 
 
-    ~buildByToken(){
-    }
+    ~buildByToken(){}
 
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override;
 
@@ -2034,7 +2029,7 @@ namespace Markov_IO_New {
 
     // ABC_BuildByToken interface
   public:
-    virtual ABC_Var_New *unloadVar_New(const Implements_ComplexVar_New *p, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis) override
+    virtual ABC_Var_New *unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis) override
     {
 
     }
@@ -2191,7 +2186,7 @@ namespace Markov_IO_New {
 
     // ABC_BuildByToken interface
   public:
-    virtual bool pushToken(Token_New t, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) override
+    virtual bool pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective) override
 
     {
       const std::string objective=masterObjective;
@@ -2271,11 +2266,11 @@ namespace Markov_IO_New {
         }
 
     }
-    virtual std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > alternativesNext() const override
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
     {
 
     }
-    virtual ABC_Var_New *unloadVar_New(const Implements_ComplexVar_New *p, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis) override{
+    virtual ABC_Var_New *unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis) override{
 
     }
   };
@@ -2377,12 +2372,12 @@ namespace Markov_IO {
     std::string getErrorMessage  (const Markov_Console::ABC_CommandVar *cmd
                                   , const ABC_Value *input, const std::string &error);
 
-    std::__cxx11::string setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found);
+    std::string setErrorsMessage(std::vector<Token_New::Value> expected, Token_New found);
 
 
     void clearErrorMessage();
 
-    virtual std::__cxx11::string getErrorMessage  (const Markov_Console::ABC_CommandVar *cmd, const ABC_Value *input, Token_New found);
+    virtual std::string getErrorMessage  (const Markov_Console::ABC_CommandVar *cmd, const ABC_Value *input, Token_New found);
 
 
   private:
@@ -4154,9 +4149,9 @@ namespace Markov_IO {
 
   private:
     bool pushToken_Id(Token_New t, std::string& errorMessage);
-    bool pushToken_tip(Token_New t, std::__cxx11::string &errorMessage);
-    bool pushToken_whatthis(Token_New t, std::__cxx11::string &errorMessage);
-    bool pushToken_var(Token_New t, std::__cxx11::string &errorMessage);
+    bool pushToken_tip(Token_New t, std::string &errorMessage);
+    bool pushToken_whatthis(Token_New t, std::string &errorMessage);
+    bool pushToken_var(Token_New t, std::string &errorMessage);
     std::pair<std::string,std::set<std::string>> alternativesNext_var()const ;
 
 
@@ -4879,8 +4874,8 @@ namespace Markov_IO {
 
     static std::set<std::string> SuperClasses();
 
-    virtual std::__cxx11::string myClass() const override;
-    virtual std::set<std::__cxx11::string> mySuperClasses() const override;
+    virtual std::string myClass() const override;
+    virtual std::set<std::string> mySuperClasses() const override;
 
   };
 

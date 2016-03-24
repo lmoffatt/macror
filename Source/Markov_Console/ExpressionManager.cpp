@@ -51,12 +51,12 @@ namespace Markov_IO_New {
 
 
 
-  void ExpressionManager::showErrorMessage(const std::__cxx11::string &s)
+  void ExpressionManager::showErrorMessage(const std::string &s)
   {
 
   }
 
-  void ExpressionManager::showSuggestionMessage(const std::__cxx11::string &s)
+  void ExpressionManager::showSuggestionMessage(const std::string &s)
   {
 
   }
@@ -215,7 +215,7 @@ namespace Markov_IO_New {
     previous_key=k;
   }
 
-  bool ExpressionManager::push_back(Markov_CommandManagerVar* cm, ABC_IO * io, char c,  std::__cxx11::string *error)
+  bool ExpressionManager::push_back(Markov_CommandManagerVar* cm, ABC_IO * io, char c,  std::string *error)
   {
     const std::string objective="";
 
@@ -322,7 +322,7 @@ namespace Markov_IO_New {
 
   }
 
-  bool ExpressionManager::push_back(Markov_CommandManagerVar *cm,ABC_IO * io, const std::__cxx11::string &s,std::string* errorMessage)
+  bool ExpressionManager::push_back(Markov_CommandManagerVar *cm,ABC_IO * io, const std::string &s,std::string* errorMessage)
   {
     bool result=true;
     for (auto c:s)
@@ -407,7 +407,7 @@ namespace Markov_IO_New {
       }
   }
 
-  std::set<std::__cxx11::string> ExpressionManager::conformant(const std::set<std::__cxx11::string> &items, Token_New tok)
+  std::set<std::string> ExpressionManager::conformant(const std::set<std::string> &items, Token_New tok)
   {
     std::string hint=tok.str();
     auto lo=items.lower_bound(hint);
@@ -475,12 +475,12 @@ namespace Markov_Console {
 
 
 
-  void ExpressionManager::showErrorMessage(const std::__cxx11::string &s)
+  void ExpressionManager::showErrorMessage(const std::string &s)
   {
 
   }
 
-  void ExpressionManager::showSuggestionMessage(const std::__cxx11::string &s)
+  void ExpressionManager::showSuggestionMessage(const std::string &s)
   {
 
   }
@@ -639,7 +639,7 @@ namespace Markov_Console {
     previous_key=k;
   }
 
-  bool ExpressionManager::push_back(Markov_CommandManagerVar* cm, Markov_IO::ABC_IO * io, char c,  std::__cxx11::string &error)
+  bool ExpressionManager::push_back(Markov_CommandManagerVar* cm, Markov_IO::ABC_IO * io, char c,  std::string &error)
   {
 
     if (!rejectedChars_.empty())
@@ -745,7 +745,7 @@ namespace Markov_Console {
 
   }
 
-  bool ExpressionManager::push_back(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io, const std::__cxx11::string &s,std::string& errorMessage)
+  bool ExpressionManager::push_back(Markov_CommandManagerVar *cm,Markov_IO::ABC_IO * io, const std::string &s,std::string& errorMessage)
   {
     bool result=true;
     for (auto c:s)
@@ -830,7 +830,7 @@ namespace Markov_Console {
       }
   }
 
-  std::set<std::__cxx11::string> ExpressionManager::conformant(const std::set<std::__cxx11::string> &items, Markov_IO::Token_New tok)
+  std::set<std::string> ExpressionManager::conformant(const std::set<std::string> &items, Markov_IO::Token_New tok)
   {
     std::string hint=tok.str();
     auto lo=items.lower_bound(hint);

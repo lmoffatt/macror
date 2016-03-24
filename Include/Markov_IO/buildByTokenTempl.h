@@ -10,7 +10,7 @@
 namespace Markov_IO_New {
 
   template<typename T>
-    bool buildByToken<T>::pushToken(Token_New t, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+    bool buildByToken<T>::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
   {
     const std::string objective=masterObjective+": "+"Token "+t.str()+" was not accepted by "+ClassName();
     T d;
@@ -18,7 +18,7 @@ namespace Markov_IO_New {
       {
         return false;
       }
-    else if (varType_->isInDomain(this->parent(),d,whyNot,objective))
+    else if (varType_->isVarInDomain(this->parent(),d,whyNot,objective))
       {
         x_=d;
         isComplete_=true;

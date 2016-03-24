@@ -519,7 +519,7 @@ namespace Markov_IO_New {
     return identifier(str_);
   }
 
-  std::__cxx11::string Token_New::identifier(const std::__cxx11::string idWithSPace)
+  std::string Token_New::identifier(const std::string idWithSPace)
   {
     return  idWithSPace.substr(0,idWithSPace.find_first_of(" "));
   }
@@ -592,7 +592,7 @@ namespace Markov_IO_New {
     else return toString(tok());
   }
 
-  bool Token_New::isReal(std::__cxx11::string *whyNot, const std::string& masterObjective) const
+  bool Token_New::isReal(std::string *whyNot, const std::string& masterObjective) const
   {
     if (!isFinal())
       {
@@ -634,7 +634,7 @@ namespace Markov_IO_New {
         }
   }
 
-  bool Token_New::isCount(std::string *whyNot, const std::__cxx11::string &masterObjective) const
+  bool Token_New::isCount(std::string *whyNot, const std::string &masterObjective) const
   {
     const std::string objective=masterObjective+": Token "+str()+" is not count";
 
@@ -1719,7 +1719,7 @@ namespace Markov_IO {
     return identifier(str_);
   }
 
-  std::__cxx11::string Token_New::identifier(const std::__cxx11::string idWithSPace)
+  std::string Token_New::identifier(const std::string idWithSPace)
   {
     return  idWithSPace.substr(0,idWithSPace.find_first_of(" "));
   }
