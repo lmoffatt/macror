@@ -16,6 +16,19 @@
 
 namespace Markov_IO_New {
 
+
+    template<typename T>
+    struct Helper_build
+    {
+      using t=void;
+    };
+
+
+    template <class T>
+    using buildByToken=typename Helper_build<T>::t;
+
+
+
   class Implements_ComplexVar_New;
   class ABC_Var_New;
   template<typename T>
@@ -25,14 +38,9 @@ namespace Markov_IO_New {
   template <typename T>
   class Implements_Var_New;
 
-  template <typename T>
-  class Implements_Data_Type_New;
 
 
-  class Implements_Var_Data_Type;
 
-
-  class Implements_Field_Data_Type;
 
   class Implements_Complex_Data_Type;
 
@@ -83,7 +91,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class buildByToken: public ABC_BuildByToken
+  class buildByToken_Regular: public ABC_BuildByToken
   {
   public:
 
@@ -96,8 +104,8 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
-    buildByToken(const Implements_ComplexVar_New* parent,
-                 const ABC_Typed_Value<T>* typeVar):
+    buildByToken_Regular(const Implements_ComplexVar_New* parent,
+                 const Implements_Data_Type_New<T>* typeVar):
       ABC_BuildByToken(parent),
       varType_(typeVar),
       x_(),
@@ -185,7 +193,7 @@ namespace Markov_IO_New {
 
 
   protected:
-    const ABC_Typed_Value<T>* varType_;
+    const Implements_Data_Type_New<T>* varType_;
     T x_;
     bool isComplete_;
   };
@@ -194,7 +202,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class buildByToken<std::vector<T> >
+  class buildByToken_Vector
       :public ABC_BuildByToken
   {
   public:
@@ -261,16 +269,8 @@ namespace Markov_IO_New {
       return true;
     }
 
-    buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Data_Type_New<std::vector<T>>* vecType):
-      ABC_BuildByToken(parent),
-      mystate(S_Init),
-      x_{},
-      valueBuild_(vecType->getElementBuildByToken(parent)),
-      varType_(vecType)
-    {
-
-    }
+    buildByToken_Vector(const Implements_ComplexVar_New* parent,
+                 const Implements_Data_Type_New<std::vector<T>>* vecType);
 
     virtual Implements_Var_New<std::vector<T>>*
     unloadVar_New(const Implements_ComplexVar_New* p,
@@ -291,7 +291,7 @@ namespace Markov_IO_New {
 
 
 
-    ~buildByToken(){
+    ~buildByToken_Vector(){
     }
 
     bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)
@@ -477,8 +477,8 @@ namespace Markov_IO_New {
 
 
   template<typename K, typename T>
-  class buildByToken<std::pair<K,T> >
-      :public ABC_BuildByToken  {
+  class buildByToken_pair
+          :public ABC_BuildByToken  {
   public:
 
     static std::string ClassName()
@@ -563,8 +563,8 @@ namespace Markov_IO_New {
 
     }
 
-    buildByToken(const Implements_ComplexVar_New* parent,
-                 const ABC_Typed_Value<std::pair<K,T>>* typeVar):
+    buildByToken_pair(const Implements_ComplexVar_New* parent,
+                 const Implements_Data_Type_New<std::pair<K,T>>* typeVar):
       ABC_BuildByToken(parent),
       mystate(S_Init),
       x_(),
@@ -576,7 +576,7 @@ namespace Markov_IO_New {
 
 
 
-    ~buildByToken(){
+    ~buildByToken_pair(){
     }
 
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective)override
@@ -715,14 +715,14 @@ namespace Markov_IO_New {
   private:
     DAF mystate;
     std::pair<K,T> x_;
-    buildByToken<K> first_;
-    buildByToken<T> second_;
+    buildByToken<K>* first_;
+    buildByToken<T>* second_;
 
   };
 
 
   template<typename T>
-  class buildByToken<Markov_LA::M_Matrix<T> >
+  class buildByToken_Matrix
       :public ABC_BuildByToken
   {
   public:
@@ -811,8 +811,8 @@ namespace Markov_IO_New {
       return true;
     }
 
-    buildByToken(const Implements_ComplexVar_New* parent,
-                 const ABC_Typed_Value<Markov_LA::M_Matrix<T>>* typeVar):
+    buildByToken_Matrix(const Implements_ComplexVar_New* parent,
+                 const Implements_Data_Type_New<Markov_LA::M_Matrix<T>>* typeVar):
       ABC_BuildByToken(parent),
       mystate(S_Init),
       x_{},
@@ -824,7 +824,7 @@ namespace Markov_IO_New {
 
 
 
-    ~buildByToken(){
+    ~buildByToken_Matrix(){
     }
 
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective)
@@ -1046,7 +1046,7 @@ namespace Markov_IO_New {
     bool getValue(Token_New tok, T& v,std::string* whyNot, const std::string& masterObjective);
     DAF mystate;
     Markov_LA::M_Matrix<T> x_;
-    const ABC_Typed_Value<Markov_LA::M_Matrix<T>>* dataType_;
+    const Implements_Data_Type_New<Markov_LA::M_Matrix<T>>* dataType_;
 
 
     T v_;
@@ -1061,7 +1061,7 @@ namespace Markov_IO_New {
   };
 
   template<>
-  inline bool buildByToken<Markov_LA::M_Matrix<double> >::getValue(
+  inline bool buildByToken_Matrix<double >::getValue(
       Token_New tok, double &v,std::string* whyNot,const std::string& masterObjective)
   {
     if (tok.isReal(whyNot,masterObjective))
@@ -1076,7 +1076,7 @@ namespace Markov_IO_New {
   }
 
   template<>
-  inline  bool buildByToken<Markov_LA::M_Matrix<std::size_t> >::getValue(
+  inline  bool buildByToken_Matrix<std::size_t>::getValue(
       Token_New tok, std::size_t &v,std::string* whyNot,const std::string& masterObjective)
   {
     if (tok.isCount(whyNot,masterObjective))
@@ -1090,7 +1090,7 @@ namespace Markov_IO_New {
       }  }
 
   template<>
-  inline bool buildByToken<Markov_LA::M_Matrix<int> >::getValue(
+  inline bool buildByToken_Matrix<int >::getValue(
       Token_New tok, int &v,std::string* whyNot,const std::string& masterObjective)
   {
     if (tok.isInteger(whyNot,masterObjective))
@@ -1109,7 +1109,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class buildByToken<std::set<T>>
+  class buildByToken_Set
       :public ABC_BuildByToken  {
   public:
 
@@ -1178,7 +1178,7 @@ namespace Markov_IO_New {
         return {};
     }
 
-    buildByToken(const Implements_ComplexVar_New* parent,
+    buildByToken_Set(const Implements_ComplexVar_New* parent,
                  const Implements_Data_Type_New<std::set<T>>* typeVar):
       ABC_BuildByToken(parent),
       mystate(S_Header_Final),
@@ -1188,7 +1188,7 @@ namespace Markov_IO_New {
 
 
 
-    ~buildByToken(){
+    ~buildByToken_Set(){
     }
 
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective)
@@ -1390,7 +1390,7 @@ namespace Markov_IO_New {
 
 
   template<typename K, typename T>
-  class buildByToken<std::map<K,T>>
+  class buildByToken_map
       :public ABC_BuildByToken
 
   {
@@ -1439,7 +1439,7 @@ namespace Markov_IO_New {
     }
 
 
-    bool unPop(std::map<K,T> var)override
+    bool unPop(std::map<K,T> var)
     {
       x_=var;
       mystate=S_Final;
@@ -1447,7 +1447,7 @@ namespace Markov_IO_New {
 
     }
 
-    std::map<K,T> unloadVar() override
+    std::map<K,T> unloadVar()
     {
       if (isFinal())
         {
@@ -1459,8 +1459,8 @@ namespace Markov_IO_New {
     }
 
 
-    buildByToken(const Implements_ComplexVar_New* parent,
-                 const ABC_Typed_Value<std::map<K,T>>* typeVar):
+    buildByToken_map(const Implements_ComplexVar_New* parent,
+                 const Implements_Data_Type_New<std::map<K,T>>* typeVar):
       ABC_BuildByToken(parent),
       mystate(S_Header_Final),
       x_{},
@@ -1469,7 +1469,7 @@ namespace Markov_IO_New {
 
 
 
-    ~buildByToken(){
+    ~buildByToken_map(){
     }
 
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override
@@ -1668,7 +1668,7 @@ namespace Markov_IO_New {
   private:
     DAF mystate;
     std::map<K,T> x_;
-    ABC_Typed_Value<std::map<K,T>>* varType_;
+    Implements_Data_Type_New<std::map<K,T>>* varType_;
     buildByToken<std::pair<K,T>> valueBuild_;
 
   };
@@ -1678,8 +1678,7 @@ namespace Markov_IO_New {
 
 
 
-  template<>
-  class buildByToken<ABC_Var_New*>
+  class buildByToken_ABC_Var_New
       :public ABC_BuildByToken
 
   {
@@ -1719,7 +1718,7 @@ namespace Markov_IO_New {
 
     }
 
-    ~buildByToken(){}
+    ~buildByToken_ABC_Var_New(){}
 
     virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
                                        const std::string& id,
@@ -1747,12 +1746,10 @@ namespace Markov_IO_New {
 
     }
 
-    buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Var_Data_Type* varType);
+    buildByToken_ABC_Var_New(const Implements_ComplexVar_New* parent,
+                 const Implements_Data_Type_New<ABC_Var_New *> *varType);
 
 
-    buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Field_Data_Type* fieldType);
 
 
     void clear()override
@@ -1765,8 +1762,8 @@ namespace Markov_IO_New {
     DFA mystate;
     const Implements_Data_Type_New<ABC_Var_New*> * varType_;
 
-    buildByToken<std::string>* idB_;
-    buildByToken<std::string>* varB_;
+    buildByToken_Regular<std::string>* idB_;
+    buildByToken_Regular<std::string>* varB_;
     std::string id_;
     std::string var_;
     std::string tip_;
@@ -1774,15 +1771,6 @@ namespace Markov_IO_New {
     const ABC_Type_of_Value* valueType_;
     ABC_BuildByToken* valueB_;
     ABC_Var_New* x_;
-    bool pushToken_tip(Token_New t, std::string &errorMessage)
-    {
-
-    }
-
-    bool pushToken_whatthis(Token_New t, std::string &errorMessage)
-    {
-
-    }
 
     std::pair<std::string,std::set<std::string>> alternativesNext_var()const
     {
@@ -1806,122 +1794,173 @@ namespace Markov_IO_New {
 
 
 
+
+//  class buildByToken_map_ABC_Var_New
+//      :public ABC_BuildByToken
+//  {
+//  public:
+//    static std::string ClassName()
+//    {
+//      return "buildByToken_of_map_string_to_ABC_Var_New";
+//    }
+//    std::string myClass()const override
+//    {
+//      return ClassName();
+
+//    }
+
+
+
+
+//    enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
+
+
+
+//    bool isFinal()const
+//    {
+//      return mystate==S_Final;
+//    }
+
+//    bool isInitial()const override
+//    {
+//      return mystate==S_Header_Final;
+//    }
+
+
+//    virtual bool isHollow()const override
+//    {
+//      switch (mystate) {
+//        case S_Init:
+//        case S_Header2:
+//        case S_Header_Final:
+//          return true;
+//          break;
+//        case S_Data_Partial:
+//        case S_Data_Final:
+//        case S_Final:
+//        default:
+//          return false;
+//        }
+//    }
+
+
+//    bool unPop(std::map<std::string,ABC_Var_New*> var)
+//    {
+//      x_=var;
+//      mystate=S_Final;
+//     return true;
+//    }
+
+//    std::map<std::string,ABC_Var_New*> unloadVar()
+//    {
+//      if (isFinal())
+//        {
+//          mystate=S_Header_Final;
+//          auto o=std::move(x_);
+//          x_={};
+//          return std::move(o);
+//        }
+//      else
+//        return {};
+//    }
+
+
+//    buildByToken_map_ABC_Var_New(const Implements_ComplexVar_New* parent,
+//                 const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* typeVar);
+
+
+
+//    ~buildByToken_map_ABC_Var_New(){}
+
+//    bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override;
+
+
+
+//    Token_New popBackToken() override;
+
+//    std::pair<std::string,std::set<std::string>> alternativesNext()const override;
+
+//    void clear()override
+//    {
+//      mystate=S_Init;
+//      x_.clear();
+//      valueBuild_->clear();
+
+//    }
+
+
+//    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+//                                       const std::string& id,
+//                                       const std::string& var,
+//                                       const std::string& tip,
+//                                       const std::string& whatthis);
+
+
+//  private:
+//    DAF mystate;
+//    std::map<std::string,ABC_Var_New*> x_;
+//    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varType_;
+//    buildByToken_ABC_Var_New* valueBuild_;
+
+//  };
+
+
+
+  
+
+  
   template<>
-  class buildByToken<std::map<std::string,ABC_Var_New*>>
-      :public ABC_BuildByToken
-  {
-  public:
-    static std::string ClassName()
-    {
-      return "buildByToken_of_map_string_to_ABC_Var_New";
-    }
-    std::string myClass()const override
-    {
-      return ClassName();
-
-    }
-
-
-
-
-    enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
-
-
-
-    bool isFinal()const
-    {
-      return mystate==S_Final;
-    }
-
-    bool isInitial()const override
-    {
-      return mystate==S_Header_Final;
-    }
-
-
-    virtual bool isHollow()const override
-    {
-      switch (mystate) {
-        case S_Init:
-        case S_Header2:
-        case S_Header_Final:
-          return true;
-          break;
-        case S_Data_Partial:
-        case S_Data_Final:
-        case S_Final:
-        default:
-          return false;
-        }
-    }
-
-
-    bool unPop(std::map<std::string,ABC_Var_New*> var)
-    {
-      x_=var;
-      mystate=S_Final;
-     return true;
-    }
-
-    std::map<std::string,ABC_Var_New*> unloadVar()
-    {
-      if (isFinal())
-        {
-          mystate=S_Header_Final;
-          auto o=std::move(x_);
-          x_={};
-          return std::move(o);
-        }
-      else
-        return {};
-    }
-
-
-    buildByToken(const Implements_ComplexVar_New* parent,
-                 const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* typeVar);
-
-
-
-    ~buildByToken(){}
-
-    bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override;
-
-
-
-    Token_New popBackToken() override;
-
-    std::pair<std::string,std::set<std::string>> alternativesNext()const override;
-
-    void clear()override
-    {
-      mystate=S_Init;
-      x_.clear();
-      valueBuild_->clear();
-
-    }
-
-
-    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
-                                       const std::string& id,
-                                       const std::string& var,
-                                       const std::string& tip,
-                                       const std::string& whatthis);
-
-
-  private:
-    DAF mystate;
-    std::map<std::string,ABC_Var_New*> x_;
-    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varType_;
-    buildByToken<ABC_Var_New*>* valueBuild_;
-
+  struct Helper_build<int>{
+    using t=buildByToken_Regular<int>;
   };
 
+  template<>
+  struct Helper_build<double>{
+    using t=buildByToken_Regular<double>;
+  };
+  template<>
+  struct Helper_build<std::size_t>{
+    using t=buildByToken_Regular<std::size_t>;
+  };
+  template<>
+  struct Helper_build<std::string>{
+    using t=buildByToken_Regular<std::string>;
+  };
 
+  template<typename T>
+  struct Helper_build<std::vector<T>>{
+    using t=buildByToken_Vector<T>;
+  };
 
-  
+  template<typename T>
+  struct Helper_build<std::set<T>>{
+    using t=buildByToken_Set<T>;
+  };
 
-  
+  template<typename T>
+  struct Helper_build<Markov_LA::M_Matrix<T>>{
+    using t=buildByToken_Matrix<T>;
+  };
 
+  template<typename K, typename T>
+  struct Helper_build<std::pair<K,T>>{
+    using t=buildByToken_pair<K,T>;
+  };
+
+  template<typename K, typename T>
+  struct Helper_build<std::map<K,T>>{
+    using t=buildByToken_map<K,T>;
+  };
+
+//  template<>
+//  struct Helper_build<std::map<std::string,ABC_Var_New*>>{
+//    using t=buildByToken_map_ABC_Var_New;
+
+//  };
+  template<>
+  struct Helper_build<ABC_Var_New*>{
+    using t=buildByToken_ABC_Var_New;
+};
 
   class build_Command_Input
       :public ABC_BuildByToken//public buildByToken<Implements_Command_Fields*>
@@ -2071,7 +2110,7 @@ namespace Markov_IO_New {
     build_Statement(Markov_CommandManagerVar *p);
 
     build_Statement(Markov_CommandManagerVar* p,
-                    const Implements_Var_Data_Type *varType);
+                    const Implements_Data_Type_New<ABC_Var_New *> *varType);
 
 
     virtual ~build_Statement(){}

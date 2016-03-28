@@ -97,25 +97,30 @@ namespace Markov_IO_New {
     return o;
   }
 
+
   template<>
+  inline
   int *clone<int>(int const * x)
   {
     return new int(*x);
   }
 
   template<>
+  inline
   double *clone<double>(double const * x)
   {
     return new double(*x);
   }
 
   template<>
+  inline
   std::size_t *clone<std::size_t>(std::size_t const * x)
   {
     return new std::size_t(*x);
   }
 
   template<>
+  inline
   std::string *clone<std::string>(std::string const * x)
   {
     return new std::string(*x);

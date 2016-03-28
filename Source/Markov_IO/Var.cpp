@@ -6,24 +6,24 @@ namespace Markov_IO_New {
 
   template class Implements_Var_New<double>;
 
-  template class Implements_Var_New<std::vector<double>>;
+  template class Implements_Var_New<My_vec<double>>;
 
    template class Implements_Var_New<std::set<double>>;
 
    template class Implements_Var_New<Markov_LA::M_Matrix<double>>;
 
 
-  template class Implements_Data_Type_New<double>;
+  template class Implements_Regular_Data_Type_New<double>;
 
-  template class Implements_Data_Type_New<std::vector<double>> ;
-
-
+  template class Implements_Vector_Type_New<double> ;
 
 
 
-  template class Implements_Data_Type_New<Markov_LA::M_Matrix<double>>;
 
-  template class Implements_Data_Type_New<std::map<std::string,double>> ;
+
+  template class Implements_Matrix_Data_Type_New<double>;
+
+  template class Implements_Map_Data_Type_New<std::string,double> ;
 
 
   bool Implements_ComplexVar_New::hasNameofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
@@ -204,9 +204,9 @@ namespace Markov_IO_New {
         std::set<std::string> s;
         for (const auto &p:*types_)
           {
-            ABC_Type_of_Value* var=p.second;
+            const ABC_Type_of_Value* var=p.second;
             std::string why;
-            if (t->isTypeInDomain(this,var->value(),&why,objective))
+            if (t->isTypeInDomain(this,var,&why,objective))
               s.insert(var->id());
           }
         s.insert(o.begin(),o.end());
@@ -226,74 +226,46 @@ namespace Markov_IO_New {
   {
     self->pushChild(new Implements_Var_New<std::string>(
                       self,F::elementType()
-                      ,T::identifierOfType(),
+                      ,V::identifierOfType(),
                       std::move(typeOfElement),
                       "",""));
 
   }
 
-  void Implements_ComplexVar_New::G::pushFieldName(Implements_ComplexVar_New *self, std::string fdId)
-  {
-     self->pushChild(new Implements_Var_New<std::string>(
-                       self,F::fieldName()
-                       ,T::identifierNew()
-                       ,std::move(fdId)
-                       ,"id of the field of a complex var",
-                       "unique identifier of the field for a given complex var"));
-  }
+
 
   void Implements_ComplexVar_New::G::pushTypeOfKey(Implements_ComplexVar_New *self, std::string typeOfKey)
   {
     self->pushChild(new Implements_Var_New<std::string>(
                       self,F::keyType()
-                      ,T::identifierOfType(),
+                      ,V::identifierOfType(),
                       std::move(typeOfKey),
                       "",""));
 
   }
 
+//  const Implements_Field_Data_Type * Implements_Data_Type_New<Implements_ComplexVar_New *>::nextField(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *> &m)const
+//  {
+//    return (*nextField_)(cm,m,this);
+//  }
 
+//  template<>
+//  buildByToken<ABC_Var_New *> Implements_Data_Type_New<Implements_ComplexVar_New *>::getFieldBuildByToken(const Implements_ComplexVar_New *cm, std::map<std::string, ABC_Var_New *> m) const
+//  {
+//    const Implements_Field_Data_Type* f=nextField(cm,m);
+//    return buildByToken<ABC_Var_New*>(cm,f);
+//  }
 
-
-
-
-
-
-
-  template<typename T, template<typename> class C>
-  Implements_Container_Type_New<T,C>::Implements_Container_Type_New(const Implements_ComplexVar_New *parent, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis, const std::string elementVar, Implements_Container_Type_New<T,C>::typePredicate complyPred, Implements_Container_Type_New<T,C>::typeElementPredicate elemeComply, Implements_Container_Type_New<T,C>::typeValue defaultValue, Implements_Container_Type_New<T,C>::getSet alternN):
-    Implements_Base_Type_New<C<T>>(parent,id,var,tip,whatthis,C<T>(),complyPred,defaultValue,alternN),
-    elemComply_(elemeComply)
-  {
-    Implements_ComplexVar_New::G::pushTypeOfElement(this,elementVar);
-
-  }
-
-
-
-
-
-
-
-
-  const Implements_Field_Data_Type * Implements_Data_Type_New<Implements_ComplexVar_New *>::nextField(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *> &m)const
-  {
-    return (*nextField_)(cm,m,this);
-  }
-
-  buildByToken<ABC_Var_New *> Implements_Data_Type_New<Implements_ComplexVar_New *>::getFieldBuildByToken(const Implements_ComplexVar_New *cm, std::map<std::string, ABC_Var_New *> m) const
-  {
-    const Implements_Field_Data_Type* f=nextField(cm,m);
-    return buildByToken<ABC_Var_New*>(cm,f);
-  }
-
-  bool ABC_Var_New::isOfThisType(const Implements_ComplexVar_New *cm, const std::string generalType, std::string *whyNot, const std::string masterObjective) const
+  bool ABC_Var_New::isOfThisType(const Implements_ComplexVar_New* cm,
+                                 const std::string& generalType,
+                                 std::string* whyNot
+                                 ,const std::string &masterObjective)const
   {
     if (myType()==generalType)
       return true;
     else
       {
-        ABC_Type_of_Value* mytype=cm->idToType(myType(),whyNot,masterObjective);
+        const ABC_Type_of_Value* mytype=cm->idToType(myType(),whyNot,masterObjective);
         if ((mytype==nullptr)||(mytype->myType()==mytype->id()))
           return false;
         else

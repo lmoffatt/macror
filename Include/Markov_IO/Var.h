@@ -11,9 +11,48 @@
 
 #include "Markov_IO/Token_New.h"
 #include "Markov_IO/Cls.h"
-#include "Markov_IO/buildByToken.h"
+//#include "Markov_IO/buildByToken.h"
 
 namespace Markov_IO_New {
+
+
+  template<typename T>
+  struct Helper_Type
+  {
+   // using t=void;
+  };
+
+
+
+  template <class T>
+  using Implements_Data_Type_New=typename Helper_Type<T>::t;
+
+  class Implements_String_Data_Type_New;
+
+
+
+  template<>
+  struct Helper_Type<std::string>{
+    using t=Implements_String_Data_Type_New;
+  };
+
+  class Implements_Data_Type_New_ABC_Var_New;
+
+  class ABC_Var_New;
+
+  template<>
+  struct Helper_Type<ABC_Var_New*>{
+    using t=Implements_Data_Type_New_ABC_Var_New;
+  };
+
+  template<typename T>
+  class Implements_Matrix_Data_Type_New;
+
+  template<typename T>
+  struct Helper_Type<Markov_LA::M_Matrix<T>>{
+    using t=Implements_Matrix_Data_Type_New<T>;
+  };
+
 
 
 
@@ -250,9 +289,9 @@ namespace Markov_IO_New {
     virtual std::string myType()const=0;
 
     bool isOfThisType(const Implements_ComplexVar_New* cm,
-                              const std::string generalType,
+                              const std::string& generalType,
                               std::string* whyNot
-                              ,const std::string masterObjective)const;
+                              ,const std::string &masterObjective)const;
 
 
     virtual ~ABC_Var_New(){}

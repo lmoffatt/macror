@@ -44,7 +44,7 @@ namespace Markov_IO_New
 
     virtual CommandHistory& getH();
 
-    const Implements_Var_Data_Type* getVarType()
+    const Implements_Data_Type_New<ABC_Var_New*>* getVarType()
     {
       return vt_;
     }
@@ -54,7 +54,7 @@ namespace Markov_IO_New
   protected:
     Markov_IO::ABC_IO* io_;
 
-    Implements_Var_Data_Type* vt_;
+    Implements_Data_Type_New<ABC_Var_New*>* vt_;
 
     ExpressionManager* e;
 

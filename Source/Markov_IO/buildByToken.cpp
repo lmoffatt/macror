@@ -2,6 +2,7 @@
 #include "Markov_Console/Markov_CommandManager.h"
 
 #include "Markov_IO/Var.h"
+#include "Markov_IO/Implements_ComplexVar_New.h"
 
 namespace Markov_IO_New {
 
@@ -19,31 +20,29 @@ namespace Markov_IO_New {
 
 
 
-  template class buildByToken<double>;
-  template class buildByToken<std::vector<double>>;
+  template class buildByToken_Regular<double>;
+  template class buildByToken_Vector<double>;
 
 
-  template class buildByToken<int>;
-  template class buildByToken<std::vector<int>>;
+  template class buildByToken_Regular<int>;
+  template class buildByToken_Vector<int>;
 
-  template class buildByToken<std::size_t>;
-  template class buildByToken<std::vector<std::size_t>>;
+  template class buildByToken_Regular<std::size_t>;
+  template class buildByToken_Vector<std::size_t>;
 
-  template class buildByToken<std::string>;
-  template class buildByToken<std::vector<std::string>>;
-
-  template class buildByToken<std::set<double>>;
+  template class buildByToken_Regular<std::string>;
+  template class buildByToken_Vector<std::string>;
 
 
+  template class buildByToken_Set<double>;
 
-  template class buildByToken<Markov_LA::M_Matrix<double>>;
+  template class buildByToken_Matrix<double>;
 
 
 
-  build_Statement::build_Statement(Markov_CommandManagerVar *p):
-    build_Statement(p,p->getVarType()){}
 
-  build_Statement::build_Statement(Markov_CommandManagerVar *p, const Implements_Var_Data_Type *varType):
+  build_Statement::build_Statement(Markov_CommandManagerVar *p
+                                   , const Implements_Data_Type_New<ABC_Var_New*> *varType):
     ABC_BuildByToken(p),
     mystate(S_Init),
     v_({p, varType}),
@@ -54,6 +53,8 @@ namespace Markov_IO_New {
   {}
 
 
+  build_Statement::build_Statement(Markov_CommandManagerVar *p):
+    build_Statement(p,p->getVarType()){}
 
 
   bool build_Command_Input::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
@@ -335,29 +336,19 @@ namespace Markov_IO_New {
   }
 
 
-  buildByToken<ABC_Var_New *>::buildByToken(const Implements_ComplexVar_New *parent, const Implements_Var_Data_Type *varType):
+  buildByToken_ABC_Var_New::buildByToken_ABC_Var_New(const Implements_ComplexVar_New *parent
+                                            , const Implements_Data_Type_New<ABC_Var_New*> *varType):
     ABC_BuildByToken(parent)
   ,mystate(S_Init)
   ,x_{}
   , idB_(varType->getNewIdentifierBuildByToken(parent))
   , varB_(varType->getVarIdentifierBuildByToken(parent))
-  ,valueB_(varType->getValueBuildByToken(parent))
+  ,valueB_(nullptr)
   ,varType_(varType)
   {
 
   }
 
-  buildByToken<ABC_Var_New *>::buildByToken(const Implements_ComplexVar_New *parent, const Implements_Field_Data_Type *fieldType):
-    ABC_BuildByToken(parent)
-  ,mystate(S_Init)
-  ,x_{}
-  , idB_(fieldType->getNewIdentifierBuildByToken(parent))
-  , varB_(fieldType->getVarIdentifierBuildByToken(parent))
-  ,valueB_(fieldType->getValueBuildByToken(parent))
-  ,varType_(fieldType)
-  {
-
-  }
 
 
   ABC_Var_New *buildByToken<ABC_Var_New *>::unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis)
@@ -374,205 +365,205 @@ namespace Markov_IO_New {
 
 
 
-  ABC_Var_New *buildByToken<std::map<std::string, ABC_Var_New *> >::unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis)
-  {
-    if (isFinal())
-      {
-        std::map<std::string,ABC_Var_New*> x=unloadVar();
-        return new Implements_Var_New<std::map<std::string,ABC_Var_New*>>(p,id,var,x,tip,whatthis);
-      }
-    else
-      return nullptr;
-  }
+//  ABC_Var_New *buildByToken<std::map<std::string, ABC_Var_New *> >::unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis)
+//  {
+//    if (isFinal())
+//      {
+//        std::map<std::string,ABC_Var_New*> x=unloadVar();
+//        return new Implements_Var_New<std::map<std::string,ABC_Var_New*>>(p,id,var,x,tip,whatthis);
+//      }
+//    else
+//      return nullptr;
+//  }
 
 
 
 
 
-  buildByToken<std::map<std::string, ABC_Var_New *> >::
-  buildByToken(const Implements_ComplexVar_New *parent
-               ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>> *typeVar):
-     ABC_BuildByToken(parent),
-     mystate(S_Header_Final),
-     x_{},
-     varType_(typeVar)
-   {}
+//  buildByToken<std::map<std::string, ABC_Var_New *> >::
+//  buildByToken(const Implements_ComplexVar_New *parent
+//               ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>> *typeVar):
+//     ABC_BuildByToken(parent),
+//     mystate(S_Header_Final),
+//     x_{},
+//     varType_(typeVar)
+//   {}
 
 
 
-  bool buildByToken<std::map<std::string, ABC_Var_New *>>::
-  pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
-  {
-    const std::string objective=masterObjective+" : "+ClassName()+"::pushToken("+
-        tok.str()+")";
-    switch (mystate)
-      {
-      case S_Init:
-        if (tok.tok()!=Token_New::EOL)
-          {
-            *whyNot=objective+": is not end of line";
-            return false;
-          }
-        else
-          {
-            mystate=S_Header2;
-            return true;
-          }
-        break;
-      case S_Header2:
-        if (tok.tok()!=Token_New::LCB)
-          {
-            *whyNot=objective+": is not { ";
-            return false;
-          }
-        else
-          {
-            mystate=S_Header_Final;
-            return true;
-          }
-        break;
-      case S_Header_Final:
-      case S_Data_Partial:
-        if (!valueBuild_->pushToken(tok, whyNot,objective))
-          {
-            return false;
-          }
-        else
-          {
-            if(valueBuild_->isFinal())
-              {
-                ABC_Var_New* v=valueBuild_->unloadVar();
-                x_.insert({v->id(),v});
-                mystate=S_Data_Final;
-                    return true;
-              }
-            else
-              {
-                mystate=S_Data_Partial;
-                return true;
-              }
-          }
-        break;
-      case S_Data_Final:
-        if (tok.tok()==Token_New::RCB)
-          {
-            mystate=S_Final;
-            return true;
-          }
-        else if (!valueBuild_->pushToken(tok, whyNot,objective))
-          {
-            return false;
-          }
-        else
-          {
-            if(valueBuild_->isFinal())
-              {
-                ABC_Var_New* v=valueBuild_->unloadVar();
-                x_.insert({v->id(),v});
-                mystate=S_Data_Final;
-                return true;
-              }
-            else
-              {
-                mystate=S_Data_Partial;
-                return true;
-              }
-          }
-        break;
-      case S_Final:
-      default:
-        return false;
-        break;
-      }
+//  bool buildByToken<std::map<std::string, ABC_Var_New *>>::
+//  pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
+//  {
+//    const std::string objective=masterObjective+" : "+ClassName()+"::pushToken("+
+//        tok.str()+")";
+//    switch (mystate)
+//      {
+//      case S_Init:
+//        if (tok.tok()!=Token_New::EOL)
+//          {
+//            *whyNot=objective+": is not end of line";
+//            return false;
+//          }
+//        else
+//          {
+//            mystate=S_Header2;
+//            return true;
+//          }
+//        break;
+//      case S_Header2:
+//        if (tok.tok()!=Token_New::LCB)
+//          {
+//            *whyNot=objective+": is not { ";
+//            return false;
+//          }
+//        else
+//          {
+//            mystate=S_Header_Final;
+//            return true;
+//          }
+//        break;
+//      case S_Header_Final:
+//      case S_Data_Partial:
+//        if (!valueBuild_->pushToken(tok, whyNot,objective))
+//          {
+//            return false;
+//          }
+//        else
+//          {
+//            if(valueBuild_->isFinal())
+//              {
+//                ABC_Var_New* v=valueBuild_->unloadVar();
+//                x_.insert({v->id(),v});
+//                mystate=S_Data_Final;
+//                    return true;
+//              }
+//            else
+//              {
+//                mystate=S_Data_Partial;
+//                return true;
+//              }
+//          }
+//        break;
+//      case S_Data_Final:
+//        if (tok.tok()==Token_New::RCB)
+//          {
+//            mystate=S_Final;
+//            return true;
+//          }
+//        else if (!valueBuild_->pushToken(tok, whyNot,objective))
+//          {
+//            return false;
+//          }
+//        else
+//          {
+//            if(valueBuild_->isFinal())
+//              {
+//                ABC_Var_New* v=valueBuild_->unloadVar();
+//                x_.insert({v->id(),v});
+//                mystate=S_Data_Final;
+//                return true;
+//              }
+//            else
+//              {
+//                mystate=S_Data_Partial;
+//                return true;
+//              }
+//          }
+//        break;
+//      case S_Final:
+//      default:
+//        return false;
+//        break;
+//      }
 
-  }
-
-
-
-  Token_New buildByToken<std::map<std::string, ABC_Var_New *> >::popBackToken()
-  {
-    switch (mystate)
-      {
-      case S_Init:
-        return {};
-        break;
-      case S_Header2:
-        mystate=S_Header_Final;
-        return Token_New(Token_New::EOL);
-        break;
-      case S_Header_Final:
-        mystate=S_Header2;
-        return Token_New(Token_New::LCB);
-        break;
-      case S_Data_Partial:
-        {
-          auto out= valueBuild_->popBackToken();
-          if (valueBuild_->isInitial())
-            {
-              if (x_.empty())
-                mystate=S_Header_Final;
-              else
-                mystate=S_Data_Final;
-            }
-          else mystate=S_Data_Partial;
-          return out;
-        }
-        break;
-      case S_Data_Final:
-        {
-          std::pair<std::string,ABC_Var_New*> d=*(--x_.end());
-          x_.erase(--x_.end());
-          valueBuild_->unPop(d.second);
-          auto to=valueBuild_->popBackToken();
-          if (valueBuild_->isInitial())
-            {
-              if (x_.empty())
-                mystate=S_Header_Final;
-              else
-                mystate=S_Data_Final;
-            }
-          else mystate=S_Data_Partial;
-          return to;
-        }
-        break;
-      case S_Final:
-        mystate=S_Data_Final;
-        return Token_New(Token_New::RCB);
-        break;
-      default:
-        return {};
-        break;
-      }
-  }
+//  }
 
 
-  std::pair<std::string, std::set<std::string> > buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
-  {
-    switch (mystate)
-      {
-      case S_Init:
-        return {myClass(),{Token_New::toString(Token_New::EOL)}};
-        break;
-      case S_Header2:
-        return {myClass(),{Token_New::toString(Token_New::LCB)}};
-      case S_Header_Final:
-      case S_Data_Partial:
-        return valueBuild_->alternativesNext();
-        break;
-      case S_Data_Final:
-        {
-          auto out=valueBuild_->alternativesNext();
-          out.second.insert(Token_New::toString(Token_New::RCB));
-          return out;
-        }
-        break;
-      case S_Final:
-      default:
-        return {};
-        break;
-      }
 
-  }
+//  Token_New buildByToken<std::map<std::string, ABC_Var_New *> >::popBackToken()
+//  {
+//    switch (mystate)
+//      {
+//      case S_Init:
+//        return {};
+//        break;
+//      case S_Header2:
+//        mystate=S_Header_Final;
+//        return Token_New(Token_New::EOL);
+//        break;
+//      case S_Header_Final:
+//        mystate=S_Header2;
+//        return Token_New(Token_New::LCB);
+//        break;
+//      case S_Data_Partial:
+//        {
+//          auto out= valueBuild_->popBackToken();
+//          if (valueBuild_->isInitial())
+//            {
+//              if (x_.empty())
+//                mystate=S_Header_Final;
+//              else
+//                mystate=S_Data_Final;
+//            }
+//          else mystate=S_Data_Partial;
+//          return out;
+//        }
+//        break;
+//      case S_Data_Final:
+//        {
+//          std::pair<std::string,ABC_Var_New*> d=*(--x_.end());
+//          x_.erase(--x_.end());
+//          valueBuild_->unPop(d.second);
+//          auto to=valueBuild_->popBackToken();
+//          if (valueBuild_->isInitial())
+//            {
+//              if (x_.empty())
+//                mystate=S_Header_Final;
+//              else
+//                mystate=S_Data_Final;
+//            }
+//          else mystate=S_Data_Partial;
+//          return to;
+//        }
+//        break;
+//      case S_Final:
+//        mystate=S_Data_Final;
+//        return Token_New(Token_New::RCB);
+//        break;
+//      default:
+//        return {};
+//        break;
+//      }
+//  }
+
+
+//  std::pair<std::string, std::set<std::string> > buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
+//  {
+//    switch (mystate)
+//      {
+//      case S_Init:
+//        return {myClass(),{Token_New::toString(Token_New::EOL)}};
+//        break;
+//      case S_Header2:
+//        return {myClass(),{Token_New::toString(Token_New::LCB)}};
+//      case S_Header_Final:
+//      case S_Data_Partial:
+//        return valueBuild_->alternativesNext();
+//        break;
+//      case S_Data_Final:
+//        {
+//          auto out=valueBuild_->alternativesNext();
+//          out.second.insert(Token_New::toString(Token_New::RCB));
+//          return out;
+//        }
+//        break;
+//      case S_Final:
+//      default:
+//        return {};
+//        break;
+//      }
+
+//  }
 
 
 
@@ -585,6 +576,17 @@ namespace Markov_IO_New {
   ,mystate(S_Init)
   ,idCommandB_(Implements_Command_Type_New::getBuildIdCommand()),
     cmdty_(nullptr),cmd_(nullptr){}
+
+  template<typename T>
+  buildByToken_Vector<T >::buildByToken_Vector(const Implements_ComplexVar_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType):
+    ABC_BuildByToken(parent),
+    mystate(S_Init),
+    x_{},
+    valueBuild_(vecType->getElementBuildByToken(parent)),
+    varType_(vecType)
+  {
+
+  }
 
 
 
