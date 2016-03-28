@@ -34,7 +34,7 @@ namespace Markov_IO_New {
 
 //  }
 
-  buildByToken<std::__cxx11::string> *Implements_String_Data_Type_New::getBuildByToken(const Implements_ComplexVar_New *cm) const
+  buildByToken<std::__cxx11::string> *Implements_Data_Type_New<std::string>::getBuildByToken(const Implements_ComplexVar_New *cm) const
   {
     return new buildByToken<std::string>(cm,this);
   }

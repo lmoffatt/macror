@@ -1399,7 +1399,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class Implements_Vector_Type_New:public Implements_Container_Type_New<T,My_vec>
+  class Implements_Data_Type_New<std::vector<T>>:public Implements_Container_Type_New<T,My_vec>
   {
   public:
     using typePredicate=typename Implements_Base_Type_New<std::vector<T>>::typePredicate;
@@ -1512,12 +1512,12 @@ namespace Markov_IO_New {
 
 
 
-    virtual ~Implements_Vector_Type_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
 
 
 
-    Implements_Vector_Type_New(const Implements_ComplexVar_New* parent,
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
                              ,const std::string& var
                              ,const std::string& tip
@@ -1535,7 +1535,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class Implements_Regular_Data_Type_New:public Implements_Base_Type_New<T>
+  class Implements_Data_Type_New:public Implements_Base_Type_New<T>
   {
   public:
     using typePredicate=typename Implements_Base_Type_New<T>::typePredicate;
@@ -1588,11 +1588,11 @@ namespace Markov_IO_New {
 
 
 
-    virtual ~Implements_Regular_Data_Type_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
 
 
-    Implements_Regular_Data_Type_New(const Implements_ComplexVar_New* parent,
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
                              ,const std::string& var
                              ,const std::string& tip
@@ -1606,7 +1606,7 @@ namespace Markov_IO_New {
                                   ,complyPred,typeComply,defaultValue,alterNext){}
 
 
-    Implements_Regular_Data_Type_New(const Implements_ComplexVar_New *parent):
+    Implements_Data_Type_New(const Implements_ComplexVar_New *parent):
       Implements_Base_Type_New<T>(parent){}
 
   };
@@ -1621,7 +1621,7 @@ namespace Markov_IO_New {
   using My_set = std::set<T>;  // to fake that set takes only one template argument
 
   template<typename T>
-  class Implements_Set_Data_Type_New:public Implements_Container_Type_New<T,My_set>
+  class Implements_Data_Type_New<std::set<T>>:public Implements_Container_Type_New<T,My_set>
   {
   public:
     using typePredicate=typename Implements_Base_Type_New<std::set<T>>::typePredicate;
@@ -1644,7 +1644,7 @@ namespace Markov_IO_New {
 
 
 
-    virtual ~Implements_Set_Data_Type_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
 
 
@@ -1719,7 +1719,7 @@ namespace Markov_IO_New {
 
 
 
-    Implements_Set_Data_Type_New(const Implements_ComplexVar_New* parent,
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
                              ,const std::string& var
                              ,const std::string& tip
@@ -1737,7 +1737,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  class Implements_Matrix_Data_Type_New:public Implements_Container_Type_New<T,Markov_LA::M_Matrix>
+  class Implements_Data_Type_New<Markov_LA::M_Matrix<T>>:public Implements_Container_Type_New<T,Markov_LA::M_Matrix>
   {
   public:
     using typePredicate=typename Implements_Base_Type_New<Markov_LA::M_Matrix<T>>::typePredicate;
@@ -1761,7 +1761,7 @@ namespace Markov_IO_New {
 
 
 
-    virtual ~Implements_Matrix_Data_Type_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
 
     virtual buildByToken<Markov_LA::M_Matrix<T>>* getBuildByToken(
@@ -1772,7 +1772,7 @@ namespace Markov_IO_New {
 
 
 
-    Implements_Matrix_Data_Type_New(const Implements_ComplexVar_New* parent,
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
                              ,const std::string& var
                              ,const std::string& tip
@@ -1906,7 +1906,7 @@ namespace Markov_IO_New {
 
 
   template<typename K, typename T>
-  class Implements_Pair_Data_Type_New
+  class Implements_Data_Type_New<std::pair<K,T>>
       :public Implements_Dictionary_Type_New<K,T,std::pair>
   {
   public:
@@ -1931,10 +1931,10 @@ namespace Markov_IO_New {
     }
 
 
-    virtual ~Implements_Pair_Data_Type_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
 
-    Implements_Pair_Data_Type_New(const Implements_ComplexVar_New* parent,
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
                              ,const std::string& var
                              ,const std::string& tip
@@ -1960,7 +1960,7 @@ namespace Markov_IO_New {
 
 
   template<typename K, typename T>
-  class Implements_Map_Data_Type_New
+  class Implements_Data_Type_New<std::map<K,T>>
       :public Implements_Dictionary_Type_New<K,T,My_map>
   {
   public:
@@ -2058,10 +2058,10 @@ namespace Markov_IO_New {
     }
 
 
-    virtual ~Implements_Map_Data_Type_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
 
-    Implements_Map_Data_Type_New(const Implements_ComplexVar_New* parent,
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
                              ,const std::string& var
                              ,const std::string& tip
@@ -2205,8 +2205,8 @@ namespace Markov_IO_New {
 
 
 
-
-  class Implements_String_Data_Type_New
+  template<>
+  class Implements_Data_Type_New<std::string>
       : public Implements_Base_Type_New<std::string>
   {
   public:
@@ -2214,7 +2214,7 @@ namespace Markov_IO_New {
 
     static void push_VarTypes(Implements_ComplexVar_New* cm)
     {
-      cm->pushType(new Implements_String_Data_Type_New(cm));
+      cm->pushType(new Implements_Data_Type_New<std::string>(cm));
 
     }
 
@@ -2241,7 +2241,7 @@ namespace Markov_IO_New {
         const Implements_ComplexVar_New* cm)const;
 
 
-    virtual ~Implements_String_Data_Type_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
     virtual bool put(const Implements_ComplexVar_New* cm,
                      const std::string& v,ABC_Output* ostream,std::string* whyNot
@@ -2266,7 +2266,7 @@ namespace Markov_IO_New {
     }
 
 
-    Implements_String_Data_Type_New(const Implements_ComplexVar_New* parent,
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
                              ,const std::string& var
                              ,const std::string& tip
@@ -2280,7 +2280,7 @@ namespace Markov_IO_New {
                                             ,complyPred,typeComply,defaultValue,alterNext){}
 
 
-    Implements_String_Data_Type_New(const Implements_ComplexVar_New *parent):
+    Implements_Data_Type_New(const Implements_ComplexVar_New *parent):
       Implements_Base_Type_New<std::string>(parent){}
 
 
@@ -2293,11 +2293,10 @@ namespace Markov_IO_New {
 
 
 
-  template struct Helper_Type<std::string>;
 
 
-
-  class Implements_Data_Type_New_ABC_Var_New:
+ template<>
+  class Implements_Data_Type_New<ABC_Var_New*>:
       public Implements_Base_Type_New<ABC_Var_New*>
 
   {
@@ -2410,10 +2409,10 @@ namespace Markov_IO_New {
     }
 
 
-    virtual ~Implements_Data_Type_New_ABC_Var_New(){}
+    virtual ~Implements_Data_Type_New(){}
 
 
-    Implements_Data_Type_New_ABC_Var_New(const Implements_ComplexVar_New* parent,
+    Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
                              ,const std::string& var
                              ,const std::string& tip
@@ -2452,45 +2451,6 @@ namespace Markov_IO_New {
   };
 
 
-
-
-  template<>
-  struct Helper_Type<int>{
-    using t=Implements_Regular_Data_Type_New<int>;
-  };
-
-  template<>
-  struct Helper_Type<double>{
-    using t=Implements_Regular_Data_Type_New<double>;
-  };
-  template<>
-  struct Helper_Type<std::size_t>{
-    using t=Implements_Regular_Data_Type_New<std::size_t>;
-  };
-
-
-
-  template<typename T>
-  struct Helper_Type<std::vector<T>>{
-    using t=Implements_Vector_Type_New<T>;
-  };
-
-
-
-  template<typename T>
-  struct Helper_Type<std::set<T>>{
-    using t=Implements_Set_Data_Type_New<T>;
-  };
-
-  template<typename K, typename T>
-  struct Helper_Type<std::pair<K,T>>{
-    using t=Implements_Pair_Data_Type_New<K,T>;
-  };
-
-  template<typename K, typename T>
-  struct Helper_Type<std::map<K,T>>{
-    using t=Implements_Map_Data_Type_New<K,T>;
-  };
 
 
 
