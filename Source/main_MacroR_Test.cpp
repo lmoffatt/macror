@@ -14,11 +14,8 @@
 
 int main(int argc, char **argv)
 {
-  int i=9;
-  void* p=&i;
-  int * j=static_cast<int*>(p);
-  unsigned * d=static_cast<unsigned*>(p);
-  std::cout<<*j;
+  Markov_IO_New_Test::test();
+
 
  QApplication app(argc, argv);
    Markov_Console::Markov_CommandManagerVar* cm=new Markov_Console::Markov_CommandManagerVar();

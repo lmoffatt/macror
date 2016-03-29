@@ -34,6 +34,7 @@ namespace Markov_IO_New {
   template class buildByToken<std::map<std::size_t,double>>;
 
 
+
   template class buildByToken<Markov_LA::M_Matrix<double>>;
 
 
@@ -161,7 +162,6 @@ namespace Markov_IO_New {
             *whyNot=objective+": is not a \"#\" nor an identifier";
             return false;
           }
-        break;
       case TIP1:
         if (tok.tok()==Token_New::STRING)
           {
@@ -174,7 +174,6 @@ namespace Markov_IO_New {
             *whyNot=objective+": is not a string";
             return false;
           }
-        break;
       case TIP2:
         if (tok.tok()==Token_New::EOL)
           {
@@ -186,7 +185,6 @@ namespace Markov_IO_New {
             *whyNot=objective+": is not an end of line";
             return false;
           }
-        break;
       case WT0_ID0:
         if (tok.tok()==Token_New::HASH)
           {
@@ -210,7 +208,6 @@ namespace Markov_IO_New {
 
             return false;
           }
-        break;
       case WT1:
         if (tok.tok()==Token_New::HASH)
           {
@@ -222,7 +219,6 @@ namespace Markov_IO_New {
 
             return false;
           }
-        break;
       case WT2:
         if(tok.tok()==Token_New::STRING)
           {
@@ -234,7 +230,7 @@ namespace Markov_IO_New {
           {
             *whyNot=objective+": is not a string";
             return false;
-          }       break;
+          }
       case WT3:
         if (tok.tok()==Token_New::EOL)
           {
@@ -245,8 +241,7 @@ namespace Markov_IO_New {
           {
             *whyNot=objective+": is not a string";
             return false;
-          }   break;
-
+          }
       case ID0:
         if (tok.tok()==Token_New::IDENTIFIER)
           {
@@ -262,7 +257,7 @@ namespace Markov_IO_New {
           {
             *whyNot=objective+": is not an identifier";
             return false;
-          }        break;
+          }
       case ID1:
         if (tok.tok()==Token_New::COLON)
           {
@@ -274,7 +269,6 @@ namespace Markov_IO_New {
             *whyNot=objective+": is not a \":\"";
             return false;
           }
-        break;
       case ID2:
         if (tok.tok()==Token_New::IDENTIFIER)
           {
@@ -304,7 +298,6 @@ namespace Markov_IO_New {
             *whyNot=objective+": is not an identifier";
             return false;
           }
-        break;
       case S_HEADER_Final:
       case S_DATA_PARTIAL:
         if (!valueB_->pushToken(tok, whyNot,objective))
@@ -323,11 +316,9 @@ namespace Markov_IO_New {
                 return true;
               }
           }
-        break;
       case S_Final:
       default:
         return false;
-        break;
       }
   }
 
@@ -336,11 +327,11 @@ namespace Markov_IO_New {
                                             , const Implements_Data_Type_New<ABC_Var_New*> *varType):
     ABC_BuildByToken(parent)
   ,mystate(S_Init)
-  ,x_{}
+  ,varType_(varType)
   , idB_(varType->getNewIdentifierBuildByToken(parent))
   , varB_(varType->getVarIdentifierBuildByToken(parent))
   ,valueB_(nullptr)
-  ,varType_(varType)
+  ,x_{}
   {
 
   }
@@ -361,208 +352,6 @@ namespace Markov_IO_New {
 
 
 
-  ABC_Var_New *buildByToken<std::map<std::string, ABC_Var_New *> >::unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis)
-  {
-    if (isFinal())
-      {
-        std::map<std::string,ABC_Var_New*> x=unloadVar();
-        return new Implements_Var_New<std::map<std::string,ABC_Var_New*>>(p,id,var,x,tip,whatthis);
-      }
-    else
-      return nullptr;
-  }
-
-
-
-
-
-  buildByToken<std::map<std::string, ABC_Var_New *> >::
-  buildByToken(const Implements_ComplexVar_New *parent
-               ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>> *typeVar):
-     ABC_BuildByToken(parent),
-     mystate(S_Header_Final),
-     x_{},
-     varType_(typeVar)
-   {}
-
-
-
-  bool buildByToken<std::map<std::string, ABC_Var_New *>>::
-  pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
-  {
-    const std::string objective=masterObjective+" : "+ClassName()+"::pushToken("+
-        tok.str()+")";
-    switch (mystate)
-      {
-      case S_Init:
-        if (tok.tok()!=Token_New::EOL)
-          {
-            *whyNot=objective+": is not end of line";
-            return false;
-          }
-        else
-          {
-            mystate=S_Header2;
-            return true;
-          }
-        break;
-      case S_Header2:
-        if (tok.tok()!=Token_New::LCB)
-          {
-            *whyNot=objective+": is not { ";
-            return false;
-          }
-        else
-          {
-            mystate=S_Header_Final;
-            return true;
-          }
-        break;
-      case S_Header_Final:
-      case S_Data_Partial:
-        if (!valueBuild_->pushToken(tok, whyNot,objective))
-          {
-            return false;
-          }
-        else
-          {
-            if(valueBuild_->isFinal())
-              {
-                ABC_Var_New* v=valueBuild_->unloadVar();
-                x_.insert({v->id(),v});
-                mystate=S_Data_Final;
-                    return true;
-              }
-            else
-              {
-                mystate=S_Data_Partial;
-                return true;
-              }
-          }
-        break;
-      case S_Data_Final:
-        if (tok.tok()==Token_New::RCB)
-          {
-            mystate=S_Final;
-            return true;
-          }
-        else if (!valueBuild_->pushToken(tok, whyNot,objective))
-          {
-            return false;
-          }
-        else
-          {
-            if(valueBuild_->isFinal())
-              {
-                ABC_Var_New* v=valueBuild_->unloadVar();
-                x_.insert({v->id(),v});
-                mystate=S_Data_Final;
-                return true;
-              }
-            else
-              {
-                mystate=S_Data_Partial;
-                return true;
-              }
-          }
-        break;
-      case S_Final:
-      default:
-        return false;
-        break;
-      }
-
-  }
-
-
-
-  Token_New buildByToken<std::map<std::string, ABC_Var_New *> >::popBackToken()
-  {
-    switch (mystate)
-      {
-      case S_Init:
-        return {};
-        break;
-      case S_Header2:
-        mystate=S_Header_Final;
-        return Token_New(Token_New::EOL);
-        break;
-      case S_Header_Final:
-        mystate=S_Header2;
-        return Token_New(Token_New::LCB);
-        break;
-      case S_Data_Partial:
-        {
-          auto out= valueBuild_->popBackToken();
-          if (valueBuild_->isInitial())
-            {
-              if (x_.empty())
-                mystate=S_Header_Final;
-              else
-                mystate=S_Data_Final;
-            }
-          else mystate=S_Data_Partial;
-          return out;
-        }
-        break;
-      case S_Data_Final:
-        {
-          std::pair<std::string,ABC_Var_New*> d=*(--x_.end());
-          x_.erase(--x_.end());
-          valueBuild_->unPop(d.second);
-          auto to=valueBuild_->popBackToken();
-          if (valueBuild_->isInitial())
-            {
-              if (x_.empty())
-                mystate=S_Header_Final;
-              else
-                mystate=S_Data_Final;
-            }
-          else mystate=S_Data_Partial;
-          return to;
-        }
-        break;
-      case S_Final:
-        mystate=S_Data_Final;
-        return Token_New(Token_New::RCB);
-        break;
-      default:
-        return {};
-        break;
-      }
-  }
-
-
-  std::pair<std::string, std::set<std::string> > buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
-  {
-    switch (mystate)
-      {
-      case S_Init:
-        return {myClass(),{Token_New::toString(Token_New::EOL)}};
-        break;
-      case S_Header2:
-        return {myClass(),{Token_New::toString(Token_New::LCB)}};
-      case S_Header_Final:
-      case S_Data_Partial:
-        return valueBuild_->alternativesNext();
-        break;
-      case S_Data_Final:
-        {
-          auto out=valueBuild_->alternativesNext();
-          out.second.insert(Token_New::toString(Token_New::RCB));
-          return out;
-        }
-        break;
-      case S_Final:
-      default:
-        return {};
-        break;
-      }
-
-  }
-
-
-
 
 
 
@@ -574,15 +363,14 @@ namespace Markov_IO_New {
     cmdty_(nullptr),cmd_(nullptr){}
 
   template<typename T>
-  buildByToken<std::vector<T >>::buildByToken(const Implements_ComplexVar_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType):
-    ABC_BuildByToken(parent),
-    mystate(S_Init),
-    x_{},
+  buildByToken<std::vector<T> >::buildByToken(const Implements_ComplexVar_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType)
+    :
+      ABC_BuildByToken(parent),
+      mystate(S_Init),
+      x_(),
     valueBuild_(vecType->getElementBuildByToken(parent)),
-    varType_(vecType)
-  {
+    varType_(vecType){}
 
-  }
 
 
 
@@ -595,6 +383,39 @@ namespace Markov_IO_New {
 
 
 
+
+namespace Markov_IO_New_Test{
+
+  void test()
+  {
+    Implements_ComplexVar_New cm(nullptr,"cm","cm","","");
+    Implements_Data_Type_New<std::set<double>> dset(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr);
+
+    Implements_Data_Type_New<std::vector<double>> dv(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr);
+
+    Implements_Data_Type_New<Markov_LA::M_Matrix<double>> dmt(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr);
+
+
+    Implements_Data_Type_New<std::pair<std::string,double>> dp(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","","",nullptr,nullptr,nullptr,nullptr,{},nullptr);
+
+    Implements_Data_Type_New<std::map<std::string,double>> dm(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","","",nullptr,nullptr,nullptr,nullptr,{},nullptr);
+
+
+
+    buildByToken<std::set<double>> b(&cm,&dset);
+    std::string whynot;
+    b.pushToken(Token_New('{'), &whynot," const std::string& masterObjective");
+    buildByToken<std::pair<std::string,double>> pp(&cm,&dp);
+    buildByToken<std::map<std::string,double>> pm(&cm,&dm);
+
+    buildByToken<std::vector<double>> v(&cm,&dv);
+
+    buildByToken<Markov_LA::M_Matrix<double>> mat(&cm,&dmt);
+
+  }
+
+
+}
 
 
 
@@ -2580,4 +2401,5 @@ namespace Markov_IO {
 
 
 }
+
 

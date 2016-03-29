@@ -103,197 +103,6 @@ namespace Markov_IO_New {
   class Implements_ComplexVar_New: public Implements_Var_New<std::map<std::string,ABC_Var_New*>>
   {
   public:
-    class F
-    {
-    public:
-
-      static std::string varType() { return "varType";}
-
-      static std::string idProposed(){return "idProposed";}
-
-      static std::string elementType(){return "elementType";}
-
-      static std::string keyType(){return "keyType";}
-
-
-      static std::string idOfComplexVar(){return "idOfComplexVar";}
-    };
-
-    class V
-    {
-    public:
-      static std::string identifier(){return "identifier";}
-
-      static std::string identifierNewVar(){return "identifierNewVar";}
-
-      static std::string identifierNewType(){return "identifierNewType";}
-
-      static std::string identifierOfVar(){return "identifierOfVar";}
-
-      static std::string identifierField(){return "identifierField";}
-
-      static std::string identifierOfType(){return "identifierOfType";}
-    };
-
-
-
-    class G
-    {
-    public:
-      static std::string gettypeOfId(const Implements_ComplexVar_New* self)
-      {
-        std::string belongType;
-        std::string whyNot;
-        if (self->getValueFromId(F::varType(),belongType,&whyNot,""))
-          return belongType;
-        else
-          {
-            return "";
-          }
-
-      }
-      static void pushTypeOfId(Implements_ComplexVar_New* self,
-                               std::string belongType)
-      {
-        self->pushChild(new Implements_Var_New<std::string>(
-                          self,F::varType()
-                          ,V::identifierOfType(),
-                          std::move(belongType),
-                          "",""));
-
-      }
-
-
-
-
-
-
-      static std::string getComplexVarId(const Implements_ComplexVar_New* self)
-      {
-        std::string idCV;
-        std::string whyNot;
-        if (self->getValueFromId(F::idOfComplexVar(),idCV,&whyNot,""))
-          return idCV;
-        else
-          {
-            return "";
-          }
-
-      }
-
-
-      static void pushComplexVarId(Implements_ComplexVar_New* self,
-                                   std::string fieldId)
-      {
-        self->pushChild(new Implements_Var_New<std::string>(
-                          self,F::idOfComplexVar()
-                          ,V::identifierOfVar(),
-                          fieldId,
-                          "",""));
-
-      }
-
-
-      static std::string getProposedId(const Implements_ComplexVar_New* self)
-      {
-        std::string proposedId;
-        std::string whyNot;
-        if (self->getValueFromId(F::idProposed(),proposedId,&whyNot,""))
-          return proposedId;
-        else
-          {
-            return "";
-          }
-
-      }
-
-
-      static void pushProposedId(Implements_ComplexVar_New* self,
-                                 std::string propId)
-      {
-        self->pushChild(new Implements_Var_New<std::string>(self,F::idProposed(),V::identifierNewVar(),propId,"tip","whatthis"));
-      }
-
-
-
-      static std::string getIdTypeOfElement(const Implements_ComplexVar_New* self)
-      {
-        std::string elementType;
-        std::string whyNot;
-        if (self->getValueFromId(F::elementType(),elementType,&whyNot,""))
-          return elementType;
-        else
-          {
-            return "";
-          }
-
-      }
-
-      static void pushTypeOfElement(Implements_ComplexVar_New* self,
-                                    std::string typeOfElement);
-
-
-
-
-
-      template<typename T>
-      static const Implements_Data_Type_New<T>* getElementType(const Implements_ComplexVar_New* cm, const Implements_ComplexVar_New* self)
-      {
-        std::string eletype=getIdTypeOfElement(self);
-        if (!eletype.empty())
-          {
-            std::string whynot;
-            return cm->idToTyped<T>(eletype,&whynot,"");
-          }
-        else return nullptr;
-
-      }
-
-      template<typename T>
-      static buildByToken<T> *getElementBuildByToken(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self);
-
-
-      static std::string getIdTypeOfKey(const Implements_ComplexVar_New* self)
-      {
-        std::string keyType;
-        std::string whyNot;
-        if (self->getValueFromId(F::keyType(),keyType,&whyNot,""))
-          return keyType;
-        else
-          {
-            return "";
-          }
-
-      }
-
-      static void pushTypeOfKey(Implements_ComplexVar_New* self,
-                                std::string typeOfKey);
-
-
-      template<typename T>
-      static const Implements_Data_Type_New<T>* getKeyType(const Implements_ComplexVar_New* cm, const Implements_ComplexVar_New* self)
-      {
-        std::string keytype=getIdTypeOfKey(self);
-        if (!keytype.empty())
-          {
-            std::string whynot;
-            return cm->idToTyped<T>(keytype,&whynot,"");
-          }
-        else return nullptr;
-
-      }
-
-
-
-
-
-      template<typename T>
-      static buildByToken<T> *getKeyBuildByToken(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self);
-
-
-
-
-    };
 
     static std::string ClassName()
     {
@@ -601,6 +410,18 @@ namespace Markov_IO_New {
       vars_=&(this->value()->getValued());
     }
 
+    Implements_ComplexVar_New(const Implements_ComplexVar_New* parent,
+                              const std::string& id
+                              ,const std::string& var
+                              ,std::map<std::string,ABC_Var_New*> m
+                              ,const std::string& tip
+                              ,const std::string& whatthis):
+      Implements_Var_New(parent,
+                         id,var,m,tip,whatthis)
+    {
+
+      vars_=&(this->value()->getValued());
+    }
 
     bool pushChilds(const std::vector<Var_id>& ids, std::string *whyNot, const std::string& masterObjective)
     {
@@ -647,6 +468,198 @@ namespace Markov_IO_New {
   class ABC_Type_of_Value:public Implements_ComplexVar_New
   {
   public:
+    class F
+    {
+    public:
+
+      static std::string varType() { return "varType";}
+
+      static std::string idProposed(){return "idProposed";}
+
+      static std::string elementType(){return "elementType";}
+
+      static std::string keyType(){return "keyType";}
+
+
+      static std::string idOfComplexVar(){return "idOfComplexVar";}
+    };
+
+    class V
+    {
+    public:
+      static std::string identifier(){return "identifier";}
+
+      static std::string identifierNewVar(){return "identifierNewVar";}
+
+      static std::string identifierNewType(){return "identifierNewType";}
+
+      static std::string identifierOfVar(){return "identifierOfVar";}
+
+      static std::string identifierField(){return "identifierField";}
+
+      static std::string identifierOfType(){return "identifierOfType";}
+    };
+
+
+
+    class G
+    {
+    public:
+      static std::string gettypeOfId(const Implements_ComplexVar_New* self)
+      {
+        std::string belongType;
+        std::string whyNot;
+        if (self->getValueFromId(F::varType(),belongType,&whyNot,""))
+          return belongType;
+        else
+          {
+            return "";
+          }
+
+      }
+      static void pushTypeOfId(Implements_ComplexVar_New* self,
+                               std::string belongType)
+      {
+        self->pushChild(new Implements_Var_New<std::string>(
+                          self,F::varType()
+                          ,V::identifierOfType(),
+                          std::move(belongType),
+                          "",""));
+
+      }
+
+
+
+
+
+
+      static std::string getComplexVarId(const Implements_ComplexVar_New* self)
+      {
+        std::string idCV;
+        std::string whyNot;
+        if (self->getValueFromId(F::idOfComplexVar(),idCV,&whyNot,""))
+          return idCV;
+        else
+          {
+            return "";
+          }
+
+      }
+
+
+      static void pushComplexVarId(Implements_ComplexVar_New* self,
+                                   std::string fieldId)
+      {
+        self->pushChild(new Implements_Var_New<std::string>(
+                          self,F::idOfComplexVar()
+                          ,V::identifierOfVar(),
+                          fieldId,
+                          "",""));
+
+      }
+
+
+      static std::string getProposedId(const Implements_ComplexVar_New* self)
+      {
+        std::string proposedId;
+        std::string whyNot;
+        if (self->getValueFromId(F::idProposed(),proposedId,&whyNot,""))
+          return proposedId;
+        else
+          {
+            return "";
+          }
+
+      }
+
+
+      static void pushProposedId(Implements_ComplexVar_New* self,
+                                 std::string propId)
+      {
+        self->pushChild(new Implements_Var_New<std::string>(self,F::idProposed(),V::identifierNewVar(),propId,"tip","whatthis"));
+      }
+
+
+
+      static std::string getIdTypeOfElement(const Implements_ComplexVar_New* self)
+      {
+        std::string elementType;
+        std::string whyNot;
+        if (self->getValueFromId(F::elementType(),elementType,&whyNot,""))
+          return elementType;
+        else
+          {
+            return "";
+          }
+
+      }
+
+      static void pushTypeOfElement(Implements_ComplexVar_New* self,
+                                    std::string typeOfElement);
+
+
+
+
+
+      template<typename T>
+      static const Implements_Data_Type_New<T>* getElementType(const Implements_ComplexVar_New* cm, const Implements_ComplexVar_New* self)
+      {
+        std::string eletype=getIdTypeOfElement(self);
+        if (!eletype.empty())
+          {
+            std::string whynot;
+            return cm->idToTyped<T>(eletype,&whynot,"");
+          }
+        else return nullptr;
+
+      }
+
+      template<typename T>
+      static buildByToken<T> *getElementBuildByToken(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self);
+
+
+      static std::string getIdTypeOfKey(const Implements_ComplexVar_New* self)
+      {
+        std::string keyType;
+        std::string whyNot;
+        if (self->getValueFromId(F::keyType(),keyType,&whyNot,""))
+          return keyType;
+        else
+          {
+            return "";
+          }
+
+      }
+
+      static void pushTypeOfKey(Implements_ComplexVar_New* self,
+                                std::string typeOfKey);
+
+
+      template<typename T>
+      static const Implements_Data_Type_New<T>* getKeyType(const Implements_ComplexVar_New* cm, const Implements_ComplexVar_New* self)
+      {
+        std::string keytype=getIdTypeOfKey(self);
+        if (!keytype.empty())
+          {
+            std::string whynot;
+            return cm->idToTyped<T>(keytype,&whynot,"");
+          }
+        else return nullptr;
+
+      }
+
+
+
+
+
+      template<typename T>
+      static buildByToken<T> *getKeyBuildByToken(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self);
+
+
+
+
+    };
+
     static std::string ClassName()
     {
       return "ABC_Type_of_Value";
@@ -671,6 +684,9 @@ namespace Markov_IO_New {
 
     virtual ABC_BuildByToken* getBuildByToken(
         const Implements_ComplexVar_New* cm)const=0;
+
+
+
 
     virtual ABC_Value_New* empty_Value()const=0;
 
@@ -779,6 +795,8 @@ namespace Markov_IO_New {
       else
         return isTypeInDomain(cm,x,whyNot,objective);
     }
+
+
 
 
 
@@ -1357,7 +1375,7 @@ namespace Markov_IO_New {
 
     virtual buildByToken<T>* getElementBuildByToken(const Implements_ComplexVar_New* cm)const
     {
-      return Implements_ComplexVar_New::G::getElementBuildByToken<T>(cm,this);
+      return ABC_Type_of_Value::G::getElementBuildByToken<T>(cm,this);
     }
 
     virtual const Implements_Data_Type_New<T>* getElementDataType(const Implements_ComplexVar_New* cm)const;
@@ -1382,7 +1400,7 @@ namespace Markov_IO_New {
                                      ,complyPred,typeComply,defaultValue,alternN),
       elemComply_(elemeComply)
     {
-      Implements_ComplexVar_New::G::pushTypeOfElement(this,elementVar);
+      ABC_Type_of_Value::G::pushTypeOfElement(this,elementVar);
 
     }
 
@@ -1625,6 +1643,7 @@ namespace Markov_IO_New {
   {
   public:
     using typePredicate=typename Implements_Base_Type_New<std::set<T>>::typePredicate;
+    using typetypePredicate=typename Implements_Base_Type_New<std::set<T>>::typetypePredicate;
     using typeValue=typename Implements_Base_Type_New<std::set<T>>::typeValue;
     using getSet=typename Implements_Base_Type_New<std::set<T>>::getSet;
 
@@ -1649,7 +1668,11 @@ namespace Markov_IO_New {
 
 
 
-    virtual bool put(const Implements_ComplexVar_New* cm,const std::set<T>& v,ABC_Output* ostream,std::string* whyNot,const std::string& masterObjective)const override
+    virtual bool put(const Implements_ComplexVar_New* cm
+                     ,const std::set<T>& v
+                     ,ABC_Output* ostream
+                     ,std::string* whyNot
+                     ,const std::string& masterObjective)const override
     {
       if (this->isVarInDomain(cm,v,whyNot,masterObjective))
         {
@@ -1657,9 +1680,9 @@ namespace Markov_IO_New {
           ostream->put("\n{");
           for (auto& e: v)
             {
-              if (!isElementInDomain(cm,v,e,whyNot,masterObjective))
+              if (!this->isElementInDomain(cm,v,e,whyNot,masterObjective))
                 return false;
-              if(!etype->put(e,ostream,cm,whyNot,masterObjective))
+              if(!etype->put(cm,e,ostream,whyNot,masterObjective))
                 {
                   ostream->put(*whyNot);
                   return false;
@@ -1699,7 +1722,7 @@ namespace Markov_IO_New {
               else
                 return false;
             }
-          if (isVarInDomain(cm,v,whyNot,masterObjective))
+          if (this->isVarInDomain(cm,v,whyNot,masterObjective))
             return true;
           else
             return false;
@@ -1726,12 +1749,16 @@ namespace Markov_IO_New {
                              ,const std::string& whatthis
                              , const std::string elementVar
                              ,typePredicate complyPred
+                             ,typetypePredicate typeComply
                              ,typeElementPredicate elemeComply
                              ,typeValue  defaultValue
                              ,getSet alternN):
       Implements_Container_Type_New<T,My_set>(
-        parent,id,var,tip,whatthis,elementVar,complyPred,elemeComply
+        parent,id,var,tip,whatthis,elementVar,complyPred,typeComply,elemeComply
         ,defaultValue,alternN){}
+
+
+
   };
 
 
@@ -1770,6 +1797,14 @@ namespace Markov_IO_New {
       return new buildByToken<Markov_LA::M_Matrix<T>>(cm,this);
     }
 
+    bool get(const Implements_ComplexVar_New *cm, Markov_LA::M_Matrix<T> &v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const{
+
+    }
+
+    bool put(const Implements_ComplexVar_New *cm, const Markov_LA::M_Matrix<T> &v, ABC_Output *ostream, std::__cxx11::string *error, const std::__cxx11::string &masterObjective) const
+    {
+
+    }
 
 
     Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
@@ -1834,12 +1869,12 @@ namespace Markov_IO_New {
 
     virtual buildByToken<T>* getElementBuildByToken(const Implements_ComplexVar_New* cm)const
     {
-      return Implements_ComplexVar_New::G::getElementBuildByToken<T>(cm,this);
+      return ABC_Type_of_Value::G::getElementBuildByToken<T>(cm,this);
     }
 
     virtual const Implements_Data_Type_New<T>* getElementDataType(const Implements_ComplexVar_New* cm)const
     {
-      return Implements_ComplexVar_New::G::getElementType<T>(cm,this);
+      return ABC_Type_of_Value::G::getElementType<T>(cm,this);
     }
 
 
@@ -1855,12 +1890,12 @@ namespace Markov_IO_New {
 
     virtual buildByToken<K>* getKeyBuildByToken(const Implements_ComplexVar_New* cm)const
     {
-      return Implements_ComplexVar_New::G::getKeyBuildByToken<K>(cm,this);
+      return ABC_Type_of_Value::G::getKeyBuildByToken<K>(cm,this);
     }
 
     virtual const Implements_Data_Type_New<K>* getKeyDataType(const Implements_ComplexVar_New* cm)const
     {
-      return Implements_ComplexVar_New::G::getKeyType<K>(cm,this);
+      return ABC_Type_of_Value::G::getKeyType<K>(cm,this);
     }
 
 
@@ -1889,14 +1924,28 @@ namespace Markov_IO_New {
       elemComply_(elemeComply)
     ,keyComply_(keyComply)
     {
-      Implements_ComplexVar_New::G::pushTypeOfKey(this,keyVar);
-      Implements_ComplexVar_New::G::pushTypeOfElement(this,elementVar);
+      ABC_Type_of_Value::G::pushTypeOfKey(this,keyVar);
+      ABC_Type_of_Value::G::pushTypeOfElement(this,elementVar);
     }
 
 
   protected:
     typeElementPredicate elemComply_;
     typeKeyPredicate keyComply_;
+
+    // ABC_Type_of_Value interface
+  public:
+
+    // ABC_Typed_Value interface
+  public:
+    virtual bool put(const Implements_ComplexVar_New *cm, const std::pair<K,T> &v, ABC_Output *ostream, std::__cxx11::string *error, const std::__cxx11::string &masterObjective) const
+    {
+
+    }
+    virtual bool get(const Implements_ComplexVar_New *cm, std::pair<K,T> &v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+    {
+
+    }
   };
 
 
@@ -1912,6 +1961,8 @@ namespace Markov_IO_New {
   public:
 
     using typePredicate=typename Implements_Base_Type_New<std::pair<K,T>>::typePredicate;
+
+    using typetypePredicate=typename Implements_Base_Type_New<std::pair<K,T>>::typetypePredicate;
     using typeValue=typename Implements_Base_Type_New<std::pair<K,T>>::typeValue;
     using getSet=typename Implements_Base_Type_New<std::set<T>>::getSet;
 
@@ -1933,6 +1984,10 @@ namespace Markov_IO_New {
 
     virtual ~Implements_Data_Type_New(){}
 
+    virtual buildByToken<std::pair<K,T>> *getBuildByToken(const Implements_ComplexVar_New *cm) const override
+    {
+      return new buildByToken<std::pair<K,T>>(cm,this);
+    }
 
     Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
@@ -1942,12 +1997,13 @@ namespace Markov_IO_New {
                              , const std::string keyVar
                              , const std::string elementVar
                              ,typePredicate complyPred
+                             ,typetypePredicate typeComply
                              ,typeKeyPredicate keyComply
                              ,typeElementPredicate elemeComply
                              ,typeValue  defaultValue
                              ,getSet alternN):
       Implements_Dictionary_Type_New<K,T,std::pair>
-      (parent,id,var,tip,whatthis,keyVar,elementVar,complyPred,keyComply
+      (parent,id,var,tip,whatthis,keyVar,elementVar,complyPred,typeComply,keyComply
        ,elemeComply,defaultValue,alternN)
     {
     }
@@ -2065,8 +2121,14 @@ namespace Markov_IO_New {
     }
 
 
-    virtual ~Implements_Data_Type_New(){}
 
+    virtual buildByToken<std::map<K,T>>* getBuildByToken(
+        const Implements_ComplexVar_New* cm)const
+    {
+      return new buildByToken<std::map<K,T>>(cm,this);
+    }
+
+    virtual ~Implements_Data_Type_New(){}
 
     Implements_Data_Type_New(const Implements_ComplexVar_New* parent,
                              const std::string& id
@@ -2089,10 +2151,6 @@ namespace Markov_IO_New {
 
   };
 
-
-
-  template<typename T>
-  using My_label_map = std::map<std::string,T>;  // to fake that set takes only one template argument
 
 
 
@@ -3146,7 +3204,7 @@ namespace Markov_IO_New {
     };
 
   public:
-    using G=Implements_ComplexVar_New::G;
+    using G=ABC_Type_of_Value::G;
 
     class V
     {
@@ -4302,7 +4360,7 @@ namespace Markov_IO_New {
   {
     const Implements_ComplexVar_New* self=this;
     return dynamic_cast<const Implements_Data_Type_New<T>*>(
-          Implements_ComplexVar_New::G::getElementType<T>(cm,self));
+          ABC_Type_of_Value::G::getElementType<T>(cm,self));
   }
 
   template<typename T>
@@ -4358,7 +4416,7 @@ namespace Markov_IO_New {
 #include "Markov_IO/buildByToken.h"
 namespace Markov_IO_New {
   template<typename T>
-  buildByToken<T> *Implements_ComplexVar_New::G::getElementBuildByToken(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self)
+  buildByToken<T> *ABC_Type_of_Value::G::getElementBuildByToken(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self)
   {
     const Implements_Data_Type_New<T>* v= getElementType<T>(cm,self);
     if (v!=nullptr)
@@ -4368,7 +4426,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  buildByToken<T> *Implements_ComplexVar_New::G::getKeyBuildByToken(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self)
+  buildByToken<T> *ABC_Type_of_Value::G::getKeyBuildByToken(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self)
   {
     const Implements_Data_Type_New<T>* v= getKeyType<T>(cm,self);
     if (v!=nullptr)

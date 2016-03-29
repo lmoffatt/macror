@@ -222,7 +222,7 @@ namespace Markov_IO_New {
 
 
 
-  void Implements_ComplexVar_New::G::pushTypeOfElement(Implements_ComplexVar_New *self, std::string typeOfElement)
+  void ABC_Type_of_Value::G::pushTypeOfElement(Implements_ComplexVar_New *self, std::string typeOfElement)
   {
     self->pushChild(new Implements_Var_New<std::string>(
                       self,F::elementType()
@@ -234,7 +234,7 @@ namespace Markov_IO_New {
 
 
 
-  void Implements_ComplexVar_New::G::pushTypeOfKey(Implements_ComplexVar_New *self, std::string typeOfKey)
+  void ABC_Type_of_Value::G::pushTypeOfKey(Implements_ComplexVar_New *self, std::string typeOfKey)
   {
     self->pushChild(new Implements_Var_New<std::string>(
                       self,F::keyType()
