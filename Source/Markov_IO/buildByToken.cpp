@@ -38,11 +38,13 @@ namespace Markov_IO_New {
   template class buildByToken<Markov_LA::M_Matrix<double>>;
 
 
-  build_Statement::build_Statement(Markov_CommandManagerVar *p
-                                   , const Implements_Data_Type_New<ABC_Var_New*> *varType):
+  build_Statement::build_Statement(
+      Markov_CommandManagerVar *p
+      , const Implements_Data_Type_New<ABC_Var_New*> *varType
+      , bool convertToClass):
     ABC_BuildByToken(p),
     mystate(S_Init),
-    v_({p, varType}),
+    v_({p, varType, convertToClass}),
     c_(p),
     cmv_(nullptr),
     x_(nullptr)
@@ -51,7 +53,7 @@ namespace Markov_IO_New {
 
 
   build_Statement::build_Statement(Markov_CommandManagerVar *p):
-    build_Statement(p,p->getVarType()){}
+    build_Statement(p,p->getVarType(),true){}
 
 
   bool build_Command_Input::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
@@ -307,6 +309,16 @@ namespace Markov_IO_New {
             if(valueB_->isFinal())
               {
                 x_=valueB_->unloadVar_New(parent(),id_,var_,tip_,whatthis_);
+                if (convertToClass_)
+                  {
+                    c_=dynamic_cast<Implements_ComplexVar_New*>(x_);
+                    if (c_!=nullptr)
+                      {
+                        classx_=valueType_->getClassRep(c_,whyNot);
+                      }
+                    else
+                      classx_=nullptr;
+                  }
                 mystate=S_Final;
                 return true;
               }
@@ -323,11 +335,14 @@ namespace Markov_IO_New {
   }
 
 
-  buildByToken<ABC_Var_New*>::buildByToken(const Implements_ComplexVar_New *parent
-                                            , const Implements_Data_Type_New<ABC_Var_New*> *varType):
+  buildByToken<ABC_Var_New*>::buildByToken(
+      const Implements_ComplexVar_New *parent
+      , const Implements_Data_Type_New<ABC_Var_New*> *varType,
+      bool convertToClass):
     ABC_BuildByToken(parent)
   ,mystate(S_Init)
   ,varType_(varType)
+  , convertToClass_(convertToClass)
   , idB_(varType->getNewIdentifierBuildByToken(parent))
   , varB_(varType->getVarIdentifierBuildByToken(parent))
   ,valueB_(nullptr)
@@ -368,10 +383,28 @@ namespace Markov_IO_New {
       ABC_BuildByToken(parent),
       mystate(S_Init),
       x_(),
-    valueBuild_(vecType->getElementBuildByToken(parent)),
-    varType_(vecType){}
+      valueBuild_(vecType->getElementBuildByToken(parent)),
+      varType_(vecType){}
 
 
+
+
+  template<>
+  ABC_Var_New* buildByToken<std::map<std::string,ABC_Var_New*>>::unloadVar_New(
+      const Implements_ComplexVar_New* p,
+      const std::string& id,
+      const std::string& var,
+      const std::string& tip,
+      const std::string& whatthis)
+  {
+    if (this->isFinal())
+      {
+        std::map<std::string,ABC_Var_New*> x=this->unloadVar();
+        return new Implements_ComplexVar_New(p,id,var,x,tip,whatthis);
+      }
+    else
+      return nullptr;
+  }
 
 
 
@@ -2240,9 +2273,9 @@ namespace Markov_IO {
         if (parent()!=nullptr)
           {
 
-        return {myClass(),{Token_New::toString(Token_New::HASH)
-                  ,"variable_identifier"}};
-        }
+            return {myClass(),{Token_New::toString(Token_New::HASH)
+                      ,"variable_identifier"}};
+          }
         break;
       case WT1:
         return {myClass(),{Token_New::toString(Token_New::HASH)}};
