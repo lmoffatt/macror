@@ -1813,115 +1813,115 @@ namespace Markov_IO_New {
 
 
 
+      template<>
+      class buildByToken<std::map<std::string,ABC_Var_New*>>
+          :public ABC_BuildByToken
+      {
+      public:
+        static std::string ClassName()
+        {
+          return "buildByToken_of_map_string_to_ABC_Var_New";
+        }
+        std::string myClass()const override
+        {
+          return ClassName();
 
-    //  class buildByToken_map_ABC_Var_New
-    //      :public ABC_BuildByToken
-    //  {
-    //  public:
-    //    static std::string ClassName()
-    //    {
-    //      return "buildByToken_of_map_string_to_ABC_Var_New";
-    //    }
-    //    std::string myClass()const override
-    //    {
-    //      return ClassName();
-
-    //    }
-
-
-
-
-    //    enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
+        }
 
 
 
-    //    bool isFinal()const
-    //    {
-    //      return mystate==S_Final;
-    //    }
 
-    //    bool isInitial()const override
-    //    {
-    //      return mystate==S_Header_Final;
-    //    }
-
-
-    //    virtual bool isHollow()const override
-    //    {
-    //      switch (mystate) {
-    //        case S_Init:
-    //        case S_Header2:
-    //        case S_Header_Final:
-    //          return true;
-    //          break;
-    //        case S_Data_Partial:
-    //        case S_Data_Final:
-    //        case S_Final:
-    //        default:
-    //          return false;
-    //        }
-    //    }
-
-
-    //    bool unPop(std::map<std::string,ABC_Var_New*> var)
-    //    {
-    //      x_=var;
-    //      mystate=S_Final;
-    //     return true;
-    //    }
-
-    //    std::map<std::string,ABC_Var_New*> unloadVar()
-    //    {
-    //      if (isFinal())
-    //        {
-    //          mystate=S_Header_Final;
-    //          auto o=std::move(x_);
-    //          x_={};
-    //          return std::move(o);
-    //        }
-    //      else
-    //        return {};
-    //    }
-
-
-    //    buildByToken_map_ABC_Var_New(const Implements_ComplexVar_New* parent,
-    //                 const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* typeVar);
+        enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
 
 
 
-    //    ~buildByToken_map_ABC_Var_New(){}
+        bool isFinal()const
+        {
+          return mystate==S_Final;
+        }
 
-    //    bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override;
-
-
-
-    //    Token_New popBackToken() override;
-
-    //    std::pair<std::string,std::set<std::string>> alternativesNext()const override;
-
-    //    void clear()override
-    //    {
-    //      mystate=S_Init;
-    //      x_.clear();
-    //      valueBuild_->clear();
-
-    //    }
+        bool isInitial()const override
+        {
+          return mystate==S_Header_Final;
+        }
 
 
-    //    virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
-    //                                       const std::string& id,
-    //                                       const std::string& var,
-    //                                       const std::string& tip,
-    //                                       const std::string& whatthis);
+        virtual bool isHollow()const override
+        {
+          switch (mystate) {
+            case S_Init:
+            case S_Header2:
+            case S_Header_Final:
+              return true;
+              break;
+            case S_Data_Partial:
+            case S_Data_Final:
+            case S_Final:
+            default:
+              return false;
+            }
+        }
 
 
-    //  private:
-    //    DAF mystate;
-    //    std::map<std::string,ABC_Var_New*> x_;
-    //    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varType_;
-    //    buildByToken_ABC_Var_New* valueBuild_;
+        bool unPop(std::map<std::string,ABC_Var_New*> var)
+        {
+          x_=var;
+          mystate=S_Final;
+         return true;
+        }
 
-    //  };
+        std::map<std::string,ABC_Var_New*> unloadVar()
+        {
+          if (isFinal())
+            {
+              mystate=S_Header_Final;
+              auto o=std::move(x_);
+              x_={};
+              return std::move(o);
+            }
+          else
+            return {};
+        }
+
+
+        buildByToken(const Implements_ComplexVar_New* parent,
+                     const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* typeVar);
+
+
+
+        ~buildByToken(){}
+
+        bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override;
+
+
+
+        Token_New popBackToken() override;
+
+        std::pair<std::string,std::set<std::string>> alternativesNext()const override;
+
+        void clear()override
+        {
+          mystate=S_Init;
+          x_.clear();
+          valueBuild_->clear();
+
+        }
+
+
+        virtual ABC_Var_New* unloadVar_New(const Implements_ComplexVar_New* p,
+                                           const std::string& id,
+                                           const std::string& var,
+                                           const std::string& tip,
+                                           const std::string& whatthis);
+
+
+      private:
+        DAF mystate;
+        std::map<std::string,ABC_Var_New*> x_;
+        const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varType_;
+        buildByToken<ABC_Var_New*>* valueBuild_;
+
+      };
 
 
 
