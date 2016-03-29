@@ -1957,6 +1957,9 @@ namespace Markov_IO_New {
   using My_map = std::map<K,T>;  // to fake that set takes only one template argument
 
 
+//  template <class E>
+//  using Re_map=std::map<typename E::first_type,typename E::second_type>;
+
 
 
   template<typename K, typename T>
@@ -1973,6 +1976,10 @@ namespace Markov_IO_New {
     using typeElementPredicate= typename Implements_Dictionary_Type_New<K,T,My_map>::typeElementPredicate;
 
     using typeKeyPredicate= typename Implements_Dictionary_Type_New<K,T,My_map>::typeKeyPredicate;
+
+    using pairPredicate= bool(*)(const Implements_ComplexVar_New*,const std::map<K,T> &,const std::pair<K,T>&,const Implements_ComplexVar_New*, std::string *WhyNot, const std::string& objective);
+
+
 
 
     virtual bool put(const Implements_ComplexVar_New* cm,const std::map<K,T>& v,ABC_Output* ostream,std::string* whyNot,const std::string &masterObjective)const override
@@ -2077,8 +2084,9 @@ namespace Markov_IO_New {
       Implements_Dictionary_Type_New<K,T,My_map>
       (parent,id,var,tip,whatthis,keyVar,elementVar,complyPred,typeComply,keyComply
        ,elemeComply,defaultValue,alternN)
-    {
+     {
     }
+
   };
 
 

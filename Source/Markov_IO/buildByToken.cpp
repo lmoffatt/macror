@@ -20,25 +20,21 @@ namespace Markov_IO_New {
 
 
 
-  template class buildByToken_Regular<double>;
-  template class buildByToken_Vector<double>;
+  template class buildByToken<double>;
+  template class buildByToken<std::vector<double>>;
 
 
-  template class buildByToken_Regular<int>;
-  template class buildByToken_Vector<int>;
+  template class buildByToken<int>;
+  template class buildByToken<std::vector<int>>;
 
-  template class buildByToken_Regular<std::size_t>;
-  template class buildByToken_Vector<std::size_t>;
+  template class buildByToken<std::size_t>;
+  template class buildByToken<std::set<double>>;
 
-  template class buildByToken_Regular<std::string>;
-  template class buildByToken_Vector<std::string>;
-
-
-  template class buildByToken_Set<double>;
-
-  template class buildByToken_Matrix<double>;
+  template class buildByToken<std::string>;
+  template class buildByToken<std::map<std::size_t,double>>;
 
 
+  template class buildByToken<Markov_LA::M_Matrix<double>>;
 
 
   build_Statement::build_Statement(Markov_CommandManagerVar *p
@@ -336,7 +332,7 @@ namespace Markov_IO_New {
   }
 
 
-  buildByToken_ABC_Var_New::buildByToken_ABC_Var_New(const Implements_ComplexVar_New *parent
+  buildByToken<ABC_Var_New*>::buildByToken(const Implements_ComplexVar_New *parent
                                             , const Implements_Data_Type_New<ABC_Var_New*> *varType):
     ABC_BuildByToken(parent)
   ,mystate(S_Init)
@@ -578,7 +574,7 @@ namespace Markov_IO_New {
     cmdty_(nullptr),cmd_(nullptr){}
 
   template<typename T>
-  buildByToken_Vector<T >::buildByToken_Vector(const Implements_ComplexVar_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType):
+  buildByToken<std::vector<T >>::buildByToken(const Implements_ComplexVar_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType):
     ABC_BuildByToken(parent),
     mystate(S_Init),
     x_{},

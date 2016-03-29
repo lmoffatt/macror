@@ -10,7 +10,7 @@
 namespace Markov_IO_New {
 
   template<typename T>
-    bool buildByToken_Regular<T>::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
+    bool buildByToken<T>::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
   {
     const std::string objective=masterObjective+": "+"Token "+t.str()+" was not accepted by "+ClassName();
     T d;
