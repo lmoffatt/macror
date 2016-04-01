@@ -265,7 +265,7 @@ namespace Markov_IO
     if (str.empty())
       return false;
     std::istringstream ss(str);
-    bool res=(ss>>value);
+    bool res=bool(ss>>value);
     return res;
   }
 

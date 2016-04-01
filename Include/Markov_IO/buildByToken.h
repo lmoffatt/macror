@@ -37,7 +37,7 @@ namespace Markov_IO_New {
 
   class Implements_Complex_Data_Type;
 
-  class Implements_Command_Fields;
+  class Implements_Command_Arguments;
 
   class Implements_Command_Type_New;
 
@@ -1674,11 +1674,21 @@ namespace Markov_IO_New {
     }
 
 
-    virtual ABC_Var_New* unloadVar_New( const Implements_ComplexVar_New* p,
-                                        const std::string& id,
-                                        const std::string& var,
-                                        const std::string& tip,
-                                        const std::string& whatthis);
+    virtual ABC_Var_New* unloadVar_New(
+        const Implements_ComplexVar_New* p,
+        const std::string& id,
+        const std::string& var,
+        const std::string& tip,
+        const std::string& whatthis)
+    {
+      if (this->isFinal())
+        {
+          std::map<K,T> x=this->unloadVar();
+          return new Implements_Var_New<std::map<K,T>>(p,id,var,x,tip,whatthis);
+        }
+      else
+        return nullptr;
+    }
 
 
   private:
@@ -1689,34 +1699,6 @@ namespace Markov_IO_New {
     buildByToken<K>* keyBuild_;
     buildByToken<T>* valBuild_;
   };
-
-
-
-  template<typename K, typename T>
-  ABC_Var_New* buildByToken<std::map<K,T>>::unloadVar_New(
-      const Implements_ComplexVar_New* p,
-      const std::string& id,
-      const std::string& var,
-      const std::string& tip,
-      const std::string& whatthis)
-  {
-    if (this->isFinal())
-      {
-        std::map<K,T> x=this->unloadVar();
-        return new Implements_Var_New<std::map<K,T>>(p,id,var,x,tip,whatthis);
-      }
-    else
-      return nullptr;
-  }
-
-  template<>
-  ABC_Var_New* buildByToken<std::map<std::string,ABC_Var_New*>>::unloadVar_New(
-      const Implements_ComplexVar_New* p,
-      const std::string& id,
-      const std::string& var,
-      const std::string& tip,
-      const std::string& whatthis);
-
 
 
 
@@ -1792,7 +1774,7 @@ namespace Markov_IO_New {
 
     buildByToken(const Implements_ComplexVar_New* parent,
                  const Implements_Data_Type_New<ABC_Var_New *> *varType,
-                 bool convertToClass);
+                 bool convertToClass=true);
 
 
 
@@ -1818,9 +1800,6 @@ namespace Markov_IO_New {
     ABC_Var_New* x_;
     Implements_ComplexVar_New* c_;
     ABC_Var_New* classx_;
-
-
-
     // ABC_BuildByToken interface
   public:
     virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
@@ -1831,6 +1810,272 @@ namespace Markov_IO_New {
 
     }
   };
+
+
+
+
+
+  template<>
+  class buildByToken<std::map<std::string,ABC_Var_New*>>
+      :public ABC_BuildByToken
+
+  {
+  public:
+    static std::string ClassName()
+    {
+      return "buildByToken_of_map_"+Cls<std::string>::name()+"_to_"+Cls<ABC_Var_New*>::name();
+    }
+
+    std::string myClass()const override
+    {
+      return ClassName();
+
+    }
+
+
+    enum DAF {S_Init,S_Header2,S_Header_Final,S_Data_Partial,S_Data_Final,S_Data_Separator_Final,S_Final} ;
+
+
+
+    bool isFinal()const override
+    {
+      return mystate==S_Final;
+    }
+
+    bool isInitial()const override
+    {
+      return mystate==S_Header_Final;
+    }
+
+
+
+    virtual bool isHollow()const override
+    {
+      switch (mystate) {
+        case S_Init:
+        case S_Header2:
+        case S_Header_Final:
+          return true;
+        case S_Data_Partial:
+        case S_Data_Final:
+         case S_Data_Separator_Final:
+        case S_Final:
+          return false;
+        }
+    }
+
+
+
+    bool unPop(std::map<std::string,ABC_Var_New*> var)
+    {
+      x_=var;
+      mystate=S_Final;
+      return true;
+
+    }
+
+    std::map<std::string,ABC_Var_New*> unloadVar()
+    {
+      if (isFinal())
+        {
+          mystate=S_Header_Final;
+          return x_;
+        }
+      else
+        return {};
+    }
+
+
+    ABC_Var_New* unloadVar_New(
+          const Implements_ComplexVar_New* p,
+          const std::string& id,
+          const std::string& var,
+          const std::string& tip,
+          const std::string& whatthis) override;
+
+    buildByToken(const Implements_ComplexVar_New* parent,
+                 const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* typeVar);
+
+
+
+    ~buildByToken(){
+    }
+
+    bool pushToken
+    (Token_New tok
+     , std::string* whyNot
+     , const std::string& masterObjective) override
+    {
+      const std::string objective=masterObjective+": "+ClassName()+"::pushToken("+
+          tok.str()+") fails";
+
+      switch (mystate)
+        {
+        case S_Init:
+          if (tok.tok()!=Token_New::EOL)
+            {
+              *whyNot=objective+" is not an end of line";
+              return false;
+            }  else
+            {
+              mystate=S_Header2;
+              return true;
+            }
+        case S_Header2:
+          if (tok.tok()!=Token_New::LCB)
+            {
+              *whyNot=objective+" is not an "+Token_New::toString(Token_New::LCB);
+              return false;
+            }   else
+            {
+              mystate=S_Header_Final;
+              return true;
+            }
+        case S_Header_Final:
+        case S_Data_Final:
+          if (tok.tok()==Token_New::EOL)
+            {
+              mystate=S_Data_Separator_Final;
+              return true;
+            }
+          else
+            {
+              *whyNot=masterObjective+": "+tok.str()
+                  +" is not end of line";
+              return false;
+            }
+        case S_Data_Partial:
+          if (!varBuild_->pushToken(tok, whyNot, objective))
+            {
+              return false;
+            }
+          else
+            {
+              if(varBuild_->isFinal())
+                {
+                  p_=varBuild_->unloadVar();
+                  x_[p_->id()]=p_;
+                  mystate=S_Data_Final;
+                  return true;
+                }
+              else
+                {
+                  mystate=S_Data_Partial;
+                  return true;
+                }
+            }
+        case S_Data_Separator_Final:
+          if (tok.tok()==Token_New::RCB)
+            {
+              mystate=S_Final;
+              return true;
+            }
+          else if (!varBuild_->pushToken(tok, whyNot,objective))
+            {
+              return false;
+            }
+          else
+            {
+              if(varBuild_->isFinal())
+                {
+                  ABC_Var_New* p=varBuild_->unloadVar();
+                  x_.insert({p->id(),p});
+                  mystate=S_Data_Final;
+                  return true;
+                }
+              else
+                {
+                  mystate=S_Data_Partial;
+                  return true;
+                }
+            }
+        case S_Final:
+          return false;
+        }
+}
+
+
+
+    Token_New popBackToken() override
+    {
+      switch (mystate)
+        {
+        case S_Init:
+          return {};
+        case S_Header2:
+          mystate=S_Header_Final;
+          return Token_New(Token_New::EOL);
+        case S_Header_Final:
+          mystate=S_Header2;
+          return Token_New(Token_New::LCB);
+        case S_Data_Partial:
+          {
+            auto out= varBuild_->popBackToken();
+            if (varBuild_->isInitial())
+              {
+                if (x_.empty())
+                  mystate=S_Header_Final;
+                else
+                  mystate=S_Data_Separator_Final;
+              }
+            else mystate=S_Data_Partial;
+            return out;
+          }
+        case S_Data_Final:
+          {
+            auto d=*(--x_.end());
+            x_.erase(--x_.end());
+            varBuild_->unPop(d.second);
+            auto to=varBuild_->popBackToken();
+            if (varBuild_->isInitial())
+              {
+                 mystate=S_Data_Separator_Final;
+              }
+            else mystate=S_Data_Partial;
+            return to;
+          }
+        case S_Data_Separator_Final:
+          {
+            if (x_.empty())
+              mystate=S_Header_Final;
+            else
+              mystate=S_Data_Final;
+          return Token_New(Token_New::EOL);
+          }
+        case S_Final:
+          mystate=S_Data_Separator_Final;
+          return Token_New(Token_New::RCB);
+        }
+    }
+
+    std::pair<std::string,std::set<std::string>> alternativesNext()const override;
+
+
+    void clear()override
+    {
+      mystate=S_Init;
+      x_.clear();
+      varBuild_->clear();
+
+    }
+
+
+
+  private:
+    DAF mystate;
+    ABC_Var_New* p_;
+    std::map<std::string,ABC_Var_New*> x_;
+    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varType_;
+    buildByToken<ABC_Var_New*>* varBuild_;
+  };
+
+
+
+
+
+
+
+
 
 
 
@@ -1890,7 +2135,7 @@ namespace Markov_IO_New {
 
 
   public:
-    virtual Implements_Command_Fields* unloadVar()
+    virtual Implements_Command_Arguments* unloadVar()
     {
 
     }
@@ -1900,7 +2145,7 @@ namespace Markov_IO_New {
 
     }
 
-    virtual bool unPop(Implements_Command_Fields*  var)
+    virtual bool unPop(Implements_Command_Arguments*  var)
     {
 
     }
@@ -1917,12 +2162,12 @@ namespace Markov_IO_New {
       S_Final
     } ;
 
-    static bool hasAllInputs(const Implements_Command_Fields *v)
+    static bool hasAllInputs(const Implements_Command_Arguments *v)
     {
 
     }
 
-    static bool hasAllMandatoryInputs(const Implements_Command_Fields* cmd)
+    static bool hasAllMandatoryInputs(const Implements_Command_Arguments* cmd)
     {
 
     }
@@ -1936,7 +2181,7 @@ namespace Markov_IO_New {
     DFA mystate;
     buildByToken<std::string>* idCommandB_;
     const Implements_Command_Type_New* cmdty_;
-    Implements_Command_Fields* cmd_;
+    Implements_Command_Arguments* cmd_;
 
 
     // ABC_Base interface
@@ -2039,7 +2284,7 @@ namespace Markov_IO_New {
     }
 
 
-    Implements_Command_Fields* unloadCommand()
+    Implements_Command_Arguments* unloadCommand()
     {
     }
 
@@ -2099,7 +2344,7 @@ namespace Markov_IO_New {
     build_Command_Input c_;
 
 
-    Implements_Command_Fields* cmv_;
+    Implements_Command_Arguments* cmv_;
     ABC_Var_New* x_;
 
     // ABC_BuildByToken interface

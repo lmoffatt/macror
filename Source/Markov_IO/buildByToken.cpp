@@ -198,6 +198,14 @@ namespace Markov_IO_New {
             if (idB_->pushToken(tok,whyNot,objective))
               {
                 id_=idB_->unloadVar();
+                auto x=parent()->idToVar(id_,whyNot);
+                if (x!=nullptr)
+                  {
+                    varB_=varType_->getVarIdentifierBuildByToken(parent(),x->myType());
+                  }
+                else
+                  varB_=varType_->getVarIdentifierBuildByToken(parent());
+
                 mystate =ID1;
                 return true;
               }
@@ -250,6 +258,14 @@ namespace Markov_IO_New {
             if (idB_->pushToken(tok,whyNot,objective))
               {
                 id_=idB_->unloadVar();
+                auto x=parent()->idToVar(id_,whyNot);
+                if (x!=nullptr)
+                  {
+                    varB_=varType_->getVarIdentifierBuildByToken(parent(),x->myType());
+                  }
+                else
+                  varB_=varType_->getVarIdentifierBuildByToken(parent());
+
                 mystate =ID1;
                 return true;
               }
@@ -389,7 +405,7 @@ namespace Markov_IO_New {
 
 
 
-  template<>
+
   ABC_Var_New* buildByToken<std::map<std::string,ABC_Var_New*>>::unloadVar_New(
       const Implements_ComplexVar_New* p,
       const std::string& id,
@@ -404,6 +420,40 @@ namespace Markov_IO_New {
       }
     else
       return nullptr;
+  }
+
+  buildByToken<std::map<std::string, ABC_Var_New *> >::
+  buildByToken(const Implements_ComplexVar_New *parent,
+               const Implements_Data_Type_New<std::map<std::string, ABC_Var_New *> > *typeVar):
+    ABC_BuildByToken(parent),
+    mystate(S_Header_Final),
+    x_{},
+    varType_(typeVar),
+    varBuild_(typeVar->getElementBuildByToken(parent))
+  {}
+
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
+  {
+    switch (mystate)
+      {
+      case S_Init:
+      case S_Data_Separator_Final:
+        return {varType_->id(),{Token_New::toString(Token_New::EOL)}};
+      case S_Header2:
+        return {varType_->id(),{Token_New::toString(Token_New::LCB)}};
+      case S_Header_Final:
+      case S_Data_Partial:
+        return varBuild_->alternativesNext();
+      case S_Data_Final:
+        {
+          auto out=varBuild_->alternativesNext();
+          out.second.insert(Token_New::toString(Token_New::RCB));
+          return out;
+        }
+      case S_Final:
+        return {};
+      }
+
   }
 
 
@@ -898,7 +948,7 @@ namespace Markov_IO {
           }
         else
           {
-            ABC_BuildByToken::getErrorMessage({Token_New::COLON,previousTok_.tok()},t);
+            ABC_BuildByToken::getErrorMessage({Token_New::COLON,static_cast<char>(previousTok_.tok())},t);
             return false;
           }
         prevTokens_.push_back(t);

@@ -25,7 +25,7 @@ namespace Markov_IO_New {
     static std::string toString(double number);
     static std::string toString(int number);
     static std::string toString(std::size_t number);
-    enum  Value: char {
+    enum  Value {
       EMPTY,
       ANY,
       IDENTIFIER,
@@ -290,7 +290,7 @@ namespace Markov_IO {
     static std::string toString(double number);
     static std::string toString(int number);
     static std::string toString(std::size_t number);
-    enum  Value: char {
+     enum  Value {
       EMPTY,
       ANY,
       IDENTIFIER,
