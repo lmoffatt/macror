@@ -13,17 +13,17 @@ namespace Markov_IO_New {
    template class Implements_Var_New<Markov_LA::M_Matrix<double>>;
 
 
-  template class Implements_Data_Type_New<double>;
+  template class Implements_Data_Type_New_regular<double>;
 
-  template class Implements_Data_Type_New<std::vector<double>> ;
-
-
+  template class Implements_Data_Type_New_vector<double> ;
 
 
 
-  template class Implements_Data_Type_New<Markov_LA::M_Matrix<double>>;
 
-  template class Implements_Data_Type_New<std::map<std::string,double>> ;
+
+  template class Implements_Data_Type_New_M_Matrix<double>;
+
+  template class Implements_Data_Type_New_map<std::string,double> ;
 
 
   bool Implements_ComplexVar_New::hasNameofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const

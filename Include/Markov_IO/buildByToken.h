@@ -170,7 +170,7 @@ namespace Markov_IO_New {
         return {};
     }
 
-    bool isFinal()const
+    bool isFinal()const override
     {
       return isComplete_;
     }
@@ -823,7 +823,7 @@ namespace Markov_IO_New {
 
 
 
-    ~buildByToken(){
+    virtual ~buildByToken(){
     }
 
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective)
@@ -2079,16 +2079,9 @@ namespace Markov_IO_New {
 
 
 
-
-
-
-
-
   class build_Command_Input
       :public ABC_BuildByToken//public buildByToken<Implements_Command_Fields*>
   {
-
-
     // ABC_BuildByToken interface
   public:
 

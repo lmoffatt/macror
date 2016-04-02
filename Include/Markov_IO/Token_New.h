@@ -537,7 +537,7 @@ namespace Markov_IO {
   {
   public:
     Token_Stream(std::istream *s):
-      t_{},
+      t_(),
       posParserTok_(0),
       s_(s)
     {}

@@ -22,6 +22,7 @@ CONFIG -= qt
 
 QMAKE_CXXFLAGS_RELEASE += -std=c++11 #-lpthread
 QMAKE_CXXFLAGS_DEBUG += -std=c++11 #-lpthread
+QMAKE_CXXFLAGS += -std=c++11 #-lpthread
 
 
 INCLUDEPATH = Include \
