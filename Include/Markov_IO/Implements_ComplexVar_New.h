@@ -1032,6 +1032,10 @@ namespace Markov_IO_New {
 
 
 
+  namespace _private {
+
+
+
   template<typename T>
   class Implements_Base_Type_New:public ABC_Typed_Value<T>
   {
@@ -1205,9 +1209,6 @@ namespace Markov_IO_New {
   };
 
 
-
-
-
   template<typename T>
   class Implements_Base_Type_New<T*>:public ABC_Typed_Value<T*>
   {
@@ -1372,8 +1373,6 @@ namespace Markov_IO_New {
   };
 
 
-
-
   template<typename T, template<typename> class C>
   class Implements_Container_Type_New:public Implements_Base_Type_New<C<T>>
   {
@@ -1446,8 +1445,6 @@ namespace Markov_IO_New {
 
   template<typename T>
   using My_vec = std::vector<T>;  // to fake that vector takes only one template argument
-
-
 
 
   template<typename T>
@@ -1667,11 +1664,6 @@ namespace Markov_IO_New {
   };
 
 
-
-
-
-
-
   template<typename T>
   using My_set = std::set<T>;  // to fake that set takes only one template argument
 
@@ -1861,11 +1853,6 @@ namespace Markov_IO_New {
   };
 
 
-
-
-
-
-
   template<typename K,typename T, template<typename,typename> class D>
   class Implements_Dictionary_Type_New:public Implements_Base_Type_New<D<K,T>>
   {
@@ -1989,10 +1976,6 @@ namespace Markov_IO_New {
 
 
 
-
-
-
-
   template<typename K, typename T>
   class Implements_Data_Type_New_pair
       :public Implements_Dictionary_Type_New<K,T,std::pair>
@@ -2054,7 +2037,6 @@ namespace Markov_IO_New {
 
   template <class E>
   using String_map=std::map<std::string,E>;
-
 
 
   template<typename K, typename T>
@@ -2191,9 +2173,6 @@ namespace Markov_IO_New {
   };
 
 
-
-
-
   class Implements_Data_Type_New_string
       : public Implements_Base_Type_New<std::string>
   {
@@ -2277,13 +2256,6 @@ namespace Markov_IO_New {
 
 
   };
-
-
-
-
-
-
-
 
 
   class Implements_Data_Type_New_ABC_Var_New:
@@ -2389,9 +2361,6 @@ namespace Markov_IO_New {
     const Implements_Data_Type_New<std::string>* varType_;
 
   };
-
-
-
 
 
   class Implements_Data_Type_New_map_string_ABC_Var_New
@@ -2506,21 +2475,7 @@ namespace Markov_IO_New {
   };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  };
 
   class Identifier{
     class S {
@@ -3761,6 +3716,9 @@ namespace Markov_IO_New {
 
   };
 
+  namespace _private {
+
+
 
   template<typename T>
   class Implements_Data_Type_class:public ABC_Typed_Value<T*>
@@ -3941,7 +3899,7 @@ namespace Markov_IO_New {
 
   };
 
-
+}
   template<typename T>
   class Implements_Parameters_Type_New:public ABC_Typed_Value<T>
   {
@@ -3958,7 +3916,7 @@ namespace Markov_IO_New {
 
     using getMap=std::map<std::string,ABC_Var_New*> (*)(const T&, const Implements_Parameters_Type_New<T>*, std::string*);
 
-    using getObject= T (*)(const std::map<std::string,ABC_Var_New*>*,const Implements_Data_Type_class<T>*,std::string*);
+    using getObject= T (*)(const std::map<std::string,ABC_Var_New*>*,const _private::Implements_Data_Type_class<T>*,std::string*);
 
 
     static std::string ClassName()
@@ -4391,6 +4349,10 @@ namespace Markov_IO_New {
     (*types_)[varT->id()]=varT;
   }
 
+  namespace _private {
+
+
+
   template<typename T, template<typename> class C>
   const Implements_Data_Type_New<T> *Implements_Container_Type_New<T,C>::getElementDataType(const Implements_ComplexVar_New *cm) const
   {
@@ -4443,7 +4405,7 @@ namespace Markov_IO_New {
   }
 
 
-
+};
 
 
 

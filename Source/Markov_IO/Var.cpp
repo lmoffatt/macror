@@ -6,25 +6,27 @@ namespace Markov_IO_New {
 
   template class Implements_Var_New<double>;
 
-  template class Implements_Var_New<My_vec<double>>;
+  template class Implements_Var_New<std::vector<double>>;
 
-   template class Implements_Var_New<std::set<double>>;
+  template class Implements_Var_New<std::set<double>>;
 
-   template class Implements_Var_New<Markov_LA::M_Matrix<double>>;
-
-
-  template class Implements_Data_Type_New_regular<double>;
-
-  template class Implements_Data_Type_New_vector<double> ;
+  template class Implements_Var_New<Markov_LA::M_Matrix<double>>;
 
 
+  namespace
+  _private{
 
 
+    template class Implements_Data_Type_New_regular<double>;
 
-  template class Implements_Data_Type_New_M_Matrix<double>;
+    template class Implements_Data_Type_New_vector<double> ;
 
-  template class Implements_Data_Type_New_map<std::string,double> ;
 
+    template class Implements_Data_Type_New_M_Matrix<double>;
+
+    template class Implements_Data_Type_New_map<std::string,double> ;
+
+  }
 
   bool Implements_ComplexVar_New::hasNameofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
   {
@@ -123,12 +125,12 @@ namespace Markov_IO_New {
     if (varType.empty())
       {
         if (!vars_->empty())
-        {
-          return vars_->begin()->first;
-        }
-      else if (!recursive || parent()==nullptr)
-        return {};
-      else return parent()->defaultIdOfVarType(varType,recursive);
+          {
+            return vars_->begin()->first;
+          }
+        else if (!recursive || parent()==nullptr)
+          return {};
+        else return parent()->defaultIdOfVarType(varType,recursive);
 
 
       }
@@ -142,11 +144,11 @@ namespace Markov_IO_New {
             if (t->isVarInDomain(this,var->value(),&why,objective))
               return var->id();
           }
-         if (!recursive || parent()==nullptr)
-                return {};
-              else return parent()->defaultIdOfVarType(varType,recursive);
+        if (!recursive || parent()==nullptr)
+          return {};
+        else return parent()->defaultIdOfVarType(varType,recursive);
 
-        }
+      }
   }
 
 
@@ -157,12 +159,12 @@ namespace Markov_IO_New {
     if (typeType.empty())
       {
         if (!types_->empty())
-        {
-          return types_->begin()->first;
-        }
-      else if (!recursive || parent()==nullptr)
-        return {};
-      else return parent()->defaultIdOfTypeType(typeType,recursive);
+          {
+            return types_->begin()->first;
+          }
+        else if (!recursive || parent()==nullptr)
+          return {};
+        else return parent()->defaultIdOfTypeType(typeType,recursive);
       }
     else
       {
@@ -174,11 +176,11 @@ namespace Markov_IO_New {
             if (t->isTypeInDomain(this,var,&why,objective))
               return var->id();
           }
-         if (!recursive || parent()==nullptr)
-                return {};
-              else return parent()->defaultIdOfTypeType(typeType,recursive);
+        if (!recursive || parent()==nullptr)
+          return {};
+        else return parent()->defaultIdOfTypeType(typeType,recursive);
 
-        }
+      }
   }
 
 
@@ -194,9 +196,9 @@ namespace Markov_IO_New {
     std::string objective;
     if (typeType.empty())
       {
-      auto s=getMapKeys(*types_);
-      s.insert(o.begin(),o.end());
-      return s;
+        auto s=getMapKeys(*types_);
+        s.insert(o.begin(),o.end());
+        return s;
       }
     else
       {
@@ -244,17 +246,17 @@ namespace Markov_IO_New {
 
   }
 
-//  const Implements_Field_Data_Type * Implements_Data_Type_New<Implements_ComplexVar_New *>::nextField(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *> &m)const
-//  {
-//    return (*nextField_)(cm,m,this);
-//  }
+  //  const Implements_Field_Data_Type * Implements_Data_Type_New<Implements_ComplexVar_New *>::nextField(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *> &m)const
+  //  {
+  //    return (*nextField_)(cm,m,this);
+  //  }
 
-//  template<>
-//  buildByToken<ABC_Var_New *> Implements_Data_Type_New<Implements_ComplexVar_New *>::getFieldBuildByToken(const Implements_ComplexVar_New *cm, std::map<std::string, ABC_Var_New *> m) const
-//  {
-//    const Implements_Field_Data_Type* f=nextField(cm,m);
-//    return buildByToken<ABC_Var_New*>(cm,f);
-//  }
+  //  template<>
+  //  buildByToken<ABC_Var_New *> Implements_Data_Type_New<Implements_ComplexVar_New *>::getFieldBuildByToken(const Implements_ComplexVar_New *cm, std::map<std::string, ABC_Var_New *> m) const
+  //  {
+  //    const Implements_Field_Data_Type* f=nextField(cm,m);
+  //    return buildByToken<ABC_Var_New*>(cm,f);
+  //  }
 
   bool ABC_Var_New::isOfThisType(const Implements_ComplexVar_New* cm,
                                  const std::string& generalType,

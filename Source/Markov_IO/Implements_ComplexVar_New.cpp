@@ -34,18 +34,24 @@ namespace Markov_IO_New {
 
 //  }
 
-  buildByToken<std::__cxx11::string> *Implements_Data_Type_New<std::string>::getBuildByToken(const Implements_ComplexVar_New *cm) const
-  {
-    return new buildByToken<std::string>(cm,this);
-  }
-
-
   ABC_Type_of_Value::ABC_Type_of_Value(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis):
     Implements_ComplexVar_New(parent,id,var,tip,whatthis)
   {
     idSelfType_=Identifier::create_IdType(this,id);
 
   }
+
+
+
+  buildByToken<std::__cxx11::string> *Implements_Data_Type_New<std::string>::getBuildByToken(const Implements_ComplexVar_New *cm) const
+  {
+    return new buildByToken<std::string>(cm,this);
+  }
+
+
+  namespace _private {
+
+
 
   bool Implements_Data_Type_New_ABC_Var_New::isVarInDomain(const Implements_ComplexVar_New *cm, const ABC_Var_New * const val, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
   {
@@ -150,8 +156,8 @@ namespace Markov_IO_New {
       }
   }
 
+};
 
 
 
-
-}
+};

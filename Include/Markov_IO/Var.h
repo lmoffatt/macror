@@ -17,83 +17,82 @@
 namespace Markov_IO_New {
 
   class ABC_Var_New;
-  class Implements_Data_Type_New_string;
-  class Implements_Data_Type_New_ABC_Var_New;
-  class Implements_Data_Type_New_map_string_ABC_Var_New;
 
-
-  template<typename T> class Implements_Data_Type_New_vector;
-  template<typename T> class Implements_Data_Type_New_set;
-  template<typename T> class Implements_Data_Type_New_M_Matrix;
-  template<typename K,typename T> class Implements_Data_Type_New_pair;
-  template<typename K,typename T> class Implements_Data_Type_New_map;
-
-
-  template<typename T> class Implements_Data_Type_New_regular;
-  template<class C> class Implements_Data_Type_class;
-
-  template<typename T>
-  struct Helper_Type
+  namespace _private
   {
-    using t=typename    std::conditional<std::is_arithmetic<T>::value,
-    Implements_Data_Type_New_regular<T>,
-    Implements_Data_Type_class<T>>::type;
-  };
 
-  template<typename T>
-  struct Helper_Type<std::vector<T>>
-  {
-    using t=Implements_Data_Type_New_vector<T>;
-  };
-
-  template<typename T>
-  struct Helper_Type<std::set<T>>
-  {
-    using t=Implements_Data_Type_New_set<T>;
-  };
-
-  template<typename T>
-  struct Helper_Type<Markov_LA::M_Matrix<T>>
-  {
-    using t=Implements_Data_Type_New_M_Matrix<T>;
-  };
-
-  template<typename K,typename T>
-  struct Helper_Type<std::map<K,T>>
-  {
-    using t=Implements_Data_Type_New_map<K,T>;
-  };
-
-  template<typename K,typename T>
-  struct Helper_Type<std::pair<K,T>>
-  {
-    using t=Implements_Data_Type_New_pair<K,T>;
-  };
+    class Implements_Data_Type_New_string;
+    class Implements_Data_Type_New_ABC_Var_New;
+    class Implements_Data_Type_New_map_string_ABC_Var_New;
 
 
+    template<typename T> class Implements_Data_Type_New_vector;
+    template<typename T> class Implements_Data_Type_New_set;
+    template<typename T> class Implements_Data_Type_New_M_Matrix;
+    template<typename K,typename T> class Implements_Data_Type_New_pair;
+    template<typename K,typename T> class Implements_Data_Type_New_map;
 
-  template<>
-  struct Helper_Type<std::string>
-  {
-    using t=Implements_Data_Type_New_string;
-  };
-  template<>
-  struct Helper_Type<ABC_Var_New*>{
-    using t=Implements_Data_Type_New_ABC_Var_New;
-  };
-  template<>
-  struct Helper_Type<std::map<std::string,ABC_Var_New*>>{
-    using t=Implements_Data_Type_New_map_string_ABC_Var_New;
-  };
 
+    template<typename T> class Implements_Data_Type_New_regular;
+    template<class C> class Implements_Data_Type_class;
+
+    template<typename T>
+    struct Helper_Type
+    {
+      using t=typename    std::conditional<std::is_arithmetic<T>::value,
+      Implements_Data_Type_New_regular<T>,
+      Implements_Data_Type_class<T>>::type;
+    };
+
+    template<typename T>
+    struct Helper_Type<std::vector<T>>
+    {
+      using t=Implements_Data_Type_New_vector<T>;
+    };
+
+    template<typename T>
+    struct Helper_Type<std::set<T>>
+    {
+      using t=Implements_Data_Type_New_set<T>;
+    };
+
+    template<typename T>
+    struct Helper_Type<Markov_LA::M_Matrix<T>>
+    {
+      using t=Implements_Data_Type_New_M_Matrix<T>;
+    };
+
+    template<typename K,typename T>
+    struct Helper_Type<std::map<K,T>>
+    {
+      using t=Implements_Data_Type_New_map<K,T>;
+    };
+
+    template<typename K,typename T>
+    struct Helper_Type<std::pair<K,T>>
+    {
+      using t=Implements_Data_Type_New_pair<K,T>;
+    };
+
+
+
+    template<>
+    struct Helper_Type<std::string>
+    {
+      using t=Implements_Data_Type_New_string;
+    };
+    template<>
+    struct Helper_Type<ABC_Var_New*>{
+      using t=Implements_Data_Type_New_ABC_Var_New;
+    };
+    template<>
+    struct Helper_Type<std::map<std::string,ABC_Var_New*>>{
+      using t=Implements_Data_Type_New_map_string_ABC_Var_New;
+    };
+
+  };
   template <class T>
-  using Implements_Data_Type_New=typename Helper_Type<T>::t;
-
-
-
-
-
-
+  using Implements_Data_Type_New=typename _private::Helper_Type<T>::t;
 
 
 
