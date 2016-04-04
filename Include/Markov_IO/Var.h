@@ -158,10 +158,10 @@ namespace Markov_IO_New {
     //TODO: ver cual es la forma mas conveniente de manejar la propiedad de T, especialmente si esgrand
 
     template<typename T>
-    const T *getValue()const;
+    const T getValue()const;
 
     template<typename T>
-    T* getValue();
+    T getValue();
 
     template<typename T>
     bool setValue(const T& val);

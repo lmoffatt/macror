@@ -738,10 +738,6 @@ namespace Markov_IO_New {
 
     }
 
-
-
-
-
     enum DAF {S_Init,S_Header_Final,S_Data_Partial,S_Data_Final,S_Final} ;
 
 
@@ -790,7 +786,7 @@ namespace Markov_IO_New {
                                         const std::string& id,
                                         const std::string& var,
                                         const std::string& tip,
-                                        const std::string& whatthis)
+                                        const std::string& whatthis) override
     {
       if (isFinal())
         {
@@ -1383,7 +1379,7 @@ namespace Markov_IO_New {
   private:
     DAF mystate;
     std::set<T> x_;
-    const ABC_Typed_Value<std::set<T>>* dataType_;
+    const Implements_Data_Type_New<std::set<T>>* dataType_;
     buildByToken<T>* valueBuild_;
   };
 
@@ -2144,29 +2140,16 @@ namespace Markov_IO_New {
     }
 
 
-
-
     enum DFA {
       S_Init=0,
       S_ID_Final,
+      S_Argument_Partial,
       S_Input_Partial,
       S_Mandatory_Final,
       S_Input_Final,
       S_Final
     } ;
 
-    static bool hasAllInputs(const Implements_Command_Arguments *v)
-    {
-
-    }
-
-    static bool hasAllMandatoryInputs(const Implements_Command_Arguments* cmd)
-    {
-
-    }
-
-
-    bool processVariableInput(Token_New input){}
 
     std::pair<std::string,std::set<std::string>> inputAlternativeNext()const;
 
@@ -2175,6 +2158,8 @@ namespace Markov_IO_New {
     buildByToken<std::string>* idCommandB_;
     const Implements_Command_Type_New* cmdty_;
     Implements_Command_Arguments* cmd_;
+    ABC_Var_New* var_;
+    ABC_BuildByToken* A_fieldB_;
 
 
     // ABC_Base interface

@@ -132,7 +132,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  bool Implements_Data_Type_class<T>::get(Implements_ComplexVar_New *cm, T *&v, ABC_Input *istream, std::__cxx11::string *whyNot, std::__cxx11::string &MasterObjective) const
+  bool Implements_Data_Type_class<T>::get(const Implements_ComplexVar_New *cm, T *&v, ABC_Input *istream, std::__cxx11::string *whyNot, std::__cxx11::string &MasterObjective) const
   {
     std::map<std::string,ABC_Var_New*> m;
     if (!CVtype_->get(cm,m,istream,whyNot,MasterObjective))
