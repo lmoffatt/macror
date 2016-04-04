@@ -4088,18 +4088,18 @@ namespace Markov_IO_New {
       return ClassName();
     }
 
-    buildByToken<std::string>* getBuildIdCommand(){
-
-
-    }
-
-    ABC_Var_New* nextField(const Implements_ComplexVar_New* cm,
-                           const Implements_Command_Arguments* current)const
+    buildByToken<std::string>* getBuildIdCommand(const Implements_ComplexVar_New* cm)const
     {
 
+         return new buildByToken<std::string>(cm,this->getSelfIdType());
+
     }
 
-
+    virtual ABC_Var_New* nextField(const Implements_ComplexVar_New* cm,
+                           const Implements_Command_Arguments* current)const
+    {
+      return nullptr;
+    }
 
     virtual ~Implements_Command_Type_New(){}
 
@@ -4127,39 +4127,42 @@ namespace Markov_IO_New {
   public:
     virtual ABC_Value_New* empty_Value()const override
     {
- //       return Implements_Value_New<std::map<std::string,ABC_Var_New*>();
+ return nullptr;
     }
 
 
-    Implements_Command_Arguments* getCommandField()const
+    Implements_Command_Arguments* getCommandField(
+        const Implements_ComplexVar_New* cm )const
     {
-
-
+        return new Implements_Command_Arguments(
+              cm,"",this->id(),{},this->Tip(),this->WhatThis());
     }
 
-    bool hasAllInputs(const Implements_Command_Arguments* a)const
+    virtual bool hasAllInputs(const Implements_Command_Arguments* a)const
     {
-
+      return false;
     }
 
-    bool hasAllMandatoryInputs(const Implements_Command_Arguments* a)const
+    virtual bool hasAllMandatoryInputs(const Implements_Command_Arguments* a)const
     {
-
+      return false;
     }
 
 
     virtual Implements_Command_Arguments *empty_Var(const Implements_ComplexVar_New *parent, const std::string &idN, const std::string &tip, const std::string &whathis) const override
     {
+      return nullptr;
     }
 
 
     virtual ABC_Value_New *default_Value(const Implements_ComplexVar_New* cm) const override
     {
+      return  nullptr;
     }
 
     virtual Implements_Command_Arguments *default_Var(const Implements_ComplexVar_New *parent, const std::string &idN, const std::string &tip, const std::string &whathis) const override
     {
-
+       return nullptr;
     }
 
 
@@ -4169,6 +4172,7 @@ namespace Markov_IO_New {
   public:
     virtual ABC_BuildByToken *getBuildByToken(const Implements_ComplexVar_New *cm) const override
     {
+      return new build_Command_Input(cm,this->getSelfIdType());
 
     }
 

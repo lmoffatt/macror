@@ -320,6 +320,7 @@ namespace Markov_IO_New
   public:
 
 
+    virtual ~ABC_IO(){}
     /// put a string to the output source
     virtual void put(const std::string&)=0;
 

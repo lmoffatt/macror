@@ -49,12 +49,17 @@ namespace Markov_IO_New
       return vt_;
     }
 
+    const Implements_Data_Type_New<std::string>* getIdCmd()
+    {
+      return idCmd_;
+    }
 
 
   protected:
     Markov_IO::ABC_IO* io_;
 
     Implements_Data_Type_New<ABC_Var_New*>* vt_;
+    Implements_Data_Type_New<std::string>* idCmd_;
 
     ExpressionManager* e;
 
