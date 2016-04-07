@@ -14,13 +14,13 @@
 
 int main(int argc, char **argv)
 {
-  Markov_IO_New_Test::test();
+//  Markov_IO_New_Test::test();
 
 
  QApplication app(argc, argv);
-   Markov_Console::Markov_CommandManagerVar* cm=new Markov_Console::Markov_CommandManagerVar();
+   Markov_IO_New::Markov_CommandManagerVar* cm=new Markov_IO_New::Markov_CommandManagerVar();
 
-   MacrorMainWindow mainWin(0,cm);
+   Markov_IO_New::MacrorMainWindow mainWin(0,cm);
    mainWin.resize(800, 608);
     mainWin.show();
     return app.exec();

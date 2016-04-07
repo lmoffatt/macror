@@ -13,6 +13,43 @@ namespace Markov_IO_New
   class CommandHistory;
 
 
+  
+  class ProgramVersion:public Implements_ComplexVar_New
+    {
+  public:
+    virtual ~ProgramVersion(){}
+    ProgramVersion():
+   //     Markov_IO::Implements_ValueId("Program_Environment","","environment at file creation","")
+   //   ,
+        Implements_ComplexVar_New(nullptr,"Program_Environment","","environment at file creation","")
+      {
+        push_backVal("Program",programName());
+        push_backVal("ver",programVer());
+        push_backVal("buildHash",buildVersion());
+        push_backVal("buildDate",buildDate());
+        push_backVal("UncommitedFiles",uncommitedFiles());
+      }
+
+      static std::string programName(){ return "MacroConsole";}
+
+      static std::string programVer(){ return "0.2";}
+
+      static std::string buildVersion();
+      static std::string buildDate();
+      static std::string uncommitedFiles();
+
+      static std::string mySpacer(){return ">>";}
+
+      virtual std::string version()const{return programVer();}
+      virtual std::string wellcomeMessage(unsigned ncols=80)const;
+
+
+
+      virtual std::string spacer()const{return mySpacer();}
+
+  };
+
+  
 
   /**
   @brief Markov_CommandManager manages the commands
@@ -34,12 +71,13 @@ namespace Markov_IO_New
 
 
     Markov_CommandManagerVar();
-    virtual ~Markov_CommandManagerVar();
+    virtual ~Markov_CommandManagerVar()
+    {
 
+    }
 
-    virtual ABC_IO* getIO()const;
-
-    virtual void setIO(ABC_IO* io);
+    virtual ABC_IO* getIO()const {return io_;}
+    virtual void setIO(ABC_IO* io){io_=io;}
 
 
     virtual CommandHistory& getH();
@@ -54,19 +92,29 @@ namespace Markov_IO_New
       return idCmd_;
     }
 
+    ProgramVersion &getProgram()
+    {
+      return program_ver_;
+    }
+
+
+    void run(const Implements_Command_Arguments* arg);
+
+    std::string getDir() const {return dir_;}
+
+    bool setDir(const std::string &dir);
+
+
 
   protected:
-    Markov_IO::ABC_IO* io_;
-
+    ABC_IO* io_;
     Implements_Data_Type_New<ABC_Var_New*>* vt_;
     Implements_Data_Type_New<std::string>* idCmd_;
-
     ExpressionManager* e;
-
-
-
     bool lastCmdRst;
-
+    ProgramVersion program_ver_;
+    std::string dir_;
+    CommandHistory* h_;
 
   };
 

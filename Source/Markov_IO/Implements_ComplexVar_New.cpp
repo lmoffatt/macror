@@ -156,7 +156,36 @@ namespace Markov_IO_New {
       }
   }
 
-};
+  };
+
+  bool Identifier::S::typeComply_id_Cmd_T(const Implements_ComplexVar_New *p, const Implements_Data_Type_New<std::__cxx11::string> *idtype, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
+  {
+    if (idtype->id()==self->id())
+      return true;
+    else if( idtype->myType().find(V::idCmd())==0)
+      {
+        std::string varself=G::gettypeOfId(self);
+        std::string vartest=G::gettypeOfId(idtype);
+
+        const Implements_Command_Type_New *tself=p->idToCommand(
+              varself,WhyNot,objective);
+        return tself->includesThisType(p,vartest,WhyNot,objective);
+      }
+    else
+      {
+        *WhyNot=objective+": "+idtype->myType()+ "is not a "+V::idCmd();
+        return false;
+      }
+  }
+
+
+  void Implements_ComplexVar_New::pushCommand(Implements_Command_Type_New *cmd)
+  {
+    vars_[cmd->id()]=cmd;
+    types_[cmd->id()]=cmd;
+    cmds_[cmd->id()]=cmd;
+
+  }
 
 
 

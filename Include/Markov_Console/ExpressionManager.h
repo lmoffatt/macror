@@ -7,13 +7,8 @@
 namespace Markov_IO_New {
 
 
-
-
-
    class Markov_CommandManagerVar;
    class CommandHistory;
-
-
 
 
 
@@ -25,11 +20,13 @@ namespace Markov_IO_New {
 
 
 
-    virtual void KeyEvent(Markov_CommandManagerVar *cm,ABC_IO * io, CommandHistory& ch, Key k);
+    void KeyEvent(Markov_CommandManagerVar *cm,ABC_IO * io, CommandHistory& ch, Key k);
 
   protected:
 
     bool push_back(Markov_CommandManagerVar *cm, ABC_IO *io, char c, std::string *errorMessage);
+
+
     bool push_back(Markov_CommandManagerVar *cm, ABC_IO * io, const std::string& s, std::string *errorMessage);
 
     char pop_back_char();
@@ -53,9 +50,7 @@ namespace Markov_IO_New {
 
 
 
-    void showErrorMessage(const std::string& s);
 
-    void showSuggestionMessage(const std::string& s);
 
 
     // processing input from interfase
@@ -75,24 +70,6 @@ namespace Markov_IO_New {
     void putReturn(Markov_CommandManagerVar *cm,ABC_IO * io);
 
     void putText(Markov_CommandManagerVar *cm, ABC_IO * io, char s);
-    void cleanFromCursor(ABC_IO * io);
-    bool check();
-
-
-
-
-    //talking with history
-    std::string getHistoryUp(const CommandHistory* ch,const std::string& line)const;
-    std::string getHistoryDown(const CommandHistory *ch, const std::string& line)const;
-
-
-
-
-
-    //bool putSpace();
-
-
-
 
 
 
@@ -104,7 +81,6 @@ namespace Markov_IO_New {
     Token_New tok_;
     Key previous_key={};
     std::string rejectedChars_;
-     // Markov_CommandManagerVar *cm_;
 
   };
 

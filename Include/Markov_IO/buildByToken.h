@@ -1892,6 +1892,7 @@ namespace Markov_IO_New {
         buildByToken(const Implements_ComplexVar_New* parent,
                      const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* typeVar);
 
+        buildByToken(const Implements_ComplexVar_New* parent);
 
 
         ~buildByToken(){
@@ -2076,7 +2077,7 @@ namespace Markov_IO_New {
 
 
     class build_Command_Input
-            :public ABC_BuildByToken//public buildByToken<Implements_Command_Fields*>
+            :public buildByToken<std::map<std::string,ABC_Var_New*>>//public buildByToken<Implements_Command_Fields*>
     {
         // ABC_BuildByToken interface
     public:
@@ -2128,6 +2129,12 @@ namespace Markov_IO_New {
     public:
         virtual Implements_Command_Arguments* unloadVar()
         {
+              if (isFinal())
+                {
+                    return cmd_;
+                }
+            else
+                return nullptr;
 
         }
 
@@ -2267,6 +2274,9 @@ namespace Markov_IO_New {
 
         Implements_Command_Arguments* unloadCommand()
         {
+          if (isFinal())
+            return cmv_;
+          else return nullptr;
         }
 
         bool  unPop(ABC_Var_New* var)
@@ -2366,7 +2376,6 @@ namespace Markov_IO_New {
                                     return false;
                                 }
                         }
-                    break;
                 case S_Command_Partial:
                     if (!c_.pushToken(t, whyNot,objective))
                         {
@@ -2383,7 +2392,6 @@ namespace Markov_IO_New {
                                 mystate=S_Command_Partial;
                             return true;
                         }
-                    break;
                 case S_Expression_Partial:
                     if (!v_.pushToken(t, whyNot,objective))
                         {
@@ -2401,12 +2409,9 @@ namespace Markov_IO_New {
                                 mystate=S_Expression_Partial;
                             return true;
                         }
-                    break;
                 case S_Command_Final:
                 case S_Expression_Final:
-                default:
                     return false;
-                    break;
                 }
 
         }

@@ -50,7 +50,6 @@ namespace Markov_IO_New {
     c_({p,idCmd}),
     cmv_(nullptr),
     x_(nullptr)
-
   {}
 
 
@@ -70,9 +69,10 @@ namespace Markov_IO_New {
         else
           {
             std::string idCmd=idCommandB_->unloadVar();
-            cmdty_=parent()->idToCommand(idCmd,whyNot);
+            cmdty_=parent()->idToCommand(idCmd,whyNot,objective);
             cmd_=cmdty_->getCommandField(parent());
-            if (cmdty_->hasAllInputs(cmd_))
+            std::string dummyWhynot;
+            if (cmdty_->hasAllInputs(parent(),cmd_))
               {
                 mystate=S_Input_Final;
                 return true;
@@ -83,7 +83,7 @@ namespace Markov_IO_New {
             if (f==nullptr)
               return false;
             A_fieldB_=f->getBuildByToken(parent());
-            if (cmdty_->hasAllMandatoryInputs(cmd_))
+            if (cmdty_->hasAllMandatoryInputs(parent(),cmd_))
               mystate=S_Mandatory_Final;
             else
               mystate=S_ID_Final;
@@ -112,7 +112,7 @@ namespace Markov_IO_New {
                   parent(),var_->id(),var_->myType()
                   ,var_->Tip(),var_->WhatThis());
             cmd_->pushChild(x_);
-            if (cmdty_->hasAllInputs(cmd_))
+            if (cmdty_->hasAllInputs(parent(),cmd_))
               {
                 mystate=S_Input_Final;
                 return true;
@@ -127,7 +127,7 @@ namespace Markov_IO_New {
                   return false;
                 delete A_fieldB_;
                 A_fieldB_=f->getBuildByToken(parent());
-                if (cmdty_->hasAllMandatoryInputs(cmd_))
+                if (cmdty_->hasAllMandatoryInputs(parent(),cmd_))
                   mystate=S_Mandatory_Final;
                 else
                   mystate=S_Input_Partial;
@@ -409,7 +409,7 @@ namespace Markov_IO_New {
   build_Command_Input::build_Command_Input(
       const Implements_ComplexVar_New *cm,
       const Implements_Data_Type_New<std::string>* idCmd):
-    ABC_BuildByToken(cm)
+    buildByToken<std::map<std::string, ABC_Var_New *> > (cm)
   ,mystate(S_Init)
   ,idCommandB_(idCmd->getBuildByToken(cm)),
     cmdty_(nullptr)
@@ -454,6 +454,16 @@ namespace Markov_IO_New {
     varBuild_(typeVar->getElementBuildByToken(parent))
   {}
 
+  buildByToken<std::map<std::string, ABC_Var_New *> >::
+  buildByToken(const Implements_ComplexVar_New *parent):
+    ABC_BuildByToken(parent),
+    mystate(S_Header_Final),
+    x_{},
+    varType_(nullptr),
+    varBuild_(nullptr)
+  {}
+
+
   std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
   {
     switch (mystate)
@@ -477,6 +487,7 @@ namespace Markov_IO_New {
       }
 
   }
+
 
 
 

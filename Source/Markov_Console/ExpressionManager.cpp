@@ -51,16 +51,6 @@ namespace Markov_IO_New {
 
 
 
-  void ExpressionManager::showErrorMessage(const std::string &s)
-  {
-
-  }
-
-  void ExpressionManager::showSuggestionMessage(const std::string &s)
-  {
-
-  }
-
   void ExpressionManager::history_up( CommandHistory* ch,ABC_IO * io)
   {
     std::string line=io->currentLine();
@@ -126,7 +116,7 @@ namespace Markov_IO_New {
         if (bu_.isCommand())
           {
             auto cmd=bu_.unloadCommand();
-            //cm->run(cmd);
+            cm->run(cmd);
           }
         else
           {
@@ -146,9 +136,6 @@ namespace Markov_IO_New {
   }
 
 
-  bool ExpressionManager::check()
-  {
-  }
 
 
 

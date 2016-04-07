@@ -39,10 +39,186 @@
 
 
 
+#include "Markov_IO/Commands.h"
+
 
 
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
+
+
+namespace Markov_IO_New
+{
+
+
+  bool Markov_CommandManagerVar::setDir(const std::__cxx11::string &dir)
+  {
+    if (!IsDir(dir))
+      return false;
+    dir_=dir;
+    //autoCmptByCategories[directory()]=Autocomplete(Markov_IO::getSubDirs(dir));
+    //TODO                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            : include this former functionality (list of macror files)
+    // filesl=LoadFiles(dir);
+    return true;
+  }
+
+
+  void Markov_CommandManagerVar::KeyEvent(Key k)
+  {
+    e->KeyEvent(this,getIO(),getH(),k);
+  }
+
+  Markov_CommandManagerVar::Markov_CommandManagerVar():
+   Implements_ComplexVar_New(nullptr,"CommandManager","CommandManager","",""),
+  io_(nullptr),
+  e(nullptr),
+  lastCmdRst{},
+
+  dir_{Markov_IO_New::getWorkingPath()},
+    vt_(Variable::create_varVar(this)),
+    idCmd_(Identifier::create_IdCmd(this)),
+    program_ver_(),
+    h_(new CommandHistory(""))
+
+{
+  setParentValue(nullptr);
+  pushAllCommands(this);
+  e=new ExpressionManager(this);
+
+  //    auto dirs=Markov_IO::getSubDirs(dir_);
+  //    filesl=LoadFiles(getDir());
+  //    autoCmptByKind[ABC_Command::directory()]=Autocomplete(dirs);
+  //    autoCmptByKind[ABC_Command::fileName()]=LoadFiles(getDir());
+
+//  Loadcommands();
+  //    cmdsl=Autocomplete(cmds);
+//  LoadTypes();
+
+  //  UpdateIdLists();
+  }
+
+  CommandHistory &Markov_CommandManagerVar::getH()
+  {
+   return *h_;
+  }
+
+  void Markov_CommandManagerVar::run(const Implements_Command_Arguments *arg)
+  {
+    std::string dummyError;
+    const Implements_Command_Type_New* ctp=idToCommand(arg->myType(),&dummyError,"");
+    ctp->run(this,arg->value()->getValued(),&dummyError,"");
+  }
+
+
+
+  std::string ProgramVersion::buildVersion()
+  {
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(GIT_VER_PATH);
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
+    std::fstream f(path.c_str());
+    if (!(f))
+      {
+        f.close();
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
+        f.open(path.c_str());
+      }
+
+    std::string lineHash;
+    Markov_IO::safeGetline(f,lineHash);
+    return lineHash;
+  }
+
+  std::string ProgramVersion::buildDate()
+  {
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(GIT_VER_PATH);
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
+    std::fstream f(path.c_str());
+    if (!(f))
+      {
+        f.close();
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
+        f.open(path.c_str());
+      }
+    std::string line;
+    Markov_IO::safeGetline(f,line);
+    std::string lineDate;
+    Markov_IO::safeGetline(f,lineDate);
+    return lineDate;
+  }
+
+  std::string ProgramVersion::uncommitedFiles()
+  {
+    std::string d=Markov_IO::getExecutableDir();
+    std::string fname=STRINGIZE(UNCOMMITED_PATH);
+    std::string path=d+Markov_IO::FileDir::slash()+fname;
+    std::fstream f(path.c_str());
+    if (!(f))
+      {
+        f.close();
+        path=Markov_IO::getDirectory(d)+Markov_IO::FileDir::slash()+fname;
+        f.open(path.c_str());
+      }
+    std::string lineUncommited0;
+    std::string lineUncommited;
+    while ( Markov_IO::safeGetline(f,lineUncommited0))
+      {
+        lineUncommited+=lineUncommited0;
+        if (Markov_IO::safeGetline(f,lineUncommited0))
+          lineUncommited+=" "+lineUncommited0+"\n";
+      }
+    return lineUncommited;
+  }
+
+  std::string ProgramVersion::wellcomeMessage(unsigned ncols)const
+  {
+    std::string wllc;
+    std::string decorating_line(ncols,'#');
+    std::string vers=version();
+    std::string motto="Statistically Sound Molecular Kinetics";
+    std::string date_build=buildDate()+"    build:"+buildVersion();
+    std::string updatesMss="updates in http://code.google.com/p/macror/";
+    std::string helpmss="enter help for help";
+
+    wllc+=decorating_line+"\n";
+
+    int pos0=0;
+    if (ncols>vers.size())
+      pos0=(ncols-vers.size())/2;
+    wllc+=std::string(pos0,' ')+vers+"\n";
+
+    pos0=0;
+    if (ncols>motto.size())
+      pos0=(ncols-motto.size())/2;
+    wllc+=std::string(pos0,' ')+motto+"\n";
+
+    pos0=0;
+    if (ncols>date_build.size())
+      pos0=(ncols-date_build.size())/2;
+    wllc+=std::string(pos0,' ')+date_build+"\n";
+
+    wllc+=decorating_line+"\n";
+
+    std::string uncomf=uncommitedFiles();
+    if (!uncomf.empty())
+      {
+        std::string warnmg="Warning: there are uncommited files, build number refers to a previous build";
+        wllc+=warnmg+"\n";
+        wllc+=uncomf+"\n";
+      }
+
+    wllc+=updatesMss+"\n";
+    wllc+=helpmss+"\n";
+    return wllc;
+  }
+
+
+
+};
+
+
+
 
 
 namespace Markov_Console
@@ -1469,6 +1645,7 @@ namespace Markov_Console
 
 
 }
+
 
 
 

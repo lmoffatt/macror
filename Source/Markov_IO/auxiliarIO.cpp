@@ -31,6 +31,43 @@
   it waits for an input from io
   */
 
+namespace Markov_IO_New
+{
+  std::istream& safeGetline(std::istream& is, std::string& t)
+  {
+    t.clear();
+
+    // The characters in the stream are read one-by-one using a std::streambuf.
+    // That is faster than reading them one-by-one using the std::istream.
+    // Code that uses streambuf this way must be guarded by a sentry object.
+    // The sentry object performs various tasks,
+    // such as thread synchronization and updating the stream state.
+
+    std::istream::sentry se(is, true);
+    std::streambuf* sb = is.rdbuf();
+
+    for(;;) {
+        int c = sb->sbumpc();
+        switch (c) {
+          case '\r':
+            c = sb->sgetc();
+            if(c == '\n')
+              sb->sbumpc();
+            return is;
+          case '\n':
+            return is;
+          case EOF:
+            is.setstate(std::ios_base::eofbit);
+            return is;
+          default:
+            t += (char)c;
+          }
+      }
+  }
+
+}
+
+
 namespace Markov_IO
 {
 

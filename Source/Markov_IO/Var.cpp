@@ -30,8 +30,8 @@ namespace Markov_IO_New {
 
   bool Implements_ComplexVar_New::hasNameofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
   {
-    auto it=vars_->find(name);
-    if (it==vars_->end())
+    auto it=vars_.find(name);
+    if (it==vars_.end())
       {
         if(!recursive||(parent()==nullptr))
           {
@@ -55,10 +55,39 @@ namespace Markov_IO_New {
   }
 
 
+  bool Implements_ComplexVar_New::hasCmdofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
+  {
+    auto it=cmds_.find(name);
+    if (it==cmds_.end())
+      {
+        if(!recursive||(parent()==nullptr))
+          {
+            *whyNot=masterObjective+": "+name+" is not a name in "+this->id();
+            return false;
+          }
+        else return parent()->hasCmdofType(name, type,whyNot,masterObjective,recursive);
+      }
+    else
+      {
+        auto t=parent()->idToCommand(type,whyNot,masterObjective);
+        if (t==nullptr)
+          return false;
+        else
+          {
+            const Implements_Command_Type_New* v=it->second;
+            return t->isTypeInDomain(parent(),v,whyNot,masterObjective);
+          }
+      }
+
+  }
+
+
+
+
   bool Implements_ComplexVar_New::hasTypeofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
   {
-    auto it=types_->find(name);
-    if (it==types_->end())
+    auto it=types_.find(name);
+    if (it==types_.end())
       {
         if(!recursive||(parent()==nullptr))
           {
@@ -96,7 +125,7 @@ namespace Markov_IO_New {
     std::string objective;
     if (varType.empty())
       {
-        auto s=getMapKeys(*vars_);
+        auto s=getMapKeys(vars_);
         s.insert(o.begin(),o.end());
         return s;
       }
@@ -104,12 +133,45 @@ namespace Markov_IO_New {
       {
         const ABC_Type_of_Value* t=idToType(varType,&whyNot,objective);
         std::set<std::string> s;
-        for (const auto &p:*vars_)
+        for (const auto &p:vars_)
           {
             ABC_Var_New* var=p.second;
             std::string why;
             if (t->isVarInDomain(this,var->value(),&why,objective))
               s.insert(var->id());
+          }
+        s.insert(o.begin(),o.end());
+        return s;
+      }
+  }
+
+
+  std::set<std::string> Implements_ComplexVar_New::getIdsOfCmdType(const std::string &cmdType,bool recursive) const
+  {
+    std::set<std::string> o;
+    if (recursive&& parent()!=nullptr)
+      {
+        o=parent()->getIdsOfCmdType(cmdType,recursive);
+      }
+    std::string whyNot;
+    std::string objective;
+    if (cmdType.empty())
+      {
+        auto s=getMapKeys(cmds_);
+        s.insert(o.begin(),o.end());
+        return s;
+      }
+    else
+      {
+        const Implements_Command_Type_New* t=
+            idToCommand(cmdType,&whyNot,objective);
+        std::set<std::string> s;
+        for (const auto &p:cmds_)
+          {
+            Implements_Command_Type_New* cmd=p.second;
+            std::string why;
+            if (t->isTypeInDomain(this,cmd,&why,objective))
+              s.insert(cmd->id());
           }
         s.insert(o.begin(),o.end());
         return s;
@@ -124,9 +186,9 @@ namespace Markov_IO_New {
     std::string objective;
     if (varType.empty())
       {
-        if (!vars_->empty())
+        if (!vars_.empty())
           {
-            return vars_->begin()->first;
+            return vars_.begin()->first;
           }
         else if (!recursive || parent()==nullptr)
           return {};
@@ -137,7 +199,7 @@ namespace Markov_IO_New {
     else
       {
         const ABC_Type_of_Value* t=idToType(varType,&whyNot,objective);
-        for (const auto &p:*vars_)
+        for (const auto &p:vars_)
           {
             ABC_Var_New* var=p.second;
             std::string why;
@@ -152,15 +214,52 @@ namespace Markov_IO_New {
   }
 
 
+  std::string Implements_ComplexVar_New::defaultIdOfCmdType(const std::string &cmdType,bool recursive) const
+  {
+    std::string whyNot;
+    std::string objective;
+    if (cmdType.empty())
+      {
+        if (!cmds_.empty())
+          {
+            return cmds_.begin()->first;
+          }
+        else if (!recursive || parent()==nullptr)
+          return {};
+        else return parent()->defaultIdOfCmdType(cmdType,recursive);
+
+
+      }
+    else
+      {
+        const Implements_Command_Type_New* t=
+            idToCommand(cmdType,&whyNot,objective);
+        for (const auto &p:cmds_)
+          {
+            Implements_Command_Type_New* cmd=p.second;
+            std::string why;
+            if (t->isTypeInDomain(this,cmd,&why,objective))
+              return cmd->id();
+          }
+        if (!recursive || parent()==nullptr)
+          return {};
+        else return parent()->defaultIdOfCmdType(cmdType,recursive);
+
+      }
+  }
+
+
+
+
   std::string Implements_ComplexVar_New::defaultIdOfTypeType(const std::string &typeType,bool recursive) const
   {
     std::string whyNot;
     std::string objective;
     if (typeType.empty())
       {
-        if (!types_->empty())
+        if (!types_.empty())
           {
-            return types_->begin()->first;
+            return types_.begin()->first;
           }
         else if (!recursive || parent()==nullptr)
           return {};
@@ -169,7 +268,7 @@ namespace Markov_IO_New {
     else
       {
         const ABC_Type_of_Value* t=idToType(typeType,&whyNot,objective);
-        for (const auto &p:*types_)
+        for (const auto &p:types_)
           {
             ABC_Type_of_Value* var=p.second;
             std::string why;
@@ -185,6 +284,38 @@ namespace Markov_IO_New {
 
 
 
+  std::string Implements_ComplexVar_New::defaultIdOfCommand(const std::string &idCmd,bool recursive) const
+  {
+    std::string whyNot;
+    std::string objective;
+    if (idCmd.empty())
+      {
+        if (!cmds_.empty())
+          {
+            return cmds_.begin()->first;
+          }
+        else if (!recursive || parent()==nullptr)
+          return {};
+        else return parent()->defaultIdOfCommand(idCmd,recursive);
+      }
+    else
+      {
+        const Implements_Command_Type_New* t=idToCommand(idCmd,&whyNot,objective);
+        for (const auto &p:cmds_)
+          {
+            const Implements_Command_Type_New* var=p.second;
+            std::string why;
+            if (t->isTypeInDomain(this,var,&why,objective))
+              return var->id();
+          }
+        if (!recursive || parent()==nullptr)
+          return {};
+        else return parent()->defaultIdOfTypeType(idCmd,recursive);
+
+      }
+  }
+
+
   std::set<std::string> Implements_ComplexVar_New::getIdsOfTypeType(const std::string &typeType, bool recursive) const
   {
     std::set<std::string> o;
@@ -196,7 +327,7 @@ namespace Markov_IO_New {
     std::string objective;
     if (typeType.empty())
       {
-        auto s=getMapKeys(*types_);
+        auto s=getMapKeys(types_);
         s.insert(o.begin(),o.end());
         return s;
       }
@@ -204,7 +335,7 @@ namespace Markov_IO_New {
       {
         const ABC_Type_of_Value* t=idToType(typeType,&whyNot,objective);
         std::set<std::string> s;
-        for (const auto &p:*types_)
+        for (const auto &p:types_)
           {
             const ABC_Type_of_Value* var=p.second;
             std::string why;
