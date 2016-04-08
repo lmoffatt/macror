@@ -14,7 +14,14 @@
 //#include "Markov_IO/buildByToken.h"
 
 #include "type_traits"
+namespace Markov_Mol_New
+{
+  class ABC_Markov_Model;
+}
+
 namespace Markov_IO_New {
+
+
 
   class ABC_Var_New;
 
@@ -24,6 +31,10 @@ namespace Markov_IO_New {
     class Implements_Data_Type_New_string;
     class Implements_Data_Type_New_ABC_Var_New;
     class Implements_Data_Type_New_map_string_ABC_Var_New;
+
+    class Implements_Data_Type_class_ABC_Markov_Model;
+
+
 
 
     template<typename T> class Implements_Data_Type_New_vector;
@@ -89,6 +100,13 @@ namespace Markov_IO_New {
     struct Helper_Type<std::map<std::string,ABC_Var_New*>>{
       using t=Implements_Data_Type_New_map_string_ABC_Var_New;
     };
+
+    template<>
+    struct Helper_Type<Markov_Mol_New::ABC_Markov_Model*>
+    {
+      using t=Implements_Data_Type_class_ABC_Markov_Model;
+   };
+
 
   };
   template <class T>

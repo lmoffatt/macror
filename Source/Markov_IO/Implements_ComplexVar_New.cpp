@@ -131,31 +131,6 @@ namespace Markov_IO_New {
   }
 
 
-  template<typename T>
-  bool Implements_Data_Type_class<T>::get(const Implements_ComplexVar_New *cm, T *&v, ABC_Input *istream, std::__cxx11::string *whyNot, std::__cxx11::string &MasterObjective) const
-  {
-    std::map<std::string,ABC_Var_New*> m;
-    if (!CVtype_->get(cm,m,istream,whyNot,MasterObjective))
-      return false;
-    else
-      {
-        T* p=getClass(cm,m,whyNot,MasterObjective);
-        if (p==nullptr)
-          return false;
-        else
-          {
-            if (!isInDomain(p,whyNot,MasterObjective))
-              return false;
-            else
-              {
-                v=p;
-                return true;
-              }
-
-          }
-      }
-  }
-
   };
 
   bool Identifier::S::typeComply_id_Cmd_T(const Implements_ComplexVar_New *p, const Implements_Data_Type_New<std::__cxx11::string> *idtype, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)

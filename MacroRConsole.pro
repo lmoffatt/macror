@@ -480,7 +480,8 @@ HEADERS += \
     Include/Markov_IO/Cls.h \
     Include/Markov_IO/Implements_ComplexVar_New.h \
     Include/Markov_IO/buildByTokenTempl.h \
-    Include/Markov_IO/Commands.h
+    Include/Markov_IO/Commands.h \
+    Include/Markov_IO/myTypes.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
@@ -488,7 +489,8 @@ SOURCES += \
     Source/Markov_Console/ExpressionManager.cpp \
     Source/Markov_IO/Var.cpp \
     Source/Markov_IO/Implements_ComplexVar_New.cpp \
-    Source/Markov_IO/Commands.cpp
+    Source/Markov_IO/Commands.cpp \
+    Source/Markov_IO/myTypes.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt
