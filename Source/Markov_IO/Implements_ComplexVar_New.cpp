@@ -133,6 +133,24 @@ namespace Markov_IO_New {
 
   };
 
+  bool Identifier::S::comply_id_Field(const Implements_ComplexVar_New *p, const std::__cxx11::string &idCandidate, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
+  {
+    std::string cvname=G::getComplexVarTypeId(self);
+    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* cmtype
+        =dynamic_cast<const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>*>
+        (p->idToType(cvname,WhyNot,objective));
+    if (cmtype==nullptr)
+      {
+        *WhyNot=objective+": "+cvname+ "is not an "+Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>
+            ::ClassName();
+
+        return false;
+      }
+
+    else return cmtype->hasName(idCandidate,WhyNot,objective,false)&&
+        p->hasName(idCandidate,WhyNot,objective,false);
+  }
+
   bool Identifier::S::typeComply_id_Cmd_T(const Implements_ComplexVar_New *p, const Implements_Data_Type_New<std::__cxx11::string> *idtype, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
   {
     if (idtype->id()==self->id())

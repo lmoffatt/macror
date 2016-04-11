@@ -527,7 +527,7 @@ namespace Markov_IO_New {
       static std::string keyType(){return "keyType";}
 
 
-      static std::string idOfComplexVar(){return "idOfComplexVar";}
+      static std::string idOfComplexType(){return "idOfComplexVar";}
     };
 
     class V
@@ -540,6 +540,10 @@ namespace Markov_IO_New {
       static std::string identifierNewType(){return "identifierNewType";}
 
       static std::string identifierOfVar(){return "identifierOfVar";}
+
+
+      static std::string identifierOfComplexType(){return "identifierOfComplexType";}
+
 
       static std::string identifierField(){return "identifierField";}
 
@@ -577,11 +581,11 @@ namespace Markov_IO_New {
 
 
 
-      static std::string getComplexVarId(const Implements_ComplexVar_New* self)
+      static std::string getComplexVarTypeId(const Implements_ComplexVar_New* self)
       {
         std::string idCV;
         std::string whyNot;
-        if (self->getValueFromId(F::idOfComplexVar(),idCV,&whyNot,""))
+        if (self->getValueFromId(F::idOfComplexType(),idCV,&whyNot,""))
           return idCV;
         else
           {
@@ -591,11 +595,11 @@ namespace Markov_IO_New {
       }
 
 
-      static void pushComplexVarId(Implements_ComplexVar_New* self,
-                                   std::string fieldId)
+      static void pushComplexTypeId(Implements_ComplexVar_New* self,
+                                    std::string fieldId)
       {
         self->pushChild(new Implements_Var_New<std::string>(
-                          self,F::idOfComplexVar()
+                          self,F::idOfComplexType()
                           ,V::identifierOfVar(),
                           fieldId,
                           "",""));
@@ -761,7 +765,6 @@ namespace Markov_IO_New {
     }
 
 
-    virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const=0;
 
 
     virtual bool isVarInDomain(const Implements_ComplexVar_New* cm
@@ -792,6 +795,19 @@ namespace Markov_IO_New {
                                      const Implements_ComplexVar_New* cvar,
                                      std::string* whyNot,
                                      const std::string& masterObjective)const=0;
+
+
+    virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+        const Implements_ComplexVar_New* cm,
+        const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const=0;
+
+    virtual ABC_Type_of_Value* getTypeClassRep(const Implements_ComplexVar_New* cm,
+                                               const Implements_ComplexVar_New* cvar,
+                                               std::string* whyNot,
+                                               const std::string& masterObjective)const=0;
+
+
+
 
     ABC_Type_of_Value (const Implements_ComplexVar_New* parent,
                        const std::string& id
@@ -1075,8 +1091,8 @@ namespace Markov_IO_New {
       using typeValue=T(*)(const Implements_ComplexVar_New*,const Implements_ComplexVar_New*);
 
 
-      using getSet=std::set<std::string>(*)(const Implements_ComplexVar_New*,
-      const Implements_ComplexVar_New*);
+
+
 
       static std::string ClassName()
       {
@@ -1111,12 +1127,7 @@ namespace Markov_IO_New {
 
 
 
-      virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
-      {
-        if (alternativeNext_!=nullptr)
-          return (*alternativeNext_)(cm,this);
-        else return {};
-      }
+
 
       virtual bool includesThisType(const Implements_ComplexVar_New* cm,
                                     const std::string& childType,
@@ -1139,7 +1150,6 @@ namespace Markov_IO_New {
 
 
 
-
       virtual ~Implements_Base_Type_New(){}
 
 
@@ -1152,13 +1162,13 @@ namespace Markov_IO_New {
                                ,typePredicate complyPred
                                ,typetypePredicate complyType
                                ,typeValue  defaultValue
-                               ,getSet alterNext):
+                               ):
         ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
       , unknownVaL_(unknownVal)
       ,comply_(complyPred)
       ,typeComply_(complyType)
       ,default_(defaultValue)
-      ,alternativeNext_(alterNext)
+
       {}
 
 
@@ -1177,9 +1187,7 @@ namespace Markov_IO_New {
       std::string *, const std::string&)
       {return true;}
       ,[](const Implements_ComplexVar_New*,const Implements_ComplexVar_New*)
-      {return T{};}
-      ,[](const Implements_ComplexVar_New*, const Implements_ComplexVar_New*)
-      {return std::set<std::string>();})
+      {return T{};})
       {}
 
       // ABC_Type_of_Value interface
@@ -1223,7 +1231,6 @@ namespace Markov_IO_New {
       typePredicate comply_;
       typetypePredicate typeComply_;
       typeValue default_;
-      getSet alternativeNext_;
 
 
     };
@@ -1247,8 +1254,8 @@ namespace Markov_IO_New {
       using typeValue=T*(*)(const Implements_ComplexVar_New*,const Implements_ComplexVar_New*);
 
 
-      using getSet=std::set<std::string>(*)(const Implements_ComplexVar_New*,
-      const Implements_ComplexVar_New*);
+
+
 
       static std::string ClassName()
       {
@@ -1276,15 +1283,12 @@ namespace Markov_IO_New {
 
 
 
-      virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
-      {
-        return (*alternativeNext_)(cm,this);
-      }
+
 
       virtual bool includesThisType(const Implements_ComplexVar_New* cm,
                                     const std::string& childType,
                                     std::string *whyNot
-                                    , const std::string &masterObjective)const;
+                                    , const std::string &masterObjective)const override;
 
 
 
@@ -1307,9 +1311,13 @@ namespace Markov_IO_New {
 
 
 
+
+
+
       virtual ~Implements_Base_Type_New(){
         delete unknownVaL_;
       }
+
 
 
       Implements_Base_Type_New(const Implements_ComplexVar_New* parent,
@@ -1319,16 +1327,17 @@ namespace Markov_IO_New {
                                ,const std::string& whatthis
                                ,const T* unknownVal
                                ,typePredicate complyPred
-                               ,typetypePredicate typeComply
+                               ,typetypePredicate complyType
                                ,typeValue  defaultValue
-                               ,getSet alterNext):
+                               ):
         ABC_Typed_Value<T*>(parent,id,var,tip,whatthis)
       , unknownVaL_(unknownVal)
       ,comply_(complyPred)
-      ,typeComply_(typeComply)
+      ,typeComply_(complyType)
       ,default_(defaultValue)
-      ,alternativeNext_(alterNext)
+
       {}
+
 
 
       Implements_Base_Type_New(const Implements_ComplexVar_New *parent):
@@ -1348,7 +1357,8 @@ namespace Markov_IO_New {
       ,[](const Implements_ComplexVar_New*,const Implements_ComplexVar_New*)
       {return new T{};}
       ,[](const Implements_ComplexVar_New*, const Implements_ComplexVar_New*)
-      {return std::set<std::string>();})
+      {return std::set<std::string>();},
+      nullptr,nullptr)
       {}
 
       // ABC_Type_of_Value interface
@@ -1392,7 +1402,6 @@ namespace Markov_IO_New {
       typePredicate comply_;
       typetypePredicate typeComply_;
       typeValue default_;
-      getSet alternativeNext_;
 
 
     };
@@ -1405,11 +1414,14 @@ namespace Markov_IO_New {
       using typePredicate=typename Implements_Base_Type_New<C<T>>::typePredicate;
       using typetypePredicate=typename Implements_Base_Type_New<C<T>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<C<T>>::typeValue;
-      using getSet=typename Implements_Base_Type_New<C<T>>::getSet;
-
 
 
       using typeElementPredicate = bool(*)(const Implements_ComplexVar_New*,const C<T> &,const T&,const Implements_ComplexVar_New*, std::string *WhyNot, const std::string& objective);
+
+
+
+
+
 
       static std::string ClassName()
       {
@@ -1444,18 +1456,20 @@ namespace Markov_IO_New {
       virtual ~Implements_Container_Type_New(){}
 
 
-      Implements_Container_Type_New(const Implements_ComplexVar_New* parent,
-                                    const std::string& id
-                                    ,const std::string& var
-                                    ,const std::string& tip
-                                    ,const std::string& whatthis
-                                    , const std::string elementVar
-                                    ,typePredicate complyPred
-                                    ,typetypePredicate typeComply                                 ,typeElementPredicate elemeComply
-                                    ,typeValue  defaultValue
-                                    ,getSet alternN):
+      Implements_Container_Type_New(
+          const Implements_ComplexVar_New* parent,
+          const std::string& id
+          ,const std::string& var
+          ,const std::string& tip
+          ,const std::string& whatthis
+          , const std::string elementVar
+          ,typePredicate complyPred
+          ,typetypePredicate typeComply                                 ,typeElementPredicate elemeComply
+          ,typeValue  defaultValue
+
+          ):
         Implements_Base_Type_New<C<T>>(parent,id,var,tip,whatthis,C<T>()
-                                       ,complyPred,typeComply,defaultValue,alternN),
+                                       ,complyPred,typeComply,defaultValue),
         elemComply_(elemeComply)
       {
         ABC_Type_of_Value::G::pushTypeOfElement(this,elementVar);
@@ -1465,6 +1479,8 @@ namespace Markov_IO_New {
 
     protected:
       typeElementPredicate elemComply_;
+
+
     };
 
 
@@ -1479,10 +1495,18 @@ namespace Markov_IO_New {
       using typePredicate=typename Implements_Base_Type_New<std::vector<T>>::typePredicate;
       using typetypePredicate=typename Implements_Base_Type_New<std::vector<T>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<std::vector<T>>::typeValue;
-      using getSet=typename Implements_Base_Type_New<std::vector<T>>::getSet;
 
       using typeElementPredicate= typename Implements_Container_Type_New<T,My_vec>::typeElementPredicate;
 
+      using cvToType=Implements_Data_Type_New_vector<T>* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_vector<T>* classType,
+      std::string* whyNot,const std::string& masterObjective);
 
       static std::string ClassName()
       {
@@ -1585,6 +1609,40 @@ namespace Markov_IO_New {
       }
 
 
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_New_vector<T>*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_New_vector<T>* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
+
+
+
 
       virtual ~Implements_Data_Type_New_vector(){}
 
@@ -1601,10 +1659,19 @@ namespace Markov_IO_New {
                                       ,typetypePredicate typeComply
                                       ,typeElementPredicate elemeComply
                                       ,typeValue  defaultValue
-                                      ,getSet alternN):
+                                      ,cvToType getTypeFromCV
+                                      ,typeToCv getCvFromType
+                                      ):
         Implements_Container_Type_New<T,My_vec>(
           parent,id,var,tip,whatthis,elementVar,complyPred,typeComply,elemeComply
-          ,defaultValue,alternN){}
+          ,defaultValue)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+      {}
+    protected:
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
+
+
     };
 
 
@@ -1617,8 +1684,16 @@ namespace Markov_IO_New {
       using typetypePredicate=typename Implements_Base_Type_New<T>::typetypePredicate;
 
       using typeValue=typename Implements_Base_Type_New<T>::typeValue;
-      using getSet=typename Implements_Base_Type_New<T>::getSet;
 
+      using cvToType=Implements_Data_Type_New_regular<T>* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_regular<T>* classType,
+      std::string* whyNot,const std::string& masterObjective);
 
 
 
@@ -1662,6 +1737,37 @@ namespace Markov_IO_New {
         else
           return this->isVarInDomain(cm,v,whyNot,masterObjective);
       }
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_New_regular<T>*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_New_regular<T>* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
 
 
 
@@ -1678,13 +1784,22 @@ namespace Markov_IO_New {
                                        ,typePredicate complyPred
                                        ,typetypePredicate typeComply
                                        ,typeValue  defaultValue
-                                       ,getSet alterNext):
+                                       ,cvToType getTypeFromCV
+                                       ,typeToCv getCvFromType
+                                       ):
         Implements_Base_Type_New<T>(parent,id,var,tip,whatthis,unknownVal
-                                    ,complyPred,typeComply,defaultValue,alterNext){}
+                                    ,complyPred,typeComply,defaultValue)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+      {}
 
 
       Implements_Data_Type_New_regular(const Implements_ComplexVar_New *parent):
         Implements_Base_Type_New<T>(parent){}
+
+    protected:
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
+
 
     };
 
@@ -1699,10 +1814,18 @@ namespace Markov_IO_New {
       using typePredicate=typename Implements_Base_Type_New<std::set<T>>::typePredicate;
       using typetypePredicate=typename Implements_Base_Type_New<std::set<T>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<std::set<T>>::typeValue;
-      using getSet=typename Implements_Base_Type_New<std::set<T>>::getSet;
 
       using typeElementPredicate= typename Implements_Container_Type_New<T,My_set>::typeElementPredicate;
 
+      using cvToType=Implements_Data_Type_New_set<T>* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_set<T>* classType,
+      std::string* whyNot,const std::string& masterObjective);
 
       static std::string ClassName()
       {
@@ -1793,6 +1916,37 @@ namespace Markov_IO_New {
         return new buildByToken<std::set<T>>(cm,this);
       }
 
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_New_set<T>*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_New_set<T>* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
 
 
 
@@ -1806,12 +1960,18 @@ namespace Markov_IO_New {
                                    ,typetypePredicate typeComply
                                    ,typeElementPredicate elemeComply
                                    ,typeValue  defaultValue
-                                   ,getSet alternN):
+                                   ,cvToType getTypeFromCV
+                                   ,typeToCv getCvFromType
+                                   ):
         Implements_Container_Type_New<T,My_set>(
           parent,id,var,tip,whatthis,elementVar,complyPred,typeComply,elemeComply
-          ,defaultValue,alternN){}
+          ,defaultValue)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
 
-
+      {}
+    protected:
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
 
     };
 
@@ -1824,9 +1984,19 @@ namespace Markov_IO_New {
       using typePredicate=typename Implements_Base_Type_New<Markov_LA::M_Matrix<T>>::typePredicate;
       using typetypePredicate=typename Implements_Base_Type_New<Markov_LA::M_Matrix<T>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<Markov_LA::M_Matrix<T>>::typeValue;
-      using getSet=typename Implements_Base_Type_New<Markov_LA::M_Matrix<T>>::getSet;
 
       using typeElementPredicate= typename Implements_Container_Type_New<T,Markov_LA::M_Matrix>::typeElementPredicate;
+
+      using cvToType=Implements_Data_Type_New_M_Matrix* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_M_Matrix* classType,
+      std::string* whyNot,const std::string& masterObjective);
+
 
 
       static std::string ClassName()
@@ -1851,6 +2021,43 @@ namespace Markov_IO_New {
         return new buildByToken<Markov_LA::M_Matrix<T>>(cm,this);
       }
 
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_New_M_Matrix<T>*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_New_M_Matrix<T>* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
+
+
+
+
+
+
       bool get(const Implements_ComplexVar_New *cm, Markov_LA::M_Matrix<T> &v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const{
 
       }
@@ -1871,10 +2078,18 @@ namespace Markov_IO_New {
                                         ,typetypePredicate typeComply
                                         ,typeElementPredicate elemeComply
                                         ,typeValue  defaultValue
-                                        ,getSet alternN):
+                                        ,cvToType getTypeFromCV
+                                        ,typeToCv getCvFromType):
         Implements_Container_Type_New<T,Markov_LA::M_Matrix>(
           parent,id,var,tip,whatthis,elementVar,complyPred,typeComply,elemeComply
-          ,defaultValue,alternN){}
+          ,defaultValue)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+      {}
+
+    protected:
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
+
     };
 
 
@@ -1885,7 +2100,6 @@ namespace Markov_IO_New {
       using typePredicate=typename Implements_Base_Type_New<D<K,T>>::typePredicate;
       using typetypePredicate=typename Implements_Base_Type_New<D<K,T>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<D<K,T>>::typeValue;
-      using getSet=typename Implements_Base_Type_New<D<K,T>>::getSet;
 
 
 
@@ -1969,9 +2183,9 @@ namespace Markov_IO_New {
           ,typeKeyPredicate keyComply
           ,typeElementPredicate elemeComply
           ,typeValue  defaultValue
-          ,getSet alternN):
+          ):
         Implements_Base_Type_New<D<K,T>>(parent,id,var,tip,whatthis
-                                         ,D<K,T>(),complyPred,typeComply,defaultValue,alternN),
+                                         ,D<K,T>(),complyPred,typeComply,defaultValue),
         elemComply_(elemeComply)
       ,keyComply_(keyComply)
       {
@@ -2011,11 +2225,22 @@ namespace Markov_IO_New {
 
       using typetypePredicate=typename Implements_Base_Type_New<std::pair<K,T>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<std::pair<K,T>>::typeValue;
-      using getSet=typename Implements_Base_Type_New<std::set<T>>::getSet;
 
       using typeElementPredicate= typename Implements_Dictionary_Type_New<K,T,std::pair>::typeElementPredicate;
 
       using typeKeyPredicate= typename Implements_Dictionary_Type_New<K,T,std::pair>::typeKeyPredicate;
+
+
+      using cvToType=Implements_Data_Type_New_pair<K,T>* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_pair<K,T>* classType,
+      std::string* whyNot,const std::string& masterObjective);
+
 
 
       static std::string ClassName()
@@ -2036,6 +2261,40 @@ namespace Markov_IO_New {
         return new buildByToken<std::pair<K,T>>(cm,this);
       }
 
+
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_New_pair<K,T>*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_New_pair<K,T>* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
+
+
       Implements_Data_Type_New_pair(const Implements_ComplexVar_New* parent,
                                     const std::string& id
                                     ,const std::string& var
@@ -2048,12 +2307,17 @@ namespace Markov_IO_New {
                                     ,typeKeyPredicate keyComply
                                     ,typeElementPredicate elemeComply
                                     ,typeValue  defaultValue
-                                    ,getSet alternN):
+                                    ):
         Implements_Dictionary_Type_New<K,T,std::pair>
         (parent,id,var,tip,whatthis,keyVar,elementVar,complyPred,typeComply,keyComply
-         ,elemeComply,defaultValue,alternN)
+         ,elemeComply,defaultValue)
       {
       }
+
+    private:
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
+
     };
 
     template<typename K,typename T>
@@ -2073,13 +2337,24 @@ namespace Markov_IO_New {
       using typePredicate=typename Implements_Base_Type_New<std::map<K,T>>::typePredicate;
       using typetypePredicate=typename Implements_Base_Type_New<std::map<K,T>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<std::map<K,T>>::typeValue;
-      using getSet=typename Implements_Base_Type_New<std::set<T>>::getSet;
 
       using typeElementPredicate= typename Implements_Dictionary_Type_New<K,T,My_map>::typeElementPredicate;
 
       using typeKeyPredicate= typename Implements_Dictionary_Type_New<K,T,My_map>::typeKeyPredicate;
 
       using pairPredicate= bool(*)(const Implements_ComplexVar_New*,const std::map<K,T> &,const std::pair<K,T>&,const Implements_ComplexVar_New*, std::string *WhyNot, const std::string& objective);
+
+
+
+      using cvToType=Implements_Data_Type_New_map<K,T>* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_map<K,T>* classType,
+      std::string* whyNot,const std::string& masterObjective);
 
 
 
@@ -2174,6 +2449,39 @@ namespace Markov_IO_New {
         return new buildByToken<std::map<K,T>>(cm,this);
       }
 
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_New_map<K,T>*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_New_map<K,T>* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
+
+
       virtual ~Implements_Data_Type_New_map(){}
 
       Implements_Data_Type_New_map(const Implements_ComplexVar_New* parent,
@@ -2188,12 +2496,19 @@ namespace Markov_IO_New {
                                    ,typeKeyPredicate keyComply
                                    ,typeElementPredicate elemeComply
                                    ,typeValue  defaultValue
-                                   ,getSet alternN):
+                                   ,cvToType getTypeFromCV
+                                   ,typeToCv getCvFromType
+                                   ):
         Implements_Dictionary_Type_New<K,T,My_map>
         (parent,id,var,tip,whatthis,keyVar,elementVar,complyPred,typeComply,keyComply
-         ,elemeComply,defaultValue,alternN)
+         ,elemeComply,defaultValue)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {
       }
+private:
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
+
 
     };
 
@@ -2208,7 +2523,22 @@ namespace Markov_IO_New {
       using typePredicate=typename Implements_Base_Type_New<std::string>::typePredicate;
       using typetypePredicate=typename Implements_Base_Type_New<std::string>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<std::string>::typeValue;
-      using getSet=typename Implements_Base_Type_New<std::string>::getSet;
+      using getSet=std::set<std::string>(*)(const Implements_ComplexVar_New*,
+      const Implements_ComplexVar_New*);
+
+      using cvToType=Implements_Data_Type_New_string* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_string* classType,
+      std::string* whyNot,const std::string& masterObjective);
+
+
+
+
 
       //    using V=typename Implements_ComplexVar_New::V;
 
@@ -2227,6 +2557,11 @@ namespace Markov_IO_New {
       virtual buildByToken<std::string>* getBuildByToken(
           const Implements_ComplexVar_New* cm)const override;
 
+
+      virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
+      {
+        return (*alternativeNext_)(cm,this);
+      }
 
       virtual ~Implements_Data_Type_New_string(){}
 
@@ -2252,6 +2587,39 @@ namespace Markov_IO_New {
           return isVarInDomain(cm,v,whyNot,masterObjective);
       }
 
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_New_string*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_New_string* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
+
+
 
       Implements_Data_Type_New_string(const Implements_ComplexVar_New* parent,
                                       const std::string& id
@@ -2262,13 +2630,23 @@ namespace Markov_IO_New {
                                       ,typePredicate complyPred
                                       ,typetypePredicate typeComply
                                       ,typeValue  defaultValue
-                                      ,getSet alterNext):
+                                      ,getSet alterNext
+                                      ):
         Implements_Base_Type_New<std::string>(parent,id,var,tip,whatthis,unknownVal
-                                              ,complyPred,typeComply,defaultValue,alterNext){}
+                                              ,complyPred,typeComply,defaultValue)
+      ,alternativeNext_(alterNext)
+
+      {}
 
 
       Implements_Data_Type_New_string(const Implements_ComplexVar_New *parent):
         Implements_Base_Type_New<std::string>(parent){}
+
+
+    protected:
+      getSet alternativeNext_;
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
 
 
     };
@@ -2282,6 +2660,18 @@ namespace Markov_IO_New {
     public:
       using typetypePredicate=typename Implements_Base_Type_New<ABC_Var_New*>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<ABC_Var_New*>::typeValue;
+
+      using cvToType=Implements_Data_Type_New_ABC_Var_New* (*)
+            (const Implements_ComplexVar_New* cm
+            ,const Implements_ComplexVar_New* cv,
+            std::string* whyNot,const std::string& masterObjective);
+
+            using typeToCv= Implements_ComplexVar_New* (*)
+            (const Implements_ComplexVar_New* cm
+            ,const Implements_Data_Type_New_ABC_Var_New* classType,
+            std::string* whyNot,const std::string& masterObjective);
+
+
 
 
       static std::string ClassName()
@@ -2322,6 +2712,39 @@ namespace Markov_IO_New {
                        ,const std::string& masterObjective)const override;
 
 
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_New_ABC_Var_New*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_New_ABC_Var_New* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
+
+
       virtual ~Implements_Data_Type_New_ABC_Var_New(){}
 
 
@@ -2332,11 +2755,15 @@ namespace Markov_IO_New {
                                            ,const std::string& whatthis
                                            , const Implements_Data_Type_New<std::string>* idType
                                            , const Implements_Data_Type_New<std::string>* varType
-                                           ,typetypePredicate typeComply):
+                                           ,typetypePredicate typeComply
+                                           ,cvToType getTypeFromCV
+                                           ,typeToCv getCvFromType
+                                           ):
         Implements_Base_Type_New<ABC_Var_New*>(
           parent,id,var,tip,whatthis,nullptr,
-          nullptr,typeComply,nullptr,nullptr),
+          nullptr,typeComply,nullptr),
         idType_(idType),varType_(varType)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {
       }
 
@@ -2375,6 +2802,9 @@ namespace Markov_IO_New {
     private:
       const Implements_Data_Type_New<std::string>* idType_;
       const Implements_Data_Type_New<std::string>* varType_;
+    protected:
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
 
     };
 
@@ -2388,9 +2818,20 @@ namespace Markov_IO_New {
 
       using typetypePredicate=typename Implements_Base_Type_New<std::map<std::string,ABC_Var_New*>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<std::map<std::string,ABC_Var_New*>>::typeValue;
-      using getSet=typename Implements_Base_Type_New<std::set<std::string>>::getSet;
 
       using typeElementPredicate= typename Implements_Container_Type_New<ABC_Var_New*,String_map>::typeElementPredicate;
+
+
+
+      using cvToType=Implements_Data_Type_New_map_string_ABC_Var_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_map_string_ABC_Var_New* classType,
+      std::string* whyNot,const std::string& masterObjective);
 
 
 
@@ -2415,6 +2856,8 @@ namespace Markov_IO_New {
         else
           return false;
       }
+
+
       virtual bool get(const Implements_ComplexVar_New* cm,std::map<std::string,ABC_Var_New*>& v, ABC_Input* istream,std::string* whyNot ,const std::string &masterObjective)const override
       {
         char c;
@@ -2481,15 +2924,17 @@ namespace Markov_IO_New {
           ,typePredicate complyPred
           ,typetypePredicate typeComply
           ,typeElementPredicate elemeComply
-          ,typeValue  defaultValue
-          ,getSet alternN):
+          ,typeValue  defaultValue):
         Implements_Container_Type_New<Markov_IO_New::ABC_Var_New *, String_map>
         (parent,id,var,tip,whatthis,vartype,complyPred,typeComply
-         ,elemeComply,defaultValue,alternN)
+         ,elemeComply,defaultValue)
       {
       }
 
     };
+
+
+
 
 
   };
@@ -2589,35 +3034,26 @@ namespace Markov_IO_New {
                                   const std::string& idCandidate,
                                   const Implements_ComplexVar_New* self,
                                   std::string *WhyNot
-                                  , const std::string &objective)
+                                  , const std::string &objective);
+
+
+      static bool comply_id_New_Field(
+          const Implements_ComplexVar_New* p,
+          const std::string& idCandidate,
+          const Implements_ComplexVar_New* self,
+          std::string *WhyNot
+          , const std::string& objective)
       {
-        std::string cvname=G::getComplexVarId(self);
-        const Implements_ComplexVar_New* cm
-            =dynamic_cast<const Implements_ComplexVar_New*>(p->idToVar(cvname,WhyNot));
+        std::string cvname=G::getComplexVarTypeId(self);
+        const Implements_Data_Type_New
+            <std::map<std::string,ABC_Var_New*>>* cm
+            =dynamic_cast
+            <const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>*>
+            (p->idToVar(cvname,WhyNot));
         if (cm==nullptr)
           {
-            *WhyNot=objective+": "+cvname+ "is not an "+Implements_ComplexVar_New::ClassName();
-
-            return false;
-          }
-
-        return cm->hasName(idCandidate,WhyNot,objective,false)&&
-            p->hasName(idCandidate,WhyNot,objective,false);
-      }
-
-
-      static bool comply_id_New_Field(const Implements_ComplexVar_New* p,
-                                      const std::string& idCandidate,
-                                      const Implements_ComplexVar_New* self,
-                                      std::string *WhyNot
-                                      , const std::string& objective)
-      {
-        std::string cvname=G::getComplexVarId(self);
-        const Implements_ComplexVar_New* cm
-            =dynamic_cast<const Implements_ComplexVar_New*>(p->idToVar(cvname,WhyNot));
-        if (cm==nullptr)
-          {
-            *WhyNot=objective+": "+cvname+ "is not an "+Implements_ComplexVar_New::ClassName();
+            *WhyNot=objective+": "+cvname+ "is not an "+Implements_Data_Type_New
+                <std::map<std::string,ABC_Var_New*>>::ClassName();
 
             return false;
           }
@@ -2837,8 +3273,8 @@ namespace Markov_IO_New {
           return true;
         else if( idtype->myType().find(V::idField())==0)
           {
-            std::string varself=G::getComplexVarId(self);
-            std::string vartest=G::getComplexVarId(idtype);
+            std::string varself=G::getComplexVarTypeId(self);
+            std::string vartest=G::getComplexVarTypeId(idtype);
 
             const ABC_Type_of_Value *tself=p->idToType(varself,WhyNot,objective);
             return tself->includesThisType(p,vartest,WhyNot,objective);
@@ -2911,8 +3347,8 @@ namespace Markov_IO_New {
           return true;
         else if( idtype->myType().find(V::idNewField())==0)
           {
-            std::string varself=G::getComplexVarId(self);
-            std::string vartest=G::getComplexVarId(idtype);
+            std::string varself=G::getComplexVarTypeId(self);
+            std::string vartest=G::getComplexVarTypeId(idtype);
 
             const ABC_Type_of_Value *tself=p->idToType(varself,WhyNot,objective);
             return tself->includesThisType(p,vartest,WhyNot,objective);
@@ -3078,7 +3514,7 @@ namespace Markov_IO_New {
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
-        std::string cvname=G::getComplexVarId(self);
+        std::string cvname=G::getComplexVarTypeId(self);
         std::string WhyNot;
         const Implements_ComplexVar_New* cv
             =dynamic_cast<const Implements_ComplexVar_New*>(self->idToVar(cvname,&WhyNot));
@@ -3105,7 +3541,7 @@ namespace Markov_IO_New {
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
-        std::string cvname=G::getComplexVarId(self);
+        std::string cvname=G::getComplexVarTypeId(self);
         std::string WhyNot;
         const Implements_ComplexVar_New* cv
             =dynamic_cast<const Implements_ComplexVar_New*>(self->idToVar(cvname,&WhyNot));
@@ -3397,7 +3833,8 @@ namespace Markov_IO_New {
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdCmd(const Implements_ComplexVar_New* parent,const std::string& cmdType)
+    create_IdCmd(const Implements_ComplexVar_New* parent
+                 ,const std::string& cmdType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
@@ -3472,7 +3909,7 @@ namespace Markov_IO_New {
             ,&S::typeComply_id_Field
             ,&S::default_id_Field
             ,&S::suggested_id_Field);
-      G::pushComplexVarId(o,complexVar);
+      G::pushComplexTypeId(o,complexVar);
       return o;
     }
 
@@ -3568,20 +4005,20 @@ namespace Markov_IO_New {
 
     static Implements_Data_Type_New<std::string>*
     create_IdNewField(const Implements_ComplexVar_New* parent,
-                      const std::string& complexVar)
+                      const std::string& complexVarType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
-            V::idNewField()+complexVar
+            V::idNewField()+complexVarType
             ,V::idNew()
-            ,"used identifier for a type of type "+complexVar
+            ,"used identifier for a type of type "+complexVarType
             ,"any valid identifier used or not"
             ,""
             ,&S::comply_id_New_Field
             ,&S::typeComply_id_New_Field
             ,&S::default_id_New_Field
             ,&S::suggested_id_New_Field);
-      G::pushComplexVarId(o,complexVar);
+      G::pushComplexTypeId(o,complexVarType);
       return o;
     }
 
@@ -3721,8 +4158,8 @@ namespace Markov_IO_New {
           return true;
         else if( idtype->myType().find(V::varField())==0)
           {
-            std::string varself=G::getComplexVarId(self);
-            std::string vartest=G::getComplexVarId(idtype);
+            std::string varself=G::getComplexVarTypeId(self);
+            std::string vartest=G::getComplexVarTypeId(idtype);
 
             const ABC_Type_of_Value *tself=p->idToType(varself,WhyNot,objective);
             return tself->includesThisType(p,vartest,WhyNot,objective);
@@ -3776,8 +4213,8 @@ namespace Markov_IO_New {
           return true;
         else if( idtype->myType().find(V::varNewField())==0)
           {
-            std::string varself=G::getComplexVarId(self);
-            std::string vartest=G::getComplexVarId(idtype);
+            std::string varself=G::getComplexVarTypeId(self);
+            std::string vartest=G::getComplexVarTypeId(idtype);
 
             const ABC_Type_of_Value *tself=p->idToType(varself,WhyNot,objective);
             return tself->includesThisType(p,vartest,WhyNot,objective);
@@ -3822,7 +4259,8 @@ namespace Markov_IO_New {
             ,"any valid variable existant or new"
             ,Identifier::create_IdValid(parent)
             ,Identifier::create_IdType(parent)
-            ,&S::typeComply_var_valid);
+            ,&S::typeComply_var_valid,
+            nullptr,nullptr);
     }
 
 
@@ -3837,7 +4275,7 @@ namespace Markov_IO_New {
             ,"any valid variable existant or new"
             ,Identifier::create_IdNewVar(parent)
             ,Identifier::create_IdType(parent)
-            ,&S::typeComply_var_New);
+            ,&S::typeComply_var_New,nullptr,nullptr);
     }
 
     static Implements_Data_Type_New<ABC_Var_New*>*
@@ -3851,7 +4289,7 @@ namespace Markov_IO_New {
             ,"any existant variable"
             ,Identifier::create_IdVar(parent)
             ,Identifier::create_IdType(parent)
-            ,&S::typeComply_vard_Used);
+            ,&S::typeComply_vard_Used,nullptr,nullptr);
     }
 
     static Implements_Data_Type_New<ABC_Var_New*>*
@@ -3865,7 +4303,7 @@ namespace Markov_IO_New {
             ,"any existant variable"
             ,Identifier::create_IdVar(parent)
             ,Identifier::create_IdType(parent)
-            ,&S::typeComply_var_Var);
+            ,&S::typeComply_var_Var,nullptr,nullptr);
     }
 
   };
@@ -3894,6 +4332,18 @@ namespace Markov_IO_New {
       ,const Implements_Data_Type_class<T>*
       ,std::string*,
       const std::string& );
+
+
+      using cvToType=Implements_Data_Type_class<T>* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
+
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_class<T>* classType,
+      std::string* whyNot,const std::string& masterObjective);
+
 
 
       static std::string ClassName()
@@ -3947,10 +4397,7 @@ namespace Markov_IO_New {
 
       }
 
-      virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
-      {
-        return {};
-      }
+
 
       virtual buildByToken<std::map<std::string,ABC_Var_New*>>* getBuildByToken(const Implements_ComplexVar_New* cm)const
       {
@@ -3969,12 +4416,16 @@ namespace Markov_IO_New {
                                  ,typePredicate complyPred
                                  ,getEmptyObject  defaultValue
                                  ,getCVMap map
-                                 ,getObject obj):
+                                 ,getObject obj
+                                 ,cvToType getTypeFromCV
+                                 ,typeToCv getCvFromType
+                                 ):
         ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
       ,comply_(complyPred)
       ,default_(defaultValue)
       ,toMap_(map)
       ,toObj_(obj)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {}
 
 
@@ -4061,12 +4512,51 @@ namespace Markov_IO_New {
             (var->parent(),var->id(),var->myType(),*o,var->Tip(),var->WhatThis());
       }
 
+
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_class<T>*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_class<T>* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
+
+
+
+
     protected:
       typePredicate comply_;
       getEmptyObject default_;
       getObject toObj_;
       getCVMap toMap_;
       Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* CVtype_;
+    protected:
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
 
 
 
@@ -4098,6 +4588,18 @@ namespace Markov_IO_New {
       ,const Implements_Data_Type_class<T*>*
       ,std::string*,
       const std::string& );
+
+
+      using cvToType=Implements_Data_Type_class<T*>* (*)
+            (const Implements_ComplexVar_New* cm
+            ,const Implements_ComplexVar_New* cv,
+            std::string* whyNot,const std::string& masterObjective);
+
+            using typeToCv= Implements_ComplexVar_New* (*)
+            (const Implements_ComplexVar_New* cm
+            ,const Implements_Data_Type_class<T*>* classType,
+            std::string* whyNot,const std::string& masterObjective);
+
 
 
       static std::string ClassName()
@@ -4144,10 +4646,7 @@ namespace Markov_IO_New {
           }
       }
 
-      virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
-      {
-        return {};
-      }
+
 
       virtual buildByToken<std::map<std::string,ABC_Var_New*>>* getBuildByToken(const Implements_ComplexVar_New* cm)const
       {
@@ -4168,7 +4667,10 @@ namespace Markov_IO_New {
                                  ,getEmptyObject  defaultValue
                                  ,getEmptyMap eMap
                                  ,getCVMap map
-                                 ,getObject obj):
+                                 ,getObject obj
+                                 ,cvToType getTypeFromCV
+                                 ,typeToCv getCvFromType
+                                 ):
         ABC_Typed_Value<T*>(parent,id,var,tip,whatthis)
       ,comply_(complyPred)
       ,mapComply_(mapComply)
@@ -4176,6 +4678,7 @@ namespace Markov_IO_New {
       ,toEMap_(eMap)
       ,toMap_(map)
       ,toObj_(obj)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {}
 
 
@@ -4249,6 +4752,40 @@ namespace Markov_IO_New {
       }
 
 
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+      {
+        if (getCvFromType_==nullptr)
+          return nullptr;
+        else
+          {
+            auto v=dynamic_cast<const Implements_Data_Type_class<T*>*>(var);
+            if (v==nullptr)
+              return nullptr;
+            else
+              return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+          }
+      }
+
+      virtual Implements_Data_Type_class<T*>* getTypeClassRep(
+          const Implements_ComplexVar_New* cm,
+          const Implements_ComplexVar_New* cvar,
+          std::string* whyNot,
+          const std::string& masterObjective)const override
+      {
+        {
+          if (getTypeFromCV_==nullptr)
+            return nullptr;
+          else
+            {
+              return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+            }
+        }
+      }
+
+
+
       // ABC_Typed_Value interface
     public:
       virtual Implements_ComplexVar_New *getComplexVarRep(
@@ -4271,6 +4808,8 @@ namespace Markov_IO_New {
       getCVMap toMap_;
       Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* CVtype_;
 
+      cvToType getTypeFromCV_;
+      typeToCv getCvFromType_;
 
     };
 
@@ -4324,10 +4863,7 @@ namespace Markov_IO_New {
         return isVarInDomain(*v,whyNot);
     }
 
-    virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const
-    {
-      return {};
-    }
+
 
     virtual buildByToken<T*>* getBuildByToken(const Implements_ComplexVar_New* cm)const
     {
@@ -4520,7 +5056,7 @@ namespace Markov_IO_New {
                                 ,plainPredicate mandatoryInp
                                 ,getEmptyMap toEmMap
                                 ,runCommand run_):
-      _private::Implements_Data_Type_New_map_string_ABC_Var_New      (parent,id,var,tip,whatthis,"", nullptr,nullptr,nullptr,nullptr,nullptr)
+      _private::Implements_Data_Type_New_map_string_ABC_Var_New      (parent,id,var,tip,whatthis,"", nullptr,nullptr,nullptr,nullptr)
     ,hasAllInputs_(hasAllI)
     ,hasMandatoryInputs_(mandatoryInp)
     ,toEmMap_(toEmMap)
@@ -4613,9 +5149,6 @@ namespace Markov_IO_New {
 
     }
 
-    virtual std::set<std::__cxx11::string> alternativeNext(const Implements_ComplexVar_New *cm) const override{
-      return {};
-    }
 
     virtual bool includesThisType(const Implements_ComplexVar_New *cm, const std::__cxx11::string &childType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override
     {
@@ -4635,6 +5168,24 @@ namespace Markov_IO_New {
     {
       return nullptr;
     }
+
+
+    virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+        const Implements_ComplexVar_New* cm,
+        const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
+    {
+      return nullptr;
+    }
+
+    virtual Implements_Command_Type_New*
+    getTypeClassRep(const Implements_ComplexVar_New* cm,
+                    const Implements_ComplexVar_New* cvar,
+                    std::string* whyNot,
+                    const std::string& masterObjective)const override
+    {
+      return nullptr;
+    }
+
 
     // ABC_Typed_Value interface
   public:

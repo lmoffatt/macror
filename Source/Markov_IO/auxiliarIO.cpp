@@ -251,8 +251,6 @@ bool ToValue(const std::string& str,T*& value)
   template
   bool ToValue(const std::string& str,bool& T);
 
-  template
-  bool ToValue(const std::string& str,Markov_Mol::ABC_Markov_Model*& T);
 
 
 

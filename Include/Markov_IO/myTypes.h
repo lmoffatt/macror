@@ -27,7 +27,7 @@ namespace Markov_IO_New {
                                        ,getCVMap map
                                        ,getObject obj):
         Implements_Data_Type_class<ABC_Markov_Model*>(parent,
-          id,var,tip,whatthis,complyPred,mapComply,defaultValue,eMap,map,obj)
+          id,var,tip,whatthis,complyPred,mapComply,defaultValue,eMap,map,obj,nullptr,nullptr)
       {}
 
       virtual bool put(const Implements_ComplexVar_New* cm,

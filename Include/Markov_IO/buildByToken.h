@@ -119,10 +119,7 @@ namespace Markov_IO_New {
 
         bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override;
 
-        std::pair<std::string,std::set<std::string>> alternativesNext()const override
-        {
-            return {"",varType_->alternativeNext(this->parent())};
-        }
+        std::pair<std::string,std::set<std::string>> alternativesNext()const override;
 
 
         void clear()override
@@ -193,18 +190,26 @@ namespace Markov_IO_New {
         bool isComplete_;
     };
 
+    template<typename T>
+    std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > buildByToken<T>::alternativesNext() const
+    {
+      return {};
+    }
+
+    template<>
+    std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > buildByToken<std::string>::alternativesNext() const;
 
 
 
     template<typename T>
     class buildByToken<std::vector<T>>
-            :public ABC_BuildByToken
+        :public ABC_BuildByToken
     {
     public:
 
-        static std::string ClassName()
-        {
-            return "Build_vector_of_"+Cls<T>::name();
+      static std::string ClassName()
+      {
+        return "Build_vector_of_"+Cls<T>::name();
         }
 
         std::string myClass()const override
