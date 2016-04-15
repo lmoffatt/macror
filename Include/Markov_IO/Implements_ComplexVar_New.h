@@ -2753,6 +2753,7 @@ private:
                                            ,const std::string& var
                                            ,const std::string& tip
                                            ,const std::string& whatthis
+                                           , const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap
                                            , const Implements_Data_Type_New<std::string>* idType
                                            , const Implements_Data_Type_New<std::string>* varType
                                            ,typetypePredicate typeComply
@@ -2762,7 +2763,7 @@ private:
         Implements_Base_Type_New<ABC_Var_New*>(
           parent,id,var,tip,whatthis,nullptr,
           nullptr,typeComply,nullptr),
-        idType_(idType),varType_(varType)
+       varMap_(varMap), idType_(idType),varType_(varType)
       ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {
       }
@@ -2775,11 +2776,19 @@ private:
       }
 
 
+      const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>> *
+      getParentType()const
+      {
+        return varMap_;
+      }
+
+
       virtual buildByToken<std::string>* getVarIdentifierBuildByToken(const Implements_ComplexVar_New* cm, const std::string id)const
       {
         std::string whyNot;
 
-        const ABC_Type_of_Value * t=cm->idToType(id,&whyNot,"");
+
+        const ABC_Type_of_Value * t=parent()->idToType(id,&whyNot,"");
         if (t!=nullptr)
           {
             const Implements_Data_Type_New<std::string>* vt=t->getSelfIdType();
@@ -2789,6 +2798,7 @@ private:
         else
           return nullptr;
       }
+      
       virtual buildByToken<std::string>* getVarIdentifierBuildByToken(const Implements_ComplexVar_New* cm)const
       {
         return new buildByToken<std::string>(cm,varType_);
@@ -2800,6 +2810,7 @@ private:
       }
 
     private:
+      const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap_;
       const Implements_Data_Type_New<std::string>* idType_;
       const Implements_Data_Type_New<std::string>* varType_;
     protected:
@@ -2832,6 +2843,34 @@ private:
       (const Implements_ComplexVar_New* cm
       ,const Implements_Data_Type_New_map_string_ABC_Var_New* classType,
       std::string* whyNot,const std::string& masterObjective);
+
+
+
+      bool hasFieldName(const std::string& idCandidate,std::string *WhyNot,const std::string& objective)
+      {
+        auto it=fields_.find(idCandidate);
+        if(it==fields_.end())
+          {
+            *WhyNot=objective+": "+idCandidate+ "is not a field of"+id();
+            return false;
+          }
+        else
+          return true;
+      }
+
+      const ABC_Var_New* getFieldVar(const std::string& idCandidate,std::string *WhyNot,const std::string& objective)const
+      {
+        auto it=fields_.find(idCandidate);
+        if(it==fields_.end())
+          {
+            *WhyNot=objective+": "+idCandidate+ "is not a field of"+id();
+            return nullptr;
+          }
+        else
+          return it->second;
+
+      }
+
 
 
 
@@ -2920,16 +2959,21 @@ private:
           ,const std::string& var
           ,const std::string& tip
           ,const std::string& whatthis
-          , const std::string vartype
+          , const std::string& vartype
+          , const std::map<std::string,ABC_Var_New*> fields
           ,typePredicate complyPred
           ,typetypePredicate typeComply
           ,typeElementPredicate elemeComply
           ,typeValue  defaultValue):
         Implements_Container_Type_New<Markov_IO_New::ABC_Var_New *, String_map>
         (parent,id,var,tip,whatthis,vartype,complyPred,typeComply
-         ,elemeComply,defaultValue)
+         ,elemeComply,defaultValue),
+        fields_(fields)
       {
       }
+
+    private:
+      std::map<std::string,ABC_Var_New*> fields_;
 
     };
 
@@ -2940,8 +2984,12 @@ private:
   };
 
   class Identifier{
+       
+    
     class S {
     public:
+
+
 
       static bool comply_id_valid(const Implements_ComplexVar_New* p,
                                   const std::string& idCandidate,
@@ -2959,7 +3007,7 @@ private:
 
 
 
-      static bool comply_id_New(const Implements_ComplexVar_New* p,
+      static bool comply_id_Var_New(const Implements_ComplexVar_New* p,
                                 const std::string& idCandidate,
                                 const Implements_ComplexVar_New* self,
                                 std::string *WhyNot, const std::string &objective)
@@ -2975,7 +3023,7 @@ private:
         return p->hasName(idCandidate,WhyNot,objective,true);
       }
 
-      static bool comply_id_Var(const Implements_ComplexVar_New* p,
+      static bool comply_id_Var_Used(const Implements_ComplexVar_New* p,
                                 const std::string& idCandidate,
                                 const Implements_ComplexVar_New* self,
                                 std::string *WhyNot, const std::string &objective)
@@ -2984,7 +3032,7 @@ private:
       }
 
 
-      static bool comply_id_Cmd(const Implements_ComplexVar_New* p,
+      static bool comply_id_Cmd_Used(const Implements_ComplexVar_New* p,
                                 const std::string& idCandidate,
                                 const Implements_ComplexVar_New* self,
                                 std::string *WhyNot, const std::string &objective)
@@ -2993,7 +3041,7 @@ private:
       }
 
 
-      static bool comply_id_Type(const Implements_ComplexVar_New* p,
+      static bool comply_id_Type_Used(const Implements_ComplexVar_New* p,
                                  const std::string& idCandidate,
                                  const Implements_ComplexVar_New* self,
                                  std::string *WhyNot, const std::string &objective)
@@ -3001,7 +3049,7 @@ private:
         return p->hasType(idCandidate,WhyNot,objective,true);
       }
 
-      static bool comply_id_Var_T(const Implements_ComplexVar_New* p,
+      static bool comply_id_Var_Used_T(const Implements_ComplexVar_New* p,
                                   const std::string& idCandidate,
                                   const Implements_ComplexVar_New* self,
                                   std::string *WhyNot, const std::string &objective)
@@ -3010,7 +3058,7 @@ private:
         return p->hasNameofType(idCandidate,varType,WhyNot,objective,true);
       }
 
-      static bool comply_id_Cmd_T(const Implements_ComplexVar_New* p,
+      static bool comply_id_Cmd_Used_T(const Implements_ComplexVar_New* p,
                                   const std::string& idCandidate,
                                   const Implements_ComplexVar_New* self,
                                   std::string *WhyNot, const std::string &objective)
@@ -3021,7 +3069,7 @@ private:
 
 
 
-      static bool comply_id_Type_T(const Implements_ComplexVar_New* p,
+      static bool comply_id_Type_Used_T(const Implements_ComplexVar_New* p,
                                    const std::string& idCandidate,
                                    const Implements_ComplexVar_New* self,
                                    std::string *WhyNot, const std::string &objective)
@@ -3030,14 +3078,41 @@ private:
         return p->hasTypeofType(idCandidate,typeType,WhyNot,objective,true);
       }
 
-      static bool comply_id_Field(const Implements_ComplexVar_New* p,
+      static bool comply_id_Var_Field_Used(const Implements_ComplexVar_New* p,
                                   const std::string& idCandidate,
                                   const Implements_ComplexVar_New* self,
                                   std::string *WhyNot
                                   , const std::string &objective);
 
 
-      static bool comply_id_New_Field(
+      static bool comply_id_Var_Field_New(
+          const Implements_ComplexVar_New* p,
+          const std::string& idCandidate,
+          const Implements_ComplexVar_New* self,
+          std::string *WhyNot
+          , const std::string& objective)
+      {
+        std::string cvname=G::getComplexVarTypeId(self);
+        const Implements_Data_Type_New
+            <std::map<std::string,ABC_Var_New*>>* cm
+            =dynamic_cast
+            <const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>*>
+            (self->idToType(cvname,WhyNot,objective));
+        if (cm==nullptr)
+          {
+            *WhyNot=objective+": "+cvname+ "is not an "+Implements_Data_Type_New
+                <std::map<std::string,ABC_Var_New*>>::ClassName();
+
+            return false;
+          }
+
+        return cm->hasName(idCandidate,WhyNot,objective,false)&&
+            p->isNameUnOcuppied(idCandidate,WhyNot,objective,false);
+      }
+
+
+
+      static bool comply_id_Type_Field_New(
           const Implements_ComplexVar_New* p,
           const std::string& idCandidate,
           const Implements_ComplexVar_New* self,
@@ -3061,6 +3136,7 @@ private:
         return cm->hasName(idCandidate,WhyNot,objective,false)&&
             p->isNameUnOcuppied(idCandidate,WhyNot,objective,false);
       }
+
 
 
 
@@ -3118,7 +3194,7 @@ private:
           }
       }
 
-      static bool typeComply_id_New_Var(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Var_New(const Implements_ComplexVar_New* p,
                                         const Implements_Data_Type_New<std::string>* idtype,
                                         const Implements_ComplexVar_New* self,
                                         std::string *WhyNot, const std::string &objective)
@@ -3135,7 +3211,7 @@ private:
           }
       }
 
-      static bool typeComply_id_New_Type(
+      static bool typeComply_id_Type_New(
           const Implements_ComplexVar_New* p,
           const Implements_Data_Type_New<std::string>* idtype,
           const Implements_ComplexVar_New* self,
@@ -3155,7 +3231,7 @@ private:
 
 
 
-      static bool typeComply_id_Var(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Var_Used(const Implements_ComplexVar_New* p,
                                     const Implements_Data_Type_New<std::string>* idtype,
                                     const Implements_ComplexVar_New* self,
                                     std::string *WhyNot
@@ -3175,7 +3251,7 @@ private:
 
 
 
-      static bool typeComply_id_Cmd(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Cmd_Used(const Implements_ComplexVar_New* p,
                                     const Implements_Data_Type_New<std::string>* idtype,
                                     const Implements_ComplexVar_New* self,
                                     std::string *WhyNot
@@ -3196,7 +3272,7 @@ private:
 
 
 
-      static bool typeComply_id_Type(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Type_Used(const Implements_ComplexVar_New* p,
                                      const Implements_Data_Type_New<std::string>* idtype,
                                      const Implements_ComplexVar_New* self,
                                      std::string *WhyNot, const std::string &objective)
@@ -3212,7 +3288,7 @@ private:
             return false;
           }
       }
-      static bool typeComply_id_Var_T(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Var_Used_T(const Implements_ComplexVar_New* p,
                                       const Implements_Data_Type_New<std::string>* idtype,
                                       const Implements_ComplexVar_New* self,
                                       std::string *WhyNot, const std::string &objective)
@@ -3235,14 +3311,14 @@ private:
       }
 
 
-      static bool typeComply_id_Cmd_T(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Cmd_Used_T(const Implements_ComplexVar_New* p,
                                       const Implements_Data_Type_New<std::string>* idtype,
                                       const Implements_ComplexVar_New* self,
                                       std::string *WhyNot, const std::string &objective);
 
 
 
-      static bool typeComply_id_Type_T(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Type_Used_T(const Implements_ComplexVar_New* p,
                                        const Implements_Data_Type_New<std::string>* idtype,
                                        const Implements_ComplexVar_New* self,
                                        std::string *WhyNot, const std::string &objective)
@@ -3264,7 +3340,7 @@ private:
           }
       }
 
-      static bool typeComply_id_Field(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Var_Field_Used(const Implements_ComplexVar_New* p,
                                       const Implements_Data_Type_New<std::string>* idtype,
                                       const Implements_ComplexVar_New* self,
                                       std::string *WhyNot, const std::string &objective)
@@ -3292,7 +3368,7 @@ private:
 
 
 
-      static bool typeComply_id_New_Var_T(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Var_New_T(const Implements_ComplexVar_New* p,
                                           const Implements_Data_Type_New<std::string>* idtype,
                                           const Implements_ComplexVar_New* self,
                                           std::string *WhyNot, const std::string &objective)
@@ -3315,7 +3391,7 @@ private:
       }
 
 
-      static bool typeComply_id_New_Type_T(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Type_New_T(const Implements_ComplexVar_New* p,
                                            const Implements_Data_Type_New<std::string>* idtype,
                                            const Implements_ComplexVar_New* self,
                                            std::string *WhyNot, const std::string &objective)
@@ -3337,7 +3413,7 @@ private:
           }
       }
 
-      static bool typeComply_id_New_Field(const Implements_ComplexVar_New* p,
+      static bool typeComply_id_Var_Field_New(const Implements_ComplexVar_New* p,
                                           const Implements_Data_Type_New<std::string>* idtype,
                                           const Implements_ComplexVar_New* self,
                                           std::string *WhyNot
@@ -3366,18 +3442,18 @@ private:
           const Implements_ComplexVar_New* self)
       {
         return suggested_id_Used(cm,self)+
-            suggested_id_New_Var(cm,self);
+            suggested_id_Var_New(cm,self);
       }
 
 
-      static std::set<std::string> suggested_id_Var(
+      static std::set<std::string> suggested_id_Var_Used(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
         return cm->getIdsOfVarType("",true);
       }
 
-      static std::set<std::string> suggested_id_Cmd(
+      static std::set<std::string> suggested_id_Cmd_Used(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3385,7 +3461,7 @@ private:
       }
 
 
-      static std::set<std::string> suggested_id_Type(
+      static std::set<std::string> suggested_id_Type_Used(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3397,13 +3473,13 @@ private:
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
-        return suggested_id_Var(cm,self)+
-            suggested_id_Type(cm,self);
+        return suggested_id_Var_Used(cm,self)+
+            suggested_id_Type_Used(cm,self);
       }
 
 
 
-      static std::set<std::string> suggested_id_Type_T(
+      static std::set<std::string> suggested_id_Type_Used_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3411,7 +3487,7 @@ private:
         return cm->getIdsOfTypeType(typeType,true);
       }
 
-      static std::set<std::string> suggested_id_Var_T(
+      static std::set<std::string> suggested_id_Var_Used_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3419,7 +3495,7 @@ private:
         return cm->getIdsOfVarType(varType,true);
       }
 
-      static std::set<std::string> suggested_id_Cmd_T(
+      static std::set<std::string> suggested_id_Cmd_Used_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3428,7 +3504,7 @@ private:
       }
 
 
-      static std::set<std::string> suggested_id_New_Var(
+      static std::set<std::string> suggested_id_Var_New(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3449,7 +3525,7 @@ private:
         return o;
       }
 
-      static std::set<std::string> suggested_id_New_Type(
+      static std::set<std::string> suggested_id_Type_New(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3467,13 +3543,13 @@ private:
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
-        return suggested_id_New_Var(cm,self)+suggested_id_New_Type(cm,self);
+        return suggested_id_Var_New(cm,self)+suggested_id_Type_New(cm,self);
       }
 
 
 
 
-      static std::set<std::string> suggested_id_New_Var_T(
+      static std::set<std::string> suggested_id_Var_New_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3495,7 +3571,7 @@ private:
         return o;
       }
 
-      static std::set<std::string> suggested_id_New_Type_T(
+      static std::set<std::string> suggested_id_Type_New_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3510,7 +3586,7 @@ private:
         return o;
       }
 
-      static std::set<std::string> suggested_id_Field(
+      static std::set<std::string> suggested_id_Var_Field_Used(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3537,7 +3613,7 @@ private:
           }
       }
 
-      static std::set<std::string> suggested_id_New_Field(
+      static std::set<std::string> suggested_id_Var_Field_New(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3576,14 +3652,14 @@ private:
         return cm->defaultIdOfVarType("",true);
       }
 
-      static std::string default_id_Var(
+      static std::string default_id_Var_Used(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
         return cm->defaultIdOfVarType("",true);
       }
 
-      static std::string default_id_Cmd(
+      static std::string default_id_Cmd_Used(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3592,14 +3668,14 @@ private:
 
 
 
-      static std::string default_id_Type(
+      static std::string default_id_Type_Used(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
         return cm->defaultIdOfTypeType("",true);
       }
 
-      static std::string default_id_Type_T(
+      static std::string default_id_Type_Used_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3607,7 +3683,7 @@ private:
         return cm->defaultIdOfTypeType(typeType,true);
       }
 
-      static std::string default_id_Var_T(
+      static std::string default_id_Var_Used_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3615,7 +3691,7 @@ private:
         return cm->defaultIdOfVarType(varType,true);
       }
 
-      static std::string default_id_Cmd_T(
+      static std::string default_id_Cmd_Used_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3624,7 +3700,7 @@ private:
       }
 
 
-      static std::string default_id_New_Var(
+      static std::string default_id_Var_New(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3641,7 +3717,7 @@ private:
           }
       }
 
-      static std::string default_id_New_Type(
+      static std::string default_id_Type_New(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3652,7 +3728,7 @@ private:
 
 
 
-      static std::string default_id_New_Var_T(
+      static std::string default_id_Var_New_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3667,7 +3743,7 @@ private:
           return nextId(sv);
       }
 
-      static std::string default_id_New_Type_T(
+      static std::string default_id_Type_New_T(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
@@ -3677,21 +3753,21 @@ private:
         return nextId(st);
       }
 
-      static std::string default_id_Field(
+      static std::string default_id_Var_Field_Used(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
-        auto s=suggested_id_Field(cm,self);
+        auto s=suggested_id_Var_Field_Used(cm,self);
         if (s.empty())
           return {};
         else return *s.begin();
       }
 
-      static std::string default_id_New_Field(
+      static std::string default_id_Var_Field_New(
           const Implements_ComplexVar_New* cm,
           const Implements_ComplexVar_New* self)
       {
-        auto s=suggested_id_New_Field(cm,self);
+        auto s=suggested_id_Var_Field_New(cm,self);
         if (s.empty())
           return {};
         else return *s.begin();
@@ -3706,15 +3782,53 @@ private:
     class V
     {
     public:
+
+      static std::string Valid(){return "Valid";}
+
+      static std::string Var(){return "Var";}
+
+      static std::string Type(){return "Type";}
+
+      static std::string Cmd(){return "Cmd";}
+
+      static std::string Field(){return "Field";}
+
+      static std::string New() {return "New";}
+
+      static std::string Used() {return "Used";}
+
       static std::string idValid(){return "_id";}
+
+      static std::string idVar(){return idValid()+"Var";}
+      static std::string idType(){return idValid()+"Type";}
+      static std::string idCmd(){return idValid()+"Command";}
+
+
+      static std::string idVarField(){return idVar()+"Field";}
+      static std::string idTypeField(){return idType()+"Field";}
+      static std::string idCmdField(){return idCmd()+"Field";}
+
+      static std::string idVarNew(){return idVar()+"New";}
+      static std::string idTypeNew(){return idType()+"New";}
+      static std::string idCmdNew(){return idCmd()+"New";}
+
+      static std::string idVarUsed(){return idVar()+"Used";}
+      static std::string idTypeUsed(){return idType()+"Used";}
+      static std::string idCmdUsed(){return idCmd()+"Used";}
+
+      static std::string idVarFieldNew(){return idVarField()+"New";}
+      static std::string idTypeFieldNew(){return idTypeField()+"New";}
+      static std::string idCmdFieldNew(){return idCmdField()+"New";}
+
+      static std::string idVarFieldUsed(){return idVarField()+"Used";}
+      static std::string idTypeFieldUsed(){return idTypeField()+"Used";}
+      static std::string idCmdFieldUsed(){return idCmdField()+"Used";}
+
       static std::string idNew(){return idValid()+"New";}
       static std::string idNewVar(){return idNew()+"Var";}
       static std::string idNewType(){return idNew()+"Type";}
       static std::string idNewField(){return idNew()+"Field";}
       static std::string idUsed(){return idValid()+"Used";}
-      static std::string idVar(){return idUsed()+"Var";}
-      static std::string idType(){return idUsed()+"Type";}
-      static std::string idCmd(){return idUsed()+"Command";}
 
 
       static std::string idField(){return idUsed()+"Field";}
@@ -3744,6 +3858,9 @@ private:
       else
         return idTemplate+"_0";
     }
+
+
+
 
 
     static Implements_Data_Type_New<std::string>*
@@ -3780,35 +3897,35 @@ private:
 
 
     static Implements_Data_Type_New<std::string>*
-    create_IdVar(const Implements_ComplexVar_New* parent)
+    create_IdVarUsed(const Implements_ComplexVar_New* parent)
     {
       return new Implements_Data_Type_New<std::string>(
             parent,
-            V::idVar()
+            V::idVarUsed()
             ,V::idUsed()
             ,"used identifier for a variable"
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_Var
-            ,&S::typeComply_id_Var
-            ,&S::default_id_Var
-            ,&S::suggested_id_Var);
+            ,&S::comply_id_Var_Used
+            ,&S::typeComply_id_Var_Used
+            ,&S::default_id_Var_Used
+            ,&S::suggested_id_Var_Used);
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdVar(const Implements_ComplexVar_New* parent,const std::string& varType)
+    create_IdVarUsed(const Implements_ComplexVar_New* parent,const std::string& varType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
-            V::idVar()+varType
-            ,V::idVar()
+            V::idVarUsed()+varType
+            ,V::idVarUsed()
             ,"used identifier for a variable of type "+varType
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_Var_T
-            ,&S::typeComply_id_Var_T
-            ,&S::default_id_Var_T
-            ,&S::suggested_id_Var_T);
+            ,&S::comply_id_Var_Used_T
+            ,&S::typeComply_id_Var_Used_T
+            ,&S::default_id_Var_Used_T
+            ,&S::suggested_id_Var_Used_T);
 
       G::pushTypeOfId(o,varType);
       return o;
@@ -3817,7 +3934,7 @@ private:
 
 
     static Implements_Data_Type_New<std::string>*
-    create_IdCmd(const Implements_ComplexVar_New* parent)
+    create_IdCmdUsed(const Implements_ComplexVar_New* parent)
     {
       return new Implements_Data_Type_New<std::string>(
             parent,
@@ -3826,27 +3943,27 @@ private:
             ,"used identifier for a variable"
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_Cmd
-            ,&S::typeComply_id_Cmd
-            ,&S::default_id_Cmd
-            ,&S::suggested_id_Cmd);
+            ,&S::comply_id_Cmd_Used
+            ,&S::typeComply_id_Cmd_Used
+            ,&S::default_id_Cmd_Used
+            ,&S::suggested_id_Cmd_Used);
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdCmd(const Implements_ComplexVar_New* parent
+    create_IdCmdUsed(const Implements_ComplexVar_New* parent
                  ,const std::string& cmdType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
-            V::idCmd()+cmdType
-            ,V::idCmd()
+            V::idCmdUsed()+cmdType
+            ,V::idCmdUsed()
             ,"used identifier for a variable of type "+cmdType
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_Cmd_T
-            ,&S::typeComply_id_Cmd_T
-            ,&S::default_id_Cmd_T
-            ,&S::suggested_id_Cmd_T);
+            ,&S::comply_id_Cmd_Used_T
+            ,&S::typeComply_id_Cmd_Used_T
+            ,&S::default_id_Cmd_Used_T
+            ,&S::suggested_id_Cmd_Used_T);
 
       G::pushTypeOfId(o,cmdType);
       return o;
@@ -3855,23 +3972,23 @@ private:
 
 
     static Implements_Data_Type_New<std::string>*
-    create_IdType(const Implements_ComplexVar_New* parent)
+    create_IdType_Used(const Implements_ComplexVar_New* parent)
     {
       return new Implements_Data_Type_New<std::string>(
             parent,
-            V::idType()
+            V::idTypeUsed()
             ,V::idUsed()
             ,"used identifier for a variable"
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_Type
-            ,&S::typeComply_id_Type
-            ,&S::default_id_Type
-            ,&S::suggested_id_Type);
+            ,&S::comply_id_Type_Used
+            ,&S::typeComply_id_Type_Used
+            ,&S::default_id_Type_Used
+            ,&S::suggested_id_Type_Used);
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdType(const Implements_ComplexVar_New* parent,
+    create_IdType_Used(const Implements_ComplexVar_New* parent,
                   const std::string& varType)
     {
       if (varType.find(V::idType())!=varType.npos)
@@ -3880,35 +3997,35 @@ private:
         {
           auto o= new Implements_Data_Type_New<std::string>(
                 parent,
-                V::idType()+varType
-                ,V::idType()
+                V::idTypeUsed()+varType
+                ,V::idTypeUsed()
                 ,"used identifier for a type of type "+varType
                 ,"any valid identifier used or not"
                 ,""
-                ,&S::comply_id_Type_T
-                ,&S::typeComply_id_Type_T
-                ,&S::default_id_Type_T
-                ,&S::suggested_id_Type_T);
+                ,&S::comply_id_Type_Used_T
+                ,&S::typeComply_id_Type_Used_T
+                ,&S::default_id_Type_Used_T
+                ,&S::suggested_id_Type_Used_T);
           G::pushTypeOfId(o,varType);
           return o;
         }
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdField(const Implements_ComplexVar_New* parent,
+    create_IdVarFieldUsed(const Implements_ComplexVar_New* parent,
                    const std::string& complexVar)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
-            V::idField()+complexVar
-            ,V::idUsed()
+            V::idVarFieldUsed()+complexVar
+            ,V::idVarField()
             ,"used identifier for a type of type "+complexVar
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_Field
-            ,&S::typeComply_id_Field
-            ,&S::default_id_Field
-            ,&S::suggested_id_Field);
+            ,&S::comply_id_Var_Field_Used
+            ,&S::typeComply_id_Var_Field_Used
+            ,&S::default_id_Var_Field_Used
+            ,&S::suggested_id_Var_Field_Used);
       G::pushComplexTypeId(o,complexVar);
       return o;
     }
@@ -3925,99 +4042,99 @@ private:
             ,"unused identifier"
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_New
+            ,&S::comply_id_Var_New
             ,&S::typeComply_id_New
-            ,&S::default_id_New_Var
+            ,&S::default_id_Var_New
             ,&S::suggested_id_New);
     }
 
 
     static Implements_Data_Type_New<std::string>*
-    create_IdNewVar(const Implements_ComplexVar_New* parent)
+    create_IdVarNew(const Implements_ComplexVar_New* parent)
     {
       return new Implements_Data_Type_New<std::string>(
             parent,
-            V::idNewVar()
-            ,V::idNew()
+            V::idVarNew()
+            ,V::idVar()
             ,"used identifier for a variable"
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_New
-            ,&S::typeComply_id_New_Var
-            ,&S::default_id_New_Var
-            ,&S::suggested_id_New_Var);
+            ,&S::comply_id_Var_New
+            ,&S::typeComply_id_Var_New
+            ,&S::default_id_Var_New
+            ,&S::suggested_id_Var_New);
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdNewVar(const Implements_ComplexVar_New* parent
+    create_IdVarNew(const Implements_ComplexVar_New* parent
                     ,const std::string& varType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
-            V::idNewVar()+varType
-            ,V::idNewVar()
+            V::idVarNew()+varType
+            ,V::idVarNew()
             ,"used identifier for a variable of type "+varType
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_New
-            ,&S::typeComply_id_New_Var_T
-            ,&S::default_id_New_Var_T
-            ,&S::suggested_id_New_Var_T);
+            ,&S::comply_id_Var_New
+            ,&S::typeComply_id_Var_New_T
+            ,&S::default_id_Var_New_T
+            ,&S::suggested_id_Var_New_T);
 
       G::pushTypeOfId(o,varType);
       return o;
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdNewType(const Implements_ComplexVar_New* parent)
+    create_IdTypeNew(const Implements_ComplexVar_New* parent)
     {
       return new Implements_Data_Type_New<std::string>(
             parent,
-            V::idNewType()
-            ,V::idNew()
+            V::idTypeNew()
+            ,V::idType()
             ,"unused identifier for a variable"
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_New
-            ,&S::typeComply_id_New_Type
-            ,&S::default_id_New_Type
-            ,&S::suggested_id_New_Type);
+            ,&S::comply_id_Var_New
+            ,&S::typeComply_id_Type_New
+            ,&S::default_id_Type_New
+            ,&S::suggested_id_Type_New);
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdNewType(const Implements_ComplexVar_New* parent,
+    create_IdTypeNew(const Implements_ComplexVar_New* parent,
                      const std::string& varType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
-            V::idNewType()+varType
-            ,V::idNewType()
+            V::idTypeNew()+varType
+            ,V::idTypeNew()
             ,"used identifier for a type of type "+varType
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_New
-            ,&S::typeComply_id_New_Type_T
-            ,&S::default_id_New_Type_T
-            ,&S::suggested_id_New_Type_T);
+            ,&S::comply_id_Var_New
+            ,&S::typeComply_id_Type_New_T
+            ,&S::default_id_Type_New_T
+            ,&S::suggested_id_Type_New_T);
       G::pushTypeOfId(o,varType);
       return o;
     }
 
     static Implements_Data_Type_New<std::string>*
-    create_IdNewField(const Implements_ComplexVar_New* parent,
+    create_IdVarFieldNew(const Implements_ComplexVar_New* parent,
                       const std::string& complexVarType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
-            V::idNewField()+complexVarType
-            ,V::idNew()
+            V::idVarFieldNew()+complexVarType
+            ,V::idVarField()
             ,"used identifier for a type of type "+complexVarType
             ,"any valid identifier used or not"
             ,""
-            ,&S::comply_id_New_Field
-            ,&S::typeComply_id_New_Field
-            ,&S::default_id_New_Field
-            ,&S::suggested_id_New_Field);
+            ,&S::comply_id_Var_Field_New
+            ,&S::typeComply_id_Var_Field_New
+            ,&S::default_id_Var_Field_New
+            ,&S::suggested_id_Var_Field_New);
       G::pushComplexTypeId(o,complexVarType);
       return o;
     }
@@ -4257,8 +4374,9 @@ private:
             ,V::varValid()
             ,"valid variable"
             ,"any valid variable existant or new"
+            ,nullptr
             ,Identifier::create_IdValid(parent)
-            ,Identifier::create_IdType(parent)
+            ,Identifier::create_IdType_Used(parent)
             ,&S::typeComply_var_valid,
             nullptr,nullptr);
     }
@@ -4273,8 +4391,8 @@ private:
             ,V::varValid()
             ,"new variable"
             ,"any valid variable existant or new"
-            ,Identifier::create_IdNewVar(parent)
-            ,Identifier::create_IdType(parent)
+            ,nullptr,Identifier::create_IdVarNew(parent)
+            ,Identifier::create_IdType_Used(parent)
             ,&S::typeComply_var_New,nullptr,nullptr);
     }
 
@@ -4287,8 +4405,8 @@ private:
             ,V::varValid()
             ,"existant variable"
             ,"any existant variable"
-            ,Identifier::create_IdVar(parent)
-            ,Identifier::create_IdType(parent)
+            ,nullptr,Identifier::create_IdVarUsed(parent)
+            ,Identifier::create_IdType_Used(parent)
             ,&S::typeComply_vard_Used,nullptr,nullptr);
     }
 
@@ -4301,8 +4419,8 @@ private:
             ,V::varUsed()
             ,"existant variable"
             ,"any existant variable"
-            ,Identifier::create_IdVar(parent)
-            ,Identifier::create_IdType(parent)
+            ,nullptr,Identifier::create_IdVarUsed(parent)
+            ,Identifier::create_IdType_Used(parent)
             ,&S::typeComply_var_Var,nullptr,nullptr);
     }
 
@@ -5056,7 +5174,7 @@ private:
                                 ,plainPredicate mandatoryInp
                                 ,getEmptyMap toEmMap
                                 ,runCommand run_):
-      _private::Implements_Data_Type_New_map_string_ABC_Var_New      (parent,id,var,tip,whatthis,"", nullptr,nullptr,nullptr,nullptr)
+      _private::Implements_Data_Type_New_map_string_ABC_Var_New      (parent,id,var,tip,whatthis,"",{}, nullptr,nullptr,nullptr,nullptr)
     ,hasAllInputs_(hasAllI)
     ,hasMandatoryInputs_(mandatoryInp)
     ,toEmMap_(toEmMap)

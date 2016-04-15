@@ -76,7 +76,7 @@ namespace Markov_IO_New
 
   dir_{Markov_IO_New::getWorkingPath()},
     vt_(Variable::create_varVar(this)),
-    idCmd_(Identifier::create_IdCmd(this)),
+    idCmd_(Identifier::create_IdCmdUsed(this)),
     program_ver_(),
     h_(new CommandHistory(""))
 

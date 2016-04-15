@@ -223,7 +223,8 @@ namespace Markov_IO_New {
             if (idB_->pushToken(tok,whyNot,objective))
               {
                 id_=idB_->unloadVar();
-                auto x=parent()->idToVar(id_,whyNot);
+                auto x=
+                    varType_->getParentType()->getFieldVar(id_,whyNot,objective);
                 if (x!=nullptr)
                   {
                     varB_=varType_->getVarIdentifierBuildByToken(parent(),x->myType());

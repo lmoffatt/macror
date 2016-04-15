@@ -37,7 +37,7 @@ namespace Markov_IO_New {
   ABC_Type_of_Value::ABC_Type_of_Value(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis):
     Implements_ComplexVar_New(parent,id,var,tip,whatthis)
   {
-    idSelfType_=Identifier::create_IdType(this,id);
+    idSelfType_=Identifier::create_IdType_Used(this,id);
 
   }
 
@@ -133,7 +133,7 @@ namespace Markov_IO_New {
 
   };
 
-  bool Identifier::S::comply_id_Field(const Implements_ComplexVar_New *p, const std::__cxx11::string &idCandidate, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
+  bool Identifier::S::comply_id_Var_Field_Used(const Implements_ComplexVar_New *p, const std::__cxx11::string &idCandidate, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
   {
     std::string cvname=G::getComplexVarTypeId(self);
     const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* cmtype
@@ -151,7 +151,7 @@ namespace Markov_IO_New {
         p->hasName(idCandidate,WhyNot,objective,false);
   }
 
-  bool Identifier::S::typeComply_id_Cmd_T(const Implements_ComplexVar_New *p, const Implements_Data_Type_New<std::__cxx11::string> *idtype, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
+  bool Identifier::S::typeComply_id_Cmd_Used_T(const Implements_ComplexVar_New *p, const Implements_Data_Type_New<std::__cxx11::string> *idtype, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
   {
     if (idtype->id()==self->id())
       return true;
