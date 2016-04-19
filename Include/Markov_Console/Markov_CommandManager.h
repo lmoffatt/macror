@@ -109,7 +109,7 @@ namespace Markov_IO_New
   protected:
     ABC_IO* io_;
     Implements_Data_Type_New<ABC_Var_New*>* vt_;
-    Implements_Data_Type_New<std::string>* idCmd_;
+    Implements_Identifier* idCmd_;
     ExpressionManager* e;
     bool lastCmdRst;
     ProgramVersion program_ver_;

@@ -17,6 +17,7 @@
 namespace Markov_Mol_New
 {
   class ABC_Markov_Model;
+  class Q_Markov_Model;
 }
 
 namespace Markov_IO_New {
@@ -33,7 +34,7 @@ namespace Markov_IO_New {
     class Implements_Data_Type_New_map_string_ABC_Var_New;
 
     class Implements_Data_Type_class_ABC_Markov_Model;
-
+    class Implements_Data_Type_class_Q_Markov_Model;
 
 
 
@@ -107,6 +108,11 @@ namespace Markov_IO_New {
       using t=Implements_Data_Type_class_ABC_Markov_Model;
    };
 
+    template<>
+    struct Helper_Type<Markov_Mol_New::Q_Markov_Model*>
+    {
+      using t=Implements_Data_Type_class_Q_Markov_Model;
+   };
 
   };
   template <class T>
@@ -324,6 +330,7 @@ namespace Markov_IO_New {
 
     // ABC_Value_New interface
   public:
+
     static std::string ClassName()
     {
       return "ABC_Value_New";
@@ -333,6 +340,8 @@ namespace Markov_IO_New {
     {
       return ClassName();
     }
+
+    virtual ABC_Var_New* create(const Implements_ComplexVar_New* cm)const=0;
 
     virtual ABC_Value_New* value()=0;
 
@@ -377,6 +386,11 @@ namespace Markov_IO_New {
     virtual std::string myClass()const override
     {
       return ClassName();
+    }
+
+    virtual Implements_Var_New<T>* create(const Implements_ComplexVar_New* cm)const override
+    {
+      return new Implements_Var_New(cm,id(),myType(),Tip(),WhatThis(),x_->create());
     }
 
     virtual const Implements_ComplexVar_New* parent()const override
@@ -435,10 +449,6 @@ namespace Markov_IO_New {
       return x_->clone();
     }
 
-    virtual Implements_Value_New<T>* create()const
-    {
-      return x_->create();
-    }
 
 
 

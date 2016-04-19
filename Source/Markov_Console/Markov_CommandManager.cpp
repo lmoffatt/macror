@@ -71,15 +71,13 @@ namespace Markov_IO_New
   Markov_CommandManagerVar::Markov_CommandManagerVar():
    Implements_ComplexVar_New(nullptr,"CommandManager","CommandManager","",""),
   io_(nullptr),
-  e(nullptr),
-  lastCmdRst{},
-
-  dir_{Markov_IO_New::getWorkingPath()},
-    vt_(Variable::create_varVar(this)),
-    idCmd_(Identifier::create_IdCmdUsed(this)),
-    program_ver_(),
+    vt_{Variable::create_varValid(this)},
+    idCmd_(Implements_Identifier::create_Id_Cmd(this)),
+    e(nullptr),
+    lastCmdRst{},
+    program_ver_(ProgramVersion()),
+    dir_{Markov_IO_New::getWorkingPath()},
     h_(new CommandHistory(""))
-
 {
   setParentValue(nullptr);
   pushAllCommands(this);

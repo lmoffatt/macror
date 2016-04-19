@@ -34,7 +34,7 @@ namespace Markov_IO_New {
         { put(e); put('\t');}
       put(']');
     }
-
+    
     template<typename T>
     void put(const std::set<T>& v)
     {
@@ -43,7 +43,7 @@ namespace Markov_IO_New {
         { put(e); put('\t');}
       put('}');
     }
-
+    
     template<typename K,typename T>
     void put(const std::map<K,T>& v)
     {
@@ -52,9 +52,9 @@ namespace Markov_IO_New {
         { put(e.first); put('\t:\t'); put(e.second);}
       put('}');
     }
-
-
-
+    
+    
+    
     template<typename T>
     void put(const Markov_LA::M_Matrix<T>& v)
     {
@@ -67,7 +67,7 @@ namespace Markov_IO_New {
         }
       put('\n');
     }
-
+    
 */
 
 
@@ -2505,7 +2505,7 @@ namespace Markov_IO_New {
       ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {
       }
-private:
+    private:
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
 
@@ -2652,6 +2652,193 @@ private:
     };
 
 
+  }
+
+  class Implements_Identifier: public Implements_Data_Type_New<std::string>
+  {
+  public:
+
+    static std::string ClassName(){return "Implements_Identifier";}
+
+    virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const override;
+
+    virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const std::string &idCandidate, std::string *whyNot,const std::string& objective ) const override;
+
+
+
+    virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm
+                                ,const Implements_Data_Type_New<std::string>* val
+                                , std::string *whyNot
+                                ,const std::string& masterObjective ) const override
+    {
+      auto t=dynamic_cast<const Implements_Identifier*>(val);
+      if (t==nullptr)
+        {
+          *whyNot=masterObjective+": "+ val->id()+ "is not an identifier";
+          return false;
+        }
+      else
+        return isTypeIdentifierInDomain(cm,t,whyNot,masterObjective);
+
+    }
+
+    virtual bool isTypeIdentifierInDomain(const Implements_ComplexVar_New* cm
+                                          ,const Implements_Identifier* val
+                                          , std::string *whyNot
+                                          ,const std::string& masterObjective ) const;
+
+
+
+
+    virtual std::string getDefault_Valued(const Implements_ComplexVar_New* cm) const override
+    {
+      return (*default_)(cm,this);
+    }
+
+
+
+    const ABC_Type_of_Value* getType(){return type_;}
+
+    static Implements_Identifier* create_Id_Var(const Implements_ComplexVar_New* cm)
+    {
+      return new Implements_Identifier(cm,nullptr,nullptr,true,false,false,true,true);
+    }
+
+    static Implements_Identifier* create_Id_Var_New(const Implements_ComplexVar_New* cm)
+    {
+      return new Implements_Identifier(cm,nullptr,nullptr,true,false,false,true,false);
+    }
+
+    static Implements_Identifier* create_Id_Var_Used(const Implements_ComplexVar_New* cm)
+    {
+      return new Implements_Identifier(cm,nullptr,nullptr,true,false,false,false,true);
+    }
+
+    static Implements_Identifier* create_Id_Var(const Implements_ComplexVar_New* cm,
+                                                const ABC_Type_of_Value* t)
+    {
+      return new Implements_Identifier(cm,t,nullptr,true,false,false,true,true);
+    }
+
+    static Implements_Identifier* create_Id_Var_New(const Implements_ComplexVar_New* cm,
+                                                    const ABC_Type_of_Value* t){
+      return new Implements_Identifier(cm,t,nullptr,true,false,false,true,false);
+    }
+
+    static Implements_Identifier* create_Id_Var_Used(const Implements_ComplexVar_New* cm,
+                                                     const ABC_Type_of_Value* t)
+    {
+      return new Implements_Identifier(cm,t,nullptr,true,false,false,false,true);
+    }
+
+
+    static Implements_Identifier* create_Id_Type(const Implements_ComplexVar_New* cm)
+    {
+      return new Implements_Identifier(cm,nullptr,nullptr,false,true,false,true,true);
+    }
+
+    static Implements_Identifier* create_Id_Type_New(const Implements_ComplexVar_New* cm)
+    {
+      return new Implements_Identifier(cm,nullptr,nullptr,false,true,false,true,false);
+    }
+
+    static Implements_Identifier* create_Id_Type_Used(const Implements_ComplexVar_New* cm)
+    {
+      return new Implements_Identifier(cm,nullptr,nullptr,false,true,false,false,true);
+    }
+
+    static Implements_Identifier* create_Id_Type(const Implements_ComplexVar_New* cm,
+                                                 const ABC_Type_of_Value* t)
+    {
+      return new Implements_Identifier(cm,t,nullptr,false,true,false,true,true);
+    }
+
+    static Implements_Identifier* create_Id_Type_New(const Implements_ComplexVar_New* cm,
+                                                     const ABC_Type_of_Value* t){
+      return new Implements_Identifier(cm,t,nullptr,false,true,false,true,false);
+    }
+
+    static Implements_Identifier* create_Id_Type_Used(const Implements_ComplexVar_New* cm,
+                                                      const ABC_Type_of_Value* t)
+    {
+      return new Implements_Identifier(cm,t,nullptr,false,true,false,false,true);
+    }
+
+    static Implements_Identifier* create_Id_Cmd(const Implements_ComplexVar_New* cm,
+                                                const ABC_Type_of_Value* t)
+    {
+      return new Implements_Identifier(cm,t,nullptr,false,false,true,true,true);
+    }
+
+    static Implements_Identifier* create_Id_Cmd(const Implements_ComplexVar_New* cm)
+    {
+      return new Implements_Identifier(cm,nullptr,nullptr,false,false,true,true,true);
+    }
+
+    static Implements_Identifier* create_Id_Field(
+        const Implements_ComplexVar_New* cm,
+        const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* f)
+    {
+      return new Implements_Identifier(cm,nullptr,f,false,false,false,true,true);
+    }
+
+    static Implements_Identifier* create_Id_FieldNew(
+        const Implements_ComplexVar_New* cm,
+        const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* f)
+    {
+      return new Implements_Identifier(cm,nullptr,f,false,false,false,true,false);
+    }
+    static Implements_Identifier* create_Id_FieldUsed(
+        const Implements_ComplexVar_New* cm,
+        const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* f)
+    {
+      return new Implements_Identifier(cm,nullptr,f,false,false,false,false,true);
+    }
+
+
+  private:
+    std::string toId(const ABC_Type_of_Value* type,
+                     const _private::Implements_Data_Type_New_map_string_ABC_Var_New* fieldType,
+                     bool isVar, bool isType,bool isCommand,bool isNew, bool isUsed);
+
+
+
+
+
+    Implements_Identifier(const Implements_ComplexVar_New* cm,
+                          const ABC_Type_of_Value* type,
+                          const _private::Implements_Data_Type_New_map_string_ABC_Var_New* fieldType,
+                          bool isVar, bool isType,bool isCommand,bool isNew, bool isUsed):
+      Implements_Data_Type_New_string(cm
+                                      ,toId(type,fieldType,isVar,isType,isCommand,isNew,isUsed)
+                                      ,Implements_Identifier::ClassName()
+                                      ,"identifier of a "
+                                      ,"blablbb identifier"
+                                      ,""
+                                      ,nullptr
+                                      ,nullptr
+                                      ,nullptr
+                                      ,nullptr
+                                      )
+    ,type_(type), fieldType_(fieldType), isVar_(isVar), isType_(isType),isCommand_(isCommand)
+    ,isNew_(isNew),isUsed_(isUsed)
+    {}
+    const ABC_Type_of_Value* type_;
+    const _private::Implements_Data_Type_New_map_string_ABC_Var_New* fieldType_;
+    bool isVar_;
+    bool isType_;
+    bool isCommand_;
+    bool isNew_;
+    bool isUsed_;
+
+  };
+
+
+  class Variable;
+  namespace _private {
+
+
+
     class Implements_Data_Type_New_ABC_Var_New:
         public Implements_Base_Type_New<ABC_Var_New*>
 
@@ -2662,14 +2849,14 @@ private:
       using typeValue=typename Implements_Base_Type_New<ABC_Var_New*>::typeValue;
 
       using cvToType=Implements_Data_Type_New_ABC_Var_New* (*)
-            (const Implements_ComplexVar_New* cm
-            ,const Implements_ComplexVar_New* cv,
-            std::string* whyNot,const std::string& masterObjective);
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
 
-            using typeToCv= Implements_ComplexVar_New* (*)
-            (const Implements_ComplexVar_New* cm
-            ,const Implements_Data_Type_New_ABC_Var_New* classType,
-            std::string* whyNot,const std::string& masterObjective);
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New_ABC_Var_New* classType,
+      std::string* whyNot,const std::string& masterObjective);
 
 
 
@@ -2748,25 +2935,16 @@ private:
       virtual ~Implements_Data_Type_New_ABC_Var_New(){}
 
 
-      Implements_Data_Type_New_ABC_Var_New(const Implements_ComplexVar_New* parent,
-                                           const std::string& id
-                                           ,const std::string& var
-                                           ,const std::string& tip
-                                           ,const std::string& whatthis
-                                           , const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap
-                                           , const Implements_Data_Type_New<std::string>* idType
-                                           , const Implements_Data_Type_New<std::string>* varType
-                                           ,typetypePredicate typeComply
-                                           ,cvToType getTypeFromCV
-                                           ,typeToCv getCvFromType
-                                           ):
-        Implements_Base_Type_New<ABC_Var_New*>(
-          parent,id,var,tip,whatthis,nullptr,
-          nullptr,typeComply,nullptr),
-       varMap_(varMap), idType_(idType),varType_(varType)
-      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+
+      static Implements_Data_Type_New_ABC_Var_New*
+      makeABC_Var_Type_Of_CV(
+          const Implements_ComplexVar_New* cm,
+          const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap
+          )
       {
+
       }
+
 
       virtual buildByToken<std::string>*
       getNewIdentifierBuildByToken(const Implements_ComplexVar_New* cm)const
@@ -2798,7 +2976,7 @@ private:
         else
           return nullptr;
       }
-      
+
       virtual buildByToken<std::string>* getVarIdentifierBuildByToken(const Implements_ComplexVar_New* cm)const
       {
         return new buildByToken<std::string>(cm,varType_);
@@ -2809,29 +2987,266 @@ private:
         return new buildByToken<ABC_Var_New*>(cm,this);
       }
 
+      friend class Markov_IO_New::Variable;
+
     private:
+
+      Implements_Data_Type_New_ABC_Var_New(
+          const Implements_ComplexVar_New* parent,
+          const std::string& id
+          ,const std::string& var
+          ,const std::string& tip
+          ,const std::string& whatthis
+          , const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap
+          , const Implements_Identifier* idType
+          , const Implements_Identifier* varType
+          ,typetypePredicate typeComply
+          ,cvToType getTypeFromCV
+          ,typeToCv getCvFromType
+          ):
+        Implements_Base_Type_New<ABC_Var_New*>(
+          parent,id,var,tip,whatthis,nullptr,
+          nullptr,typeComply,nullptr),
+        varMap_(varMap), idType_(idType),varType_(varType)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+      {
+      }
+
       const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap_;
-      const Implements_Data_Type_New<std::string>* idType_;
-      const Implements_Data_Type_New<std::string>* varType_;
+      const Implements_Identifier* idType_;
+      const Implements_Identifier* varType_;
     protected:
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
 
     };
 
+    inline
+    bool includesVar(
+        const Implements_ComplexVar_New* cm
+        ,const std::map<std::string,ABC_Var_New*>&val
+        ,const std::map<std::string,ABC_Var_New*>& valTemplate
+        ,std::string *whyNot,const std::string& masterObjective )
+    {
+      for (auto& e:valTemplate)
+        {
+          auto it=val.find(e.first);
+          if (it==val.end())
+            {
+              *whyNot=masterObjective+": "+e.first+" not found";
+              return false;
+            }
+          else
+            {
+              if (e.second==nullptr)
+                {
+                  *whyNot=masterObjective+": "+"invalid template: "+e.first+ "is null";
+                  return false;
+                }
+              else{
+                  const ABC_Type_of_Value *t=
+                      cm->idToType(e.second->myType(),whyNot,masterObjective);
+                  if(t==nullptr)
+                    return false;
+                  else
+                    {
+                      const ABC_Var_New* o=it->second;
+                      if (o==nullptr)
+                        {
+                          *whyNot=masterObjective+": "+"invalid value: "+e.first+ "is null";
+                          return false;
+                        }
+                      else if(!t->isVarInDomain(cm,o->value(),whyNot,masterObjective))
+                        {
+                          return false;
+                        }
+
+                    }
+
+                }
+            }
+        }
+      return true;
+
+    }
+    inline
+    bool includesType(
+        const Implements_ComplexVar_New* cm
+        ,const std::map<std::string,ABC_Var_New*>&val
+        ,const std::map<std::string,ABC_Var_New*>& valTemplate
+        ,std::string *whyNot,const std::string& masterObjective )
+    {
+      for (auto& e:valTemplate)
+        {
+          auto it=val.find(e.first);
+          if (it==val.end())
+            {
+              *whyNot=masterObjective+": "+e.first+" not found";
+              return false;
+            }
+          else
+            {
+              if (e.second==nullptr)
+                {
+                  *whyNot=masterObjective+": "+"invalid template: "+e.first+ "is null";
+                  return false;
+                }
+              else{
+                  const ABC_Type_of_Value *t=
+                      cm->idToType(e.second->myType(),whyNot,masterObjective);
+                  if(t==nullptr)
+                    return false;
+                  else
+                    {
+                      const ABC_Var_New* o=it->second;
+                      if (o==nullptr)
+                        {
+                          *whyNot=masterObjective
+                              +": "+"invalid value: "+e.first+ "is null";
+                          return false;
+                        }
+                      else
+                        {
+                          const ABC_Type_of_Value *tv=
+                              cm->idToType(o->myType(),whyNot,masterObjective);
+                          if (tv==nullptr)
+                            return false;
+                          else if(!t->isTypeInDomain(cm,tv,whyNot,masterObjective))
+                            {
+                              return false;
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+      return true;
+
+    }
+
+
+
 
     class Implements_Data_Type_New_map_string_ABC_Var_New
         :public Implements_Container_Type_New<ABC_Var_New*,String_map>
     {
     public:
+      struct V
+      {
+        static std::string CV(){return "CV";}
+      };
 
-      using typePredicate=typename Implements_Base_Type_New<std::map<std::string,ABC_Var_New*>>::typePredicate;
+      struct S
+      {
 
-      using typetypePredicate=typename Implements_Base_Type_New<std::map<std::string,ABC_Var_New*>>::typetypePredicate;
-      using typeValue=typename Implements_Base_Type_New<std::map<std::string,ABC_Var_New*>>::typeValue;
+        static bool varComply(
+            const Implements_ComplexVar_New* cm
+            ,const std::map<std::string,ABC_Var_New*>&val
+            ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* valtype
+            ,std::string *whyNot,const std::string& masterObjective )
+        {
+          return includesVar(cm,val,valtype->getFields(),whyNot,masterObjective);
+        }
 
-      using typeElementPredicate= typename Implements_Container_Type_New<ABC_Var_New*,String_map>::typeElementPredicate;
+        static bool typeComply(
+            const Implements_ComplexVar_New* cm
+            ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* val
+            ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* valtype
+            ,std::string *whyNot,const std::string& masterObjective )
+        {
+          return includesType(
+                cm,val->getFields(),valtype->getFields(),whyNot,masterObjective);
+        }
 
+
+        static bool typeElementComply(
+            const Implements_ComplexVar_New* cm
+            ,const std::map<std::string,ABC_Var_New*> & m
+            ,ABC_Var_New*const& v
+            ,const Implements_Data_Type_New_map_string_ABC_Var_New* t
+            , std::string *WhyNot, const std::string& objective)
+        {
+          if (v==nullptr)
+            {
+              *WhyNot=objective+": invalid var provided";
+              return false;
+            }
+          else
+            {
+              auto& f=t->getFields();
+              auto it=f.find(v->id());
+              if (it==f.end())
+                {
+                  *WhyNot=objective+": "+v->id()+" is not a field of "+t->id();
+                  return false;
+                }
+              else
+                {
+                  auto it2=m.find(v->id());
+                  if (it2!=m.end())
+                    {
+                      ABC_Value_New* val=it2->second->value();
+                      if (!val->empty())
+                        {
+                          *WhyNot=objective+": "+v->id()+" is already filled";
+                          return false;
+                        }
+
+                    }
+                  const ABC_Type_of_Value *t=
+                      cm->idToType(it->second->myType(),WhyNot,objective);
+                  if(t==nullptr)
+                    return false;
+                  else
+                    return t->isVarInDomain(cm,v->value(),WhyNot,objective);
+                }
+
+            }
+        }
+
+        static std::map<std::string,ABC_Var_New*> defaultMap(
+            const Implements_ComplexVar_New* cm
+            ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* valtype
+            )
+        {
+          std::map<std::string,ABC_Var_New*> out;
+          auto &m=valtype->getFields();
+          for (auto &e:m)
+            {
+              ABC_Var_New* o=e.second->create(cm);
+              out.insert({o->id(),o});
+            }
+          return out;
+        }
+
+
+
+      };
+
+      using typePredicate= bool (*)(const Implements_ComplexVar_New* cm
+      ,const std::map<std::string,ABC_Var_New*>&val
+      ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* valtype
+      ,std::string *whyNot,const std::string& masterObjective );
+
+      using typetypePredicate= bool (*)(const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* val
+      ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* valtype
+      , std::string *whyNot
+      ,const std::string& masterObjective );
+
+      using typeValue=std::map<std::string,ABC_Var_New*>(*)(const Implements_ComplexVar_New*
+      ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* valtype
+      );
+
+
+
+      using typeElementPredicate = bool(*)(
+      const Implements_ComplexVar_New*
+      ,const std::map<std::string,ABC_Var_New*> &
+      ,ABC_Var_New*const&
+      ,const Implements_Data_Type_New_map_string_ABC_Var_New*
+      , std::string *WhyNot, const std::string& objective);
 
 
       using cvToType=Implements_Data_Type_New_map_string_ABC_Var_New* (*)
@@ -2845,8 +3260,54 @@ private:
       std::string* whyNot,const std::string& masterObjective);
 
 
+      virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const std::map<std::string,ABC_Var_New*>&val, std::string *whyNot,const std::string& masterObjective ) const override
+      {
+        if (comply_!=nullptr)
+          return (*comply_)(cm,val,this,whyNot,masterObjective);
+        else return true;
+      }
 
-      bool hasFieldName(const std::string& idCandidate,std::string *WhyNot,const std::string& objective)
+
+      virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm
+                                  ,const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* val
+                                  , std::string *whyNot
+                                  ,const std::string& masterObjective ) const override
+      {
+        if (typeComply_!=nullptr)
+          return (*typeComply_)(cm,val,this,whyNot,masterObjective);
+        else return true;
+      }
+
+
+
+      virtual bool isElementInDomain(
+          const Implements_ComplexVar_New* cm,
+          const std::map<std::string,ABC_Var_New*> &val
+          ,ABC_Var_New*const & elem
+          , std::string *whyNot
+          ,const std::string& masterObjective ) const override
+      {
+        return (*elemComply_)(cm,val,elem,this,whyNot,masterObjective);
+      }
+
+
+      virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
+          const Implements_ComplexVar_New* cm,
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const
+      {
+        return nullptr;
+      }
+
+      virtual ABC_Type_of_Value* getTypeClassRep(const Implements_ComplexVar_New* cm,
+                                                 const Implements_ComplexVar_New* cvar,
+                                                 std::string* whyNot,
+                                                 const std::string& masterObjective)const
+      {
+        return nullptr;
+      }
+
+
+      bool hasFieldName(const std::string& idCandidate,std::string *WhyNot,const std::string& objective)const
       {
         auto it=fields_.find(idCandidate);
         if(it==fields_.end())
@@ -2857,6 +3318,12 @@ private:
         else
           return true;
       }
+
+      const std::map<std::string,ABC_Var_New*> &getFields()const
+      {
+        return fields_;
+      }
+
 
       const ABC_Var_New* getFieldVar(const std::string& idCandidate,std::string *WhyNot,const std::string& objective)const
       {
@@ -2870,6 +3337,13 @@ private:
           return it->second;
 
       }
+
+
+      virtual const Implements_Data_Type_New<ABC_Var_New*>* getElementDataType(const Implements_ComplexVar_New *cm) const override
+      {
+           return varEType_;
+      }
+
 
 
 
@@ -2959,20 +3433,36 @@ private:
           ,const std::string& var
           ,const std::string& tip
           ,const std::string& whatthis
-          , const std::string& vartype
           , const std::map<std::string,ABC_Var_New*> fields
           ,typePredicate complyPred
           ,typetypePredicate typeComply
           ,typeElementPredicate elemeComply
-          ,typeValue  defaultValue):
-        Implements_Container_Type_New<Markov_IO_New::ABC_Var_New *, String_map>
-        (parent,id,var,tip,whatthis,vartype,complyPred,typeComply
-         ,elemeComply,defaultValue),
-        fields_(fields)
+          ,typeValue  defaultValue);
+
+
+      template<class C>
+      static  Implements_Data_Type_New_map_string_ABC_Var_New* makeComplexVarType(
+          const Implements_ComplexVar_New* cm
+          , const std::map<std::string,ABC_Var_New*>& fields
+          )
       {
+
+        return new Implements_Data_Type_New_map_string_ABC_Var_New
+            (cm,V::CV()+C::ClassName(),ClassName()
+             ,"fields map of "+C::ClassName(),""
+             ,fields,&S::varComply,&S::typeComply,&S::typeElementComply,&S::defaultMap);
       }
 
+
+
     private:
+      typePredicate comply_;
+      typetypePredicate typeComply_;
+      typeElementPredicate elemComply_;
+      typeValue default_;
+
+
+      const Implements_Data_Type_New<ABC_Var_New*>* varEType_;
       std::map<std::string,ABC_Var_New*> fields_;
 
     };
@@ -2984,8 +3474,8 @@ private:
   };
 
   class Identifier{
-       
-    
+
+
     class S {
     public:
 
@@ -3008,9 +3498,9 @@ private:
 
 
       static bool comply_id_Var_New(const Implements_ComplexVar_New* p,
-                                const std::string& idCandidate,
-                                const Implements_ComplexVar_New* self,
-                                std::string *WhyNot, const std::string &objective)
+                                    const std::string& idCandidate,
+                                    const Implements_ComplexVar_New* self,
+                                    std::string *WhyNot, const std::string &objective)
       {
         return p->isNameUnOcuppied(idCandidate,WhyNot,objective,true);
       }
@@ -3024,44 +3514,44 @@ private:
       }
 
       static bool comply_id_Var_Used(const Implements_ComplexVar_New* p,
-                                const std::string& idCandidate,
-                                const Implements_ComplexVar_New* self,
-                                std::string *WhyNot, const std::string &objective)
+                                     const std::string& idCandidate,
+                                     const Implements_ComplexVar_New* self,
+                                     std::string *WhyNot, const std::string &objective)
       {
         return p->hasName(idCandidate,WhyNot,objective,true);
       }
 
 
       static bool comply_id_Cmd_Used(const Implements_ComplexVar_New* p,
-                                const std::string& idCandidate,
-                                const Implements_ComplexVar_New* self,
-                                std::string *WhyNot, const std::string &objective)
+                                     const std::string& idCandidate,
+                                     const Implements_ComplexVar_New* self,
+                                     std::string *WhyNot, const std::string &objective)
       {
         return p->hasCommand(idCandidate,WhyNot,objective,true);
       }
 
 
       static bool comply_id_Type_Used(const Implements_ComplexVar_New* p,
-                                 const std::string& idCandidate,
-                                 const Implements_ComplexVar_New* self,
-                                 std::string *WhyNot, const std::string &objective)
+                                      const std::string& idCandidate,
+                                      const Implements_ComplexVar_New* self,
+                                      std::string *WhyNot, const std::string &objective)
       {
         return p->hasType(idCandidate,WhyNot,objective,true);
       }
 
       static bool comply_id_Var_Used_T(const Implements_ComplexVar_New* p,
-                                  const std::string& idCandidate,
-                                  const Implements_ComplexVar_New* self,
-                                  std::string *WhyNot, const std::string &objective)
+                                       const std::string& idCandidate,
+                                       const Implements_ComplexVar_New* self,
+                                       std::string *WhyNot, const std::string &objective)
       {
         std::string varType=G::gettypeOfId(self);
         return p->hasNameofType(idCandidate,varType,WhyNot,objective,true);
       }
 
       static bool comply_id_Cmd_Used_T(const Implements_ComplexVar_New* p,
-                                  const std::string& idCandidate,
-                                  const Implements_ComplexVar_New* self,
-                                  std::string *WhyNot, const std::string &objective)
+                                       const std::string& idCandidate,
+                                       const Implements_ComplexVar_New* self,
+                                       std::string *WhyNot, const std::string &objective)
       {
         std::string varType=G::gettypeOfId(self);
         return p->hasCmdofType(idCandidate,varType,WhyNot,objective,true);
@@ -3070,19 +3560,19 @@ private:
 
 
       static bool comply_id_Type_Used_T(const Implements_ComplexVar_New* p,
-                                   const std::string& idCandidate,
-                                   const Implements_ComplexVar_New* self,
-                                   std::string *WhyNot, const std::string &objective)
+                                        const std::string& idCandidate,
+                                        const Implements_ComplexVar_New* self,
+                                        std::string *WhyNot, const std::string &objective)
       {
         std::string typeType=G::gettypeOfId(self);
         return p->hasTypeofType(idCandidate,typeType,WhyNot,objective,true);
       }
 
       static bool comply_id_Var_Field_Used(const Implements_ComplexVar_New* p,
-                                  const std::string& idCandidate,
-                                  const Implements_ComplexVar_New* self,
-                                  std::string *WhyNot
-                                  , const std::string &objective);
+                                           const std::string& idCandidate,
+                                           const Implements_ComplexVar_New* self,
+                                           std::string *WhyNot
+                                           , const std::string &objective);
 
 
       static bool comply_id_Var_Field_New(
@@ -3232,10 +3722,10 @@ private:
 
 
       static bool typeComply_id_Var_Used(const Implements_ComplexVar_New* p,
-                                    const Implements_Data_Type_New<std::string>* idtype,
-                                    const Implements_ComplexVar_New* self,
-                                    std::string *WhyNot
-                                    , const std::string &objective)
+                                         const Implements_Data_Type_New<std::string>* idtype,
+                                         const Implements_ComplexVar_New* self,
+                                         std::string *WhyNot
+                                         , const std::string &objective)
       {
         if (idtype->id()==self->id())
           return true;
@@ -3252,10 +3742,10 @@ private:
 
 
       static bool typeComply_id_Cmd_Used(const Implements_ComplexVar_New* p,
-                                    const Implements_Data_Type_New<std::string>* idtype,
-                                    const Implements_ComplexVar_New* self,
-                                    std::string *WhyNot
-                                    , const std::string &objective)
+                                         const Implements_Data_Type_New<std::string>* idtype,
+                                         const Implements_ComplexVar_New* self,
+                                         std::string *WhyNot
+                                         , const std::string &objective)
       {
         if (idtype->id()==self->id())
           return true;
@@ -3273,9 +3763,9 @@ private:
 
 
       static bool typeComply_id_Type_Used(const Implements_ComplexVar_New* p,
-                                     const Implements_Data_Type_New<std::string>* idtype,
-                                     const Implements_ComplexVar_New* self,
-                                     std::string *WhyNot, const std::string &objective)
+                                          const Implements_Data_Type_New<std::string>* idtype,
+                                          const Implements_ComplexVar_New* self,
+                                          std::string *WhyNot, const std::string &objective)
       {
         if (idtype->id()==self->id())
           return true;
@@ -3289,9 +3779,9 @@ private:
           }
       }
       static bool typeComply_id_Var_Used_T(const Implements_ComplexVar_New* p,
-                                      const Implements_Data_Type_New<std::string>* idtype,
-                                      const Implements_ComplexVar_New* self,
-                                      std::string *WhyNot, const std::string &objective)
+                                           const Implements_Data_Type_New<std::string>* idtype,
+                                           const Implements_ComplexVar_New* self,
+                                           std::string *WhyNot, const std::string &objective)
       {
         if (idtype->id()==self->id())
           return true;
@@ -3312,16 +3802,16 @@ private:
 
 
       static bool typeComply_id_Cmd_Used_T(const Implements_ComplexVar_New* p,
-                                      const Implements_Data_Type_New<std::string>* idtype,
-                                      const Implements_ComplexVar_New* self,
-                                      std::string *WhyNot, const std::string &objective);
+                                           const Implements_Data_Type_New<std::string>* idtype,
+                                           const Implements_ComplexVar_New* self,
+                                           std::string *WhyNot, const std::string &objective);
 
 
 
       static bool typeComply_id_Type_Used_T(const Implements_ComplexVar_New* p,
-                                       const Implements_Data_Type_New<std::string>* idtype,
-                                       const Implements_ComplexVar_New* self,
-                                       std::string *WhyNot, const std::string &objective)
+                                            const Implements_Data_Type_New<std::string>* idtype,
+                                            const Implements_ComplexVar_New* self,
+                                            std::string *WhyNot, const std::string &objective)
       {
         if (idtype->id()==self->id())
           return true;
@@ -3341,9 +3831,9 @@ private:
       }
 
       static bool typeComply_id_Var_Field_Used(const Implements_ComplexVar_New* p,
-                                      const Implements_Data_Type_New<std::string>* idtype,
-                                      const Implements_ComplexVar_New* self,
-                                      std::string *WhyNot, const std::string &objective)
+                                               const Implements_Data_Type_New<std::string>* idtype,
+                                               const Implements_ComplexVar_New* self,
+                                               std::string *WhyNot, const std::string &objective)
       {
         if (idtype->id()==self->id())
           return true;
@@ -3414,10 +3904,10 @@ private:
       }
 
       static bool typeComply_id_Var_Field_New(const Implements_ComplexVar_New* p,
-                                          const Implements_Data_Type_New<std::string>* idtype,
-                                          const Implements_ComplexVar_New* self,
-                                          std::string *WhyNot
-                                          , const std::string &objective)
+                                              const Implements_Data_Type_New<std::string>* idtype,
+                                              const Implements_ComplexVar_New* self,
+                                              std::string *WhyNot
+                                              , const std::string &objective)
       {
         if (idtype->id()==self->id())
           return true;
@@ -3951,7 +4441,7 @@ private:
 
     static Implements_Data_Type_New<std::string>*
     create_IdCmdUsed(const Implements_ComplexVar_New* parent
-                 ,const std::string& cmdType)
+                     ,const std::string& cmdType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
@@ -3989,7 +4479,7 @@ private:
 
     static Implements_Data_Type_New<std::string>*
     create_IdType_Used(const Implements_ComplexVar_New* parent,
-                  const std::string& varType)
+                       const std::string& varType)
     {
       if (varType.find(V::idType())!=varType.npos)
         return nullptr;
@@ -4013,7 +4503,7 @@ private:
 
     static Implements_Data_Type_New<std::string>*
     create_IdVarFieldUsed(const Implements_ComplexVar_New* parent,
-                   const std::string& complexVar)
+                          const std::string& complexVar)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
@@ -4122,7 +4612,7 @@ private:
 
     static Implements_Data_Type_New<std::string>*
     create_IdVarFieldNew(const Implements_ComplexVar_New* parent,
-                      const std::string& complexVarType)
+                         const std::string& complexVarType)
     {
       auto o= new Implements_Data_Type_New<std::string>(
             parent,
@@ -4143,6 +4633,8 @@ private:
 
 
   };
+
+
 
 
   class Variable {
@@ -4375,8 +4867,8 @@ private:
             ,"valid variable"
             ,"any valid variable existant or new"
             ,nullptr
-            ,Identifier::create_IdValid(parent)
-            ,Identifier::create_IdType_Used(parent)
+            ,Implements_Identifier::create_Id_Var(parent)
+            ,Implements_Identifier::create_Id_Type(parent)
             ,&S::typeComply_var_valid,
             nullptr,nullptr);
     }
@@ -4391,8 +4883,9 @@ private:
             ,V::varValid()
             ,"new variable"
             ,"any valid variable existant or new"
-            ,nullptr,Identifier::create_IdVarNew(parent)
-            ,Identifier::create_IdType_Used(parent)
+            ,nullptr
+            ,Implements_Identifier::create_Id_Var_New(parent)
+            ,Implements_Identifier::create_Id_Type_Used(parent)
             ,&S::typeComply_var_New,nullptr,nullptr);
     }
 
@@ -4405,26 +4898,33 @@ private:
             ,V::varValid()
             ,"existant variable"
             ,"any existant variable"
-            ,nullptr,Identifier::create_IdVarUsed(parent)
-            ,Identifier::create_IdType_Used(parent)
+            ,nullptr
+            ,Implements_Identifier::create_Id_Var_Used(parent)
+            ,Implements_Identifier::create_Id_Type_Used(parent)
             ,&S::typeComply_vard_Used,nullptr,nullptr);
     }
 
+
     static Implements_Data_Type_New<ABC_Var_New*>*
-    create_varVar(const Implements_ComplexVar_New* parent)
+    create_varField(
+        const Implements_ComplexVar_New* cm,
+        const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap
+        )
     {
       return new Implements_Data_Type_New<ABC_Var_New*>(
-            parent,
-            V::varVar()
+            cm,
+            "_var"+varMap->id()
             ,V::varUsed()
-            ,"existant variable"
+            ,"var of a  complex variable"
             ,"any existant variable"
-            ,nullptr,Identifier::create_IdVarUsed(parent)
-            ,Identifier::create_IdType_Used(parent)
+            ,varMap
+            ,Implements_Identifier::create_Id_Field(cm,varMap)
+            ,Implements_Identifier::create_Id_Type_Used(cm)
             ,&S::typeComply_var_Var,nullptr,nullptr);
     }
 
   };
+
 
   namespace _private {
 
@@ -4434,8 +4934,14 @@ private:
     class Implements_Data_Type_class:public ABC_Typed_Value<T>
     {
     public:
+      struct F{
+        static std::string Cv(){return "Cv";}
+      };
 
       using typePredicate= bool(*)(const Implements_ComplexVar_New*,const T&,const Implements_Data_Type_class<T>*, std::string*,const std::string& );
+
+
+      using typetypePredicate= bool (*)(const Implements_ComplexVar_New* cm,const Implements_Data_Type_New<T>* x, Implements_Data_Type_class<T>*v, std::string *whyNot, const std::string& masterObjective);
 
       using getEmptyObject=T(*)(const Implements_Data_Type_class<T>*, std::string*);
 
@@ -4464,6 +4970,7 @@ private:
 
 
 
+
       static std::string ClassName()
       {
         return "Implements_Class_Type_New_of"+Cls<T>::name();
@@ -4473,6 +4980,73 @@ private:
       {
         return ClassName();
       }
+
+
+
+      virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const ABC_Value_New* v, std::string *whyNot, const std::string& masterObjective)const override
+      {
+        const std::string objective=masterObjective+": "+this->id()+ "do not has it in domain";
+        auto x=dynamicCast<const Implements_Value_New<T>* >(v,whyNot,objective);
+        if (x==nullptr)
+          {
+            return false;
+          }
+        else
+          return isVarInDomain(cm,x->getValued(),whyNot,objective);
+      }
+      virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const T& v, std::string *whyNot, const std::string& masterObjective)const override
+      {
+       return  (*comply_) (cm,v,this,whyNot,masterObjective);
+      }
+
+
+
+
+      virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm,const ABC_Type_of_Value* v, std::string *whyNot, const std::string& masterObjective)const override
+      {
+        const std::string objective=masterObjective+": "+this->id()+ "do not has it in domain";
+        auto x=dynamic_cast<const Implements_Data_Type_New<T>* >(v);
+        if (x==nullptr)
+          {
+            return false;
+          }
+        else
+          return isTypeInDomain(cm,x,whyNot,objective);
+      }
+
+
+   virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm,const Implements_Data_Type_New<T>* v, std::string *whyNot, const std::string& masterObjective)const
+      {
+        if (typeComply_==nullptr)
+          return true;
+        else
+        return (*typeComply_)(cm,v,this,whyNot,masterObjective);
+      }
+
+
+
+
+      bool includesThisType(const Implements_ComplexVar_New *cm, const std::string &childType, std::string *whyNot, const std::string &masterObjective) const
+      {
+        const ABC_Type_of_Value* ctype=cm->idToType(childType,whyNot,masterObjective);
+        if (ctype==nullptr)
+          return false;
+        else
+          {
+            const Implements_Data_Type_New<T>*
+                c=dynamic_cast<const Implements_Data_Type_New<T>*>(ctype);
+            if (c==nullptr)
+              {
+                *whyNot=masterObjective+": "+ctype->id()+"is not a"+ this->id();
+              }
+            else
+              return isTypeInDomain(cm,c,whyNot,masterObjective);
+
+          }
+
+      }
+
+
 
 
       virtual bool put(const Implements_ComplexVar_New* cm
@@ -4494,7 +5068,7 @@ private:
                        ,T& v
                        , ABC_Input* istream
                        ,std::string* whyNot
-                       , std::string& MasterObjective )const override
+                       , std::string& MasterObjective )const
       {
         std::map<std::string,ABC_Var_New*> m;
         if (!CVtype_->get(cm,m,istream,whyNot,MasterObjective))
@@ -4510,9 +5084,7 @@ private:
                 v=std::move(x);
                 return true;
               }
-
           }
-
       }
 
 
@@ -4526,25 +5098,34 @@ private:
       virtual ~Implements_Data_Type_class(){}
 
 
-      Implements_Data_Type_class(const Implements_ComplexVar_New* parent,
-                                 const std::string& id
-                                 ,const std::string& var
-                                 ,const std::string& tip
-                                 ,const std::string& whatthis
-                                 ,typePredicate complyPred
-                                 ,getEmptyObject  defaultValue
-                                 ,getCVMap map
-                                 ,getObject obj
-                                 ,cvToType getTypeFromCV
-                                 ,typeToCv getCvFromType
-                                 ):
+      Implements_Data_Type_class(
+          const Implements_ComplexVar_New* parent,
+          const std::string& id
+          ,const std::string& var
+          ,const std::string& tip
+          ,const std::string& whatthis
+          , const std::map<std::string,ABC_Var_New*> fields
+          ,typePredicate complyPred
+          ,typetypePredicate typeComply
+
+          ,getEmptyObject  defaultValue
+          ,getCVMap map
+          ,getObject obj
+          ,cvToType getTypeFromCV
+          ,typeToCv getCvFromType
+          ):
         ABC_Typed_Value<T>(parent,id,var,tip,whatthis)
       ,comply_(complyPred)
+      ,typeComply_(typeComply)
       ,default_(defaultValue)
       ,toMap_(map)
       ,toObj_(obj)
-      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
-      {}
+      ,CVtype_(nullptr)
+        ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+      {
+        CVtype_=Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>
+            ::makeComplexVarType<T>(parent,fields);
+      }
 
 
 
@@ -4668,10 +5249,11 @@ private:
 
     protected:
       typePredicate comply_;
+      typetypePredicate typeComply_;
       getEmptyObject default_;
       getObject toObj_;
       getCVMap toMap_;
-      Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* CVtype_;
+      const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* CVtype_;
     protected:
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
@@ -4685,15 +5267,16 @@ private:
     {
     public:
 
-      using typePredicate= bool(*)(const Implements_ComplexVar_New*,const T*&,const Implements_Data_Type_class<T*>*, std::string*);
+      using typePredicate= bool(*)(const Implements_ComplexVar_New*,const T*
+      ,const  Implements_Data_Type_class<T*>*, std::string*, const std::string& );
+
+      using typetypePredicate= bool (*)(const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_New<T*>* x,const Implements_Data_Type_class<T*>* v, std::string *whyNot, const std::string& masterObjective);
+
 
       using getEmptyObject=T*(*)(const Implements_ComplexVar_New*,
       const Implements_Data_Type_class<T*>*);
 
-      using plainPredicate
-      = bool(*)(const std::map<std::string,ABC_Var_New*>*,const Implements_Data_Type_class<T*>*, std::string*);
-
-      using getEmptyMap=std::map<std::string,ABC_Var_New*>* (*)(const Implements_Data_Type_class<T*>*, std::string*);
 
       using getCVMap=std::map<std::string,ABC_Var_New*> (*)
       (const Implements_ComplexVar_New* cm,
@@ -4709,14 +5292,14 @@ private:
 
 
       using cvToType=Implements_Data_Type_class<T*>* (*)
-            (const Implements_ComplexVar_New* cm
-            ,const Implements_ComplexVar_New* cv,
-            std::string* whyNot,const std::string& masterObjective);
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv,
+      std::string* whyNot,const std::string& masterObjective);
 
-            using typeToCv= Implements_ComplexVar_New* (*)
-            (const Implements_ComplexVar_New* cm
-            ,const Implements_Data_Type_class<T*>* classType,
-            std::string* whyNot,const std::string& masterObjective);
+      using typeToCv= Implements_ComplexVar_New* (*)
+      (const Implements_ComplexVar_New* cm
+      ,const Implements_Data_Type_class<T*>* classType,
+      std::string* whyNot,const std::string& masterObjective);
 
 
 
@@ -4729,6 +5312,78 @@ private:
       {
         return ClassName();
       }
+
+
+
+
+
+      virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const ABC_Value_New* v, std::string *whyNot, const std::string& masterObjective)const override
+      {
+        const std::string objective=masterObjective+": "+this->id()+ "do not has it in domain";
+        auto x=dynamicCast<const Implements_Value_New<T*>* >(v,whyNot,objective);
+        if (x==nullptr)
+          {
+            return false;
+          }
+        else
+          return isVarInDomain(cm,x->getValued(),whyNot,objective);
+      }
+      virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const T* v, std::string *whyNot, const std::string& masterObjective)const
+      {
+       return  (*comply_) (cm,v,this,whyNot,masterObjective);
+      }
+
+
+
+
+      virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm,const ABC_Type_of_Value* v, std::string *whyNot, const std::string& masterObjective)const override
+      {
+        const std::string objective=masterObjective+": "+this->id()+ "do not has it in domain";
+        auto x=dynamic_cast<const Implements_Data_Type_New<T*>* >(v);
+        if (x==nullptr)
+          {
+            return false;
+          }
+        else
+          return isTypeInDomain(cm,x,whyNot,objective);
+      }
+
+
+   virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm,const Implements_Data_Type_New<T*>* v, std::string *whyNot, const std::string& masterObjective)const
+      {
+        if (typeComply_==nullptr)
+          return true;
+        else
+        return (*typeComply_)(cm,v,this,whyNot,masterObjective);
+      }
+
+
+
+
+
+      bool includesThisType(const Implements_ComplexVar_New *cm, const std::string &childType, std::string *whyNot, const std::string &masterObjective) const
+      {
+        const ABC_Type_of_Value* ctype=cm->idToType(childType,whyNot,masterObjective);
+        if (ctype==nullptr)
+          return false;
+        else
+          {
+            const Implements_Data_Type_New<T*>*
+                c=dynamic_cast<const Implements_Data_Type_New<T*>*>(ctype);
+            if (c==nullptr)
+              {
+                *whyNot=masterObjective+": "+ctype->id()+"is not a"+ this->id();
+              }
+            else
+              return isTypeInDomain(cm,c,whyNot,masterObjective);
+
+          }
+
+      }
+
+
+
+
 
 
       virtual bool put(const Implements_ComplexVar_New* cm
@@ -4775,29 +5430,34 @@ private:
       virtual ~Implements_Data_Type_class(){}
 
 
-      Implements_Data_Type_class(const Implements_ComplexVar_New* parent,
-                                 const std::string& id
-                                 ,const std::string& var
-                                 ,const std::string& tip
-                                 ,const std::string& whatthis
-                                 ,typePredicate complyPred
-                                 ,plainPredicate mapComply
-                                 ,getEmptyObject  defaultValue
-                                 ,getEmptyMap eMap
-                                 ,getCVMap map
-                                 ,getObject obj
-                                 ,cvToType getTypeFromCV
-                                 ,typeToCv getCvFromType
-                                 ):
+      Implements_Data_Type_class(
+          const Implements_ComplexVar_New* parent,
+          const std::string& id
+          ,const std::string& var
+          ,const std::string& tip
+          ,const std::string& whatthis
+          , const std::map<std::string,ABC_Var_New*> fields
+          ,typePredicate complyPred
+          ,typetypePredicate typeComply
+          ,getEmptyObject  defaultValue
+          ,getCVMap map
+          ,getObject obj
+          ,cvToType getTypeFromCV
+          ,typeToCv getCvFromType
+          ):
         ABC_Typed_Value<T*>(parent,id,var,tip,whatthis)
       ,comply_(complyPred)
-      ,mapComply_(mapComply)
+      ,typeComply_(typeComply)
       ,default_(defaultValue)
-      ,toEMap_(eMap)
       ,toMap_(map)
       ,toObj_(obj)
+      ,CVtype_(nullptr)
       ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
-      {}
+      {
+        CVtype_=Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>
+            ::makeComplexVarType<T>(parent,fields);
+
+      }
 
 
 
@@ -4855,14 +5515,14 @@ private:
 
       }
 
-      T* getClass(const Implements_ComplexVar_New* cm
+      virtual T* getClass(const Implements_ComplexVar_New* cm
                   ,std::map<std::string,ABC_Var_New*>  m
                   ,std::string *WhyNot,const std::string& masterObjective)const
       {
         return (*toObj_)(cm,m,this,WhyNot,masterObjective);
       }
 
-      std::map<std::string,ABC_Var_New*> getComplexMap(
+      virtual std::map<std::string,ABC_Var_New*> getComplexMap(
           const Implements_ComplexVar_New* cm,
           const T* v,std::string *WhyNot,const std::string & masterObjective)const
       {
@@ -4910,6 +5570,8 @@ private:
           const Implements_ComplexVar_New* cm,
           const ABC_Var_New *var, std::string *whyNot, const std::string& masterObjective) const override
       {
+        if (var==nullptr)
+          return nullptr;
         const T* d=var->value()->getValue<T*>();
 
         std::map<std::string,ABC_Var_New*> o=getComplexMap(cm,d,whyNot,masterObjective);
@@ -4919,13 +5581,11 @@ private:
 
     protected:
       typePredicate comply_;
-      plainPredicate mapComply_;
+      typetypePredicate typeComply_;
       getEmptyObject default_;
-      getEmptyMap toEMap_;
       getObject toObj_;
       getCVMap toMap_;
-      Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* CVtype_;
-
+      const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* CVtype_;
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
 
@@ -5174,7 +5834,7 @@ private:
                                 ,plainPredicate mandatoryInp
                                 ,getEmptyMap toEmMap
                                 ,runCommand run_):
-      _private::Implements_Data_Type_New_map_string_ABC_Var_New      (parent,id,var,tip,whatthis,"",{}, nullptr,nullptr,nullptr,nullptr)
+      _private::Implements_Data_Type_New_map_string_ABC_Var_New      (parent,id,var,tip,whatthis,{},nullptr,nullptr,nullptr,nullptr)
     ,hasAllInputs_(hasAllI)
     ,hasMandatoryInputs_(mandatoryInp)
     ,toEmMap_(toEmMap)

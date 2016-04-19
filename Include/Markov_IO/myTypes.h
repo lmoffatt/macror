@@ -13,68 +13,66 @@ namespace Markov_IO_New {
     class Implements_Data_Type_class_ABC_Markov_Model
         :public _private::Implements_Data_Type_class<ABC_Markov_Model*>
     {
+    public:
+
+      static Implements_Data_Type_class_ABC_Markov_Model* create_ABCModel(
+          const Implements_ComplexVar_New* cm)
+      {
+        return new Implements_Data_Type_class_ABC_Markov_Model
+            (cm,ClassName(),ClassName()
+             , "abstract kinetic model"
+             ,""
+             ,{},nullptr,nullptr,nullptr,nullptr,nullptr);
+
+      }
+
 
       Implements_Data_Type_class_ABC_Markov_Model
       (const Implements_ComplexVar_New* parent,
-                                       const std::string& id
-                                       ,const std::string& var
-                                       ,const std::string& tip
-                                       ,const std::string& whatthis
-                                       ,typePredicate complyPred
-                                       ,plainPredicate mapComply
-                                       ,getEmptyObject  defaultValue
-                                       ,getEmptyMap eMap
-                                       ,getCVMap map
-                                       ,getObject obj):
-        Implements_Data_Type_class<ABC_Markov_Model*>(parent,
-          id,var,tip,whatthis,complyPred,mapComply,defaultValue,eMap,map,obj,nullptr,nullptr)
+       const std::string& id
+       ,const std::string& var
+       ,const std::string& tip
+       ,const std::string& whatthis
+       , const std::map<std::string,ABC_Var_New*> fields
+       ,typePredicate complyPred
+       ,typetypePredicate typeComply
+       ,getEmptyObject  defaultValue
+       ,getCVMap map
+       ,getObject obj):
+        Implements_Data_Type_class<ABC_Markov_Model*>(
+          parent,id,var,tip,whatthis,fields,complyPred,typeComply,defaultValue,map,obj,nullptr,nullptr)
+      {}
+};
+
+
+
+    class Implements_Data_Type_class_Q_Markov_Model
+        :public Implements_Data_Type_class_ABC_Markov_Model
+    {
+    public:
+
+      Implements_Data_Type_class_Q_Markov_Model
+      (const Implements_ComplexVar_New* parent,
+       const std::string& id
+       ,const std::string& var
+       ,const std::string& tip
+       ,const std::string& whatthis
+       ,const std::map<std::string,ABC_Var_New*>& fields
+       ,typePredicate complyPred
+       ,typetypePredicate typeComply
+       ,getEmptyObject  defaultValue
+       ,getCVMap map
+       ,getObject obj):
+        Implements_Data_Type_class_ABC_Markov_Model(
+          parent,id,var,tip,whatthis,fields,complyPred,typeComply,defaultValue,map,obj)
       {}
 
-      virtual bool put(const Implements_ComplexVar_New* cm,
-                       const ABC_Markov_Model* v,ABC_Output* ostream,std::string* error, const std::string& masterObjective)const
-      {
-
-      }
-
-      virtual bool get(const Implements_ComplexVar_New* cm,
-                       ABC_Markov_Model*& v, ABC_Input* istream,std::string* whyNot,
-                       const std::string& masterObjective)const
-      {
-
-      }
-
-
-      virtual ABC_Markov_Model* getDefault_Valued(const Implements_ComplexVar_New* cm)const
-      {
-
-      }
-
-
-      virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,
-                                 const ABC_Markov_Model *val, std::string *whyNot
-                                 ,const std::string &masterObjective ) const
-      {
-
-      }
 
 
 
-      virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm
-                                  ,const Implements_Data_Type_New<ABC_Markov_Model*>* val
-                                  , std::string *whyNot
-                                  ,const std::string& masterObjective ) const
-      {
-
-      }
 
 
-      virtual bool includesThisType(const Implements_ComplexVar_New* cm
-                                    ,const std::string& childType
-                                    ,std::string *whyNot
-                                    , const std::string &masterObjective)const
-      {
 
-      }
 
 
     };
@@ -83,9 +81,10 @@ namespace Markov_IO_New {
 
 
 
+
     void push_Model_Types(Markov_CommandManagerVar* cm)
     {
-      //cm->pushType( new Implements_Data_Type_New<ABC_Markov_Model*>(cm));
+
 
     }
 
