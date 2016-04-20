@@ -7,6 +7,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <limits>
 
 namespace Markov_IO_New {
 
@@ -16,6 +17,24 @@ namespace Markov_IO_New {
     {
       return x->clone();
     }
+
+
+  template<typename T>
+class Num
+{
+public:
+   static T empty()
+   {
+     return std::numeric_limits<T>::max();
+   }
+
+   static bool isEmpty(T x)
+   {
+     return x==std::numeric_limits<T>::max();
+   }
+
+ };
+
 
 
 

@@ -4,6 +4,9 @@
 #include "Markov_IO/Var.h"
 #include "Markov_IO/buildByToken.h"
 
+#include "Markov_LA/matrixSum.h"
+
+
 namespace Markov_IO_New {
 
 
@@ -1416,12 +1419,14 @@ namespace Markov_IO_New {
       using typeValue=typename Implements_Base_Type_New<C<T>>::typeValue;
 
 
-      using typeElementPredicate = bool(*)(const Implements_ComplexVar_New*,const C<T> &,const T&,const Implements_ComplexVar_New*, std::string *WhyNot, const std::string& objective);
-
-
-
-
-
+      using typeElementPredicate = bool(*)
+      (const Implements_ComplexVar_New* cm
+      ,const C<T> & c
+      , typename C<T>::const_iterator iter
+      ,const T& elem
+      ,const Implements_Container_Type_New<T,C>* v
+      , std::string *WhyNot
+      , const std::string& objective);
 
       static std::string ClassName()
       {
@@ -1436,11 +1441,12 @@ namespace Markov_IO_New {
       virtual bool isElementInDomain(
           const Implements_ComplexVar_New* cm,
           const C<T> &val
-          ,const T& elem
+          ,typename C<T>::const_iterator iter
+          , const T& elem
           , std::string *whyNot
-          ,const std::string& masterObjective ) const
+          ,const std::string& masterObjective) const
       {
-        return (*elemComply_)(cm,val,elem,this,whyNot,masterObjective);
+        return (*elemComply_)(cm,val,iter,elem,this,whyNot,masterObjective);
       }
 
       virtual buildByToken<T>* getElementBuildByToken(const Implements_ComplexVar_New* cm)const
@@ -1484,6 +1490,91 @@ namespace Markov_IO_New {
     };
 
 
+
+    template<typename T, template<typename> class C>
+    class Implements_Container_Type_New<T*,C> :public Implements_Base_Type_New<C<T*>>
+    {
+    public:
+      using typePredicate=typename Implements_Base_Type_New<C<T*>>::typePredicate;
+      using typetypePredicate=typename Implements_Base_Type_New<C<T*>>::typetypePredicate;
+      using typeValue=typename Implements_Base_Type_New<C<T*>>::typeValue;
+
+
+      using typeElementPredicate = bool(*)
+      (const Implements_ComplexVar_New* cm
+      ,const C<T*> & c
+      , typename C<T*>::const_iterator iter
+      ,const T*& elem
+      ,const Implements_Container_Type_New<T*,C>* v
+      , std::string *WhyNot
+      , const std::string& objective);
+
+      static std::string ClassName()
+      {
+        return "Implements_Container_Type_New_of_"+Cls<C<T>>::name();
+      }
+
+      virtual std::string myClass()const override
+      {
+        return ClassName();
+      }
+
+      virtual bool isElementInDomain(
+          const Implements_ComplexVar_New* cm,
+          const C<T*> &val
+          ,typename C<T*>::const_iterator iter
+          ,const T*& elem
+          , std::string *whyNot
+          ,const std::string& masterObjective) const
+      {
+        return (*elemComply_)(cm,val,iter,elem,this,whyNot,masterObjective);
+      }
+
+      virtual buildByToken<T*>* getElementBuildByToken(const Implements_ComplexVar_New* cm)const
+      {
+        return ABC_Type_of_Value::G::getElementBuildByToken<T*>(cm,this);
+      }
+
+      virtual const Implements_Data_Type_New<T*>* getElementDataType(const Implements_ComplexVar_New* cm)const;
+
+
+
+
+      virtual ~Implements_Container_Type_New(){}
+
+
+      Implements_Container_Type_New(
+          const Implements_ComplexVar_New* parent,
+          const std::string& id
+          ,const std::string& var
+          ,const std::string& tip
+          ,const std::string& whatthis
+          , const std::string elementVar
+          ,typePredicate complyPred
+          ,typetypePredicate typeComply                                 ,typeElementPredicate elemeComply
+          ,typeValue  defaultValue
+
+          ):
+        Implements_Base_Type_New<C<T*>>(parent,id,var,tip,whatthis,C<T*>()
+                                        ,complyPred,typeComply,defaultValue),
+        elemComply_(elemeComply)
+      {
+        ABC_Type_of_Value::G::pushTypeOfElement(this,elementVar);
+
+      }
+
+
+    protected:
+      typeElementPredicate elemComply_;
+
+
+    };
+
+
+
+
+
+
     template<typename T>
     using My_vec = std::vector<T>;  // to fake that vector takes only one template argument
 
@@ -1524,11 +1615,11 @@ namespace Markov_IO_New {
           {
             const Implements_Data_Type_New<T>* etype=this->getElementDataType(cm);
             ostream->put("\n[");
-            for (auto& e: v)
+            for (auto it=v.begin(); it!=v.end(); ++it)
               {
-                if (!this->isElementInDomain(cm,v,e,whyNot,masterObjective))
+                if (!this->isElementInDomain(cm,v,it,*it,whyNot,masterObjective))
                   return false;
-                if(!etype->put(cm,e,ostream,whyNot,masterObjective))
+                if(!etype->put(cm,*it,ostream,whyNot,masterObjective))
                   {
                     ostream->put(*whyNot);
                     return false;
@@ -1558,17 +1649,16 @@ namespace Markov_IO_New {
           }
         else
           {
-            std::size_t i=0;
-            std::size_t n=v.size();
-            while ((i<n)&&(!istream->nextCharIs(']',false)))
+            auto iter=v.begin();
+            while ((iter<v.end())&&(!istream->nextCharIs(']',false)))
               {
                 T d;
                 if (etype->get(cm,d,istream,whyNot,masterObjective))
                   {
-                    if (this->isElementInDomain(cm,v,d,whyNot,masterObjective))
+                    if (this->isElementInDomain(cm,v,iter,d,whyNot,masterObjective))
                       {
-                        v[i]=std::move(d);
-                        ++i;
+                        *iter=std::move(d);
+                        ++iter;
                       }
                     else return false;
 
@@ -1582,7 +1672,7 @@ namespace Markov_IO_New {
                 T d;
                 if (etype->get(cm,d,istream,whyNot,masterObjective))
                   {
-                    if (this->isElementInDomain(cm,v,d,whyNot,masterObjective))
+                    if (this->isElementInDomain(cm,v,v.end(),d,whyNot,masterObjective))
                       {
                         v.push_back(std::move(d));
                       }
@@ -1855,11 +1945,11 @@ namespace Markov_IO_New {
           {
             const Implements_Data_Type_New<T>* etype=this->getElementDataType(cm);
             ostream->put("\n{");
-            for (auto& e: v)
+            for (auto it=v.begin(); it!=v.end(); ++it)
               {
-                if (!this->isElementInDomain(cm,v,e,whyNot,masterObjective))
+                if (!this->isElementInDomain(cm,v,it,*it,whyNot,masterObjective))
                   return false;
-                if(!etype->put(cm,e,ostream,whyNot,masterObjective))
+                if(!etype->put(cm,*it,ostream,whyNot,masterObjective))
                   {
                     ostream->put(*whyNot);
                     return false;
@@ -1890,7 +1980,7 @@ namespace Markov_IO_New {
                 T d;
                 if (etype->get(cm,d,istream,whyNot,masterObjective))
                   {
-                    if (this->isElementInDomain(cm,v,d,whyNot,masterObjective))
+                    if (this->isElementInDomain(cm,v,v.end(),d,whyNot,masterObjective))
                       {
                         v.insert(std::move(d));
                       }
@@ -1999,6 +2089,8 @@ namespace Markov_IO_New {
 
 
 
+
+
       static std::string ClassName()
       {
         return "Implements_Data_Type_New_of_"+Cls<Markov_LA::M_Matrix<T>>::name();
@@ -2103,10 +2195,25 @@ namespace Markov_IO_New {
 
 
 
-      using typeElementPredicate = bool(*)(const Implements_ComplexVar_New*,const D<K,T> &,const T&,const Implements_ComplexVar_New*, std::string *WhyNot, const std::string& objective);
+      using typeElementPredicate = bool(*)(
+      const Implements_ComplexVar_New*
+      ,const D<K,T> &
+      ,typename D<K,T>::const_iterator
+      ,const K&
+      ,const T&
+      ,const Implements_Dictionary_Type_New<K,T,D>*
+      , std::string *WhyNot
+      , const std::string& objective);
 
 
-      using typeKeyPredicate = bool(*)(const Implements_ComplexVar_New*,const D<K,T> &,const K&,const Implements_ComplexVar_New*, std::string *WhyNot, const std::string& objective);
+      using typeKeyPredicate = bool(*)(
+      const Implements_ComplexVar_New*
+      ,const D<K,T> &
+      ,typename D<K,T>::const_iterator
+      ,const K&
+      ,const Implements_ComplexVar_New*
+      , std::string *WhyNot
+      , const std::string& objective);
 
 
 
@@ -2120,14 +2227,35 @@ namespace Markov_IO_New {
         return ClassName();
       }
 
-      virtual bool isElementInDomain(
+      virtual bool isKeyInDomain(
           const Implements_ComplexVar_New* cm,
           const D<K,T> &val
-          ,const T& elem
+          ,typename D<K,T>::const_iterator iter
+          ,const K& elem
           , std::string *whyNot
           ,const std::string& masterObjective ) const
       {
-        return (*elemComply_)(cm,val,elem,this,whyNot,masterObjective);
+        if (keyComply_==nullptr)
+          return true;
+        else
+          return (*keyComply_)(cm,val,iter,elem,this,whyNot,masterObjective);
+      }
+
+
+
+      virtual bool isElementInDomain
+      (const Implements_ComplexVar_New* cm
+       ,const D<K,T> &val
+       ,typename D<K,T>::const_iterator iter
+       ,const K& key
+       ,T& elem
+       , std::string *whyNot
+       ,const std::string& masterObjective) const
+      {
+        if (elemComply_==nullptr)
+          return true;
+        else
+          return (*elemComply_)(cm,val,iter,key,elem,this,whyNot,masterObjective);
       }
 
 
@@ -2143,15 +2271,6 @@ namespace Markov_IO_New {
       }
 
 
-      virtual bool isKeyInDomain(
-          const Implements_ComplexVar_New* cm,
-          const D<K,T> &val
-          ,const K& elem
-          , std::string *whyNot
-          ,const std::string& masterObjective ) const
-      {
-        return (*keyComply_)(cm,val,elem,this,whyNot,masterObjective);
-      }
 
       virtual buildByToken<K>* getKeyBuildByToken(const Implements_ComplexVar_New* cm)const
       {
@@ -2217,7 +2336,7 @@ namespace Markov_IO_New {
 
     template<typename K, typename T>
     class Implements_Data_Type_New_pair
-        :public Implements_Dictionary_Type_New<K,T,std::pair>
+        :public Implements_Base_Type_New<std::pair<K,T>>
     {
     public:
 
@@ -2226,9 +2345,21 @@ namespace Markov_IO_New {
       using typetypePredicate=typename Implements_Base_Type_New<std::pair<K,T>>::typetypePredicate;
       using typeValue=typename Implements_Base_Type_New<std::pair<K,T>>::typeValue;
 
-      using typeElementPredicate= typename Implements_Dictionary_Type_New<K,T,std::pair>::typeElementPredicate;
+      using typeElementPredicate = bool(*)(
+      const Implements_ComplexVar_New*
+      ,const std::pair<K,T> & p
+      ,const T& x
+      ,const Implements_Data_Type_New_pair<K,T>* v
+      , std::string *WhyNot
+      , const std::string& objective);
 
-      using typeKeyPredicate= typename Implements_Dictionary_Type_New<K,T,std::pair>::typeKeyPredicate;
+      using typeKeyPredicate = bool(*)(
+      const Implements_ComplexVar_New*
+      ,const std::pair<K,T> & p
+      ,const K& k
+      ,const Implements_Data_Type_New_pair<K,T>* v
+      , std::string *WhyNot
+      , const std::string& objective);
 
 
       using cvToType=Implements_Data_Type_New_pair<K,T>* (*)
@@ -2240,6 +2371,71 @@ namespace Markov_IO_New {
       (const Implements_ComplexVar_New* cm
       ,const Implements_Data_Type_New_pair<K,T>* classType,
       std::string* whyNot,const std::string& masterObjective);
+
+
+      virtual bool put(const Implements_ComplexVar_New *cm, const std::pair<K,T> &v, ABC_Output *ostream, std::__cxx11::string *error, const std::__cxx11::string &masterObjective) const
+      {
+
+      }
+      virtual bool get(const Implements_ComplexVar_New *cm, std::pair<K,T> &v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+      {
+
+      }
+
+
+      virtual buildByToken<T>* getElementBuildByToken(const Implements_ComplexVar_New* cm)const
+      {
+        return ABC_Type_of_Value::G::getElementBuildByToken<T>(cm,this);
+      }
+
+      virtual const Implements_Data_Type_New<T>* getElementDataType(const Implements_ComplexVar_New* cm)const
+      {
+        return ABC_Type_of_Value::G::getElementType<T>(cm,this);
+      }
+
+
+
+      virtual buildByToken<K>* getKeyBuildByToken(const Implements_ComplexVar_New* cm)const
+      {
+        return ABC_Type_of_Value::G::getKeyBuildByToken<K>(cm,this);
+      }
+
+      virtual const Implements_Data_Type_New<K>* getKeyDataType(const Implements_ComplexVar_New* cm)const
+      {
+        return ABC_Type_of_Value::G::getKeyType<K>(cm,this);
+      }
+
+
+      virtual bool isKeyInDomain(
+          const Implements_ComplexVar_New* cm,
+          const std::pair<K,T> &val
+          ,K& elem
+          , std::string *whyNot
+          ,const std::string& masterObjective ) const
+      {
+        if (keyComply_==nullptr)
+          return true;
+        else
+          return (*keyComply_)(cm,val,elem,this,whyNot,masterObjective);
+      }
+
+
+
+      virtual bool isElementInDomain
+      (const Implements_ComplexVar_New* cm
+       ,const std::pair<K,T> &val
+       ,T& elem
+       , std::string *whyNot
+       ,const std::string& masterObjective) const
+      {
+        if (elemeComply_==nullptr)
+          return true;
+        else
+          return (*elemeComply_)(cm,val,elem,this,whyNot,masterObjective);
+      }
+
+
+
 
 
 
@@ -2255,6 +2451,10 @@ namespace Markov_IO_New {
 
 
       virtual ~Implements_Data_Type_New_pair(){}
+
+
+
+
 
       virtual buildByToken<std::pair<K,T>> *getBuildByToken(const Implements_ComplexVar_New *cm) const override
       {
@@ -2308,15 +2508,21 @@ namespace Markov_IO_New {
                                     ,typeElementPredicate elemeComply
                                     ,typeValue  defaultValue
                                     ):
-        Implements_Dictionary_Type_New<K,T,std::pair>
-        (parent,id,var,tip,whatthis,keyVar,elementVar,complyPred,typeComply,keyComply
-         ,elemeComply,defaultValue)
+        Implements_Base_Type_New<std::pair<K, T> >         (parent,id,var,tip,whatthis,{},complyPred,typeComply,defaultValue)
+      ,keyComply_(keyComply),elemeComply_(elemeComply)
       {
+        ABC_Type_of_Value::G::pushTypeOfKey(this,keyVar);
+        ABC_Type_of_Value::G::pushTypeOfElement(this,elementVar);
       }
 
     private:
+      typeKeyPredicate keyComply_;
+      typeElementPredicate elemeComply_;
+
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
+
+
 
     };
 
@@ -3280,20 +3486,10 @@ namespace Markov_IO_New {
 
 
 
-      virtual bool isElementInDomain(
-          const Implements_ComplexVar_New* cm,
-          const std::map<std::string,ABC_Var_New*> &val
-          ,ABC_Var_New*const & elem
-          , std::string *whyNot
-          ,const std::string& masterObjective ) const override
-      {
-        return (*elemComply_)(cm,val,elem,this,whyNot,masterObjective);
-      }
-
 
       virtual Implements_ComplexVar_New* getComplexVarofTypeRep(
           const Implements_ComplexVar_New* cm,
-          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const
+          const ABC_Type_of_Value* var,std::string* whyNot,const std::string& masterObjective)const override
       {
         return nullptr;
       }
@@ -3341,7 +3537,7 @@ namespace Markov_IO_New {
 
       virtual const Implements_Data_Type_New<ABC_Var_New*>* getElementDataType(const Implements_ComplexVar_New *cm) const override
       {
-           return varEType_;
+        return varEType_;
       }
 
 
@@ -3472,6 +3668,44 @@ namespace Markov_IO_New {
 
 
   };
+
+  struct Real
+  {
+    struct nonZero
+    {
+      typedef  double myC;
+      static std::string idVar(){return "real_nonZero";}
+      static std::string idType(){return Cls<myC>::name();}
+      static std::string Tip(){return "any non zero real number";}
+      static std::string WhatThis() {return "";}
+
+      static bool comply
+      (const Implements_ComplexVar_New*
+       ,const myC& x
+       ,const Implements_ComplexVar_New* ,
+       std::string *WhyNot
+       , const std::string& objective)
+      {
+        if (std::abs(x)<std::numeric_limits<double>::epsilon())
+          {
+            *WhyNot=objective+": x="+std::to_string(x)+"is too close to zero";
+            return false;
+          }
+        else
+          return true;
+      }
+
+      static Implements_Data_Type_New<myC>*
+      varType(const Implements_ComplexVar_New* cm)
+      {
+        return new Implements_Data_Type_New<myC>
+            (cm,idVar(),idType(),Tip(),WhatThis(),std::numeric_limits<double>::quiet_NaN()
+             ,&comply,nullptr,nullptr,nullptr,nullptr);
+      }
+    };
+
+  };
+
 
   class Identifier{
 
@@ -4268,6 +4502,7 @@ namespace Markov_IO_New {
 
   public:
     using G=ABC_Type_of_Value::G;
+    typedef Implements_Identifier vType;
 
     class V
     {
@@ -4637,6 +4872,193 @@ namespace Markov_IO_New {
 
 
 
+  template<typename T>
+  class Matrix
+  {
+  public:
+    typedef Implements_Data_Type_New<Markov_LA::M_Matrix<T>> vType;
+
+
+    class Comply
+    {
+    public:
+      static bool Size(
+          const Markov_LA::M_Matrix<double>& x,
+          std::size_t numRows, std::size_t numCols,
+          std::string* whyNot, const std::string& masterObjective)
+      {
+        std::string objective=masterObjective+": size mismatch";
+        if (Markov_LA::nrows(x)!=numRows)
+          {
+            *whyNot=objective+": rows required: "
+                +std::to_string(numRows)+" present:"
+                +std::to_string(Markov_LA::nrows(x));
+            return false;
+          }
+        else if(Markov_LA::ncols(x)!=numCols)
+          {
+            *whyNot=objective+": rows required: "+std::to_string(numCols)
+                +" present: "+std::to_string(Markov_LA::ncols(x));
+            return false;
+          }
+        return true;
+      }
+
+      static bool notAllZero(const Markov_LA::M_Matrix<T> &x
+                             ,std::string *whyNot
+                             , const std::string& masterObjective)
+      {
+        for (auto it=x.begin(); it!=x.end(); ++it)
+          if (*it!=0)
+            return true;
+        *whyNot=masterObjective+": all values are zero";
+        return false;
+      }
+
+
+      static bool RowSumIsZero(const Markov_LA::M_Matrix<T> &x
+                               ,std::string *whyNot
+                               , const std::string& masterObjective)
+      {
+        auto s=Markov_LA::sum(x);
+        for (std::size_t i=0; i<nrows(s); ++i)
+          if (s(i,0)!=T(0))
+            {
+              *whyNot=masterObjective+": sum of "+std::to_string(i)+"th row is not zero: "+std::to_string(s(i,0));
+              return false;
+            }
+        return true;
+      }
+
+
+      static bool RowSumIsOne(const Markov_LA::M_Matrix<T> &x
+                              ,std::string *whyNot
+                              , const std::string& masterObjective)
+      {
+        auto s=Markov_LA::sum(x);
+        for (std::size_t i=0; i<nrows(s); ++i)
+          if (std::abs(s(i,0)-T(1))>std::sqrt(std::numeric_limits<T>::epsilon()))
+            {
+              *whyNot=masterObjective+": sum of "+std::to_string(i)+"th row is not one: "+std::to_string(s(i,0));
+              return false;
+            }
+        return true;
+      }
+
+
+      static  bool OffDiagPositive(const Markov_LA::M_Matrix<T> &x, std::string *whyNot, const std::string &masterObjective)
+      {
+        for (std::size_t i=0; i<nrows(x); ++i)
+          for (std::size_t j=0; j<nrows(x); ++j)
+            if ((i!=j)&&(x(i,j)<T(0)))
+              {
+                *whyNot=masterObjective+": negative off diagonal value found: x("  +std::to_string(i)+","+std::to_string(j)+")= "+std::to_string(x(i,j));
+                return false;
+              }
+        return true;
+      }
+
+
+      static  bool FiniteEquilibrium(const Markov_LA::M_Matrix<T> &x, std::string *whyNot, const std::string &masterObjective)
+      {
+        if (nrows(x)==0)
+          return true;
+        else
+          for (std::size_t i=0; i<nrows(x)-1; ++i)
+            for (std::size_t j=i+1; j<nrows(x); ++j)
+              if ((x(i,j)>0) && (x(j,i)==T(0)))
+                {
+                  *whyNot=masterObjective+": forward rate positive: x("
+                      +std::to_string(i)+","+std::to_string(j)+")= "
+                      +std::to_string(x(i,j))
+                      + "and reverse rate is zero: "
+                      +std::to_string(j)+","+std::to_string(i)+")= "
+                      +std::to_string(x(j,i));
+                  return false;
+
+                }
+              else if((x(j,i)>0) && (x(i,j)==T(0)))
+                {
+                  *whyNot=masterObjective+": forward rate zero: x("
+                      +std::to_string(i)+","+std::to_string(j)+")= "
+                      +std::to_string(x(i,j))
+                      + "and reverse rate is positive: "
+                      +std::to_string(j)+","+std::to_string(i)+")= "
+                      +std::to_string(x(j,i));
+                  return false;
+                }
+        return true;
+
+      }
+
+
+
+    };
+
+
+    class ElementComply
+
+    {
+    public:
+
+      static bool RowSumIsZero
+      (const Markov_LA::M_Matrix<T> &x
+       ,typename Markov_LA::M_Matrix<T>::const_iterator it
+       , T& e
+       , std::string *whyNot
+       , const std::string &masterObjective)
+      {
+        std::size_t i=it.iCol();
+        std::size_t j=it.jRow();
+        if (i==j)
+          {
+            T sum=T(0);
+            for (std::size_t k=0; k<ncols(x); ++k)
+              {
+                if (k!=i) sum+=x(i,k);
+              }
+            e=-sum;
+            return true;
+          }
+      }
+
+      static  bool OffDiagPositive
+      (const Markov_LA::M_Matrix<T> &x
+       ,typename Markov_LA::M_Matrix<T>::const_iterator it
+       , const T& e
+       , std::string *whyNot
+       , const std::string &masterObjective)
+      {
+        std::size_t i=it.iCol();
+        std::size_t j=it.jRow();
+
+        if (i==j)
+          {
+            if (e>0)
+              {
+                *whyNot=masterObjective+": positive value in diagonal";
+                return false;
+              }
+            else
+              return true;
+          }
+        else if (e<0)
+          {
+            *whyNot=masterObjective+": negative value off diagonal";
+            return false;
+          }
+        else
+          return true;
+
+      }
+
+
+
+    };
+
+  };
+
+
   class Variable {
     class S {
     public:
@@ -4841,6 +5263,7 @@ namespace Markov_IO_New {
 
   public:
     using G=ABC_Type_of_Value::G;
+    typedef Implements_Data_Type_New<ABC_Var_New*> vType;
 
     class V
     {
@@ -4996,7 +5419,7 @@ namespace Markov_IO_New {
       }
       virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const T& v, std::string *whyNot, const std::string& masterObjective)const override
       {
-       return  (*comply_) (cm,v,this,whyNot,masterObjective);
+        return  (*comply_) (cm,v,this,whyNot,masterObjective);
       }
 
 
@@ -5015,12 +5438,12 @@ namespace Markov_IO_New {
       }
 
 
-   virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm,const Implements_Data_Type_New<T>* v, std::string *whyNot, const std::string& masterObjective)const
+      virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm,const Implements_Data_Type_New<T>* v, std::string *whyNot, const std::string& masterObjective)const
       {
         if (typeComply_==nullptr)
           return true;
         else
-        return (*typeComply_)(cm,v,this,whyNot,masterObjective);
+          return (*typeComply_)(cm,v,this,whyNot,masterObjective);
       }
 
 
@@ -5121,7 +5544,7 @@ namespace Markov_IO_New {
       ,toMap_(map)
       ,toObj_(obj)
       ,CVtype_(nullptr)
-        ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {
         CVtype_=Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>
             ::makeComplexVarType<T>(parent,fields);
@@ -5330,7 +5753,7 @@ namespace Markov_IO_New {
       }
       virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const T* v, std::string *whyNot, const std::string& masterObjective)const
       {
-       return  (*comply_) (cm,v,this,whyNot,masterObjective);
+        return  (*comply_) (cm,v,this,whyNot,masterObjective);
       }
 
 
@@ -5349,12 +5772,12 @@ namespace Markov_IO_New {
       }
 
 
-   virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm,const Implements_Data_Type_New<T*>* v, std::string *whyNot, const std::string& masterObjective)const
+      virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm,const Implements_Data_Type_New<T*>* v, std::string *whyNot, const std::string& masterObjective)const
       {
         if (typeComply_==nullptr)
           return true;
         else
-        return (*typeComply_)(cm,v,this,whyNot,masterObjective);
+          return (*typeComply_)(cm,v,this,whyNot,masterObjective);
       }
 
 
@@ -5516,8 +5939,8 @@ namespace Markov_IO_New {
       }
 
       virtual T* getClass(const Implements_ComplexVar_New* cm
-                  ,std::map<std::string,ABC_Var_New*>  m
-                  ,std::string *WhyNot,const std::string& masterObjective)const
+                          ,std::map<std::string,ABC_Var_New*>  m
+                          ,std::string *WhyNot,const std::string& masterObjective)const
       {
         return (*toObj_)(cm,m,this,WhyNot,masterObjective);
       }
@@ -6162,6 +6585,15 @@ namespace Markov_IO_New {
       return dynamic_cast<const Implements_Data_Type_New<T>*>(
             ABC_Type_of_Value::G::getElementType<T>(cm,self));
     }
+
+    template<typename T, template<typename> class C>
+    const Implements_Data_Type_New<T*> *Implements_Container_Type_New<T*,C>::getElementDataType(const Implements_ComplexVar_New *cm) const
+    {
+      const Implements_ComplexVar_New* self=this;
+      return dynamic_cast<const Implements_Data_Type_New<T*>*>(
+            ABC_Type_of_Value::G::getElementType<T*>(cm,self));
+    }
+
 
     template<typename T>
     bool Implements_Base_Type_New<T>::includesThisType(const Implements_ComplexVar_New *cm, const std::string &childType, std::string *whyNot, const std::string &masterObjective) const

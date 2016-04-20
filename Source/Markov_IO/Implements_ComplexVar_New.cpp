@@ -1,38 +1,41 @@
 #include "Markov_IO/Implements_ComplexVar_New.h"
 
+
+#include "Markov_LA/matrixSum.h"
+
 namespace Markov_IO_New {
 
-//  bool Implements_Data_Type_New<std::map<std::string, ABC_Var_New *> >::get(std::map<std::string, ABC_Var_New *> &v, ABC_Input *istream, const Implements_ComplexVar_New *cm, std::string *whyNot, const std::string &masterObjective) const
-//  {
-//    char c;
-//    const Implements_Data_Type_New<ABC_Var_New*>* etype=this->getElementDataType(cm);
-//    if (etype==nullptr)
-//      return false;
-//    while (!istream->nextCharIs('\n',c)){}
-//    if (!istream->nextCharIs('{',c))
-//      {
-//        *whyNot= masterObjective+": expected { found"+c;
-//        return false;
-//      }
-//    else
-//      {
-//        while (!istream->nextCharIs('}'))
-//          {
-//            ABC_Var_New* d;
-//            if (etype->get(d,istream,cm,whyNot,masterObjective))
-//              {
-//                v.insert({d->id(),d});
-//              }
-//            else
-//              return false;
-//          }
-//        if (isVarInDomain(cm,v,whyNot,masterObjective))
-//          return true;
-//        else
-//          return false;
-//      }
+  //  bool Implements_Data_Type_New<std::map<std::string, ABC_Var_New *> >::get(std::map<std::string, ABC_Var_New *> &v, ABC_Input *istream, const Implements_ComplexVar_New *cm, std::string *whyNot, const std::string &masterObjective) const
+  //  {
+  //    char c;
+  //    const Implements_Data_Type_New<ABC_Var_New*>* etype=this->getElementDataType(cm);
+  //    if (etype==nullptr)
+  //      return false;
+  //    while (!istream->nextCharIs('\n',c)){}
+  //    if (!istream->nextCharIs('{',c))
+  //      {
+  //        *whyNot= masterObjective+": expected { found"+c;
+  //        return false;
+  //      }
+  //    else
+  //      {
+  //        while (!istream->nextCharIs('}'))
+  //          {
+  //            ABC_Var_New* d;
+  //            if (etype->get(d,istream,cm,whyNot,masterObjective))
+  //              {
+  //                v.insert({d->id(),d});
+  //              }
+  //            else
+  //              return false;
+  //          }
+  //        if (isVarInDomain(cm,v,whyNot,masterObjective))
+  //          return true;
+  //        else
+  //          return false;
+  //      }
 
-//  }
+  //  }
 
   ABC_Type_of_Value::ABC_Type_of_Value(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis):
     Implements_ComplexVar_New(parent,id,var,tip,whatthis)
@@ -53,100 +56,121 @@ namespace Markov_IO_New {
 
 
 
-  bool Implements_Data_Type_New_ABC_Var_New::isVarInDomain(const Implements_ComplexVar_New *cm, const ABC_Var_New * const val, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
-  {
-    if (this->idType_->isVarInDomain(cm,val->id(),whyNot,masterObjective))
-      return false;
-    else if (this->varType_->isVarInDomain(cm,val->myType(),whyNot,masterObjective))
-      return false;
-    else return true;
-  }
+    bool Implements_Data_Type_New_ABC_Var_New::isVarInDomain(const Implements_ComplexVar_New *cm, const ABC_Var_New * const val, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+    {
+      if (this->idType_->isVarInDomain(cm,val->id(),whyNot,masterObjective))
+        return false;
+      else if (this->varType_->isVarInDomain(cm,val->myType(),whyNot,masterObjective))
+        return false;
+      else return true;
+    }
 
-  bool Implements_Data_Type_New_ABC_Var_New::get(const Implements_ComplexVar_New *cm, ABC_Var_New *&v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
-  {
-    std::string ids;
-    std::string vars;
-    std::string tip;
-    std::string whatthis;
-    char c;
-    if (istream->nextCharIs('#',false))
-      {
-        if (!istream->nextCharIs('"',c))
-          {
-            *whyNot=masterObjective+": sintax error in tip: initial \" is absent";
-            return false;
-          }
-        else
-          {
-            while((!istream->nextCharIs('"',false))
-                  &&((!istream->nextCharIs('\n',c))))
-              tip.push_back(c);
-            while (c!='\n')
-              istream->get(c);
-          }
-        if ((istream->nextCharIs('#',false))&&(istream->nextCharIs('#',false)))
-          {
-            if (!istream->nextCharIs('"',c))
-              {
-                *whyNot=masterObjective
-                    +": sintax error in whatthis: initial \" is absent";
-                return false;
-              }
-            else
-              {
-                while(!istream->nextCharIs('"',c))
-                  whatthis.push_back(c);
-                while (c!='\n')
-                  istream->get(c);
-              }
-
-          }
-      }
-    if (!this->idType_->get(cm,ids,istream,whyNot,masterObjective))
-      return false;
-    else
-      {
-        if(!varType_->get(cm,vars,istream,whyNot,masterObjective))
-          return false;
-        else
-          {
-            auto va=cm->idToType(vars,whyNot,masterObjective);
-            if (va==nullptr)
+    bool Implements_Data_Type_New_ABC_Var_New::get(const Implements_ComplexVar_New *cm, ABC_Var_New *&v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+    {
+      std::string ids;
+      std::string vars;
+      std::string tip;
+      std::string whatthis;
+      char c;
+      if (istream->nextCharIs('#',false))
+        {
+          if (!istream->nextCharIs('"',c))
+            {
+              *whyNot=masterObjective+": sintax error in tip: initial \" is absent";
               return false;
-            else
-              {
-                ABC_Value_New* val;
-                if (!va->get(cm,val,istream,whyNot,masterObjective))
+            }
+          else
+            {
+              while((!istream->nextCharIs('"',false))
+                    &&((!istream->nextCharIs('\n',c))))
+                tip.push_back(c);
+              while (c!='\n')
+                istream->get(c);
+            }
+          if ((istream->nextCharIs('#',false))&&(istream->nextCharIs('#',false)))
+            {
+              if (!istream->nextCharIs('"',c))
+                {
+                  *whyNot=masterObjective
+                      +": sintax error in whatthis: initial \" is absent";
                   return false;
-                else
-                  {
-                    v=va->getVar(cm,ids,vars,tip,whatthis,val);
-                    return true;
-                  }
-              }
-          }
+                }
+              else
+                {
+                  while(!istream->nextCharIs('"',c))
+                    whatthis.push_back(c);
+                  while (c!='\n')
+                    istream->get(c);
+                }
 
-      }
+            }
+        }
+      if (!this->idType_->get(cm,ids,istream,whyNot,masterObjective))
+        return false;
+      else
+        {
+          if(!varType_->get(cm,vars,istream,whyNot,masterObjective))
+            return false;
+          else
+            {
+              auto va=cm->idToType(vars,whyNot,masterObjective);
+              if (va==nullptr)
+                return false;
+              else
+                {
+                  ABC_Value_New* val;
+                  if (!va->get(cm,val,istream,whyNot,masterObjective))
+                    return false;
+                  else
+                    {
+                      v=va->getVar(cm,ids,vars,tip,whatthis,val);
+                      return true;
+                    }
+                }
+            }
 
-  }
+        }
 
-  Implements_Data_Type_New_map_string_ABC_Var_New::Implements_Data_Type_New_map_string_ABC_Var_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, const std::map<std::__cxx11::string, ABC_Var_New *> fields, Implements_Data_Type_New_map_string_ABC_Var_New::typePredicate complyPred, Implements_Data_Type_New_map_string_ABC_Var_New::typetypePredicate typeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeElementPredicate elemeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeValue defaultValue):
-    Implements_Container_Type_New<Markov_IO_New::ABC_Var_New *, String_map>
-    (parent,id,var,tip,whatthis,"_var"+id
-     ,nullptr,nullptr
-     ,nullptr,nullptr)
-  ,comply_(complyPred)
-  ,typeComply_(typeComply)
-  ,elemComply_(elemeComply)
-  ,default_(defaultValue)
-  ,varEType_(nullptr)
-  ,fields_(fields)
-  {
-    varEType_=Variable::create_varField(parent,this);
-  }
+    }
+
+    Implements_Data_Type_New_map_string_ABC_Var_New::Implements_Data_Type_New_map_string_ABC_Var_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, const std::map<std::__cxx11::string, ABC_Var_New *> fields, Implements_Data_Type_New_map_string_ABC_Var_New::typePredicate complyPred, Implements_Data_Type_New_map_string_ABC_Var_New::typetypePredicate typeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeElementPredicate elemeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeValue defaultValue):
+      Implements_Container_Type_New<Markov_IO_New::ABC_Var_New *, String_map>
+      (parent,id,var,tip,whatthis,"_var"+id
+       ,nullptr,nullptr
+       ,nullptr,nullptr)
+    ,comply_(complyPred)
+    ,typeComply_(typeComply)
+    ,elemComply_(elemeComply)
+    ,default_(defaultValue)
+    ,varEType_(nullptr)
+    ,fields_(fields)
+    {
+      varEType_=Variable::create_varField(parent,this);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   };
+
+
+
+
+
+
 
   bool Identifier::S::comply_id_Var_Field_Used(const Implements_ComplexVar_New *p, const std::__cxx11::string &idCandidate, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
   {

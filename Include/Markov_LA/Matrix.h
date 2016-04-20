@@ -18,6 +18,7 @@
 #include <sstream>
 #include <cassert>
 
+#include <iterator>     // std::iterator, std::input_iterator_tag
 
 
 namespace Markov_LA
@@ -62,6 +63,114 @@ namespace Markov_LA
     class M_Matrix
     {
     public:
+
+      class MyConstIterator;
+      class MyIterator : public std::iterator<std::input_iterator_tag, T>
+      {
+        std::size_t i_;
+        std::size_t j_;
+        M_Matrix<T>& m;
+      public:
+        friend class MyConstIterator;
+        std::size_t iRow()const{return i_;}
+        std::size_t jCol()const{return j_;}
+
+        MyIterator(M_Matrix<T>& x) :m(x),i_(0),j_(0) {}
+        MyIterator(M_Matrix<T>& x, std::size_t i, std::size_t j) :m(x),i_(i),j_(j) {}
+
+        MyIterator(MyIterator& mit) : m(mit.m),i_(mit.i_),j_(mit.j_) {}
+        MyIterator& operator++()
+        {
+          ++j_;
+          if (j_>=ncols(m))
+            {
+              j_=0;
+              ++i_;
+            }
+          return *this;}
+        MyIterator operator++(int)
+        {MyIterator tmp(*this); operator++(); return tmp;}
+        bool operator==(const MyIterator& rhs)
+        {
+          if (i_!=rhs.i_)
+            return false;
+          else if (j_!=rhs.j_)
+            return false;
+          else return true;
+          }
+        bool operator!=(const MyIterator& rhs) {return ! (*this==rhs);}
+        T& operator*() {return m(i_,j_);}
+        const T& operator*() const {return m(i_,j_);}
+      };
+
+
+      class MyConstIterator : public std::iterator<std::input_iterator_tag, T>
+      {
+        std::size_t i_;
+        std::size_t j_;
+        const M_Matrix<T>& m;
+      public:
+        std::size_t iRow()const{return i_;}
+        std::size_t jCol()const{return j_;}
+
+        MyConstIterator(const M_Matrix<T>& x) :m(x),i_(0),j_(0) {}
+        MyConstIterator(const M_Matrix<T>& x, std::size_t i, std::size_t j) :m(x),i_(i),j_(j) {}
+
+        MyConstIterator(const MyConstIterator& mit) : m(mit.m),i_(mit.i_),j_(mit.j_) {}
+        MyConstIterator(const MyIterator& mit) : m(mit.m),i_(mit.i_),j_(mit.j_) {}
+        MyConstIterator& operator++()
+        {
+          ++j_;
+          if (j_>=ncols(m))
+            {
+              j_=0;
+              ++i_;
+            }
+          return *this;}
+        MyConstIterator operator++(int)
+        {MyConstIterator tmp(*this); operator++(); return tmp;}
+        bool operator==(const MyConstIterator& rhs)
+        {
+          if (i_!=rhs.i_)
+            return false;
+          else if (j_!=rhs.j_)
+            return false;
+          else return true;
+          }
+        bool operator!=(const MyConstIterator& rhs) {return ! (*this==rhs);}
+        const T& operator*() const {return m(i_,j_);}
+      };
+
+
+
+      typedef  MyIterator iterator;
+      typedef  MyConstIterator const_iterator;
+
+
+      iterator begin()
+      {
+        MyIterator out(*this);
+        return out;
+      }
+
+      iterator end()
+      {
+        MyIterator out(*this,0,nrows(*this));
+        return out;
+      }
+
+      const_iterator begin()const
+      {
+        MyConstIterator out(*this);
+        return out;
+      }
+
+      const_iterator end() const
+      {
+        MyConstIterator out(*this,0,nrows(*this));
+        return out;
+      }
+
 
 	M_Matrix();  //default constructor
 

@@ -146,10 +146,10 @@ public:
         different bayesian analysis during the time interval.
      */
 //    virtual Markov_Transition_step  Q_step (
-//	    const Markov_IO::ABC_measure_step& xdt ,
+//	    const Markov_IO_New::ABC_measure_step& xdt ,
 //	    const Markov_Bay::ABC_Markov_Likelihood_step& likelihood)const=0;
 
-    virtual  Markov_Transition_step Q_step(const Markov_IO::ABC_measure_step& ,
+    virtual  Markov_Transition_step Q_step(const Markov_IO_New::ABC_measure_step& ,
                                            bool is_averaging,
                                            bool two_anchor=false)const=0;
 
@@ -167,10 +167,10 @@ public:
     */
 
 //    virtual  Markov_Transition_step Q_dt(
-//	    const Markov_IO::ABC_measure_point& xdt,
+//	    const Markov_IO_New::ABC_measure_point& xdt,
 //	    const Markov_Bay::ABC_Markov_Likelihood_step& likelihood)const=0;
 
-    virtual  Markov_Transition_step Q_dt (const Markov_IO::ABC_measure_point& xdt,
+    virtual  Markov_Transition_step Q_dt (const Markov_IO_New::ABC_measure_point& xdt,
                                           bool is_averaging,
                                           bool varyingx,
                                           bool two_anchor=false)const=0;
@@ -227,7 +227,7 @@ public:
        @param[in,out] sto is a reference to a Random number generator
        @retval markovState with its new distribution of channels.
        */
-      virtual Markov_state& run(const Markov_IO::ABC_measure_point& xdt,
+      virtual Markov_state& run(const Markov_IO_New::ABC_measure_point& xdt,
                                 Markov_state& markovState,
                                 std::size_t n_steps,
                                 Borrowed::MersenneTwister::MTRand& sto)const=0;
@@ -244,7 +244,7 @@ public:
        @param[in,out] sto is a reference to a Random number generator
        @retval markovState with its new distribution of channels.
        */
-      virtual Markov_state& run(const Markov_IO::ABC_measure_step& xdt,
+      virtual Markov_state& run(const Markov_IO_New::ABC_measure_step& xdt,
                                 Markov_state& markovState,
                                 std::size_t n_steps,
                                 Borrowed::MersenneTwister::MTRand& sto)const=0;
@@ -262,7 +262,7 @@ public:
        @param[in,out] sto is a reference to a Random number generator
        @retval markovState with its new distribution of channels.
        */
-      virtual Markov_state_ext& run(const Markov_IO::ABC_measure_point& xdt,
+      virtual Markov_state_ext& run(const Markov_IO_New::ABC_measure_point& xdt,
                                     Markov_state_ext& detailedMarkovState,
                                     std::size_t n_steps,
                                     Borrowed::MersenneTwister::MTRand& sto
@@ -280,7 +280,7 @@ public:
        @param[in,out] sto is a reference to a Random number generator
        @retval markovState with its new distribution of channels.
        */
-      virtual Markov_state_ext& run(const Markov_IO::ABC_measure_step& xdt,
+      virtual Markov_state_ext& run(const Markov_IO_New::ABC_measure_step& xdt,
                                     Markov_state_ext& M,
                                     std::size_t n_steps,
                                     Borrowed::MersenneTwister::MTRand& sto

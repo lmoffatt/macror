@@ -20,13 +20,14 @@ namespace Markov_Mol_New
 {
 
   using Markov_IO_New::x_dt;
-  //  using Markov_IO::ClassDescription;
+  //  using Markov_IO_New::ClassDescription;
 
   ///Concrete implementation of ABC_Markov_Model
   class Q_Markov_Model: public ABC_Markov_Model
   {
   public:
 
+    const ABC_PatchModel* patch()const;
 
     virtual void setPatch(const ABC_PatchModel* newPatch);
 
@@ -44,16 +45,16 @@ namespace Markov_Mol_New
     virtual M_Matrix<double> Peq(double agonist_concentration) const;
 
 
-    virtual  Markov_Transition_step Q_step(const Markov_IO::ABC_measure_step& ,
+    virtual  Markov_Transition_step Q_step(const Markov_IO_New::ABC_measure_step& ,
                                            bool is_averaging,
                                            bool two_anchor=false)const;
 
     //    virtual  Markov_Transition_step Q_dt(
-    //	    const Markov_IO::ABC_measure_point& xdt,
+    //	    const Markov_IO_New::ABC_measure_point& xdt,
     //	    const Markov_Bay::ABC_Markov_Likelihood_step& likelihood)const;
 
 
-    virtual  Markov_Transition_step Q_dt (const Markov_IO::ABC_measure_point&,
+    virtual  Markov_Transition_step Q_dt (const Markov_IO_New::ABC_measure_point&,
                                           bool is_averaging,
                                           bool varying_x,
                                           bool two_anchor=false)const;
@@ -70,37 +71,33 @@ namespace Markov_Mol_New
                                    Borrowed::MersenneTwister::MTRand& sto,
                                    bool /*dummy*/)const;
 
-    virtual Markov_state& run(const Markov_IO::ABC_measure_point& xdt,
+    virtual Markov_state& run(const Markov_IO_New::ABC_measure_point& xdt,
                               Markov_state& M,
                               std::size_t n_steps,
                               Borrowed::MersenneTwister::MTRand& sto)const;
 
-    virtual Markov_state& run(const Markov_IO::ABC_measure_step& xdt,
+    virtual Markov_state& run(const Markov_IO_New::ABC_measure_step& xdt,
                               Markov_state& M,
                               std::size_t n_steps,
                               Borrowed::MersenneTwister::MTRand& sto)const;
 
-    virtual Markov_state_ext& run(const Markov_IO::ABC_measure_point& xdt,
+    virtual Markov_state_ext& run(const Markov_IO_New::ABC_measure_point& xdt,
                                   Markov_state_ext& M,
                                   std::size_t n_steps,
                                   Borrowed::MersenneTwister::MTRand& sto)const;
 
-    virtual Markov_state_ext& run(const Markov_IO::ABC_measure_step& xdt,
+    virtual Markov_state_ext& run(const Markov_IO_New::ABC_measure_step& xdt,
                                   Markov_state_ext& M,
                                   std::size_t n_steps,
                                   Borrowed::MersenneTwister::MTRand& sto)const;
 
 
 
-    Q_Markov_Model(const std::string& idName,
-                   const std::string& idVarName,
-                   const M_Matrix<double>& Q_matrix,
+    Q_Markov_Model(const M_Matrix<double>& Q_matrix,
                    const M_Matrix<double>& conductance_vector,
                    const M_Matrix<std::size_t>& agonist_vector,
                    double unitary_conductance,
-                   const ABC_PatchModel* mypatch=0,
-                   const std::string& tip="",
-                   const std::string& whatthis="");
+                   const ABC_PatchModel* mypatch=nullptr);
 
     Q_Markov_Model()//:
  //   Implements_ValueId(ClassName(),ClassName(),"General Markov ////Model","Raw class describing the Markov model")
@@ -142,7 +139,6 @@ namespace Markov_Mol_New
 
 
   protected:
-    void buildParameters();
     void Q_conn_K_to_tau_QC();
 
     void QC_to_Q0_Q1();
@@ -170,7 +166,6 @@ namespace Markov_Mol_New
     M_Matrix<double> g0_M; //par
     double gamma_d;
     M_Matrix<size_t> a_M; //par
-    Markov_IO::Parameters parameters_Map; //->par
 
 
 
@@ -183,24 +178,24 @@ namespace Markov_Mol_New
     get_Q_x_avg(Markov_Transition_rate& Q_x)const;
 
     Markov_Transition_step
-    get_Q_dt_no_avg(const Markov_IO::ABC_measure_point& xdt)const;
+    get_Q_dt_no_avg(const Markov_IO_New::ABC_measure_point& xdt)const;
 
     Markov_Transition_step&
-    get_Q_dt_avg(const Markov_IO::ABC_measure_point& xdt,
+    get_Q_dt_avg(const Markov_IO_New::ABC_measure_point& xdt,
                  Markov_Transition_step& Q_dt)const;
 
     Markov_Transition_step&
-    get_Q_dt_avg_var(const Markov_IO::ABC_measure_point& xdt,
+    get_Q_dt_avg_var(const Markov_IO_New::ABC_measure_point& xdt,
                      Markov_Transition_step& Q_dt)const;
 
     Markov_Transition_step&
-    get_Q_dt_two_anchor(const Markov_IO::ABC_measure_point& xdt,
+    get_Q_dt_two_anchor(const Markov_IO_New::ABC_measure_point& xdt,
                         Markov_Transition_step& Q_dt)const;
 
-    mutable buffered_function<Markov_IO::x_dt,Markov_Transition_step>
+    mutable buffered_function<Markov_IO_New::x_dt,Markov_Transition_step>
     Q_dt_buff_two_anchor;
 
-    mutable buffered_function<Markov_IO::x_dt,Markov_Transition_step>
+    mutable buffered_function<Markov_IO_New::x_dt,Markov_Transition_step>
     Q_dt_buff_avg_varx;
 
     mutable buffered_function<x_dt,Markov_Transition_step>
