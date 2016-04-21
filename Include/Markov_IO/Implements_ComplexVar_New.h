@@ -936,6 +936,8 @@ namespace Markov_IO_New {
                     ,const std::string& whatthis):
       ABC_Type_of_Value(parent,id,var,tip,whatthis){}
 
+    ABC_Typed_Value(const Implements_ComplexVar_New* parent):
+      ABC_Type_of_Value(parent,Cls<T>::name(),Cls<T>::name(),"",""){}
 
 
   };
@@ -1066,6 +1068,8 @@ namespace Markov_IO_New {
                     ,const std::string& whatthis):
       ABC_Type_of_Value(parent,id,var,tip,whatthis){}
 
+    ABC_Typed_Value(const Implements_ComplexVar_New* parent):
+      ABC_Type_of_Value(parent,Cls<T*>::name(),Cls<T*>::name(),"",""){}
 
 
   };
@@ -1178,19 +1182,11 @@ namespace Markov_IO_New {
       Implements_Base_Type_New(const Implements_ComplexVar_New *parent):
         Implements_Base_Type_New(
           parent,Cls<T>::name()
-          ,ClassName()
+          ,Cls<T>::name()
           ,"regular "+Cls<T>::name()
           ,"just a "+Cls<T>::name()+ "nothing special"
           ,T{}
-          ,[](const Implements_ComplexVar_New*,const T&,const Implements_ComplexVar_New*,
-          std::string *, const std::string&)
-      {return true;}
-      ,[](const Implements_ComplexVar_New*,const Implements_Data_Type_New<T>*
-      ,const Implements_ComplexVar_New*,
-      std::string *, const std::string&)
-      {return true;}
-      ,[](const Implements_ComplexVar_New*,const Implements_ComplexVar_New*)
-      {return T{};})
+          ,nullptr,nullptr,nullptr)
       {}
 
       // ABC_Type_of_Value interface
@@ -1225,7 +1221,10 @@ namespace Markov_IO_New {
     public:
       virtual T getDefault_Valued(const Implements_ComplexVar_New* cm) const override
       {
-        return (*default_)(cm,this);
+        if (default_==nullptr)
+          return {};
+        else
+          return (*default_)(cm,this);
       }
 
 
@@ -1273,7 +1272,10 @@ namespace Markov_IO_New {
 
       virtual bool isVarInDomain(const Implements_ComplexVar_New* cm,const T *val, std::string *whyNot,const std::string &masterObjective ) const override
       {
-        return (*comply_)(cm,val,this,whyNot,masterObjective);
+        if (comply_==nullptr)
+          return true;
+        else
+          return (*comply_)(cm,val,this,whyNot,masterObjective);
       }
 
       virtual bool isTypeInDomain(const Implements_ComplexVar_New* cm
@@ -1281,7 +1283,11 @@ namespace Markov_IO_New {
                                   , std::string *whyNot
                                   ,const std::string &masterObjective ) const override
       {
-        return (*typeComply_)(cm,val,this,whyNot,masterObjective);
+        if (typeComply_==nullptr)
+          return true;
+        else
+
+          return (*typeComply_)(cm,val,this,whyNot,masterObjective);
       }
 
 
@@ -1312,11 +1318,6 @@ namespace Markov_IO_New {
       }
 
 
-
-
-
-
-
       virtual ~Implements_Base_Type_New(){
         delete unknownVaL_;
       }
@@ -1345,23 +1346,12 @@ namespace Markov_IO_New {
 
       Implements_Base_Type_New(const Implements_ComplexVar_New *parent):
         Implements_Base_Type_New(
-          parent,Cls<T>::name()
-          ,ClassName()
-          ,"regular "+Cls<T>::name()
-          ,"just a "+Cls<T>::name()+ "nothing special"
+          parent,Cls<T*>::name()
+          ,Cls<T>::name()
+          ,"regular "+Cls<T*>::name()
+          ,"just a "+Cls<T*>::name()+ "nothing special"
           ,new T{}
-          ,[](const Implements_ComplexVar_New*,const T*&,const Implements_ComplexVar_New*,
-          std::string *, const std::string&)
-      {return true;}
-      ,[](const Implements_ComplexVar_New*,const Implements_Data_Type_New<T*>*
-      ,const Implements_ComplexVar_New*,
-      std::string *, const std::string&)
-      {return true;}
-      ,[](const Implements_ComplexVar_New*,const Implements_ComplexVar_New*)
-      {return new T{};}
-      ,[](const Implements_ComplexVar_New*, const Implements_ComplexVar_New*)
-      {return std::set<std::string>();},
-      nullptr,nullptr)
+          ,nullptr,nullptr,nullptr)
       {}
 
       // ABC_Type_of_Value interface
@@ -1479,7 +1469,16 @@ namespace Markov_IO_New {
         elemComply_(elemeComply)
       {
         ABC_Type_of_Value::G::pushTypeOfElement(this,elementVar);
+      }
 
+      Implements_Container_Type_New(
+          const Implements_ComplexVar_New* parent):
+        Implements_Base_Type_New<C<T>>(
+          parent,Cls<C<T>>::name(),Cls<C<T>>::name(),"","",C<T>()
+          ,nullptr,nullptr,nullptr),
+        elemComply_(nullptr)
+      {
+        ABC_Type_of_Value::G::pushTypeOfElement(this,Cls<T>::name());
       }
 
 
@@ -1563,11 +1562,16 @@ namespace Markov_IO_New {
 
       }
 
+      Implements_Container_Type_New(const Implements_ComplexVar_New* parent):
+        Implements_Base_Type_New<C<T*>>(parent),
+        elemComply_(nullptr)
+      {
+        ABC_Type_of_Value::G::pushTypeOfElement(this,Cls<T*>::name());
+      }
+
 
     protected:
       typeElementPredicate elemComply_;
-
-
     };
 
 
@@ -1757,6 +1761,14 @@ namespace Markov_IO_New {
           ,defaultValue)
       ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {}
+
+
+      Implements_Data_Type_New_vector(const Implements_ComplexVar_New* parent):
+        Implements_Container_Type_New<T,My_vec>(parent)
+      ,getTypeFromCV_(nullptr),getCvFromType_(nullptr)
+      {}
+
+
     protected:
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
@@ -2057,8 +2069,15 @@ namespace Markov_IO_New {
           parent,id,var,tip,whatthis,elementVar,complyPred,typeComply,elemeComply
           ,defaultValue)
       ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+       {}
 
-      {}
+      Implements_Data_Type_New_set(const Implements_ComplexVar_New* parent):
+        Implements_Container_Type_New<T,My_set>(
+          parent)
+      ,getTypeFromCV_(nullptr),getCvFromType_(nullptr)
+       {}
+
+
     protected:
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
@@ -2177,6 +2196,13 @@ namespace Markov_IO_New {
           ,defaultValue)
       ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {}
+
+      Implements_Data_Type_New_M_Matrix(const Implements_ComplexVar_New* parent)
+        :Implements_Container_Type_New<T,Markov_LA::M_Matrix>(
+            parent)
+        ,getTypeFromCV_(nullptr),getCvFromType_(nullptr)
+      {}
+
 
     protected:
       cvToType getTypeFromCV_;
@@ -2312,6 +2338,14 @@ namespace Markov_IO_New {
         ABC_Type_of_Value::G::pushTypeOfElement(this,elementVar);
       }
 
+      Implements_Dictionary_Type_New(const Implements_ComplexVar_New* parent):
+        Implements_Base_Type_New<D<K,T>>(parent),
+        elemComply_(nullptr)
+      ,keyComply_(nullptr)
+      {
+        ABC_Type_of_Value::G::pushTypeOfKey(this,Cls<K>::name());
+        ABC_Type_of_Value::G::pushTypeOfElement(this,Cls<T>::name());
+      }
 
     protected:
       typeElementPredicate elemComply_;
@@ -2515,10 +2549,17 @@ namespace Markov_IO_New {
         ABC_Type_of_Value::G::pushTypeOfElement(this,elementVar);
       }
 
-    private:
+
+      Implements_Data_Type_New_pair(const Implements_ComplexVar_New* parent):
+        Implements_Base_Type_New<std::pair<K,T>>(parent)
+      ,keyComply_(nullptr),elemeComply_(nullptr)
+      {
+        ABC_Type_of_Value::G::pushTypeOfKey(this,Cls<K>::name());
+        ABC_Type_of_Value::G::pushTypeOfElement(this,Cls<T>::name());
+      }
+      private:
       typeKeyPredicate keyComply_;
       typeElementPredicate elemeComply_;
-
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
 
@@ -2711,6 +2752,16 @@ namespace Markov_IO_New {
       ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
       {
       }
+
+      Implements_Data_Type_New_map(const Implements_ComplexVar_New* parent
+                                   ):
+        Implements_Dictionary_Type_New<K,T,My_map>
+        (parent)
+      ,getTypeFromCV_(nullptr),getCvFromType_(nullptr)
+      {
+      }
+
+
     private:
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
@@ -2837,25 +2888,27 @@ namespace Markov_IO_New {
                                       ,typetypePredicate typeComply
                                       ,typeValue  defaultValue
                                       ,getSet alterNext
-                                      ):
+                                      , cvToType getTypeFromCV,
+      typeToCv getCvFromType):
         Implements_Base_Type_New<std::string>(parent,id,var,tip,whatthis,unknownVal
                                               ,complyPred,typeComply,defaultValue)
-      ,alternativeNext_(alterNext)
+      ,alternativeNext_(alterNext),getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
 
       {}
 
 
       Implements_Data_Type_New_string(const Implements_ComplexVar_New *parent):
-        Implements_Base_Type_New<std::string>(parent){}
+        Implements_Base_Type_New<std::string>(parent),
+        alternativeNext_(nullptr),getTypeFromCV_(nullptr),getCvFromType_(nullptr)
+
+      {}
 
 
     protected:
       getSet alternativeNext_;
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
-
-
-    };
+     };
 
 
   }
@@ -3025,7 +3078,7 @@ namespace Markov_IO_New {
                                       ,nullptr
                                       ,nullptr
                                       ,nullptr
-                                      )
+                                      ,nullptr,nullptr)
     ,type_(type), fieldType_(fieldType), isVar_(isVar), isType_(isType),isCommand_(isCommand)
     ,isNew_(isNew),isUsed_(isUsed)
     {}
@@ -3703,6 +3756,8 @@ namespace Markov_IO_New {
              ,&comply,nullptr,nullptr,nullptr,nullptr);
       }
     };
+
+    void push_Types(Markov_CommandManagerVar* cm);
 
   };
 
@@ -4594,14 +4649,14 @@ namespace Markov_IO_New {
       return new Implements_Data_Type_New<std::string>(
             parent,
             V::idValid()
-            ,"_string"
+            ,Cls<std::string>::name()
             ,"valid identifier"
             ,"any valid identifier used or not"
             ,""
             ,&S::comply_id_valid
             ,&S::typeComply_id_valid
             ,&S::default_id_Used
-            ,&S::suggested_id_Used);
+            ,&S::suggested_id_Used,nullptr,nullptr);
     }
 
     static Implements_Data_Type_New<std::string>*
@@ -4617,7 +4672,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Used
             ,&S::typeComply_id_Used
             ,&S::default_id_Used
-            ,&S::suggested_id_Used);
+            ,&S::suggested_id_Used,nullptr,nullptr);
     }
 
 
@@ -4634,7 +4689,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_Used
             ,&S::typeComply_id_Var_Used
             ,&S::default_id_Var_Used
-            ,&S::suggested_id_Var_Used);
+            ,&S::suggested_id_Var_Used,nullptr,nullptr);
     }
 
     static Implements_Data_Type_New<std::string>*
@@ -4650,7 +4705,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_Used_T
             ,&S::typeComply_id_Var_Used_T
             ,&S::default_id_Var_Used_T
-            ,&S::suggested_id_Var_Used_T);
+            ,&S::suggested_id_Var_Used_T,nullptr,nullptr);
 
       G::pushTypeOfId(o,varType);
       return o;
@@ -4671,7 +4726,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Cmd_Used
             ,&S::typeComply_id_Cmd_Used
             ,&S::default_id_Cmd_Used
-            ,&S::suggested_id_Cmd_Used);
+            ,&S::suggested_id_Cmd_Used,nullptr,nullptr);
     }
 
     static Implements_Data_Type_New<std::string>*
@@ -4688,7 +4743,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Cmd_Used_T
             ,&S::typeComply_id_Cmd_Used_T
             ,&S::default_id_Cmd_Used_T
-            ,&S::suggested_id_Cmd_Used_T);
+            ,&S::suggested_id_Cmd_Used_T,nullptr,nullptr);
 
       G::pushTypeOfId(o,cmdType);
       return o;
@@ -4709,7 +4764,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Type_Used
             ,&S::typeComply_id_Type_Used
             ,&S::default_id_Type_Used
-            ,&S::suggested_id_Type_Used);
+            ,&S::suggested_id_Type_Used,nullptr,nullptr);
     }
 
     static Implements_Data_Type_New<std::string>*
@@ -4730,7 +4785,7 @@ namespace Markov_IO_New {
                 ,&S::comply_id_Type_Used_T
                 ,&S::typeComply_id_Type_Used_T
                 ,&S::default_id_Type_Used_T
-                ,&S::suggested_id_Type_Used_T);
+                ,&S::suggested_id_Type_Used_T,nullptr,nullptr);
           G::pushTypeOfId(o,varType);
           return o;
         }
@@ -4750,7 +4805,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_Field_Used
             ,&S::typeComply_id_Var_Field_Used
             ,&S::default_id_Var_Field_Used
-            ,&S::suggested_id_Var_Field_Used);
+            ,&S::suggested_id_Var_Field_Used,nullptr,nullptr);
       G::pushComplexTypeId(o,complexVar);
       return o;
     }
@@ -4770,7 +4825,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_New
             ,&S::typeComply_id_New
             ,&S::default_id_Var_New
-            ,&S::suggested_id_New);
+            ,&S::suggested_id_New,nullptr,nullptr);
     }
 
 
@@ -4787,7 +4842,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_New
             ,&S::typeComply_id_Var_New
             ,&S::default_id_Var_New
-            ,&S::suggested_id_Var_New);
+            ,&S::suggested_id_Var_New,nullptr,nullptr);
     }
 
     static Implements_Data_Type_New<std::string>*
@@ -4804,7 +4859,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_New
             ,&S::typeComply_id_Var_New_T
             ,&S::default_id_Var_New_T
-            ,&S::suggested_id_Var_New_T);
+            ,&S::suggested_id_Var_New_T,nullptr,nullptr);
 
       G::pushTypeOfId(o,varType);
       return o;
@@ -4823,7 +4878,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_New
             ,&S::typeComply_id_Type_New
             ,&S::default_id_Type_New
-            ,&S::suggested_id_Type_New);
+            ,&S::suggested_id_Type_New,nullptr,nullptr);
     }
 
     static Implements_Data_Type_New<std::string>*
@@ -4840,7 +4895,7 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_New
             ,&S::typeComply_id_Type_New_T
             ,&S::default_id_Type_New_T
-            ,&S::suggested_id_Type_New_T);
+            ,&S::suggested_id_Type_New_T,nullptr,nullptr);
       G::pushTypeOfId(o,varType);
       return o;
     }
@@ -4859,11 +4914,12 @@ namespace Markov_IO_New {
             ,&S::comply_id_Var_Field_New
             ,&S::typeComply_id_Var_Field_New
             ,&S::default_id_Var_Field_New
-            ,&S::suggested_id_Var_Field_New);
+            ,&S::suggested_id_Var_Field_New,nullptr,nullptr);
       G::pushComplexTypeId(o,complexVarType);
       return o;
     }
 
+    void push_Types(Markov_CommandManagerVar* cm);
 
 
 
@@ -4877,8 +4933,6 @@ namespace Markov_IO_New {
   {
   public:
     typedef Implements_Data_Type_New<Markov_LA::M_Matrix<T>> vType;
-
-
     class Comply
     {
     public:
@@ -5055,6 +5109,7 @@ namespace Markov_IO_New {
 
 
     };
+
 
   };
 
@@ -5551,6 +5606,26 @@ namespace Markov_IO_New {
       }
 
 
+      Implements_Data_Type_class(
+          const Implements_ComplexVar_New* parent
+          , const std::map<std::string,ABC_Var_New*> fields
+          ,getCVMap map
+          ,getObject obj
+          ):
+        ABC_Typed_Value<T>(parent)
+      ,comply_(nullptr)
+      ,typeComply_(nullptr)
+      ,default_(nullptr)
+      ,toMap_(map)
+      ,toObj_(obj)
+      ,CVtype_(nullptr)
+      ,getTypeFromCV_(nullptr),getCvFromType_(nullptr)
+      {
+        CVtype_=Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>
+            ::makeComplexVarType<T>(parent,fields);
+      }
+
+
 
 
       // ABC_Type_of_Value interface
@@ -5883,6 +5958,24 @@ namespace Markov_IO_New {
       }
 
 
+      Implements_Data_Type_class(
+          const Implements_ComplexVar_New* parent
+          , const std::map<std::string,ABC_Var_New*> fields
+          ,getCVMap map
+          ,getObject obj
+          ):
+        ABC_Typed_Value<T*>(parent)
+      ,comply_(nullptr)
+      ,typeComply_(nullptr)
+      ,default_(nullptr)
+      ,toMap_(map)
+      ,toObj_(obj)
+      ,CVtype_(nullptr)
+      ,getTypeFromCV_(nullptr),getCvFromType_(nullptr)
+      {
+        CVtype_=Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>
+            ::makeComplexVarType<T>(parent,fields);
+      }
 
 
       // ABC_Type_of_Value interface
@@ -6105,9 +6198,6 @@ namespace Markov_IO_New {
     getEmptyMap toEMap_;
     getObject toObj_;
     getMap toMap_;
-
-
-
     // ABC_Type_of_Value interface
   public:
     virtual Implements_Value_New<T*>* empty_Value()const override
@@ -6665,8 +6755,6 @@ namespace Markov_IO_New {
       return new buildByToken<T>(cm,v);
     else return nullptr;
   }
-
-
 }
 
 

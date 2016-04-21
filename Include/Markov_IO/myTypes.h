@@ -1,7 +1,7 @@
 #ifndef MYTYPES_H
 #define MYTYPES_H
-#include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_Mol/QMarkovModel.h"
+#include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_Console/Markov_CommandManager.h"
 
 #include "Markov_LA/matrixMaxMin.h"
@@ -402,10 +402,13 @@ namespace Markov_IO_New {
 }
     
 
-    void push_Model_Types(Markov_CommandManagerVar* cm)
+    void push_Types(Markov_CommandManagerVar* cm)
     {
-      
-      
+
+      cm->pushType(_model::agonist_vector_type::varType(cm));
+      cm->pushType(_model::conductance_vector_Type::varType(cm));
+      cm->pushType(_model::Q_matrix_Type::varType(cm));
+      cm->pushType(_model::Q_Markov_Model_type::varType(cm));
     }
     
   }

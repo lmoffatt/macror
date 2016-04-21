@@ -47,7 +47,7 @@ public:
   template<typename C>
   struct Cls<C*>
   {
-    static std::string name() { return C::ClassName() ;}
+    static std::string name() { return C::ClassName()+"ptr" ;}
   };
 
 
@@ -106,6 +106,9 @@ public:
   {
     static std::string name(){return "count";}
   };
+
+
+
 
   template<typename T>
   std::set<std::string> getMapKeys(const std::map<std::string,T>& m)

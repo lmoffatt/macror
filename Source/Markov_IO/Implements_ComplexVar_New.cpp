@@ -1,4 +1,5 @@
 #include "Markov_IO/Implements_ComplexVar_New.h"
+#include "Markov_Console/Markov_CommandManager.h"
 
 
 #include "Markov_LA/matrixSum.h"
@@ -478,6 +479,26 @@ namespace Markov_IO_New {
         id+="Used";
       }
     return id;
+  }
+
+  void Real::push_Types(Markov_CommandManagerVar *cm)
+  {
+    cm->pushType(new Implements_Data_Type_New<double>(cm));
+    cm->pushType(nonZero::varType(cm));
+  }
+
+  void Identifier::push_Types(Markov_CommandManagerVar *cm)
+  {
+    cm->pushType(new Implements_Data_Type_New<std::string>(cm));
+    cm->pushType(create_IdCmdUsed(cm));
+    cm->pushType(create_IdNew(cm));
+    cm->pushType(create_IdTypeNew(cm));
+    cm->pushType(create_IdType_Used(cm));
+    cm->pushType(create_IdVarUsed(cm));
+    cm->pushType(create_IdValid(cm));
+    cm->pushType(create_IdUsed(cm));
+    cm->pushType(create_IdVarNew(cm));
+    cm->pushType(create_IdVarNew(cm));
   }
 
 
