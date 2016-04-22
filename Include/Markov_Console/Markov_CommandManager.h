@@ -79,7 +79,6 @@ namespace Markov_IO_New
     virtual ABC_IO* getIO()const {return io_;}
     virtual void setIO(ABC_IO* io){io_=io;}
 
-
     virtual CommandHistory& getH();
 
     const Implements_Data_Type_New<ABC_Var_New*>* getVarType()

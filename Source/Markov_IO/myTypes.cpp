@@ -11,22 +11,21 @@ namespace Markov_IO_New {
     namespace _model {
 
 
-    Implements_Data_Type_New<Q_Markov_Model_type::myC *> *Q_Markov_Model_type::varType(const Implements_ComplexVar_New *cm)
-    {
-      std::map<std::string,ABC_Var_New*> f;
-      push_var<numStates_Field>(f);
-      push_var<Q_matrix_Field>(f);
-      push_var<conductance_vector_Field>(f);
-      push_var<agonist_vector_field>(f);
-      push_var<unitary_conductance_field>(f);
-      return new Implements_Data_Type_New<myC*>
-          (cm,idVar(),idType()
-           ,Tip(),WhatThis()
-           ,f,nullptr,nullptr
-           ,nullptr,&obj2map,&map2obj);
+
+
     }
 
-  }
+    void push_Types(Markov_CommandManagerVar *cm)
+    {
+
+      cm->pushType(_model::agonist_vector_type::varType(cm));
+      cm->pushType(_model::conductance_vector_Type::varType(cm));
+      cm->pushType(_model::Q_matrix_Type::varType(cm));
+      cm->pushType(new Implements_Data_Type_New<ABC_Markov_Model*>(cm));
+
+      cm->pushType(new Implements_Data_Type_New<Q_Markov_Model*>(cm));
+    }
+
   }
 
 }

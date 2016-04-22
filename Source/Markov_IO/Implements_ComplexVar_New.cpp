@@ -38,7 +38,7 @@ namespace Markov_IO_New {
 
   //  }
 
-  ABC_Type_of_Value::ABC_Type_of_Value(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis):
+  ABC_Type_of_Value::ABC_Type_of_Value(const Implements_ComplexVar_New *parent, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis):
     Implements_ComplexVar_New(parent,id,var,tip,whatthis)
   {
     idSelfType_=Identifier::create_IdType_Used(this,id);
@@ -47,7 +47,7 @@ namespace Markov_IO_New {
 
 
 
-  buildByToken<std::__cxx11::string> *Implements_Data_Type_New<std::string>::getBuildByToken(const Implements_ComplexVar_New *cm) const
+  buildByToken<std::string> *Implements_Data_Type_New<std::string>::getBuildByToken(const Implements_ComplexVar_New *cm) const
   {
     return new buildByToken<std::string>(cm,this);
   }
@@ -57,7 +57,17 @@ namespace Markov_IO_New {
 
 
 
-    bool Implements_Data_Type_New_ABC_Var_New::isVarInDomain(const Implements_ComplexVar_New *cm, const ABC_Var_New * const val, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+    std::string Implements_Data_Type_New_ABC_Var_New::ClassName()
+    {
+      return "Implements_Data_Type_New_of"+ABC_Var_New::ClassName();
+    }
+
+    std::string Implements_Data_Type_New_ABC_Var_New::myClass() const
+    {
+      return ClassName();
+    }
+
+    bool Implements_Data_Type_New_ABC_Var_New::isVarInDomain(const Implements_ComplexVar_New *cm, const ABC_Var_New * const val, std::string *whyNot, const std::string &masterObjective) const
     {
       if (this->idType_->isVarInDomain(cm,val->id(),whyNot,masterObjective))
         return false;
@@ -66,7 +76,23 @@ namespace Markov_IO_New {
       else return true;
     }
 
-    bool Implements_Data_Type_New_ABC_Var_New::get(const Implements_ComplexVar_New *cm, ABC_Var_New *&v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+    bool Implements_Data_Type_New_ABC_Var_New::put(const Implements_ComplexVar_New *cm, const ABC_Var_New *v, ABC_Output *ostream, std::string *whyNot, const std::string &masterObjective) const
+    {
+      if (isVarInDomain(cm,v,whyNot,masterObjective))
+        {
+          ostream->put(v->id()+":"+v->myType()+"=");
+          const ABC_Type_of_Value* t=cm->idToType(v->myType(),whyNot,masterObjective);
+          if (t==nullptr)
+            return false;
+          else
+            {
+              return t->put(cm,v->value(),ostream,whyNot,masterObjective);
+            }
+        }
+      else return false;
+    }
+
+    bool Implements_Data_Type_New_ABC_Var_New::get(const Implements_ComplexVar_New *cm, ABC_Var_New *&v, ABC_Input *istream, std::string *whyNot, const std::string &masterObjective) const
     {
       std::string ids;
       std::string vars;
@@ -134,7 +160,98 @@ namespace Markov_IO_New {
 
     }
 
-    Implements_Data_Type_New_map_string_ABC_Var_New::Implements_Data_Type_New_map_string_ABC_Var_New(const Implements_ComplexVar_New *parent, const std::__cxx11::string &id, const std::__cxx11::string &var, const std::__cxx11::string &tip, const std::__cxx11::string &whatthis, const std::map<std::__cxx11::string, ABC_Var_New *> fields, Implements_Data_Type_New_map_string_ABC_Var_New::typePredicate complyPred, Implements_Data_Type_New_map_string_ABC_Var_New::typetypePredicate typeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeElementPredicate elemeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeValue defaultValue):
+    Implements_ComplexVar_New *Implements_Data_Type_New_ABC_Var_New::getComplexVarofTypeRep(const Implements_ComplexVar_New *cm, const ABC_Type_of_Value *var, std::string *whyNot, const std::string &masterObjective) const
+    {
+      if (getCvFromType_==nullptr)
+        return nullptr;
+      else
+        {
+          auto v=dynamic_cast<const Implements_Data_Type_New_ABC_Var_New*>(var);
+          if (v==nullptr)
+            return nullptr;
+          else
+            return (*getCvFromType_)(cm,v,whyNot,masterObjective);
+        }
+    }
+
+    Implements_Data_Type_New_ABC_Var_New *Implements_Data_Type_New_ABC_Var_New::getTypeClassRep(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *cvar, std::string *whyNot, const std::string &masterObjective) const
+    {
+      {
+        if (getTypeFromCV_==nullptr)
+          return nullptr;
+        else
+          {
+            return (*getTypeFromCV_)(cm,cvar,whyNot,masterObjective);
+          }
+      }
+    }
+
+    Implements_Data_Type_New_ABC_Var_New::~Implements_Data_Type_New_ABC_Var_New(){}
+
+    Implements_Data_Type_New_ABC_Var_New *Implements_Data_Type_New_ABC_Var_New::makeABC_Var_Type_Of_CV(const Implements_ComplexVar_New *cm, const Implements_Data_Type_New<std::map<std::string, ABC_Var_New *> > *varMap)
+    {
+
+    }
+
+    buildByToken<std::string> *Implements_Data_Type_New_ABC_Var_New::getNewIdentifierBuildByToken(const Implements_ComplexVar_New *cm) const
+    {
+
+      return new buildByToken<std::string> (cm,idType_);
+    }
+
+    const Implements_Data_Type_New<std::map<std::string, ABC_Var_New *> > *Implements_Data_Type_New_ABC_Var_New::getParentType() const
+    {
+      return varMap_;
+    }
+
+    buildByToken<std::string> *Implements_Data_Type_New_ABC_Var_New::getVarIdentifierBuildByToken(const Implements_ComplexVar_New *cm, const std::string id) const
+    {
+      std::string whyNot;
+
+
+      const ABC_Type_of_Value * t=parent()->idToType(id,&whyNot,"");
+      if (t!=nullptr)
+        {
+          const Implements_Data_Type_New<std::string>* vt=t->getSelfIdType();
+
+          return new buildByToken<std::string> (cm,vt);
+        }
+      else
+        return nullptr;
+    }
+
+    buildByToken<std::string> *Implements_Data_Type_New_ABC_Var_New::getVarIdentifierBuildByToken(const Implements_ComplexVar_New *cm) const
+    {
+      return new buildByToken<std::string>(cm,varType_);
+    }
+
+    buildByToken<ABC_Var_New *> *Implements_Data_Type_New_ABC_Var_New::getBuildByToken(const Implements_ComplexVar_New *cm) const
+    {
+      return new buildByToken<ABC_Var_New*>(cm,this);
+    }
+
+    Implements_Data_Type_New_ABC_Var_New::Implements_Data_Type_New_ABC_Var_New
+    (const Implements_ComplexVar_New *parent
+     , const std::string &id
+     , const std::string &var
+     , const std::string &tip
+     , const std::string &whatthis
+     , const Implements_Data_Type_New<std::map<std::string, ABC_Var_New *> > *varMap
+     , const Implements_Identifier *idType
+     , const Implements_Identifier *varType
+     , Implements_Data_Type_New_ABC_Var_New::typetypePredicate typeComply
+     , Implements_Data_Type_New_ABC_Var_New::cvToType getTypeFromCV
+     , Implements_Data_Type_New_ABC_Var_New::typeToCv getCvFromType)
+      :
+      Implements_Base_Type_New<ABC_Var_New*>
+      (parent,id,var,tip,whatthis,nullptr,
+        nullptr,typeComply,nullptr),
+      varMap_(varMap), idType_(idType),varType_(varType)
+    ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+    {
+    }
+
+    Implements_Data_Type_New_map_string_ABC_Var_New::Implements_Data_Type_New_map_string_ABC_Var_New(const Implements_ComplexVar_New *parent, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis, const std::map<std::string, ABC_Var_New *> fields, Implements_Data_Type_New_map_string_ABC_Var_New::typePredicate complyPred, Implements_Data_Type_New_map_string_ABC_Var_New::typetypePredicate typeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeElementPredicate elemeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeValue defaultValue):
       Implements_Container_Type_New<Markov_IO_New::ABC_Var_New *, String_map>
       (parent,id,var,tip,whatthis,"_var"+id
        ,nullptr,nullptr
@@ -173,7 +290,7 @@ namespace Markov_IO_New {
 
 
 
-  bool Identifier::S::comply_id_Var_Field_Used(const Implements_ComplexVar_New *p, const std::__cxx11::string &idCandidate, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
+  bool Identifier::S::comply_id_Var_Field_Used(const Implements_ComplexVar_New *p, const std::string &idCandidate, const Implements_ComplexVar_New *self, std::string *WhyNot, const std::string &objective)
   {
     std::string cvname=G::getComplexVarTypeId(self);
     const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* cmtype
@@ -191,7 +308,7 @@ namespace Markov_IO_New {
         p->hasName(idCandidate,WhyNot,objective,false);
   }
 
-  bool Identifier::S::typeComply_id_Cmd_Used_T(const Implements_ComplexVar_New *p, const Implements_Data_Type_New<std::__cxx11::string> *idtype, const Implements_ComplexVar_New *self, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
+  bool Identifier::S::typeComply_id_Cmd_Used_T(const Implements_ComplexVar_New *p, const Implements_Data_Type_New<std::string> *idtype, const Implements_ComplexVar_New *self, std::string *WhyNot, const std::string &objective)
   {
     if (idtype->id()==self->id())
       return true;
@@ -220,7 +337,7 @@ namespace Markov_IO_New {
 
   }
 
-  std::set<std::__cxx11::string> Implements_Identifier::alternativeNext(const Implements_ComplexVar_New *cm) const
+  std::set<std::string> Implements_Identifier::alternativeNext(const Implements_ComplexVar_New *cm) const
   {
     std::set<std::string> o;
     if (fieldType_!=nullptr)
@@ -317,7 +434,7 @@ namespace Markov_IO_New {
     return o;
   }
 
-  bool Implements_Identifier::isVarInDomain(const Implements_ComplexVar_New *cm, const std::__cxx11::string &idCandidate, std::__cxx11::string *whyNot, const std::__cxx11::string &objective) const
+  bool Implements_Identifier::isVarInDomain(const Implements_ComplexVar_New *cm, const std::string &idCandidate, std::string *whyNot, const std::string &objective) const
   {
     if (fieldType_!=nullptr)
       {
@@ -382,7 +499,7 @@ namespace Markov_IO_New {
 
   }
 
-  bool Implements_Identifier::isTypeIdentifierInDomain(const Implements_ComplexVar_New *cm, const Implements_Identifier *val, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+  bool Implements_Identifier::isTypeIdentifierInDomain(const Implements_ComplexVar_New *cm, const Implements_Identifier *val, std::string *whyNot, const std::string &masterObjective) const
   {
 
     if (isNew_ && !isUsed_ && val->isUsed_)
@@ -444,7 +561,7 @@ namespace Markov_IO_New {
 
   }
 
-  std::__cxx11::string Implements_Identifier::toId(const ABC_Type_of_Value *type, const _private::Implements_Data_Type_New_map_string_ABC_Var_New *fieldType, bool isVar, bool isType, bool isCommand, bool isNew, bool isUsed)
+  std::string Implements_Identifier::toId(const ABC_Type_of_Value *type, const _private::Implements_Data_Type_New_map_string_ABC_Var_New *fieldType, bool isVar, bool isType, bool isCommand, bool isNew, bool isUsed)
   {
     std::string id="_id";
     if (fieldType==nullptr)
@@ -501,6 +618,14 @@ namespace Markov_IO_New {
     cm->pushType(create_IdVarNew(cm));
   }
 
+  template<typename T>
+  void Matrix<T>::push_Types(Markov_CommandManagerVar *cm)
+  {
+    cm->pushType(new vType(cm));
+  }
+
+  template Matrix<double>;
+  template Matrix<std::size_t>;
 
 
 };

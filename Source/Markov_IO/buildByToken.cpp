@@ -17,7 +17,7 @@ namespace Markov_IO_New {
 
 
   template<>
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > buildByToken<std::string>::alternativesNext() const
+  std::pair<std::string, std::set<std::string> > buildByToken<std::string>::alternativesNext() const
   {
     return {"",varType_->alternativeNext(this->parent())};
   }
@@ -163,7 +163,7 @@ namespace Markov_IO_New {
   bool buildByToken<ABC_Var_New *>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
 
   {
-    const std::string objective=masterObjective+": "+ClassName()+" rejected token"+tok.str();
+    const std::string objective=masterObjective+": "+ClassName()+" rejected token "+tok.str();
     switch (mystate)
       {
       case S_Init:
@@ -472,7 +472,7 @@ namespace Markov_IO_New {
   {}
 
 
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
+  std::pair<std::string, std::set<std::string> > Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
   {
     switch (mystate)
       {

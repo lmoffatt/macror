@@ -156,7 +156,10 @@ namespace Markov_IO_New {
     bu_(cm),tok_{},previous_key(),rejectedChars_()
   {}
 
-  void ExpressionManager::KeyEvent(Markov_CommandManagerVar *cm, ABC_IO * io, CommandHistory& ch, Key k)
+  void ExpressionManager::KeyEvent(Markov_CommandManagerVar *cm
+                                   , ABC_IO * io
+                                   , CommandHistory& ch
+                                   , Key k)
   {
     switch(k)
       {
@@ -306,10 +309,13 @@ namespace Markov_IO_New {
           io->put(c);
           return true;
         }
-
   }
 
-  bool ExpressionManager::push_back(Markov_CommandManagerVar *cm,ABC_IO * io, const std::string &s,std::string* errorMessage)
+  bool ExpressionManager::push_back
+  (Markov_CommandManagerVar *cm
+   ,ABC_IO * io
+   , const std::string &s
+   ,std::string* errorMessage)
   {
     bool result=true;
     for (auto c:s)

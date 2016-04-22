@@ -504,6 +504,59 @@ namespace Markov_IO_New {
 
 
 
+  template<class C>
+  void push_var(std::map<std::string,ABC_Var_New*>& m
+                ,typename C::myC val={}
+      , const std::string myId=C::myId()
+      , const std::string& myTip=C::myTip()
+      , const std::string& myWhatThis=C::myWhatThis()  )
+  {
+    m[myId]=new Implements_Var_New<typename C::myC>
+        (nullptr,myId,C::myIdType(),val,myTip,myWhatThis);
+  }
+
+  template <class Field>
+  bool get_var(const std::map<std::string,ABC_Var_New*>& m
+               ,typename Field::myC& val
+               ,std::string* whyNot
+               ,const std::string& masterObjective )
+  {
+    auto it=m.find(Field::myId());
+    if (it==m.end())
+      {
+        *whyNot=masterObjective+": field "+Field::myId()+" not found";
+        return false;
+      }
+    else
+      {
+        ABC_Var_New* o=it->second;
+        if (o==nullptr)
+          {
+            *whyNot=masterObjective+": field "+Field::myId()+" is null";
+            return false;
+          }
+        else
+          {
+            auto v=dynamic_cast<Implements_Var_New<typename Field::myC>*>(o);
+            if (v==nullptr)
+              {
+                *whyNot=masterObjective+": field "+Field::myId()+" is of wrong type: "
+                    +o->myType()+" instead of "+ Field::myIdType();
+                return false;
+              }
+            else
+              {
+                val=v->value()->getValued();
+                return true;
+              }
+
+          }
+      }
+  }
+
+
+
+
 }
 
 

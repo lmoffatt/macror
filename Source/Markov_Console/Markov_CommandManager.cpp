@@ -40,6 +40,7 @@
 
 
 #include "Markov_IO/Commands.h"
+#include "Markov_IO/myTypes.h"
 
 
 
@@ -51,7 +52,7 @@ namespace Markov_IO_New
 {
 
 
-  bool Markov_CommandManagerVar::setDir(const std::__cxx11::string &dir)
+  bool Markov_CommandManagerVar::setDir(const std::string &dir)
   {
     if (!IsDir(dir))
       return false;
@@ -80,7 +81,10 @@ namespace Markov_IO_New
     h_(new CommandHistory(""))
 {
   setParentValue(nullptr);
+
   pushAllCommands(this);
+_private::push_Types(this);
+
   e=new ExpressionManager(this);
 
   //    auto dirs=Markov_IO::getSubDirs(dir_);
