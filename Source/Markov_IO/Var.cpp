@@ -94,17 +94,18 @@ namespace Markov_IO_New {
             *whyNot=masterObjective+": "+name+" is not a type in "+this->id();
             return false;
           }
-        else return parent()->hasTypeofType(name, type,whyNot,masterObjective,recursive);
+        else
+          return parent()->hasTypeofType(name, type,whyNot,masterObjective,recursive);
       }
     else
       {
-        auto t=parent()->idToType(type,whyNot,masterObjective);
+        auto t=idToType(type,whyNot,masterObjective);
         if (t==nullptr)
           return false;
         else
           {
             const ABC_Type_of_Value* subt=it->second;
-            return t->isTypeInDomain(parent(),subt,whyNot,masterObjective);
+            return t->isTypeInDomain(this,subt,whyNot,masterObjective);
           }
       }
 
@@ -125,7 +126,7 @@ namespace Markov_IO_New {
     std::string objective;
     if (varType.empty())
       {
-        auto s=getMapKeys(vars_);
+        auto s=alternatives::getIdofVar(vars_);
         s.insert(o.begin(),o.end());
         return s;
       }
@@ -138,7 +139,7 @@ namespace Markov_IO_New {
             ABC_Var_New* var=p.second;
             std::string why;
             if (t->isVarInDomain(this,var->value(),&why,objective))
-              s.insert(var->id());
+              alternatives::insert(s,var);
           }
         s.insert(o.begin(),o.end());
         return s;

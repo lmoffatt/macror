@@ -14,8 +14,6 @@ namespace Markov_IO_New {
   {
     namespace _model {
 
-
-
       struct numStates_Field
       {
         typedef std::size_t myC;
@@ -25,8 +23,29 @@ namespace Markov_IO_New {
         static std::string myWhatThis() {return "number of different states in the model";}
       };
 
+      inline
+      std::size_t getNumStates(const Implements_ComplexVar_New* cm
+                               ,const Implements_ComplexVar_New* self)
+      {
+        std::size_t numstates;
+        std::string WhyNot;
+        if (!cm->getValueFromId(numStates_Field::myId(),numstates,&WhyNot,""))
+          return 0;
+        else return numstates;
+
+      }
+      inline
+      std::size_t oneDim(const Implements_ComplexVar_New*
+                         ,const Implements_ComplexVar_New* )
+      {
+        return 1;
+      }
+
       struct Q_matrix_Type{
-        typedef Markov_LA::M_Matrix<double> myC;
+
+        typedef double elem;
+
+        typedef Markov_LA::M_Matrix<elem> myC;
         static std::string myId(){return "Q_matrix_type";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return " state transition probability rates or  Q matrices";}
@@ -41,13 +60,13 @@ namespace Markov_IO_New {
           std::size_t numstates;
           if (!cm->getValueFromId(numStates_Field::myId(),numstates,WhyNot,objective))
             return false;
-          if (!Matrix<double>::Comply::Size(x,numstates,numstates,WhyNot,objective))
+          if (!Matrix<elem>::Comply::Size(x,numstates,numstates,WhyNot,objective))
             return false;
-          if (!Matrix<double>::Comply::OffDiagPositive(x,WhyNot,objective))
+          if (!Matrix<elem>::Comply::OffDiagPositive(x,WhyNot,objective))
             return false;
-          if (!Matrix<double>::Comply::RowSumIsZero(x,WhyNot,objective))
-            return false;
-          if (!Matrix<double>::Comply::FiniteEquilibrium(x,WhyNot,objective))
+        //  if (!Matrix<elem>::Comply::RowSumIsZero(x,WhyNot,objective))
+        //    return false;
+          if (!Matrix<elem>::Comply::FiniteEquilibrium(x,WhyNot,objective))
             return false;
           return true;
         }
@@ -57,7 +76,7 @@ namespace Markov_IO_New {
          ,const myC & m
          ,typename myC::const_iterator it
          ,const double& x
-         ,const _private::Implements_Container_Type_New<double,Markov_LA::M_Matrix>* v
+         ,const _private::Implements_Container_Type_New<elem,Markov_LA::M_Matrix>* v
          , std::string *WhyNot, const std::string& objective)
         {
           std::size_t i=it.iRow();
@@ -113,9 +132,16 @@ namespace Markov_IO_New {
         {
           return new Implements_Data_Type_New<myC>
               (cm,myId(),myIdType(),myTip(),myWhatThis(),
-               Cls<double>::name(),&comply,nullptr,&typeElementComply
-               ,nullptr,nullptr,nullptr);
+               Cls<elem>::name(),&comply,nullptr,&typeElementComply
+               ,nullptr,nullptr,nullptr,getNumStates,getNumStates,true,true);
         }
+
+        static void push_Types(Markov_CommandManagerVar *cm)
+        {
+          cm->pushType(varType(cm));
+          cm->pushType(new Implements_Data_Type_New<elem> (cm));
+        }
+
 
       };
       struct Q_matrix_Field  {
@@ -130,8 +156,9 @@ namespace Markov_IO_New {
 
       struct conductance_vector_Type
       {
+        typedef double elem;
 
-        typedef  Markov_LA::M_Matrix<double> myC;
+        typedef  Markov_LA::M_Matrix<elem> myC;
         static std::string myId(){return "conductance_vector_type";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "the class of relative conductance by state";}
@@ -139,7 +166,7 @@ namespace Markov_IO_New {
 
         static bool comply
         (const Implements_ComplexVar_New* cm
-         ,const Markov_LA::M_Matrix<double>& x
+         ,const Markov_LA::M_Matrix<elem>& x
          ,const Implements_ComplexVar_New* self,
          std::string *WhyNot
          , const std::string& objective)
@@ -147,9 +174,9 @@ namespace Markov_IO_New {
           std::size_t numstates;
           if (!cm->getValueFromId(numStates_Field::myId(),numstates,WhyNot,objective))
             return false;
-          if (!Matrix<double>::Comply::Size(x,numstates,1,WhyNot,objective))
+          if (!Matrix<elem>::Comply::Size(x,numstates,1,WhyNot,objective))
             return false;
-          if (!Matrix<double>::Comply::notAllZero(x,WhyNot,objective))
+          if (!Matrix<elem>::Comply::notAllZero(x,WhyNot,objective))
             return false;
 
           return true;
@@ -159,10 +186,17 @@ namespace Markov_IO_New {
         varType(const Implements_ComplexVar_New* cm)
         {
           return new Implements_Data_Type_New<myC>
-              (cm,myIdType(),"","transition probability rate"," more exp",
-               Cls<double>::name(),&comply,nullptr,nullptr
-               ,nullptr,nullptr,nullptr);
+              (cm,myId(),myIdType(),"transition probability rate"," more exp",
+               Cls<elem>::name(),&comply,nullptr,nullptr
+               ,nullptr,nullptr,nullptr,&getNumStates,&oneDim,true,true);
         }
+
+        static void push_Types(Markov_CommandManagerVar *cm)
+        {
+          cm->pushType(varType(cm));
+          cm->pushType(new Implements_Data_Type_New<elem> (cm));
+        }
+
       };
 
 
@@ -180,7 +214,8 @@ namespace Markov_IO_New {
 
       struct agonist_vector_type
       {
-        typedef  Markov_LA::M_Matrix<std::size_t> myC;
+        typedef std::size_t elem;
+        typedef  Markov_LA::M_Matrix<elem> myC;
         static std::string myId(){return "agonist_vector_type";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "number of bound agonist at each states";}
@@ -209,9 +244,16 @@ namespace Markov_IO_New {
         {
           return new Implements_Data_Type_New<myC>
               (cm,myId(),myIdType(),myTip(),myWhatThis(),
-               Cls<double>::name(),&comply,nullptr,nullptr
-               ,nullptr,nullptr,nullptr);
+               Cls<elem>::name(),&comply,nullptr,nullptr
+               ,nullptr,nullptr,nullptr,&getNumStates,&oneDim,true,true);
         }
+
+        static void push_Types(Markov_CommandManagerVar *cm)
+        {
+          cm->pushType(varType(cm));
+          cm->pushType(new Implements_Data_Type_New<elem> (cm));
+        }
+
       };
 
       struct agonist_vector_field
@@ -244,7 +286,7 @@ namespace Markov_IO_New {
 
         static Implements_Data_Type_New<myC*>*
         varType(const Implements_ComplexVar_New* cm);
-};
+      };
 
       class Implements_Data_Type_class_ABC_Markov_Model
           :public _private::Implements_Data_Type_class<ABC_Markov_Model*>
@@ -252,7 +294,7 @@ namespace Markov_IO_New {
       public:
         typedef ABC_Markov_Model myC;
 
-       Implements_Data_Type_class_ABC_Markov_Model
+        Implements_Data_Type_class_ABC_Markov_Model
         (const Implements_ComplexVar_New* parent,
          const std::string& id
          ,const std::string& var
@@ -267,13 +309,13 @@ namespace Markov_IO_New {
             parent,id,var,myTip,myWhatThis,fields,complyPred,typeComply,defaultValue,nullptr,nullptr)
         {}
 
-       Implements_Data_Type_class_ABC_Markov_Model
+        Implements_Data_Type_class_ABC_Markov_Model
         (const Implements_ComplexVar_New* parent)
           :Implements_Data_Type_class<ABC_Markov_Model*>
            (parent,Cls<myC*>::name(),Cls<myC*>::name(),"","",
-       {},nullptr,nullptr,nullptr,nullptr,nullptr)
+        {},nullptr,nullptr,nullptr,nullptr,nullptr)
         {}
-       };
+      };
 
 
 
@@ -284,7 +326,7 @@ namespace Markov_IO_New {
         typedef Q_Markov_Model myC;
         typedef ABC_Markov_Model myB;
 
-private:
+      private:
         static myC* map2obj(const Implements_ComplexVar_New* cm,
                             const std::map<std::string,ABC_Var_New*>& m
                             ,const Implements_ComplexVar_New* v
@@ -356,16 +398,16 @@ private:
           return f;
         }
 
-      static std::map<std::string,ABC_Var_New*> getFields()
-      {
-        std::map<std::string,ABC_Var_New*> f;
-        push_var<numStates_Field>(f);
-        push_var<Q_matrix_Field>(f);
-        push_var<conductance_vector_Field>(f);
-        push_var<agonist_vector_field>(f);
-        push_var<unitary_conductance_field>(f);
-        return f;
-      }
+        static std::map<std::string,ABC_Var_New*> getFields()
+        {
+          std::map<std::string,ABC_Var_New*> f;
+          push_var<numStates_Field>(f);
+          push_var<Q_matrix_Field>(f);
+          push_var<conductance_vector_Field>(f);
+          push_var<agonist_vector_field>(f);
+          push_var<unitary_conductance_field>(f);
+          return f;
+        }
 
 
 
@@ -433,6 +475,17 @@ private:
         virtual std::map<std::string, ABC_Var_New *> getComplexMap(const Implements_ComplexVar_New *cm, const Q_Markov_Model *v, std::string *WhyNot, const std::string &masterObjective) const
         {
           return (*getCV_)(cm,v,this,WhyNot,masterObjective);
+
+        }
+
+
+        static void push_Types(Markov_CommandManagerVar *cm)
+        {
+          cm->pushType(new Implements_Data_Type_New<std::size_t>(cm));
+          agonist_vector_type::push_Types(cm);
+          conductance_vector_Type::push_Types(cm);
+          Q_matrix_Type::push_Types(cm);
+          cm->pushType(new Implements_Data_Type_class_Q_Markov_Model(cm));
 
         }
 

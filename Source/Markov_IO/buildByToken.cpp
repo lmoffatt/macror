@@ -19,7 +19,7 @@ namespace Markov_IO_New {
   template<>
   std::pair<std::string, std::set<std::string> > buildByToken<std::string>::alternativesNext() const
   {
-    return {"",varType_->alternativeNext(this->parent())};
+    return {varType_->id(),varType_->alternativeNext(this->parent())};
   }
 
 
@@ -42,8 +42,10 @@ namespace Markov_IO_New {
   template class buildByToken<std::map<std::size_t,double>>;
 
 
-
   template class buildByToken<Markov_LA::M_Matrix<double>>;
+  template  class buildByToken<Markov_LA::M_Matrix<std::size_t>>;
+
+
 
 
   build_Statement::build_Statement(
@@ -58,6 +60,17 @@ namespace Markov_IO_New {
     cmv_(nullptr),
     x_(nullptr)
   {}
+
+  void build_Statement::clear()
+  {
+    delete cmv_;
+    v_.clear();
+    c_.clear();
+    mystate=S_Init;
+    x_=nullptr;
+    cmv_=nullptr;
+
+  }
 
 
   build_Statement::build_Statement(Markov_CommandManagerVar *p):
@@ -176,6 +189,18 @@ namespace Markov_IO_New {
           {
             if (idB_->pushToken(tok,whyNot,objective))
               {
+                id_=idB_->unloadVar();
+                if (varType_->getParentType()!=nullptr)
+                  {
+                    auto x=varType_->getParentType()->getFieldVar(id_,whyNot,objective);
+                    if (x!=nullptr)
+                      {
+                        varB_=varType_->getVarIdentifierBuildByToken(parent(),x->myType());
+                      }
+                    }
+                else
+                  varB_=varType_->getVarIdentifierBuildByToken(parent());
+
                 mystate =ID1;
                 return true;
               }
@@ -456,16 +481,16 @@ namespace Markov_IO_New {
   buildByToken(const Implements_ComplexVar_New *parent,
                const Implements_Data_Type_New<std::map<std::string, ABC_Var_New *> > *typeVar):
     ABC_BuildByToken(parent),
-    mystate(S_Header_Final),
-    x_{},
+    mystate(S_Init),
+    x_(new Implements_ComplexVar_New(parent)),
     varType_(typeVar),
-    varBuild_(typeVar->getElementBuildByToken(parent))
+    varBuild_(typeVar->getElementBuildByToken(x_))
   {}
 
   buildByToken<std::map<std::string, ABC_Var_New *> >::
   buildByToken(const Implements_ComplexVar_New *parent):
     ABC_BuildByToken(parent),
-    mystate(S_Header_Final),
+    mystate(S_Init),
     x_{},
     varType_(nullptr),
     varBuild_(nullptr)
@@ -476,15 +501,17 @@ namespace Markov_IO_New {
   {
     switch (mystate)
       {
+
+
       case S_Init:
-      case S_Data_Separator_Final:
-        return {varType_->id(),{Token_New::toString(Token_New::EOL)}};
+      case S_Header_Final:
+      case S_Data_Final:
+        return {varType_->id(),{alternatives::endOfLine()}};
       case S_Header2:
         return {varType_->id(),{Token_New::toString(Token_New::LCB)}};
-      case S_Header_Final:
       case S_Data_Partial:
         return varBuild_->alternativesNext();
-      case S_Data_Final:
+      case S_Data_Separator_Final:
         {
           auto out=varBuild_->alternativesNext();
           out.second.insert(Token_New::toString(Token_New::RCB));
@@ -492,8 +519,227 @@ namespace Markov_IO_New {
         }
       case S_Final:
         return {};
+
       }
 
+  }
+
+  template<typename T>
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<Markov_LA::M_Matrix<T> >::alternativesNext() const
+  {
+    std::pair<std::string,std::set<std::string>> out;
+    switch (mystate) {
+      case S_Init:
+        out.first=dataType_->id();
+        out.second={alternatives::endOfLine()};
+        return out;
+
+      case S_Header_Final:
+      case S_Data_Partial:
+        if (!hasFixedCols_&&((nCols_==0)||(runCols_==0)))
+          return {dataType_->id(),{alternatives::endOfLine()
+                    ,alternatives::element(parent(),dataType_)}};
+        else if ((runCols_==nCols_)||(hasFixedRows_&&(runRows_==nRows_)))
+          return {dataType_->id(),{alternatives::endOfLine()}};
+        else
+          return {dataType_->id(),{alternatives::element(parent(),dataType_)}};
+        break;
+      case S_Final:
+        return {};
+        break;
+      }
+
+  }
+
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > build_Command_Input::alternativesNext() const
+
+  {
+    switch (mystate)
+      {
+      case S_Init:
+        return idCommandB_->alternativesNext();
+
+      case  S_Mandatory_Final:
+        return {cmdty_->id(),{alternatives::endOfLine()}};
+      case S_ID_Final:
+      case S_Input_Partial:
+      case S_Argument_Partial:
+        return A_fieldB_->alternativesNext();
+      case S_Input_Final:
+        return {cmdty_->id(),{alternatives::endOfLine()}};
+      case S_Final:
+        return {};
+      }
+
+  }
+
+  void Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::clear()
+  {
+    mystate=S_Init;
+    x_->getMap().clear();
+    varBuild_->clear();
+
+  }
+
+  bool Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::unPop(std::map<std::__cxx11::string, ABC_Var_New *> var)
+  {
+    x_->getMap()=var;
+    mystate=S_Final;
+    return true;
+
+  }
+
+  std::map<std::__cxx11::string, ABC_Var_New *> Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::unloadVar()
+  {
+    if (isFinal())
+      {
+        mystate=S_Header_Final;
+        return x_->getMap();
+      }
+    else
+      return {};
+  }
+
+  Token_New Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::popBackToken()
+  {
+    switch (mystate)
+      {
+      case S_Init:
+        return {};
+      case S_Header2:
+        mystate=S_Header_Final;
+        return Token_New(Token_New::EOL);
+      case S_Header_Final:
+        mystate=S_Header2;
+        return Token_New(Token_New::LCB);
+      case S_Data_Partial:
+        {
+          auto out= varBuild_->popBackToken();
+          if (varBuild_->isInitial())
+            {
+              if (x_->getMap().empty())
+                mystate=S_Header_Final;
+              else
+                mystate=S_Data_Separator_Final;
+            }
+          else mystate=S_Data_Partial;
+          return out;
+        }
+      case S_Data_Final:
+        {
+          auto d=*(--x_->getMap().end());
+          x_->getMap().erase(--x_->getMap().end());
+          varBuild_->unPop(d.second);
+          auto to=varBuild_->popBackToken();
+          if (varBuild_->isInitial())
+            {
+              mystate=S_Data_Separator_Final;
+            }
+          else mystate=S_Data_Partial;
+          return to;
+        }
+      case S_Data_Separator_Final:
+        {
+          if (x_->getMap().empty())
+            mystate=S_Header_Final;
+          else
+            mystate=S_Data_Final;
+          return Token_New(Token_New::EOL);
+        }
+      case S_Final:
+        mystate=S_Data_Separator_Final;
+        return Token_New(Token_New::RCB);
+      }
+  }
+
+  bool Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  {
+    const std::string objective=masterObjective+": "+ClassName()+"::pushToken("+
+        tok.str()+") fails";
+
+    switch (mystate)
+      {
+      case S_Init:
+        if (tok.tok()!=Token_New::EOL)
+          {
+            *whyNot=objective+" is not an end of line";
+            return false;
+          }  else
+          {
+            mystate=S_Header2;
+            return true;
+          }
+      case S_Header2:
+        if (tok.tok()!=Token_New::LCB)
+          {
+            *whyNot=objective+" is not an "+Token_New::toString(Token_New::LCB);
+            return false;
+          }   else
+          {
+            mystate=S_Header_Final;
+            return true;
+          }
+      case S_Header_Final:
+      case S_Data_Final:
+        if (tok.tok()==Token_New::EOL)
+          {
+            mystate=S_Data_Separator_Final;
+            return true;
+          }
+        else
+          {
+            *whyNot=masterObjective+": "+tok.str()
+                +" is not end of line";
+            return false;
+          }
+      case S_Data_Partial:
+        if (!varBuild_->pushToken(tok, whyNot, objective))
+          {
+            return false;
+          }
+        else
+          {
+            if(varBuild_->isFinal())
+              {
+                p_=varBuild_->unloadVar();
+                x_->pushChild(p_);
+                mystate=S_Data_Final;
+                return true;
+              }
+            else
+              {
+                mystate=S_Data_Partial;
+                return true;
+              }
+          }
+      case S_Data_Separator_Final:
+        if (tok.tok()==Token_New::RCB)
+          {
+            mystate=S_Final;
+            return true;
+          }
+        else if (!varBuild_->pushToken(tok, whyNot,objective))
+          {
+            return false;
+          }
+        else
+          {
+            if(varBuild_->isFinal())
+              {
+                ABC_Var_New* p=varBuild_->unloadVar();
+                x_->pushChild(p);
+                mystate=S_Data_Final;
+                return true;
+              }
+            else
+              {
+                mystate=S_Data_Partial;
+                return true;
+              }
+          }
+      case S_Final:
+        return false;
+      }
   }
 
 
@@ -503,7 +749,8 @@ namespace Markov_IO_New {
 
 
 
-}
+
+};
 
 
 
@@ -517,7 +764,7 @@ namespace Markov_IO_New_Test{
 
     Implements_Data_Type_New<std::vector<double>> dv(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr);
 
-    Implements_Data_Type_New<Markov_LA::M_Matrix<double>> dmt(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr);
+    Implements_Data_Type_New<Markov_LA::M_Matrix<double>> dmt(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr,nullptr,nullptr,false,false);
 
 
     Implements_Data_Type_New<std::pair<std::string,double>> dp(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","","",nullptr,nullptr,nullptr,nullptr,{});

@@ -2,6 +2,7 @@
 #include "Markov_Console/Markov_CommandManager.h"
 
 
+
 #include "Markov_LA/matrixSum.h"
 
 namespace Markov_IO_New {
@@ -269,6 +270,12 @@ namespace Markov_IO_New {
 
 
 
+   template class Implements_Data_Type_New_M_Matrix<double>;
+
+    template class Implements_Data_Type_New_M_Matrix<std::size_t>;
+
+
+
 
 
 
@@ -331,8 +338,7 @@ namespace Markov_IO_New {
 
   void Implements_ComplexVar_New::pushCommand(Implements_Command_Type_New *cmd)
   {
-    vars_[cmd->id()]=cmd;
-    types_[cmd->id()]=cmd;
+    all_[cmd->id()]=cmd;
     cmds_[cmd->id()]=cmd;
 
   }
@@ -350,7 +356,7 @@ namespace Markov_IO_New {
             if ((isNew_&&!cm->hasName(id,&w,"",false))
                 ||(isUsed_&&cm->hasName(id,&w,"",false)))
               {
-                o.insert(id);
+                alternatives::insert(o,e.second);
               }
           }
 
@@ -360,12 +366,12 @@ namespace Markov_IO_New {
         {
           if (isNew_)
             {
+              o.insert(alternatives::newIdentifier());
               std::string varType="";
               if (type_!=nullptr)
                 varType=type_->id();
               auto sv= cm->getIdsOfVarType(varType,false);
               auto st=cm->getIdsOfTypeType(varType,true);
-              std::set<std::string> o;
               for (auto& e:sv)
                 {
                   o.insert(Identifier::nextId(e));
@@ -375,7 +381,7 @@ namespace Markov_IO_New {
                   std::string s="my"+e;
                   std::string w;
                   if (cm->isNameUnOcuppied(s,&w,"",true))
-                    o.insert(s);
+                    alternatives::insert(o,s,e);
                 }
             }
           if (isUsed_)
@@ -394,11 +400,11 @@ namespace Markov_IO_New {
       {
         if (isNew_)
           {
+            o.insert("<an unoccupied identifier>");
             std::string varType="";
             if (type_!=nullptr)
               varType=type_->id();
             auto st=cm->getIdsOfTypeType(varType,true);
-            std::set<std::string> o;
             for (auto& e:st)
               {
                 o.insert(Identifier::nextId(e));
@@ -624,8 +630,10 @@ namespace Markov_IO_New {
     cm->pushType(new vType(cm));
   }
 
-  template Matrix<double>;
-  template Matrix<std::size_t>;
+ // template Matrix<double>;
+ // template Matrix<std::size_t>;
+
+
 
 
 };

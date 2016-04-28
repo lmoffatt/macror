@@ -18,7 +18,7 @@ namespace Markov_IO_New {
       {
         return false;
       }
-    else if (varType_->isVarInDomain(this->parent(),d,whyNot,objective))
+    else if (varType_->isVarInDomain(varType_->parent(),d,whyNot,objective))
       {
         x_=d;
         isComplete_=true;
@@ -27,6 +27,25 @@ namespace Markov_IO_New {
     else
       return false;
   }
+     template<typename T>
+     buildByToken<Markov_LA::M_Matrix<T> >::buildByToken(const Implements_ComplexVar_New *parent, const _private::Implements_Data_Type_New_M_Matrix<T > *typeVar):
+        ABC_BuildByToken(parent),
+        mystate(S_Init),
+        dataType_(typeVar),
+        x_(dataType_->getDefault_Valued(parent)),
+        hasFixedCols_(dataType_->template get_Value
+                      <_private::isNumColsFixed_Field>())
+      ,  hasFixedRows_(dataType_->template get_Value
+                  <_private::isNumRowsFixed_Field>())
+      ,runCols_(0),nCols_(dataType_->getNumberOfCols(parent))
+      ,runRows_(0),nRows_(dataType_->getNumberOfRows(parent))
+      ,v_{nCols_*nRows_},buffer_(nCols_*nRows_),isComplete_(false)
+      {
+
+     }
+
+
+
 
 
 

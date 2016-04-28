@@ -72,7 +72,7 @@ namespace Markov_IO_New
   Markov_CommandManagerVar::Markov_CommandManagerVar():
    Implements_ComplexVar_New(nullptr,"CommandManager","CommandManager","",""),
   io_(nullptr),
-    vt_{Variable::create_varValid(this)},
+    vt_{Variable::create_varNew(this)},
     idCmd_(Implements_Identifier::create_Id_Cmd(this)),
     e(nullptr),
     lastCmdRst{},

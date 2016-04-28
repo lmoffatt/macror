@@ -11,6 +11,23 @@
 
 namespace Markov_IO_New {
 
+   inline
+   std::set<std::string>& operator+=(std::set<std::string>& one, std::set<std::string> two)
+  {
+     one.insert(two.begin(),two.end());
+     return one;
+   }
+
+   inline
+   std::pair<std::string,std::set<std::string>>& operator+=(std::pair<std::string,std::set<std::string>>& one, std::pair<std::string,std::set<std::string>> two)
+  {
+     one.first+="  ";
+     one.first+=two.first;
+
+      one.second.insert(two.second.begin(),two.second.end());
+     return one;
+   }
+
 
    template<typename T>
     T* clone(T const* x)
@@ -107,6 +124,11 @@ public:
     static std::string name(){return "count";}
   };
 
+  template<>
+  struct Cls<bool>
+  {
+    static std::string name(){return "boolean";}
+  };
 
 
 

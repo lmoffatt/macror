@@ -1,11 +1,14 @@
 #ifndef IMPLEMENTS_COMPLEXVAR_NEW_H
 #define IMPLEMENTS_COMPLEXVAR_NEW_H
 
+
+
 #include "Markov_IO/Var.h"
 #include "Markov_IO/buildByToken.h"
 
 #include "Markov_LA/matrixSum.h"
 
+#include <cmath>
 
 namespace Markov_IO_New {
   
@@ -102,6 +105,12 @@ namespace Markov_IO_New {
   template<typename T>
   class ABC_Typed_Value;
   
+
+
+
+
+
+
   
   class Implements_ComplexVar_New: public Implements_Var_New<std::map<std::string,ABC_Var_New*>>
   {
@@ -246,9 +255,11 @@ namespace Markov_IO_New {
         objective=masterObjective+": "+ name+" is not a "+Cls<T>::name();
       
       auto it=vars_.find(name);
+      const ABC_Var_New* var=it->second;
       if (it!=vars_.end())
         {
-          auto v=dynamicCast<const Implements_Value_New<T>*>(it->second,whyNot,objective);
+          auto v=dynamic_cast<
+              const Implements_Value_New<T>*>(var->value());
           if (v==nullptr)
             {
               return false;
@@ -282,7 +293,7 @@ namespace Markov_IO_New {
                  bool recursive)const
     {
       const std::string objective=masterObjective+ ": "+name+"is not in "+id();
-      if (vars_.find(name)!=vars_.end())
+      if (all_.find(name)!=all_.end())
         {
           return true;
         }
@@ -318,8 +329,8 @@ namespace Markov_IO_New {
     
     bool isNameUnOcuppied(const std::string& name,std::string* whyNot,const std::string &masterObjective, bool recursive)const
     {
-      auto it=vars_.find(name);
-      if (it!=vars_.end())
+      auto it=all_.find(name);
+      if (it!=all_.end())
         {
           const ABC_Var_New* v=it->second;
           *whyNot=masterObjective+": "+name+" is currently a"+v->myType()+" in "+id();
@@ -404,18 +415,42 @@ namespace Markov_IO_New {
                      , const std::string& whatthis
                      , std::string *whyNot, const std::string &masterObjective);
     
-    
-    
-    
+
+
     
     bool removeChild(const std::string& name)
     {
-      auto it =vars_.find(name);
-      if (it!=vars_.end())
+      auto it =all_.find(name);
+      if (it!=all_.end())
         {
           delete it->second;
-          vars_.erase(it);
+          all_.erase(it);
+          auto itVar =vars_.find(name);
+          if (itVar!=vars_.end())
+            {
+              delete itVar->second;
+              vars_.erase(itVar);
+              return true;
+
+            }
+          auto itType =types_.find(name);
+          if (itType!=types_.end())
+            {
+              delete itType->second;
+              types_.erase(itType);
+              return true;
+
+            }
+          auto itCmd =cmds_.find(name);
+          if (itCmd!=cmds_.end())
+            {
+              delete itCmd->second;
+              cmds_.erase(itCmd);
+              return true;
+
+            }
           return true;
+
         }
       else
         return false;
@@ -423,10 +458,19 @@ namespace Markov_IO_New {
     
     void pushChild(ABC_Var_New* var)
     {
+      all_[var->id()]=var;
       vars_[var->id()]=var;
     }
     
-    
+    template<class Field>
+    void pushVar(typename Field::myC val={}
+        , const std::string myId=Field::myId()
+        , const std::string& myTip=Field::myTip()
+        , const std::string& myWhatThis=Field::myWhatThis()  )
+    {
+      push_var<Field>(vars_,val,myId,myTip,myWhatThis);
+    }
+
     template<typename T>
     void push_backVal(const std::string& name,
                       T value,
@@ -437,12 +481,42 @@ namespace Markov_IO_New {
       pushChild(new Implements_Var_New<T>(this,name,classname,value,tip,whatthis));
     }
     
+
+    template <class Field>
+    bool getVar(typename Field::myC& val
+                ,std::string* whyNot
+                ,const std::string& masterObjective )const
+    {
+      return get_var(vars_,val,whyNot,masterObjective);
+    }
+
+    template <class Field>
+    typename Field::myC  get_Value()const
+    {
+      typedef typename Field::myC T;
+      T val;
+      std::string whyNot;
+      if (get_var<Field>(vars_,val,&whyNot,""))
+        return val;
+      else
+        return T{};
+    }
+
     
     void pushType(ABC_Type_of_Value* varT);
     void pushCommand(Implements_Command_Type_New* cmd);
     
     
-    
+    Implements_ComplexVar_New(const Implements_ComplexVar_New* parent
+                             ):
+      Implements_Var_New(parent,"","","",""),
+      all_((this->value()->getValued())),vars_(),types_(),cmds_()
+    {
+
+    }
+
+
+
     
     Implements_ComplexVar_New(const Implements_ComplexVar_New* parent,
                               const std::string& id
@@ -451,7 +525,7 @@ namespace Markov_IO_New {
                               ,const std::string& whatthis):
       Implements_Var_New(parent,
                          id,var,tip,whatthis),
-      vars_((this->value()->getValued())),types_(),cmds_()
+      all_((this->value()->getValued())),vars_(),types_(),cmds_()
     {
       
     }
@@ -464,7 +538,7 @@ namespace Markov_IO_New {
                               ,const std::string& whatthis):
       Implements_Var_New(parent,
                          id,var,m,tip,whatthis),
-      vars_(this->value()->getValued()),types_(),cmds_()
+      all_(this->value()->getValued()),vars_(),types_(),cmds_()
     {
       
       
@@ -498,9 +572,34 @@ namespace Markov_IO_New {
     std::string defaultIdOfCmdType(const std::string &cmdType, bool recursive) const;
     std::set<std::string> getIdsOfCmdType(const std::string &cmdType, bool recursive) const;
     
-    
+  friend class buildByToken<std::map<std::string, ABC_Var_New *> >;
+
+
+
   private:
-    std::map<std::string,ABC_Var_New*> &vars_;
+     std::map<std::string,ABC_Var_New*>& getMap()
+     {
+       return all_;
+     }
+     const std::map<std::string,ABC_Var_New*>& getMap()const
+     {
+       return all_;
+     }
+
+    std::map<std::string,ABC_Var_New*> popmap()
+    {
+       std::map<std::string,ABC_Var_New*> out(all_);
+       all_.clear();
+       vars_.clear();
+       types_.clear();
+       cmds_.clear();
+       return out;
+    }
+
+
+
+    std::map<std::string,ABC_Var_New*> &all_;
+    std::map<std::string,ABC_Var_New*> vars_;
     std::map<std::string,ABC_Type_of_Value*> types_;
     std::map<std::string,Implements_Command_Type_New*> cmds_;
     
@@ -535,6 +634,41 @@ namespace Markov_IO_New {
     static std::string myTip();
     static std::string myWhatThis();
   };
+
+
+
+  namespace alternatives
+  {
+
+    template<typename T>
+    inline std::string element(const Implements_ComplexVar_New* cm,   const T* dataType)
+    {
+      return "<"+dataType->getElementDataType(cm)->Tip()+">";}
+
+
+    static
+    void insert(std::set<std::string>& alt,const std::string& id, const std::string myType)
+    {
+      alt.insert(id+" : "+myType);
+    }
+
+    static
+    void insert(std::set<std::string>& alt,const ABC_Var_New* v)
+    {
+      insert(alt,v->id(),v->myType());
+    }
+
+
+    static std::set<std::string> getIdofVar(const std::map<std::string, ABC_Var_New*> m)
+    {
+      std::set<std::string> o;
+      for (auto& e:m)
+        insert(o,e.second);
+      return o;
+
+    }
+  };
+
 
 
 
@@ -2113,7 +2247,43 @@ namespace Markov_IO_New {
       
     };
     
-    
+    struct numCols_Field  {
+      typedef std::size_t myC;
+
+      static std::string myId(){return "numCols";}
+      static std::string myIdType(){return Cls<myC>::name();}
+      static std::string myTip(){return "number of columns";}
+      static std::string myWhatThis() {return "";}
+    };
+
+    struct isNumColsFixed_Field  {
+      typedef bool myC;
+
+      static std::string myId(){return "isNumColsFixed";}
+      static std::string myIdType(){return Cls<myC>::name();}
+      static std::string myTip(){return "if fixed the number of columns";}
+      static std::string myWhatThis() {return "";}
+    };
+
+    struct numRows_Field  {
+      typedef std::size_t myC;
+
+      static std::string myId(){return "numRows";}
+      static std::string myIdType(){return Cls<myC>::name();}
+      static std::string myTip(){return "number of rows";}
+      static std::string myWhatThis() {return "";}
+    };
+
+    struct isNumRowsFixed_Field  {
+      typedef bool myC;
+
+      static std::string myId(){return "isNumRowsFixed";}
+      static std::string myIdType(){return Cls<myC>::name();}
+      static std::string myTip(){return "is fixed the number of rows";}
+      static std::string myWhatThis() {return "";}
+    };
+
+
     
     template<typename T>
     class Implements_Data_Type_New_M_Matrix:public Implements_Container_Type_New<T,Markov_LA::M_Matrix>
@@ -2136,8 +2306,11 @@ namespace Markov_IO_New {
       std::string* whyNot,const std::string& masterObjective);
       
       
-      
-      
+      using getNumber= std::size_t (*)  (const Implements_ComplexVar_New* cm
+      ,const Implements_ComplexVar_New* cv);
+
+
+
       
       static std::string ClassName()
       {
@@ -2219,24 +2392,54 @@ namespace Markov_IO_New {
                                         ,typeElementPredicate elemeComply
                                         ,typeValue  defaultValue
                                         ,cvToType getTypeFromCV
-                                        ,typeToCv getCvFromType):
+                                        ,typeToCv getCvFromType
+                                        ,getNumber getNumCols
+                                        ,getNumber getNumRows
+                                        ,bool areColsFixed
+                                        ,bool areRowsFixed):
         Implements_Container_Type_New<T,Markov_LA::M_Matrix>(
           parent,id,var,tip,whatthis,elementVar,complyPred,typeComply,elemeComply
           ,defaultValue)
       ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
-      {}
+      ,getNumCols_(getNumCols),getNumRows_(getNumRows)
+      {
+        this->template pushVar<isNumColsFixed_Field>(areColsFixed);
+        this->template pushVar<isNumRowsFixed_Field>(areRowsFixed);
+
+      }
       
       Implements_Data_Type_New_M_Matrix(const Implements_ComplexVar_New* parent)
         :Implements_Container_Type_New<T,Markov_LA::M_Matrix>(
            parent)
-        ,getTypeFromCV_(nullptr),getCvFromType_(nullptr)
+        ,getTypeFromCV_(nullptr)
+        ,getCvFromType_(nullptr)
+        ,getNumCols_(nullptr)
+        ,getNumRows_(nullptr)
       {}
       
-      
+      std::size_t getNumberOfCols(const Implements_ComplexVar_New* cm)const
+      {
+        if (getNumCols_==nullptr)
+          return 0;
+        else
+        return (*getNumCols_)(cm,this);
+      }
+
+      std::size_t getNumberOfRows(const Implements_ComplexVar_New* cm)const
+      {
+        if (getNumRows_==nullptr)
+          return 0;
+        else
+        return (*getNumRows_)(cm,this);
+      }
+
+
+
     protected:
       cvToType getTypeFromCV_;
       typeToCv getCvFromType_;
-      
+      getNumber getNumCols_;
+      getNumber getNumRows_;
     };
     
     
@@ -2941,7 +3144,11 @@ namespace Markov_IO_New {
     
     
   }
-  
+
+
+
+
+
   class Implements_Identifier: public Implements_Data_Type_New<std::string>
   {
   public:
@@ -3060,7 +3267,9 @@ namespace Markov_IO_New {
     
     static Implements_Identifier* create_Id_Cmd(const Implements_ComplexVar_New* cm)
     {
-      return new Implements_Identifier(cm,nullptr,nullptr,false,false,true,true,true);
+
+      bool isVar=false; bool isType=false;bool isCommand=true;bool isNew=false; bool isUsed=true;
+      return new Implements_Identifier(cm,nullptr,nullptr,isVar,isType,isCommand,isNew,isUsed);
     }
     
     static Implements_Identifier* create_Id_Field(
@@ -3446,7 +3655,11 @@ namespace Markov_IO_New {
         return varEType_;
       }
       
-      
+      virtual buildByToken<ABC_Var_New*>* getElementBuildByToken(const Implements_ComplexVar_New* cm)const override
+      {
+        return new buildByToken<ABC_Var_New*>(cm,getElementDataType(cm));
+      }
+
       
       
       
@@ -4140,7 +4353,7 @@ namespace Markov_IO_New {
             std::string s="my"+e;
             std::string w;
             if (cm->isNameUnOcuppied(s,&w,"",true))
-              o.insert(s);
+              o.insert(s+":"+e);
           }
         return o;
       }
@@ -4186,7 +4399,7 @@ namespace Markov_IO_New {
             std::string s="my"+e;
             std::string w;
             if (cm->isNameUnOcuppied(s,&w,"",true))
-              o.insert(s);
+              o.insert(s+":"+e);
           }
         return o;
       }
@@ -4467,17 +4680,32 @@ namespace Markov_IO_New {
         return std::string::npos;
     }
     
-    static std::string nextId(const std::string &idTemplate)
+    static std::pair<std::string,std::string> getId_Type(const std::string& idtype)
     {
-      auto n=getVersionNumber(idTemplate);
+      auto n=idtype.find(':');
+      if (n!=idtype.npos)
+        return {idtype.substr(0,n),idtype.substr(n)};
+      else
+        return {idtype,""};
+    }
+
+    static std::string nextId(const std::string &id_typeTemplate)
+    {
+      auto p=getId_Type(id_typeTemplate);
+      auto idT=p.first;
+
+      auto n=getVersionNumber(idT);
       
       if (n!=std::string::npos)
         {
           ++n;
-          return idTemplate.substr(0,idTemplate.find_last_of('_')+1)+std::to_string(n);
+          idT= idT.substr(0,idT.find_last_of('_')+1)+std::to_string(n);
         }
       else
-        return idTemplate+"_0";
+        idT= idT+"_0";
+      if (!p.second.empty())
+        return idT+" : "+p.second;
+      else return idT;
     }
     
     
@@ -4948,7 +5176,8 @@ namespace Markov_IO_New {
       
     };
     
-    void push_Types(Markov_CommandManagerVar* cm);
+
+     void push_Types(Markov_CommandManagerVar* cm);
   };
   
   
@@ -5184,7 +5413,7 @@ namespace Markov_IO_New {
             ,"any valid variable existant or new"
             ,nullptr
             ,Implements_Identifier::create_Id_Var(parent)
-            ,Implements_Identifier::create_Id_Type(parent)
+            ,Implements_Identifier::create_Id_Type_Used(parent)
             ,&S::typeComply_var_valid,
             nullptr,nullptr);
     }
@@ -6561,7 +6790,7 @@ namespace Markov_IO_New {
   inline
   void Implements_ComplexVar_New::pushType(ABC_Type_of_Value *varT)
   {
-    (vars_)[varT->id()]=varT;
+    all_[varT->id()]=varT;
     types_[varT->id()]=varT;
     varT->getSelfIdType();
   }

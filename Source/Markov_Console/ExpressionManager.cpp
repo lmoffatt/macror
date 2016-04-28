@@ -96,7 +96,10 @@ namespace Markov_IO_New {
         auto sel=io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
         std::string err;
         if (ok)
-          push_back(cm,io,sel,&err);
+          {
+            push_back(cm,io,removeHint(sel)+" ",&err);
+
+          }
       }
 
   }
@@ -161,7 +164,7 @@ namespace Markov_IO_New {
                                    , CommandHistory& ch
                                    , Key k)
   {
-    switch(k)
+        switch(k)
       {
       case Key_Home:
         move_Home(io);
@@ -231,6 +234,7 @@ namespace Markov_IO_New {
                     // write error, wrong token as tail
                   }
                 io->putError(rejectedChars_);
+                io->showMessage(*error);
                 return false;
               }
             else
@@ -298,8 +302,7 @@ namespace Markov_IO_New {
           else                                  // the token is good
             {
               tok_.clear();
-              if (c!='\n')
-                io->put(c);                    // print new char
+              io->put(c);                    // print new char
               return true;
 
             }
@@ -356,7 +359,6 @@ namespace Markov_IO_New {
 
   std::string ExpressionManager::suggestRest(const std::set<std::string> &items, Token_New tok)
   {
-
     std::string hint=tok.str();
     std::size_t nh=hint.size();
     auto lo=items.lower_bound(hint);
@@ -403,12 +405,18 @@ namespace Markov_IO_New {
   std::set<std::string> ExpressionManager::conformant(const std::set<std::string> &items, Token_New tok)
   {
     std::string hint=tok.str();
-    auto lo=items.lower_bound(hint);
-    std::string hintup=hint;
-    hintup.back()++;
-    auto up=items.upper_bound(hintup);
+    if (hint==" ")
+      hint.clear();
+    if (hint.empty())
+      return items;
+    else{
+        auto lo=items.lower_bound(hint);
+        std::string hintup=hint;
+        hintup.back()++;
+        auto up=items.upper_bound(hintup);
 
-    return {lo,up};
+        return {lo,up};
+      }
   }
 
 

@@ -902,6 +902,10 @@ namespace Markov_IO_New {
           {
             return false;
           }
+        else if (curr_tok==EMPTY)
+          {
+            return true;
+          }
         else
           {
             str_.push_back(ch);

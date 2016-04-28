@@ -17,13 +17,15 @@ namespace Markov_IO_New {
 
     void push_Types(Markov_CommandManagerVar *cm)
     {
+      cm->pushType(new Implements_Data_Type_New<std::size_t> (cm));
+      cm->pushType(new Implements_Data_Type_New<double> (cm));
+      //cm->pushType(new Implements_Data_Type_New<int> (cm));
+     // cm->pushType(new Implements_Data_Type_New<bool> (cm));
 
-      cm->pushType(_model::agonist_vector_type::varType(cm));
-      cm->pushType(_model::conductance_vector_Type::varType(cm));
-      cm->pushType(_model::Q_matrix_Type::varType(cm));
-      cm->pushType(new Implements_Data_Type_New<ABC_Markov_Model*>(cm));
 
-      cm->pushType(new Implements_Data_Type_New<Q_Markov_Model*>(cm));
+           cm->pushType(new Implements_Data_Type_New<ABC_Markov_Model*>(cm));
+
+     Implements_Data_Type_New<Q_Markov_Model*>::push_Types(cm);
     }
 
   }

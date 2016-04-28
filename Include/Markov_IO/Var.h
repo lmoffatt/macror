@@ -22,9 +22,33 @@ namespace Markov_Mol_New
 
 namespace Markov_IO_New {
 
+  namespace alternatives
+  {
+    inline
+    std::string endOfLine() {return "<Return>";}
+
+    inline
+    std::string newIdentifier() {return "<Unoccupied Identifier>";}
+
+    inline std::string tip(){return "#<Tip text>";}
+    inline std::string whatthis(){return "##<WhatThis text>";}
 
 
+
+
+  };
   class ABC_Var_New;
+
+  inline
+  std::string removeHint(const std::string& alter)
+  {
+    auto out=alter.substr(0,alter.find('<'));
+    if (std::isalpha(out.back()))
+      out.push_back(' ');
+    return out;
+  }
+
+
 
   namespace _private
   {
@@ -514,6 +538,7 @@ namespace Markov_IO_New {
     m[myId]=new Implements_Var_New<typename C::myC>
         (nullptr,myId,C::myIdType(),val,myTip,myWhatThis);
   }
+
 
   template <class Field>
   bool get_var(const std::map<std::string,ABC_Var_New*>& m
