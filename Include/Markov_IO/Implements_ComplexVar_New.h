@@ -3136,13 +3136,62 @@ namespace Markov_IO_New {
   }
 
 
+struct Identifier
+{
+static
+  std::size_t  getVersionNumber(const std::string &id)
+     {
+       std::stringstream ss(id.substr(id.find_last_of('_')));
+       std::size_t n;
+       if (ss>>n)
+         return n;
+       else
+         return std::string::npos;
+     }
 
+  static std::pair<std::string,std::string> getId_Type(const std::string& idtype)
+      {
+        auto n=idtype.find(':');
+        if (n!=idtype.npos)
+          return {idtype.substr(0,n),idtype.substr(n)};
+        else
+          return {idtype,""};
+      }
+
+
+
+  static std::string nextId(const std::string &id_typeTemplate)
+      {
+        auto p=getId_Type(id_typeTemplate);
+       auto idT=p.first;
+
+        auto n=getVersionNumber(idT);
+
+        if (n!=std::string::npos)
+          {
+            ++n;
+            idT= idT.substr(0,idT.find_last_of('_')+1)+std::to_string(n);
+          }
+        else
+          idT= idT+"_0";
+        if (!p.second.empty())
+          return idT+" : "+p.second;
+        else return idT;
+      }
+
+};
 
 
   class Implements_Identifier: public Implements_Data_Type_New<std::string>
   {
   public:
-    
+
+
+
+
+
+
+
     static std::string ClassName(){return "Implements_Identifier";}
     
     virtual std::set<std::string> alternativeNext(const Implements_ComplexVar_New* cm)const override;

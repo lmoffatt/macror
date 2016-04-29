@@ -42,7 +42,9 @@ namespace Markov_IO_New {
   ABC_Type_of_Value::ABC_Type_of_Value(const Implements_ComplexVar_New *parent, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis):
     Implements_ComplexVar_New(parent,id,var,tip,whatthis)
   {
-    idSelfType_=Identifier::create_IdType_Used(this,id);
+
+    //TODO recreate this
+    //idSelfType_=Identifier::create_IdType_Used(this,id);
 
   }
 
@@ -296,44 +298,6 @@ namespace Markov_IO_New {
 
 
 
-
-  bool Identifier::S::comply_id_Var_Field_Used(const Implements_ComplexVar_New *p, const std::string &idCandidate, const Implements_ComplexVar_New *self, std::string *WhyNot, const std::string &objective)
-  {
-    std::string cvname=G::getComplexVarTypeId(self);
-    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* cmtype
-        =dynamic_cast<const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>*>
-        (p->idToType(cvname,WhyNot,objective));
-    if (cmtype==nullptr)
-      {
-        *WhyNot=objective+": "+cvname+ "is not an "+Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>
-            ::ClassName();
-
-        return false;
-      }
-
-    else return cmtype->hasName(idCandidate,WhyNot,objective,false)&&
-        p->hasName(idCandidate,WhyNot,objective,false);
-  }
-
-  bool Identifier::S::typeComply_id_Cmd_Used_T(const Implements_ComplexVar_New *p, const Implements_Data_Type_New<std::string> *idtype, const Implements_ComplexVar_New *self, std::string *WhyNot, const std::string &objective)
-  {
-    if (idtype->id()==self->id())
-      return true;
-    else if( idtype->myType().find(V::idCmd())==0)
-      {
-        std::string varself=G::gettypeOfId(self);
-        std::string vartest=G::gettypeOfId(idtype);
-
-        const Implements_Command_Type_New *tself=p->idToCommand(
-              varself,WhyNot,objective);
-        return tself->includesThisType(p,vartest,WhyNot,objective);
-      }
-    else
-      {
-        *WhyNot=objective+": "+idtype->myType()+ "is not a "+V::idCmd();
-        return false;
-      }
-  }
 
 
   void Implements_ComplexVar_New::pushCommand(Implements_Command_Type_New *cmd)
@@ -610,19 +574,6 @@ namespace Markov_IO_New {
     cm->pushType(nonZero::varType(cm));
   }
 
-  void Identifier::push_Types(Markov_CommandManagerVar *cm)
-  {
-    cm->pushType(new Implements_Data_Type_New<std::string>(cm));
-    cm->pushType(create_IdCmdUsed(cm));
-    cm->pushType(create_IdNew(cm));
-    cm->pushType(create_IdTypeNew(cm));
-    cm->pushType(create_IdType_Used(cm));
-    cm->pushType(create_IdVarUsed(cm));
-    cm->pushType(create_IdValid(cm));
-    cm->pushType(create_IdUsed(cm));
-    cm->pushType(create_IdVarNew(cm));
-    cm->pushType(create_IdVarNew(cm));
-  }
 
   template<typename T>
   void Matrix<T>::push_Types(Markov_CommandManagerVar *cm)
