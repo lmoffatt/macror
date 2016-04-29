@@ -325,12 +325,6 @@ namespace Markov_IO_New {
   class Implements_ComplexVar_New;
 
 
-  struct type_tip_Whatthis
-  {
-    std::string varType;
-    std::string tip;
-    std::string whatthis;
-  };
 
 
 
@@ -501,11 +495,6 @@ namespace Markov_IO_New {
       x_(new Implements_Value_New<T>(std::move(x)))
     {}
 
-    Implements_Var_New(const Implements_ComplexVar_New* parent,
-                       const std::string& id,
-                       const type_tip_Whatthis& ttw,
-                       T x):
-      Implements_Var_New(parent,id,ttw.varType,x,ttw.tip,ttw.whatthis){}
 
 
   protected:
