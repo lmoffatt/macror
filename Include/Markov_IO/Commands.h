@@ -5,6 +5,17 @@
 
 namespace Markov_IO_New
 {
+  namespace arg {
+    struct typeName_Field
+    {
+      typedef std::string myC;
+      static std::string myId(){return "typeName";}
+      static std::string myIdType(){return {};}
+      static std::string myTip(){return "a type of variable";}
+      static std::string myWhatThis() {return "different types of variables";}
+    };
+
+  }
 
 
   class CdCommand: public Implements_Command_Type_New
@@ -88,7 +99,27 @@ namespace Markov_IO_New
   };
 
   class   WhoCommand: public Implements_Command_Type_New
+
   {
+  public:
+
+    static bool who(Markov_CommandManagerVar* cm
+                      , const std::map<std::string,ABC_Var_New*>&
+                      ,const Implements_Command_Type_New*
+                      ,std::string*, const std::string&);
+
+
+    static std::string ClassName() {return "who";}
+
+    WhoCommand(const Implements_ComplexVar_New* cm):
+      Implements_Command_Type_New(cm,ClassName(),
+                                  Implements_Command_Type_New::ClassName(),
+                                  "list the availabe variables"
+                                  ," closes the program"
+                                  ,nullptr,nullptr,nullptr,&who )
+                                  {}
+    virtual ~WhoCommand(){}
+
 
   };
 

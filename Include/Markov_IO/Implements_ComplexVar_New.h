@@ -3821,9 +3821,6 @@ namespace Markov_IO_New {
     
     class S {
     public:
-      
-      
-      
       static bool comply_id_valid(const Implements_ComplexVar_New* p,
                                   const std::string& idCandidate,
                                   const Implements_ComplexVar_New* self,
@@ -3837,9 +3834,7 @@ namespace Markov_IO_New {
         else
           return true;
       }
-      
-      
-      
+
       static bool comply_id_Var_New(const Implements_ComplexVar_New* p,
                                     const std::string& idCandidate,
                                     const Implements_ComplexVar_New* self,
@@ -6437,9 +6432,9 @@ namespace Markov_IO_New {
     using runCommand
     = bool  (*)
     (Markov_CommandManagerVar* cm
-    , const std::map<std::string,ABC_Var_New*>&
-    ,const Implements_Command_Type_New*
-    ,std::string*, const std::string&);
+    , const std::map<std::string,ABC_Var_New*>& arguments
+    ,const Implements_Command_Type_New* self
+    ,std::string* WhyFail, const std::string& masterObjective);
 
 
     static std::string ClassName()
