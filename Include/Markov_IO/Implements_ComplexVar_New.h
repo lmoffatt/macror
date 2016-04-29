@@ -544,17 +544,7 @@ namespace Markov_IO_New {
       
     }
     
-    bool pushChilds(const std::vector<Var_id>& ids, std::string *whyNot, const std::string& masterObjective)
-    {
-      for (const Var_id& e:ids)
-        {
-          if (!insertChild(e.idName,e.var,e.tip,e.whathis,whyNot,masterObjective))
-            return false;
-        }
-      return true;
-    }
-    
-    
+
     std::set<std::string> getIdsOfVarType(const std::string& varType, bool recursive)const;
     
     

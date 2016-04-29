@@ -333,15 +333,6 @@ namespace Markov_IO_New {
   };
 
 
-  struct Var_id
-  {
-    std::string idName;
-    std::string var;
-    std::string tip;
-    std::string whathis;
-    static std::string ClassName(){return "Var_id";}
-    std::string id()const {return idName;}
-  };
 
 
 
