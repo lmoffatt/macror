@@ -72,8 +72,8 @@ namespace Markov_IO_New
   Markov_CommandManagerVar::Markov_CommandManagerVar():
    Implements_ComplexVar_New(nullptr,"CommandManager","CommandManager","",""),
   io_(nullptr),
-    vt_{Variable::create_varNew(this)},
-    idCmd_(Implements_Identifier::create_Id_Cmd(this)),
+    vt_{Variable::types::varNew::varType(this)},
+    idCmd_(Identifier::types::idCmd::varType(this)),
     e(nullptr),
     lastCmdRst{},
     program_ver_(ProgramVersion()),
@@ -82,7 +82,7 @@ namespace Markov_IO_New
 {
   setParentValue(nullptr);
 
-  pushAllCommands(this);
+  cmd::pushAllCommands(this);
 _private::push_Types(this);
 
   e=new ExpressionManager(this);

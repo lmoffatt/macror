@@ -43,9 +43,11 @@ namespace Markov_IO_New {
     Implements_ComplexVar_New(parent,id,var,tip,whatthis)
   {
 
-    //TODO recreate this
-    //idSelfType_=Identifier::create_IdType_Used(this,id);
 
+     if (id.find(Identifier::types::idType::myId())==id.npos)
+    idSelfType_=Identifier::types::idType::varType(this,this);
+     else
+       idSelfType_=nullptr;
   }
 
 
@@ -266,7 +268,7 @@ namespace Markov_IO_New {
     ,varEType_(nullptr)
     ,fields_(fields)
     {
-      varEType_=Variable::create_varField(parent,this);
+      varEType_=Variable::types::varField::varType(parent,this);
     }
 
 
@@ -548,6 +550,14 @@ namespace Markov_IO_New {
           {
             id+="Cmd";
           }
+        if (isNew&&!isUsed)
+          {
+            id+="New";
+          }
+        if (!isNew&&isUsed)
+          {
+            id+="Used";
+          }
         if (type!=nullptr)
           {
             id+=type->id();
@@ -555,15 +565,17 @@ namespace Markov_IO_New {
       }
     else
       {
-        id+="Fld"+fieldType->id();
-      }
-    if (isNew&&!isUsed)
-      {
-        id+="New";
-      }
-    if (!isNew&&isUsed)
-      {
-        id+="Used";
+        id+="Fld";
+        if (isNew&&!isUsed)
+          {
+            id+="New";
+          }
+        if (!isNew&&isUsed)
+          {
+            id+="Used";
+          }
+        id+=fieldType->id();
+
       }
     return id;
   }
@@ -571,14 +583,14 @@ namespace Markov_IO_New {
   void Real::push_Types(Markov_CommandManagerVar *cm)
   {
     cm->pushType(new Implements_Data_Type_New<double>(cm));
-    cm->pushType(nonZero::varType(cm));
+    cm->pushType(types::nonZero::varType(cm));
   }
 
 
   template<typename T>
-  void Matrix<T>::push_Types(Markov_CommandManagerVar *cm)
+  void Matrix::push_Types(Markov_CommandManagerVar *cm)
   {
-    cm->pushType(new vType(cm));
+    cm->pushType(new vType<T>(cm));
   }
 
  // template Matrix<double>;

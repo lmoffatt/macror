@@ -60,13 +60,13 @@ namespace Markov_IO_New {
           std::size_t numstates;
           if (!cm->getValueFromId(numStates_Field::myId(),numstates,WhyNot,objective))
             return false;
-          if (!Matrix<elem>::Comply::Size(x,numstates,numstates,WhyNot,objective))
+          if (!Matrix::Comply::Size<elem>(x,numstates,numstates,WhyNot,objective))
             return false;
-          if (!Matrix<elem>::Comply::OffDiagPositive(x,WhyNot,objective))
+          if (!Matrix::Comply::OffDiagPositive<elem>(x,WhyNot,objective))
             return false;
-        //  if (!Matrix<elem>::Comply::RowSumIsZero(x,WhyNot,objective))
+        //  if (!Matrix::Comply::RowSumIsZero<elem>(x,WhyNot,objective))
         //    return false;
-          if (!Matrix<elem>::Comply::FiniteEquilibrium(x,WhyNot,objective))
+          if (!Matrix::Comply::FiniteEquilibrium<elem>(x,WhyNot,objective))
             return false;
           return true;
         }
@@ -146,6 +146,8 @@ namespace Markov_IO_New {
       };
       struct Q_matrix_Field  {
         typedef Markov_LA::M_Matrix<double> myC;
+        typedef Implements_Data_Type_New<myC> vType;
+
 
         static std::string myId(){return "Q_matrix";}
         static std::string myIdType(){return Q_matrix_Type::myId();}
@@ -174,9 +176,9 @@ namespace Markov_IO_New {
           std::size_t numstates;
           if (!cm->getValueFromId(numStates_Field::myId(),numstates,WhyNot,objective))
             return false;
-          if (!Matrix<elem>::Comply::Size(x,numstates,1,WhyNot,objective))
+          if (!Matrix::Comply::Size<elem>(x,numstates,1,WhyNot,objective))
             return false;
-          if (!Matrix<elem>::Comply::notAllZero(x,WhyNot,objective))
+          if (!Matrix::Comply::notAllZero<elem>(x,WhyNot,objective))
             return false;
 
           return true;
@@ -204,6 +206,7 @@ namespace Markov_IO_New {
       {
 
         typedef  Markov_LA::M_Matrix<double> myC;
+        typedef Implements_Data_Type_New<myC> vType;
         static std::string myId(){return "conductance_vector";}
         static std::string myIdType(){return conductance_vector_Type::myId();}
         static std::string myTip(){return "relative conductance by state";}
@@ -231,9 +234,9 @@ namespace Markov_IO_New {
           std::size_t numstates;
           if (!cm->getValueFromId(numStates_Field::myId(),numstates,WhyNot,objective))
             return false;
-          if (!Matrix<double>::Comply::Size(x,numstates,1,WhyNot,objective))
+          if (!Matrix::Comply::Size<elem>(x,numstates,1,WhyNot,objective))
             return false;
-          if (!Matrix<double>::Comply::notAllZero(x,WhyNot,objective))
+          if (!Matrix::Comply::notAllZero<elem>(x,WhyNot,objective))
             return false;
 
           return true;
@@ -259,8 +262,11 @@ namespace Markov_IO_New {
       struct agonist_vector_field
       {
         typedef  Markov_LA::M_Matrix<std::size_t> myC;
+        typedef Implements_Data_Type_New<myC> vType;
+        typedef agonist_vector_type myType;
+
         static std::string myId(){return "agonist_vector";}
-        static std::string myIdType(){return agonist_vector_type::myId();}
+        static std::string myIdType(){return myType::myId();}
         static std::string myTip(){return "number of bound agonist at each states";}
         static std::string myWhatThis() {return "";}
       };
@@ -268,6 +274,8 @@ namespace Markov_IO_New {
       struct unitary_conductance_field
       {
         typedef  double myC;
+        typedef Implements_Data_Type_New<myC> vType;
+
         static std::string myId(){return "unitary_conductance";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "number of bound agonist at each states";}

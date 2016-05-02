@@ -36,16 +36,16 @@ namespace Markov_IO_New {
     }
 
 
-  template<typename T>
-class Num
+ namespace Num
 {
-public:
-   static T empty()
+   template<typename T>
+    T empty()
    {
      return std::numeric_limits<T>::max();
    }
 
-   static bool isEmpty(T x)
+   template<typename T>
+    bool isEmpty(T x)
    {
      return x==std::numeric_limits<T>::max();
    }

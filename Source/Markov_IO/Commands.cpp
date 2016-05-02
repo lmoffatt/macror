@@ -3,6 +3,9 @@
 
 namespace Markov_IO_New {
 
+  namespace cmd {
+
+
   void pushAllCommands(Implements_ComplexVar_New *cm)
   {
     cm->pushCommand(new ExitCommand(cm));
@@ -16,5 +19,5 @@ namespace Markov_IO_New {
 
 
 
-
-}
+};
+};

@@ -9,14 +9,20 @@ namespace Markov_IO_New
     struct typeName_Field
     {
       typedef std::string myC;
+      typedef Identifier::types::idType myType;
+      typedef Implements_Identifier vType;
+
       static std::string myId(){return "typeName";}
-      static std::string myIdType(){return {};}
+      static std::string myIdType(){return myType::myId();}
       static std::string myTip(){return "a type of variable";}
       static std::string myWhatThis() {return "different types of variables";}
     };
 
+
   }
 
+
+  namespace cmd {
 
   class CdCommand: public Implements_Command_Type_New
   {
@@ -150,7 +156,7 @@ namespace Markov_IO_New
 
 
   void pushAllCommands (Implements_ComplexVar_New* cm);
-
+};
 
 }
 

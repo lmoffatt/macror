@@ -34,9 +34,9 @@ namespace Markov_IO_New {
         dataType_(typeVar),
         x_(dataType_->getDefault_Valued(parent)),
         hasFixedCols_(dataType_->template get_Value
-                      <_private::isNumColsFixed_Field>())
+                      <fields::isNumColsFixed_Field>())
       ,  hasFixedRows_(dataType_->template get_Value
-                  <_private::isNumRowsFixed_Field>())
+                  <fields::isNumRowsFixed_Field>())
       ,runCols_(0),nCols_(dataType_->getNumberOfCols(parent))
       ,runRows_(0),nRows_(dataType_->getNumberOfRows(parent))
       ,v_{nCols_*nRows_},buffer_(nCols_*nRows_),isComplete_(false)

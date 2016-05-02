@@ -508,15 +508,15 @@ namespace Markov_IO_New {
 
 
 
-  template<class C>
+  template<class Type>
   void push_var(std::map<std::string,ABC_Var_New*>& m
-                ,typename C::myC val={}
-      , const std::string myId=C::myId()
-      , const std::string& myTip=C::myTip()
-      , const std::string& myWhatThis=C::myWhatThis()  )
+                ,typename Type::myC val={}
+      , const std::string myId=Type::myId()
+      , const std::string& myTip=Type::myTip()
+      , const std::string& myWhatThis=Type::myWhatThis()  )
   {
-    m[myId]=new Implements_Var_New<typename C::myC>
-        (nullptr,myId,C::myIdType(),val,myTip,myWhatThis);
+    m[myId]=new Implements_Var_New<typename Type::myC>
+        (nullptr,myId,Type::myIdType(),val,myTip,myWhatThis);
   }
 
 
