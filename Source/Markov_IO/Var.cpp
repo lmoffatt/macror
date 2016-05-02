@@ -356,27 +356,8 @@ namespace Markov_IO_New {
 
 
 
-  void ABC_Type_of_Value::G::pushTypeOfElement(Implements_ComplexVar_New *self, std::string typeOfElement)
-  {
-    self->pushChild(new Implements_Var_New<std::string>(
-                      self,F::elementType()
-                      ,V::identifierOfType(),
-                      std::move(typeOfElement),
-                      "",""));
-
-  }
 
 
-
-  void ABC_Type_of_Value::G::pushTypeOfKey(Implements_ComplexVar_New *self, std::string typeOfKey)
-  {
-    self->pushChild(new Implements_Var_New<std::string>(
-                      self,F::keyType()
-                      ,V::identifierOfType(),
-                      std::move(typeOfKey),
-                      "",""));
-
-  }
 
   //  const Implements_Field_Data_Type * Implements_Data_Type_New<Implements_ComplexVar_New *>::nextField(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *> &m)const
   //  {
