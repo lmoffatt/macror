@@ -123,7 +123,7 @@ namespace Markov_IO_New {
           }
         else
           {
-            //cm->add_var(bu_.unloadVar());
+            cm->pushChild(bu_.unloadVar());
           }
         bu_.clear();
         io->freshLine();

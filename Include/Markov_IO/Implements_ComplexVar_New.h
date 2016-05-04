@@ -576,9 +576,9 @@ namespace Markov_IO_New {
       return all_;
     }
 
-    std::map<std::string,ABC_Var_New*> popmap()
+    std::map<std::string,ABC_Var_New*> unloadMap()
     {
-      std::map<std::string,ABC_Var_New*> out(all_);
+      std::map<std::string,ABC_Var_New*> out(std::move(all_));
       all_.clear();
       vars_.clear();
       types_.clear();
@@ -672,7 +672,7 @@ namespace Markov_IO_New {
 
 
 
-
+  class Implements_Identifier;
 
   
   class ABC_Type_of_Value:public Implements_ComplexVar_New
@@ -730,7 +730,7 @@ namespace Markov_IO_New {
     
     
     
-    const Implements_Data_Type_New<std::string>* getSelfIdType()const
+    const Implements_Identifier* getSelfIdType()const
     {
       return idSelfType_;
     }
@@ -785,8 +785,8 @@ namespace Markov_IO_New {
                        ,const std::string& var
                        ,const std::string& tip
                        ,const std::string& whatthis);
-  private:
-    Implements_Data_Type_New<std::string>* idSelfType_;
+  protected:
+    Implements_Identifier* idSelfType_;
   };
   
   
@@ -1607,69 +1607,62 @@ namespace Markov_IO_New {
     const ABC_Type_of_Value* getType(){return type_;}
 
 
+    Implements_Identifier& operator++();
+
 
   private:
     static std::string toId
     (const ABC_Type_of_Value* type,
      const _private::Implements_Data_Type_New_map_string_ABC_Var_New* fieldType,
-     bool isVar, bool isType,bool isCommand,bool isNew, bool isUsed);
+     const _private::MyConstIterator* it
+     , bool isVar, bool isType,bool isCommand,bool isNew, bool isUsed);
 
 
 
 
 
-    Implements_Identifier(const Implements_ComplexVar_New* cm,
-                          const ABC_Type_of_Value* type,
-                          const _private::Implements_Data_Type_New_map_string_ABC_Var_New* fieldType,
-                          bool isVar, bool isType,bool isCommand,bool isNew, bool isUsed):
-      Implements_Data_Type_New_string(cm
-                                      ,toId(type,fieldType,isVar,isType,isCommand,isNew,isUsed)
-                                      ,Implements_Identifier::ClassName()
-                                      ,"identifier of a "
-                                      ,"blablbb identifier"
-                                      ,""
-                                      ,nullptr
-                                      ,nullptr
-                                      ,nullptr
-                                      ,nullptr
-                                      ,nullptr,nullptr)
-    ,type_(type), fieldType_(fieldType), isVar_(isVar), isType_(isType),isCommand_(isCommand)
+    Implements_Identifier
+    (const Implements_ComplexVar_New* cm,
+     const ABC_Type_of_Value* type,
+     const _private::Implements_Data_Type_New_map_string_ABC_Var_New* fieldType,
+     const _private::MyConstIterator* it,
+     bool isVar, bool isType,
+     bool isCommand,bool isNew, bool isUsed):
+      Implements_Data_Type_New_string
+      (cm,toId(type,fieldType,it,isVar,isType,isCommand,isNew,isUsed)
+       ,Implements_Identifier::ClassName()
+       ,"identifier of a "
+       ,"blablbb identifier"
+       ,""
+       ,nullptr
+       ,nullptr
+       ,nullptr
+       ,nullptr
+       ,nullptr,nullptr)
+    ,type_(type), fieldType_(fieldType),it_(it)
+    , isVar_(isVar), isType_(isType),isCommand_(isCommand)
     ,isNew_(isNew),isUsed_(isUsed)
     {}
     const ABC_Type_of_Value* type_;
     const _private::Implements_Data_Type_New_map_string_ABC_Var_New* fieldType_;
+    const _private::MyConstIterator* it_;
     bool isVar_;
     bool isType_;
     bool isCommand_;
     bool isNew_;
     bool isUsed_;
-
   };
 
   namespace Identifier {
 
     struct types {
 
-      static Implements_Identifier* create_Id_Var(const Implements_ComplexVar_New* cm)
-      {
-        return new Implements_Identifier(cm,nullptr,nullptr,true,false,false,true,true);
-      }
-
-      static Implements_Identifier* create_Id_Var_New(const Implements_ComplexVar_New* cm)
-      {
-        return new Implements_Identifier(cm,nullptr,nullptr,true,false,false,true,false);
-      }
-
-      static Implements_Identifier* create_Id_Var_Used(const Implements_ComplexVar_New* cm)
-      {
-        return new Implements_Identifier(cm,nullptr,nullptr,true,false,false,false,true);
-      }
 
       template <class T>
       static Implements_Identifier* getVarType(const Implements_ComplexVar_New* cm)
       {
         return new Implements_Identifier
-            (cm,T::typeV,T::fieldType,T::isVar
+            (cm,T::typeV,T::fieldType,nullptr,T::isVar
              ,T::isType,T::isCommand,T::isNew,T::isUsed);
 
       }
@@ -1679,7 +1672,7 @@ namespace Markov_IO_New {
                                                ,const ABC_Type_of_Value*t)
       {
         return new Implements_Identifier
-            (cm,t,T::fieldType,T::isVar
+            (cm,t,T::fieldType,nullptr,T::isVar
              ,T::isType,T::isCommand,T::isNew,T::isUsed);
 
       }
@@ -1690,11 +1683,22 @@ namespace Markov_IO_New {
                                                ,const _private::Implements_Data_Type_New_map_string_ABC_Var_New* f )
       {
         return new Implements_Identifier
-            (cm,T::typeV,f,T::isVar
+            (cm,T::typeV,f,nullptr,T::isVar
              ,T::isType,T::isCommand,T::isNew,T::isUsed);
 
       }
 
+      template <class T>
+      static Implements_Identifier* getVarType
+      (const Implements_ComplexVar_New* cm
+       ,const _private::Implements_Data_Type_New_map_string_ABC_Var_New* f
+       ,const _private::MyConstIterator* it )
+      {
+        return new Implements_Identifier
+            (cm,T::typeV,f,it,T::isVar
+             ,T::isType,T::isCommand,T::isNew,T::isUsed);
+
+      }
 
 
 
@@ -1703,7 +1707,7 @@ namespace Markov_IO_New {
       static std::string toId()
       {
         return Implements_Identifier::toId
-            (T::typeV,T::fieldType,T::isVar, T::isType,T::isCommand,T::isNew,T::isUsed);
+            (T::typeV,T::fieldType,nullptr,T::isVar, T::isType,T::isCommand,T::isNew,T::isUsed);
 
       }
 
@@ -1711,7 +1715,7 @@ namespace Markov_IO_New {
       static std::string toId(const ABC_Type_of_Value* t)
       {
         return Implements_Identifier::toId
-            (t,T::fieldType,T::isVar, T::isType,T::isCommand,T::isNew,T::isUsed);
+            (t,T::fieldType,nullptr,T::isVar, T::isType,T::isCommand,T::isNew,T::isUsed);
 
       }
 
@@ -1719,7 +1723,17 @@ namespace Markov_IO_New {
       static std::string toId(const _private::Implements_Data_Type_New_map_string_ABC_Var_New* f)
       {
         return Implements_Identifier::toId
-            (T::typeV,f,T::isVar, T::isType,T::isCommand,T::isNew,T::isUsed);
+            (T::typeV,f,nullptr,T::isVar, T::isType,T::isCommand,T::isNew,T::isUsed);
+
+      }
+
+
+      template <class T>
+      static std::string toId(const _private::Implements_Data_Type_New_map_string_ABC_Var_New* f
+                              ,_private::MyConstIterator *it)
+      {
+        return Implements_Identifier::toId
+            (T::typeV,f,it,T::isVar, T::isType,T::isCommand,T::isNew,T::isUsed);
 
       }
 
@@ -1756,6 +1770,7 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=false;
         static constexpr bool isNew=true;
         static constexpr bool isUsed=true;
+        static constexpr bool hasIterator=false;
 
       };
 
@@ -1901,6 +1916,7 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=true;
         static constexpr bool isNew=false;
         static constexpr bool isUsed=true;
+        static constexpr bool hasIterator=false;
 
       };
 
@@ -1935,6 +1951,7 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=false;
         static constexpr bool isNew=true;
         static constexpr bool isUsed=true;
+        static constexpr bool hasIterator=false;
 
       };
 
@@ -1999,6 +2016,43 @@ namespace Markov_IO_New {
         static constexpr bool isUsed=true;
 
       };
+
+      struct idFieldGiven{
+        typedef  std::string myC;
+        typedef idFieldGiven selfType;
+
+        static std::string myId(const _private::Implements_Data_Type_New_map_string_ABC_Var_New* f
+                                ,_private::MyConstIterator *it)
+        {toId<selfType>(f,it);}
+
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "Variable indentifer";}
+
+        static std::string myWhatThis(){return "an identifier to a Variable";}
+
+
+
+
+        static Implements_Identifier*
+        varType(const Implements_ComplexVar_New* cm
+                ,const _private::Implements_Data_Type_New_map_string_ABC_Var_New* f
+                ,const _private::MyConstIterator *it)
+        {return getVarType<selfType>(cm,f,it);
+        }
+
+
+        constexpr static const ABC_Type_of_Value* const typeV=nullptr;
+        constexpr static
+        const _private::Implements_Data_Type_New_map_string_ABC_Var_New*
+        fieldType =nullptr;
+        constexpr static  bool isVar=true;
+        constexpr static  bool isType=false;
+        static constexpr bool isCommand=false;
+        static constexpr bool isNew=true;
+        static constexpr bool isUsed=true;
+
+      };
+
 
     };
   }
@@ -2087,12 +2141,12 @@ namespace Markov_IO_New {
       }
       
       virtual buildByToken<T>* getElementBuildByToken(const Implements_ComplexVar_New* cm)const
-        {
-          const Implements_Data_Type_New<T>* v= getElementDataType(cm);
-          if (v!=nullptr)
-            return new buildByToken<T>(cm,v);
-          else return nullptr;
-        }
+      {
+        const Implements_Data_Type_New<T>* v= getElementDataType(cm);
+        if (v!=nullptr)
+          return new buildByToken<T>(cm,v);
+        else return nullptr;
+      }
 
       virtual const Implements_Data_Type_New<T>* getElementDataType(const Implements_ComplexVar_New* cm)const;
       
@@ -2119,7 +2173,7 @@ namespace Markov_IO_New {
         elemComply_(elemeComply)
       {
         this->template pushVar<fields::elementType_Field>(elementVar);
-       }
+      }
       
       Implements_Container_Type_New(
           const Implements_ComplexVar_New* parent):
@@ -2740,9 +2794,9 @@ namespace Markov_IO_New {
       
     };
     
-};
-namespace fields
-{
+  };
+  namespace fields
+  {
 
     struct numCols_Field  {
       typedef std::size_t myC;
@@ -2788,9 +2842,9 @@ namespace fields
       static std::string myWhatThis() {return "";}
     };
 
-};
-namespace _private
-{
+  };
+  namespace _private
+  {
     
     template<typename T>
     class Implements_Data_Type_New_M_Matrix:public Implements_Container_Type_New<T,Markov_LA::M_Matrix>
@@ -3775,13 +3829,24 @@ namespace _private
       
     }
     
-    
+    class MyConstIterator;
     
     
     class Implements_Data_Type_New_map_string_ABC_Var_New
         :public Implements_Container_Type_New<ABC_Var_New*,String_map>
     {
     public:
+
+      typedef MyConstIterator const_iterator;
+
+      friend class MyConstIterator;
+
+      const_iterator* begin()const;
+
+
+      const_iterator* end()const;
+
+
 
       using typePredicate= bool (*)(const Implements_ComplexVar_New* cm
       ,const std::map<std::string,ABC_Var_New*>&val
@@ -3899,7 +3964,7 @@ namespace _private
         return new buildByToken<ABC_Var_New*>(cm,getElementDataType(cm));
       }
 
-      
+
       
       
       virtual bool put(const Implements_ComplexVar_New* cm,const std::map<std::string,ABC_Var_New*>& v,ABC_Output* ostream,std::string* whyNot,const std::string &masterObjective)const override
@@ -3987,7 +4052,7 @@ namespace _private
           ,const std::string& var
           ,const std::string& tip
           ,const std::string& whatthis
-          , const std::map<std::string,ABC_Var_New*> fields
+          , const std::vector<ABC_Var_New*> fields
           ,typePredicate complyPred
           ,typetypePredicate typeComply
           ,typeElementPredicate elemeComply
@@ -4006,12 +4071,83 @@ namespace _private
       
       const Implements_Data_Type_New<ABC_Var_New*>* varEType_;
       std::map<std::string,ABC_Var_New*> fields_;
-      
+      std::vector<std::string> vfields_;
+
+
+      static std::map<std::string,ABC_Var_New*> toMap(std::vector<ABC_Var_New*> v)
+      {
+        std::map<std::string,ABC_Var_New*> out;
+        for (auto e:v)
+          out[e->id()]=e;
+        return out;
+      }
+      static std::vector<std::string> toVec(std::vector<ABC_Var_New*> v)
+      {
+        std::vector<std::string> out(v.size());
+        for (std::size_t i=0; i<v.size(); ++i)
+          out[i]=v[i]->id();
+        return out;
+      }
+
     };
+
+
     
     
-    
-    
+    class MyConstIterator : public std::iterator<std::input_iterator_tag, ABC_Var_New*>
+    {
+      const std::map<std::string,ABC_Var_New*>& m_;
+      const std::vector<std::string>& v_;
+      std::size_t i_;
+
+    public:
+      MyConstIterator(const Implements_Data_Type_New_map_string_ABC_Var_New& x) :m_(x.fields_),v_(x.vfields_),i_(0) {}
+      MyConstIterator(const Implements_Data_Type_New_map_string_ABC_Var_New& x
+                      ,std::size_t i) :m_(x.fields_),v_(x.vfields_),i_(i) {}
+      friend class Implements_Data_Type_New_map_string_ABC_Var_New;
+
+      MyConstIterator(const MyConstIterator& mit) : m_(mit.m_),v_(mit.v_),i_(mit.i_) {}
+      MyConstIterator& operator++()
+      {
+        ++i_;
+        return *this;
+      }
+      MyConstIterator operator++(int)
+      {MyConstIterator tmp(*this); operator++(); return tmp;}
+
+      MyConstIterator& setBegin()
+      {
+        i_=0;
+        return *this;
+      }
+
+      bool operator==(const MyConstIterator& rhs)
+      {
+        if (i_!=rhs.i_)
+          return false;
+        else return true;
+      }
+      bool operator!=(const MyConstIterator& rhs) {return ! (*this==rhs);}
+
+      ABC_Var_New* operator*() const {
+        auto it=m_.find(v_[i_]);
+        return it->second;
+      }
+
+      ABC_Var_New* operator[](std::size_t i)
+      {
+        i_=i;
+        auto it=m_.find(v_[i_]);
+        return it->second;
+      }
+
+
+
+    };
+
+
+
+
     
   };
   
@@ -4254,7 +4390,7 @@ namespace _private
   
   
   namespace Variable {
-     typedef Implements_Data_Type_New<ABC_Var_New*> vType;
+    typedef Implements_Data_Type_New<ABC_Var_New*> vType;
 
     struct types
     {
@@ -4293,7 +4429,7 @@ namespace _private
                 ,myTip()
                 ,myWhatThis()
                 ,nullptr
-                ,Identifier::types::idVarUsed::varType(cm)
+                ,Identifier::types::idVarNew::varType(cm)
                 ,Identifier::types::idType::varType(cm)
                 ,&comply,nullptr,nullptr);
         }
@@ -4310,7 +4446,7 @@ namespace _private
                 ,myTip()
                 ,myWhatThis()
                 ,nullptr
-                ,Identifier::types::idVarUsed::varType(cm,t)
+                ,Identifier::types::idVarNew::varType(cm,t)
                 ,Identifier::types::idType::varType(cm)
                 ,&comply,nullptr,nullptr);
         }
@@ -4352,7 +4488,7 @@ namespace _private
                 ,myTip()
                 ,myWhatThis()
                 ,nullptr
-                ,Identifier::types::idVarNew::varType(cm,t)
+                ,Identifier::types::idVarUsed::varType(cm,t)
                 ,Identifier::types::idType::varType(cm,t)
                 ,&comply,nullptr,nullptr);
         }
@@ -4419,6 +4555,53 @@ namespace _private
       };
 
 
+      struct varFieldPointed{
+        typedef  ABC_Var_New* myC;
+        static std::string myId(const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap
+                                ,const _private::MyConstIterator* it)
+        {return "_varFieldGiven"+varMap->id()+(**it)->id();}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){ return "tip";}
+        static std::string myWhatThis() {return "aht";}
+        static bool comply(
+            const Implements_ComplexVar_New* p,
+            const Implements_Data_Type_New<myC>* idtype,
+            const Implements_ComplexVar_New* self,
+            std::string *WhyNot, const std::string &objective)
+        {
+          if (idtype->id()==self->id())
+            return true;
+          else
+            {
+              return false;
+            }
+        }
+
+
+        static Implements_Data_Type_New<myC>*
+        varType
+        (const Implements_ComplexVar_New* cm,
+         const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMap
+         ,const _private::MyConstIterator *it)
+        {
+
+          return new Implements_Data_Type_New<ABC_Var_New*>(
+                cm,
+                myId(varMap,it)
+                ,myIdType()
+                ,myTip()
+                ,myWhatThis()
+                ,varMap
+                ,Identifier::types::idFieldGiven::varType(cm,varMap,it)
+                ,Identifier::types::idType::varType(cm)
+                ,&comply,nullptr,nullptr);
+        }
+
+
+      };
+
+
+
 
 
     };
@@ -4445,7 +4628,8 @@ namespace _private
         static bool varComply(const Implements_ComplexVar_New* cm
                               ,const myC &val
                               ,const Implements_Data_Type_New<myC>* valtype
-                              ,std::string *whyNot,const std::string& masterObjective)
+                              ,std::string *whyNot
+                              ,const std::string& masterObjective)
         {
           return _private::includesVar(cm,val,valtype->getFields(),whyNot,masterObjective);
         }
@@ -4523,7 +4707,7 @@ namespace _private
         static  Implements_Data_Type_New<myC>* varType(
             const Implements_ComplexVar_New* cm
             , const std::string& id,
-            const std::map<std::string,ABC_Var_New*>& fields)
+            const std::vector<ABC_Var_New*>& fields)
         {
 
           return new Implements_Data_Type_New<myC>
@@ -4715,7 +4899,7 @@ namespace _private
           ,const std::string& var
           ,const std::string& tip
           ,const std::string& whatthis
-          , const std::map<std::string,ABC_Var_New*> fields
+          , const std::vector<ABC_Var_New*> fields
           ,typePredicate complyPred
           ,typetypePredicate typeComply
 
@@ -5036,7 +5220,7 @@ namespace _private
           ,const std::string& var
           ,const std::string& tip
           ,const std::string& whatthis
-          , const std::map<std::string,ABC_Var_New*> fields
+          , const std::vector<ABC_Var_New*> fields
           ,typePredicate complyPred
           ,typetypePredicate typeComply
           ,getEmptyObject  defaultValue
@@ -5057,7 +5241,7 @@ namespace _private
 
       Implements_Data_Type_class(
           const Implements_ComplexVar_New* parent
-          , const std::map<std::string,ABC_Var_New*> fields
+          , const std::vector<ABC_Var_New*> fields
           ):
         ABC_Typed_Value<T*>(parent)
       ,comply_(nullptr)
@@ -5360,14 +5544,7 @@ namespace _private
   class Implements_Command_Arguments: public Implements_ComplexVar_New
   {
   public:
-    constexpr static auto OP="Op_";
 
-    static bool isMandatory(const std::string field)
-    {
-      if (field.find(OP,0)==0)
-        return false;
-      else return true;
-    }
     virtual ~Implements_Command_Arguments(){}
 
 
@@ -5448,7 +5625,9 @@ namespace _private
     ,hasMandatoryInputs_(mandatoryInp)
     ,toEmMap_(toEmMap)
     ,run_(run_)
-    {}
+    {
+      idSelfType_=Identifier::types::idCmd::varType(this,this);
+    }
 
   protected:
     plainPredicate hasAllInputs_;

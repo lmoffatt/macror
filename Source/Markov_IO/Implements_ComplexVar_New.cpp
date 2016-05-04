@@ -44,10 +44,10 @@ namespace Markov_IO_New {
   {
 
 
-     if (id.find(Identifier::types::idType::myId())==id.npos)
-    idSelfType_=Identifier::types::idType::varType(this,this);
-     else
-       idSelfType_=nullptr;
+    if (id.find(Identifier::types::idType::myId())==id.npos)
+      idSelfType_=Identifier::types::idType::varType(this,this);
+    else
+      idSelfType_=nullptr;
   }
 
 
@@ -248,15 +248,23 @@ namespace Markov_IO_New {
      , Implements_Data_Type_New_ABC_Var_New::cvToType getTypeFromCV
      , Implements_Data_Type_New_ABC_Var_New::typeToCv getCvFromType)
       :
-      Implements_Base_Type_New<ABC_Var_New*>
-      (parent,id,var,tip,whatthis,nullptr,
-        nullptr,typeComply,nullptr),
-      varMap_(varMap), idType_(idType),varType_(varType)
-    ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
+        Implements_Base_Type_New<ABC_Var_New*>
+        (parent,id,var,tip,whatthis,nullptr,
+         nullptr,typeComply,nullptr),
+        varMap_(varMap), idType_(idType),varType_(varType)
+      ,getTypeFromCV_(getTypeFromCV),getCvFromType_(getCvFromType)
     {
     }
 
-    Implements_Data_Type_New_map_string_ABC_Var_New::Implements_Data_Type_New_map_string_ABC_Var_New(const Implements_ComplexVar_New *parent, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis, const std::map<std::string, ABC_Var_New *> fields, Implements_Data_Type_New_map_string_ABC_Var_New::typePredicate complyPred, Implements_Data_Type_New_map_string_ABC_Var_New::typetypePredicate typeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeElementPredicate elemeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeValue defaultValue):
+    Implements_Data_Type_New_map_string_ABC_Var_New
+    ::Implements_Data_Type_New_map_string_ABC_Var_New
+    (const Implements_ComplexVar_New *parent
+     , const std::string &id
+     , const std::string &var
+     , const std::string &tip
+     , const std::string &whatthis
+     , const std::vector<ABC_Var_New *> fields
+     , Implements_Data_Type_New_map_string_ABC_Var_New::typePredicate complyPred, Implements_Data_Type_New_map_string_ABC_Var_New::typetypePredicate typeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeElementPredicate elemeComply, Implements_Data_Type_New_map_string_ABC_Var_New::typeValue defaultValue):
       Implements_Container_Type_New<Markov_IO_New::ABC_Var_New *, String_map>
       (parent,id,var,tip,whatthis,"_var"+id
        ,nullptr,nullptr
@@ -266,7 +274,8 @@ namespace Markov_IO_New {
     ,elemComply_(elemeComply)
     ,default_(defaultValue)
     ,varEType_(nullptr)
-    ,fields_(fields)
+    ,fields_(toMap(fields))
+    ,vfields_(toVec(fields))
     {
       varEType_=Variable::types::varField::varType(parent,this);
     }
@@ -274,9 +283,18 @@ namespace Markov_IO_New {
 
 
 
-   template class Implements_Data_Type_New_M_Matrix<double>;
+    template class Implements_Data_Type_New_M_Matrix<double>;
 
     template class Implements_Data_Type_New_M_Matrix<std::size_t>;
+
+    Implements_Data_Type_New_map_string_ABC_Var_New::const_iterator *Markov_IO_New::_private::Implements_Data_Type_New_map_string_ABC_Var_New::begin() const
+    {
+      return new MyConstIterator(*this,0);
+    }
+    Implements_Data_Type_New_map_string_ABC_Var_New::const_iterator *Implements_Data_Type_New_map_string_ABC_Var_New::end() const
+    {
+      return new MyConstIterator(*this,vfields_.size());
+    }
 
 
 
@@ -314,18 +332,30 @@ namespace Markov_IO_New {
     std::set<std::string> o;
     if (fieldType_!=nullptr)
       {
-        auto& cv=fieldType_->getFields();
-        for (auto& e:cv)
+        if (it_!=nullptr)
           {
-            std::string id=e.first;
+            std::string id=(**it_)->id();
             std::string w;
             if ((isNew_&&!cm->hasName(id,&w,"",false))
                 ||(isUsed_&&cm->hasName(id,&w,"",false)))
               {
-                alternatives::insert(o,e.second);
+                alternatives::insert(o,**it_);
               }
           }
-
+        else
+          {
+            auto& cv=fieldType_->getFields();
+            for (auto& e:cv)
+              {
+                std::string id=e.first;
+                std::string w;
+                if ((isNew_&&!cm->hasName(id,&w,"",false))
+                    ||(isUsed_&&cm->hasName(id,&w,"",false)))
+                  {
+                    alternatives::insert(o,e.second);
+                  }
+              }
+          }
       }
     else
       if (isVar_)
@@ -533,10 +563,30 @@ namespace Markov_IO_New {
 
   }
 
-  std::string Implements_Identifier::toId(const ABC_Type_of_Value *type, const _private::Implements_Data_Type_New_map_string_ABC_Var_New *fieldType, bool isVar, bool isType, bool isCommand, bool isNew, bool isUsed)
+
+  std::string Implements_Identifier::toId
+  (const ABC_Type_of_Value *type, const _private::Implements_Data_Type_New_map_string_ABC_Var_New *fieldType
+   , const _private::MyConstIterator* it,bool isVar, bool isType, bool isCommand, bool isNew, bool isUsed)
   {
     std::string id="_id";
-    if (fieldType==nullptr)
+    if (it!=nullptr)
+      {
+        id+="FldIt";
+        if (isNew&&!isUsed)
+          {
+            id+="New";
+          }
+        if (!isNew&&isUsed)
+          {
+            id+="Used";
+          }
+        if (fieldType!=nullptr)
+          id+=fieldType->id();
+        id+=(**it)->id();
+
+      }
+
+    else if (fieldType==nullptr)
       {
         if (isVar&!isType)
           {
@@ -593,8 +643,8 @@ namespace Markov_IO_New {
     cm->pushType(new vType<T>(cm));
   }
 
- // template Matrix<double>;
- // template Matrix<std::size_t>;
+  // template Matrix<double>;
+  // template Matrix<std::size_t>;
 
 
 

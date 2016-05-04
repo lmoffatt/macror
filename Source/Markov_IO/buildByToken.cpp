@@ -197,7 +197,7 @@ namespace Markov_IO_New {
                       {
                         varB_=varType_->getVarIdentifierBuildByToken(parent(),x->myType());
                       }
-                    }
+                  }
                 else
                   varB_=varType_->getVarIdentifierBuildByToken(parent());
 
@@ -414,7 +414,7 @@ namespace Markov_IO_New {
   , idB_(varType->getNewIdentifierBuildByToken(parent))
   , varB_(varType->getVarIdentifierBuildByToken(parent))
   ,valueB_(nullptr)
-  ,x_{}
+  ,x_{},c_(nullptr),classx_(nullptr)
   {
 
   }
@@ -479,12 +479,17 @@ namespace Markov_IO_New {
 
   buildByToken<std::map<std::string, ABC_Var_New *> >::
   buildByToken(const Implements_ComplexVar_New *parent,
-               const Implements_Data_Type_New<std::map<std::string, ABC_Var_New *> > *typeVar):
+               const Implements_Data_Type_New
+               <std::map<std::string, ABC_Var_New *> > *typeVar):
     ABC_BuildByToken(parent),
     mystate(S_Init),
     x_(new Implements_ComplexVar_New(parent)),
-    varType_(typeVar),
-    varBuild_(typeVar->getElementBuildByToken(x_))
+    varMapType_(typeVar),
+    it_(typeVar->begin()),
+    end_(typeVar->end()),
+    itVarType_(Variable::types::varFieldPointed::varType(x_,varMapType_,it_)),
+    varBuild_(new buildByToken<ABC_Var_New*>(x_,itVarType_))
+
   {}
 
   buildByToken<std::map<std::string, ABC_Var_New *> >::
@@ -492,7 +497,7 @@ namespace Markov_IO_New {
     ABC_BuildByToken(parent),
     mystate(S_Init),
     x_{},
-    varType_(nullptr),
+    varMapType_(nullptr),
     varBuild_(nullptr)
   {}
 
@@ -506,16 +511,25 @@ namespace Markov_IO_New {
       case S_Init:
       case S_Header_Final:
       case S_Data_Final:
-        return {varType_->id(),{alternatives::endOfLine()}};
+        return {varMapType_->id(),{alternatives::endOfLine()}};
       case S_Header2:
-        return {varType_->id(),{Token_New::toString(Token_New::LCB)}};
+        return {varMapType_->id(),{Token_New::toString(Token_New::LCB)}};
       case S_Data_Partial:
         return varBuild_->alternativesNext();
       case S_Data_Separator_Final:
         {
+          if (it_==nullptr)
+            {
           auto out=varBuild_->alternativesNext();
           out.second.insert(Token_New::toString(Token_New::RCB));
           return out;
+            }
+          else if (*it_!=*end_)
+            {
+              return varBuild_->alternativesNext();
+            }
+          else
+            return {varMapType_->id(),{Token_New::toString(Token_New::RCB)}};
         }
       case S_Final:
         return {};
@@ -593,8 +607,11 @@ namespace Markov_IO_New {
   {
     if (isFinal())
       {
+        std::map<std::__cxx11::string, ABC_Var_New *> out;
         mystate=S_Header_Final;
-        return x_->getMap();
+        out=x_->unloadMap();
+        it_->setBegin();
+        return out;
       }
     else
       return {};
@@ -652,7 +669,10 @@ namespace Markov_IO_New {
       }
   }
 
-  bool Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  bool Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::pushToken
+  (Token_New tok
+   , std::__cxx11::string *whyNot
+   , const std::__cxx11::string &masterObjective)
   {
     const std::string objective=masterObjective+": "+ClassName()+"::pushToken("+
         tok.str()+") fails";
@@ -703,6 +723,8 @@ namespace Markov_IO_New {
               {
                 p_=varBuild_->unloadVar();
                 x_->pushChild(p_);
+                if (it_!=nullptr) ++*it_;
+
                 mystate=S_Data_Final;
                 return true;
               }
@@ -713,28 +735,67 @@ namespace Markov_IO_New {
               }
           }
       case S_Data_Separator_Final:
-        if (tok.tok()==Token_New::RCB)
+        if (it_==nullptr)
           {
-            mystate=S_Final;
-            return true;
+            if (tok.tok()==Token_New::RCB)
+              {
+                mystate=S_Final;
+                return true;
+              }
+            else if (!varBuild_->pushToken(tok, whyNot,objective))
+              {
+                return false;
+              }
+            else
+              {
+                if(varBuild_->isFinal())
+                  {
+                    ABC_Var_New* p=varBuild_->unloadVar();
+                    x_->pushChild(p);
+                    mystate=S_Data_Final;
+                    return true;
+                  }
+                else
+                  {
+                    mystate=S_Data_Partial;
+                    return true;
+                  }
+              }
           }
-        else if (!varBuild_->pushToken(tok, whyNot,objective))
+        else if (*it_!=*end_)
           {
-            return false;
+             if (!varBuild_->pushToken(tok, whyNot,objective))
+              {
+                return false;
+              }
+            else
+              {
+                if(varBuild_->isFinal())
+                  {
+                    ABC_Var_New* p=varBuild_->unloadVar();
+                    x_->pushChild(p);
+                    mystate=S_Data_Final;
+                    return true;
+                  }
+                else
+                  {
+                    mystate=S_Data_Partial;
+                    return true;
+                  }
+              }
+
           }
         else
           {
-            if(varBuild_->isFinal())
+            if (tok.tok()==Token_New::RCB)
               {
-                ABC_Var_New* p=varBuild_->unloadVar();
-                x_->pushChild(p);
-                mystate=S_Data_Final;
+                mystate=S_Final;
                 return true;
               }
             else
               {
-                mystate=S_Data_Partial;
-                return true;
+                *whyNot=objective+": expected } found "+tok.str();
+                return false;
               }
           }
       case S_Final:

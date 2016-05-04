@@ -146,6 +146,7 @@ namespace Markov_IO_New {
 
 
 
+
   class ABC_Var_New;
   class ABC_Value_New;
 
@@ -518,6 +519,17 @@ namespace Markov_IO_New {
     m[myId]=new Implements_Var_New<typename Type::myC>
         (nullptr,myId,Type::myIdType(),val,myTip,myWhatThis);
   }
+  template<class Type>
+  void push_var(std::vector<ABC_Var_New*>& m
+                ,typename Type::myC val={}
+      , const std::string myId=Type::myId()
+      , const std::string& myTip=Type::myTip()
+      , const std::string& myWhatThis=Type::myWhatThis()  )
+  {
+    m.push_back(new Implements_Var_New<typename Type::myC>
+        (nullptr,myId,Type::myIdType(),val,myTip,myWhatThis));
+  }
+
 
 
   template <class Field>

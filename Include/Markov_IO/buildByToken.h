@@ -1727,8 +1727,16 @@ namespace Markov_IO_New {
     {
       if (isFinal())
         {
+          ABC_Var_New* out;
           mystate=S_Init;
-          return x_;
+          if (classx_!=nullptr)
+             out=classx_;
+          else
+            out= x_;
+          x_=nullptr;
+          classx_=nullptr;
+          c_=nullptr;
+          return out;
         }
       else
         return {};
@@ -1836,8 +1844,9 @@ namespace Markov_IO_New {
   };
 
 
-
-
+  namespace _private{
+  class MyConstIterator;
+}
 
   template<>
   class buildByToken<std::map<std::string,ABC_Var_New*>>
@@ -1857,9 +1866,13 @@ namespace Markov_IO_New {
     }
 
 
-    enum DAF {S_Init,S_Header2,S_Header_Final
-              ,S_Data_Partial,S_Data_Final
-              ,S_Data_Separator_Final,S_Final} ;
+    enum DAF {S_Init
+              ,S_Header2
+              ,S_Header_Final
+              ,S_Data_Partial
+              ,S_Data_Final
+              ,S_Data_Separator_Final
+              ,S_Final} ;
 
 
 
@@ -1933,7 +1946,10 @@ namespace Markov_IO_New {
     DAF mystate;
     ABC_Var_New* p_;
     Implements_ComplexVar_New* x_;
-    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varType_;
+    const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMapType_;
+    _private::MyConstIterator*  it_;
+    _private::MyConstIterator* end_;
+    Implements_Data_Type_New<ABC_Var_New*>* itVarType_;
     buildByToken<ABC_Var_New*>* varBuild_;
   };
 
@@ -2112,9 +2128,10 @@ namespace Markov_IO_New {
         }
       else
         {
-          //         errorMessage=ABClass_buildByToken::ABC_BuildByToken::getErrorMessage  ("cannot unload beacause it is not in final state");
-
-          return nullptr;
+          auto out=x_;
+          mystate=S_Init;
+          x_=nullptr;
+          return out;
 
         }
     }

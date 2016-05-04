@@ -308,7 +308,7 @@ namespace Markov_IO_New {
          ,const std::string& var
          ,const std::string& myTip
          ,const std::string& myWhatThis
-         , const std::map<std::string,ABC_Var_New*> fields
+         , const std::vector<ABC_Var_New*> fields
          ,typePredicate complyPred
          ,typetypePredicate typeComply
          ,getEmptyObject  defaultValue
@@ -406,9 +406,9 @@ namespace Markov_IO_New {
           return f;
         }
 
-        static std::map<std::string,ABC_Var_New*> getFields()
+        static std::vector<ABC_Var_New*> getFields()
         {
-          std::map<std::string,ABC_Var_New*> f;
+          std::vector<ABC_Var_New*> f;
           push_var<numStates_Field>(f);
           push_var<Q_matrix_Field>(f);
           push_var<conductance_vector_Field>(f);
@@ -442,7 +442,7 @@ namespace Markov_IO_New {
          ,const std::string& var
          ,const std::string& myTip
          ,const std::string& myWhatThis
-         ,const std::map<std::string,ABC_Var_New*>& fields
+         ,const std::vector<ABC_Var_New*>& fields
          ,typePredicate complyPred
          ,typetypePredicate typeComply
          ,getEmptyObject  defaultValue
