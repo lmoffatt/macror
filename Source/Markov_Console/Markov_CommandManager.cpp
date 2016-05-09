@@ -36,12 +36,12 @@
 #include "Markov_Mol/PatchModel.h"
 #include "Markov_Mol/GaussianNoise.h"
 
-
+#include "Markov_IO/FileLoadSave.h"
 
 
 #include "Markov_IO/Commands.h"
 #include "Markov_IO/myTypes.h"
-
+#include "Markov_IO/FileLoadSave.h"
 
 
 #define STRINGIZE2(s) #s
@@ -54,7 +54,7 @@ namespace Markov_IO_New
 
   bool Markov_CommandManagerVar::setDir(const std::string &dir)
   {
-    if (!fd::IsDir(dir))
+    if (!fd::isDir(dir))
       return false;
     dir_=dir;
     //autoCmptByCategories[directory()]=Autocomplete(Markov_IO::getSubDirs(dir));

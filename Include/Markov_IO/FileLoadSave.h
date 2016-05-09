@@ -218,6 +218,11 @@ namespace Markov_IO_New {
 
     std::string& removeLastSlash(std::string& dirname);
 
+    bool isDir(const std::string& path);
+
+    bool isFile(const std::string& path);
+
+
 
     bool isMacrorFile(const std::string& path, std::string* whyNot,const std::string& object);
     bool isMacrorFile(const std::string& path);

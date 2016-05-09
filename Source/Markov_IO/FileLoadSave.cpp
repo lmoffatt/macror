@@ -99,7 +99,7 @@ namespace Markov_IO_New {
 
 
 
-    bool IsDir(const std::string& path)
+    bool isDir(const std::string& path)
     {
       struct stat buf;
       if (stat( path.c_str(), &buf)==0)
@@ -108,7 +108,7 @@ namespace Markov_IO_New {
         return false;
     }
 
-    bool IsFile(const std::string& path)
+    bool isFile(const std::string& path)
     {
       struct stat buf;
       if (stat( path.c_str(), &buf)==0)
@@ -215,6 +215,10 @@ namespace Markov_IO_New {
       return "";
 
     }
+
+
+
+
 
 
 

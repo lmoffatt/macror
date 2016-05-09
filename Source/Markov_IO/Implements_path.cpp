@@ -33,7 +33,7 @@ namespace Markov_IO_New {
     {
         std::string wPath=cm->get_Value<vars::workingPath>();
         std::string path=wPath+fd::File::slash()+x;
-        if (!fd::IsFile(path))
+        if (!fd::isFile(path))
           {
             *WhyNot=objective+": file"+path+" not found";
             return false;
@@ -51,9 +51,7 @@ namespace Markov_IO_New {
     std::__cxx11::string types::filenameUsed::defaultVal(const Implements_ComplexVar_New * cm, const Implements_ComplexVar_New *)
     {
        std::string wd=cm->get_Value<vars::workingPath>();
-       fd::FileDir d(wd);
-       d.begin();
-       return d.FileName();
+       return fd::getFirstFileInDir(wd,&fd::isMacrorFile);
     }
 
 
