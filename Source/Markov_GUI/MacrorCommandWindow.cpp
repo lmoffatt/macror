@@ -35,7 +35,7 @@ namespace Markov_IO_New {
     QPlainTextEdit(parent),
     mw_(parent),
     cm_(cm),
-    message(new QLabel(this))
+    message()
   {
     cm_->setIO(this);
 
@@ -321,15 +321,21 @@ namespace Markov_IO_New {
 
 
 
-
-
-
   void MacrorCommandWindow::showMessage(const std::string &m)
   {
-    message->setText(m.c_str());
+
+    QString text(m.c_str());
+    if (message==nullptr)
+      message= new QLabel(this);
+    message->setText(text);
+
     message->setBuddy(this);
     message->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    message->move(cursorRect().center().operator +=(QPoint(+10,-10)));
+    message->setStyleSheet("QLabel { background-color : black; color : white; }");
+    message->move(cursorRect().topLeft().operator +=(QPoint(10,-10-message->height())));
+    message->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    //message->setScaledContents(true);
+    //message->setSizePolicy(Ignored);
     message->show();
     repaint();
   }

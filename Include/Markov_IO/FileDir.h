@@ -11,90 +11,106 @@
 namespace Markov_IO_New
 {
 
-class FileDir
-{
-public:
-    FileDir(const std::string& dirName);
-    FileDir();
-    FileDir(const FileDir& fileDir);
-
-    FileDir& operator=(const FileDir& other);
-
-    friend void swap( FileDir& one, FileDir& other);
-
-    ~FileDir();
-
-    std::string DirName()const;
-
-    bool NotError()const;
-    bool NotEnd()const;
-
-    operator bool()const;
-    bool operator==(const FileDir& other)const;
-    bool operator<(const FileDir& other )const;
-
-    FileDir& begin();
-    FileDir& next();
-
-    bool cd(const std::string& dirname);
+  namespace fd {
 
 
-    std::string FileName()const;
+    using filePredicate=bool(*)(const std::string& fname);
 
-    bool IsDir();
+    class FileDir
+    {
+    public:
+      FileDir(const std::string& dirName);
+      FileDir();
+      FileDir(const FileDir& fileDir);
 
-    static char slash();
+      FileDir& operator=(const FileDir& other);
 
-private:
-    void init();
-    std::string dirName_;
+      friend void swap( FileDir& one, FileDir& other);
 
-    DIR *DIR_;
-    dirent*  dirent_;
+      ~FileDir();
 
-    struct stat buf_[1];
+      std::string DirName()const;
 
-    int error_;
-};
+      bool NotError()const;
+      bool NotEnd()const;
 
-std::string getWorkingPath();
+      operator bool()const;
+      bool operator==(const FileDir& other)const;
+      bool operator<(const FileDir& other )const;
 
-std::string getExecutablePath();
+      FileDir& begin();
+      FileDir& next();
 
-std::string getExecutableDir();
-
-std::string getDirectory(std::string path);
-std::string getUpperDirectory(std::string path);
-
-
-std::vector<std::string> getSubDirs(const std::string &dir);
-
-std::string& removeLastSlash(std::string& dirname);
+      bool cd(const std::string& dirname);
 
 
-bool IsDir(const std::string& path);
+      std::string FileName()const;
 
-bool IsFile(const std::string& path);
+      bool IsDir();
+      bool IsFile();
+
+      static char slash();
+
+    private:
+      void init();
+      std::string dirName_;
+
+      DIR *DIR_;
+      dirent*  dirent_;
+
+      struct stat buf_[1];
+
+      int error_;
+    };
+
+    std::string getWorkingPath();
+
+    std::string getExecutablePath();
+
+    std::string getExecutableDir();
+
+    std::string getDirectory(std::string path);
+    std::string getUpperDirectory(std::string path);
 
 
-/* some day we might implement them
+    std::vector<std::string> getDirsInDir(const std::string &dir);
+
+
+    std::vector<std::string> getFilesInDir(const std::string &dir);
+
+
+    std::vector<std::string> getFilesInDir(const std::string &dir,filePredicate test);
+
+    std::string getFirstFilesInDir(const std::string &dir,filePredicate test);
+
+
+
+    std::string& removeLastSlash(std::string& dirname);
+
+
+    bool IsDir(const std::string& path);
+
+    bool IsFile(const std::string& path);
+
+
+    /* some day we might implement them
 std::string absolutePath(const std::string& relativePath,
-			 const std::string& workingPath=getWorkingPath());
+                         const std::string& workingPath=getWorkingPath());
 
 std::string relativePath(const std::string& absolutePath,
-			 const std::string& workingPath=getWorkingPath());
+                         const std::string& workingPath=getWorkingPath());
 
 */
+  }
 }
-
 
 
 namespace Markov_IO
 {
 
-class FileDir
-{
-public:
+  class FileDir
+  {
+  public:
     FileDir(const std::string& dirName);
     FileDir();
     FileDir(const FileDir& fileDir);
@@ -126,7 +142,7 @@ public:
 
     static char slash();
 
-private:
+  private:
     void init();
     std::string dirName_;
 
@@ -136,34 +152,34 @@ private:
     struct stat buf_[1];
 
     int error_;
-};
+  };
 
-std::string getWorkingPath();
+  std::string getWorkingPath();
 
-std::string getExecutablePath();
+  std::string getExecutablePath();
 
-std::string getExecutableDir();
+  std::string getExecutableDir();
 
-std::string getDirectory(std::string path);
-std::string getUpperDirectory(std::string path);
-
-
-std::vector<std::string> getSubDirs(const std::string &dir);
-
-std::string& removeLastSlash(std::string& dirname);
+  std::string getDirectory(std::string path);
+  std::string getUpperDirectory(std::string path);
 
 
-bool IsDir(const std::string& path);
+  std::vector<std::string> getSubDirs(const std::string &dir);
 
-bool IsFile(const std::string& path);
+  std::string& removeLastSlash(std::string& dirname);
 
 
-/* some day we might implement them
+  bool IsDir(const std::string& path);
+
+  bool IsFile(const std::string& path);
+
+
+  /* some day we might implement them
 std::string absolutePath(const std::string& relativePath,
-			 const std::string& workingPath=getWorkingPath());
+                         const std::string& workingPath=getWorkingPath());
 
 std::string relativePath(const std::string& absolutePath,
-			 const std::string& workingPath=getWorkingPath());
+                         const std::string& workingPath=getWorkingPath());
 
 */
 }

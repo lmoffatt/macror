@@ -297,8 +297,7 @@ namespace Markov_IO_New {
 
     bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)
     {
-      const std::string objective=masterObjective+": rejected token"+tok.str();
-
+      const std::string objective=masterObjective;
       switch (mystate)
         {
         case S_Init:
@@ -586,7 +585,8 @@ namespace Markov_IO_New {
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective)override
 
     {
-      const std::string objective=masterObjective+": Token "+tok.str()+ "rejected by class "+ClassName();
+      const std::string objective=masterObjective;
+      //+": Token "+tok.str()+ "rejected by class "+ClassName();
       switch (mystate)
         {
         case S_Init:
@@ -822,8 +822,8 @@ namespace Markov_IO_New {
 
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override
     {
-      const std::string objective=masterObjective+": "
-          +ClassName()+"::pushToken of "+tok.str()+" fails";
+      const std::string objective=masterObjective;
+      //+": "+ClassName()+"::pushToken of "+tok.str()+" fails";
 
       switch (mystate) {
         case S_Init:
@@ -1449,8 +1449,8 @@ namespace Markov_IO_New {
 
     bool pushToken(Token_New tok, std::string* whyNot, const std::string& masterObjective) override
     {
-      const std::string objective=masterObjective+" : "+ClassName()+"::pushToken("+
-          tok.str()+")";
+      const std::string objective=masterObjective;
+      //+" : "+ClassName()+"::pushToken("+tok.str()+")";
       switch (mystate)
         {
         case S_Init:
@@ -1691,7 +1691,7 @@ namespace Markov_IO_New {
 
     enum DFA {
       S_Init=0, TIP1, TIP2,WT0_ID0,WT2,WT3,ID1,ID2,WT1,ID0,S_HEADER_Final,S_DATA_PARTIAL,
-      S_Final
+      S_Data_Final, S_Final
     } ;
 
     bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
@@ -1832,7 +1832,10 @@ namespace Markov_IO_New {
         case S_HEADER_Final:
         case S_DATA_PARTIAL:
             return valueB_->alternativesNext();
+        case S_Data_Final:
+            return {this->id_,{alternatives::endOfLine()}};
         case S_Final:
+
         default:
           return {};
         }
@@ -1870,7 +1873,6 @@ namespace Markov_IO_New {
               ,S_Header2
               ,S_Header_Final
               ,S_Data_Partial
-              ,S_Data_Final
               ,S_Data_Separator_Final
               ,S_Final} ;
 
@@ -1896,7 +1898,6 @@ namespace Markov_IO_New {
         case S_Header_Final:
           return true;
         case S_Data_Partial:
-        case S_Data_Final:
         case S_Data_Separator_Final:
         case S_Final:
           return false;
@@ -1947,6 +1948,7 @@ namespace Markov_IO_New {
     ABC_Var_New* p_;
     Implements_ComplexVar_New* x_;
     const Implements_Data_Type_New<std::map<std::string,ABC_Var_New*>>* varMapType_;
+  protected:
     _private::MyConstIterator*  it_;
     _private::MyConstIterator* end_;
     Implements_Data_Type_New<ABC_Var_New*>* itVarType_;
@@ -1990,11 +1992,11 @@ namespace Markov_IO_New {
 
     }
 
-    virtual bool isFinal() const
+    virtual bool isFinal() const override
     {
       return mystate==S_Final;
     }
-    virtual bool isInitial() const
+    virtual bool isInitial() const override
     {
       return mystate==S_Init;
     }
@@ -2004,9 +2006,8 @@ namespace Markov_IO_New {
     }
 
     // ABClass_buildByToken interface
-    build_Command_Input(
-        const Implements_ComplexVar_New *cm
-        , const Implements_Data_Type_New<std::string> *idCmd);
+    build_Command_Input(const Implements_ComplexVar_New *cm
+        , const Implements_Command_Type_New *vCmd);
 
 
 
@@ -2015,7 +2016,9 @@ namespace Markov_IO_New {
     {
       if (isFinal())
         {
-          return cmd_;
+          Implements_Command_Arguments* out=cmdArg_;
+          cmdArg_=nullptr;
+          return out;
         }
       else
         return nullptr;
@@ -2029,13 +2032,14 @@ namespace Markov_IO_New {
 
     virtual bool unPop(Implements_Command_Arguments*  var)
     {
+      cmdArg_=var;
+
 
     }
 
 
     enum DFA {
       S_Init=0,
-      S_ID_Final,
       S_Argument_Partial,
       S_Input_Partial,
       S_Mandatory_Final,
@@ -2048,9 +2052,8 @@ namespace Markov_IO_New {
 
   private:
     DFA mystate;
-    buildByToken<std::string>* idCommandB_;
     const Implements_Command_Type_New* cmdty_;
-    Implements_Command_Arguments* cmd_;
+    Implements_Command_Arguments* cmdArg_;
     ABC_Var_New* var_;
     ABC_BuildByToken* A_fieldB_;
 
@@ -2063,7 +2066,7 @@ namespace Markov_IO_New {
   public:
     virtual ABC_Var_New *unloadVar_New( const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis) override
     {
-
+       return nullptr;
     }
   };
 
@@ -2094,6 +2097,7 @@ namespace Markov_IO_New {
     }
     enum DFA {
       S_Init,
+      S_Command_Id_Partial,
       S_Command_Partial,
       S_Command_Final,
       S_Expression_Partial,
@@ -2209,7 +2213,9 @@ namespace Markov_IO_New {
   private:
     DFA mystate;
     buildByToken<ABC_Var_New*>   v_;
-    build_Command_Input c_;
+    buildByToken<std::string> idCmd_;
+
+    build_Command_Input* c_;
 
 
     Implements_Command_Arguments* cmv_;
@@ -2217,80 +2223,7 @@ namespace Markov_IO_New {
 
     // ABC_BuildByToken interface
   public:
-    virtual bool pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective) override
-
-    {
-      const std::string objective=masterObjective;
-      switch (mystate)
-        {
-        case S_Init:
-          if (c_.pushToken(t, whyNot,objective))
-            {
-              if (c_.isFinal())
-                {
-                  cmv_=c_.unloadVar();
-                  mystate=S_Command_Final;
-                  return true;
-                }
-              else
-                {
-                  mystate=S_Command_Partial;
-                  return true;
-                }
-            }
-          else if (v_.pushToken(t, whyNot, objective))
-            {
-              mystate=S_Expression_Partial;
-              return true;
-            }
-          else
-            {
-              if (t.tok()==Token_New::EOL)
-                return true;
-              else
-                {
-                  *whyNot=objective+": unknown command or variable";
-                  return false;
-                }
-            }
-        case S_Command_Partial:
-          if (!c_.pushToken(t, whyNot,objective))
-            {
-              return false;
-            }
-          else
-            {
-              if (c_.isFinal())
-                {
-                  cmv_=c_.unloadVar();
-                  mystate=S_Command_Final;
-                }
-              else
-                mystate=S_Command_Partial;
-              return true;
-            }
-        case S_Expression_Partial:
-          if (!v_.pushToken(t, whyNot,objective))
-            {
-              return false;
-            }
-          else
-            {
-              if (v_.isFinal())
-                {
-                  mystate=S_Expression_Final;
-                  x_=v_.unloadVar();
-                }
-              else
-                mystate=S_Expression_Partial;
-              return true;
-            }
-        case S_Command_Final:
-        case S_Expression_Final:
-          return false;
-        }
-
-    }
+    virtual bool pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective) override;
     virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
 
     {
@@ -2298,12 +2231,13 @@ namespace Markov_IO_New {
         switch (mystate)
         {
         case S_Init:
-          out=c_.alternativesNext();
+          out=idCmd_.alternativesNext();
           out+=v_.alternativesNext();
           return out;
-
+        case S_Command_Id_Partial:
+            return idCmd_.alternativesNext();
         case S_Command_Partial:
-          return c_.alternativesNext();
+          return c_->alternativesNext();
         case S_Expression_Partial:
           return v_.alternativesNext();
         case S_Command_Final:

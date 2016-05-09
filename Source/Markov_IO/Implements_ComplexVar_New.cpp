@@ -643,6 +643,17 @@ namespace Markov_IO_New {
     cm->pushType(new vType<T>(cm));
   }
 
+  void Identifier::push_Types(Markov_CommandManagerVar *cm)
+  {
+    cm->pushType(Identifier::types::idVar::varType(cm));
+    cm->pushType(Identifier::types::idVarNew::varType(cm));
+    cm->pushType(Identifier::types::idVarUsed::varType(cm));
+    cm->pushType(Identifier::types::idType::varType(cm));
+    cm->pushType(Identifier::types::idCmd::varType(cm));
+  }
+
+
+
   // template Matrix<double>;
   // template Matrix<std::size_t>;
 

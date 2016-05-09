@@ -112,8 +112,11 @@ namespace Markov_IO_New {
     std::string t=io->getTail();
     io->cleanToEndLine();
     std::string errorMessage;
-    push_back(cm,io,t,&errorMessage);
-    push_back(cm,io,'\n',&errorMessage);
+    if (!push_back(cm,io,t,&errorMessage))
+      io->showMessage(errorMessage);
+
+    if (!push_back(cm,io,'\n',&errorMessage))
+      io->showMessage(errorMessage);
     if (bu_.isFinal())
       {
         if (bu_.isCommand())
@@ -131,8 +134,8 @@ namespace Markov_IO_New {
       }
     else if (!errorMessage.empty())
       {
-        io->putNewLine();
-        io->putError(errorMessage);
+       // io->putNewLine();
+       // io->putError(errorMessage);
       }
     tok_.clear();
     rejectedChars_.clear();
@@ -146,7 +149,9 @@ namespace Markov_IO_New {
   void ExpressionManager::putText(Markov_CommandManagerVar *cm,ABC_IO *io,char c)       // here lies the core of the logic
   {
     std::string err;
-    push_back(cm,io,c,&err);
+    if (!push_back(cm,io,c,&err))
+      io->showMessage(err);
+
 
   }
 
@@ -164,7 +169,7 @@ namespace Markov_IO_New {
                                    , CommandHistory& ch
                                    , Key k)
   {
-        switch(k)
+    switch(k)
       {
       case Key_Home:
         move_Home(io);
@@ -234,7 +239,6 @@ namespace Markov_IO_New {
                     // write error, wrong token as tail
                   }
                 io->putError(rejectedChars_);
-                io->showMessage(*error);
                 return false;
               }
             else

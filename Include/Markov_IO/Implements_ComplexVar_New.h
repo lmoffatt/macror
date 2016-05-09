@@ -1516,13 +1516,20 @@ namespace Markov_IO_New {
     inline
     std::size_t  getVersionNumber(const std::string &id)
     {
-      std::stringstream ss(id.substr(id.find_last_of('_')));
-      std::size_t n;
-      if (ss>>n)
-        return n;
-      else
-        return std::string::npos;
+      auto m=id.find_last_of('_');
+      if (m!=id.npos)
+        {
+          std::stringstream ss(id.substr(m));
+          std::size_t n;
+          if (ss>>n)
+            return n;
+          else
+            return std::string::npos;
+        }
+      return std::string::npos;
     }
+    void push_Types(Markov_CommandManagerVar* cm);
+
 
     inline
     std::pair<std::string,std::string> getId_Type(const std::string& idtype)
@@ -1643,6 +1650,7 @@ namespace Markov_IO_New {
     , isVar_(isVar), isType_(isType),isCommand_(isCommand)
     ,isNew_(isNew),isUsed_(isUsed)
     {}
+
     const ABC_Type_of_Value* type_;
     const _private::Implements_Data_Type_New_map_string_ABC_Var_New* fieldType_;
     const _private::MyConstIterator* it_;
@@ -1990,7 +1998,7 @@ namespace Markov_IO_New {
         typedef  std::string myC;
         typedef idFieldUsed selfType;
 
-        static std::string myId(const _private::Implements_Data_Type_New_map_string_ABC_Var_New* f){toId<selfType>(f);}
+        static std::string myId(const _private::Implements_Data_Type_New_map_string_ABC_Var_New* f){return toId<selfType>(f);}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "Variable indentifer";}
 
@@ -2056,6 +2064,12 @@ namespace Markov_IO_New {
 
     };
   }
+
+
+
+
+
+
 
   namespace fields
   {
@@ -4068,7 +4082,7 @@ namespace Markov_IO_New {
       typeElementPredicate elemComply_;
       typeValue default_;
       
-      
+
       const Implements_Data_Type_New<ABC_Var_New*>* varEType_;
       std::map<std::string,ABC_Var_New*> fields_;
       std::vector<std::string> vfields_;
@@ -5547,9 +5561,6 @@ namespace Markov_IO_New {
 
     virtual ~Implements_Command_Arguments(){}
 
-
-
-
     Implements_Command_Arguments(const Implements_ComplexVar_New* parent,
                                  const std::string& id
                                  ,const std::string& var
@@ -5561,21 +5572,17 @@ namespace Markov_IO_New {
   };
 
 
+
+
+
+
+
+
   class Implements_Command_Type_New:
       public _private::Implements_Data_Type_New_map_string_ABC_Var_New
   {
   public:
-    using plainPredicate
-    = bool(*)
-    (const Implements_ComplexVar_New* cm,
-    const std::map<std::string,ABC_Var_New*>,
-    const Implements_Command_Type_New*
-    , std::string*
-    , const std::string&);
 
-    using getEmptyMap
-    =std::map<std::string,ABC_Var_New*> (*)
-    (const Implements_Command_Type_New*, std::string*, const std::string&);
 
     using runCommand
     = bool  (*)
@@ -5616,26 +5623,51 @@ namespace Markov_IO_New {
                                 ,const std::string& var
                                 ,const std::string& tip
                                 ,const std::string& whatthis
-                                ,plainPredicate hasAllI
-                                ,plainPredicate mandatoryInp
-                                ,getEmptyMap toEmMap
+                                ,std::vector<std::pair<ABC_Var_New*,bool>> argList
                                 ,runCommand run_):
-      _private::Implements_Data_Type_New_map_string_ABC_Var_New      (parent,id,var,tip,whatthis,{},nullptr,nullptr,nullptr,nullptr)
-    ,hasAllInputs_(hasAllI)
-    ,hasMandatoryInputs_(mandatoryInp)
-    ,toEmMap_(toEmMap)
+      _private::Implements_Data_Type_New_map_string_ABC_Var_New      (parent,id,var,tip,whatthis,toAVec(argList),nullptr,nullptr,nullptr,nullptr)
     ,run_(run_)
+    ,isMandatory_(toMaMap(argList))
     {
       idSelfType_=Identifier::types::idCmd::varType(this,this);
     }
 
+
+    bool isMandatory(const std::string argName)const
+    {
+      auto it=isMandatory_.find(argName);
+      if (it==isMandatory_.end())
+        return false;
+      else
+        return it->second;
+    }
+
   protected:
-    plainPredicate hasAllInputs_;
-    plainPredicate hasMandatoryInputs_;
 
-
-    getEmptyMap toEmMap_;
     runCommand run_;
+    const Implements_Data_Type_New<ABC_Var_New*>* varEType_;
+    std::map<std::string,ABC_Var_New*> fields_;
+    std::vector<std::string> vfields_;
+    std::map<std::string,bool> isMandatory_;
+
+
+    static std::vector<ABC_Var_New*> toAVec
+    (std::vector<std::pair<ABC_Var_New*,bool>> v)
+    {
+      std::vector<ABC_Var_New*> out(v.size());
+      for (std::size_t i=0; i<v.size(); ++i)
+        out[i]=v[i].first;
+      return out;
+    }
+    static std::map<std::string,bool> toMaMap
+    (std::vector<std::pair<ABC_Var_New*,bool>> v)
+    {
+      std::map<std::string,bool> out;
+      for (auto e:v)
+        out[e.first->id()]=e.second;
+      return out;
+    }
+
 
     // ABC_Type_of_Value interface
   public:
@@ -5652,32 +5684,6 @@ namespace Markov_IO_New {
             cm,"",this->id(),{},this->Tip(),this->WhatThis());
     }
 
-    virtual bool hasAllInputs(const Implements_ComplexVar_New* cm,
-                              const Implements_Command_Arguments* a)const
-    {
-      if (hasAllInputs_== nullptr)
-        return true;
-      else
-        {
-          std::string whyNot;
-          return (*hasAllInputs_)(cm,a->value()->getValued()
-                                  ,this,&whyNot,"");
-        }
-    }
-
-    virtual bool hasAllMandatoryInputs(
-        const Implements_ComplexVar_New* cm,
-        const Implements_Command_Arguments* a)const
-    {
-      if (hasMandatoryInputs_==nullptr)
-        return true;
-      else
-        {
-          std::string whyNot;
-          return (*hasMandatoryInputs_)(cm,a->value()->getValued()
-                                        ,this,&whyNot,"");
-        }
-    }
 
     virtual bool run(Markov_CommandManagerVar* cm,
                      const std::map<std::string,ABC_Var_New*>& m,
@@ -5711,7 +5717,7 @@ namespace Markov_IO_New {
   public:
     virtual build_Command_Input *getBuildByToken(const Implements_ComplexVar_New *cm) const override
     {
-      return new build_Command_Input(cm,this->getSelfIdType());
+      return new build_Command_Input(cm,this);
 
     }
 
@@ -5778,6 +5784,9 @@ namespace Markov_IO_New {
 
 
   };
+
+
+
 
 
 

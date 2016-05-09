@@ -54,7 +54,7 @@ namespace Markov_IO_New
 
   bool Markov_CommandManagerVar::setDir(const std::string &dir)
   {
-    if (!IsDir(dir))
+    if (!fd::IsDir(dir))
       return false;
     dir_=dir;
     //autoCmptByCategories[directory()]=Autocomplete(Markov_IO::getSubDirs(dir));
@@ -77,13 +77,14 @@ namespace Markov_IO_New
     e(nullptr),
     lastCmdRst{},
     program_ver_(ProgramVersion()),
-    dir_{Markov_IO_New::getWorkingPath()},
+    dir_{Markov_IO_New::fd::getWorkingPath()},
     h_(new CommandHistory(""))
 {
   setParentValue(nullptr);
 
   cmd::pushAllCommands(this);
 _private::push_Types(this);
+ Identifier::push_Types(this);
 
   e=new ExpressionManager(this);
 

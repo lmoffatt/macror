@@ -530,6 +530,29 @@ namespace Markov_IO_New {
         (nullptr,myId,Type::myIdType(),val,myTip,myWhatThis));
   }
 
+  template<class Type>
+  void push_var(std::vector<std::pair<ABC_Var_New*,bool>>& m
+                ,bool isMandatory
+                ,typename Type::myC val={}
+      , const std::string myId=Type::myId()
+      , const std::string& myTip=Type::myTip()
+      , const std::string& myWhatThis=Type::myWhatThis()  )
+  {
+    m.push_back({new Implements_Var_New<typename Type::myC>
+        (nullptr,myId,Type::myIdType(),val,myTip,myWhatThis),isMandatory});
+  }
+
+  template<class Type>
+  Implements_Var_New<typename Type::myC> *
+       getMyVar(typename Type::myC val={}
+      , const std::string myId=Type::myId()
+      , const std::string& myTip=Type::myTip()
+      , const std::string& myWhatThis=Type::myWhatThis()  )
+  {
+    return new Implements_Var_New<typename Type::myC>
+        (nullptr,myId,Type::myIdType(),val,myTip,myWhatThis);
+  }
+
 
 
   template <class Field>
