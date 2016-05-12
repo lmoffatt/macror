@@ -228,7 +228,7 @@ namespace Markov_IO_New {
             ABC_Var_New* x_=A_fieldB_->unloadVar_New(
                   parent(),var_->id(),var_->myType()
                   ,var_->Tip(),var_->WhatThis());
-            cmdArg_->pushChild(x_);
+            cmdArg_->pushChild(cmdty_,x_);
             delete A_fieldB_;
             ++*this->it_;
             if (*it_==*end_)
@@ -853,7 +853,7 @@ namespace Markov_IO_New {
             if(varBuild_->isFinal())
               {
                 p_=varBuild_->unloadVar();
-                x_->pushChild(p_);
+                x_->pushChild(varMapType_,p_);
                 if (it_!=nullptr) ++*it_;
 
                 mystate=S_Data_Separator_Final;
@@ -882,7 +882,7 @@ namespace Markov_IO_New {
                 if(varBuild_->isFinal())
                   {
                     ABC_Var_New* p=varBuild_->unloadVar();
-                    x_->pushChild(p);
+                    x_->pushChild(varMapType_,p);
                     mystate=S_Data_Separator_Final;
                     return true;
                   }
@@ -904,7 +904,7 @@ namespace Markov_IO_New {
                 if(varBuild_->isFinal())
                   {
                     ABC_Var_New* p=varBuild_->unloadVar();
-                    x_->pushChild(p);
+                    x_->pushChild(varMapType_,p);
                     mystate=S_Data_Separator_Final;
                     return true;
                   }

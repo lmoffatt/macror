@@ -2,6 +2,7 @@
 #define FILELOADSAVE_H
 
 #include "Markov_IO/myIterator.h"
+#include "Markov_IO/Implements_ComplexVar_New.h"
 
 
 
@@ -12,7 +13,8 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <errno.h>
-
+#include <fstream>
+#include <iostream>
 
 
 namespace Markov_IO_New {
@@ -191,6 +193,51 @@ namespace Markov_IO_New {
     };
 
 
+
+
+    class FileOut: public ABC_Output
+    {
+
+
+      // ABC_Output interface
+    public:
+      FileOut(const std::string& path):
+        path_(path),
+        f_()
+      {
+        f_.open(path.c_str(),std::ofstream::out | std::ofstream::app);
+
+      if (!f_.is_open())
+      std::cerr<<"error opening "+path;
+      }
+
+      ~FileOut()
+      {
+        f_.close();
+      }
+
+      bool isOpen()const
+      {
+        return f_.is_open();
+      }
+
+      virtual void put(const std::__cxx11::string &s) override
+      {
+        f_<<s;
+
+      }
+      virtual void put(double x) override {f_<<x;}
+      virtual void put(int n) override  {f_<<n;}
+      virtual void put(std::size_t n) override {f_<<n;}
+      virtual void put(char c) override {f_<<c;}
+
+    private:
+      std::string path_;
+      std::ofstream f_;
+    };
+
+
+
     std::string getWorkingPath();
 
     std::string getExecutablePath();
@@ -213,6 +260,37 @@ namespace Markov_IO_New {
 
     std::vector<std::string> getFilesInDir(const std::string &dir,namePredicate test);
 
+    template<typename Predicate>
+    std::vector<std::__cxx11::string> getFilesInDir(const std::__cxx11::string &dir
+                                                    , Predicate test)
+    {
+      Directory d(dir);
+      std::vector<std::string> files;
+      for (auto it=d.begin(); it!=d.end(); ++it)
+        {
+          if ((it->isFile()&& test(*it)))
+            files.push_back(it->name());
+        }
+      return files;
+
+    }
+
+    template<typename Predicate>
+     std::__cxx11::string getFirstFileInDir(const std::__cxx11::string &dir
+                                                    , Predicate test)
+    {
+      Directory d(dir);
+      for (auto it=d.begin(); it!=d.end(); ++it)
+        {
+          if ((it->isFile()&& test(*it)))
+            return it->name();
+        }
+      return {};
+
+    }
+
+
+
     std::string getFirstFileInDir(const std::string &dir,namePredicate test);
 
 
@@ -226,6 +304,15 @@ namespace Markov_IO_New {
 
     bool isMacrorFile(const std::string& path, std::string* whyNot,const std::string& object);
     bool isMacrorFile(const std::string& path);
+
+    inline std::string getFileExtension(const std::string& fname)
+    {
+      return fname.substr(fname.find_last_of('.'));
+    }
+
+    bool hasExtension(const std::string& path, const std::string& extension
+                      ,std::string* whyNot=nullptr,const std::string& objective="");
+
 
   }
 

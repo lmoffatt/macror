@@ -44,6 +44,9 @@
 #include "Markov_IO/FileLoadSave.h"
 
 
+#include "Markov_IO/Implements_path.h"
+
+
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
 
@@ -55,12 +58,13 @@ namespace Markov_IO_New
   bool Markov_CommandManagerVar::setDir(const std::string &dir)
   {
     if (!fd::isDir(dir))
+
       return false;
-    dir_=dir;
-    //autoCmptByCategories[directory()]=Autocomplete(Markov_IO::getSubDirs(dir));
-    //TODO                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            : include this former functionality (list of macror files)
-    // filesl=LoadFiles(dir);
-    return true;
+    else
+      {
+        this->set_Value<pathName::vars::workingPath>(dir);
+        return true;
+      }
   }
 
 
@@ -70,39 +74,40 @@ namespace Markov_IO_New
   }
 
   Markov_CommandManagerVar::Markov_CommandManagerVar():
-   Implements_ComplexVar_New(nullptr,"CommandManager","CommandManager","",""),
-  io_(nullptr),
+    Implements_ComplexVar_New(nullptr,"CommandManager","CommandManager","",""),
+    cmType_(nullptr),
+    io_(nullptr),
     vt_{Variable::types::varNew::varType(this)},
     idCmd_(Identifier::types::idCmd::varType(this)),
     e(nullptr),
     lastCmdRst{},
     program_ver_(ProgramVersion()),
-    dir_{Markov_IO_New::fd::getWorkingPath()},
     h_(new CommandHistory(""))
-{
-  setParentValue(nullptr);
+  {
+    setParentValue(nullptr);
+    cmType_=new vType(this);
+    pushVar<pathName::vars::workingPath>(Markov_IO_New::fd::getWorkingPath());
+    cmd::pushAllCommands(this);
+    _private::push_Types(this);
+    Identifier::push_Types(this);
 
-  cmd::pushAllCommands(this);
-_private::push_Types(this);
- Identifier::push_Types(this);
+    e=new ExpressionManager(this);
 
-  e=new ExpressionManager(this);
+    //    auto dirs=Markov_IO::getSubDirs(dir_);
+    //    filesl=LoadFiles(getDir());
+    //    autoCmptByKind[ABC_Command::directory()]=Autocomplete(dirs);
+    //    autoCmptByKind[ABC_Command::fileName()]=LoadFiles(getDir());
 
-  //    auto dirs=Markov_IO::getSubDirs(dir_);
-  //    filesl=LoadFiles(getDir());
-  //    autoCmptByKind[ABC_Command::directory()]=Autocomplete(dirs);
-  //    autoCmptByKind[ABC_Command::fileName()]=LoadFiles(getDir());
+    //  Loadcommands();
+    //    cmdsl=Autocomplete(cmds);
+    //  LoadTypes();
 
-//  Loadcommands();
-  //    cmdsl=Autocomplete(cmds);
-//  LoadTypes();
-
-  //  UpdateIdLists();
+    //  UpdateIdLists();
   }
 
   CommandHistory &Markov_CommandManagerVar::getH()
   {
-   return *h_;
+    return *h_;
   }
 
   void Markov_CommandManagerVar::run(const Implements_Command_Arguments *arg)
@@ -111,6 +116,10 @@ _private::push_Types(this);
     const Implements_Command_Type_New* ctp=idToCommand(arg->myType(),&dummyError,"");
     ctp->run(this,arg->value()->getValued(),&dummyError,"");
   }
+
+  std::__cxx11::string Markov_CommandManagerVar::getDir() const
+  {
+    return this->get_Value<pathName::vars::workingPath>();}
 
 
 
@@ -229,7 +238,7 @@ namespace Markov_Console
 
 
 
-/*
+  /*
   bool Markov_CommandManagerVar::processTokens(Markov_IO::Token_Stream &t)
   {
     if (t.currToken().tok()==Markov_IO::Token_New::IDENTIFIER)
@@ -328,10 +337,10 @@ namespace Markov_Console
 
 
 
-//  std::string Markov_CommandManagerVar::getHelpDir()
-//  {
-//    return STRINGIZE(HELP_PATH);
-//  }
+  //  std::string Markov_CommandManagerVar::getHelpDir()
+  //  {
+  //    return STRINGIZE(HELP_PATH);
+  //  }
 
   std::string Markov_CommandManagerVar::directory()
   {
@@ -360,33 +369,33 @@ namespace Markov_Console
   std::string Markov_CommandManagerVar::idCommandName()
   { return "IdCommand";}
 
-//  std::vector<std::string> Markov_CommandManagerVar::complete(const std::string &hint, const std::string &category) const
+  //  std::vector<std::string> Markov_CommandManagerVar::complete(const std::string &hint, const std::string &category) const
 
-//  {
-//    auto it= autoCmptByCategories.find(category);
-//    if (it!=autoCmptByCategories.end())
-//      {
-//        Autocomplete a=it->second;
-//        return a.complete(hint);
-//      }
-//    else
-//      {
-//        return {};
-//      }
-//  }
+  //  {
+  //    auto it= autoCmptByCategories.find(category);
+  //    if (it!=autoCmptByCategories.end())
+  //      {
+  //        Autocomplete a=it->second;
+  //        return a.complete(hint);
+  //      }
+  //    else
+  //      {
+  //        return {};
+  //      }
+  //  }
 
-//  std::map<std::string, std::vector<std::string> > Markov_CommandManagerVar::complete(const std::string &hint, const std::vector<std::pair<std::string, bool> > &categories) const
-//  {
-//    std::map<std::string,std::vector<std::string>> out;
-//    for (std::pair<std::string,bool> cat:categories)
-//      {
-//        auto v=complete(hint,cat.first);
-//        if (!v.empty())
-//          out[cat.first]=v;
-//      }
-//    return out;
+  //  std::map<std::string, std::vector<std::string> > Markov_CommandManagerVar::complete(const std::string &hint, const std::vector<std::pair<std::string, bool> > &categories) const
+  //  {
+  //    std::map<std::string,std::vector<std::string>> out;
+  //    for (std::pair<std::string,bool> cat:categories)
+  //      {
+  //        auto v=complete(hint,cat.first);
+  //        if (!v.empty())
+  //          out[cat.first]=v;
+  //      }
+  //    return out;
 
-//  }
+  //  }
 
 
 
@@ -638,7 +647,7 @@ namespace Markov_Console
 
   std::set<std::string> Markov_CommandManagerVar::getCommandList() const
   {
-      return Markov_IO::getLables(cmds);
+    return Markov_IO::getLables(cmds);
   }
 
 

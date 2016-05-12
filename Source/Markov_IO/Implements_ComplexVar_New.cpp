@@ -74,9 +74,9 @@ namespace Markov_IO_New {
 
     bool Implements_Data_Type_New_ABC_Var_New::isVarInDomain(const Implements_ComplexVar_New *cm, const ABC_Var_New * const val, std::string *whyNot, const std::string &masterObjective) const
     {
-      if (this->idType_->isVarInDomain(cm,val->id(),whyNot,masterObjective))
+      if (!this->idType_->isVarInDomain(cm,val->id(),whyNot,masterObjective))
         return false;
-      else if (this->varType_->isVarInDomain(cm,val->myType(),whyNot,masterObjective))
+      else if (!this->varType_->isVarInDomain(cm,val->myType(),whyNot,masterObjective))
         return false;
       else return true;
     }
@@ -280,6 +280,22 @@ namespace Markov_IO_New {
       varEType_=Variable::types::varField::varType(parent,this);
     }
 
+    Implements_Data_Type_New_map_string_ABC_Var_New::Implements_Data_Type_New_map_string_ABC_Var_New(const Implements_ComplexVar_New* cm):
+      Implements_Container_Type_New<Markov_IO_New::ABC_Var_New *, String_map>
+      (nullptr,cm->id(),cm->myType(),cm->Tip(),cm->WhatThis(),"_var"
+       ,nullptr,nullptr
+       ,nullptr,nullptr)
+    ,comply_(nullptr)
+    ,typeComply_(nullptr)
+    ,elemComply_(nullptr)
+    ,default_(nullptr)
+    ,varEType_(nullptr)
+    ,fields_(toMap({}))
+    ,vfields_(toVec({}))
+    {
+      varEType_=Variable::types::varUsed::varType(this);
+    }
+
 
 
 
@@ -294,6 +310,32 @@ namespace Markov_IO_New {
     Implements_Data_Type_New_map_string_ABC_Var_New::const_iterator *Implements_Data_Type_New_map_string_ABC_Var_New::end() const
     {
       return new MyConstIterator(*this,vfields_.size());
+    }
+
+    bool Implements_Data_Type_New_map_string_ABC_Var_New::put(const Implements_ComplexVar_New *cm, const std::map<std::__cxx11::string, ABC_Var_New *> &v, ABC_Output *ostream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+    {
+      if (this->isVarInDomain(cm,v,whyNot,masterObjective))
+        {
+          const Implements_Data_Type_New<ABC_Var_New*>* etype
+              =this->getElementDataType(cm);
+          ostream->put("\n{");
+          const_iterator* it;
+          for (it=begin(); *it!=*end();++*it)
+            {
+              auto itv=v.find((**it)->id());
+              if (itv!=v.end())
+              if(!etype->put(cm,itv->second,ostream,whyNot,masterObjective))
+                {
+                  ostream->put(*whyNot);
+                  return false;
+                }
+            }
+          delete it;
+          ostream->put("}");
+          return true;
+        }
+      else
+        return false;
     }
 
 
@@ -320,6 +362,27 @@ namespace Markov_IO_New {
 
 
 
+  void Implements_ComplexVar_New::pushChild
+  (Implements_Data_Type_New<std::map<std::__cxx11::string, ABC_Var_New *> > *cmtype
+   , ABC_Var_New *var)
+  {
+    all_[var->id()]=var;
+    vars_[var->id()]=var;
+    cmtype->pushField(var);
+  }
+  void Implements_ComplexVar_New::pushChild
+  (const Implements_Data_Type_New<std::map<std::__cxx11::string, ABC_Var_New *> > *cmtype
+   ,ABC_Var_New *var)
+  {
+    std::string whyNot;
+    if (cmtype->hasFieldName(var->id(),&whyNot,""))
+      {
+        all_[var->id()]=var;
+        vars_[var->id()]=var;
+
+
+      }
+  }
   void Implements_ComplexVar_New::pushCommand(Implements_Command_Type_New *cmd)
   {
     all_[cmd->id()]=cmd;

@@ -5,6 +5,22 @@
 namespace Markov_IO_New {
   namespace pathName
   {
+
+    namespace fields
+    {
+      struct extension_field
+      {
+        typedef std::string myC;
+        typedef Implements_Data_Type_New<myC>  vType;
+
+        static std::string myId(){return "extension_field";}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "file extension";}
+        static std::string myWhatThis() {return "different types of variables";}
+
+      };
+    }
+
     struct types
     {
       struct filenameUsed
@@ -12,22 +28,22 @@ namespace Markov_IO_New {
         typedef  std::string myC;
         typedef filenameUsed selfType;
 
-        static std::string myId(){return "filenameUsed";}
+        static std::string myId(){return "fileNameUsed";}
         static std::string myId(const std::string& extension){return myId()+"_ext_"+extension;}
         static std::string myIdType(){return Cls<myC>::name();}
-        static std::string myTip(){return "a filename identifier";}
+        static std::string myTip(){return "an existant filename identifier";}
         static std::string myWhatThis(){return "an identifier to a type";}
 
         static bool comply
         (const Implements_ComplexVar_New*
-         ,const myC& x
-         ,const Implements_ComplexVar_New* ,
+         , const myC& x
+         , const Implements_ComplexVar_New* self,
          std::string *WhyNot
          , const std::string& objective);
 
         static std::set<std::string>
         alternativeNext(const Implements_ComplexVar_New*,
-                        const Implements_ComplexVar_New*);
+                        const Implements_ComplexVar_New*self);
 
         static  std::string
         defaultVal(const Implements_ComplexVar_New*cm, const Implements_ComplexVar_New* self);
@@ -41,6 +57,18 @@ namespace Markov_IO_New {
                ,nullptr
                ,&defaultVal
                ,&alternativeNext,nullptr,nullptr);
+        }
+        static Implements_Data_Type_New<myC>*
+        varType(const Implements_ComplexVar_New* cm, const std::string& ext)
+        {
+         auto out= new Implements_Data_Type_New<myC>
+              (cm,myId(),myIdType(),myTip(),myWhatThis(),""
+               ,&comply
+               ,nullptr
+               ,&defaultVal
+               ,&alternativeNext,nullptr,nullptr);
+         out->pushVar<fields::extension_field>(ext);
+         return out;
         }
       };
 
@@ -93,6 +121,11 @@ namespace Markov_IO_New {
       };
 
     };
+
+
+
+
+
 
     void push_Types(Markov_CommandManagerVar* cm);
 

@@ -377,44 +377,10 @@ namespace Markov_IO_New {
       else return parent()->hasCommand(name,whyNot,masterObjective,recursive);
     }
     
-    template <typename T>
-    bool insertChild(const std::string& idN,
-                     const std::string& var,
-                     T* value,
-                     const std::string& tip
-                     ,const std::string& whatthis
-                     ,std::string *whyNot
-                     , const std::string& masterObjective)
-    {
-      const std::string objective=masterObjective+": "+id()+"cannot insert"+idN;
-      if (isNameUnOcuppied(idN,whyNot,objective,false))
-        {
-          auto v=idToTyped<T>(var,whyNot,objective);
-          if (v==nullptr)
-            return false;
-          else
-            {
-              if (!v->isVarInDomain(this,value,whyNot,objective))
-                return false;
-              else
-                {
-                  pushChild(new Implements_Var_New(this,{idN,var,value,tip,whatthis}));
-                  return true;
-                }}
-        }
-      else
-        return false;
-      
-    }
+
     
     
-    
-    bool insertChild(const std::string& id,
-                     const std::string& var,
-                     const std::string& tip
-                     , const std::string& whatthis
-                     , std::string *whyNot, const std::string &masterObjective);
-    
+
 
 
     
@@ -456,29 +422,36 @@ namespace Markov_IO_New {
         return false;
     }
     
-    void pushChild(ABC_Var_New* var)
-    {
-      all_[var->id()]=var;
-      vars_[var->id()]=var;
-    }
-    
+    void pushChild
+    (Implements_Data_Type_New<std::map<std::__cxx11::string, ABC_Var_New *> > *cmtype
+     , ABC_Var_New* var);
+
+    void pushChild
+    (const Implements_Data_Type_New<std::map<std::__cxx11::string, ABC_Var_New *> > *cmtype
+     , ABC_Var_New* var);
+
+
+
     template<class Field>
     void pushVar(typename Field::myC val={}
         , const std::string myId=Field::myId()
         , const std::string& myTip=Field::myTip()
         , const std::string& myWhatThis=Field::myWhatThis()  )
     {
+      push_var<Field>(all_,val,myId,myTip,myWhatThis);
       push_var<Field>(vars_,val,myId,myTip,myWhatThis);
     }
 
     template<typename T>
-    void push_backVal(const std::string& name,
+    void push_backVal
+    (Implements_Data_Type_New<std::map<std::__cxx11::string, ABC_Var_New *> > *cmtype
+    ,const std::string& name,
                       T value,
                       const std::string& classname="",
                       const std::string& tip="",
                       const std::string & whatthis="")
-    {
-      pushChild(new Implements_Var_New<T>(this,name,classname,value,tip,whatthis));
+        {
+      pushChild(new Implements_Var_New<T>(this,name,classname,value,tip,whatthis),cmtype);
     }
     
 
@@ -489,6 +462,10 @@ namespace Markov_IO_New {
     {
       return get_var(vars_,val,whyNot,masterObjective);
     }
+
+
+
+
 
     template <class Field>
     typename Field::myC  get_Value()const
@@ -503,6 +480,19 @@ namespace Markov_IO_New {
     }
 
     
+    template <class Field>
+    bool   set_Value(typename Field::myC val)const
+    {
+      std::string whyNot;
+      if (set_var<Field>(vars_,val,&whyNot,""))
+        return true;
+      else
+        return false;
+    }
+
+
+
+
     void pushType(ABC_Type_of_Value* varT);
     void pushCommand(Implements_Command_Type_New* cmd);
     
@@ -565,7 +555,35 @@ namespace Markov_IO_New {
     friend class buildByToken<std::map<std::string, ABC_Var_New *> >;
 
 
+    std::map<std::string,ABC_Var_New*>& getVars()
+    {
+      return vars_;
+    }
+    const std::map<std::string,ABC_Var_New*>& getVars()const
+    {
+      return vars_;
+    }
+    std::map<std::string,ABC_Type_of_Value*>& getTypes()
+    {
+      return types_;
+    }
+    const std::map<std::string,ABC_Type_of_Value*>& getTypes()const
+    {
+      return types_;
+    }
+    std::map<std::string,Implements_Command_Type_New*>& getCommands()
+    {
+      return cmds_;
+    }
+    const std::map<std::string,Implements_Command_Type_New*>& getCommands()const
+    {
+      return cmds_;
+    }
 
+
+
+
+    void pushChild(ABC_Var_New *var, const Implements_Data_Type_New<std::map<std::__cxx11::string, ABC_Var_New *> > *cmtype);
   private:
     std::map<std::string,ABC_Var_New*>& getMap()
     {
@@ -963,7 +981,7 @@ namespace Markov_IO_New {
       const Implements_Value_New<T*>* val=dynamic_cast<const Implements_Value_New<T*>*>(v);
       if (val==nullptr)
         {
-          *whyNot=masterObjective+": "+v->storedClass()+" is not a"+Cls<T>::name();
+          *whyNot=masterObjective+": "+v->storedClass()+" is not a "+Cls<T>::name();
           return false;
         }
       else
@@ -1516,7 +1534,7 @@ namespace Markov_IO_New {
     inline
     std::size_t  getVersionNumber(const std::string &id)
     {
-      auto m=id.find_last_of('_');
+        auto m=id.find_last_of('_');
       if (m!=id.npos)
         {
           std::stringstream ss(id.substr(m));
@@ -3981,27 +3999,10 @@ namespace Markov_IO_New {
 
       
       
-      virtual bool put(const Implements_ComplexVar_New* cm,const std::map<std::string,ABC_Var_New*>& v,ABC_Output* ostream,std::string* whyNot,const std::string &masterObjective)const override
-      {
-        if (this->isVarInDomain(cm,v,whyNot,masterObjective))
-          {
-            const Implements_Data_Type_New<ABC_Var_New*>* etype
-                =this->getElementDataType(cm);
-            ostream->put("\n{");
-            for (auto& e: v)
-              {
-                if(!etype->put(cm,e.second,ostream,whyNot,masterObjective))
-                  {
-                    ostream->put(*whyNot);
-                    return false;
-                  }
-              }
-            ostream->put("}");
-            return true;
-          }
-        else
-          return false;
-      }
+      virtual bool put(const Implements_ComplexVar_New* cm,const std::map<std::string,ABC_Var_New*>& v,
+                       ABC_Output* ostream
+                       ,std::string* whyNot
+                       ,const std::string &masterObjective)const override;
       
       
       virtual bool get(const Implements_ComplexVar_New* cm,std::map<std::string,ABC_Var_New*>& v, ABC_Input* istream,std::string* whyNot ,const std::string &masterObjective)const override
@@ -4038,7 +4039,14 @@ namespace Markov_IO_New {
       }
       
       
-      
+      void pushField(const ABC_Var_New* v)
+      {
+        vfields_.push_back(v->id());
+        fields_[v->id()]=v->create(this);
+      }
+
+
+
       
       static std::string ClassName()
       {
@@ -4072,7 +4080,8 @@ namespace Markov_IO_New {
           ,typeElementPredicate elemeComply
           ,typeValue  defaultValue);
       
-      
+      Implements_Data_Type_New_map_string_ABC_Var_New(const Implements_ComplexVar_New *cm);
+
 
       
       
@@ -4518,7 +4527,7 @@ namespace Markov_IO_New {
                 ,myTip()
                 ,myWhatThis()
                 ,nullptr
-                ,Identifier::types::idVarNew::varType(cm)
+                ,Identifier::types::idVarUsed::varType(cm)
                 ,Identifier::types::idType::varType(cm)
                 ,&comply,nullptr,nullptr);
         }
@@ -5921,25 +5930,6 @@ namespace Markov_IO_New {
 
   }
 
-  inline
-  bool Implements_ComplexVar_New::insertChild(const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis, std::string *whyNot, const std::string& masterObjective)
-  {
-    if (!this->isNameUnOcuppied(id,whyNot,masterObjective,false))
-      {
-        return false;
-      }
-    else
-      {
-        auto v=idToType(var,whyNot,masterObjective);
-        if (v==nullptr)
-          return false;
-        else
-          {
-            pushChild(v->empty_Var(this,id,tip,whatthis));
-            return true;
-          }
-      }
-  }
 
   inline
   void Implements_ComplexVar_New::pushType(ABC_Type_of_Value *varT)

@@ -23,11 +23,11 @@ namespace Markov_IO_New
    //   ,
         Implements_ComplexVar_New(nullptr,"Program_Environment","","environment at file creation","")
       {
-        push_backVal("Program",programName());
-        push_backVal("ver",programVer());
-        push_backVal("buildHash",buildVersion());
-        push_backVal("buildDate",buildDate());
-        push_backVal("UncommitedFiles",uncommitedFiles());
+//        push_backVal("Program",programName());
+//        push_backVal("ver",programVer());
+//        push_backVal("buildHash",buildVersion());
+//        push_backVal("buildDate",buildDate());
+//        push_backVal("UncommitedFiles",uncommitedFiles());
       }
 
       static std::string programName(){ return "MacroConsole";}
@@ -97,22 +97,38 @@ namespace Markov_IO_New
     }
 
 
+    typedef  Implements_Data_Type_New<std::map<std::string,ABC_Var_New*> > vType;
+
+
+     vType* getCmdType()
+    {
+      return cmType_;
+    }
+
+    const  vType* getCmdType()const
+    {
+      return cmType_;
+    }
+
+
     void run(const Implements_Command_Arguments* arg);
 
-    std::string getDir() const {return dir_;}
+    std::string getDir() const;
 
     bool setDir(const std::string &dir);
 
 
 
+
+
   protected:
     ABC_IO* io_;
+    vType* cmType_;
     Implements_Data_Type_New<ABC_Var_New*>* vt_;
     Implements_Identifier* idCmd_;
     ExpressionManager* e;
     bool lastCmdRst;
     ProgramVersion program_ver_;
-    std::string dir_;
     CommandHistory* h_;
 
   };

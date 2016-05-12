@@ -369,9 +369,6 @@ namespace Markov_IO_New {
 
     virtual void setId(const std::string& idName)=0;
 
-
-    virtual std::string refId()const=0;
-
     virtual std::string myType()const=0;
 
     bool isOfThisType(const Implements_ComplexVar_New* cm,
@@ -434,10 +431,6 @@ namespace Markov_IO_New {
     }
 
 
-    virtual std::string refId()const override
-    {
-      return id();
-    }
 
     virtual std::string myType()const override
     {
@@ -594,6 +587,46 @@ namespace Markov_IO_New {
       }
   }
 
+
+
+  template <class Field>
+  bool set_var(const std::map<std::string,ABC_Var_New*>& m
+               ,typename Field::myC& val
+               ,std::string* whyNot
+               ,const std::string& masterObjective )
+  {
+    auto it=m.find(Field::myId());
+    if (it==m.end())
+      {
+        *whyNot=masterObjective+": field "+Field::myId()+" not found";
+        return false;
+      }
+    else
+      {
+        ABC_Var_New* o=it->second;
+        if (o==nullptr)
+          {
+            *whyNot=masterObjective+": field "+Field::myId()+" is null";
+            return false;
+          }
+        else
+          {
+            auto v=dynamic_cast<Implements_Var_New<typename Field::myC>*>(o);
+            if (v==nullptr)
+              {
+                *whyNot=masterObjective+": field "+Field::myId()+" is of wrong type: "
+                    +o->myType()+" instead of "+ Field::myIdType();
+                return false;
+              }
+            else
+              {
+                return v->value()->setValue(val,whyNot,masterObjective);
+                return true;
+              }
+
+          }
+      }
+  }
 
 
 

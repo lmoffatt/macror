@@ -188,18 +188,8 @@ namespace Markov_IO_New {
 
 
 
-    std::vector<std::__cxx11::string> getFilesInDir(const std::__cxx11::string &dir, namePredicate test)
-    {
-      Directory d(dir);
-      std::vector<std::string> files;
-      for (auto it=d.begin(); it!=d.end(); ++it)
-        {
-          if ((it->isFile()&&(*test)(it->name())))
-            files.push_back(it->name());
-        }
-      return files;
 
-    }
+
 
 
 
@@ -214,6 +204,29 @@ namespace Markov_IO_New {
         }
       return "";
 
+    }
+
+    bool hasExtension(const std::__cxx11::string &path, const std::__cxx11::string &extension, std::__cxx11::string *whyNot, const std::__cxx11::string &objective)
+    {
+      if (extension.empty())
+        return true;
+      else
+        {
+
+          std::string fileExtension=getFileExtension(path);
+          if (whyNot==nullptr)
+            return fileExtension==extension;
+          else
+            {
+              if (fileExtension!=extension)
+                {
+                  *whyNot=objective+": wrong file extension "
+                      +fileExtension + " is not "+extension;
+                  return false;
+                }
+              else return true;
+            }
+        }
     }
 
 

@@ -1,7 +1,7 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 #include "Markov_IO/Implements_ComplexVar_New.h"
-
+#include "Markov_IO/Implements_path.h"
 
 namespace Markov_IO_New
 {
@@ -18,10 +18,10 @@ namespace Markov_IO_New
       static std::string myWhatThis() {return "different types of variables";}
     };
 
-    struct fileName_Field
+    struct fileName_FieldUsed
     {
       typedef std::string myC;
-      typedef Identifier::types::idType myType;
+      typedef pathName::types::filenameUsed myType;
       typedef Implements_Identifier vType;
 
       static std::string myId(){return "typeName";}
@@ -62,6 +62,31 @@ namespace Markov_IO_New
 
     class  SaveCommand : public Implements_Command_Type_New
     {
+    public:
+      static void save(Markov_CommandManagerVar* cm,
+                      const std::string& pathfileName);
+
+
+      static bool save(Markov_CommandManagerVar* cm
+                      , const std::map<std::string,ABC_Var_New*>&
+                      , const Implements_Command_Type_New *
+                       , std::__cxx11::string * whyNot
+                      , const std::string& objective);
+
+
+      static std::string ClassName() {return "save";}
+
+      SaveCommand(const Implements_ComplexVar_New* cm):
+        Implements_Command_Type_New(cm,ClassName(),
+                                    Implements_Command_Type_New::ClassName(),
+                                    "list the availabe variables"
+                                    ," "
+                                    ,{{getMyVar<arg::typeName_Field>(),false}}
+                                    ,&save )
+      {}
+      virtual ~SaveCommand(){}
+
+
 
     };
 
@@ -71,6 +96,30 @@ namespace Markov_IO_New
     };
     class LoadCommand: public Implements_Command_Type_New
     {
+      static void load(Markov_CommandManagerVar* cm,
+                      const std::string& pathfileName);
+
+
+      static bool load(Markov_CommandManagerVar* cm
+                      , const std::map<std::string,ABC_Var_New*>&
+                      , const Implements_Command_Type_New *
+                       , std::__cxx11::string * whyNot
+                      , const std::string& objective);
+
+
+      static std::string ClassName() {return "load";}
+
+      LoadCommand(const Implements_ComplexVar_New* cm):
+        Implements_Command_Type_New(cm,ClassName(),
+                                    Implements_Command_Type_New::ClassName(),
+                                    "list the availabe variables"
+                                    ," "
+                                    ,{{getMyVar<arg::typeName_Field>(),false}}
+                                    ,&load )
+      {}
+      virtual ~LoadCommand(){}
+
+
 
     };
     class  ExportCommand: public Implements_Command_Type_New

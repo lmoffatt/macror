@@ -18,9 +18,11 @@ namespace Markov_IO_New {
     void push_Types(Markov_CommandManagerVar *cm)
     {
       cm->pushType(new Implements_Data_Type_New<std::size_t> (cm));
+
       cm->pushType(new Implements_Data_Type_New<double> (cm));
-      //cm->pushType(new Implements_Data_Type_New<int> (cm));
-     // cm->pushType(new Implements_Data_Type_New<bool> (cm));
+      cm->pushType(new Implements_Data_Type_New<std::string> (cm));
+    // cm->pushType(new Implements_Data_Type_New<int> (cm));
+    //  cm->pushType(new Implements_Data_Type_New<bool> (cm));
 
 
            cm->pushType(new Implements_Data_Type_New<ABC_Markov_Model*>(cm));
