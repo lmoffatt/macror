@@ -14,14 +14,14 @@ namespace Markov_IO_New
 
 
   
-  class ProgramVersion:public Implements_ComplexVar_New
+  class ProgramVersion:public StructureEnv_New
     {
   public:
     virtual ~ProgramVersion(){}
-    ProgramVersion():
+    ProgramVersion()
    //     Markov_IO::Implements_ValueId("Program_Environment","","environment at file creation","")
    //   ,
-        Implements_ComplexVar_New(nullptr,"Program_Environment","","environment at file creation","")
+    //    StructureEnv_New(nullptr,"Program_Environment","","environment at file creation","")
       {
 //        push_backVal("Program",programName());
 //        push_backVal("ver",programVer());
@@ -61,7 +61,7 @@ namespace Markov_IO_New
 
 
 
-  class Markov_CommandManagerVar: public Implements_ComplexVar_New
+  class Markov_CommandManagerVar: public StructureEnv_New
   {
   public:
 
@@ -81,7 +81,7 @@ namespace Markov_IO_New
 
     virtual CommandHistory& getH();
 
-    const Implements_Data_Type_New<ABC_Var_New*>* getVarType()
+    const Implements_Data_Type_New<Implements_Var>* getVarType()
     {
       return vt_;
     }
@@ -97,7 +97,7 @@ namespace Markov_IO_New
     }
 
 
-    typedef  Implements_Data_Type_New<std::map<std::string,ABC_Var_New*> > vType;
+    typedef  Implements_Data_Type_New<StructureEnv_New* > vType;
 
 
      vType* getCmdType()
@@ -124,7 +124,7 @@ namespace Markov_IO_New
   protected:
     ABC_IO* io_;
     vType* cmType_;
-    Implements_Data_Type_New<ABC_Var_New*>* vt_;
+    Implements_Data_Type_New<Implements_Var>* vt_;
     Implements_Identifier* idCmd_;
     ExpressionManager* e;
     bool lastCmdRst;

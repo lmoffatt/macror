@@ -9,7 +9,7 @@ namespace Markov_IO_New {
   namespace cmd {
 
 
-    void pushAllCommands(Implements_ComplexVar_New *cm)
+    void pushAllCommands(StructureEnv_New *cm)
     {
       cm->pushCommand(new ExitCommand(cm));
       cm->pushCommand(new WhoCommand(cm));
@@ -26,7 +26,7 @@ namespace Markov_IO_New {
           cm->getIO()->putNewLine();
         }
     }
-    bool WhoCommand::who(Markov_CommandManagerVar *cm, const std::map<std::__cxx11::string, ABC_Var_New *> &m, const Implements_Command_Type_New *
+    bool WhoCommand::who(Markov_CommandManagerVar *cm, const std::map<std::__cxx11::string, ABC_Data_New *> &m, const Implements_Command_Type_New *
                          , std::__cxx11::string * whynot, const std::__cxx11::string & objective)
     {
 
@@ -97,7 +97,7 @@ namespace Markov_IO_New {
 
     bool SaveCommand::save
     (Markov_CommandManagerVar *cm
-     , const std::map<std::__cxx11::string, ABC_Var_New *> & args
+     , const std::map<std::__cxx11::string, ABC_Data_New *> & args
      , const Implements_Command_Type_New * self
      , std::__cxx11::string *whyNot
      , const std::__cxx11::string &objective)

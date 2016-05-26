@@ -68,7 +68,7 @@ namespace Markov_IO_New
 
 
       static bool save(Markov_CommandManagerVar* cm
-                      , const std::map<std::string,ABC_Var_New*>&
+                      , const StructureEnv_New*&
                       , const Implements_Command_Type_New *
                        , std::__cxx11::string * whyNot
                       , const std::string& objective);
@@ -76,7 +76,7 @@ namespace Markov_IO_New
 
       static std::string ClassName() {return "save";}
 
-      SaveCommand(const Implements_ComplexVar_New* cm):
+      SaveCommand(const StructureEnv_New* cm):
         Implements_Command_Type_New(cm,ClassName(),
                                     Implements_Command_Type_New::ClassName(),
                                     "list the availabe variables"
@@ -101,7 +101,7 @@ namespace Markov_IO_New
 
 
       static bool load(Markov_CommandManagerVar* cm
-                      , const std::map<std::string,ABC_Var_New*>&
+                      , const StructureEnv_New*&
                       , const Implements_Command_Type_New *
                        , std::__cxx11::string * whyNot
                       , const std::string& objective);
@@ -109,7 +109,7 @@ namespace Markov_IO_New
 
       static std::string ClassName() {return "load";}
 
-      LoadCommand(const Implements_ComplexVar_New* cm):
+      LoadCommand(const StructureEnv_New* cm):
         Implements_Command_Type_New(cm,ClassName(),
                                     Implements_Command_Type_New::ClassName(),
                                     "list the availabe variables"
@@ -136,7 +136,7 @@ namespace Markov_IO_New
     public:
 
       static bool exitProgram(Markov_CommandManagerVar* cm
-                              , const std::map<std::string,ABC_Var_New*>&
+                              , const StructureEnv_New*&
                               ,const Implements_Command_Type_New*
                               ,std::string*, const std::string&)
       {
@@ -147,7 +147,7 @@ namespace Markov_IO_New
 
       static std::string ClassName() {return "exit";}
 
-      ExitCommand(const Implements_ComplexVar_New* cm):
+      ExitCommand(const StructureEnv_New* cm):
         Implements_Command_Type_New(cm,ClassName(),
                                     Implements_Command_Type_New::ClassName(),
                                     "closes everything and exits the program"
@@ -175,14 +175,14 @@ namespace Markov_IO_New
 
 
       static bool who(Markov_CommandManagerVar* cm
-                      , const std::map<std::string,ABC_Var_New*>&
+                      , const StructureEnv_New*&
                       , const Implements_Command_Type_New *, std::__cxx11::string *
                       , const std::string&);
 
 
       static std::string ClassName() {return "who";}
 
-      WhoCommand(const Implements_ComplexVar_New* cm):
+      WhoCommand(const StructureEnv_New* cm):
         Implements_Command_Type_New(cm,ClassName(),
                                     Implements_Command_Type_New::ClassName(),
                                     "list the availabe variables"
@@ -221,7 +221,7 @@ namespace Markov_IO_New
     };
 
 
-    void pushAllCommands (Implements_ComplexVar_New* cm);
+    void pushAllCommands (StructureEnv_New* cm);
   };
 
 }

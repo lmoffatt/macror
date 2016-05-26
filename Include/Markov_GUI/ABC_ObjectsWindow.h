@@ -34,7 +34,7 @@ public slots:
 
     std::string whyNot;
 
-    auto m=cm_->idToVar(modelName.toStdString(),objectClass_,&whyNot,"");
+    auto m=cm_->idToValue(modelName.toStdString(),objectClass_,&whyNot,"");
     if (m!=nullptr)
     {
         list.append(new QStandardItem(modelName));

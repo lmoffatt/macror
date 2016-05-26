@@ -4,13 +4,13 @@
 
 namespace Markov_IO_New {
 
-  template class Implements_Var_New<double>;
+  template class Implements_Value_New<double>;
 
-  template class Implements_Var_New<std::vector<double>>;
+  template class Implements_Value_New<std::vector<double>>;
 
-  template class Implements_Var_New<std::set<double>>;
+  template class Implements_Value_New<std::set<double>>;
 
-  template class Implements_Var_New<Markov_LA::M_Matrix<double>>;
+  template class Implements_Value_New<Markov_LA::M_Matrix<double>>;
 
 
   namespace
@@ -28,14 +28,14 @@ namespace Markov_IO_New {
 
   }
 
-  bool Implements_ComplexVar_New::hasNameofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
+  bool StructureEnv_New::hasNameofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
   {
     auto it=vars_.find(name);
     if (it==vars_.end())
       {
         if(!recursive||(parent()==nullptr))
           {
-            *whyNot=masterObjective+": "+name+" is not a name in "+this->id();
+            *whyNot=masterObjective+": "+name+" is not a name in ";
             return false;
           }
         else return parent()->hasNameofType(name, type,whyNot,masterObjective,recursive);
@@ -47,22 +47,22 @@ namespace Markov_IO_New {
           return false;
         else
           {
-            const ABC_Var_New* v=it->second;
-            return t->isVarInDomain(parent(),v->value(),whyNot,masterObjective);
+            const ABC_Data_New* v=it->second;
+            return t->isDataInDomain(parent(),v,whyNot,masterObjective);
           }
       }
 
   }
 
 
-  bool Implements_ComplexVar_New::hasCmdofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
+  bool StructureEnv_New::hasCmdofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
   {
     auto it=cmds_.find(name);
     if (it==cmds_.end())
       {
         if(!recursive||(parent()==nullptr))
           {
-            *whyNot=masterObjective+": "+name+" is not a name in "+this->id();
+            *whyNot=masterObjective+": "+name+" is not a name in ";
             return false;
           }
         else return parent()->hasCmdofType(name, type,whyNot,masterObjective,recursive);
@@ -84,14 +84,14 @@ namespace Markov_IO_New {
 
 
 
-  bool Implements_ComplexVar_New::hasTypeofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
+  bool StructureEnv_New::hasTypeofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
   {
     auto it=types_.find(name);
     if (it==types_.end())
       {
         if(!recursive||(parent()==nullptr))
           {
-            *whyNot=masterObjective+": "+name+" is not a type in "+this->id();
+            *whyNot=masterObjective+": "+name+" is not a type in ";
             return false;
           }
         else
@@ -115,7 +115,7 @@ namespace Markov_IO_New {
 
 
 
-  std::set<std::string> Implements_ComplexVar_New::getIdsOfVarType(const std::string &varType,bool recursive) const
+  std::set<std::string> StructureEnv_New::getIdsOfVarType(const std::string &varType,bool recursive) const
   {
     std::set<std::string> o;
     if (recursive&& parent()!=nullptr)
@@ -136,10 +136,10 @@ namespace Markov_IO_New {
         std::set<std::string> s;
         for (const auto &p:vars_)
           {
-            ABC_Var_New* var=p.second;
+            ABC_Data_New* var=p.second;
             std::string why;
-            if (t->isVarInDomain(this,var->value(),&why,objective))
-              alternatives::insert(s,var);
+            if (t->isDataInDomain(this,var,&why,objective))
+              alternatives::insert(s,p.first,var);
           }
         s.insert(o.begin(),o.end());
         return s;
@@ -147,7 +147,7 @@ namespace Markov_IO_New {
   }
 
 
-  std::set<std::string> Implements_ComplexVar_New::getIdsOfCmdType(const std::string &cmdType,bool recursive) const
+  std::set<std::string> StructureEnv_New::getIdsOfCmdType(const std::string &cmdType,bool recursive) const
   {
     std::set<std::string> o;
     if (recursive&& parent()!=nullptr)
@@ -181,7 +181,7 @@ namespace Markov_IO_New {
 
 
 
-  std::string Implements_ComplexVar_New::defaultIdOfVarType(const std::string &varType,bool recursive) const
+  std::string StructureEnv_New::defaultIdOfVarType(const std::string &varType,bool recursive) const
   {
     std::string whyNot;
     std::string objective;
@@ -202,10 +202,10 @@ namespace Markov_IO_New {
         const ABC_Type_of_Value* t=idToType(varType,&whyNot,objective);
         for (const auto &p:vars_)
           {
-            ABC_Var_New* var=p.second;
+            ABC_Data_New* var=p.second;
             std::string why;
-            if (t->isVarInDomain(this,var->value(),&why,objective))
-              return var->id();
+            if (t->isDataInDomain(this,var,&why,objective))
+              return p.first;
           }
         if (!recursive || parent()==nullptr)
           return {};
@@ -215,7 +215,7 @@ namespace Markov_IO_New {
   }
 
 
-  std::string Implements_ComplexVar_New::defaultIdOfCmdType(const std::string &cmdType,bool recursive) const
+  std::string StructureEnv_New::defaultIdOfCmdType(const std::string &cmdType,bool recursive) const
   {
     std::string whyNot;
     std::string objective;
@@ -252,7 +252,7 @@ namespace Markov_IO_New {
 
 
 
-  std::string Implements_ComplexVar_New::defaultIdOfTypeType(const std::string &typeType,bool recursive) const
+  std::string StructureEnv_New::defaultIdOfTypeType(const std::string &typeType,bool recursive) const
   {
     std::string whyNot;
     std::string objective;
@@ -274,7 +274,7 @@ namespace Markov_IO_New {
             ABC_Type_of_Value* var=p.second;
             std::string why;
             if (t->isTypeInDomain(this,var,&why,objective))
-              return var->id();
+              return p.first;
           }
         if (!recursive || parent()==nullptr)
           return {};
@@ -285,7 +285,7 @@ namespace Markov_IO_New {
 
 
 
-  std::string Implements_ComplexVar_New::defaultIdOfCommand(const std::string &idCmd,bool recursive) const
+  std::string StructureEnv_New::defaultIdOfCommand(const std::string &idCmd,bool recursive) const
   {
     std::string whyNot;
     std::string objective;
@@ -307,7 +307,7 @@ namespace Markov_IO_New {
             const Implements_Command_Type_New* var=p.second;
             std::string why;
             if (t->isTypeInDomain(this,var,&why,objective))
-              return var->id();
+              return p.first;
           }
         if (!recursive || parent()==nullptr)
           return {};
@@ -317,7 +317,7 @@ namespace Markov_IO_New {
   }
 
 
-  std::set<std::string> Implements_ComplexVar_New::getIdsOfTypeType(const std::string &typeType, bool recursive) const
+  std::set<std::string> StructureEnv_New::getIdsOfTypeType(const std::string &typeType, bool recursive) const
   {
     std::set<std::string> o;
     if (recursive&& parent()!=nullptr)
@@ -341,7 +341,7 @@ namespace Markov_IO_New {
             const ABC_Type_of_Value* var=p.second;
             std::string why;
             if (t->isTypeInDomain(this,var,&why,objective))
-              s.insert(var->id());
+              s.insert(p.first);
           }
         s.insert(o.begin(),o.end());
         return s;
@@ -354,24 +354,8 @@ namespace Markov_IO_New {
 
 
 
-
-
-
-
-
-  //  const Implements_Field_Data_Type * Implements_Data_Type_New<Implements_ComplexVar_New *>::nextField(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *> &m)const
-  //  {
-  //    return (*nextField_)(cm,m,this);
-  //  }
-
-  //  template<>
-  //  buildByToken<ABC_Var_New *> Implements_Data_Type_New<Implements_ComplexVar_New *>::getFieldBuildByToken(const Implements_ComplexVar_New *cm, std::map<std::string, ABC_Var_New *> m) const
-  //  {
-  //    const Implements_Field_Data_Type* f=nextField(cm,m);
-  //    return buildByToken<ABC_Var_New*>(cm,f);
-  //  }
-
-  bool ABC_Var_New::isOfThisType(const Implements_ComplexVar_New* cm,
+  template<typename T>
+  bool Implements_Value_New<T>::isOfThisType(const StructureEnv_New* cm,
                                  const std::string& generalType,
                                  std::string* whyNot
                                  ,const std::string &masterObjective)const
@@ -380,11 +364,12 @@ namespace Markov_IO_New {
       return true;
     else
       {
-        const ABC_Type_of_Value* mytype=cm->idToType(myType(),whyNot,masterObjective);
-        if ((mytype==nullptr)||(mytype->myType()==mytype->id()))
+        auto gTp
+            =cm->idToType(generalType,whyNot,masterObjective);
+        if (gTp==nullptr)
           return false;
         else
-          return mytype->isOfThisType(cm,generalType,whyNot,masterObjective);
+          return gTp->includesThisType(cm,generalType,whyNot,masterObjective);
       }
   }
 

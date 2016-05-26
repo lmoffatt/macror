@@ -25,9 +25,9 @@ namespace Markov_IO_New {
     }
 
     bool types::filenameUsed::comply
-    (const Implements_ComplexVar_New *cm
+    (const StructureEnv_New *cm
      , const types::filenameUsed::myC &x
-     , const Implements_ComplexVar_New * self
+     , const Implements_Data_Type_New<myC>* self
      , std::__cxx11::string *WhyNot
      , const std::__cxx11::string &objective)
     {
@@ -45,7 +45,7 @@ namespace Markov_IO_New {
         return fd::hasExtension(x,ext,WhyNot,objective);
     }
 
-    std::set<std::__cxx11::string> types::filenameUsed::alternativeNext(const Implements_ComplexVar_New *cm, const Implements_ComplexVar_New *self)
+    std::set<std::__cxx11::string> types::filenameUsed::alternativeNext(const StructureEnv_New *cm, const Implements_Data_Type_New<myC> *self)
     {
       std::string wd=cm->get_Value<vars::workingPath>();
       std::string ext=self->get_Value<fields::extension_field>();
@@ -58,7 +58,7 @@ namespace Markov_IO_New {
       return {list.begin(),list.end()};
     }
 
-    std::__cxx11::string types::filenameUsed::defaultVal(const Implements_ComplexVar_New * cm, const Implements_ComplexVar_New *self)
+    std::__cxx11::string types::filenameUsed::defaultVal(const StructureEnv_New * cm, const StructureEnv_New *self)
     {
       std::string wd=cm->get_Value<vars::workingPath>();
       std::string ext=self->get_Value<fields::extension_field>();

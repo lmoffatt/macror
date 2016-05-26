@@ -35,39 +35,33 @@ namespace Markov_IO_New {
         static std::string myWhatThis(){return "an identifier to a type";}
 
         static bool comply
-        (const Implements_ComplexVar_New*
+        (const StructureEnv_New*
          , const myC& x
-         , const Implements_ComplexVar_New* self,
+         , const Implements_Data_Type_New<myC>* self,
          std::string *WhyNot
          , const std::string& objective);
 
         static std::set<std::string>
-        alternativeNext(const Implements_ComplexVar_New*,
-                        const Implements_ComplexVar_New*self);
+        alternativeNext(const StructureEnv_New*,
+                        const Implements_Data_Type_New<myC> *self);
 
         static  std::string
-        defaultVal(const Implements_ComplexVar_New*cm, const Implements_ComplexVar_New* self);
+        defaultVal(const StructureEnv_New*cm, const StructureEnv_New* self);
 
         static Implements_Data_Type_New<myC>*
-        varType(const Implements_ComplexVar_New* cm)
+        varType(const StructureEnv_New* cm)
         {
           return new Implements_Data_Type_New<myC>
-              (cm,myId(),myIdType(),myTip(),myWhatThis(),""
-               ,&comply
-               ,nullptr
-               ,&defaultVal
-               ,&alternativeNext,nullptr,nullptr);
+              (&comply
+               ,&alternativeNext);
         }
         static Implements_Data_Type_New<myC>*
-        varType(const Implements_ComplexVar_New* cm, const std::string& ext)
+        varType(const StructureEnv_New* cm, const std::string& ext)
         {
          auto out= new Implements_Data_Type_New<myC>
-              (cm,myId(),myIdType(),myTip(),myWhatThis(),""
-               ,&comply
-               ,nullptr
-               ,&defaultVal
-               ,&alternativeNext,nullptr,nullptr);
-         out->pushVar<fields::extension_field>(ext);
+              (&comply
+               ,&alternativeNext);
+         out->getEnv()->pushVar<fields::extension_field>(ext);
          return out;
         }
       };
@@ -91,11 +85,16 @@ namespace Markov_IO_New {
 
         static std::string getWorkingPath();
 
-        static Implements_Var_New<myC>*
-        varValue(const Implements_ComplexVar_New* cm)
+        static Implements_Var
+        varValue()
         {
-          return new Implements_Var_New<myC>
-              (cm,myId(),myIdType(),getWorkingPath(),myTip(),myWhatThis());
+
+          Implements_Var iv;
+          iv.id=myId();
+          iv.data=new Implements_Value_New<myC>(myIdType(),getWorkingPath());
+          iv.Tip=myTip();
+          iv.WhatThis=myWhatThis();
+          return iv;
         }
       };
 
@@ -112,20 +111,18 @@ namespace Markov_IO_New {
 
         static std::string getExecutablePath();
 
-        static Implements_Var_New<myC>*
-        varValue(const Implements_ComplexVar_New* cm)
+        static Implements_Var
+        varValue()
         {
-          return new Implements_Var_New<myC>
-              (cm,myId(),myIdType(),getExecutablePath(),myTip(),myWhatThis());
+
+          Implements_Var iv;
+          iv.id=myId();
+          iv.data=new Implements_Value_New<myC>(myIdType(),getExecutablePath());
+          iv.Tip=myTip();
+          iv.WhatThis=myWhatThis();
+          return iv;
         }
       };
-
-    };
-
-
-
-
-
 
     void push_Types(Markov_CommandManagerVar* cm);
 

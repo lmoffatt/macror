@@ -74,7 +74,7 @@ namespace Markov_IO_New
   }
 
   Markov_CommandManagerVar::Markov_CommandManagerVar():
-    Implements_ComplexVar_New(nullptr,"CommandManager","CommandManager","",""),
+    StructureEnv_New(nullptr,"CommandManager","CommandManager","",""),
     cmType_(nullptr),
     io_(nullptr),
     vt_{Variable::types::varNew::varType(this)},
@@ -114,7 +114,7 @@ namespace Markov_IO_New
   {
     std::string dummyError;
     const Implements_Command_Type_New* ctp=idToCommand(arg->myType(),&dummyError,"");
-    ctp->run(this,arg->value()->getValued(),&dummyError,"");
+    ctp->run(this,arg->getValued()->getValued(),&dummyError,"");
   }
 
   std::__cxx11::string Markov_CommandManagerVar::getDir() const

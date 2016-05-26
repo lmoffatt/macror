@@ -7,19 +7,196 @@
 
 namespace Markov_IO_New {
 
-  const Implements_ComplexVar_New* ABC_BuildByToken::parent() const
+  const StructureEnv_New* ABC_BuildByToken::parent() const
   {
     return parent_;
   }
 
-  ABC_BuildByToken::ABC_BuildByToken(const Implements_ComplexVar_New *p):parent_(p){}
+  ABC_BuildByToken::ABC_BuildByToken(const StructureEnv_New *p):parent_(p){}
 
 
 
   template<>
   std::pair<std::string, std::set<std::string> > buildByToken<std::string>::alternativesNext() const
   {
-    return {varType_->id(),varType_->alternativeNext(this->parent())};
+
+    std::string whynot;
+    std::string id=parent()->dataToId(varType_,&whynot,"");
+    return {id,varType_->alternativeNext(this->parent())};
+  }
+
+
+
+
+  template<typename T>
+  buildByToken<std::vector<T> >::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType)
+    :
+      ABC_BuildByToken(parent),
+      mystate(S_Init),
+      x_(),
+      valueBuild_(vecType->getElementBuildByToken(parent)),
+      varType_(vecType){}
+
+
+
+
+  template<typename T>
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<Markov_LA::M_Matrix<T> >::alternativesNext() const
+  {
+    std::pair<std::string,std::set<std::string>> out;
+    switch (mystate) {
+      case S_Init:
+
+        if ((hasFixedCols_)&&(nCols_==0))
+          {
+            return {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
+          }
+        else if (nCols_==0)
+          {
+            out=eleB_->alternativesNext();
+            out+= {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
+            return out;
+          }
+        else
+          {
+            return eleB_->alternativesNext();
+          }
+
+      case S_PInit_NData:
+      case S_PEOL_NData:
+      case S_PData_NData:
+      case S_PBothData_NData:
+      case S_PBothEOL_NData:
+
+        return eleB_->alternativesNext();
+
+
+      case S_PInit_NEOL:
+      case S_PEOL_NEOL:
+      case S_PData_NEOL:
+      case S_PBothData_NEOL:
+      case S_PBothEOL_NEOL:
+        return {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
+
+      case S_PInit_NBoth:
+      case S_PEOL_NBoth:
+      case S_PData_NBoth:
+      case S_PBothData_NBoth:
+      case S_PBothEOL_NBoth:
+        {
+          out=eleB_->alternativesNext();
+          out+= {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
+          return out;
+        }
+      case S_PEOL_NFinal:
+      case S_PBothEOL_NFinal:
+      case S_PInit_NFinal:
+        return {};
+        break;
+
+      }
+
+  }
+
+
+
+  buildByToken<ABC_Data_New *>::buildByToken(const StructureEnv_New *parent
+                                             , const Implements_Data_Type_New<ABC_Data_New*> *varType,
+                                             bool convertTOClass):
+    ABC_BuildByToken(parent),
+    mystate(S_Init),dataType_(varType),idtypeB_(varType->getVarIdentifierBuildByToken(parent)),
+    valueB_(nullptr),data_(nullptr),convertToClass_(convertTOClass),classx_(nullptr){}
+
+
+
+
+  bool buildByToken<ABC_Data_New *>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
+
+  {
+    const std::string objective=masterObjective+":  rejected token "+tok.str();
+    switch (mystate)
+      {
+      case S_Init:
+        if (idtypeB_->pushToken(tok,whyNot,objective))
+          {
+            auto idTypeS=idtypeB_->unloadVar();
+            valueType_=parent()->idToType(idTypeS,whyNot,objective);
+            if (valueType_==nullptr)
+              return false;
+            else
+              {
+                valueB_.reset(valueType_->getBuildByToken(parent()));
+                if (valueB_==nullptr)
+                  return false;
+                else
+                  {
+                    mystate =S_ID_Final;
+                    return true;
+                  }
+              }
+          }
+      case S_ID_Final:
+        {
+          if (tok.tok()!=Token_New::EQ)
+            {
+              *whyNot=masterObjective+": expected \"=\" found "+tok.str();
+              return false;
+            }
+          else
+            {
+              mystate=S_DATA_PARTIAL;
+              return true;
+            }
+        }
+      case S_DATA_PARTIAL:
+        if (!valueB_->pushToken(tok, whyNot,objective))
+          return false;
+        else
+          {
+            if(valueB_->isFinal())
+              {
+                data_.reset(valueB_->unloadData());
+                if (convertToClass_)
+                  {
+                    auto x=data_.get();
+                    const StructureEnv_New* c=dynamic_cast<StructureEnv_New*>(x);
+                    if (c!=nullptr)
+                      {
+                        auto y=valueType_->getClassRep
+                            (parent(),c,whyNot, objective);
+                        if (y!=nullptr)
+                          classx_.reset(y);
+                      }
+                    else
+                      {
+                        classx_.reset();
+                      }
+                  }
+                mystate=S_Data_Final;
+                return true;
+              }
+            else
+              {
+                mystate=S_DATA_PARTIAL;
+                return true;
+              }
+          }
+      case S_Data_Final:
+        if (tok.tok()==Token_New::EOL)
+          {
+            mystate =S_Final;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not an end of line";
+            return false;
+          }
+
+      case S_Final:
+      default:
+        return false;
+      }
   }
 
 
@@ -27,50 +204,476 @@ namespace Markov_IO_New {
 
 
 
-
-  template class buildByToken<double>;
-  template class buildByToken<std::vector<double>>;
-
-
-  template class buildByToken<int>;
-  template class buildByToken<std::vector<int>>;
-
-  template class buildByToken<std::size_t>;
-  template class buildByToken<std::set<double>>;
-
-  template class buildByToken<std::string>;
-  template class buildByToken<std::map<std::size_t,double>>;
+  void buildByToken<ABC_Data_New *>::reset_Type(Implements_Data_Type_New<ABC_Data_New *> *dataTy)
+  {
+    if (dataType_!=dataTy)
+      {
+        dataType_=dataTy;
+        convertToClass_=dataType_->ConvertToClass();
+        std::string whyNot,masterObjective;
+        idtype_=dataType_->getElementType(parent(),data_.get(),&whyNot,masterObjective,idtype_);
+        idtypeB_->reset_Type(idtype_);
+      }
+  }
 
 
-  template class buildByToken<Markov_LA::M_Matrix<double>>;
-  template  class buildByToken<Markov_LA::M_Matrix<std::size_t>>;
+  bool buildByToken<Implements_Var>::pushIdToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  {
+    if (!idB_->pushToken(tok,whyNot,masterObjective))
+      {
+        return false;
+      }
+    else
+      {
+        iv_.id=idB_->unloadVar();
+        dataTy_=ivarType_->getElementType(parent(),iv_,whyNot,masterObjective,dataTy_);
+        dataB_->reset_Type(dataTy_);
+        mystate =ID1;
+        return true;
+      }
+
+
+  }
+
+
+
+
+  bool buildByToken<Implements_Var>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
+
+  {
+    const std::string objective=masterObjective+":  rejected token "+tok.str();
+    switch (mystate)
+      {
+      case S_Init:
+        {
+          if (tok.tok()==Token_New::HASH)
+            {
+              mystate=TIP1;
+              return true;
+            }
+          else if (tok.tok()==Token_New::IDENTIFIER)
+            {
+              return pushIdToken(tok,whyNot, objective);
+            }
+          else
+            {
+              *whyNot=objective+": is not a \"#\" nor an identifier";
+              return false;
+            }
+
+        }
+      case TIP1:
+        if (tok.tok()==Token_New::STRING)
+          {
+            mystate =TIP2;
+            iv_.Tip=tok.str();
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not a string";
+            return false;
+          }
+      case TIP2:
+        if (tok.tok()==Token_New::EOL)
+          {
+            mystate =WT0_ID0;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not an end of line";
+            return false;
+          }
+      case WT0_ID0:
+        if (tok.tok()==Token_New::HASH)
+          {
+            mystate =WT1;
+            return true;
+          }
+        else if (tok.tok()==Token_New::IDENTIFIER)
+          {
+            return pushIdToken(tok,whyNot, objective);
+
+          }
+        else
+          {
+            *whyNot=objective+": is not an identifier, nor a \"#\"";
+
+            return false;
+          }
+      case WT1:
+        if (tok.tok()==Token_New::HASH)
+          {
+            mystate =WT2;
+            return true;
+          }
+        else  {
+            *whyNot=objective+": is not a \"#\"";
+
+            return false;
+          }
+      case WT2:
+        if(tok.tok()==Token_New::STRING)
+          {
+            mystate =WT3;
+            iv_.WhatThis=tok.str();
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not a string";
+            return false;
+          }
+      case WT3:
+        if (tok.tok()==Token_New::EOL)
+          {
+            mystate =ID0;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not a string";
+            return false;
+          }
+      case ID0:
+        return pushIdToken(tok,whyNot, objective);
+
+      case ID1:
+        if (tok.tok()==Token_New::COLON)
+          {
+            mystate =ID2;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not a \":\"";
+            return false;
+          }
+      case ID2:
+      case S_DATA_PARTIAL:
+        if (!dataB_->pushToken(tok,whyNot,objective))
+          {
+            return false;
+          }
+        else if (dataB_->isFinal())
+          {
+            iv_.data=dataB_->unloadVar();
+            mystate =S_Data_Final;
+            return true;
+          }
+        else
+          {
+            mystate=S_DATA_PARTIAL;
+            return true;
+          }
+      case S_Data_Final:
+        if (tok.tok()==Token_New::EOL)
+          {
+            mystate =S_Final;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": is not an end of line";
+            return false;
+          }
+
+      case S_Final:
+      default:
+        return false;
+      }
+  }
+
+
+
+
+
+  void buildByToken<Implements_Var>::reset_Type(Implements_Data_Type_New<Implements_Var> *ivTy)
+  {
+    ivarType_=ivTy;
+    std::string whyNot,masterObjective;
+    idType_=ivarType_->getKeyType(parent(),iv_,&whyNot,masterObjective,idType_);
+    idB_->reset_Type(idType_);
+  }
+
+
+  buildByToken<StructureEnv_New*>::
+  buildByToken(const StructureEnv_New *parent,
+               const Implements_Data_Type_New
+               <StructureEnv_New* > *typeVar):
+    ABC_BuildByToken(parent),
+    mystate(S_Init)
+    ,varMapType_(typeVar)
+    ,ivType_(typeVar->getElementType()->clone())
+    ,ivBuild_(new buildByToken<Implements_Var>(StEnv_,ivType_))
+    ,StEnv_(new StructureEnv_New(parent,""))
+    ,iv_()
+    ,iField_(0)
+
+  {}
+
+  bool buildByToken<StructureEnv_New *>::
+  pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+
+  {
+    const std::string objective=masterObjective+": pushToken("+
+        tok.str()+") fails";
+
+    switch (mystate)
+      {
+      case S_Init:
+        if (tok.tok()!=Token_New::EOL)
+          {
+            *whyNot=objective+" is not an end of line";
+            return false;
+          }
+        else
+          {
+            mystate=S_Header2;
+            return true;
+          }
+      case S_Header2:
+        if (tok.tok()!=Token_New::LCB)
+          {
+            *whyNot=objective+" is not an "+Token_New::toString(Token_New::LCB);
+            return false;
+          }   else
+          {
+            mystate=S_Header_Final;
+            return true;
+          }
+      case S_Header_Final:
+        if (tok.tok()==Token_New::EOL)
+          {
+            mystate=S_Data_Separator_Final;
+            return true;
+          }
+        else
+          {
+            *whyNot=masterObjective+": "+tok.str()
+                +" is not end of line";
+            return false;
+          }
+      case S_Data_Partial:
+        if (!ivBuild_->pushToken(tok, whyNot, objective))
+          {
+            return false;
+          }
+        else
+          {
+            if(ivBuild_->isFinal())
+              {
+                iv_=ivBuild_->unloadVar();
+                StEnv_->pushVar(iv_);
+                ++iField_;
+                ivType_=varMapType_->getElementType
+                    (parent(),StEnv_,iField_,whyNot,masterObjective,ivType_);
+                ivBuild_->reset_Type(ivType_);
+                mystate=S_Data_Separator_Final;
+                return true;
+              }
+            else
+              {
+                mystate=S_Data_Partial;
+                return true;
+              }
+          }
+      case S_Data_Separator_Final:
+        if (varMapType_->hasMandatoryFields(parent(),StEnv_,whyNot,masterObjective))
+          {
+            if (tok.tok()==Token_New::RCB)
+              {
+                mystate=S_Final;
+                return true;
+              }
+            else if (varMapType_->hasAllFields(parent(),StEnv_,whyNot,masterObjective))
+              {
+                *whyNot=masterObjective+": expecte }, all fields filled";
+                return false;
+              }
+          }
+        if (!ivBuild_->pushToken(tok, whyNot,objective))
+          {
+            return false;
+          }
+        else
+          {
+            mystate=S_Data_Partial;
+            return true;
+          }
+
+      case S_Final:
+        return false;
+      }
+  }
+
+
+  void buildByToken<StructureEnv_New *>::reset_Type(const Implements_Data_Type_New<StructureEnv_New *> *typeVar)
+  {
+
+  }
+
+
+
+
+  ABC_Data_New *Markov_IO_New::buildByToken<StructureEnv_New *>::unloadData()
+  {
+
+    return unloadVar();
+  }
+
+
+  build_Command_Input::build_Command_Input(
+      const StructureEnv_New *cm,
+      const Implements_Command_Type_New * vCmd):
+    buildByToken<Markov_IO_New::Implements_Command_Arguments *> (cm,vCmd),
+     cmdty_(vCmd), cmdArg_(new Implements_Command_Arguments(cm,"_Arg"+cm->dataToId(vCmd))),
+ ivType_(vCmd->getElementType()->clone()),
+  iv_(),
+ivB_(new build_Argument_Input(cmdArg_,ivType_))
+  ,iArg_(0)
+  {}
+
+  void build_Command_Input::reset_Type(const Implements_Command_Type_New *cmdty)
+  {
+
+    buildByToken<StructureEnv_New*>::reset_Type (cmdty);
+     cmdty_=cmdty;
+     cmdArg_->reset();
+     ivType_=cmdty->getElementType()->clone();
+      iv_;
+      ivB_->reset_Type(ivType_);
+   iArg_=0;
+
+  }
+
+  bool build_Command_Input::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
+
+  {
+    const std::string objective=masterObjective;
+    switch (mystate)
+      {
+
+      case  S_Mandatory_Final:
+        if (t.tok()==Token_New::EOL)
+          {
+            mystate=S_Final;
+            return true;
+          }
+        [[clang::fallthrough]];
+      case S_Init:
+      case S_Input_Partial:
+      case S_Argument_Partial:
+        if (!ivB_->pushToken(t,whyNot,objective))
+          return false;
+        else if (!ivB_->isFinal())
+          {
+            mystate=S_Argument_Partial;
+            return true;
+          }
+        else
+          {
+            iv_=ivB_->unloadVar();
+            cmdArg_->pushVar(iv_);
+            if (cmdty_->hasAllFields(parent(),cmdArg_))
+              {
+                mystate=S_Input_Final;
+                return true;
+              }
+            else
+              {
+               ivType_=cmdty_->getElementType
+                   (parent(),cmdArg_,iArg_,whyNot,masterObjective,ivType_);
+                if (ivType_==nullptr)
+                  return false;
+                ivB_->reset_Type(ivType_);
+                bool isMandatory=cmdty_->hasMandatoryFields(parent(),cmdArg_);
+                if (!isMandatory)
+                  {
+                    mystate=S_Input_Partial;
+                  }
+                else
+                  mystate=S_Mandatory_Final;
+                return true;
+              }
+
+          }
+      case S_Input_Final:
+        if (t.tok()!=Token_New::EOL)
+          {
+            *whyNot=objective+": no more inputs accepted "+
+                t.str()+ " is not an end of line";
+            return false;
+          }
+        else
+          {
+            mystate=S_Final;
+            return true;
+          }
+      case S_Final:
+        return false;
+      }
+
+  }
+
+
+
+
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > build_Command_Input::alternativesNext() const
+
+  {
+
+    std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
+        out={parent()->dataToId(cmdty_),{alternatives::endOfLine()}};
+
+    switch (mystate)
+      {
+      case  S_Mandatory_Final:
+        out+=ivB_->alternativesNext();
+        return out;
+      case S_Init:
+      case S_Input_Partial:
+      case S_Argument_Partial:
+        return ivB_->alternativesNext();
+      case S_Input_Final:
+        return out;
+      case S_Final:
+        return {};
+      }
+
+  }
+
 
 
 
 
   build_Statement::build_Statement(
       Markov_CommandManagerVar *p
-      , const Implements_Data_Type_New<ABC_Var_New*> *varType
+      , const Implements_Data_Type_New<Implements_Var> *varType
       ,const Implements_Data_Type_New<std::string> *idCmd
       , bool convertToClass):
     ABC_BuildByToken(p),
     mystate(S_Init),
-    v_({p, varType, convertToClass}),
-    idCmd_({p,idCmd}),
+    v_(varType->getBuildByToken(p)),
+    idCmd_(idCmd->getBuildByToken(p)),
+    cmdTy_(nullptr),
     c_(nullptr),
+
     cmv_(nullptr),
-    x_(nullptr)
-  {}
+    x_()
+
+     {}
 
   void build_Statement::clear()
   {
     delete cmv_;
-    v_.clear();
-    idCmd_.clear();
+    v_->clear();
+    idCmd_->clear();
     delete c_;
     c_=nullptr;
     mystate=S_Init;
-    x_=nullptr;
+    x_.clear();
     cmv_=nullptr;
 
   }
@@ -85,16 +688,14 @@ namespace Markov_IO_New {
     switch (mystate)
       {
       case S_Init:
-        if (idCmd_.pushToken(t, whyNot,objective))
+        if (idCmd_->pushToken(t, whyNot,objective))
           {
-            if (idCmd_.isFinal())
+            if (idCmd_->isFinal())
               {
-                std::string idC=idCmd_.unloadVar();
-                delete c_;
+                std::string idC=idCmd_->unloadVar();
                 std::string whynot;
-                const Implements_Command_Type_New*
-                    cmd=parent()->idToCommand(idC,&whynot,"");
-                c_=new build_Command_Input(parent(),cmd);
+                 cmdTy_=parent()->idToCommand(idC,&whynot,"");
+                 c_->reset_Type(cmdTy_);
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
@@ -110,7 +711,7 @@ namespace Markov_IO_New {
                 return true;
               }
           }
-        else if (v_.pushToken(t, whyNot, objective))
+        else if (v_->pushToken(t, whyNot, objective))
           {
             mystate=S_Expression_Partial;
             return true;
@@ -126,16 +727,14 @@ namespace Markov_IO_New {
               }
           }
       case S_Command_Id_Partial:
-        if (idCmd_.pushToken(t, whyNot,objective))
+        if (idCmd_->pushToken(t, whyNot,objective))
           {
-            if (idCmd_.isFinal())
+            if (idCmd_->isFinal())
               {
-                std::string idC=idCmd_.unloadVar();
-                delete c_;
+                std::string idC=idCmd_->unloadVar();
                 std::string whynot;
-                const Implements_Command_Type_New*
-                    cmd=parent()->idToCommand(idC,&whynot,"");
-                c_=new build_Command_Input(parent(),cmd);
+                 cmdTy_=parent()->idToCommand(idC,&whynot,"");
+                 c_->reset_Type(cmdTy_);
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
@@ -172,16 +771,16 @@ namespace Markov_IO_New {
             return true;
           }
       case S_Expression_Partial:
-        if (!v_.pushToken(t, whyNot,objective))
+        if (!v_->pushToken(t, whyNot,objective))
           {
             return false;
           }
         else
           {
-            if (v_.isFinal())
+            if (v_->isFinal())
               {
                 mystate=S_Expression_Final;
-                x_=v_.unloadVar();
+                x_=v_->unloadVar();
               }
             else
               mystate=S_Expression_Partial;
@@ -199,740 +798,223 @@ namespace Markov_IO_New {
     build_Statement(p,p->getVarType(),p->getIdCmd(),true){}
 
 
-  bool build_Command_Input::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
 
+
+
+  template class buildByToken<double>;
+  template class buildByToken<std::vector<double>>;
+
+
+  template class buildByToken<int>;
+  template class buildByToken<std::vector<int>>;
+
+  template class buildByToken<std::size_t>;
+  template class buildByToken<std::set<double>>;
+
+  template class buildByToken<std::string>;
+  template class buildByToken<std::map<std::size_t,double>>;
+
+
+  template class buildByToken<Markov_LA::M_Matrix<double>>;
+  template  class buildByToken<Markov_LA::M_Matrix<std::size_t>>;
+
+  template <typename T>
+  ABC_Data_New *Markov_IO_New::buildByToken<std::vector<T> >::unloadData()
   {
-    const std::string objective=masterObjective;
-    switch (mystate)
-      {
+    return new Implements_Value_New<std::vector<T>
+        >(parent()->dataToId(varType_),unloadVar());
+  }
 
-      case  S_Mandatory_Final:
-        if (t.tok()==Token_New::EOL)
-          {
-            mystate=S_Final;
-            return true;
-          }
-        [[clang::fallthrough]];
-      case S_Init:
-      case S_Input_Partial:
-      case S_Argument_Partial:
-        if (!A_fieldB_->pushToken(t,whyNot,objective))
-          return false;
-        else if (!A_fieldB_->isFinal())
-          {
-            mystate=S_Argument_Partial;
-            return true;
-          }
-        else
-          {
-            ABC_Var_New* x_=A_fieldB_->unloadVar_New(
-                  parent(),var_->id(),var_->myType()
-                  ,var_->Tip(),var_->WhatThis());
-            cmdArg_->pushChild(cmdty_,x_);
-            delete A_fieldB_;
-            ++*this->it_;
-            if (*it_==*end_)
-              {
-                mystate=S_Input_Final;
-                return true;
-              }
-            else
-              {
-                var_=**it_;
-                const ABC_Type_of_Value* f
-                    =parent()->idToType(var_->myType(),whyNot,objective);
-                if (f==nullptr)
-                  return false;
-                A_fieldB_=f->getBuildByToken(parent());
-                bool isMandatory=cmdty_->isMandatory(var_->id());
-                if (isMandatory)
-                  {
-                    mystate=S_Input_Partial;
-                  }
-                else
-                  mystate=S_Mandatory_Final;
-                return true;
-              }
-
-          }
-      case S_Input_Final:
-        if (t.tok()!=Token_New::EOL)
-          {
-            *whyNot=objective+": no more inputs accepted "+
-                t.str()+ " is not an end of line";
-            return false;
-          }
-        else
-          {
-            mystate=S_Final;
-            return true;
-          }
-      case S_Final:
-        return false;
-      }
-
+  template <typename T>
+  ABC_Data_New *buildByToken<std::set<T> >::unloadData()
+  {
+    return new Implements_Value_New<std::set<T>
+        > (parent()->dataToId(dataType_),unloadVar());
   }
 
 
-  bool buildByToken<ABC_Var_New *>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
-
-  {
-    const std::string objective=masterObjective+": "+ClassName()+" rejected token "+tok.str();
-    switch (mystate)
-      {
-      case S_Init:
-        if (tok.tok()==Token_New::HASH)
-          {
-            mystate=TIP1;
-            return true;
-          }
-        else if (tok.tok()==Token_New::IDENTIFIER)
-          {
-            if (idB_->pushToken(tok,whyNot,objective))
-              {
-                id_=idB_->unloadVar();
-                if (varType_->getParentType()!=nullptr)
-                  {
-                    auto x=varType_->getParentType()->getFieldVar(id_,whyNot,objective);
-                    if (x!=nullptr)
-                      {
-                        varB_=varType_->getVarIdentifierBuildByToken(parent(),x->myType());
-                      }
-                  }
-                else
-                  varB_=varType_->getVarIdentifierBuildByToken(parent());
-
-                mystate =ID1;
-                return true;
-              }
-            else
-              {
-                return false;
-              }
-          }
-        else
-          {
-            *whyNot=objective+": is not a \"#\" nor an identifier";
-            return false;
-          }
-      case TIP1:
-        if (tok.tok()==Token_New::STRING)
-          {
-            mystate =TIP2;
-            tip_=tok.str();
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": is not a string";
-            return false;
-          }
-      case TIP2:
-        if (tok.tok()==Token_New::EOL)
-          {
-            mystate =WT0_ID0;
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": is not an end of line";
-            return false;
-          }
-      case WT0_ID0:
-        if (tok.tok()==Token_New::HASH)
-          {
-            mystate =WT1;
-            return true;
-          }
-        else if (tok.tok()==Token_New::IDENTIFIER)
-          {
-            if (idB_->pushToken(tok,whyNot,objective))
-              {
-                id_=idB_->unloadVar();
-                auto x=
-                    varType_->getParentType()->getFieldVar(id_,whyNot,objective);
-                if (x!=nullptr)
-                  {
-                    varB_=varType_->getVarIdentifierBuildByToken(parent(),x->myType());
-                  }
-                else
-                  varB_=varType_->getVarIdentifierBuildByToken(parent());
-
-                mystate =ID1;
-                return true;
-              }
-            else
-              return false;
-          }
-        else
-          {
-            *whyNot=objective+": is not an identifier, nor a \"#\"";
-
-            return false;
-          }
-      case WT1:
-        if (tok.tok()==Token_New::HASH)
-          {
-            mystate =WT2;
-            return true;
-          }
-        else  {
-            *whyNot=objective+": is not a \"#\"";
-
-            return false;
-          }
-      case WT2:
-        if(tok.tok()==Token_New::STRING)
-          {
-            mystate =WT3;
-            whatthis_=tok.str();
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": is not a string";
-            return false;
-          }
-      case WT3:
-        if (tok.tok()==Token_New::EOL)
-          {
-            mystate =ID0;
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": is not a string";
-            return false;
-          }
-      case ID0:
-        if (tok.tok()==Token_New::IDENTIFIER)
-          {
-            if (idB_->pushToken(tok,whyNot,objective))
-              {
-                id_=idB_->unloadVar();
-                auto x=parent()->idToVar(id_,whyNot);
-                if (x!=nullptr)
-                  {
-                    varB_=varType_->getVarIdentifierBuildByToken(parent(),x->myType());
-                  }
-                else
-                  varB_=varType_->getVarIdentifierBuildByToken(parent());
-
-                mystate =ID1;
-                return true;
-              }
-            else return false;
-          }
-        else
-          {
-            *whyNot=objective+": is not an identifier";
-            return false;
-          }
-      case ID1:
-        if (tok.tok()==Token_New::COLON)
-          {
-            mystate =ID2;
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": is not a \":\"";
-            return false;
-          }
-      case ID2:
-        if (tok.tok()==Token_New::IDENTIFIER)
-          {
-            if (varB_->pushToken(tok,whyNot,objective))
-              {
-                var_=varB_->unloadVar();
-                valueType_=parent()->idToType(var_,whyNot,objective);
-                if (valueType_==nullptr)
-                  return false;
-                else
-                  {
-                    valueB_=valueType_->getBuildByToken(parent());
-                    if (valueB_==nullptr)
-                      return false;
-                    else
-                      {
-                        mystate =S_HEADER_Final;
-                        return true;
-                      }
-                  }
-              }
-            else
-              return false;
-          }
-        else
-          {
-            *whyNot=objective+": is not an identifier";
-            return false;
-          }
-      case S_HEADER_Final:
-      case S_DATA_PARTIAL:
-        if (!valueB_->pushToken(tok, whyNot,objective))
-          return false;
-        else
-          {
-            if(valueB_->isFinal())
-              {
-                x_=valueB_->unloadVar_New(parent(),id_,var_,tip_,whatthis_);
-                if (convertToClass_)
-                  {
-                    c_=dynamic_cast<Implements_ComplexVar_New*>(x_);
-                    if (c_!=nullptr)
-                      {
-                        classx_=valueType_->getClassRep
-                            (parent(),c_,whyNot, objective);
-                      }
-                    else
-                      classx_=nullptr;
-                  }
-                mystate=S_Data_Final;
-                return true;
-              }
-            else
-              {
-                mystate=S_DATA_PARTIAL;
-                return true;
-              }
-          }
-      case S_Data_Final:
-        if (tok.tok()==Token_New::EOL)
-          {
-            mystate =S_Final;
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": is not an end of line";
-            return false;
-          }
-
-      case S_Final:
-      default:
-        return false;
-      }
-  }
-
-
-  buildByToken<ABC_Var_New*>::buildByToken(
-      const Implements_ComplexVar_New *parent
-      , const Implements_Data_Type_New<ABC_Var_New*> *varType,
-      bool convertToClass):
-    ABC_BuildByToken(parent)
-  ,mystate(S_Init)
-  ,varType_(varType)
-  , convertToClass_(convertToClass)
-  , idB_(varType->getNewIdentifierBuildByToken(parent))
-  , varB_(varType->getVarIdentifierBuildByToken(parent))
-  ,valueB_(nullptr)
-  ,x_{},c_(nullptr),classx_(nullptr)
-  {
-
-  }
-
-
-
-  ABC_Var_New *buildByToken<ABC_Var_New *>::unloadVar_New(const Implements_ComplexVar_New *p, const std::string &id, const std::string &var, const std::string &tip, const std::string &whatthis)
+  template <typename T>
+  Token_New buildByToken<Markov_LA::M_Matrix<T> >::popBackToken()
   {
     if (isFinal())
       {
-        ABC_Var_New* x=unloadVar();
-        return new Implements_Var_New<ABC_Var_New*>(p,id,var,x,tip,whatthis);
-      }
-    else
-      return nullptr;
-  }
+        buffer_.resize(nCols_*nRows_);
+        for (std::size_t i=0; i<nRows_; ++i)
+          for (std::size_t j=0; j<nCols_; ++j)
+            buffer_[nCols_*i+j]=x_(i,j);
 
-
-
-
-
-
-
-
-  build_Command_Input::build_Command_Input(
-      const Implements_ComplexVar_New *cm,
-      const Implements_Command_Type_New * vCmd):
-    buildByToken<std::map<std::string, ABC_Var_New *> > (cm,vCmd)
-  ,mystate(S_Init)
-  ,cmdty_(vCmd)
-  ,cmdArg_(vCmd->getCommandField(cm))
-  ,var_(nullptr)
-  ,A_fieldB_(nullptr)
-  {
-     if (*this->it_!=*this->end_)
-      {
-        var_=**this->it_;
-        std::string whyNot;
-        const ABC_Type_of_Value* f
-            =parent()->idToType(var_->myType(),&whyNot,"");
-        if (f!=nullptr)
+        if (hasFixedRows_)
           {
-            A_fieldB_=f->getBuildByToken(parent());
-            bool isMandatory=cmdty_->isMandatory(var_->id());
-            if (isMandatory)
-              {
-                mystate=S_Input_Partial;
-              }
-            else
-              mystate=S_Mandatory_Final;
+            runCols_=nCols_;
+            runRows_=nRows_-1;
+          }
+        else
+          {
+            runCols_=0;
+            runRows_=nRows_;
           }
       }
-    else
-      mystate=S_Input_Final;
-  }
-
-  template<typename T>
-  buildByToken<std::vector<T> >::buildByToken(const Implements_ComplexVar_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType)
-    :
-      ABC_BuildByToken(parent),
-      mystate(S_Init),
-      x_(),
-      valueBuild_(vecType->getElementBuildByToken(parent)),
-      varType_(vecType){}
-
-
-
-
-
-  ABC_Var_New* buildByToken<std::map<std::string,ABC_Var_New*>>::unloadVar_New(
-      const Implements_ComplexVar_New* p,
-      const std::string& id,
-      const std::string& var,
-      const std::string& tip,
-      const std::string& whatthis)
-  {
-    if (this->isFinal())
-      {
-        std::map<std::string,ABC_Var_New*> x=this->unloadVar();
-        return new Implements_ComplexVar_New(p,id,var,x,tip,whatthis);
-      }
-    else
-      return nullptr;
-  }
-
-  buildByToken<std::map<std::string, ABC_Var_New *> >::
-  buildByToken(const Implements_ComplexVar_New *parent,
-               const Implements_Data_Type_New
-               <std::map<std::string, ABC_Var_New *> > *typeVar):
-    ABC_BuildByToken(parent),
-    mystate(S_Init),
-    x_(new Implements_ComplexVar_New(parent)),
-    varMapType_(typeVar),
-    it_(typeVar->begin()),
-    end_(typeVar->end()),
-    itVarType_(Variable::types::varFieldPointed::varType(x_,varMapType_,it_)),
-    varBuild_(new buildByToken<ABC_Var_New*>(x_,itVarType_))
-
-  {}
-
-  buildByToken<std::map<std::string, ABC_Var_New *> >::
-  buildByToken(const Implements_ComplexVar_New *parent):
-    ABC_BuildByToken(parent),
-    mystate(S_Init),
-    x_{},
-    varMapType_(nullptr),
-    varBuild_(nullptr)
-  {}
-
-
-  std::pair<std::string, std::set<std::string> > Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::alternativesNext() const
-  {
+    std::string whyNot;
+    std::string masterObjective;
     switch (mystate)
       {
       case S_Init:
-      case S_Header_Final:
-        return {varMapType_->id(),{alternatives::endOfLine()}};
-      case S_Header2:
-        return {varMapType_->id(),{Token_New::toString(Token_New::LCB)}};
-      case S_Data_Partial:
-        return varBuild_->alternativesNext();
-      case S_Data_Separator_Final:
+        return {};
+
+      case S_PInit_NFinal:
+      case S_PInit_NData:
+      case S_PInit_NBoth:
+      case S_PInit_NEOL:
         {
-          if (it_==nullptr)
+          mystate=S_Init;
+          return Token_New(Token_New::EOL);
+        }
+
+      case S_PData_NBoth:
+      case S_PData_NData:
+      case S_PData_NEOL:
+
+        {
+          Token_New to=eleB_->popBackToken();
+          if (!eleB_->isInitial())
             {
-              auto out=varBuild_->alternativesNext();
-              out.second.insert(Token_New::toString(Token_New::RCB));
-              return out;
-            }
-          else if (*it_!=*end_)
-            {
-              return varBuild_->alternativesNext();
+              mystate=S_PData_NData;
+              return to;
             }
           else
-            return {varMapType_->id(),{Token_New::toString(Token_New::RCB)}};
-        }
-      case S_Final:
-        return {};
-
-      }
-
-  }
-
-  template<typename T>
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<Markov_LA::M_Matrix<T> >::alternativesNext() const
-  {
-    std::pair<std::string,std::set<std::string>> out;
-    switch (mystate) {
-      case S_Init:
-        out.first=dataType_->id();
-        out.second={alternatives::endOfLine()};
-        return out;
-
-      case S_Header_Final:
-      case S_Data_Partial:
-        if (!hasFixedCols_&&((nCols_==0)||(runCols_==0)))
-          return {dataType_->id(),{alternatives::endOfLine()
-                    ,alternatives::element(parent(),dataType_)}};
-        else if ((runCols_==nCols_)||(hasFixedRows_&&(runRows_==nRows_)))
-          return {dataType_->id(),{alternatives::endOfLine()}};
-        else
-          return {dataType_->id(),{alternatives::element(parent(),dataType_)}};
-        break;
-      case S_Final:
-        return {};
-        break;
-      }
-
-  }
-
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > build_Command_Input::alternativesNext() const
-
-  {
-    std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
-        out={cmdty_->id(),{alternatives::endOfLine()}};
-
-    switch (mystate)
-      {
-      case  S_Mandatory_Final:
-        out+=A_fieldB_->alternativesNext();
-        return out;
-      case S_Init:
-      case S_Input_Partial:
-      case S_Argument_Partial:
-        return A_fieldB_->alternativesNext();
-      case S_Input_Final:
-        return out;
-      case S_Final:
-        return {};
-      }
-
-  }
-
-  void Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::clear()
-  {
-    mystate=S_Init;
-    x_->getMap().clear();
-    varBuild_->clear();
-
-
-  }
-
-  bool Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::unPop(std::map<std::__cxx11::string, ABC_Var_New *> var)
-  {
-    x_->getMap()=var;
-    mystate=S_Final;
-    return true;
-
-  }
-
-  std::map<std::__cxx11::string, ABC_Var_New *> Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::unloadVar()
-  {
-    if (isFinal())
-      {
-        std::map<std::__cxx11::string, ABC_Var_New *> out;
-        mystate=S_Header_Final;
-        out=x_->unloadMap();
-        it_->setBegin();
-        return out;
-      }
-    else
-      return {};
-  }
-
-  Token_New Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::popBackToken()
-  {
-    switch (mystate)
-      {
-      case S_Init:
-        return {};
-      case S_Header2:
-        mystate=S_Header_Final;
-        return Token_New(Token_New::EOL);
-      case S_Header_Final:
-        mystate=S_Header2;
-        return Token_New(Token_New::LCB);
-      case S_Data_Partial:
-        {
-          auto out= varBuild_->popBackToken();
-          if (varBuild_->isInitial())
             {
-              if (x_->getMap().empty())
-                mystate=S_Header_Final;
-              else
-                mystate=S_Data_Separator_Final;
-            }
-          else mystate=S_Data_Partial;
-          return out;
-        }
-      case S_Data_Separator_Final:
-        {
-          if (x_->getMap().empty())
-            mystate=S_Header_Final;
-          else
-            {
-              auto d=*(--x_->getMap().end());
-              x_->getMap().erase(--x_->getMap().end());
-              varBuild_->unPop(d.second);
-              auto to=varBuild_->popBackToken();
-              if (varBuild_->isInitial())
+              --runCols_;
+              eleType_=dataType_->getElementType
+                  (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                   ,&whyNot,masterObjective,eleType_);
+              eleB_->reset_Type(eleType_);
+              if ((runRows_==0)&&(runCols_==0))
+                mystate=S_PInit_NData;
+              else if ((runRows_==0)&&(!hasFixedCols_)&&(runCols_>=nCols_Init_))
                 {
-                  mystate=S_Data_Separator_Final;
+                  nCols_=runCols_;
+                  mystate=S_PBothData_NData;
                 }
-              else mystate=S_Data_Partial;
+              else if (runCols_==0)
+                {
+                  if (hasFixedCols_||runRows_>0)
+                    {
+                      mystate=S_PEOL_NData;
+                    }
+                  else
+                    {
+                      mystate=S_PBothEOL_NData;
+                    }
+                }
+              else
+                {
+                  mystate=S_PData_NData;
+                }
               return to;
             }
         }
-      case S_Final:
-        mystate=S_Data_Separator_Final;
-        return Token_New(Token_New::RCB);
+
+      case S_PBothData_NBoth:
+      case S_PBothData_NData:
+      case S_PBothData_NEOL:
+
+        {
+          Token_New to=eleB_->popBackToken();
+          if (!eleB_->isInitial())
+            {
+              mystate=S_PData_NData;
+              return to;
+            }
+          else
+            {
+              --runCols_;
+              eleType_=dataType_->getElementType
+                  (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                   ,&whyNot,masterObjective,eleType_);
+              eleB_->reset_Type(eleType_);
+              if ((runRows_==0)&&(runCols_==0))
+                mystate=S_PInit_NBoth;
+              else if ((runRows_==0)&&(!hasFixedCols_)&&(runCols_>=nCols_Init_))
+                {
+                  nCols_=runCols_;
+                  mystate=S_PBothData_NBoth;
+                }
+              else if (runCols_==0)
+                {
+                  if (hasFixedCols_||runRows_>0)
+                    {
+                      mystate=S_PEOL_NBoth;
+                    }
+                  else
+                    {
+                      mystate=S_PBothEOL_NBoth;
+                    }
+                }
+              else
+                {
+                  mystate=S_PData_NBoth;
+                }
+              return to;
+            }
+        }
+
+
+      case S_PEOL_NFinal:
+      case S_PEOL_NBoth:
+      case S_PEOL_NData:
+      case S_PEOL_NEOL:
+        {
+          if (runRows_==0)
+            {
+              mystate=S_PInit_NEOL;
+            }
+          else
+            {
+              --runRows_;
+              runCols_=nCols_;
+              if (hasFixedCols_||(runRows_>0))
+                {
+                  mystate=S_PData_NEOL;
+                }
+              else
+                {
+                  mystate=S_PBothData_NEOL;
+                }
+            }
+          return Token_New(Token_New::EOL);
+
+        }
+      case S_PBothEOL_NFinal:
+      case S_PBothEOL_NBoth:
+      case S_PBothEOL_NData:
+      case S_PBothEOL_NEOL:
+        {
+          if (runRows_==0)
+            {
+              mystate=S_PInit_NBoth;
+            }
+          else
+            {
+              --runRows_;
+              runCols_=nCols_;
+              if (hasFixedCols_||(runRows_>0))
+                {
+                  mystate=S_PData_NBoth;
+                }
+              else
+                {
+                  mystate=S_PBothData_NBoth;
+                }
+            }
+          return Token_New(Token_New::EOL);
+
+        }
+
       }
+
+
   }
 
-  bool Markov_IO_New::buildByToken<std::map<std::string, ABC_Var_New *> >::pushToken
-  (Token_New tok
-   , std::__cxx11::string *whyNot
-   , const std::__cxx11::string &masterObjective)
-  {
-    const std::string objective=masterObjective+": "+ClassName()+"::pushToken("+
-        tok.str()+") fails";
-
-    switch (mystate)
-      {
-      case S_Init:
-        if (tok.tok()!=Token_New::EOL)
-          {
-            *whyNot=objective+" is not an end of line";
-            return false;
-          }  else
-          {
-            mystate=S_Header2;
-            return true;
-          }
-      case S_Header2:
-        if (tok.tok()!=Token_New::LCB)
-          {
-            *whyNot=objective+" is not an "+Token_New::toString(Token_New::LCB);
-            return false;
-          }   else
-          {
-            mystate=S_Header_Final;
-            return true;
-          }
-      case S_Header_Final:
-        if (tok.tok()==Token_New::EOL)
-          {
-            mystate=S_Data_Separator_Final;
-            return true;
-          }
-        else
-          {
-            *whyNot=masterObjective+": "+tok.str()
-                +" is not end of line";
-            return false;
-          }
-      case S_Data_Partial:
-        if (!varBuild_->pushToken(tok, whyNot, objective))
-          {
-            return false;
-          }
-        else
-          {
-            if(varBuild_->isFinal())
-              {
-                p_=varBuild_->unloadVar();
-                x_->pushChild(varMapType_,p_);
-                if (it_!=nullptr) ++*it_;
-
-                mystate=S_Data_Separator_Final;
-                return true;
-              }
-            else
-              {
-                mystate=S_Data_Partial;
-                return true;
-              }
-          }
-      case S_Data_Separator_Final:
-        if (it_==nullptr)
-          {
-            if (tok.tok()==Token_New::RCB)
-              {
-                mystate=S_Final;
-                return true;
-              }
-            else if (!varBuild_->pushToken(tok, whyNot,objective))
-              {
-                return false;
-              }
-            else
-              {
-                if(varBuild_->isFinal())
-                  {
-                    ABC_Var_New* p=varBuild_->unloadVar();
-                    x_->pushChild(varMapType_,p);
-                    mystate=S_Data_Separator_Final;
-                    return true;
-                  }
-                else
-                  {
-                    mystate=S_Data_Partial;
-                    return true;
-                  }
-              }
-          }
-        else if (*it_!=*end_)
-          {
-            if (!varBuild_->pushToken(tok, whyNot,objective))
-              {
-                return false;
-              }
-            else
-              {
-                if(varBuild_->isFinal())
-                  {
-                    ABC_Var_New* p=varBuild_->unloadVar();
-                    x_->pushChild(varMapType_,p);
-                    mystate=S_Data_Separator_Final;
-                    return true;
-                  }
-                else
-                  {
-                    mystate=S_Data_Partial;
-                    return true;
-                  }
-              }
-
-          }
-        else
-          {
-            if (tok.tok()==Token_New::RCB)
-              {
-                mystate=S_Final;
-                return true;
-              }
-            else
-              {
-                *whyNot=objective+": expected } found "+tok.str();
-                return false;
-              }
-          }
-      case S_Final:
-        return false;
-      }
-  }
 
 
 
@@ -951,7 +1033,8 @@ namespace Markov_IO_New_Test{
 
   void test()
   {
-    Implements_ComplexVar_New cm(nullptr,"cm","cm","","");
+    /*
+    StructureEnv_New* cm(nullptr,"cm","cm","","");
     Implements_Data_Type_New<std::set<double>> dset(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr);
 
     Implements_Data_Type_New<std::vector<double>> dv(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr);
@@ -974,7 +1057,7 @@ namespace Markov_IO_New_Test{
     buildByToken<std::vector<double>> v(&cm,&dv);
 
     buildByToken<Markov_LA::M_Matrix<double>> mat(&cm,&dmt);
-
+*/
   }
 
 

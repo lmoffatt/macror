@@ -24,8 +24,8 @@ namespace Markov_IO_New {
       };
 
       inline
-      std::size_t getNumStates(const Implements_ComplexVar_New* cm
-                               ,const Implements_ComplexVar_New* self)
+      std::size_t getNumStates(const StructureEnv_New* cm
+                               ,const StructureEnv_New* self)
       {
         std::size_t numstates;
         std::string WhyNot;
@@ -35,8 +35,8 @@ namespace Markov_IO_New {
 
       }
       inline
-      std::size_t oneDim(const Implements_ComplexVar_New*
-                         ,const Implements_ComplexVar_New* )
+      std::size_t oneDim(const StructureEnv_New*
+                         ,const StructureEnv_New* )
       {
         return 1;
       }
@@ -51,9 +51,9 @@ namespace Markov_IO_New {
         static std::string myTip(){return " state transition probability rates or  Q matrices";}
         static std::string myWhatThis() {return "";}
 
-        static bool comply(const Implements_ComplexVar_New* cm
+        static bool comply(const StructureEnv_New* cm
                            ,const myC& x
-                           ,const Implements_ComplexVar_New*
+                           ,const StructureEnv_New*
                            ,std::string *WhyNot
                            , const std::string& objective)
         {
@@ -72,7 +72,7 @@ namespace Markov_IO_New {
         }
 
         static bool typeElementComply
-        (const Implements_ComplexVar_New* cm
+        (const StructureEnv_New* cm
          ,const myC & m
          ,typename myC::const_iterator it
          ,const double& x
@@ -128,7 +128,7 @@ namespace Markov_IO_New {
 
 
         static Implements_Data_Type_New<myC>*
-        varType(const Implements_ComplexVar_New* cm)
+        varType(const StructureEnv_New* cm)
         {
           return new Implements_Data_Type_New<myC>
               (cm,myId(),myIdType(),myTip(),myWhatThis(),
@@ -167,9 +167,9 @@ namespace Markov_IO_New {
         static std::string myWhatThis() {return "";}
 
         static bool comply
-        (const Implements_ComplexVar_New* cm
+        (const StructureEnv_New* cm
          ,const Markov_LA::M_Matrix<elem>& x
-         ,const Implements_ComplexVar_New* self,
+         ,const StructureEnv_New* self,
          std::string *WhyNot
          , const std::string& objective)
         {
@@ -185,7 +185,7 @@ namespace Markov_IO_New {
         }
 
         static Implements_Data_Type_New<myC>*
-        varType(const Implements_ComplexVar_New* cm)
+        varType(const StructureEnv_New* cm)
         {
           return new Implements_Data_Type_New<myC>
               (cm,myId(),myIdType(),"transition probability rate"," more exp",
@@ -225,9 +225,9 @@ namespace Markov_IO_New {
         static std::string myWhatThis() {return "";}
 
         static bool comply
-        (const Implements_ComplexVar_New* cm
+        (const StructureEnv_New* cm
          ,const myC& x
-         ,const Implements_ComplexVar_New* self,
+         ,const StructureEnv_New* self,
          std::string *WhyNot
          , const std::string& objective)
         {
@@ -243,7 +243,7 @@ namespace Markov_IO_New {
         }
 
         static Implements_Data_Type_New<myC>*
-        varType(const Implements_ComplexVar_New* cm)
+        varType(const StructureEnv_New* cm)
         {
           return new Implements_Data_Type_New<myC>
               (cm,myId(),myIdType(),myTip(),myWhatThis(),
@@ -293,7 +293,7 @@ namespace Markov_IO_New {
 
 
         static Implements_Data_Type_New<myC*>*
-        varType(const Implements_ComplexVar_New* cm);
+        varType(const StructureEnv_New* cm);
       };
 
       class Implements_Data_Type_class_ABC_Markov_Model
@@ -303,12 +303,12 @@ namespace Markov_IO_New {
         typedef ABC_Markov_Model myC;
 
         Implements_Data_Type_class_ABC_Markov_Model
-        (const Implements_ComplexVar_New* parent,
+        (const StructureEnv_New* parent,
          const std::string& id
          ,const std::string& var
          ,const std::string& myTip
          ,const std::string& myWhatThis
-         , const std::vector<ABC_Var_New*> fields
+         , const std::vector<ABC_Data_New*> fields
          ,typePredicate complyPred
          ,typetypePredicate typeComply
          ,getEmptyObject  defaultValue
@@ -318,7 +318,7 @@ namespace Markov_IO_New {
         {}
 
         Implements_Data_Type_class_ABC_Markov_Model
-        (const Implements_ComplexVar_New* parent)
+        (const StructureEnv_New* parent)
           :Implements_Data_Type_class<ABC_Markov_Model*>
            (parent,Cls<myC*>::name(),Cls<myC*>::name(),"","",
         {},nullptr,nullptr,nullptr,nullptr,nullptr)
@@ -335,9 +335,9 @@ namespace Markov_IO_New {
         typedef ABC_Markov_Model myB;
 
       private:
-        static myC* map2obj(const Implements_ComplexVar_New* cm,
-                            const std::map<std::string,ABC_Var_New*>& m
-                            ,const Implements_ComplexVar_New* v
+        static myC* map2obj(const StructureEnv_New* cm,
+                            const StructureEnv_New* m
+                            ,const StructureEnv_New* v
                             ,std::string* WhyNot,
                             const std::string& masterObjective)
         {
@@ -363,13 +363,13 @@ namespace Markov_IO_New {
 
 
 
-        static  std::map<std::string,ABC_Var_New*> objB2map
-        (const Implements_ComplexVar_New* cm,
+        static  StructureEnv_New* objB2map
+        (const StructureEnv_New* cm,
          const myB* Q
-         ,const Implements_ComplexVar_New* v
+         ,const StructureEnv_New* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          std::map<std::string,ABC_Var_New*> f;
+          StructureEnv_New* f;
           push_var<numStates_Field>(f,Q->k());
           push_var<Q_matrix_Field>(f,Q->Q());
 
@@ -385,13 +385,13 @@ namespace Markov_IO_New {
         }
 
 
-        static  std::map<std::string,ABC_Var_New*> obj2map
-        (const Implements_ComplexVar_New* cm,
+        static  StructureEnv_New* obj2map
+        (const StructureEnv_New* cm,
          const myC* Q
-         ,const Implements_ComplexVar_New* v
+         ,const StructureEnv_New* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          std::map<std::string,ABC_Var_New*> f;
+          StructureEnv_New* f;
           push_var<numStates_Field>(f,Q->k());
           push_var<Q_matrix_Field>(f,Q->Q());
 
@@ -406,9 +406,9 @@ namespace Markov_IO_New {
           return f;
         }
 
-        static std::vector<ABC_Var_New*> getFields()
+        static std::vector<ABC_Data_New*> getFields()
         {
-          std::vector<ABC_Var_New*> f;
+          std::vector<ABC_Data_New*> f;
           push_var<numStates_Field>(f);
           push_var<Q_matrix_Field>(f);
           push_var<conductance_vector_Field>(f);
@@ -420,16 +420,16 @@ namespace Markov_IO_New {
 
 
       public:
-        using getClass_type=  myC* (*)(const Implements_ComplexVar_New *cm, const std::map<std::string, ABC_Var_New *>& m,
-        const Implements_ComplexVar_New* self,
+        using getClass_type=  myC* (*)(const StructureEnv_New *cm, const std::map<std::string, ABC_Data_New *>& m,
+        const StructureEnv_New* self,
         std::string *WhyNot, const std::string &masterObjective);
 
-        using getCVFromBase_type=   std::map<std::string, ABC_Var_New *> (*)(const Implements_ComplexVar_New *cm, const myB *v,
-        const Implements_ComplexVar_New* self,
+        using getCVFromBase_type=   std::map<std::string, ABC_Data_New *> (*)(const StructureEnv_New *cm, const myB *v,
+        const StructureEnv_New* self,
         std::string *WhyNot, const std::string &masterObjective);
 
-        using getCV_type=   std::map<std::string, ABC_Var_New *> (*)(const Implements_ComplexVar_New *cm, const myC *v,
-        const Implements_ComplexVar_New* self,
+        using getCV_type=   std::map<std::string, ABC_Data_New *> (*)(const StructureEnv_New *cm, const myC *v,
+        const StructureEnv_New* self,
         std::string *WhyNot, const std::string &masterObjective);
 
 
@@ -437,12 +437,12 @@ namespace Markov_IO_New {
 
 
         Implements_Data_Type_class_Q_Markov_Model
-        (const Implements_ComplexVar_New* parent,
+        (const StructureEnv_New* parent,
          const std::string& id
          ,const std::string& var
          ,const std::string& myTip
          ,const std::string& myWhatThis
-         ,const std::vector<ABC_Var_New*>& fields
+         ,const std::vector<ABC_Data_New*>& fields
          ,typePredicate complyPred
          ,typetypePredicate typeComply
          ,getEmptyObject  defaultValue
@@ -456,7 +456,7 @@ namespace Markov_IO_New {
         {}
 
         Implements_Data_Type_class_Q_Markov_Model
-        (const Implements_ComplexVar_New* parent):
+        (const StructureEnv_New* parent):
           Implements_Data_Type_class_ABC_Markov_Model(
             parent,Cls<myC>::name(),ClassName()
             ,"basic model representation","",getFields(),nullptr,nullptr,nullptr)
@@ -466,7 +466,7 @@ namespace Markov_IO_New {
 
         // Implements_Data_Type_class<T *> interface
       public:
-        virtual Q_Markov_Model *getClass(const Implements_ComplexVar_New *cm, std::map<std::string, ABC_Var_New *> m, std::string *WhyNot, const std::string &masterObjective) const override
+        virtual Q_Markov_Model *getClass(const StructureEnv_New *cm, std::map<std::string, ABC_Data_New *> m, std::string *WhyNot, const std::string &masterObjective) const override
         {
           return (*getObj_)(cm,m,this,WhyNot,masterObjective);
         }
@@ -474,13 +474,13 @@ namespace Markov_IO_New {
 
 
 
-        virtual std::map<std::string, ABC_Var_New *> getComplexMap(const Implements_ComplexVar_New *cm, const ABC_Markov_Model *v, std::string *WhyNot, const std::string &masterObjective) const override
+        virtual std::map<std::string, ABC_Data_New *> getComplexMap(const StructureEnv_New *cm, const ABC_Markov_Model *v, std::string *WhyNot, const std::string &masterObjective) const override
         {
           return (*getCVB_)(cm,v,this,WhyNot,masterObjective);
         }
 
 
-        virtual std::map<std::string, ABC_Var_New *> getComplexMap(const Implements_ComplexVar_New *cm, const Q_Markov_Model *v, std::string *WhyNot, const std::string &masterObjective) const
+        virtual std::map<std::string, ABC_Data_New *> getComplexMap(const StructureEnv_New *cm, const Q_Markov_Model *v, std::string *WhyNot, const std::string &masterObjective) const
         {
           return (*getCV_)(cm,v,this,WhyNot,masterObjective);
 

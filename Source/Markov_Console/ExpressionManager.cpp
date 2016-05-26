@@ -126,7 +126,7 @@ namespace Markov_IO_New {
           }
         else
           {
-            cm->pushChild(cm->getCmdType(),bu_.unloadVar());
+            cm->pushVar(cm->getCmdType(),bu_.unloadVar());
           }
         bu_.clear();
         io->freshLine();
