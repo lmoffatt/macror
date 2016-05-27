@@ -21,8 +21,6 @@
 #include <iterator>     // std::iterator, std::input_iterator_tag
 
 
-namespace Markov_LA
-{
 
 /*!
 *  @brief A Matrix of elements of type \p T (usually double or std::size_t).
@@ -59,6 +57,9 @@ namespace Markov_LA
 	      and operator()() for indexes out of range  \n\n
 
 **/
+
+namespace Markov_LA
+{
     template<typename T>
     class M_Matrix
     {
@@ -253,6 +254,7 @@ namespace Markov_LA
 
     };
 
+
     template<typename T>
     double ToDouble(const M_Matrix<T>& matrix);
 
@@ -310,8 +312,81 @@ namespace Markov_LA
     bool operator!=(const M_Matrix<T>& x, const M_Matrix<T>& y);
 
 
+    template<class T>
+    T maxAbs(const M_Matrix<T>& x);
 
-}//namespace Markov_LA
+    template<class T>
+    T minAbs(const M_Matrix<T>& x);
+
+    template<class T>
+    T max(const M_Matrix<T> & x);
+
+    template<class T>
+    T min(const M_Matrix<T> & x);
+
+    template<class T>
+    T minPositive(const M_Matrix<T> & x);
+
+
+    template<typename T>
+    T norm_inf(const M_Matrix<T>& x);
+
+    template<typename T>
+    T norm(const M_Matrix<T>& x);
+
+
+}
+
+
+
+namespace Markov_LA
+{
+
+    template<typename T>
+    M_Matrix<T> operator+(const M_Matrix<T>& x,T t);
+
+    template<typename T>
+    M_Matrix<T> operator+(T t,const M_Matrix<T>& x);
+
+    template<typename T>
+    M_Matrix<T> operator-(const M_Matrix<T>& x,T t);
+
+    template<typename T>
+    M_Matrix<T> operator-(T t,const M_Matrix<T>& x);
+
+    template<typename T>
+    M_Matrix<T> operator*(const M_Matrix<T>& x,T t);
+
+    template<typename T>
+    M_Matrix<T> operator*(T t,const M_Matrix<T>& x);
+
+    template<typename T>
+    M_Matrix<double> operator/(const M_Matrix<T>& x,T t);
+
+    template<typename T,typename S>
+    M_Matrix<double> operator/(const M_Matrix<T>& x,S t);
+
+
+    template<typename T>
+    M_Matrix<double> operator/(T t,const M_Matrix<T>& x);
+
+    template<typename T>
+    M_Matrix<T> operator+(const M_Matrix<T>& x,const M_Matrix<T>& y);
+
+    template<typename T>
+    M_Matrix<T> operator-(const M_Matrix<T>& x,const M_Matrix<T>& y);
+
+    template<typename T>
+    M_Matrix<T> elemMult(const M_Matrix<T>& x,const M_Matrix<T>& y);
+
+    template<typename T,typename S>
+    M_Matrix<double> elemDiv(const M_Matrix<T>& x,const M_Matrix<S>& y);
+
+    template<typename T,typename S>
+    M_Matrix<double> elemDivSafe(const M_Matrix<T>& x,const M_Matrix<S>& y);
+
+
+}
 
 
 #endif // MARKOV_MATRIX_H

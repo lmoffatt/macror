@@ -59,6 +59,7 @@ namespace Markov_IO_New {
   struct Cls
   {
     static std::string name() { return C::ClassName() ;}
+
   };
 
   template<typename C>

@@ -562,8 +562,8 @@ namespace  Markov_IO {
     virtual ~Implements_ValueId();
 
 
-    virtual void putOut(const std::string& m)const;
-    virtual void putErrorOut(const std::string& m)const;
+    virtual void putOut(const std::string& m)const override;
+    virtual void putErrorOut(const std::string& m)const override;
 
 
     virtual ABC_Value* to_PlainValue() const override;

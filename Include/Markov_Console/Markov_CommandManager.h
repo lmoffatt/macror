@@ -12,8 +12,6 @@ namespace Markov_IO_New
   class ExpressionManager;
   class CommandHistory;
 
-
-  
   class ProgramVersion:public StructureEnv_New
     {
   public:

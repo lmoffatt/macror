@@ -131,16 +131,16 @@ namespace Markov_IO_New {
         const ABC_Data_New* idToValue
         (const std::string& name
          , const std::string & typeName
-         ,std::string* whyNot, const std::string& masterObjective)const;
+         ,std::string* whyNot=nullptr, const std::string& masterObjective="")const;
 
 
-        const ABC_Data_New* idToValue(const std::string& name, std::string *whyNot)const;
+        const ABC_Data_New* idToValue(const std::string& name, std::string *whyNot=nullptr)const;
 
-        ABC_Data_New* idToValue(const std::string& name, std::string* whyNot, const std::string & masterObective);
+        ABC_Data_New* idToValue(const std::string& name, std::string* whyNot=nullptr, const std::string & masterObective="");
 
-        virtual const ABC_Type_of_Value* idToType(const std::string& name, std::string *whyNot, const std::string& masterObjective)const;
+        virtual const ABC_Type_of_Value* idToType(const std::string& name, std::string *whyNot=nullptr, const std::string& masterObjective="")const;
 
-        virtual ABC_Type_of_Value* idToType(const std::string& name, std::string *whyNot,const std::string& masterObjective);
+        virtual ABC_Type_of_Value* idToType(const std::string& name, std::string *whyNot=nullptr,const std::string& masterObjective="");
 
 
         const Implements_Command_Type_New* idToCommand(const std::string& name, std::string *whyNot, const std::string& masterobjective)const;
@@ -173,7 +173,7 @@ namespace Markov_IO_New {
         template<typename T>
         bool getValueFromId(const std::string& name
                             , T& value
-                            ,std::string* whyNot, const std::string& masterObjective)const
+                            ,std::string* whyNot=nullptr, const std::string& masterObjective="")const
         {
 
             std::string objective;
@@ -207,6 +207,7 @@ namespace Markov_IO_New {
                 return  parent()->getValueFromId(name,value,whyNot,objective);
             else
                 {
+                     if (whyNot!=nullptr)
                     *whyNot=objective+": does not have it and it has no parent";
                     return false;
                 }
@@ -274,7 +275,11 @@ namespace Markov_IO_New {
                     ,myTip,myWhatThis);
         }
 
-
+        template<class Field>
+        bool getDataValue(typename Field::myC &val,std::string* whyNot=nullptr,const std::string &masterObjective="")const
+        {
+           return getValueFromId(Field::myId(),val,whyNot,masterObjective);
+        }
 
         void pushType(const std::string& id
                       ,ABC_Type_of_Value* var
@@ -292,6 +297,7 @@ namespace Markov_IO_New {
 
 
 
+
         template<class Type>
         void pushType()
         {
@@ -300,7 +306,12 @@ namespace Markov_IO_New {
                      ,Type::myTip(),Type::myWhatThis());
         }
 
-
+        template<class T>
+        void pushRegularType()
+        {
+            pushType(Cls<T>::name()
+                   , new Implements_Data_Type_New<T>(),"a "+Cls<T>::name(),"");
+        }
 
 
         void pushCommand(const std::string& id
@@ -512,6 +523,12 @@ namespace Markov_IO_New {
 
 
     };
+
+
+    namespace Real
+    {
+      struct types;
+    }
 
 
     namespace _private {
@@ -1207,14 +1224,7 @@ namespace Markov_IO_New {
         public:
 
 
-            virtual bool isElementInDomain(
-                    const StructureEnv_New* cm,
-                    const C<T> &val
-                    ,typename C<T>::const_iterator iter
-                    , const T& elem
-                    , std::string *whyNot
-                    ,const std::string& masterObjective) const=0;
-
+          
             virtual buildByToken<T>* getElementBuildByToken(const StructureEnv_New* cm)const
             {
                 const Implements_Data_Type_New<T>* v= getElementDataType(cm);
@@ -1237,13 +1247,6 @@ namespace Markov_IO_New {
 
 
 
-            virtual bool isElementInDomain(
-                    const StructureEnv_New* cm,
-                    const C<T*> &val
-                    ,typename C<T*>::const_iterator iter
-                    ,const T* elem
-                    , std::string *whyNot
-                    ,const std::string& masterObjective) const=0;
 
             virtual buildByToken<T*>* getElementBuildByToken(const StructureEnv_New* cm)const
             {
@@ -1295,8 +1298,6 @@ namespace Markov_IO_New {
                         ostream->put("\n[");
                         for (auto it=v.begin(); it!=v.end(); ++it)
                             {
-                                if (!this->isElementInDomain(cm,v,it,*it,whyNot,masterObjective))
-                                    return false;
                                 if(!etype->put(cm,*it,ostream,whyNot,masterObjective))
                                     {
                                         return false;
@@ -1332,12 +1333,8 @@ namespace Markov_IO_New {
                                 T d;
                                 if (etype->get(cm,d,istream,whyNot,masterObjective))
                                     {
-                                        if (this->isElementInDomain(cm,v,iter,d,whyNot,masterObjective))
-                                            {
                                                 *iter=std::move(d);
                                                 ++iter;
-                                            }
-                                        else return false;
 
                                     }
                                 else
@@ -1349,12 +1346,8 @@ namespace Markov_IO_New {
                                 T d;
                                 if (etype->get(cm,d,istream,whyNot,masterObjective))
                                     {
-                                        if (this->isElementInDomain(cm,v,v.end(),d,whyNot,masterObjective))
-                                            {
                                                 v.push_back(std::move(d));
-                                            }
-                                        else return false;
-                                    }
+                                       }
                                 else
                                     return false;
 
@@ -1402,9 +1395,15 @@ namespace Markov_IO_New {
         {
         public:
             typedef  Implements_Data_Type_New_regular<T> selfType;
-            using typePredicate=bool (*) (const StructureEnv_New* cm, const T& data
+
+          using typePredicate=bool (*) (const StructureEnv_New* cm, const T& data
             ,const selfType* self
             , std::string *whyNot, const std::string& masterObjective);
+
+          using getSet=std::set<std::string>(*)(const StructureEnv_New* cm,
+          const selfType* SELF);
+
+
 
 
             virtual buildByToken<T>* getBuildByToken(
@@ -1438,13 +1437,21 @@ namespace Markov_IO_New {
             }
 
 
+          virtual std::set<std::string> alternativeNext(const StructureEnv_New* cm)const
+          {
+              if (alternativesNext_!=nullptr)
+              return (*alternativesNext_)(cm,this);
+              else
+                return {};
+          }
 
             virtual ~Implements_Data_Type_New_regular(){}
 
 
 
-            Implements_Data_Type_New_regular(typePredicate complyPred=nullptr
-                    ):comply_(complyPred)
+            Implements_Data_Type_New_regular(typePredicate complyPred=nullptr,
+                                             getSet alternatives=nullptr
+                    ):comply_(complyPred),alternativesNext_(alternatives)
 
             {}
 
@@ -1485,8 +1492,10 @@ namespace Markov_IO_New {
                     return (*comply_)(cm,val,this,whyNot,masterObjective);
             }
 
+             friend class Real::types;
         protected:
             typePredicate comply_;
+            getSet alternativesNext_;
         };
 
 
@@ -1520,8 +1529,6 @@ namespace Markov_IO_New {
                         ostream->put("\n{");
                         for (auto it=v.begin(); it!=v.end(); ++it)
                             {
-                                if (!this->isElementInDomain(cm,v,it,*it,whyNot,masterObjective))
-                                    return false;
                                 if(!etype->put(cm,*it,ostream,whyNot,masterObjective))
                                     {
                                         ostream->put(*whyNot);
@@ -1555,12 +1562,9 @@ namespace Markov_IO_New {
                                 T d;
                                 if (etype->get(cm,d,istream,whyNot,masterObjective))
                                     {
-                                        if (this->isElementInDomain(cm,v,v.end(),d,whyNot,masterObjective))
-                                            {
+
                                                 v.insert(std::move(d));
                                             }
-                                        else return false;
-                                    }
                                 else
                                     return false;
                             }
@@ -1679,11 +1683,10 @@ namespace Markov_IO_New {
             }
 
 
-            virtual const Implements_Data_Type_New<T>* getElementType()const
+            virtual const Implements_Data_Type_New<T>* getElementDataType(const StructureEnv_New* cm)const
             {
                 return elementType_;
             }
-
 
             virtual Implements_Data_Type_New<T>* getElementType(
                     const StructureEnv_New* cm
@@ -1708,7 +1711,7 @@ namespace Markov_IO_New {
 
 
             Implements_Data_Type_New_M_Matrix
-            (const Implements_Data_Type_New<T>* elementVar
+            (const Implements_Data_Type_New<T>* elementVar=nullptr
              ,typePredicate complyPred=nullptr
                     ,elementType getElement=nullptr
                     ,getNumber getNumCols=nullptr
@@ -1718,10 +1721,13 @@ namespace Markov_IO_New {
                 elementType_(elementVar)
               ,complyPred_(complyPred),getElement_(getElement),
                 getNumCols_(getNumCols),getNumRows_(getNumRows),
-                areColsFixed_(areColsFixed),areRowsFixed_(areRowsFixed)
-            {
+                areColsFixed_(areColsFixed),areRowsFixed_(areRowsFixed){}
 
-            }
+
+
+
+
+
 
             std::size_t getNumberOfCols(const StructureEnv_New* cm)const
             {
@@ -1742,8 +1748,39 @@ namespace Markov_IO_New {
         bool hasFixedCols()const {return areColsFixed_;}
         bool hasFixedRows()const {return areRowsFixed_;}
 
+        virtual bool empty()const
+        {
+          return elementType_==nullptr;
+        }
 
+        virtual void reset()
+        {
+          elementType_=nullptr;
+         complyPred_=nullptr;
+           getElement_=nullptr;
+          getNumCols_=nullptr;
+          getNumRows_=nullptr;
+           areColsFixed_=false;
+          bool areRowsFixed_=false;
 
+        }
+
+        virtual Implements_Data_Type_New_M_Matrix* clone()const
+        {
+          return new Implements_Data_Type_New_M_Matrix(*this);
+        }
+        virtual Implements_Data_Type_New_M_Matrix* create()const
+        {
+          return new Implements_Data_Type_New_M_Matrix();
+        }
+
+        virtual bool isValueInDomain(const StructureEnv_New* cm
+                                     ,const Markov_LA::M_Matrix<T> &val
+                                     , std::string *whyNot
+                                     ,const std::string& masterObjective ) const
+        {
+          return (*complyPred_)(cm,val,this,whyNot,masterObjective);
+        }
 
         protected:
             const Implements_Data_Type_New<T>* elementType_;
@@ -2598,6 +2635,12 @@ namespace Markov_IO_New {
 
             friend class Markov_IO_New::ComplexVar::types;
 
+            const std::vector<std::pair<Implements_Var,bool>>&
+            getFields()const
+            {
+              return fields_;
+            }
+
         protected:
             Implements_Data_Type_New_StructureEnv(
                     std::vector<std::pair<Implements_Var,bool>> fields,
@@ -2641,19 +2684,35 @@ namespace Markov_IO_New {
 
     namespace Real
     {
+      typedef  double myC;
+      typedef  Implements_Data_Type_New<myC> vType;
+
+        struct fields
+        {
+          struct value  {
+              typedef double myC;
+              static std::string myId(){ return "Value";}
+              static std::string myIdType(){return Cls<myC>::name();}
+              static std::string myTip(){return " a given value";}
+              static std::string myWhatThis(){return "a given "+Cls<myC>::name()+" value";}
+          };
+
+
+        };
+
+
+
         struct types
         {
             struct nonZero
             {
-                typedef  double myC;
-                typedef  Implements_Data_Type_New<myC> vType;
                 static std::string idVar(){return "real_nonZero";}
                 static std::string idType(){return Cls<myC>::name();}
                 static std::string Tip(){return "any non zero real number";}
                 static std::string WhatThis() {return "";}
 
                 static bool comply
-                (const StructureEnv_New*
+                (const StructureEnv_New* cm
                  ,const myC& x
                  ,const vType* ,
                  std::string *WhyNot
@@ -2668,13 +2727,148 @@ namespace Markov_IO_New {
                         return true;
                 }
 
+                static std::set<std::string> alternativeNext
+                (const StructureEnv_New*
+                 ,const vType* )
+                {
+                  return {"<non zero number>"};
+                }
+
+
+
                 static Implements_Data_Type_New<myC>*
                 varType()
                 {
                     return new Implements_Data_Type_New<myC>
-                            (&comply);
+                            (&comply,&alternativeNext);
+                }
+                static Implements_Data_Type_New<myC>*
+                varType(Implements_Data_Type_New<myC>* source)
+                {
+                    source->comply_=&comply;
+                    source->alternativesNext_=&alternativeNext;
+                    return source;
+
+                }
+
+            };
+
+
+            struct Zero
+            {
+                typedef  double myC;
+                typedef  Implements_Data_Type_New<myC> vType;
+                static std::string idVar(){return "Real_zero";}
+                static std::string idType(){return Cls<myC>::name();}
+                static std::string Tip(){return "zero real number";}
+                static std::string WhatThis() {return "";}
+
+                static bool comply
+                (const StructureEnv_New*
+                 ,const myC& x
+                 ,const vType* ,
+                 std::string *WhyNot
+                 , const std::string& objective)
+                {
+                    if (std::abs(x)>std::numeric_limits<double>::epsilon())
+                        {
+                            *WhyNot=objective+": x="+std::to_string(x)+"is too far from zero";
+                            return false;
+                        }
+                    else
+                        return true;
+                }
+
+                static std::set<std::string> alternativeNext
+                (const StructureEnv_New*
+                 ,const vType* )
+                {
+                  return {"0.0"};
+                }
+
+
+
+                static Implements_Data_Type_New<myC>*
+                varType()
+                {
+                    return new Implements_Data_Type_New<myC>
+                            (&comply,&alternativeNext);
+                }
+                static Implements_Data_Type_New<myC>*
+                varType(Implements_Data_Type_New<myC>* source)
+                {
+                  source->comply_=&comply;
+                  source->alternativesNext_=&alternativeNext;
+                  return source;
                 }
             };
+
+
+
+            struct Given
+            {
+                typedef  double myC;
+                typedef  Implements_Data_Type_New<myC> vType;
+                static std::string idVar(myC x){return "Real_given"+std::to_string(x);}
+                static std::string idType(){return Cls<myC>::name();}
+                static std::string Tip(){return "given real number";}
+                static std::string WhatThis() {return "";}
+
+                static bool comply
+                (const StructureEnv_New* cm
+                 ,const myC& x
+                 ,const vType* v,
+                 std::string *WhyNot
+                 , const std::string& objective)
+                {
+                  myC value;
+                  if (!v->getEnv()->getDataValue<typename fields::value>(value,WhyNot,objective))
+                    return false;
+
+
+                    if (std::abs(x-value)>std::numeric_limits<double>::epsilon())
+                        {
+                            *WhyNot=objective+": x="+std::to_string(x)+"is too far from zero";
+                            return false;
+                        }
+                    else
+                        return true;
+                }
+
+                static std::set<std::string> alternativeNext
+                (const StructureEnv_New* cm
+                 ,const vType* v )
+                {
+                  myC value;
+                  if (!v->getEnv()->getDataValue<typename fields::value>(value))
+                     return {};
+                  else
+                    return {std::to_string(value)};
+                }
+
+
+
+                static Implements_Data_Type_New<myC>*
+                varType(myC val)
+                {
+                    auto out= new Implements_Data_Type_New<myC>
+                            (&comply,&alternativeNext);
+                    out->getEnv()->pushVar<typename fields::value>(val);
+                    return out;
+                }
+                static Implements_Data_Type_New<myC>*
+                varType(Implements_Data_Type_New<myC>* source,myC val)
+                {
+                    source->comply_=&comply;
+                    source->alternativesNext_=&alternativeNext;
+                    source->getEnv()->pushVar<typename fields::value>(val);
+                    return source;
+                }
+
+
+            };
+
+
 
         };
         void push_Types(Markov_CommandManagerVar* cm);
@@ -3331,7 +3525,7 @@ namespace Markov_IO_New {
             }
 
             virtual bool isValueInDomain(const StructureEnv_New* cm,const T* v
-                                         , std::string *whyNot, const std::string& masterObjective)const override
+                                         , std::string *whyNot, const std::string& masterObjective)const
             {
 
                 if (comply_==nullptr)
@@ -3367,7 +3561,7 @@ namespace Markov_IO_New {
                                   ,const T* c
                                   ,ABC_Output* ostream
                                   ,std::string* whyNot
-                                  , const std::string& masterObjective)const override
+                                  , const std::string& masterObjective)const
             {
                 StructureEnv_New* m
                         =getComplexMap(cm,c,whyNot,masterObjective);
@@ -3687,34 +3881,6 @@ public:
     namespace _private {
 
 
-
-        template<typename T, template<typename> class C>
-        const Implements_Data_Type_New<T> *Implements_Container_Type_New<T,C>::getElementDataType(const StructureEnv_New *cm) const
-        {
-
-            std::string eletype=this->template get_Value<fields::elementType_Field>();
-            if (!eletype.empty())
-                {
-                    std::string whynot;
-                    return cm->idToTyped<T>(eletype,&whynot,"");
-                }
-            else return nullptr;
-
-        }
-
-        template<typename T, template<typename> class C>
-        const Implements_Data_Type_New<T*> *Implements_Container_Type_New<T*,C>::getElementDataType(const StructureEnv_New *cm) const
-        {
-
-            std::string eletype=this->template get_Value<fields::elementType_Field>();
-            if (!eletype.empty())
-                {
-                    std::string whynot;
-                    return cm->idToTyped<T*>(eletype,&whynot,"");
-                }
-            else return nullptr;
-
-        }
 
 
 

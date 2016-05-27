@@ -350,6 +350,7 @@ namespace Markov_IO_New {
       return  parent()->idToValue(name, typeName,whyNot,masterObjective);
     else
       {
+        if (whyNot!=nullptr)
         *whyNot=masterObjective+": "+name+" is not a var";
         return nullptr;
       }
@@ -368,6 +369,7 @@ namespace Markov_IO_New {
       return  parent()->idToValue(name, whyNot);
     else
       {
+        if (whyNot!=nullptr)
         *whyNot=name+" is not a var ";
         return nullptr;
       }
@@ -396,6 +398,7 @@ namespace Markov_IO_New {
       return it->second;
     else
       {
+        if (whyNot!=nullptr)
         *whyNot=masterObective+": "+name+" is not a var";
         return nullptr;
       }
@@ -410,6 +413,7 @@ namespace Markov_IO_New {
       return  parent()->idToType(name,whyNot,masterObjective);
     else
       {
+        if (whyNot!=nullptr)
         *whyNot=masterObjective+": "+name+" is not a type ";
         return nullptr;
       }
@@ -424,6 +428,7 @@ namespace Markov_IO_New {
       return it->second;
     else
       {
+        if (whyNot!=nullptr)
         *whyNot=objective;
         return nullptr;
       }

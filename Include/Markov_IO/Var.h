@@ -339,6 +339,16 @@ namespace Markov_IO_New {
     std::string WhatThis;
   };
 
+  template<class Field>
+  Implements_Var getMyVar()
+  {
+    Implements_Var iv;
+    iv.id=Field::myId();
+    iv.Tip=Field::myTip();
+    iv.WhatThis=Field::myWhatThis();
+    iv.data=new Implements_Value_New<typename Field::myC>(Field::myIdType(),{});
+    return iv;
+  }
 
 }
 

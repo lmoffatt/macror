@@ -35,6 +35,277 @@ namespace Markov_IO_New
 
   namespace cmd {
 
+    typedef StructureEnv_New* myC;
+
+
+
+
+    static bool hasAll (const StructureEnv_New* cm,const StructureEnv_New* val,
+                        const _private::Implements_Data_Type_New_StructureEnv* self
+                        , std::string* error,const std::string& obj)
+    {
+      auto& fields=self->getFields();
+
+      for (std::size_t i=0; i<fields.size(); ++i)
+        {
+          const Implements_Var& v=fields[i].first;
+          if (!val->hasNameofType(v.id,v.data->myType(),error,obj,false))
+            return false;
+        }
+      return true;
+
+    }
+
+    static bool hasMandatory (const StructureEnv_New* cm,const StructureEnv_New* val,
+                              const _private::Implements_Data_Type_New_StructureEnv* self
+                              , std::string* error,const std::string& obj)
+    {
+      auto& fields=self->getFields();
+
+      for (std::size_t i=0; i<fields.size(); ++i)
+        {
+          const Implements_Var& v=fields[i].first;
+          if (!val->hasNameofType(v.id,v.data->myType(),error,obj,false))
+            return !fields[i].second;
+        }
+      return true;
+
+    }
+    static bool comply (const StructureEnv_New* cm,const StructureEnv_New* val,
+                        const _private::Implements_Data_Type_New_StructureEnv* self
+                        , std::string* error,const std::string& obj)
+    {
+      return hasMandatory(cm,val,self,error,obj);
+    }
+
+    static Implements_Data_Type_New<Implements_Var>*
+    nextElement
+    (const StructureEnv_New* cm
+     ,const StructureEnv_New* val,
+     std::size_t iField
+     , const _private::Implements_Data_Type_New_StructureEnv*  self
+     , std::string * whyNot, const std::string& masterObjective,
+     Implements_Data_Type_New<Implements_Var>* source)
+    {
+      auto& fields=self->getFields();
+      if (iField<fields.size())
+        {
+          const Implements_Var& v=fields[iField].first;
+          if (source!=nullptr)
+            {
+              source->setVariable(v);
+              return source;
+            }
+          else
+            return Variable::types::varGiven::varType(v);
+        }
+      else
+        {
+          *whyNot=masterObjective+": iField="+std::to_string(iField)
+              +" bigger than fields size()="
+              +std::to_string(fields.size());
+          return nullptr;
+        }
+    }
+
+    struct  Save
+    {
+      static void save(Markov_CommandManagerVar* cm,
+                       const std::string& pathfileName);
+
+
+      static std::string myId(){return "save";}
+      static std::string myIdType(){return Cls<myC>::name();}
+      static std::string myTip();
+      static std::string myWhatThis();
+
+      static   bool  run
+              (Markov_CommandManagerVar* cm
+              , const StructureEnv_New* arguments
+              ,const Implements_Command_Type_New* self
+              ,std::string* WhyFail, const std::string& masterObjective);
+
+
+      static std::vector<std::pair<Implements_Var,bool>> getArgList()
+      {
+
+      }
+
+      static Implements_Command_Type_New* cmdType()
+      {
+        auto fields=getArgList();
+        Implements_Var firstVar;
+        if (fields.size()>0)
+            firstVar=fields[0].first;
+
+        return new Implements_Command_Type_New(
+              fields,
+              &run,
+              Variable::types::varGiven::varType(firstVar),
+              &comply,
+              &hasMandatory,
+              &hasAll,
+              &nextElement);
+      }
+
+
+    };
+
+
+
+    struct Load
+    {
+      static void load(Markov_CommandManagerVar* cm,
+                       const std::string& pathfileName);
+
+
+      static std::string myId(){return "load";}
+      static std::string myIdType(){return Cls<myC>::name();}
+      static std::string myTip() {return "list the availabe variables";}
+
+      static std::string myWhatThis();
+
+      static   bool  run
+              (Markov_CommandManagerVar* cm
+              , const StructureEnv_New* arguments
+              ,const Implements_Command_Type_New* self
+              ,std::string* WhyFail, const std::string& masterObjective);
+
+
+      static std::vector<std::pair<Implements_Var,bool>> getArgList()
+      {
+           return {{getMyVar<arg::typeName_Field>(),false}};
+
+      }
+
+      static Implements_Command_Type_New* cmdType()
+      {
+        auto fields=getArgList();
+        Implements_Var firstVar;
+        if (fields.size()>0)
+            firstVar=fields[0].first;
+
+        return new Implements_Command_Type_New(
+              fields,
+              &run,
+              Variable::types::varGiven::varType(firstVar),
+              &comply,
+              &hasMandatory,
+              &hasAll,
+              &nextElement);
+      }
+
+
+
+
+    };
+
+
+    struct Exit
+
+    {
+
+      static bool exitProgram(Markov_CommandManagerVar* cm
+                              , const StructureEnv_New*&
+                              ,const Implements_Command_Type_New*
+                              ,std::string*, const std::string&)
+      {
+        exit(0);
+        return true;
+      }
+
+      static std::string myId(){return "exit";}
+      static std::string myIdType(){return Cls<myC>::name();}
+      static std::string myTip() {return "closes everything and exits the program";}
+
+      static std::string myWhatThis();
+
+      static   bool  run
+              (Markov_CommandManagerVar* cm
+              , const StructureEnv_New* arguments
+              ,const Implements_Command_Type_New* self
+              ,std::string* WhyFail, const std::string& masterObjective);
+
+
+      static std::vector<std::pair<Implements_Var,bool>> getArgList()
+      {
+           return {};
+
+      }
+
+      static Implements_Command_Type_New* cmdType()
+      {
+        auto fields=getArgList();
+        Implements_Var firstVar;
+        if (fields.size()>0)
+            firstVar=fields[0].first;
+
+        return new Implements_Command_Type_New(
+              fields,
+              &run,
+              Variable::types::varGiven::varType(firstVar),
+              &comply,
+              &hasMandatory,
+              &hasAll,
+              &nextElement);
+      }
+
+
+
+
+
+
+    };
+
+    struct   Who
+
+    {
+    public:
+
+      static void who(Markov_CommandManagerVar* cm,
+                      std::string typeName);
+
+
+      static std::string myId(){return "exit";}
+      static std::string myIdType(){return Cls<myC>::name();}
+      static std::string myTip() {return "list the availabe variables";}
+
+      static std::string myWhatThis();
+
+      static   bool  run
+              (Markov_CommandManagerVar* cm
+              , const StructureEnv_New* arguments
+              ,const Implements_Command_Type_New* self
+              ,std::string* WhyFail, const std::string& masterObjective);
+
+
+      static std::vector<std::pair<Implements_Var,bool>> getArgList()
+      {
+           return {{getMyVar<arg::typeName_Field>(),false}};
+
+      }
+
+      static Implements_Command_Type_New* cmdType()
+      {
+        auto fields=getArgList();
+        Implements_Var firstVar;
+        if (fields.size()>0)
+            firstVar=fields[0].first;
+
+        return new Implements_Command_Type_New(
+              fields,
+              &run,
+              Variable::types::varGiven::varType(firstVar),
+              &comply,
+              &hasMandatory,
+              &hasAll,
+              &nextElement);
+      }
+
+    };
+
+
+
     class CdCommand: public Implements_Command_Type_New
     {
 
@@ -60,66 +331,9 @@ namespace Markov_IO_New
 
     };
 
-    class  SaveCommand : public Implements_Command_Type_New
-    {
-    public:
-      static void save(Markov_CommandManagerVar* cm,
-                      const std::string& pathfileName);
-
-
-      static bool save(Markov_CommandManagerVar* cm
-                      , const StructureEnv_New*&
-                      , const Implements_Command_Type_New *
-                       , std::__cxx11::string * whyNot
-                      , const std::string& objective);
-
-
-      static std::string ClassName() {return "save";}
-
-      SaveCommand(const StructureEnv_New* cm):
-        Implements_Command_Type_New(cm,ClassName(),
-                                    Implements_Command_Type_New::ClassName(),
-                                    "list the availabe variables"
-                                    ," "
-                                    ,{{getMyVar<arg::typeName_Field>(),false}}
-                                    ,&save )
-      {}
-      virtual ~SaveCommand(){}
-
-
-
-    };
 
     class LikelihoodCommand: public Implements_Command_Type_New
     {
-
-    };
-    class LoadCommand: public Implements_Command_Type_New
-    {
-      static void load(Markov_CommandManagerVar* cm,
-                      const std::string& pathfileName);
-
-
-      static bool load(Markov_CommandManagerVar* cm
-                      , const StructureEnv_New*&
-                      , const Implements_Command_Type_New *
-                       , std::__cxx11::string * whyNot
-                      , const std::string& objective);
-
-
-      static std::string ClassName() {return "load";}
-
-      LoadCommand(const StructureEnv_New* cm):
-        Implements_Command_Type_New(cm,ClassName(),
-                                    Implements_Command_Type_New::ClassName(),
-                                    "list the availabe variables"
-                                    ," "
-                                    ,{{getMyVar<arg::typeName_Field>(),false}}
-                                    ,&load )
-      {}
-      virtual ~LoadCommand(){}
-
-
 
     };
     class  ExportCommand: public Implements_Command_Type_New
@@ -131,69 +345,12 @@ namespace Markov_IO_New
     {
 
     };
-    class ExitCommand: public Implements_Command_Type_New
-    {
-    public:
-
-      static bool exitProgram(Markov_CommandManagerVar* cm
-                              , const StructureEnv_New*&
-                              ,const Implements_Command_Type_New*
-                              ,std::string*, const std::string&)
-      {
-        exit(0);
-        return true;
-      }
-
-
-      static std::string ClassName() {return "exit";}
-
-      ExitCommand(const StructureEnv_New* cm):
-        Implements_Command_Type_New(cm,ClassName(),
-                                    Implements_Command_Type_New::ClassName(),
-                                    "closes everything and exits the program"
-                                    ," closes the program"
-                                    ,{}
-                                    ,&exitProgram )
-      {}
-      virtual ~ExitCommand(){}
-
-
-    };
 
     class EditCommand: public Implements_Command_Type_New
     {
 
     };
 
-    class   WhoCommand: public Implements_Command_Type_New
-
-    {
-    public:
-
-      static void who(Markov_CommandManagerVar* cm,
-                      std::string typeName);
-
-
-      static bool who(Markov_CommandManagerVar* cm
-                      , const StructureEnv_New*&
-                      , const Implements_Command_Type_New *, std::__cxx11::string *
-                      , const std::string&);
-
-
-      static std::string ClassName() {return "who";}
-
-      WhoCommand(const StructureEnv_New* cm):
-        Implements_Command_Type_New(cm,ClassName(),
-                                    Implements_Command_Type_New::ClassName(),
-                                    "list the availabe variables"
-                                    ," "
-                                    ,{{getMyVar<arg::typeName_Field>(),false}}
-                                    ,&who )
-      {}
-      virtual ~WhoCommand(){}
-
-
-    };
 
     class ClearCommand: public Implements_Command_Type_New
     {

@@ -19,7 +19,7 @@ type of the divided entities.
 
 
 
-
+/*
 
 
 namespace Markov_LA
@@ -69,8 +69,9 @@ namespace Markov_LA
     M_Matrix<double> elemDivSafe(const M_Matrix<T>& x,const M_Matrix<S>& y);
 
 
-} //end of namespace Markov_LA
+}
 
+*/
 
 #endif // MATRIXARITMETIC_H
 
