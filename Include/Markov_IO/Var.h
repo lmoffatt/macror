@@ -230,12 +230,13 @@ namespace Markov_IO_New {
 
     virtual std::string myType()const=0;
 
-    virtual ~ABC_Data_New(){}
 
     virtual bool isOfThisType(const StructureEnv_New* cm,
                          const std::string& generalType,
                          std::string* whyNot
                        ,const std::string &masterObjective)const=0;
+
+    virtual ~ABC_Data_New(){}
 
   };
 

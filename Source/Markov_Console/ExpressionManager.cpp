@@ -121,12 +121,12 @@ namespace Markov_IO_New {
       {
         if (bu_.isCommand())
           {
-            auto cmd=bu_.unloadCommand();
+            auto cmd=bu_.unloadCommandArguments();
             cm->run(cmd);
           }
         else
           {
-            cm->pushVar(cm->getCmdType(),bu_.unloadVar());
+            cm->pushVar(bu_.unloadVar());
           }
         bu_.clear();
         io->freshLine();

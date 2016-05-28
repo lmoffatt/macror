@@ -98,15 +98,6 @@ namespace Markov_IO_New
     typedef  Implements_Data_Type_New<StructureEnv_New* > vType;
 
 
-     vType* getCmdType()
-    {
-      return cmType_;
-    }
-
-    const  vType* getCmdType()const
-    {
-      return cmType_;
-    }
 
 
     void run(const Implements_Command_Arguments* arg);
@@ -121,7 +112,6 @@ namespace Markov_IO_New
 
   protected:
     ABC_IO* io_;
-    vType* cmType_;
     Implements_Data_Type_New<Implements_Var>* vt_;
     Implements_Identifier* idCmd_;
     ExpressionManager* e;

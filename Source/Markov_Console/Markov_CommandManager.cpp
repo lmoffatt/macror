@@ -62,7 +62,7 @@ namespace Markov_IO_New
       return false;
     else
       {
-        this->set_Value<pathName::vars::workingPath>(dir);
+        this->setDataValue<pathName::vars::workingPath>(dir);
         return true;
       }
   }
@@ -74,18 +74,15 @@ namespace Markov_IO_New
   }
 
   Markov_CommandManagerVar::Markov_CommandManagerVar():
-    StructureEnv_New(nullptr,"CommandManager","CommandManager","",""),
-    cmType_(nullptr),
+    StructureEnv_New(nullptr,"CommandManager"),
     io_(nullptr),
-    vt_{Variable::types::varNew::varType(this)},
-    idCmd_(Identifier::types::idCmd::varType(this)),
+    vt_{Variable::types::varNew::varType()},
+    idCmd_(Identifier::types::idCmd::varType()),
     e(nullptr),
     lastCmdRst{},
     program_ver_(ProgramVersion()),
     h_(new CommandHistory(""))
   {
-    setParentValue(nullptr);
-    cmType_=new vType(this);
     pushVar<pathName::vars::workingPath>(Markov_IO_New::fd::getWorkingPath());
     cmd::pushAllCommands(this);
     _private::push_Types(this);
@@ -114,12 +111,15 @@ namespace Markov_IO_New
   {
     std::string dummyError;
     const Implements_Command_Type_New* ctp=idToCommand(arg->myType(),&dummyError,"");
-    ctp->run(this,arg->getValued()->getValued(),&dummyError,"");
+    ctp->run(this,arg,&dummyError,"");
   }
 
   std::__cxx11::string Markov_CommandManagerVar::getDir() const
   {
-    return this->get_Value<pathName::vars::workingPath>();}
+    std::string dir;
+    this->getDataValue<pathName::vars::workingPath>(dir);
+    return dir;
+  }
 
 
 

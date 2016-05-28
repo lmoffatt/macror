@@ -130,7 +130,7 @@ namespace Markov_IO_New {
 
         static Implements_Data_Type_New<myC>*
         varType(const StructureEnv_New* cm
-                ,std::string* whyNot,const std::string& masterObjective)
+                ,std::string* whyNot=nullptr,const std::string& masterObjective="")
         {
           auto d=elementType(cm,whyNot,masterObjective);
           if (d==nullptr)
@@ -145,7 +145,7 @@ namespace Markov_IO_New {
 
         static void push_Types(Markov_CommandManagerVar *cm)
         {
-          cm->pushType<selfType>();
+          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
 
 
@@ -233,7 +233,7 @@ namespace Markov_IO_New {
 
         static Implements_Data_Type_New<myC>*
         varType(const StructureEnv_New* cm
-                ,std::string* whyNot,const std::string& masterObjective)
+                ,std::string* whyNot=nullptr,const std::string& masterObjective="")
         {
           auto d=elementType(cm,whyNot,masterObjective);
           if (d==nullptr)
@@ -247,7 +247,7 @@ namespace Markov_IO_New {
         }
         static void push_Types(Markov_CommandManagerVar *cm)
         {
-          cm->pushType<selfType>();
+          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
 
       };
@@ -339,7 +339,7 @@ namespace Markov_IO_New {
 
         static void push_Types(Markov_CommandManagerVar *cm)
         {
-          cm->pushType<selfType>();
+          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
 
       };
@@ -388,12 +388,47 @@ namespace Markov_IO_New {
         typedef ABC_Markov_Model myC;
 
         Implements_Data_Type_class_ABC_Markov_Model
-        ( const std::vector<std::pair<Implements_Var,bool>> fields={}
+        ( const std::vector<std::pair<Implements_Var,bool>>& fields={}
             ,typePredicate complyPred=nullptr
             ):
           Implements_Data_Type_class<ABC_Markov_Model*>(fields,complyPred)
         {}
 
+        virtual Implements_Data_Type_class_ABC_Markov_Model* clone()const
+        {
+          return new Implements_Data_Type_class_ABC_Markov_Model(*this);
+        }
+
+        virtual Implements_Data_Type_class_ABC_Markov_Model* create()const{
+          return new Implements_Data_Type_class_ABC_Markov_Model();
+        }
+
+        virtual ABC_Markov_Model* getClass(const StructureEnv_New* cm
+                            ,const StructureEnv_New*  m
+                            ,std::string *WhyNot,const std::string& masterObjective)const override
+        {
+          return nullptr;
+        }
+
+        virtual StructureEnv_New* getComplexMap(
+                const StructureEnv_New* cm,
+                const ABC_Markov_Model* v,std::string *WhyNot,const std::string & masterObjective)const override
+        {
+          return nullptr;
+        }
+
+        virtual bool isValueInDomain(const StructureEnv_New* cm,const ABC_Markov_Model* v
+                                     , std::string *whyNot, const std::string& masterObjective)const override
+        {
+
+            if (comply_==nullptr)
+                return true;
+            else
+                return  (*comply_) (cm,v,this,whyNot,masterObjective);
+        }
+
+        
+        
       };
 
 
@@ -554,7 +589,6 @@ namespace Markov_IO_New {
           agonist_vector_type::push_Types(cm);
           conductance_vector_Type::push_Types(cm);
           Q_matrix_Type::push_Types(cm);
-          cm->pushRegularType<Q_Markov_Model>();
 
         }
 

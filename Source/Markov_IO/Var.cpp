@@ -75,7 +75,7 @@ namespace Markov_IO_New {
         else
           {
             const Implements_Command_Type_New* v=it->second;
-            return t->isTypeInDomain(parent(),v,whyNot,masterObjective);
+            return t->includesThisType(parent(),name,whyNot,masterObjective);
           }
       }
 
@@ -105,7 +105,7 @@ namespace Markov_IO_New {
         else
           {
             const ABC_Type_of_Value* subt=it->second;
-            return t->isTypeInDomain(this,subt,whyNot,masterObjective);
+            return t->includesThisType(this,name,whyNot,masterObjective);
           }
       }
 
@@ -169,10 +169,9 @@ namespace Markov_IO_New {
         std::set<std::string> s;
         for (const auto &p:cmds_)
           {
-            Implements_Command_Type_New* cmd=p.second;
             std::string why;
-            if (t->isTypeInDomain(this,cmd,&why,objective))
-              s.insert(cmd->id());
+            if (t->includesThisType(this,p.first,&why,objective))
+              s.insert(p.first);
           }
         s.insert(o.begin(),o.end());
         return s;
@@ -237,10 +236,9 @@ namespace Markov_IO_New {
             idToCommand(cmdType,&whyNot,objective);
         for (const auto &p:cmds_)
           {
-            Implements_Command_Type_New* cmd=p.second;
             std::string why;
-            if (t->isTypeInDomain(this,cmd,&why,objective))
-              return cmd->id();
+            if (t->includesThisType(this,p.first,&why,objective))
+              return p.first;
           }
         if (!recursive || parent()==nullptr)
           return {};
@@ -271,9 +269,8 @@ namespace Markov_IO_New {
         const ABC_Type_of_Value* t=idToType(typeType,&whyNot,objective);
         for (const auto &p:types_)
           {
-            ABC_Type_of_Value* var=p.second;
             std::string why;
-            if (t->isTypeInDomain(this,var,&why,objective))
+            if (t->includesThisType(this,p.first,&why,objective))
               return p.first;
           }
         if (!recursive || parent()==nullptr)
@@ -304,9 +301,8 @@ namespace Markov_IO_New {
         const Implements_Command_Type_New* t=idToCommand(idCmd,&whyNot,objective);
         for (const auto &p:cmds_)
           {
-            const Implements_Command_Type_New* var=p.second;
             std::string why;
-            if (t->isTypeInDomain(this,var,&why,objective))
+            if (t->includesThisType(this,p.first,&why,objective))
               return p.first;
           }
         if (!recursive || parent()==nullptr)
@@ -338,9 +334,8 @@ namespace Markov_IO_New {
         std::set<std::string> s;
         for (const auto &p:types_)
           {
-            const ABC_Type_of_Value* var=p.second;
             std::string why;
-            if (t->isTypeInDomain(this,var,&why,objective))
+            if (t->includesThisType(this,p.first,&why,objective))
               s.insert(p.first);
           }
         s.insert(o.begin(),o.end());

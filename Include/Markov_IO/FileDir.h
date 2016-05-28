@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <errno.h>
-
+#include <vector>
 
 namespace Markov_IO_New
 {

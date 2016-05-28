@@ -100,12 +100,13 @@ namespace Markov_IO_New {
 
 
 
-  buildByToken<ABC_Data_New *>::buildByToken(const StructureEnv_New *parent
-                                             , const Implements_Data_Type_New<ABC_Data_New*> *varType,
-                                             bool convertTOClass):
+  buildByToken<ABC_Data_New *>::buildByToken
+  (const StructureEnv_New *parent
+   , const Implements_Data_Type_New<ABC_Data_New*> *varType):
     ABC_BuildByToken(parent),
     mystate(S_Init),dataType_(varType),idtypeB_(varType->getVarIdentifierBuildByToken(parent)),
-    valueB_(nullptr),data_(nullptr),convertToClass_(convertTOClass),classx_(nullptr){}
+    valueB_(nullptr),data_(nullptr)
+  ,convertToClass_(varType->ConvertToClass()),classx_(nullptr){}
 
 
 
@@ -404,12 +405,12 @@ namespace Markov_IO_New {
                <StructureEnv_New* > *typeVar):
     ABC_BuildByToken(parent),
     mystate(S_Init)
-    ,varMapType_(typeVar)
-    ,ivType_(typeVar->getElementType()->clone())
-    ,ivBuild_(new buildByToken<Implements_Var>(StEnv_,ivType_))
-    ,StEnv_(new StructureEnv_New(parent,""))
-    ,iv_()
-    ,iField_(0)
+  ,varMapType_(typeVar)
+  ,ivType_(typeVar->getElementType()->clone())
+  ,ivBuild_(new buildByToken<Implements_Var>(StEnv_,ivType_))
+  ,StEnv_(new StructureEnv_New(parent,""))
+  ,iv_()
+  ,iField_(0)
 
   {}
 
@@ -523,15 +524,30 @@ namespace Markov_IO_New {
     return unloadVar();
   }
 
+  StructureEnv_New  *Markov_IO_New::buildByToken<StructureEnv_New *>::unloadVar()
+  {
+    if (isFinal())
+      {
+        StructureEnv_New * out=StEnv_;
+        StEnv_=nullptr;
+        iv_.clear();
+        mystate=S_Init;
+        iField_=0;
+        return out;
+
+      }
+    else return nullptr;
+  }
+
 
   build_Command_Input::build_Command_Input(
       const StructureEnv_New *cm,
       const Implements_Command_Type_New * vCmd):
     buildByToken<Markov_IO_New::Implements_Command_Arguments *> (cm,vCmd),
-     cmdty_(vCmd), cmdArg_(new Implements_Command_Arguments(cm,"_Arg"+cm->dataToId(vCmd))),
- ivType_(vCmd->getElementType()->clone()),
-  iv_(),
-ivB_(new build_Argument_Input(cmdArg_,ivType_))
+    cmdty_(vCmd), cmdArg_(new Implements_Command_Arguments(cm,"_Arg"+cm->dataToId(vCmd))),
+    ivType_(vCmd->getElementType()->clone()),
+    iv_(),
+    ivB_(new build_Argument_Input(cmdArg_,ivType_))
   ,iArg_(0)
   {}
 
@@ -539,12 +555,12 @@ ivB_(new build_Argument_Input(cmdArg_,ivType_))
   {
 
     buildByToken<StructureEnv_New*>::reset_Type (cmdty);
-     cmdty_=cmdty;
-     cmdArg_->reset();
-     ivType_=cmdty->getElementType()->clone();
-      iv_;
-      ivB_->reset_Type(ivType_);
-   iArg_=0;
+    cmdty_=cmdty;
+    cmdArg_->reset();
+    ivType_=cmdty->getElementType()->clone();
+    iv_;
+    ivB_->reset_Type(ivType_);
+    iArg_=0;
 
   }
 
@@ -583,8 +599,8 @@ ivB_(new build_Argument_Input(cmdArg_,ivType_))
               }
             else
               {
-               ivType_=cmdty_->getElementType
-                   (parent(),cmdArg_,iArg_,whyNot,masterObjective,ivType_);
+                ivType_=cmdty_->getElementType
+                    (parent(),cmdArg_,iArg_,whyNot,masterObjective,ivType_);
                 if (ivType_==nullptr)
                   return false;
                 ivB_->reset_Type(ivType_);
@@ -663,7 +679,7 @@ ivB_(new build_Argument_Input(cmdArg_,ivType_))
     cmv_(nullptr),
     x_()
 
-     {}
+  {}
 
   void build_Statement::clear()
   {
@@ -694,8 +710,8 @@ ivB_(new build_Argument_Input(cmdArg_,ivType_))
               {
                 std::string idC=idCmd_->unloadVar();
                 std::string whynot;
-                 cmdTy_=parent()->idToCommand(idC,&whynot,"");
-                 c_->reset_Type(cmdTy_);
+                cmdTy_=parent()->idToCommand(idC,&whynot,"");
+                c_->reset_Type(cmdTy_);
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
@@ -733,8 +749,8 @@ ivB_(new build_Argument_Input(cmdArg_,ivType_))
               {
                 std::string idC=idCmd_->unloadVar();
                 std::string whynot;
-                 cmdTy_=parent()->idToCommand(idC,&whynot,"");
-                 c_->reset_Type(cmdTy_);
+                cmdTy_=parent()->idToCommand(idC,&whynot,"");
+                c_->reset_Type(cmdTy_);
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
@@ -1014,6 +1030,19 @@ ivB_(new build_Argument_Input(cmdArg_,ivType_))
 
 
   }
+
+  Markov_IO_New::buildByToken<Implements_Var>::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<Implements_Var> *varType):
+    ABC_BuildByToken(parent),
+    mystate(S_Init),ivarType_(varType),idType_(varType->getKeyType(parent)->clone()),
+    dataTy_(varType->getElementType(parent)->clone()),
+    idB_(new buildByToken<std::string>(parent,idType_)),dataB_(new buildByToken<ABC_Data_New*>(parent,dataTy_)),iv_()
+
+  {
+
+  }
+
+
+
 
 
 

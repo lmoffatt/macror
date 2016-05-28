@@ -1546,8 +1546,7 @@ namespace Markov_IO_New {
     }
 
     buildByToken(const StructureEnv_New* parent,
-                 const Implements_Data_Type_New<ABC_Data_New *> *varType
-                 ,bool convertTOClass);
+                 const Implements_Data_Type_New<ABC_Data_New *> *varType);
 
     void clear()override
     {
@@ -1784,19 +1783,15 @@ namespace Markov_IO_New {
       return mystate==S_Header_Final;
     }
 
-
-
-
-
-
     bool unPop(StructureEnv_New* var);
 
-    StructureEnv_New* unloadVar();
+     StructureEnv_New* unloadVar();
 
     virtual void reset_Type(const Implements_Data_Type_New<StructureEnv_New*>* typeVar);
 
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<StructureEnv_New*>* typeVar);
+
 
     buildByToken(const StructureEnv_New* parent);
 
@@ -1823,8 +1818,8 @@ namespace Markov_IO_New {
     virtual ABC_Data_New* unloadData()override;
 
   private:
-    const Implements_Data_Type_New<StructureEnv_New*>* varMapType_;
     DAF mystate;
+    const Implements_Data_Type_New<StructureEnv_New*>* varMapType_;
     StructureEnv_New* StEnv_;
     Implements_Data_Type_New<Implements_Var>* ivType_;
     buildByToken<Implements_Var>* ivBuild_;
@@ -1977,27 +1972,29 @@ namespace Markov_IO_New {
 
     void clear()override;
 
-    ABC_Data_New* unloadData()override
+    ABC_Data_New* unloadData()override {return nullptr;}
+
+
+    Implements_Var unloadVar()
     {
-      if (mystate==S_Command_Final)
+      if (mystate!=S_Expression_Final)
         {
 
-          auto out=x_.data;
-          mystate=S_Init;
-          x_.data=nullptr;
-          cmv_=nullptr;
-
-          return out;
+          return {};
         }
       else
         {
-          auto out=x_.data;
+          auto out=x_;
           mystate=S_Init;
           x_.data=nullptr;
           return out;
 
         }
     }
+
+
+
+
 
     bool isCommand()const
     {
@@ -2012,12 +2009,14 @@ namespace Markov_IO_New {
     }
 
 
-    Implements_Command_Arguments* unloadCommand()
+    Implements_Command_Arguments* unloadCommandArguments()
     {
       if (isFinal())
         return cmv_;
       else return nullptr;
     }
+
+
 
     bool  unPop(ABC_Data_New* var)
     {

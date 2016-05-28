@@ -31,8 +31,8 @@ namespace Markov_IO_New {
      , std::__cxx11::string *WhyNot
      , const std::__cxx11::string &objective)
     {
-      std::string wPath=cm->get_Value<vars::workingPath>();
-      std::string ext=self->get_Value<fields::extension_field>();
+      std::string wPath=cm->getDataValueS<vars::workingPath>();
+      std::string ext=self->getEnv()->getDataValueS<fields::extension_field>();
       std::string path=wPath+fd::File::slash()+x;
       if (!fd::isFile(path))
         {
@@ -47,8 +47,8 @@ namespace Markov_IO_New {
 
     std::set<std::__cxx11::string> types::filenameUsed::alternativeNext(const StructureEnv_New *cm, const Implements_Data_Type_New<myC> *self)
     {
-      std::string wd=cm->get_Value<vars::workingPath>();
-      std::string ext=self->get_Value<fields::extension_field>();
+      std::string wd=cm->getDataValueS<vars::workingPath>();
+      std::string ext=self->getEnv()->getDataValueS<fields::extension_field>();
 
 
       std::vector<std::string> list=fd::getFilesInDir
@@ -60,8 +60,8 @@ namespace Markov_IO_New {
 
     std::__cxx11::string types::filenameUsed::defaultVal(const StructureEnv_New * cm, const StructureEnv_New *self)
     {
-      std::string wd=cm->get_Value<vars::workingPath>();
-      std::string ext=self->get_Value<fields::extension_field>();
+      std::string wd=cm->getDataValueS<vars::workingPath>();
+      std::string ext=self->getDataValueS<fields::extension_field>();
       return fd::getFirstFileInDir(
             wd
             ,[&ext](const fd::File& f)->bool

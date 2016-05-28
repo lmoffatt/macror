@@ -39,21 +39,6 @@ namespace Markov_IO_New {
 
   //  }
 
-  ABC_Type_of_Value::ABC_Type_of_Value
-  (const StructureEnv_New *parent
-   , const std::string &id
-   , const std::string &var
-   , const std::string &tip
-   , const std::string &whatthis):
-
-    StructureEnv_New(parent,var)
-  ,id_(id),Tip_(tip),WhatThis_(whatthis)
-  {
-    if (id.find(Identifier::types::idType::myId())==id.npos)
-      idSelfType_=Identifier::types::idType::varType(this,this);
-    else
-      idSelfType_=nullptr;
-  }
 
 
 
@@ -67,24 +52,7 @@ namespace Markov_IO_New {
 
 
 
-    std::string Implements_Data_Type_New_ABC_Data_New::ClassName()
-    {
-      return "Implements_Data_Type_New_of"+ABC_Data_New::ClassName();
-    }
 
-    std::string Implements_Data_Type_New_ABC_Data_New::myClass() const
-    {
-      return ClassName();
-    }
-
-    bool Implements_Data_Type_New_ABC_Data_New::isDataInDomain(const StructureEnv_New *cm, const ABC_Data_New * const val, std::string *whyNot, const std::string &masterObjective) const
-    {
-      if (!this->idType_->isValueInDomain(cm,val->id(),whyNot,masterObjective))
-        return false;
-      else if (!this->varType_->isValueInDomain(cm,val->myType(),whyNot,masterObjective))
-        return false;
-      else return true;
-    }
 
     bool Implements_Data_Type_New_ABC_Data_New::putValue
     (const StructureEnv_New *cm
@@ -107,73 +75,73 @@ namespace Markov_IO_New {
       else return false;
     }
 
-    bool Implements_Data_Type_New_ABC_Data_New::getValue(const StructureEnv_New *cm, ABC_Data_New *&v, ABC_Input *istream, std::string *whyNot, const std::string &masterObjective) const
-    {
-      std::string ids;
-      std::string vars;
-      std::string tip;
-      std::string whatthis;
-      char c;
-      if (istream->nextCharIs('#',false))
-        {
-          if (!istream->nextCharIs('"',c))
-            {
-              *whyNot=masterObjective+": sintax error in tip: initial \" is absent";
-              return false;
-            }
-          else
-            {
-              while((!istream->nextCharIs('"',false))
-                    &&((!istream->nextCharIs('\n',c))))
-                tip.push_back(c);
-              while (c!='\n')
-                istream->get(c);
-            }
-          if ((istream->nextCharIs('#',false))&&(istream->nextCharIs('#',false)))
-            {
-              if (!istream->nextCharIs('"',c))
-                {
-                  *whyNot=masterObjective
-                      +": sintax error in whatthis: initial \" is absent";
-                  return false;
-                }
-              else
-                {
-                  while(!istream->nextCharIs('"',c))
-                    whatthis.push_back(c);
-                  while (c!='\n')
-                    istream->get(c);
-                }
+    //    bool Implements_Data_Type_New_ABC_Data_New::getValue(const StructureEnv_New *cm, ABC_Data_New *&v, ABC_Input *istream, std::string *whyNot, const std::string &masterObjective) const
+    //    {
+    //      std::string ids;
+    //      std::string vars;
+    //      std::string tip;
+    //      std::string whatthis;
+    //      char c;
+    //      if (istream->nextCharIs('#',false))
+    //        {
+    //          if (!istream->nextCharIs('"',c))
+    //            {
+    //              *whyNot=masterObjective+": sintax error in tip: initial \" is absent";
+    //              return false;
+    //            }
+    //          else
+    //            {
+    //              while((!istream->nextCharIs('"',false))
+    //                    &&((!istream->nextCharIs('\n',c))))
+    //                tip.push_back(c);
+    //              while (c!='\n')
+    //                istream->get(c);
+    //            }
+    //          if ((istream->nextCharIs('#',false))&&(istream->nextCharIs('#',false)))
+    //            {
+    //              if (!istream->nextCharIs('"',c))
+    //                {
+    //                  *whyNot=masterObjective
+    //                      +": sintax error in whatthis: initial \" is absent";
+    //                  return false;
+    //                }
+    //              else
+    //                {
+    //                  while(!istream->nextCharIs('"',c))
+    //                    whatthis.push_back(c);
+    //                  while (c!='\n')
+    //                    istream->get(c);
+    //                }
 
-            }
-        }
-      if (!this->idType_->get(cm,ids,istream,whyNot,masterObjective))
-        return false;
-      else
-        {
-          if(!varType_->get(cm,vars,istream,whyNot,masterObjective))
-            return false;
-          else
-            {
-              auto va=cm->idToType(vars,whyNot,masterObjective);
-              if (va==nullptr)
-                return false;
-              else
-                {
-                  ABC_Data_New* val;
-                  if (!va->getData(cm,val,istream,whyNot,masterObjective))
-                    return false;
-                  else
-                    {
-                      v=va->getVar(cm,ids,vars,tip,whatthis,val);
-                      return true;
-                    }
-                }
-            }
+    //            }
+    //        }
+    //      if (!this->idType_->getValue(cm,ids,istream,whyNot,masterObjective))
+    //        return false;
+    //      else
+    //        {
+    //          if(!varType_->getValue(cm,vars,istream,whyNot,masterObjective))
+    //            return false;
+    //          else
+    //            {
+    //              auto va=cm->idToType(vars,whyNot,masterObjective);
+    //              if (va==nullptr)
+    //                return false;
+    //              else
+    //                {
+    //                  ABC_Data_New* val;
+    //                  if (!va->getData(cm,val,istream,whyNot,masterObjective))
+    //                    return false;
+    //                  else
+    //                    {
+    //                      v=va->getVar(cm,ids,vars,tip,whatthis,val);
+    //                      return true;
+    //                    }
+    //                }
+    //            }
 
-        }
+    //        }
 
-    }
+    //    }
 
 
     Implements_Data_Type_New_ABC_Data_New::~Implements_Data_Type_New_ABC_Data_New(){}
@@ -182,10 +150,7 @@ namespace Markov_IO_New {
 
 
 
-    buildByToken<ABC_Data_New *> *Implements_Data_Type_New_ABC_Data_New::getBuildByToken(const StructureEnv_New *cm) const
-    {
-      return new buildByToken<ABC_Data_New*>(cm,this);
-    }
+
 
 
 
@@ -198,78 +163,78 @@ namespace Markov_IO_New {
     template class Implements_Data_Type_New_M_Matrix<std::size_t>;
 
 
-    bool Implements_Data_Type_New_StructureEnv::getData(const StructureEnv_New *cm, StructureEnv_New* &v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
-    {
-      char c;
+    //    bool Implements_Data_Type_New_StructureEnv::getData(const StructureEnv_New *cm, StructureEnv_New* v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+    //    {
+    //      char c;
 
 
-      const Implements_Data_Type_New<ABC_Data_New*>* etype=this->getElementDataType(cm);
-      if (etype==nullptr)
-        return false;
-      while (!istream->nextCharIs('\n',true)){}
-      if (!istream->nextCharIs('{',c))
-        {
-          *whyNot= masterObjective+": expected { found"+c;
-          return false;
-        }
-      else
-        {
-          while (!istream->nextCharIs('}',false))
-            {
+    //      const Implements_Data_Type_New<ABC_Data_New*>* etype=this->getElementDataType(cm);
+    //      if (etype==nullptr)
+    //        return false;
+    //      while (!istream->nextCharIs('\n',true)){}
+    //      if (!istream->nextCharIs('{',c))
+    //        {
+    //          *whyNot= masterObjective+": expected { found"+c;
+    //          return false;
+    //        }
+    //      else
+    //        {
+    //          while (!istream->nextCharIs('}',false))
+    //            {
 
-              std::string name;
+    //              std::string name;
 
-              ABC_Data_New* d;
-              if (!etype->get(cm,d,istream,whyNot,masterObjective))
-                return false;
-              else
-                {
-                  v.insert({d->id(),d});
-                }
-            }
-          if (!this->isValueInDomain(cm,v,whyNot,masterObjective))
-            return false;
-          else
-            return true;
-        }
+    //              ABC_Data_New* d;
+    //              if (!etype->get(cm,d,istream,whyNot,masterObjective))
+    //                return false;
+    //              else
+    //                {
+    //                  v.insert({d->id(),d});
+    //                }
+    //            }
+    //          if (!this->isValueInDomain(cm,v,whyNot,masterObjective))
+    //            return false;
+    //          else
+    //            return true;
+    //        }
 
-    }
+    //    }
 
-    buildByToken<StructureEnv_New*> *Implements_Data_Type_New_StructureEnv::getBuildByToken(const StructureEnv_New *cm) const
-    {
-      return new buildByToken<StructureEnv_New*>(cm,this);
-    }
+    //    buildByToken<StructureEnv_New*> *Implements_Data_Type_New_StructureEnv::getBuildByToken(const StructureEnv_New *cm) const
+    //    {
+    //      return new buildByToken<StructureEnv_New*>(cm,this);
+    //    }
 
-    bool Implements_Data_Type_New_StructureEnv::putValue
-    (const StructureEnv_New *cm
-     , const StructureEnv_New* &v
-     , ABC_Output *ostream
-     , std::__cxx11::string *whyNot
-     , const std::__cxx11::string &masterObjective) const
-    {
-      if (this->isDataInDomain(cm,v,whyNot,masterObjective))
-        {
-          const Implements_Data_Type_New<ABC_Data_New*>* etype
-              =this->getElementDataType(cm);
-          ostream->put("\n{");
-          const_iterator* it;
-          for (it=begin(); *it!=*end();++*it)
-            {
-              auto itv=v.find((**it)->id());
-              if (itv!=v.end())
-                if(!etype->put(cm,itv->second,ostream,whyNot,masterObjective))
-                  {
-                    ostream->put(*whyNot);
-                    return false;
-                  }
-            }
-          delete it;
-          ostream->put("}");
-          return true;
-        }
-      else
-        return false;
-    }
+    //    bool Implements_Data_Type_New_StructureEnv::putValue
+    //    (const StructureEnv_New *cm
+    //     , const StructureEnv_New* &v
+    //     , ABC_Output *ostream
+    //     , std::__cxx11::string *whyNot
+    //     , const std::__cxx11::string &masterObjective) const
+    //    {
+    //      if (this->isDataInDomain(cm,v,whyNot,masterObjective))
+    //        {
+    //          const Implements_Data_Type_New<ABC_Data_New*>* etype
+    //              =this->getElementDataType(cm);
+    //          ostream->put("\n{");
+    //          const_iterator* it;
+    //          for (it=begin(); *it!=*end();++*it)
+    //            {
+    //              auto itv=v.find((**it)->id());
+    //              if (itv!=v.end())
+    //                if(!etype->put(cm,itv->second,ostream,whyNot,masterObjective))
+    //                  {
+    //                    ostream->put(*whyNot);
+    //                    return false;
+    //                  }
+    //            }
+    //          delete it;
+    //          ostream->put("}");
+    //          return true;
+    //        }
+    //      else
+    //        return false;
+    //    }
 
 
 
@@ -292,28 +257,6 @@ namespace Markov_IO_New {
 
 
 
-
-  void StructureEnv_New::pushVar
-  (Implements_Data_Type_New<std::map<std::__cxx11::string, ABC_Data_New *> > *cmtype
-   , ABC_Data_New *var)
-  {
-    all_[var->id()]=var;
-    vars_[var->id()]=var;
-    cmtype->pushField(var);
-  }
-  void StructureEnv_New::pushVar
-  (const Implements_Data_Type_New<std::map<std::__cxx11::string, ABC_Data_New *> > *cmtype
-   ,ABC_Data_New *var)
-  {
-    std::string whyNot;
-    if (cmtype->hasFieldName(var->id(),&whyNot,""))
-      {
-        all_[var->id()]=var;
-        vars_[var->id()]=var;
-
-
-      }
-  }
 
 
   void StructureEnv_New::reset()
@@ -351,7 +294,7 @@ namespace Markov_IO_New {
     else
       {
         if (whyNot!=nullptr)
-        *whyNot=masterObjective+": "+name+" is not a var";
+          *whyNot=masterObjective+": "+name+" is not a var";
         return nullptr;
       }
   }
@@ -370,7 +313,7 @@ namespace Markov_IO_New {
     else
       {
         if (whyNot!=nullptr)
-        *whyNot=name+" is not a var ";
+          *whyNot=name+" is not a var ";
         return nullptr;
       }
   }
@@ -385,11 +328,26 @@ namespace Markov_IO_New {
     else
       {
         if (whyNot!=nullptr)
-        *whyNot=objective+": data has no id ";
+          *whyNot=objective+": data has no id ";
         return {};
       }
   }
 
+  std::__cxx11::string StructureEnv_New::Tip(const std::__cxx11::string &id) const
+  {
+    auto it=idTipWt_.find(id);
+    if (it!=idTipWt_.end())
+      return it->second.first;
+    else return {};
+  }
+
+  std::__cxx11::string StructureEnv_New::WhatThis(const std::__cxx11::string &id) const
+  {
+    auto it=idTipWt_.find(id);
+    if (it!=idTipWt_.end())
+      return it->second.second;
+    else return {};
+  }
 
   ABC_Data_New *StructureEnv_New::idToValue(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObective)
   {
@@ -399,7 +357,7 @@ namespace Markov_IO_New {
     else
       {
         if (whyNot!=nullptr)
-        *whyNot=masterObective+": "+name+" is not a var";
+          *whyNot=masterObective+": "+name+" is not a var";
         return nullptr;
       }
   }
@@ -414,7 +372,7 @@ namespace Markov_IO_New {
     else
       {
         if (whyNot!=nullptr)
-        *whyNot=masterObjective+": "+name+" is not a type ";
+          *whyNot=masterObjective+": "+name+" is not a type ";
         return nullptr;
       }
 
@@ -429,7 +387,7 @@ namespace Markov_IO_New {
     else
       {
         if (whyNot!=nullptr)
-        *whyNot=objective;
+          *whyNot=objective;
         return nullptr;
       }
 
@@ -507,12 +465,36 @@ namespace Markov_IO_New {
     else return parent()->hasCommand(name,whyNot,masterObjective,recursive);
   }
 
-  void StructureEnv_New::pushCommand(Implements_Command_Type_New *cmd)
+  void StructureEnv_New::pushVar(const std::__cxx11::string &id, ABC_Data_New *var, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
-    all_[cmd->id()]=cmd;
-    cmds_[cmd->id()]=cmd;
-
+    ;
+    if (all_.find(id)!=all_.end())
+      delete all_[id];
+    all_[id]=var;
+    vars_[id]=var;
+    idTipWt_[id]={tip,whatthis};
   }
+
+  void StructureEnv_New::pushType(const std::__cxx11::string &id, ABC_Type_of_Value *tvar, std::__cxx11::string tip, std::__cxx11::string whatthis)
+  {
+    ;
+    if (all_.find(id)!=all_.end())
+      delete all_[id];
+    all_[id]=tvar;
+    types_[id]=tvar;
+    idTipWt_[id]={tip,whatthis};
+  }
+
+  void StructureEnv_New::pushCommand(const std::__cxx11::string &id, Implements_Command_Type_New *cmd, std::__cxx11::string tip, std::__cxx11::string whatthis)
+  {
+    ;
+    if (all_.find(id)!=all_.end())
+      delete all_[id];
+    all_[id]=cmd;
+    cmds_[id]=cmd;
+    idTipWt_[id]={tip,whatthis};
+  }
+
 
   StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const std::__cxx11::string &myType):
     p_(parent),structType_(myType),ids_(),all_(),vars_(),types_(),cmds_()
@@ -650,11 +632,11 @@ namespace Markov_IO_New {
   {
     if (isFixed_)
       {
-         if (idCandidate!=name_)
-           {
-             *whyNot=objective+": candiate "+idCandidate+"is not "+name_;
-             return false;
-           }
+        if (idCandidate!=name_)
+          {
+            *whyNot=objective+": candiate "+idCandidate+"is not "+name_;
+            return false;
+          }
       }
     else
       if (isNew_&!isUsed_)
