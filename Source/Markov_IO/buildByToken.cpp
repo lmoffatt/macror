@@ -4,6 +4,7 @@
 #include "Markov_IO/Var.h"
 #include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_IO/buildByTokenTempl.h"
+#include "Markov_IO/VarTempl.h"
 
 namespace Markov_IO_New {
 
@@ -104,7 +105,7 @@ namespace Markov_IO_New {
   (const StructureEnv_New *parent
    , const Implements_Data_Type_New<ABC_Data_New*> *varType):
     ABC_BuildByToken(parent),
-    mystate(S_Init),dataType_(varType),idtypeB_(varType->getVarIdentifierBuildByToken(parent)),
+    mystate(S_Init),dataType_(varType),idtypeB_(new buildByToken<std::string>(parent,varType->getElementType())),
     valueB_(nullptr),data_(nullptr)
   ,convertToClass_(varType->ConvertToClass()),classx_(nullptr){}
 
@@ -508,6 +509,87 @@ namespace Markov_IO_New {
         return false;
       }
   }
+
+
+
+  
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<StructureEnv_New *>::alternativesNext() const
+  {
+    std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > out;
+    switch (mystate)
+      {
+      case S_Init:
+        return {this->StEnv_->myType(),{alternatives::endOfLine()}};
+      case S_Header2:
+        return {this->StEnv_->myType(),{Token_New::toString(Token_New::LCB)}};
+      case S_Header_Final:
+        return {this->StEnv_->myType(),{alternatives::endOfLine()}};
+      case S_Data_Partial:
+        return ivBuild_->alternativesNext();
+      case S_Data_Separator_Final:
+        if (varMapType_->hasMandatoryFields(parent(),StEnv_))
+          {
+            out+= {this->StEnv_->myType(),{Token_New::toString(Token_New::RCB)}};
+            if (varMapType_->hasAllFields(parent(),StEnv_))
+              {
+                return out;
+              }
+          }
+        out+=ivBuild_->alternativesNext();
+        return out;
+      case S_Final:
+        return out;
+      }
+    
+  }
+  
+  Token_New buildByToken<StructureEnv_New *>::popBackToken()
+
+  {
+
+    Token_New out;
+    switch (mystate)
+      {
+      case S_Init:
+        return {};
+      case S_Header2:
+        mystate=S_Init;
+        return Token_New(Token_New::EOL);
+      case S_Header_Final:
+        mystate=S_Header2;
+        return Token_New(Token_New::LCB);
+      case S_Data_Separator_Final:
+        if (StEnv_->empty())
+          {
+            mystate=S_Header_Final;
+            return Token_New(Token_New::EOL);
+
+          }
+        else
+          {
+            iv_=StEnv_->popVar();
+            --iField_;
+            std::string whyNot;
+            ivType_=varMapType_->getElementType
+                (parent(),StEnv_,iField_,&whyNot,"",ivType_);
+            ivBuild_->reset_Type(ivType_);
+            ivBuild_->unPop(iv_);
+            mystate=S_Data_Partial;
+            return ivBuild_->popBackToken();
+          }
+      case S_Data_Partial:
+        out= ivBuild_->popBackToken();
+        if (ivBuild_->isInitial())
+          mystate=S_Data_Separator_Final;
+        else
+          mystate=S_Data_Partial;
+        return out;
+       case S_Final:
+        mystate=S_Data_Separator_Final;
+        return Token_New(Token_New::RCB);
+       }
+  }
+
 
 
   void buildByToken<StructureEnv_New *>::reset_Type(const Implements_Data_Type_New<StructureEnv_New *> *typeVar)
@@ -1038,8 +1120,11 @@ namespace Markov_IO_New {
     idB_(new buildByToken<std::string>(parent,idType_)),dataB_(new buildByToken<ABC_Data_New*>(parent,dataTy_)),iv_()
 
   {
-
+    
   }
+
+
+  
 
 
 

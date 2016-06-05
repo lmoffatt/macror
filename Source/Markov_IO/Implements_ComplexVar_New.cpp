@@ -1,5 +1,7 @@
 #include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_Console/Markov_CommandManager.h"
+#include "Markov_IO/VarTempl.h"
+
 
 
 
@@ -161,6 +163,10 @@ namespace Markov_IO_New {
     template class Implements_Data_Type_New_M_Matrix<double>;
 
     template class Implements_Data_Type_New_M_Matrix<std::size_t>;
+
+    Implements_Data_Type_New_Implements_Var::Implements_Data_Type_New_Implements_Var(Implements_Identifier *idType, Implements_Data_Type_New<ABC_Data_New *> *dataType, Implements_Data_Type_New_Implements_Var::typePredicate comply, Implements_Data_Type_New_Implements_Var::elemType getElement, Implements_Data_Type_New_Implements_Var::keyType getKey)
+      :idType_(idType),dataType_(dataType),comply_(comply)
+      ,getKey_(getKey),getElement_(getElement){}
 
 
     //    bool Implements_Data_Type_New_StructureEnv::getData(const StructureEnv_New *cm, StructureEnv_New* v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
@@ -465,11 +471,47 @@ namespace Markov_IO_New {
     else return parent()->hasCommand(name,whyNot,masterObjective,recursive);
   }
 
+  Implements_Var StructureEnv_New::popVar()
+  {
+    Implements_Var iv;
+    iv.id=std::move(ids_.back());
+    ids_.pop_back();
+    iv.data=all_[iv.id];
+    all_.erase(iv.id);
+    auto itv=vars_.find(iv.id);
+    if (itv!=vars_.end())
+      {
+        vars_.erase(itv);
+      }
+    else
+      {
+        auto itt=types_.find(iv.id);
+        if (itt!=types_.end())
+          types_.erase(itt);
+        else
+          {
+            auto itc=cmds_.find(iv.id);
+            if (itc!=cmds_.end())
+              cmds_.erase(itc);
+          }
+      }
+     auto itw=this->idTipWt_.find(iv.id);
+     if (itw!=idTipWt_.end())
+       {
+         iv.Tip=itw->second.first;
+         iv.WhatThis=itw->second.second;
+         idTipWt_.erase(itw);
+       }
+     return iv;
+
+  }
+
   void StructureEnv_New::pushVar(const std::__cxx11::string &id, ABC_Data_New *var, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
-    ;
     if (all_.find(id)!=all_.end())
       delete all_[id];
+    else
+      ids_.push_back(id);
     all_[id]=var;
     vars_[id]=var;
     idTipWt_[id]={tip,whatthis};
@@ -480,6 +522,8 @@ namespace Markov_IO_New {
     ;
     if (all_.find(id)!=all_.end())
       delete all_[id];
+    else
+      ids_.push_back(id);
     all_[id]=tvar;
     types_[id]=tvar;
     idTipWt_[id]={tip,whatthis};
@@ -490,6 +534,8 @@ namespace Markov_IO_New {
     ;
     if (all_.find(id)!=all_.end())
       delete all_[id];
+    else
+      ids_.push_back(id);
     all_[id]=cmd;
     cmds_[id]=cmd;
     idTipWt_[id]={tip,whatthis};

@@ -484,7 +484,8 @@ HEADERS += \
     Include/Markov_IO/myTypes.h \
     Include/Markov_IO/Implements_path.h \
     Include/Markov_IO/FileLoadSave.h \
-    Include/Markov_IO/myIterator.h
+    Include/Markov_IO/myIterator.h \
+    Include/Markov_IO/VarTempl.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \

@@ -1811,7 +1811,10 @@ namespace Markov_IO_New {
     std::pair<std::string,std::set<std::string>> alternativesNext()const override;
 
 
-    void clear()override;
+    void clear()override
+    {
+      // no se que hace
+    }
 
 
 
@@ -1820,7 +1823,7 @@ namespace Markov_IO_New {
   private:
     DAF mystate;
     const Implements_Data_Type_New<StructureEnv_New*>* varMapType_;
-    StructureEnv_New* StEnv_;
+    StructureEnv_New*  StEnv_;
     Implements_Data_Type_New<Implements_Var>* ivType_;
     buildByToken<Implements_Var>* ivBuild_;
     Implements_Var  iv_;

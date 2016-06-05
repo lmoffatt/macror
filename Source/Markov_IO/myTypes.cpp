@@ -1,5 +1,7 @@
 #include "Markov_IO/myTypes.h"
 #include "Markov_Mol/QMarkovModel.h"
+#include "Markov_IO/VarTempl.h"
+
 
 namespace Markov_IO_New {
 
