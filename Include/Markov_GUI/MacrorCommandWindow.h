@@ -62,6 +62,8 @@ public:
 
   virtual void showMessage(const std::string &m) override;
 
+  virtual void hideMessage()override;
+
   std::string spacer()const override;
 
 

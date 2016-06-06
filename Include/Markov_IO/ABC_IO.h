@@ -359,6 +359,7 @@ namespace Markov_IO_New
 
 
     virtual void showMessage(const std::string& m)=0;
+    virtual void hideMessage()=0;
 
     virtual bool isLineBegin()const=0;
 

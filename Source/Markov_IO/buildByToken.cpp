@@ -105,7 +105,9 @@ namespace Markov_IO_New {
   (const StructureEnv_New *parent
    , const Implements_Data_Type_New<ABC_Data_New*> *varType):
     ABC_BuildByToken(parent),
-    mystate(S_Init),dataType_(varType),idtypeB_(new buildByToken<std::string>(parent,varType->getElementType())),
+    mystate(S_Init)
+  ,dataType_(varType)
+  ,idtypeB_(new buildByToken<std::string>(parent,varType->getElementType())),
     valueB_(nullptr),data_(nullptr)
   ,convertToClass_(varType->ConvertToClass()),classx_(nullptr){}
 
@@ -139,7 +141,7 @@ namespace Markov_IO_New {
           }
       case S_ID_Final:
         {
-          if (tok.tok()!=Token_New::EQ)
+          if (tok.tok()!=Token_New::ASSIGN)
             {
               *whyNot=masterObjective+": expected \"=\" found "+tok.str();
               return false;
@@ -174,7 +176,7 @@ namespace Markov_IO_New {
                         classx_.reset();
                       }
                   }
-                mystate=S_Data_Final;
+                mystate=S_Final;
                 return true;
               }
             else
@@ -183,24 +185,30 @@ namespace Markov_IO_New {
                 return true;
               }
           }
-      case S_Data_Final:
-        if (tok.tok()==Token_New::EOL)
-          {
-            mystate =S_Final;
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": is not an end of line";
-            return false;
-          }
 
       case S_Final:
-      default:
         return false;
       }
   }
 
+
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > buildByToken<ABC_Data_New *>::alternativesNext() const
+
+  {
+    std::pair<std::string, std::set<std::string> > out;
+      switch (mystate)
+        {
+        case S_Init:
+          return idtypeB_->alternativesNext();
+        case S_ID_Final:
+          return {"ClassName()",{Token_New::toString(Token_New::ASSIGN)}};
+
+        case S_DATA_PARTIAL:
+          return valueB_->alternativesNext();
+        case S_Final:
+          return {};
+        }
+    }
 
 
 
@@ -361,24 +369,13 @@ namespace Markov_IO_New {
         else if (dataB_->isFinal())
           {
             iv_.data=dataB_->unloadVar();
-            mystate =S_Data_Final;
+            mystate =S_Final;
             return true;
           }
         else
           {
             mystate=S_DATA_PARTIAL;
             return true;
-          }
-      case S_Data_Final:
-        if (tok.tok()==Token_New::EOL)
-          {
-            mystate =S_Final;
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": is not an end of line";
-            return false;
           }
 
       case S_Final:
@@ -886,7 +883,13 @@ namespace Markov_IO_New {
           }
       case S_Command_Final:
       case S_Expression_Final:
-        return false;
+        if (t.tok()==Token_New::EOL)
+          return true;
+        else
+          {
+            *whyNot=objective+": unknown command or variable";
+            return false;
+          }
       }
 
   }

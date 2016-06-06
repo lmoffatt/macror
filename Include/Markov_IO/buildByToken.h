@@ -1497,13 +1497,10 @@ namespace Markov_IO_New {
   public:
 
     enum DFA {
-      S_Init=0,S_ID_Final, S_DATA_PARTIAL,S_Data_Final, S_Final
+      S_Init=0,S_ID_Final, S_DATA_PARTIAL, S_Final
     } ;
 
     bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
-
-
-
 
     bool isFinal()const override
     {
@@ -1559,23 +1556,7 @@ namespace Markov_IO_New {
       return unloadVar();
     }
 
-    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
-
-    {
-      std::pair<std::string, std::set<std::string> > out;
-      switch (mystate)
-        {
-        case S_Init:
-          return  idtypeB_->alternativesNext();
-
-        case S_DATA_PARTIAL:
-          return valueB_->alternativesNext();
-        case S_Final:
-
-        default:
-          return {};
-        }
-    }
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
 
     virtual Token_New popBackToken() override{
 
@@ -1609,7 +1590,7 @@ namespace Markov_IO_New {
       S_Init=0, TIP1, TIP2,WT0_ID0,WT2,WT3,ID1,ID2,WT1,ID0,
       S_HEADER_Final,
       S_DATA_PARTIAL,
-      S_Data_Final, S_Final
+       S_Final
     } ;
 
     bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
@@ -1732,14 +1713,12 @@ namespace Markov_IO_New {
         case ID1:
           out.first=" token \":\"";
           out.second={":"};
+          return out;
+        case ID2:
         case S_HEADER_Final:
         case S_DATA_PARTIAL:
           return dataB_->alternativesNext();
-        case S_Data_Final:
-          return {iv_.id,{alternatives::endOfLine()}};
         case S_Final:
-
-        default:
           return {};
         }
     }

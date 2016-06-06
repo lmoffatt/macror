@@ -97,7 +97,9 @@ namespace Markov_IO_New {
         std::string err;
         if (ok)
           {
-            push_back(cm,io,removeHint(sel)+" ",&err);
+            auto n=tok_.str().size();
+            std::string s=removeHint(sel).substr(n);
+            push_back(cm,io,s+" ",&err);
 
           }
       }
@@ -134,8 +136,8 @@ namespace Markov_IO_New {
       }
     else if (!errorMessage.empty())
       {
-       // io->putNewLine();
-       // io->putError(errorMessage);
+        // io->putNewLine();
+        // io->putError(errorMessage);
       }
     tok_.clear();
     rejectedChars_.clear();
@@ -148,6 +150,7 @@ namespace Markov_IO_New {
 
   void ExpressionManager::putText(Markov_CommandManagerVar *cm,ABC_IO *io,char c)       // here lies the core of the logic
   {
+    io->hideMessage();
     std::string err;
     if (!push_back(cm,io,c,&err))
       io->showMessage(err);
@@ -363,49 +366,60 @@ namespace Markov_IO_New {
 
   std::string ExpressionManager::suggestRest(const std::set<std::string> &items, Token_New tok)
   {
-    std::string hint=tok.str();
-    std::size_t nh=hint.size();
-    auto lo=items.lower_bound(hint);
-    std::string hintup=hint;
-    hintup.back()++;
-    auto up=items.upper_bound(hintup);
-    while ((lo==up)&& !hint.empty())
-      {
-        hint.pop_back();
-        lo=items.lower_bound(hint);
-        hintup=hint;
-        hintup.back()++;
-        items.upper_bound(hintup);
-
-      }
-    if (lo==up)
-      return {};
+    if (tok.str().empty()&&items.size()==1)
+      return *items.begin();
     else
       {
-        --up;
+        std::string hint=tok.str();
+        std::size_t nh=hint.size();
 
-        if (lo==up)
+        auto lo=items.lower_bound(hint);
+        std::string hintup=hint;
+        if (hintup.empty())
+          hintup=*items.rbegin();
+        hintup.back()++;
+        auto up=items.upper_bound(hintup);
+        while ((lo==up)&& !hint.empty())
           {
-            std::string out=*lo;
-            if (hint.size()==nh)
-              out.push_back(' ');
-            return out.substr(hint.size());
+            hint.pop_back();
+            lo=items.lower_bound(hint);
+            hintup=hint;
+            if (hintup.empty())
+              hintup=*items.rbegin();
+            hintup.back()++;
+            items.upper_bound(hintup);
 
           }
+        if (lo==up)
+          return {};
         else
           {
-            std::string los=*lo;
-            std::string ups=*up;
-            std::size_t i=0;
-            std::size_t n=std::min(los.size(), ups.size());
-            while((i<n) &&(los[i]==ups[i])) ++i;
-            std::string out=los.substr(0,n);
-            return out;
-          }
+            --up;
 
+            if (lo==up)
+              {
+                std::string out=*lo;
+                if (hint.size()==nh)
+                  out.push_back(' ');
+                return out.substr(hint.size());
+
+              }
+            else
+              {
+                std::string los=*lo;
+                std::string ups=*up;
+                std::size_t i=0;
+                std::size_t n=std::min(los.size(), ups.size());
+                while((i<n) &&(los[i]==ups[i])) ++i;
+                std::string out;
+                if(nh<i)
+                  out=los.substr(nh,i-nh);
+                return out;
+              }
+
+          }
       }
   }
-
   std::set<std::string> ExpressionManager::conformant(const std::set<std::string> &items, Token_New tok)
   {
     std::string hint=tok.str();

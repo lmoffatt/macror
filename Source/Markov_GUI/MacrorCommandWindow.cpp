@@ -340,6 +340,17 @@ namespace Markov_IO_New {
     repaint();
   }
 
+
+  void MacrorCommandWindow::hideMessage()
+  {
+
+    if (message==nullptr)
+      message->hide();
+    repaint();
+  }
+
+
+
   std::string MacrorCommandWindow::spacer() const
   {
     return cm_->getProgram().spacer();

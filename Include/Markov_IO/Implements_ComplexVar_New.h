@@ -2623,7 +2623,7 @@ namespace Markov_IO_New {
        const std::string& masterObjective,Implements_Data_Type_New<ABC_Data_New*>* source)const
       {
         if (getElement_==nullptr)
-          return nullptr;
+          return source;
         else return (*getElement_)(cm,v,this,whyNot,masterObjective,source);
       }
 
