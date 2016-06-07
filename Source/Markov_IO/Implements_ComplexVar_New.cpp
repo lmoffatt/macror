@@ -479,6 +479,7 @@ namespace Markov_IO_New {
     ids_.pop_back();
     iv.data=all_[iv.id];
     all_.erase(iv.id);
+    allId_.erase(iv.data);
     auto itv=vars_.find(iv.id);
     if (itv!=vars_.end())
       {
@@ -510,10 +511,14 @@ namespace Markov_IO_New {
   void StructureEnv_New::pushVar(const std::__cxx11::string &id, ABC_Data_New *var, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
     if (all_.find(id)!=all_.end())
+      {
+      allId_.erase(all_[id]);
       delete all_[id];
+      }
     else
       ids_.push_back(id);
     all_[id]=var;
+    allId_[var]=id;
     vars_[id]=var;
     idTipWt_[id]={tip,whatthis};
   }
@@ -522,10 +527,14 @@ namespace Markov_IO_New {
   {
     ;
     if (all_.find(id)!=all_.end())
+      {
+      allId_.erase(all_[id]);
       delete all_[id];
+      }
     else
       ids_.push_back(id);
     all_[id]=tvar;
+    allId_[tvar]=id;
     types_[id]=tvar;
     idTipWt_[id]={tip,whatthis};
   }
@@ -534,17 +543,21 @@ namespace Markov_IO_New {
   {
     ;
     if (all_.find(id)!=all_.end())
+      {
+      allId_.erase(all_[id]);
       delete all_[id];
+      }
     else
       ids_.push_back(id);
     all_[id]=cmd;
+    allId_[cmd]=id;
     cmds_[id]=cmd;
     idTipWt_[id]={tip,whatthis};
   }
 
 
   StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const std::__cxx11::string &myType):
-    p_(parent),structType_(myType),ids_(),all_(),vars_(),types_(),cmds_()
+    p_(parent),structType_(myType),ids_(),all_(),allId_(),vars_(),types_(),cmds_()
   {
 
   }

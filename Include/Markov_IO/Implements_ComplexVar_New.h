@@ -1786,13 +1786,13 @@ namespace Markov_IO_New {
       virtual Implements_Data_Type_New<T>* getElementType(
           const StructureEnv_New* cm
           ,const std::vector<T>& val,
-          std::size_t ncol, std::size_t nrow,
+          std::size_t nrows, std::size_t ncols,
           std::size_t i, std::size_t j,std::string* whyNot
           , const std::string & masterObjective,
           Implements_Data_Type_New<T>* source=nullptr)const
       {
         if (getElement_!=nullptr)
-        return (*getElement_)(cm,val,ncol,nrow,i,j,this,whyNot,masterObjective,source);
+        return (*getElement_)(cm,val,nrows,ncols,i,j,this,whyNot,masterObjective,source);
         else return source;
       }
 
@@ -2958,6 +2958,7 @@ namespace Markov_IO_New {
 
     struct types
     {
+
       struct nonZero
       {
         static std::string myId(){return "real_nonZero";}
@@ -2986,6 +2987,107 @@ namespace Markov_IO_New {
          ,const vType* )
         {
           return {"<non zero number>"};
+        }
+
+
+
+        static Implements_Data_Type_New<myC>*
+        varType()
+        {
+          return new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
+        }
+        static Implements_Data_Type_New<myC>*
+        varType(Implements_Data_Type_New<myC>* source)
+        {
+          source->comply_=&comply;
+          source->alternativesNext_=&alternativeNext;
+          return source;
+
+        }
+
+      };
+
+
+
+      struct nonNegative
+      {
+        static std::string myId(){return "real_positive_or_zero";}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "zero or positive real number";}
+        static std::string myWhatThis() {return "";}
+
+        static bool comply
+        (const StructureEnv_New* cm
+         ,const myC& x
+         ,const vType* ,
+         std::string *WhyNot
+         , const std::string& objective)
+        {
+          if ( x < 0.0)
+            {
+              *WhyNot=objective+": x="+std::to_string(x)+"is too close to zero";
+              return false;
+            }
+          else
+            return true;
+        }
+
+        static std::set<std::string> alternativeNext
+        (const StructureEnv_New*
+         ,const vType* )
+        {
+          return {"<zero or positive number>"};
+        }
+
+
+
+        static Implements_Data_Type_New<myC>*
+        varType()
+        {
+          return new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
+        }
+        static Implements_Data_Type_New<myC>*
+        varType(Implements_Data_Type_New<myC>* source)
+        {
+          source->comply_=&comply;
+          source->alternativesNext_=&alternativeNext;
+          return source;
+
+        }
+
+      };
+
+
+      struct positive
+      {
+        static std::string myId(){return "real_positive";}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "any postive non zero real number";}
+        static std::string myWhatThis() {return "";}
+
+        static bool comply
+        (const StructureEnv_New* cm
+         ,const myC& x
+         ,const vType* ,
+         std::string *WhyNot
+         , const std::string& objective)
+        {
+          if (x < std::numeric_limits<double>::epsilon())
+            {
+              *WhyNot=objective+": x="+std::to_string(x)+" too small or negative";
+              return false;
+            }
+          else
+            return true;
+        }
+
+        static std::set<std::string> alternativeNext
+        (const StructureEnv_New*
+         ,const vType* )
+        {
+          return {"<positive number>"};
         }
 
 
@@ -3063,7 +3165,7 @@ namespace Markov_IO_New {
       {
         typedef  double myC;
         typedef  Implements_Data_Type_New<myC> vType;
-        static std::string idVar(myC x){return "Real_given"+std::to_string(x);}
+        static std::string idVar(myC x){return "Real_given_"+std::to_string(x);}
         static std::string idType(){return Cls<myC>::name();}
         static std::string Tip(){return "given real number";}
         static std::string WhatThis() {return "";}

@@ -47,21 +47,7 @@ namespace Markov_IO_New {
     std::pair<std::string,std::set<std::string>> out;
     switch (mystate) {
       case S_Init:
-
-        if ((hasFixedCols_)&&(nCols_==0))
-          {
             return {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
-          }
-        else if (nCols_==0)
-          {
-            out=eleB_->alternativesNext();
-            out+= {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
-            return out;
-          }
-        else
-          {
-            return eleB_->alternativesNext();
-          }
 
       case S_PInit_NData:
       case S_PEOL_NData:
@@ -1003,7 +989,7 @@ namespace Markov_IO_New {
             {
               --runCols_;
               eleType_=dataType_->getElementType
-                  (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                  (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
                    ,&whyNot,masterObjective,eleType_);
               eleB_->reset_Type(eleType_);
               if ((runRows_==0)&&(runCols_==0))

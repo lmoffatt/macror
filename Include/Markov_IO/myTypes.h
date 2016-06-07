@@ -82,7 +82,7 @@ namespace Markov_IO_New {
         static Implements_Data_Type_New<elem>* nextElement (
             const StructureEnv_New* cm
             ,const std::vector<elem>& val,
-            std::size_t ncol, std::size_t nrow
+            std::size_t nrow, std::size_t ncol
             ,std::size_t i, std::size_t j
             ,const Implements_Data_Type_New<myC>* self
             , std::string * whyNot, const std::string& masterObjective,
@@ -94,16 +94,16 @@ namespace Markov_IO_New {
             }
           else if (j>i)
             {
-              return Real::types::nonZero::varType(source);
+              return Real::types::nonNegative::varType(source);
             }
           else
             {
-              if (val[j+i*ncol]==elem(0))
+              if (val[i+j*ncol]==elem(0))
                 {
                   return Real::types::Zero::varType(source);
                 }
               else {
-                  return Real::types::nonZero::varType(source);
+                  return Real::types::positive::varType(source);
                 }
             }
         }

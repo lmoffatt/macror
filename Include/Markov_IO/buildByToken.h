@@ -179,7 +179,7 @@ namespace Markov_IO_New {
   {
     std::string whynot;
     std::string id=parent()->dataToId(varType_,&whynot,"");
-    return {id,{"<"+ parent()->Tip(id)+">"}};
+    return {id,varType_->alternativeNext(parent())};
   }
 
   template<>
@@ -670,8 +670,10 @@ namespace Markov_IO_New {
     {
       if (isFinal())
         {
+          Markov_LA::M_Matrix<T> out=std::move(x_);
           mystate=S_Init;
-          return x_;
+          x_={};
+          return out;
         }
       else
         return {};
@@ -718,6 +720,10 @@ namespace Markov_IO_New {
             }
           else
             {
+              eleType_=dataType_->getElementType
+                  (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
+                   ,whyNot,masterObjective,eleType_);
+
               mystate=S_PInit_NData;
               return true;
             }
@@ -750,7 +756,7 @@ namespace Markov_IO_New {
                   else
                     {
                       eleType_=dataType_->getElementType
-                          (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                          (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
                            ,whyNot,masterObjective,eleType_);
                       eleB_->reset_Type(eleType_);
                       mystate=S_PData_NData;
@@ -760,7 +766,7 @@ namespace Markov_IO_New {
               else
                 {
                   eleType_=dataType_->getElementType
-                      (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                      (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
                        ,whyNot,masterObjective,eleType_);
                   eleB_->reset_Type(eleType_);
                   if(runCols_<nCols_)
@@ -806,7 +812,7 @@ namespace Markov_IO_New {
               else
                 {
                   eleType_=dataType_->getElementType
-                      (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                      (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
                        ,whyNot,masterObjective,eleType_);
                   eleB_->reset_Type(eleType_);
                   if (runRows_<nRows_)
@@ -850,7 +856,7 @@ namespace Markov_IO_New {
                           else
                             {
                               eleType_=dataType_->getElementType
-                                  (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                                  (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
                                    ,whyNot,masterObjective,eleType_);
                               eleB_->reset_Type(eleType_);
                               mystate=S_PBothData_NData;
@@ -860,7 +866,7 @@ namespace Markov_IO_New {
                       else
                         {
                           eleType_=dataType_->getElementType
-                              (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                              (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
                                ,whyNot,masterObjective,eleType_);
                           eleB_->reset_Type(eleType_);
                           if(runCols_<nCols_)
@@ -917,7 +923,7 @@ namespace Markov_IO_New {
               else
                 {
                   eleType_=dataType_->getElementType
-                      (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                      (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
                        ,whyNot,masterObjective,eleType_);
                   eleB_->reset_Type(eleType_);
                   if (runRows_<nRows_)
