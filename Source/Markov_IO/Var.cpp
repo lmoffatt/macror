@@ -59,13 +59,13 @@ namespace Markov_IO_New {
       }
     else
       {
-        auto t=parent()->idToType(type,whyNot,masterObjective);
+        auto t=idToType(type,whyNot,masterObjective);
         if (t==nullptr)
           return false;
         else
           {
             const ABC_Data_New* v=it->second;
-            return t->isDataInDomain(parent(),v,whyNot,masterObjective);
+            return t->isDataInDomain(this,v,whyNot,masterObjective);
           }
       }
 
@@ -86,13 +86,13 @@ namespace Markov_IO_New {
       }
     else
       {
-        auto t=parent()->idToCommand(type,whyNot,masterObjective);
+        auto t=idToCommand(type,whyNot,masterObjective);
         if (t==nullptr)
           return false;
         else
           {
             const Implements_Command_Type_New* v=it->second;
-            return t->includesThisType(parent(),name,whyNot,masterObjective);
+            return t->includesThisType(this,name,whyNot,masterObjective);
           }
       }
 

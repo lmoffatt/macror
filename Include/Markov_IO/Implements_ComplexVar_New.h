@@ -1535,7 +1535,7 @@ namespace Markov_IO_New {
         if (alternativesNext_!=nullptr)
           return (*alternativesNext_)(cm,this);
         else
-          return {};
+          return {"<"+Cls<T>::name()+">"};
       }
 
       virtual ~Implements_Data_Type_New_regular(){}
@@ -1543,8 +1543,8 @@ namespace Markov_IO_New {
 
 
       Implements_Data_Type_New_regular(typePredicate complyPred=nullptr,
-                                       getSet alternatives=nullptr
-          ):comply_(complyPred),alternativesNext_(alternatives)
+                                       getSet alternatives=nullptr)
+        :comply_(complyPred),alternativesNext_(alternatives)
 
       {}
 

@@ -47,7 +47,7 @@ namespace Markov_IO_New {
     std::pair<std::string,std::set<std::string>> out;
     switch (mystate) {
       case S_Init:
-            return {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
+        return {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
 
       case S_PInit_NData:
       case S_PEOL_NData:
@@ -193,23 +193,23 @@ namespace Markov_IO_New {
 
   {
     std::pair<std::string, std::set<std::string> > out;
-      switch (mystate)
-        {
-        case S_Init:
-          return idtypeB_->alternativesNext();
-        case S_ID_Final:
-          return {"ClassName()",{Token_New::toString(Token_New::ASSIGN)}};
+    switch (mystate)
+      {
+      case S_Init:
+        return idtypeB_->alternativesNext();
+      case S_ID_Final:
+        return {"ClassName()",{Token_New::toString(Token_New::ASSIGN)}};
 
-        case S_DATA_PARTIAL:
-          return valueB_->alternativesNext();
+      case S_DATA_PARTIAL:
+        return valueB_->alternativesNext();
 
-        case S_Data_Final:
-          return {"ClassNamr()",{alternatives::endOfLine()}};
+      case S_Data_Final:
+        return {"ClassNamr()",{alternatives::endOfLine()}};
 
-        case S_Final:
-          return {};
-        }
-    }
+      case S_Final:
+        return {};
+      }
+  }
 
 
 
@@ -367,7 +367,7 @@ namespace Markov_IO_New {
           {
             return false;
           }
-        else if (dataB_->isFinal())
+          else if (dataB_->isFinal())
           {
             iv_.data=dataB_->unloadVar();
             mystate =S_Final;
@@ -458,7 +458,7 @@ namespace Markov_IO_New {
             return false;
           }
       case S_Data_Partial:
-        if (!ivBuild_->pushToken(tok, whyNot, objective))
+          if (!ivBuild_->pushToken(tok, whyNot, objective))
           {
             return false;
           }
@@ -468,12 +468,30 @@ namespace Markov_IO_New {
               {
                 iv_=ivBuild_->unloadVar();
                 StEnv_->pushVar(iv_);
-                ++iField_;
-                ivType_=varMapType_->getElementType
-                    (parent(),StEnv_,iField_,whyNot,masterObjective,ivType_);
-                ivBuild_->reset_Type(ivType_);
-                mystate=S_Data_Separator_Final;
-                return true;
+                if (varMapType_->hasAllFields(parent(),StEnv_,whyNot,masterObjective))
+                  {
+                    mystate=S_All;
+                    return true;
+                  }
+                else
+                  {
+                    ++iField_;
+                    ivType_=varMapType_->getElementType
+                        (parent(),StEnv_,iField_,whyNot,masterObjective,ivType_);
+                    ivBuild_->reset_Type(ivType_);
+                    if (varMapType_->hasMandatoryFields
+                        (parent(),StEnv_,whyNot,masterObjective))
+                      {
+                        mystate=S_Mandatory;
+                        return true;
+                      }
+                    else
+                      {
+                        mystate=S_Data_Separator_Final;
+                        return true;
+
+                      }
+                  }
               }
             else
               {
@@ -481,21 +499,26 @@ namespace Markov_IO_New {
                 return true;
               }
           }
-      case S_Data_Separator_Final:
-        if (varMapType_->hasMandatoryFields(parent(),StEnv_,whyNot,masterObjective))
+      case S_All:
+        if (tok.tok()==Token_New::RCB)
           {
-            if (tok.tok()==Token_New::RCB)
-              {
-                mystate=S_Final;
-                return true;
-              }
-            else if (varMapType_->hasAllFields(parent(),StEnv_,whyNot,masterObjective))
-              {
-                *whyNot=masterObjective+": expecte }, all fields filled";
-                return false;
-              }
+            mystate=S_Final;
+            return true;
           }
-        if (!ivBuild_->pushToken(tok, whyNot,objective))
+        else
+          {
+            *whyNot=masterObjective+": expecte }, all fields filled";
+            return false;
+          }
+
+      case S_Mandatory:
+          if (tok.tok()==Token_New::RCB)
+            {
+              mystate=S_Final;
+              return true;
+            }
+      case S_Data_Separator_Final:
+          if (!ivBuild_->pushToken(tok, whyNot,objective))
           {
             return false;
           }
@@ -525,19 +548,15 @@ namespace Markov_IO_New {
       case S_Header_Final:
         return {this->StEnv_->myType(),{alternatives::endOfLine()}};
       case S_Data_Partial:
-        return ivBuild_->alternativesNext();
       case S_Data_Separator_Final:
-        if (varMapType_->hasMandatoryFields(parent(),StEnv_))
-          {
-            out+= {this->StEnv_->myType(),{Token_New::toString(Token_New::RCB)}};
-            if (varMapType_->hasAllFields(parent(),StEnv_))
-              {
-                return out;
-              }
-          }
+        return ivBuild_->alternativesNext();
+      case S_All:
+        return {this->StEnv_->myType(),{Token_New::toString(Token_New::RCB)}};
+      case S_Mandatory:
+        out={this->StEnv_->myType(),{Token_New::toString(Token_New::RCB)}};
         out+=ivBuild_->alternativesNext();
         return out;
-      case S_Final:
+     case S_Final:
         return out;
       }
     
@@ -584,10 +603,10 @@ namespace Markov_IO_New {
         else
           mystate=S_Data_Partial;
         return out;
-       case S_Final:
+      case S_Final:
         mystate=S_Data_Separator_Final;
         return Token_New(Token_New::RCB);
-       }
+      }
   }
 
 
@@ -612,7 +631,7 @@ namespace Markov_IO_New {
       {
         StructureEnv_New * out=StEnv_;
         StEnv_=nullptr;
-        iv_.clear();
+        iv_={};
         mystate=S_Init;
         iField_=0;
         return out;
@@ -640,7 +659,7 @@ namespace Markov_IO_New {
     cmdty_=cmdty;
     cmdArg_->reset();
     ivType_=cmdty->getElementType()->clone();
-    iv_;
+    iv_.clear();
     ivB_->reset_Type(ivType_);
     iArg_=0;
 

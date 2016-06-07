@@ -1757,6 +1757,8 @@ namespace Markov_IO_New {
               ,S_Header_Final
               ,S_Data_Partial
               ,S_Data_Separator_Final
+              ,S_Mandatory
+              ,S_All
               ,S_Final} ;
 
 

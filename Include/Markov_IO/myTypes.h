@@ -59,7 +59,7 @@ namespace Markov_IO_New {
                            , const std::string& objective)
         {
           std::size_t numstates;
-          if (!cm->getValueFromId(numStates_Field::myId(),numstates,WhyNot,objective))
+            if (!cm->getValueFromId(numStates_Field::myId(),numstates,WhyNot,objective))
             return false;
           if (!Matrix::Comply::Size<elem>(x,numstates,numstates,WhyNot,objective))
             return false;
@@ -98,7 +98,7 @@ namespace Markov_IO_New {
             }
           else
             {
-              if (val[i+j*ncol]==elem(0))
+                if (val[i+j*ncol]==elem(0))
                 {
                   return Real::types::Zero::varType(source);
                 }
@@ -228,8 +228,8 @@ namespace Markov_IO_New {
           return getNumStates(cm);
         }
 
-        static constexpr bool areColsFixed=false;
-        static constexpr bool areRowsFixed=false;
+        static constexpr bool areColsFixed=true;
+        static constexpr bool areRowsFixed=true;
 
 
         static Implements_Data_Type_New<myC>*
@@ -248,8 +248,8 @@ namespace Markov_IO_New {
         }
         static void push_Types(Markov_CommandManagerVar *cm)
         {
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
           cm->pushRegularType<elem>();
+          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
 
       };
