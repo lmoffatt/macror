@@ -288,9 +288,9 @@ namespace Markov_IO_New {
 
 
     bool hasType(const std::string& name
-                 , std::string* whyNot
-                 ,const std::string &masterObjective,
-                 bool recursive)const;
+                 , std::string* whyNot=nullptr
+                 ,const std::string &masterObjective="",
+                 bool recursive=false)const;
 
 
 
@@ -361,6 +361,7 @@ namespace Markov_IO_New {
     template<class Type>
     void pushType(const std::string& name)
     {
+      if (!hasType(Type::myId(name)))
       pushType(Type::myId(name)
                ,Type::varType(name)
                ,Type::myTip(),Type::myWhatThis());
@@ -374,14 +375,17 @@ namespace Markov_IO_New {
     template<class Type>
     void pushType()
     {
+      if (!hasType(Type::myId()))
       pushType(Type::myId()
                ,Type::varType()
-               ,Type::myTip(),Type::myWhatThis());
+               ,Type::myTip()
+               ,Type::myWhatThis());
     }
 
     template<class T>
     void pushRegularType()
     {
+      if (!hasType(Cls<T>::name()))
       pushType(Cls<T>::name()
                , new Implements_Data_Type_New<T>(),"a "+Cls<T>::name(),"");
     }
@@ -666,6 +670,7 @@ namespace Markov_IO_New {
         auto x=dynamic_cast<const Implements_Value_New<T>* >(v);
         if (x==nullptr)
           {
+            if (whyNot!=nullptr)
             *whyNot=masterObjective+": is not a "+Cls<T>::name();
             return false;
           }
@@ -947,11 +952,11 @@ namespace Markov_IO_New {
         comply_=nullptr;
         alternativeNext_=nullptr;
       }
-      virtual ABC_Data_New *clone() const override
+      virtual Implements_Data_Type_New_string *clone() const override
       {
         return new Implements_Data_Type_New_string(*this);}
 
-      virtual ABC_Data_New *create() const override
+      virtual Implements_Data_Type_New_string *create() const override
       {return new Implements_Data_Type_New_string();}
 
     protected:
@@ -1032,7 +1037,7 @@ namespace Markov_IO_New {
     virtual bool isValueInDomain(const StructureEnv_New* cm,const std::string &idCandidate, std::string *whyNot,const std::string& objective ) const override;
 
 
-    std::string getName(){return name_;}
+    std::string getName()const {return name_;}
 
     void setName(const std::string& name){name_=name;}
 
@@ -1560,11 +1565,11 @@ namespace Markov_IO_New {
       {
         comply_=nullptr;
       }
-      virtual ABC_Data_New *clone() const override
+      virtual Implements_Data_Type_New_regular *clone() const override
       {
         return new Implements_Data_Type_New_regular(*this);
       }
-      virtual ABC_Data_New *create() const override
+      virtual Implements_Data_Type_New_regular *create() const override
       {
         return new Implements_Data_Type_New_regular();
       }
@@ -1773,7 +1778,9 @@ namespace Markov_IO_New {
 
       virtual const Implements_Data_Type_New<T>* getElementDataType(const StructureEnv_New* cm)const
       {
-        return elementType_;
+        if (elementType_!=nullptr)
+          return elementType_;
+        else return cm->idToTyped<T>(Cls<T>::name());
       }
 
       virtual Implements_Data_Type_New<T>* getElementType(
@@ -1784,7 +1791,9 @@ namespace Markov_IO_New {
           , const std::string & masterObjective,
           Implements_Data_Type_New<T>* source=nullptr)const
       {
+        if (getElement_!=nullptr)
         return (*getElement_)(cm,val,ncol,nrow,i,j,this,whyNot,masterObjective,source);
+        else return source;
       }
 
 
@@ -2529,6 +2538,10 @@ namespace Markov_IO_New {
       {
         idType_->setName(name);
       }
+      std::string getDataType()const
+      {
+        return idType_->getName();
+      }
 
     private:
 
@@ -2607,7 +2620,9 @@ namespace Markov_IO_New {
        Implements_Identifier* source)const
       {
         if (getKey_==nullptr)
-          return nullptr;
+          {
+            return source;
+          }
         else return (*getKey_)(cm,v,this,whyNot,masterObjective,source);
       }
 
@@ -2793,6 +2808,10 @@ namespace Markov_IO_New {
                                 , std::string *whyNot=nullptr
           ,const std::string& masterObjective="") const
       {
+        if (hasAll_!=nullptr)
+          return (*hasAll_)(e,val,this,whyNot,masterObjective);
+        else
+          return false;
 
       }
 
@@ -2801,7 +2820,10 @@ namespace Markov_IO_New {
                                       , std::string *whyNot=nullptr
           ,const std::string& masterObjective="" ) const
       {
-
+          if (hasMandatory_!=nullptr)
+            return (*hasMandatory_)(e,val,this,whyNot,masterObjective);
+          else
+            return true;
       }
 
 
@@ -3402,6 +3424,35 @@ namespace Markov_IO_New {
         static std::string myTip(){ return "tip";}
         static std::string myWhatThis() {return "aht";}
 
+        static bool comply
+        (const StructureEnv_New * cm, const Implements_Var& iv,
+        const vType* self
+        , std::string * whyNot,const std::string& masterObjective)
+        {
+            return true;
+        }
+
+        static  Implements_Identifier* nextKey
+        (const StructureEnv_New * cm, const Implements_Var& iv,
+        const vType* self
+        , std::string * whyNot,const std::string& masterObjective
+        ,Implements_Identifier* source)
+        {
+          source->setName(self->getKeyType(cm)->getName());
+          return source;
+        }
+
+        static  Implements_Data_Type_New<ABC_Data_New*>* nextElement
+        (const StructureEnv_New * cm, const Implements_Var& iv,
+        const vType* self
+        , std::string * whyNot,const std::string& masterObjective
+        ,Implements_Data_Type_New<ABC_Data_New*>* source)
+        {
+          source->setDataType(self->getElementType(cm)->getDataType());
+          return source;
+        }
+
+
 
         static Implements_Data_Type_New<myC>*
         varType(const Implements_Var var)
@@ -3410,7 +3461,7 @@ namespace Markov_IO_New {
           return new Implements_Data_Type_New<Implements_Var>(
                 Identifier::types::idVarGiven::varType(var.id)
                 ,Data::types::data::varType(var.data->myType())
-                ,nullptr,nullptr);
+                ,&comply,&nextElement,&nextKey);
         }
 
         static Implements_Data_Type_New<myC>*

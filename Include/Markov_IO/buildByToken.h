@@ -961,6 +961,7 @@ namespace Markov_IO_New {
   private:
     DAF mystate;
     const Implements_Data_Type_New<Markov_LA::M_Matrix<T>>* dataType_;
+    const Implements_Data_Type_New<T>* eleTypeInit_;
     Implements_Data_Type_New<T>* eleType_;
     buildByToken<T>* eleB_;
     Markov_LA::M_Matrix<T> x_;
@@ -1497,7 +1498,7 @@ namespace Markov_IO_New {
   public:
 
     enum DFA {
-      S_Init=0,S_ID_Final, S_DATA_PARTIAL, S_Final
+      S_Init=0,S_ID_Final, S_DATA_PARTIAL, S_Data_Final,S_Final
     } ;
 
     bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
@@ -1617,7 +1618,9 @@ namespace Markov_IO_New {
     {
       if (isFinal())
         {
-          return iv_;
+          Implements_Var out=iv_;
+          iv_={};
+          return out;
         }
       else
         return {};

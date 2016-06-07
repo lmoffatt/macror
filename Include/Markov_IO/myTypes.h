@@ -145,6 +145,7 @@ namespace Markov_IO_New {
 
         static void push_Types(Markov_CommandManagerVar *cm)
         {
+          cm->pushRegularType<elem>();
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
 
@@ -248,6 +249,7 @@ namespace Markov_IO_New {
         static void push_Types(Markov_CommandManagerVar *cm)
         {
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushRegularType<elem>();
         }
 
       };
@@ -340,6 +342,7 @@ namespace Markov_IO_New {
         static void push_Types(Markov_CommandManagerVar *cm)
         {
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushRegularType<elem>();
         }
 
       };
@@ -367,19 +370,6 @@ namespace Markov_IO_New {
         static std::string myWhatThis() {return "";}
       };
 
-      struct Q_Markov_Model_type {
-        typedef Markov_Mol_New::ABC_Markov_Model myB;
-        typedef Markov_Mol_New::Q_Markov_Model myC;
-
-        static std::string myId(){return "my"+Cls<myC>::name();}
-        static std::string myIdType(){return "a"+Cls<myC>::name();}
-        static std::string myTip(){return "model of channel kinetics";}
-        static std::string myWhatThis(){return "";}
-
-
-        static Implements_Data_Type_New<myC*>*
-        varType(const StructureEnv_New* cm);
-      };
 
       class Implements_Data_Type_class_ABC_Markov_Model
           :public ::Markov_IO_New::_private::Implements_Data_Type_class<ABC_Markov_Model*>
@@ -394,12 +384,13 @@ namespace Markov_IO_New {
           Implements_Data_Type_class<ABC_Markov_Model*>(fields,complyPred)
         {}
 
-        virtual Implements_Data_Type_class_ABC_Markov_Model* clone()const
+        virtual Implements_Data_Type_class_ABC_Markov_Model* clone()const override
         {
           return new Implements_Data_Type_class_ABC_Markov_Model(*this);
         }
 
-        virtual Implements_Data_Type_class_ABC_Markov_Model* create()const{
+        virtual Implements_Data_Type_class_ABC_Markov_Model* create()const override
+        {
           return new Implements_Data_Type_class_ABC_Markov_Model();
         }
 
@@ -442,6 +433,7 @@ namespace Markov_IO_New {
         typedef Implements_Data_Type_class_Q_Markov_Model vType;
 
       private:
+
         static myC* map2obj(const StructureEnv_New* cm,
                             const StructureEnv_New* m
                             ,const vType* v
@@ -599,13 +591,29 @@ namespace Markov_IO_New {
         getClass_type getObj_;
       };
 
+      struct Q_Markov_Model_type {
+        typedef Markov_Mol_New::ABC_Markov_Model myB;
+        typedef Markov_Mol_New::Q_Markov_Model myC;
+
+        static std::string myId(){return Cls<myC>::name();}
+        static std::string myIdType(){return "a"+Cls<myC>::name();}
+        static std::string myTip(){return "model of channel kinetics";}
+        static std::string myWhatThis(){return "";}
 
 
+        static Implements_Data_Type_New<myC*>*
+        varType(const StructureEnv_New* cm);
+
+        static void push_Types(Markov_CommandManagerVar *cm);
+
+      };
+
+
+      void push_Types(Markov_CommandManagerVar* cm);
 
     }
 
 
-    void push_Types(Markov_CommandManagerVar* cm);
 
   };
 

@@ -85,22 +85,35 @@ namespace Markov_IO_New {
       {
         pos=bu_.alternativesNext();
       }
-    else{
+    else
+      {
         auto n=bu_.alternativesNext();
-
         pos={n.first,conformant(n.second,tok_)};
       }
     if (!pos.second.empty())
       {
-        bool ok;
-        auto sel=io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
-        std::string err;
-        if (ok)
+        if (pos.second.size()==1)
           {
             auto n=tok_.str().size();
+            std::string sel=*pos.second.begin();
             std::string s=removeHint(sel).substr(n);
+            bool ok;
+            if (s.empty())
+              io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
+            std::string err;
             push_back(cm,io,s+" ",&err);
-
+          }
+        else
+          {
+            bool ok;
+            auto sel=io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
+            std::string err;
+            if (ok)
+              {
+                auto n=tok_.str().size();
+                std::string s=removeHint(sel).substr(n);
+                push_back(cm,io,s+" ",&err);
+              }
           }
       }
 
@@ -195,7 +208,7 @@ namespace Markov_IO_New {
 
       case Key_Tab:
         if (previous_key!=Key_Tab)
-          suggestCompletion(cm,io);
+            suggestCompletion(cm,io);
         else
           suggestAlternatives(cm,io);
         break;
@@ -366,8 +379,16 @@ namespace Markov_IO_New {
 
   std::string ExpressionManager::suggestRest(const std::set<std::string> &items, Token_New tok)
   {
-    if (tok.str().empty()&&items.size()==1)
-      return *items.begin();
+    if (items.empty())
+        return {};
+    else if (tok.str().empty()&&items.size()==1)
+      {
+      auto s=*items.begin();
+      s=removeHint(s);
+      if (!s.empty())
+       s+=" ";
+      return s;
+      }
     else
       {
         std::string hint=tok.str();

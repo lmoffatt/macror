@@ -452,6 +452,7 @@ namespace Markov_IO_New {
       }
     if (!recursive||(parent()==nullptr))
       {
+        if (whyNot!=nullptr)
         *whyNot=objective;
         return false;
       }
@@ -683,6 +684,7 @@ namespace Markov_IO_New {
             *whyNot=objective+": candiate "+idCandidate+"is not "+name_;
             return false;
           }
+        else return true;
       }
     else
       if (isNew_&!isUsed_)

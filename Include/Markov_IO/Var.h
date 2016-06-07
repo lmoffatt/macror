@@ -42,10 +42,15 @@ namespace Markov_IO_New {
   inline
   std::string removeHint(const std::string& alter)
   {
-    auto out=alter.substr(0,alter.find('<'));
-    if (std::isalpha(out.back()))
-      out.push_back(' ');
-    return out;
+    if ((alter=="<")||(alter=="< ")||(alter=="<=")||(alter=="<= "))
+      return alter;
+    else
+      {
+        auto out=alter.substr(0,alter.find('<'));
+        if (!out.empty()&&(out.back()!=' '))
+          out.push_back(' ');
+        return out;
+      }
   }
 
 
@@ -232,9 +237,9 @@ namespace Markov_IO_New {
 
 
     virtual bool isOfThisType(const StructureEnv_New* cm,
-                         const std::string& generalType,
-                         std::string* whyNot
-                       ,const std::string &masterObjective)const=0;
+                              const std::string& generalType,
+                              std::string* whyNot
+                              ,const std::string &masterObjective)const=0;
 
     virtual ~ABC_Data_New(){}
 
@@ -274,13 +279,13 @@ namespace Markov_IO_New {
     }
 
     virtual bool isOfThisType(const StructureEnv_New* cm,
-                         const std::string& generalType,
-                         std::string* whyNot
-                         ,const std::string &masterObjective)const override;
+                              const std::string& generalType,
+                              std::string* whyNot
+                              ,const std::string &masterObjective)const override;
 
 
     Implements_Value_New(const std::string& var,
-                       T value):
+                         T value):
       varType_(var),value_(value),empty_(false){}
 
     Implements_Value_New(const std::string& var):

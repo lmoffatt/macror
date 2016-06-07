@@ -159,24 +159,7 @@ namespace Markov_IO_New {
           {
             if(valueB_->isFinal())
               {
-                data_.reset(valueB_->unloadData());
-                if (convertToClass_)
-                  {
-                    auto x=data_.get();
-                    const StructureEnv_New* c=dynamic_cast<StructureEnv_New*>(x);
-                    if (c!=nullptr)
-                      {
-                        auto y=valueType_->getClassRep
-                            (parent(),c,whyNot, objective);
-                        if (y!=nullptr)
-                          classx_.reset(y);
-                      }
-                    else
-                      {
-                        classx_.reset();
-                      }
-                  }
-                mystate=S_Final;
+                mystate=S_Data_Final;
                 return true;
               }
             else
@@ -184,6 +167,34 @@ namespace Markov_IO_New {
                 mystate=S_DATA_PARTIAL;
                 return true;
               }
+          }
+      case S_Data_Final:
+        if (tok.tok()!=Token_New::EOL)
+          {
+            *whyNot=objective+" is not an end of line";
+            return false;
+          }
+        else
+          {
+            data_.reset(valueB_->unloadData());
+            if (convertToClass_)
+              {
+                auto x=data_.get();
+                const StructureEnv_New* c=dynamic_cast<StructureEnv_New*>(x);
+                if (c!=nullptr)
+                  {
+                    auto y=valueType_->getClassRep
+                        (parent(),c,whyNot, objective);
+                    if (y!=nullptr)
+                      classx_.reset(y);
+                  }
+                else
+                  {
+                    classx_.reset();
+                  }
+              }
+            mystate=S_Final;
+            return true;
           }
 
       case S_Final:
@@ -205,6 +216,10 @@ namespace Markov_IO_New {
 
         case S_DATA_PARTIAL:
           return valueB_->alternativesNext();
+
+        case S_Data_Final:
+          return {"ClassNamr()",{alternatives::endOfLine()}};
+
         case S_Final:
           return {};
         }
@@ -394,6 +409,8 @@ namespace Markov_IO_New {
     std::string whyNot,masterObjective;
     idType_=ivarType_->getKeyType(parent(),iv_,&whyNot,masterObjective,idType_);
     idB_->reset_Type(idType_);
+    mystate=S_Init;
+    iv_.clear();
   }
 
 

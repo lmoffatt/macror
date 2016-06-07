@@ -85,7 +85,7 @@ namespace Markov_IO_New
   {
     pushVar<pathName::vars::workingPath>(Markov_IO_New::fd::getWorkingPath());
     cmd::pushAllCommands(this);
-    _private::push_Types(this);
+    _private::_model::push_Types(this);
     Identifier::push_Types(this);
 
     e=new ExpressionManager(this);

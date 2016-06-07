@@ -344,7 +344,7 @@ namespace Markov_IO_New {
   void MacrorCommandWindow::hideMessage()
   {
 
-    if (message==nullptr)
+    if (message!=nullptr)
       message->hide();
     repaint();
   }

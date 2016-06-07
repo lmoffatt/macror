@@ -51,6 +51,7 @@ namespace Markov_IO_New {
       {
         if(!recursive||(parent()==nullptr))
           {
+            if (whyNot!=nullptr)
             *whyNot=masterObjective+": "+name+" is not a name in ";
             return false;
           }
