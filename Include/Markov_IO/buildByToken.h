@@ -1597,7 +1597,7 @@ namespace Markov_IO_New {
       S_Init=0, TIP1, TIP2,WT0_ID0,WT2,WT3,ID1,ID2,WT1,ID0,
       S_HEADER_Final,
       S_DATA_PARTIAL,
-       S_Final
+      S_Final
     } ;
 
     bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
@@ -1658,7 +1658,7 @@ namespace Markov_IO_New {
     }
 
 
-   virtual void reset_Type(Implements_Data_Type_New<Implements_Var> *ivTy);
+    virtual void reset_Type(Implements_Data_Type_New<Implements_Var> *ivTy);
 
   protected:
     DFA mystate;
@@ -1775,7 +1775,7 @@ namespace Markov_IO_New {
 
     bool unPop(StructureEnv_New* var);
 
-     StructureEnv_New* unloadVar();
+    StructureEnv_New* unloadVar();
 
     virtual void reset_Type(const Implements_Data_Type_New<StructureEnv_New*>* typeVar);
 
@@ -1823,8 +1823,8 @@ namespace Markov_IO_New {
 
   class build_Argument_Input: public buildByToken<Implements_Var>
   {
-   public:
-     using buildByToken<Implements_Var>::buildByToken;
+  public:
+    using buildByToken<Implements_Var>::buildByToken;
 
   };
 
@@ -1835,7 +1835,7 @@ namespace Markov_IO_New {
   public:
     using
     buildByToken<StructureEnv_New*>::buildByToken;
-  ~buildByToken(){}
+    ~buildByToken(){}
   };
 
 
@@ -1866,8 +1866,9 @@ namespace Markov_IO_New {
     }
 
     // ABClass_buildByToken interface
-    build_Command_Input(const StructureEnv_New *cm
-                        , const Implements_Command_Type_New *vCmd);
+    build_Command_Input
+    (const StructureEnv_New *cm
+     ,const Implements_Command_Type_New *vCmd);
 
 
 
@@ -4864,7 +4865,7 @@ namespace Markov_IO {
 
 
     static build_Implements_ValueId *createBuild_Value(ABC_Value *var);
-   private:
+  private:
     DFA mystate;
     ABC_Value* x_;
     Markov_Console::ABC_CommandVar *cmv_;

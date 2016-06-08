@@ -391,10 +391,22 @@ namespace Markov_IO_New {
     }
 
 
+
+
     void pushCommand(const std::string& id
                      ,Implements_Command_Type_New* var
                      , std::string tip
                      , std::string whatthis);
+
+
+    template<class Type>
+    void pushCommand()
+    {
+      pushCommand(Type::myId()
+               ,Type::cmdType()
+               ,Type::myTip()
+               ,Type::myWhatThis());
+    }
 
 
     StructureEnv_New(const StructureEnv_New* parent,const std::string& myType);
@@ -3559,10 +3571,13 @@ namespace Markov_IO_New {
         static Implements_Data_Type_New<myC>*
         varType(const Implements_Var var)
         {
+          std::string varType;
+          if (var.data!=nullptr)
+            varType=var.data->myType();
 
           return new Implements_Data_Type_New<Implements_Var>(
                 Identifier::types::idVarGiven::varType(var.id)
-                ,Data::types::data::varType(var.data->myType())
+                ,Data::types::data::varType(varType)
                 ,&comply,&nextElement,&nextKey);
         }
 

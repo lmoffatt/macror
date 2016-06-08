@@ -218,13 +218,18 @@ namespace Markov_IO_New
       static std::string myIdType(){return Cls<myC>::name();}
       static std::string myTip() {return "closes everything and exits the program";}
 
-      static std::string myWhatThis();
+      static std::string myWhatThis(){return "";}
 
       static   bool  run
               (Markov_CommandManagerVar* cm
               , const StructureEnv_New* arguments
               ,const Implements_Command_Type_New* self
-              ,std::string* WhyFail, const std::string& masterObjective);
+              ,std::string* WhyFail, const std::string& masterObjective)
+      {
+        exit(0);
+        return true;
+
+      }
 
 
       static std::vector<std::pair<Implements_Var,bool>> getArgList()
@@ -236,7 +241,7 @@ namespace Markov_IO_New
       static Implements_Command_Type_New* cmdType()
       {
         auto fields=getArgList();
-        Implements_Var firstVar;
+        Implements_Var firstVar{};
         if (fields.size()>0)
             firstVar=fields[0].first;
 
@@ -266,17 +271,21 @@ namespace Markov_IO_New
                       std::string typeName);
 
 
-      static std::string myId(){return "exit";}
+      static std::string myId(){return "who";}
       static std::string myIdType(){return Cls<myC>::name();}
       static std::string myTip() {return "list the availabe variables";}
 
-      static std::string myWhatThis();
+      static std::string myWhatThis(){return "";}
 
       static   bool  run
               (Markov_CommandManagerVar* cm
               , const StructureEnv_New* arguments
               ,const Implements_Command_Type_New* self
-              ,std::string* WhyFail, const std::string& masterObjective);
+              ,std::string* WhyFail, const std::string& masterObjective)
+      {
+         std::string typeName= arguments->getDataValueS<arg::typeName_Field>();
+         who(cm,typeName);
+      }
 
 
       static std::vector<std::pair<Implements_Var,bool>> getArgList()

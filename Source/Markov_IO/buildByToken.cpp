@@ -367,7 +367,7 @@ namespace Markov_IO_New {
           {
             return false;
           }
-          else if (dataB_->isFinal())
+        else if (dataB_->isFinal())
           {
             iv_.data=dataB_->unloadVar();
             mystate =S_Final;
@@ -458,7 +458,7 @@ namespace Markov_IO_New {
             return false;
           }
       case S_Data_Partial:
-          if (!ivBuild_->pushToken(tok, whyNot, objective))
+        if (!ivBuild_->pushToken(tok, whyNot, objective))
           {
             return false;
           }
@@ -512,13 +512,13 @@ namespace Markov_IO_New {
           }
 
       case S_Mandatory:
-          if (tok.tok()==Token_New::RCB)
-            {
-              mystate=S_Final;
-              return true;
-            }
+        if (tok.tok()==Token_New::RCB)
+          {
+            mystate=S_Final;
+            return true;
+          }
       case S_Data_Separator_Final:
-          if (!ivBuild_->pushToken(tok, whyNot,objective))
+        if (!ivBuild_->pushToken(tok, whyNot,objective))
           {
             return false;
           }
@@ -556,7 +556,7 @@ namespace Markov_IO_New {
         out={this->StEnv_->myType(),{Token_New::toString(Token_New::RCB)}};
         out+=ivBuild_->alternativesNext();
         return out;
-     case S_Final:
+      case S_Final:
         return out;
       }
     
@@ -645,12 +645,23 @@ namespace Markov_IO_New {
       const StructureEnv_New *cm,
       const Implements_Command_Type_New * vCmd):
     buildByToken<Markov_IO_New::Implements_Command_Arguments *> (cm,vCmd),
-    cmdty_(vCmd), cmdArg_(new Implements_Command_Arguments(cm,"_Arg"+cm->dataToId(vCmd))),
+    mystate(S_Init)
+  ,cmdty_(vCmd)
+  , cmdArg_
+    (new Implements_Command_Arguments
+     (cm,cm->dataToId(vCmd))),
     ivType_(vCmd->getElementType()->clone()),
     iv_(),
     ivB_(new build_Argument_Input(cmdArg_,ivType_))
   ,iArg_(0)
-  {}
+  {
+    if (cmdty_->hasAllFields(parent(),cmdArg_))
+      mystate=S_Input_Final;
+    else  if (cmdty_->hasMandatoryFields(parent(),cmdArg_))
+      mystate=S_Mandatory_Final;
+    else
+      mystate=S_Input_Partial;
+  }
 
   void build_Command_Input::reset_Type(const Implements_Command_Type_New *cmdty)
   {
@@ -812,7 +823,8 @@ namespace Markov_IO_New {
                 std::string idC=idCmd_->unloadVar();
                 std::string whynot;
                 cmdTy_=parent()->idToCommand(idC,&whynot,"");
-                c_->reset_Type(cmdTy_);
+
+                c_=new build_Command_Input(parent(),cmdTy_);
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
