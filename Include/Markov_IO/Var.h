@@ -345,6 +345,33 @@ namespace Markov_IO_New {
     std::string WhatThis;
   };
 
+  struct const_Implements_Var
+  {
+    static std::string ClassName(){return "const_Implements_Var";}
+    void clear()
+    {
+      id.clear();
+      data=nullptr;
+      Tip.clear();
+      WhatThis.clear();
+    }
+
+    const_Implements_Var( std::string _id,
+    const ABC_Data_New* _data,
+    std::string _Tip,
+    std::string _WhatThis)
+      :id(_id),data(_data),Tip(_Tip),WhatThis(_WhatThis){}
+
+    const_Implements_Var( const Implements_Var& other)
+      :id(other.id),data(other.data),Tip(other.Tip),WhatThis(other.WhatThis){}
+
+    std::string id;
+    const ABC_Data_New* data;
+    std::string Tip;
+    std::string WhatThis;
+  };
+
+
   template<class Field>
   Implements_Var getMyVar()
   {

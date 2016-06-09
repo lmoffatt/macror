@@ -63,16 +63,21 @@ namespace Markov_IO_New {
      , std::string *whyNot
      , const std::string &masterObjective) const
     {
-      if (isDataInDomain(cm,v,whyNot,masterObjective))
+      if ((whyNot==nullptr)||(isDataInDomain(cm,v,whyNot,masterObjective)))
         {
-          ostream->put(v->myType()+"=");
+          const Implements_Identifier* vtype=this->getElementType();
+
+          vtype->putValue(cm,v->myType(),ostream,whyNot,masterObjective);
+          ostream->put("=");
+
           const ABC_Type_of_Value* t=cm->idToType(v->myType(),whyNot,masterObjective);
           if (t==nullptr)
             return false;
-          else
-            {
-              return t->putData(cm,v,ostream,whyNot,masterObjective);
-            }
+          else if (!t->putData(cm,v,ostream,whyNot,masterObjective))
+            return false;
+          ostream->put("\n");
+          return true;
+
         }
       else return false;
     }
@@ -267,7 +272,9 @@ namespace Markov_IO_New {
 
   void StructureEnv_New::reset()
   {
-    ids_.clear();
+    idVars_.clear();
+    idTypes_.clear();
+    idCmds_.clear();
     all_.clear();
     allId_.clear();
     vars_.clear();
@@ -290,7 +297,7 @@ namespace Markov_IO_New {
     auto it=vars_.find(name);
     if (it!=vars_.end())
       {
-        ABC_Data_New* v=it->second;
+        const ABC_Data_New* v=it->second;
         if (v->isOfThisType(this,typeName,whyNot,masterObjective))
           return v;
         else return nullptr;
@@ -305,6 +312,37 @@ namespace Markov_IO_New {
       }
   }
 
+   ABC_Data_New *StructureEnv_New::idToValue(const std::__cxx11::string &name, const std::__cxx11::string &typeName, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  {
+    auto it=vars_.find(name);
+    if (it!=vars_.end())
+      {
+        ABC_Data_New* v=it->second;
+        if (v->isOfThisType(this,typeName,whyNot,masterObjective))
+          return v;
+        else return nullptr;
+      }
+    else
+      {
+        if (whyNot!=nullptr)
+          *whyNot=masterObjective+": "+name+" is not a var";
+        return nullptr;
+      }
+  }
+
+
+
+  const_Implements_Var StructureEnv_New::idToVar(const std::__cxx11::string &name, const std::__cxx11::string &typeName, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+  {
+    return {name,idToValue(name,typeName,whyNot,masterObjective),Tip(name),WhatThis(name)};
+
+  }
+
+  Implements_Var StructureEnv_New::idToVar(const std::__cxx11::string &name, const std::__cxx11::string &typeName, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  {
+    return {name,idToValue(name,typeName,whyNot,masterObjective),Tip(name),WhatThis(name)};
+
+  }
 
 
 
@@ -475,8 +513,8 @@ namespace Markov_IO_New {
   Implements_Var StructureEnv_New::popVar()
   {
     Implements_Var iv;
-    iv.id=std::move(ids_.back());
-    ids_.pop_back();
+    iv.id=std::move(idVars_.back());
+    idVars_.pop_back();
     iv.data=all_[iv.id];
     all_.erase(iv.id);
     allId_.erase(iv.data);
@@ -516,7 +554,7 @@ namespace Markov_IO_New {
       delete all_[id];
       }
     else
-      ids_.push_back(id);
+      idVars_.push_back(id);
     all_[id]=var;
     allId_[var]=id;
     vars_[id]=var;
@@ -532,7 +570,7 @@ namespace Markov_IO_New {
       delete all_[id];
       }
     else
-      ids_.push_back(id);
+      idTypes_.push_back(id);
     all_[id]=tvar;
     allId_[tvar]=id;
     types_[id]=tvar;
@@ -548,7 +586,7 @@ namespace Markov_IO_New {
       delete all_[id];
       }
     else
-      ids_.push_back(id);
+      idCmds_.push_back(id);
     all_[id]=cmd;
     allId_[cmd]=id;
     cmds_[id]=cmd;
@@ -557,7 +595,7 @@ namespace Markov_IO_New {
 
 
   StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const std::__cxx11::string &myType):
-    p_(parent),structType_(myType),ids_(),all_(),allId_(),vars_(),types_(),cmds_()
+    p_(parent),structType_(myType),idVars_(),idTypes_(),idCmds_(),all_(),allId_(),vars_(),types_(),cmds_()
   {
 
   }
@@ -594,7 +632,7 @@ namespace Markov_IO_New {
 
   bool StructureEnv_New::isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
   {
-    if (myType()==generalType)
+    if ((generalType.empty()||myType()==generalType))
       return true;
     else
       {
@@ -643,7 +681,8 @@ namespace Markov_IO_New {
                 std::string varType="";
                 if (!name_.empty())
                   varType=name_;
-                std::set<std::string> o2=
+
+                auto o2=
                     cm->getIdsOfVarType(varType,true);
                 o.insert(o2.begin(),o2.end());
               }
@@ -741,7 +780,7 @@ namespace Markov_IO_New {
           std::string varType=name_;
           if (isVar_)
             return cm->hasNameofType(
-                  idCandidate,varType,whyNot,objective,true);
+                  idCandidate,varType,true,whyNot,objective);
           else if (isType_)
             return cm->hasTypeofType(
                   idCandidate,varType,whyNot,objective,true );
@@ -808,6 +847,7 @@ namespace Markov_IO_New {
 
   void Identifier::push_Types(Markov_CommandManagerVar *cm)
   {
+    cm->pushRegularType<std::string>();
     cm->pushType<Identifier::types::idVar>();
     cm->pushType<Identifier::types::idVarNew>();
     cm->pushType<Identifier::types::idVarUsed>();
@@ -818,6 +858,19 @@ namespace Markov_IO_New {
   ABC_Type_of_Value::ABC_Type_of_Value():
     env_(new StructureEnv_New)
   {
+
+  }
+
+  void Data::push_Types(Markov_CommandManagerVar *cm)
+  {
+    cm->pushType<types::data>();
+
+  }
+
+  void Variable::push_Types(Markov_CommandManagerVar *cm)
+  {
+    cm->pushType<types::varNew>();
+    cm->pushType<types::varUsed>();
 
   }
 

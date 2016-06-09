@@ -18,6 +18,14 @@ namespace Markov_IO_New {
      return one;
    }
 
+
+   inline
+   std::vector<std::string>& operator+=(std::vector<std::string>& one, std::vector<std::string> two)
+  {
+     one.insert(one.end(),two.begin(),two.end());
+     return one;
+   }
+
    inline
    std::pair<std::string,std::set<std::string>>& operator+=(std::pair<std::string,std::set<std::string>>& one, std::pair<std::string,std::set<std::string>> two)
   {

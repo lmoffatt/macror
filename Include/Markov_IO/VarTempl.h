@@ -10,7 +10,7 @@ namespace Markov_IO_New {
                                  std::string* whyNot
                                  ,const std::string &masterObjective)const
   {
-    if (myType()==generalType)
+    if ((generalType.empty()||myType()==generalType))
       return true;
     else
       {

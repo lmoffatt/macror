@@ -502,7 +502,7 @@ namespace Markov_IO_New {
       case S_All:
         if (tok.tok()==Token_New::RCB)
           {
-            mystate=S_Final;
+              mystate=S_Final;
             return true;
           }
         else

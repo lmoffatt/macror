@@ -49,7 +49,7 @@ namespace Markov_IO_New
       for (std::size_t i=0; i<fields.size(); ++i)
         {
           const Implements_Var& v=fields[i].first;
-          if (!val->hasNameofType(v.id,v.data->myType(),error,obj,false))
+          if (!val->hasNameofType(v.id,v.data->myType(),false,error,obj))
             return false;
         }
       return true;
@@ -65,7 +65,7 @@ namespace Markov_IO_New
       for (std::size_t i=0; i<fields.size(); ++i)
         {
           const Implements_Var& v=fields[i].first;
-          if (!val->hasNameofType(v.id,v.data->myType(),error,obj,false))
+          if (!val->hasNameofType(v.id,v.data->myType(),false,error,obj))
             return !fields[i].second;
         }
       return true;
@@ -111,13 +111,13 @@ namespace Markov_IO_New
     struct  Save
     {
       static void save(Markov_CommandManagerVar* cm,
-                       const std::string& pathfileName);
+                       const std::string& pathfileName, const std::__cxx11::string varType="");
 
 
       static std::string myId(){return "save";}
       static std::string myIdType(){return Cls<myC>::name();}
-      static std::string myTip();
-      static std::string myWhatThis();
+      static std::string myTip(){return "save all the variables";}
+      static std::string myWhatThis(){return "";}
 
       static   bool  run
               (Markov_CommandManagerVar* cm
@@ -125,16 +125,15 @@ namespace Markov_IO_New
               ,const Implements_Command_Type_New* self
               ,std::string* WhyFail, const std::string& masterObjective);
 
-
       static std::vector<std::pair<Implements_Var,bool>> getArgList()
       {
-
+             return {};
       }
 
       static Implements_Command_Type_New* cmdType()
       {
         auto fields=getArgList();
-        Implements_Var firstVar;
+        Implements_Var firstVar{};
         if (fields.size()>0)
             firstVar=fields[0].first;
 

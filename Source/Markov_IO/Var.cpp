@@ -44,7 +44,7 @@ namespace Markov_IO_New {
 
   }
 
-  bool StructureEnv_New::hasNameofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
+  bool StructureEnv_New::hasNameofType(const std::string &name, const std::string &type, bool recursive, std::string *whyNot, const std::string &masterObjective) const
   {
     auto it=vars_.find(name);
     if (it==vars_.end())
@@ -55,7 +55,7 @@ namespace Markov_IO_New {
             *whyNot=masterObjective+": "+name+" is not a name in ";
             return false;
           }
-        else return parent()->hasNameofType(name, type,whyNot,masterObjective,recursive);
+        else return parent()->hasNameofType(name, type,recursive,whyNot,masterObjective);
       }
     else
       {
@@ -130,37 +130,24 @@ namespace Markov_IO_New {
 
 
 
-
-
-  std::set<std::string> StructureEnv_New::getIdsOfVarType(const std::string &varType,bool recursive) const
+  std::vector<std::string> StructureEnv_New::getIdsOfVarType(const std::string &varType,bool recursive) const
   {
-    std::set<std::string> o;
-    if (recursive&& parent()!=nullptr)
-      {
-        o=parent()->getIdsOfVarType(varType,recursive);
-      }
-    std::string whyNot;
-    std::string objective;
+    std::vector<std::string> o;
     if (varType.empty())
       {
-        auto s=alternatives::getIdofVar(vars_);
-        s.insert(o.begin(),o.end());
-        return s;
+       o=idVars_;
       }
     else
       {
-        const ABC_Type_of_Value* t=idToType(varType,&whyNot,objective);
-        std::set<std::string> s;
-        for (const auto &p:vars_)
-          {
-            ABC_Data_New* var=p.second;
-            std::string why;
-            if (t->isDataInDomain(this,var,&why,objective))
-              alternatives::insert(s,p.first,var);
-          }
-        s.insert(o.begin(),o.end());
-        return s;
+        for (const auto &id:idVars_)
+            if (hasNameofType(id,varType,false))
+              o.push_back(id);
+       }
+    if (recursive&& parent()!=nullptr)
+      {
+        o+=parent()->getIdsOfVarType(varType,recursive);
       }
+    return o;
   }
 
 

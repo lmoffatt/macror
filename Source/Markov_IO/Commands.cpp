@@ -13,12 +13,12 @@ namespace Markov_IO_New {
     {
         cm->pushCommand<Exit>();
         cm->pushCommand<Who>();
-  //      cm->pushCommand<Load>();
+        cm->pushCommand<Save>();
     }
 
   void Who::who(Markov_CommandManagerVar *cm, std::__cxx11::string typeName)
     {
-      std::set<std::string> out=cm->getIdsOfVarType(typeName,false);
+      std::vector<std::string> out=cm->getIdsOfVarType(typeName,false);
       for (auto& e:out)
         {
           cm->getIO()->put(e);
@@ -87,27 +87,36 @@ namespace Markov_IO_New {
 //      //      getCommandManager()->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
 //    }
 
-//    void SaveCommand::save(Markov_CommandManagerVar *cm, const std::__cxx11::string &pathfileName)
-//    {
-//      fd::FileOut f(pathfileName);
-//      std::string whyNot;
-//      cm->getCmdType()->put(cm,cm->getVars(),&f,&whyNot,"");
+    void Save::save(Markov_CommandManagerVar *cm
+                    , const std::__cxx11::string &pathfileName
+                    ,const std::string varType)
+    {
+      fd::FileOut f(pathfileName);
+      std::string whyNot;
+      auto vars=cm->getIdsOfVarType(varType,false);
+      auto ivType=cm->idToTyped<Implements_Var>(Variable::types::varUsed::myId());
 
-//    }
 
-//    bool SaveCommand::save
-//    (Markov_CommandManagerVar *cm
-//     , const std::map<std::__cxx11::string, ABC_Data_New *> & args
-//     , const Implements_Command_Type_New * self
-//     , std::__cxx11::string *whyNot
-//     , const std::__cxx11::string &objective)
-//    {
-//      std::string dir=cm->getDir();
-//      std::string path=dir+fd::File::slash()+"macror.txt";
-//      save(cm,path);
-//      std::cerr<<path;
-//      return true;
-//    }
+      for (auto& e:vars)
+        {
+          auto v=cm->idToVar(e);
+          ivType->putValue(cm,v,&f,&whyNot,"");
+
+        }
+   }
+
+    bool Save::run
+    (Markov_CommandManagerVar* cm
+    , const StructureEnv_New* arguments
+    ,const Implements_Command_Type_New* self
+    ,std::string* WhyFail, const std::string& masterObjective)
+    {
+      std::string dir=cm->getDir();
+      std::string path=dir+fd::File::slash()+"macror.txt";
+      save(cm,path);
+      std::cerr<<path;
+      return true;
+    }
 
 
 

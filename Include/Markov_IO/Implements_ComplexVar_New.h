@@ -110,7 +110,9 @@ namespace Markov_IO_New {
     StructureEnv_New(const StructureEnv_New& other):
       p_(other.p_),
       structType_(other.structType_),
-      ids_(other.ids_),
+      idVars_(other.idVars_),
+      idTypes_(other.idTypes_),
+      idCmds_(other.idCmds_),
       all_(other.all_),
       allId_(other.allId_),
       vars_(other.vars_),
@@ -118,7 +120,7 @@ namespace Markov_IO_New {
       cmds_(other.cmds_),
       idTipWt_(other.idTipWt_){}
 
-    virtual bool empty() const override {return ids_.empty();}
+    virtual bool empty() const override {return all_.empty();}
 
     virtual void reset() override;
     virtual std::__cxx11::string myType() const override;
@@ -131,6 +133,23 @@ namespace Markov_IO_New {
     (const std::string& name
      , const std::string & typeName
      ,std::string* whyNot=nullptr, const std::string& masterObjective="")const;
+
+
+    ABC_Data_New* idToValue
+    (const std::string& name
+     , const std::string & typeName
+     ,std::string* whyNot=nullptr, const std::string& masterObjective="");
+
+    const_Implements_Var idToVar
+    (const std::string& name
+     , const std::string & typeName=""
+        ,std::string* whyNot=nullptr, const std::string& masterObjective="")const;
+
+
+    Implements_Var idToVar
+    (const std::string& name
+     , const std::string & typeName=""
+        ,std::string* whyNot=nullptr, const std::string& masterObjective="");
 
 
     const ABC_Data_New* idToValue(const std::string& name, std::string *whyNot=nullptr)const;
@@ -269,9 +288,9 @@ namespace Markov_IO_New {
 
 
     bool hasNameofType(const std::string& name, const std::string& type,
-                       std::string* whyNot
-                       ,const std::string &masterObjective,
-                       bool recursive)const;
+                       bool recursive,
+                       std::string* whyNot=nullptr
+        , const std::string &masterObjective="")const;
 
 
 
@@ -289,7 +308,7 @@ namespace Markov_IO_New {
 
     bool hasType(const std::string& name
                  , std::string* whyNot=nullptr
-                 ,const std::string &masterObjective="",
+        ,const std::string &masterObjective="",
                  bool recursive=false)const;
 
 
@@ -362,9 +381,9 @@ namespace Markov_IO_New {
     void pushType(const std::string& name)
     {
       if (!hasType(Type::myId(name)))
-      pushType(Type::myId(name)
-               ,Type::varType(name)
-               ,Type::myTip(),Type::myWhatThis());
+        pushType(Type::myId(name)
+                 ,Type::varType(name)
+                 ,Type::myTip(),Type::myWhatThis());
     }
 
 
@@ -376,18 +395,18 @@ namespace Markov_IO_New {
     void pushType()
     {
       if (!hasType(Type::myId()))
-      pushType(Type::myId()
-               ,Type::varType()
-               ,Type::myTip()
-               ,Type::myWhatThis());
+        pushType(Type::myId()
+                 ,Type::varType()
+                 ,Type::myTip()
+                 ,Type::myWhatThis());
     }
 
     template<class T>
     void pushRegularType()
     {
       if (!hasType(Cls<T>::name()))
-      pushType(Cls<T>::name()
-               , new Implements_Data_Type_New<T>(),"a "+Cls<T>::name(),"");
+        pushType(Cls<T>::name()
+                 , new Implements_Data_Type_New<T>(),"a "+Cls<T>::name(),"");
     }
 
 
@@ -403,9 +422,9 @@ namespace Markov_IO_New {
     void pushCommand()
     {
       pushCommand(Type::myId()
-               ,Type::cmdType()
-               ,Type::myTip()
-               ,Type::myWhatThis());
+                  ,Type::cmdType()
+                  ,Type::myTip()
+                  ,Type::myWhatThis());
     }
 
 
@@ -414,7 +433,7 @@ namespace Markov_IO_New {
     StructureEnv_New()=default;
 
 
-    std::set<std::string> getIdsOfVarType(const std::string& varType, bool recursive)const;
+    std::vector<std::__cxx11::string> getIdsOfVarType(const std::string& varType, bool recursive)const;
 
 
 
@@ -465,9 +484,13 @@ namespace Markov_IO_New {
 
 
   private:
+
+
     const StructureEnv_New* p_;
     std::string structType_;
-    std::vector<std::string> ids_;
+    std::vector<std::string> idVars_;
+    std::vector<std::string> idTypes_;
+    std::vector<std::string> idCmds_;
     std::map<std::string,ABC_Data_New*> all_;
     std::map<const ABC_Data_New*, std::string> allId_;
     std::map<std::string,ABC_Data_New*> vars_;
@@ -683,7 +706,7 @@ namespace Markov_IO_New {
         if (x==nullptr)
           {
             if (whyNot!=nullptr)
-            *whyNot=masterObjective+": is not a "+Cls<T>::name();
+              *whyNot=masterObjective+": is not a "+Cls<T>::name();
             return false;
           }
         else
@@ -728,7 +751,7 @@ namespace Markov_IO_New {
        , const std::__cxx11::string &masterObjective) const override
       {
 
-        if (myType()==generalType)
+        if ((generalType.empty()||myType()==generalType))
           return true;
         else
           {
@@ -784,8 +807,8 @@ namespace Markov_IO_New {
        , std::__cxx11::string *whyNot
        , const std::__cxx11::string &masterObjective) const override
       {
-        if (myType()==generalType)
-          return true;
+        if ((generalType.empty()||myType()==generalType))
+           return true;
         else
           {
             auto gTp
@@ -906,10 +929,12 @@ namespace Markov_IO_New {
       virtual ~Implements_Data_Type_New_string(){}
 
       virtual bool putValue(const StructureEnv_New* cm,
-                            const std::string& v,ABC_Output* ostream,std::string* whyNot
-                            ,const std::string& masterObjective)const override
+                            const std::string& v,ABC_Output* ostream
+                            ,std::string* whyNot=nullptr
+          ,const std::string& masterObjective="")const override
       {
-        if (isValueInDomain(cm,v,whyNot,masterObjective))
+
+        if ((whyNot==nullptr)||(isValueInDomain(cm,v,whyNot,masterObjective)))
           {
             ostream->put(v);
             return true;
@@ -917,14 +942,16 @@ namespace Markov_IO_New {
         else return false;
       }
       virtual bool getValue(const StructureEnv_New* cm
-                            ,std::string& v, ABC_Input* istream,std::string* whyNot
-                            ,const std::string& masterObjective)const override
+                            ,std::string& v, ABC_Input* istream,std::string* whyNot=nullptr
+          ,const std::string& masterObjective="")const override
       {
 
         if (!istream->get(v,whyNot,masterObjective))
           return false;
-        else
+        else if (whyNot!=nullptr)
           return isValueInDomain(cm,v,whyNot,masterObjective);
+        else
+          return true;
       }
 
 
@@ -1391,9 +1418,9 @@ namespace Markov_IO_New {
       std::string *whyNot,const std::string& masterObjective);
 
 
-      virtual bool putValue(const StructureEnv_New* cm,const std::vector<T>& v,ABC_Output* ostream,std::string* whyNot,const std::string& masterObjective)const override
+      virtual bool putValue(const StructureEnv_New* cm,const std::vector<T>& v,ABC_Output* ostream,std::string* whyNot=nullptr,const std::string& masterObjective="")const override
       {
-        if (this->isValueInDomain(cm,v,whyNot,masterObjective))
+        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
           {
             const Implements_Data_Type_New<T>* etype=
                 this->getElementDataType(cm);
@@ -1518,10 +1545,10 @@ namespace Markov_IO_New {
       }
 
       virtual bool putValue(const StructureEnv_New* cm,
-                            const T& v,ABC_Output* ostream,std::string* whyNot
-                            ,const std::string& masterObjective)const override
+                            const T& v,ABC_Output* ostream,std::string* whyNot=nullptr
+          ,const std::string& masterObjective="")const override
       {
-        if (this->isValueInDomain(cm,v,whyNot,masterObjective))
+        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
           {
             ostream->put(v);
             return true;
@@ -1625,10 +1652,10 @@ namespace Markov_IO_New {
       virtual bool putValue(const StructureEnv_New* cm
                             ,const std::set<T>& v
                             ,ABC_Output* ostream
-                            ,std::string* whyNot
-                            ,const std::string& masterObjective)const override
+                            ,std::string* whyNot=nullptr
+          ,const std::string& masterObjective="")const override
       {
-        if (this->isValueInDomain(cm,v,whyNot,masterObjective))
+        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
           {
             const Implements_Data_Type_New<T>* etype=this->getElementDataType(cm);
             ostream->put("\n{");
@@ -1636,7 +1663,6 @@ namespace Markov_IO_New {
               {
                 if(!etype->put(cm,*it,ostream,whyNot,masterObjective))
                   {
-                    ostream->put(*whyNot);
                     return false;
                   }
               }
@@ -1804,7 +1830,7 @@ namespace Markov_IO_New {
           Implements_Data_Type_New<T>* source=nullptr)const
       {
         if (getElement_!=nullptr)
-        return (*getElement_)(cm,val,nrows,ncols,i,j,this,whyNot,masterObjective,source);
+          return (*getElement_)(cm,val,nrows,ncols,i,j,this,whyNot,masterObjective,source);
         else return source;
       }
 
@@ -1813,11 +1839,30 @@ namespace Markov_IO_New {
 
       }
 
-      bool putValue(const StructureEnv_New *cm, const Markov_LA::M_Matrix<T> &v, ABC_Output *ostream, std::string *error, const std::string &masterObjective) const
+      bool putValue(const StructureEnv_New *cm, const Markov_LA::M_Matrix<T> &v, ABC_Output *ostream, std::string *whyNot=nullptr, const std::string &masterObjective="") const
       {
-
+        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
+          {
+            const Implements_Data_Type_New<T>* etype=
+                this->getElementDataType(cm);
+            ostream->put("\n");
+            for (std::size_t i=0; i<Markov_LA::nrows(v); ++i)
+              {
+                for (std::size_t j=0; j<Markov_LA::ncols(v); ++j)
+                  {
+                    if(!etype->putValue
+                       (cm,v(i,j),ostream,whyNot,masterObjective))
+                      {
+                        return false;
+                      }
+                  }
+                ostream->put("\n");
+              }
+            return true;
+          }
+        else
+          return false;
       }
-
 
       Implements_Data_Type_New_M_Matrix
       (const Implements_Data_Type_New<T>* elementVar=nullptr
@@ -1993,9 +2038,31 @@ namespace Markov_IO_New {
       std::string* whyNot,const std::string& masterObjective);
 
 
-      virtual bool putValue(const StructureEnv_New *cm, const std::pair<K,T> &v, ABC_Output *ostream, std::string *error, const std::string &masterObjective) const
+      virtual bool putValue(const StructureEnv_New *cm, const std::pair<K,T> &v, ABC_Output *ostream, std::string *whyNot=nullptr, const std::string &masterObjective="") const
       {
+        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
+          {
+            const Implements_Data_Type_New<K>* etype=
+                this->getKeyDataType(cm);
 
+            const Implements_Data_Type_New<T>* ktype=
+                this->getElementDataType(cm);
+
+            if(!ktype->putValue
+               (cm,v.firts,ostream,whyNot,masterObjective))
+              {
+                return false;
+              }
+            ostream->put(":");
+            if(!etype->putValue
+               (cm,v.second,ostream,whyNot,masterObjective))
+              {
+                return false;
+              }
+            return true;
+          }
+        else
+          return false;
       }
       virtual bool getValue(const StructureEnv_New *cm, std::pair<K,T> &v, ABC_Input *istream, std::string *whyNot, const std::string &masterObjective) const
       {
@@ -2202,29 +2269,29 @@ namespace Markov_IO_New {
 
 
       using nextKeyType=Implements_Data_Type_New<K>* (*)(
-          const StructureEnv_New* cm
-          ,const std::map<K,T>& val,
-          const selfType* self,
-          std::string* whyNot
-          , const std::string & masterObjective,
-          Implements_Data_Type_New<K>* source);
+      const StructureEnv_New* cm
+      ,const std::map<K,T>& val,
+      const selfType* self,
+      std::string* whyNot
+      , const std::string & masterObjective,
+      Implements_Data_Type_New<K>* source);
 
 
 
       using nextElementType= Implements_Data_Type_New<T>* (*)(
-          const StructureEnv_New* cm
-          ,const std::map<K,T>& val,
-          const K& key,
-          const selfType* self,
-          std::string* whyNot
-          , const std::string & masterObjective,
-          Implements_Data_Type_New<T>* source);
+      const StructureEnv_New* cm
+      ,const std::map<K,T>& val,
+      const K& key,
+      const selfType* self,
+      std::string* whyNot
+      , const std::string & masterObjective,
+      Implements_Data_Type_New<T>* source);
 
 
 
       virtual bool putValue(const StructureEnv_New* cm,const std::map<K,T>& v,ABC_Output* ostream,std::string* whyNot,const std::string &masterObjective)const override
       {
-        if (this->isValueInDomain(cm,v,whyNot,masterObjective))
+        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
           {
             const Implements_Data_Type_New<K>* ktype=this->getKeyType(cm);
 
@@ -2369,11 +2436,11 @@ namespace Markov_IO_New {
       }
       virtual void reset() override
       {
-         comply_=nullptr;
-             keyType_=nullptr;
-            elementType_=nullptr;
-            nextKey_=nullptr;
-            nextElement_=nullptr;
+        comply_=nullptr;
+        keyType_=nullptr;
+        elementType_=nullptr;
+        nextKey_=nullptr;
+        nextElement_=nullptr;
 
       }
 
@@ -2382,9 +2449,9 @@ namespace Markov_IO_New {
                                    , std::string *whyNot
                                    ,const std::string& masterObjective ) const
       {
-         if (comply_==nullptr)
-           return true;
-         else return (*comply_)(cm,val,this,whyNot,masterObjective);
+        if (comply_==nullptr)
+          return true;
+        else return (*comply_)(cm,val,this,whyNot,masterObjective);
       }
 
       virtual selfType *clone() const override
@@ -2392,7 +2459,7 @@ namespace Markov_IO_New {
         return new selfType(*this);
       }
       virtual ABC_Data_New *create() const override
-{
+      {
         return new selfType();
       }
     private:
@@ -2583,31 +2650,74 @@ namespace Markov_IO_New {
 
     public:
       using typePredicate=bool (*)
-      (const StructureEnv_New * cm, const Implements_Var& iv,
+      (const StructureEnv_New * cm, const const_Implements_Var& iv,
       const Implements_Data_Type_New_Implements_Var* self
       , std::string * whyNot,const std::string& masterObjective);
 
       using  keyType= Implements_Identifier* (*)
-      (const StructureEnv_New * cm, const Implements_Var& iv,
+      (const StructureEnv_New * cm, const const_Implements_Var& iv,
       const Implements_Data_Type_New_Implements_Var* self
       , std::string * whyNot,const std::string& masterObjective
       ,Implements_Identifier* source);
 
       using  elemType= Implements_Data_Type_New<ABC_Data_New*>* (*)
-      (const StructureEnv_New * cm, const Implements_Var& iv,
+      (const StructureEnv_New * cm, const const_Implements_Var& iv,
       const Implements_Data_Type_New_Implements_Var* self
       , std::string * whyNot,const std::string& masterObjective
       ,Implements_Data_Type_New<ABC_Data_New*>* source);
 
 
       virtual bool putValue(const StructureEnv_New* cm
+                            ,const const_Implements_Var& v
+                            ,ABC_Output* ostream
+                            ,std::string* whyNot=nullptr,
+                            const std::string& masterObjective="")const
+      {
+        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
+          {
+            const Implements_Identifier* ktype=this->getKeyType(cm);
+
+            const Implements_Data_Type_New<ABC_Data_New*>* etype=this->getElementType(cm);
+
+            if (!v.Tip.empty())
+              {
+                ostream->put("#");
+                ostream->put(v.Tip);
+                ostream->put("\n");
+                if (!v.WhatThis.empty())
+                {
+                    ostream->put("##");
+                    ostream->put(v.WhatThis);
+                    ostream->put("\n");
+
+                  }
+              }
+            if (!ktype->putValue(cm,v.id,ostream,whyNot,masterObjective))
+              return false;
+            ostream->put(":");
+            if(!etype->putValue
+               (cm,v.data,ostream,whyNot,masterObjective))
+              {
+                return false;
+              }
+            return true;
+
+
+          }
+        return false;
+      }
+
+
+      virtual bool putValue(const StructureEnv_New* cm
                             ,const Implements_Var& v
                             ,ABC_Output* ostream
-                            ,std::string* error,
-                            const std::string& masterObjective)const override
+                            ,std::string* whyNot=nullptr,
+                            const std::string& masterObjective="")const override
       {
-
+        const_Implements_Var cv(v);
+        return putValue(cm,cv,ostream,whyNot,masterObjective);
       }
+
 
       virtual bool getValue
       (const StructureEnv_New* cm
@@ -2628,7 +2738,7 @@ namespace Markov_IO_New {
 
       virtual Implements_Identifier* getKeyType
       (const StructureEnv_New* cm
-       , const Implements_Var& v, std::string* whyNot, const std::string& masterObjective,
+       , const const_Implements_Var& v, std::string* whyNot, const std::string& masterObjective,
        Implements_Identifier* source)const
       {
         if (getKey_==nullptr)
@@ -2645,7 +2755,7 @@ namespace Markov_IO_New {
 
 
       virtual Implements_Data_Type_New<ABC_Data_New*>* getElementType
-      (const StructureEnv_New* cm, const Implements_Var& v,
+      (const StructureEnv_New* cm, const const_Implements_Var& v,
        std::string* whyNot,
        const std::string& masterObjective,Implements_Data_Type_New<ABC_Data_New*>* source)const
       {
@@ -2699,13 +2809,23 @@ namespace Markov_IO_New {
 
 
       virtual bool isValueInDomain(const StructureEnv_New* cm
+                                   ,const const_Implements_Var &val
+                                   , std::string *whyNot
+                                   ,const std::string& masterObjective ) const
+      {
+        if (comply_==nullptr)
+          return true;
+        else
+        return (*comply_)(cm,val,this,whyNot,masterObjective);
+      }
+
+      virtual bool isValueInDomain(const StructureEnv_New* cm
                                    ,const Implements_Var &val
                                    , std::string *whyNot
                                    ,const std::string& masterObjective ) const override
       {
-        return (*comply_)(cm,val,this,whyNot,masterObjective);
+        return isValueInDomain(cm,val,whyNot,masterObjective);
       }
-
 
 
     private:
@@ -2725,7 +2845,7 @@ namespace Markov_IO_New {
       elemType getElement_;
       keyType getKey_;
 
-     };
+    };
 
 
 
@@ -2801,9 +2921,31 @@ namespace Markov_IO_New {
                             ABC_Output* ostream
                             ,std::string* whyNot
                             ,const std::string &masterObjective)const override
-      {
 
+      {
+        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
+          {
+            auto etype=this->getElementType()->clone();
+            auto varlis=v->getIdsOfVarType("",false);
+            ostream->put("\n{");
+            std::size_t ifield=0;
+            for (auto id:varlis)
+              {
+                etype=getElementType(cm,v,ifield,whyNot,masterObjective,etype);
+                auto iv=v->idToVar(id);
+                if(!etype->putValue(cm,iv,ostream,whyNot,masterObjective))
+                  {
+                    return false;
+                  }
+                ++ifield;
+              }
+            ostream->put("}");
+            return true;
+          }
+        else
+          return false;
       }
+
 
 
       virtual bool getValue(const StructureEnv_New* cm
@@ -2832,10 +2974,10 @@ namespace Markov_IO_New {
                                       , std::string *whyNot=nullptr
           ,const std::string& masterObjective="" ) const
       {
-          if (hasMandatory_!=nullptr)
-            return (*hasMandatory_)(e,val,this,whyNot,masterObjective);
-          else
-            return true;
+        if (hasMandatory_!=nullptr)
+          return (*hasMandatory_)(e,val,this,whyNot,masterObjective);
+        else
+          return true;
       }
 
 
@@ -3460,7 +3602,7 @@ namespace Markov_IO_New {
         }
 
         static Implements_Data_Type_New<myC>*
-        varType(const std::string& nameoftype)
+        varType(const std::string& nameoftype="")
         {
           return new Implements_Data_Type_New<ABC_Data_New*>(
                 Identifier::types::idType::varType(nameoftype)
@@ -3471,6 +3613,9 @@ namespace Markov_IO_New {
 
 
     };
+
+    void push_Types(Markov_CommandManagerVar* cm);
+
   };
 
 
@@ -3539,28 +3684,28 @@ namespace Markov_IO_New {
         static std::string myWhatThis() {return "aht";}
 
         static bool comply
-        (const StructureEnv_New * cm, const Implements_Var& iv,
-        const vType* self
-        , std::string * whyNot,const std::string& masterObjective)
+        (const StructureEnv_New * cm, const const_Implements_Var& iv,
+         const vType* self
+         , std::string * whyNot,const std::string& masterObjective)
         {
-            return true;
+          return true;
         }
 
         static  Implements_Identifier* nextKey
-        (const StructureEnv_New * cm, const Implements_Var& iv,
-        const vType* self
-        , std::string * whyNot,const std::string& masterObjective
-        ,Implements_Identifier* source)
+        (const StructureEnv_New * cm, const const_Implements_Var& iv,
+         const vType* self
+         , std::string * whyNot,const std::string& masterObjective
+         ,Implements_Identifier* source)
         {
           source->setName(self->getKeyType(cm)->getName());
           return source;
         }
 
         static  Implements_Data_Type_New<ABC_Data_New*>* nextElement
-        (const StructureEnv_New * cm, const Implements_Var& iv,
-        const vType* self
-        , std::string * whyNot,const std::string& masterObjective
-        ,Implements_Data_Type_New<ABC_Data_New*>* source)
+        (const StructureEnv_New * cm, const const_Implements_Var& iv,
+         const vType* self
+         , std::string * whyNot,const std::string& masterObjective
+         ,Implements_Data_Type_New<ABC_Data_New*>* source)
         {
           source->setDataType(self->getElementType(cm)->getDataType());
           return source;
@@ -3596,6 +3741,9 @@ namespace Markov_IO_New {
 
 
     };
+
+    void push_Types(Markov_CommandManagerVar* cm);
+
   };
 
 
@@ -3652,7 +3800,7 @@ namespace Markov_IO_New {
           for (std::size_t i=0; i<fields.size(); ++i)
             {
               const Implements_Var& v=fields[i].first;
-              if (!val->hasNameofType(v.id,v.data->myType(),error,obj,false))
+              if (!val->hasNameofType(v.id,v.data->myType(),false,error,obj))
                 return false;
             }
           return true;
@@ -3668,7 +3816,7 @@ namespace Markov_IO_New {
           for (std::size_t i=0; i<fields.size(); ++i)
             {
               const Implements_Var& v=fields[i].first;
-              if (!val->hasNameofType(v.id,v.data->myType(),error,obj,false))
+              if (!val->hasNameofType(v.id,v.data->myType(),false,error,obj))
                 return !fields[i].second;
             }
           return true;
@@ -3837,7 +3985,7 @@ namespace Markov_IO_New {
           return false;
         else
           return CVtype_->putValue
-              (cm,m,ostream,whyNot,masterObjective);
+              (m,m,ostream,whyNot,masterObjective);
       }
 
       virtual bool getValue(const StructureEnv_New* cm
@@ -3896,7 +4044,7 @@ namespace Markov_IO_New {
                                 std::string* whyNot
                                 ,const std::string &masterObjective)const
       {
-        if (myType()==generalType)
+        if ((generalType.empty()||myType()==generalType))
           return true;
         else
           {
@@ -4082,7 +4230,7 @@ namespace Markov_IO_New {
           return false;
         else
           return CVtype_->putValue
-              (cm,m,ostream,whyNot,masterObjective);
+              (m,m,ostream,whyNot,masterObjective);
       }
 
       virtual bool getValue(const StructureEnv_New* cm
@@ -4152,7 +4300,7 @@ namespace Markov_IO_New {
                                 std::string* whyNot
                                 ,const std::string &masterObjective)const
       {
-        if (myType()==generalType)
+        if ((generalType.empty()||myType()==generalType))
           return true;
         else
           {
