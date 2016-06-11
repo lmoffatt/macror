@@ -1575,7 +1575,7 @@ namespace Markov_IO_New {
   protected:
     DFA mystate;
     const Implements_Data_Type_New<ABC_Data_New*> * dataType_;
-    Implements_Identifier* idtype_;
+    const Implements_Identifier* idtype_;
     std::unique_ptr<buildByToken<std::string>> idtypeB_;
     std::unique_ptr<ABC_BuildByToken> valueB_;
     const ABC_Type_of_Value* valueType_;

@@ -200,6 +200,7 @@ namespace Markov_IO_New {
         move_Right(cm,io);
         break;
       case Key_Up:
+
         history_up(&ch,io);
         break;
       case Key_Down:

@@ -201,14 +201,15 @@ namespace Markov_IO_New {
 
       // ABC_Output interface
     public:
-      FileOut(const std::string& path):
+      FileOut(const std::string& path,char spacer=' '):
+        spacer_(spacer),
         path_(path),
         f_()
       {
         f_.open(path.c_str(),std::ofstream::out | std::ofstream::app);
 
-      if (!f_.is_open())
-      std::cerr<<"error opening "+path;
+        if (!f_.is_open())
+          std::cerr<<"error opening "+path;
       }
 
       ~FileOut()
@@ -223,17 +224,126 @@ namespace Markov_IO_New {
 
       virtual void put(const std::__cxx11::string &s) override
       {
-        f_<<s;
+        if (s.back()!='\n')
+        f_<<s<<spacer_;
+        else
+          f_<<s;
 
       }
-      virtual void put(double x) override {f_<<x;}
-      virtual void put(int n) override  {f_<<n;}
-      virtual void put(std::size_t n) override {f_<<n;}
+      virtual void put(double x) override {f_<<x<<spacer_;}
+      virtual void put(int n) override  {f_<<n<<spacer_;}
+      virtual void put(std::size_t n) override {f_<<n<<spacer_;}
       virtual void put(char c) override {f_<<c;}
 
+      void setSpacer(char c)override{spacer_=c;}
+      char  getSpacer()const override {return spacer_;}
+
     private:
+      char spacer_;
       std::string path_;
       std::ofstream f_;
+    };
+
+
+
+    class FileIn: public ABC_Input
+    {
+
+
+      // ABC_Output interface
+    public:
+      FileIn(const std::string& path, char spacer=' '):
+        spacer_(spacer),
+        path_(path),
+        f_()
+      {
+        f_.open(path.c_str(),std::ifstream::in | std::ofstream::app);
+
+        if (!f_.is_open())
+          std::cerr<<"error opening "+path;
+      }
+
+      ~FileIn()
+      {
+        f_.close();
+      }
+
+      bool isOpen()const
+      {
+        return f_.is_open();
+      }
+      void setSpacer(char c)override{spacer_=c;}
+      char  getSpacer()const override {return spacer_;}
+
+    private:
+      char spacer_;
+      std::string path_;
+      std::ifstream f_;
+
+      // ABC_Input interface
+    public:
+      virtual bool getLine(std::string &line, std::string *whyNot, const std::string &masterObjective) override
+      {
+        std::getline(f_,line);
+        return f_.good();
+      }
+      virtual bool get(std::string &s, std::string *whyNot, const std::string &masterObjective) override
+      {
+        f_>>s;
+        return f_.good();
+      }
+      virtual bool get(double &x, std::string *whyNot, const std::string &masterObjective) override
+      {
+        f_>>x;
+        return f_.good();
+
+      }
+      virtual bool get(int &n, std::string *whyNot, const std::string &masterObjective) override
+      {
+        f_>>n;
+        return f_.good();
+
+      }
+      virtual bool get(std::size_t &n, std::string *whyNot, const std::string &masterObjective) override
+      {
+        f_>>n;
+        return f_.good();
+
+      }
+      virtual bool get(char &c, std::string *whyNot, const std::string &masterObjective) override
+      {
+        f_.get(c);
+        return f_.good();
+      }
+      virtual bool get(char &c) override
+      {
+        f_.get(c);
+        return f_.good();
+
+      }
+
+      virtual bool nextCharIs(char c, char &found) override
+      {
+
+        f_.get(found);
+        while (found==' ') {f_.get(found);}
+        return found==c;
+      }
+      virtual bool nextCharIs(char c, bool advanceInFailure) override
+      {
+        char d;
+        f_.get(d);
+        if (d==c)
+          return true;
+        else if (!advanceInFailure)
+          f_.putback(d);
+        return false;
+      }
+      virtual bool eof()const override
+      {
+        return f_.eof();
+      }
+
     };
 
 
@@ -276,8 +386,8 @@ namespace Markov_IO_New {
     }
 
     template<typename Predicate>
-     std::__cxx11::string getFirstFileInDir(const std::__cxx11::string &dir
-                                                    , Predicate test)
+    std::__cxx11::string getFirstFileInDir(const std::__cxx11::string &dir
+                                           , Predicate test)
     {
       Directory d(dir);
       for (auto it=d.begin(); it!=d.end(); ++it)

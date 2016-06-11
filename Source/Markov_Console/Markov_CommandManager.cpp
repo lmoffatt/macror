@@ -89,6 +89,7 @@ namespace Markov_IO_New
     Identifier::push_Types(this);
     Data::push_Types(this);
     Variable::push_Types(this);
+    ComplexVar::push_Types(this);
     _private::_model::push_Types(this);
 
 

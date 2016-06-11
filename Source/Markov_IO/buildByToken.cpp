@@ -221,8 +221,7 @@ namespace Markov_IO_New {
       {
         dataType_=dataTy;
         convertToClass_=dataType_->ConvertToClass();
-        std::string whyNot,masterObjective;
-        idtype_=dataType_->getElementType(parent(),data_.get(),&whyNot,masterObjective,idtype_);
+        idtype_=dataType_->getElementType();
         idtypeB_->reset_Type(idtype_);
       }
   }
@@ -392,8 +391,7 @@ namespace Markov_IO_New {
   void buildByToken<Implements_Var>::reset_Type(Implements_Data_Type_New<Implements_Var> *ivTy)
   {
     ivarType_=ivTy;
-    std::string whyNot,masterObjective;
-    idType_=ivarType_->getKeyType(parent(),iv_,&whyNot,masterObjective,idType_);
+    idType_=ivarType_->getKeyType(parent())->clone();
     idB_->reset_Type(idType_);
     mystate=S_Init;
     iv_.clear();

@@ -162,7 +162,7 @@ namespace Markov_IO_New
       static std::string myIdType(){return Cls<myC>::name();}
       static std::string myTip() {return "list the availabe variables";}
 
-      static std::string myWhatThis();
+      static std::string myWhatThis(){return "";};
 
       static   bool  run
               (Markov_CommandManagerVar* cm

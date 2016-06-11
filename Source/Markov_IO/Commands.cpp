@@ -4,6 +4,7 @@
 
 #include "Markov_IO/FileLoadSave.h"
 
+#include <memory>
 namespace Markov_IO_New {
 
   namespace cmd {
@@ -14,6 +15,8 @@ namespace Markov_IO_New {
         cm->pushCommand<Exit>();
         cm->pushCommand<Who>();
         cm->pushCommand<Save>();
+        cm->pushCommand<Load>();
+
     }
 
   void Who::who(Markov_CommandManagerVar *cm, std::__cxx11::string typeName)
@@ -48,44 +51,32 @@ namespace Markov_IO_New {
 //    }
 
 
-//    void LoadCommand::load(Markov_CommandManagerVar *cm
-//                           , const std::__cxx11::string &path){
-//      std::ifstream f(path.c_str());
-//      std::size_t numVar=0;
-//      std::set<std::string> varnames;
-//      //safeGetline allow loading windows files in linux
-//      //TODO: check if it loads linux files in windows
+    void Load::load(Markov_CommandManagerVar *cm
+                           , const std::__cxx11::string &path){
+      fd::FileIn f(path);
+      std::size_t numVar=0;
+      std::string whyNot;
+      auto eType=cm->idToTyped<StructureEnv_New*>(ComplexVar::types::Var::myId());
+      auto loadedEnv=new StructureEnv_New (cm,"load");
+      if (eType->getValue(cm,loadedEnv,&f,&whyNot,""))
+        {
+          auto out=cm->loadVars(std::move(*loadedEnv),&whyNot,"",true);
 
+          for (auto& e:out)
+            cm->getIO()->put(e+"\t");
+        }
+      delete loadedEnv;
+      //      getCommandManager()->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
+    }
 
-
-//      //      while (true)
-//      //        {
-//      //          auto v=getValueFromStream(tok);
-//      //          if (v!=nullptr)
-//      //            {
-//      //              numVar++;
-//      //              auto w=getCommandManager()->getMeasureFromValue(v);
-//      //              if (w!=nullptr)
-//      //                getCommandManager()->pushChild(w);
-//      //              else
-//      //                getCommandManager()->pushChild(v);
-
-//      //            }
-//      //          else if (!f.eof())
-//      //            {
-
-//      //              std::string m="unrecognized variable; read text ";
-//      //              m+=tok.putTokenBuffer();
-//      //              getCommandManager()->putErrorOut(m);
-//      //              f.close();
-//      //              return false;
-//      //            }
-//      //          if (f.eof())
-//      //            break;
-//      //          tok.cleanRead();
-//      //        }
-//      //      getCommandManager()->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
-//    }
+    bool Load::run(Markov_CommandManagerVar *cm, const StructureEnv_New *arguments, const Implements_Command_Type_New *self, std::__cxx11::string *WhyFail, const std::__cxx11::string &masterObjective)
+    {
+      std::string dir=cm->getDir();
+      std::string path=dir+fd::File::slash()+"macror.txt";
+      load(cm,path);
+      std::cerr<<path;
+      return true;
+    }
 
     void Save::save(Markov_CommandManagerVar *cm
                     , const std::__cxx11::string &pathfileName
@@ -93,17 +84,11 @@ namespace Markov_IO_New {
     {
       fd::FileOut f(pathfileName);
       std::string whyNot;
-      auto vars=cm->getIdsOfVarType(varType,false);
-      auto ivType=cm->idToTyped<Implements_Var>(Variable::types::varUsed::myId());
+      auto eType=cm->idToTyped<StructureEnv_New*>(ComplexVar::types::Var::myId());
+      if (!eType->putValue(cm,cm,&f,&whyNot,""))
+          cm->getIO()->put(whyNot);
 
-
-      for (auto& e:vars)
-        {
-          auto v=cm->idToVar(e);
-          ivType->putValue(cm,v,&f,&whyNot,"");
-
-        }
-   }
+    }
 
     bool Save::run
     (Markov_CommandManagerVar* cm
