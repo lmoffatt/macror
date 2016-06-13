@@ -1,6 +1,87 @@
 #ifndef ABC_ABC_PatchModel_H
 #define ABC_ABC_PatchModel_H
 
+#include "Markov_IO/ABC_Options.h"
+#include "Markov_IO/ABC_Experiment.h"
+#include "Markov_Mol/ExperimentSimulation.h"
+#include "Markov_Mol/ABC_MarkovModel.h"
+#include "Markov_Mol/ABC_Noise.h"
+
+namespace Markov_Mol_New
+{
+
+
+
+
+class ABC_PatchModel
+{
+public:
+    ///virtual copy constructors
+    virtual ABC_PatchModel* clone() const=0;
+
+    ///virtual default constructors
+    virtual ABC_PatchModel* create() const=0;
+
+    virtual ~ABC_PatchModel();
+
+
+    virtual Experiment_simulation run(const Markov_IO_New::ABC_Experiment& x,
+				      std::size_t n_replicates,
+				      const Markov_IO_New::ABC_Options& opt)=0;
+
+
+
+
+    virtual const ABC_Markov_Model& Model()const=0;
+
+
+    virtual double AverageNumberOfChannels()const=0;
+
+    virtual std::size_t ChannelsCount()const=0;
+
+    virtual const ABC_noise& Noise()const=0;
+    virtual ABC_noise& Noise()=0;
+
+
+    static std::string ClassName();
+
+
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool operator==(const ABC_PatchModel& x,const ABC_PatchModel& y);
+
+
+bool LoadFromDescription( ABC_PatchModel*& x,
+                         const Markov_IO::ClassDescription& classDes);
+//bool LoadFromStringDescription(ABC_PatchModel*& x,
+//			 const Markov_IO::ClassDescription& classDes);
+
+
+std::istream& operator>> (std::istream& stream,ABC_PatchModel*& model);
+
+
+bool  create(ABC_PatchModel*& e,const std::string& childClass);
+
+}
+
+
+
 #include "Markov_IO/ABC_Saveable.h"
 #include "Markov_IO/ABC_Parametrizable.h"
 #include "Markov_IO/ABC_Options.h"
@@ -38,8 +119,8 @@ public:
     virtual const Parameters& get_parameters()const=0;
 
     virtual Experiment_simulation run(const Markov_IO::ABC_Experiment& x,
-				      std::size_t n_replicates,
-				      const Markov_IO::ABC_Options& opt)=0;
+                                      std::size_t n_replicates,
+                                      const Markov_IO::ABC_Options& opt)=0;
 
 
 
@@ -98,6 +179,7 @@ std::istream& operator>> (std::istream& stream,ABC_PatchModel*& model);
 bool  create(ABC_PatchModel*& e,const std::string& childClass);
 
 }
+
 
 
 #endif // ABC_ABC_PatchModel_H

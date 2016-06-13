@@ -27,6 +27,10 @@ namespace Markov_Mol_New
   {
   public:
 
+    virtual Q_Markov_Model* clone() const;
+
+    virtual Q_Markov_Model* create() const;
+
     const ABC_PatchModel* patch()const;
 
     virtual void setPatch(const ABC_PatchModel* newPatch);

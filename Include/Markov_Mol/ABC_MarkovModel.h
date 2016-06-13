@@ -63,8 +63,24 @@ function of experimental and simulated currents against a given kinetic model.
 class ABC_Markov_Model
 {
 public:
+  /** virtual copy constructor
+     @returns a pointer to a copy of the object
+     @post memory is allocated
+     @warning has to be removed with delete at the end of the scope
+  */
+  virtual ABC_Markov_Model* clone() const =0;
 
-    static std::string ClassName();
+  /** virtual default constructors
+      @return a pointer to an empty model
+    */
+
+  virtual ABC_Markov_Model* create() const=0;
+
+
+
+  virtual ~ABC_Markov_Model(){}
+
+   static std::string ClassName();
 
     /**
      Patch that owns this model

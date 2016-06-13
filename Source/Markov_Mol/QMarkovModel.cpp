@@ -42,6 +42,14 @@ namespace Markov_Mol_New
 
 
 
+  Q_Markov_Model* Q_Markov_Model::clone() const
+  {
+    return new Q_Markov_Model(*this);
+  }
+  Q_Markov_Model* Q_Markov_Model::create() const
+  {
+    return new Q_Markov_Model();
+  }
 
 
   Q_Markov_Model::~Q_Markov_Model() {}
