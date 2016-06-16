@@ -333,6 +333,7 @@ namespace Markov_IO_New {
       {
         char d;
         f_.get(d);
+        while (d==' ') {f_.get(d);}
         if (d==c)
           return true;
         else if (!advanceInFailure)

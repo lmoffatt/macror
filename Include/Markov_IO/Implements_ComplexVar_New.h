@@ -4693,6 +4693,18 @@ namespace Markov_IO_New {
 
       }
 
+
+      virtual bool isValueInDomain(const StructureEnv_New* cm,const D* v
+                                   , std::string *whyNot, const std::string& masterObjective)const
+      {
+
+        if (complyD_==nullptr)
+          return true;
+        else
+          return  (*complyD_) (cm,v,this,whyNot,masterObjective);
+      }
+
+
       bool includesThisType(const StructureEnv_New *cm, const std::string &childType
                             , std::string *whyNot, const std::string &masterObjective) const
       {
