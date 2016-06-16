@@ -27,8 +27,6 @@ namespace Markov_IO_New {
   class ABC_Data_New;
 
   class ABC_Type_of_Value;
-  template <typename T>
-  class Implements_Value_New;
 
 
 

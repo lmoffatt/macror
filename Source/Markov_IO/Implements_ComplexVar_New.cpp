@@ -6,6 +6,7 @@
 
 
 #include "Markov_LA/matrixSum.h"
+#include <limits>
 
 namespace Markov_IO_New {
 
@@ -871,6 +872,12 @@ namespace Markov_IO_New {
   {
     cm->pushType(Cls<double>::name(),new Implements_Data_Type_New<double>(),"real number","a regular real number");
     cm->pushType<types::nonZero>();
+    cm->pushType<types::positive>();
+    cm->pushType<types::nonNegative>();
+    cm->pushType<types::Zero>();
+
+
+
   }
 
 
@@ -913,6 +920,20 @@ namespace Markov_IO_New {
   void ComplexVar::push_Types(Markov_CommandManagerVar *cm)
   {
     cm->pushType<types::Var>();
+  }
+
+  bool Real::types::positive::comply(const StructureEnv_New *cm, const Real::myC &x, const Real::vType *, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
+  {
+    double eps=std::numeric_limits<double>::epsilon();
+    if (x < eps)
+      {
+
+        *WhyNot=objective+": x="+std::to_string(x)+" too small or negative "+ std::to_string(std::numeric_limits<double>::epsilon());
+        std::cerr<<*WhyNot<<"eps"<<eps<<"x="<<x;
+        return false;
+      }
+    else
+      return true;
   }
 
 

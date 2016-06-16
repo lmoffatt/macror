@@ -244,8 +244,7 @@ namespace Markov_IO_New
     return xdt_r;
   }
 
-  Single_Pulses::Single_Pulses(const std::string& name,
-                               double time_of_pulse,
+  Single_Pulses::Single_Pulses(double time_of_pulse,
                                double pulse_duration,
                                const Markov_LA::M_Matrix<double>& pulse_concentration,
                                double control_duration,
@@ -255,7 +254,6 @@ namespace Markov_IO_New
                                double fs,
                                double time_to_exchange,
                                double sub_step_time):
-    name_(name),
     ton_d(time_of_pulse),
     durpul_d(pulse_duration),
     con_M(pulse_concentration),
@@ -277,7 +275,6 @@ namespace Markov_IO_New
     xdt_r(x_dt(dt_d,concon_d))     {}
 
   Single_Pulses::Single_Pulses():
-    name_(),
     ton_d(),
     durpul_d(),
     con_M(),
@@ -300,7 +297,6 @@ namespace Markov_IO_New
 
 
   Single_Pulses::Single_Pulses(const Single_Pulses& other):
-    name_(other.name_),
     ton_d(other.ton_d),
     durpul_d(other.durpul_d),
     con_M(other.con_M),
@@ -325,7 +321,6 @@ namespace Markov_IO_New
   void swap(Single_Pulses& one, Single_Pulses& other)
   {
     using std::swap;
-    swap(one.name_,other.name_);
     swap(one.ton_d,other.ton_d);
     swap(one.durpul_d,other.durpul_d);
     swap(one.con_M,other.con_M);

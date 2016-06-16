@@ -371,66 +371,19 @@ namespace Markov_IO_New {
       };
 
 
-      class Implements_Data_Type_class_ABC_Markov_Model
-          :public ::Markov_IO_New::_private::Implements_Data_Type_class<ABC_Markov_Model*>
-      {
+
+      struct Q_Markov_Model_type {
+        typedef Markov_Mol_New::ABC_Markov_Model myB;
+        typedef Markov_Mol_New::Q_Markov_Model myC;
+
+        static std::string myId(){return Cls<myC>::name();}
+        static std::string myIdType(){return "a"+Cls<myC>::name();}
+        static std::string myTip(){return "model of channel kinetics";}
+        static std::string myWhatThis(){return "";}
+
       public:
-        typedef ABC_Markov_Model myC;
-
-        Implements_Data_Type_class_ABC_Markov_Model
-        ( const std::vector<std::pair<Implements_Var,bool>>& fields={}
-            ,typePredicate complyPred=nullptr
-            ):
-          Implements_Data_Type_class<ABC_Markov_Model*>(fields,complyPred)
-        {}
-
-        virtual Implements_Data_Type_class_ABC_Markov_Model* clone()const override
-        {
-          return new Implements_Data_Type_class_ABC_Markov_Model(*this);
-        }
-
-        virtual Implements_Data_Type_class_ABC_Markov_Model* create()const override
-        {
-          return new Implements_Data_Type_class_ABC_Markov_Model();
-        }
-
-        virtual ABC_Markov_Model* getClass(const StructureEnv_New* cm
-                            ,const StructureEnv_New*  m
-                            ,std::string *WhyNot,const std::string& masterObjective)const override
-        {
-          return nullptr;
-        }
-
-        virtual StructureEnv_New* getComplexMap(
-                const StructureEnv_New* cm,
-                const ABC_Markov_Model* v,std::string *WhyNot,const std::string & masterObjective)const override
-        {
-          return nullptr;
-        }
-
-        virtual bool isValueInDomain(const StructureEnv_New* cm,const ABC_Markov_Model* v
-                                     , std::string *whyNot, const std::string& masterObjective)const override
-        {
-
-            if (comply_==nullptr)
-                return true;
-            else
-                return  (*comply_) (cm,v,this,whyNot,masterObjective);
-        }
-
-        
-        
-      };
-
-
-
-      class Implements_Data_Type_class_Q_Markov_Model
-          :public Implements_Data_Type_class_ABC_Markov_Model
-      {
-      public:
-        typedef Q_Markov_Model myC;
-        typedef ABC_Markov_Model myB;
-        typedef Implements_Data_Type_class_Q_Markov_Model vType;
+        typedef Implements_Data_Type_derived_class<myC,myB> vType;
+        typedef Implements_Data_Type_class<myB*> baseType;
 
       private:
 
@@ -465,10 +418,10 @@ namespace Markov_IO_New {
         static  StructureEnv_New* objB2map
         (const StructureEnv_New* cm,
          const myB* Q
-         ,const vType* v
+         ,const baseType* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          auto f=new StructureEnv_New(cm,Cls<myB>::name());
+          auto f=new StructureEnv_New(cm,Cls<myB*>::name());
           f->pushVar<numStates_Field>(Q->k());
           f->pushVar<Q_matrix_Field>(Q->Q());
 
@@ -490,7 +443,7 @@ namespace Markov_IO_New {
          ,const vType* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          auto f=new StructureEnv_New(cm,Cls<myB>::name());
+          auto f=new StructureEnv_New(cm,Cls<myC*>::name());
           f->pushVar<numStates_Field>(Q->k());
           f->pushVar<Q_matrix_Field>(Q->Q());
 
@@ -503,6 +456,7 @@ namespace Markov_IO_New {
           f->pushVar<unitary_conductance_field>(gamma);
           return f;
         }
+      public:
 
         static std::vector<std::pair<Implements_Var,bool>> getFields()
         {
@@ -516,64 +470,12 @@ namespace Markov_IO_New {
         }
 
 
-
-      public:
-        using getClass_type=  myC* (*)
-        (const StructureEnv_New *cm
-        , const StructureEnv_New * m,
-        const vType* self,
-        std::string *WhyNot, const std::string &masterObjective);
-
-        using getCVFromBase_type=   StructureEnv_New* (*)
-        (const StructureEnv_New *cm, const myB *v,
-        const vType* self,
-        std::string *WhyNot, const std::string &masterObjective);
-
-        using getCV_type=   StructureEnv_New* (*)
-        (const StructureEnv_New *cm, const myC *v,
-        const vType* self,
-        std::string *WhyNot, const std::string &masterObjective);
-
-        Implements_Data_Type_class_Q_Markov_Model
-        (const std::vector<std::pair<Implements_Var,bool>>& fields
-         ,typePredicate complyPred
-         ,getCVFromBase_type getCVB
-         ,getCV_type getCV
-         ,getClass_type getObj
-         ):
-          Implements_Data_Type_class_ABC_Markov_Model(fields,complyPred)
-        ,getCVB_(getCVB),getCV_(getCV),getObj_(getObj)
-        {}
-
-        Implements_Data_Type_class_Q_Markov_Model
-        ():
-          Implements_Data_Type_class_ABC_Markov_Model(getFields(),nullptr)
-        ,getCVB_(&objB2map),getCV_(&obj2map),getObj_(&map2obj)
-        {}
-
-
-        // Implements_Data_Type_class<T *> interface
-      public:
-        virtual Q_Markov_Model *getClass(const StructureEnv_New *cm, const StructureEnv_New * m, std::string *WhyNot, const std::string &masterObjective) const
+        static Implements_Data_Type_New<myC*>*
+        varType(const StructureEnv_New* cm)
         {
-          return (*getObj_)(cm,m,this,WhyNot,masterObjective);
+          return new  Implements_Data_Type_derived_class<myC,myB>
+              (getFields(),&obj2map,&map2obj,nullptr,&objB2map);
         }
-
-
-
-
-        virtual StructureEnv_New* getComplexMap(const StructureEnv_New *cm, const ABC_Markov_Model *v, std::string *WhyNot, const std::string &masterObjective) const
-        {
-          return (*getCVB_)(cm,v,this,WhyNot,masterObjective);
-        }
-
-
-        virtual StructureEnv_New* getComplexMap(const StructureEnv_New *cm, const Q_Markov_Model *v, std::string *WhyNot, const std::string &masterObjective) const
-        {
-          return (*getCV_)(cm,v,this,WhyNot,masterObjective);
-
-        }
-
 
         static void push_Types(Markov_CommandManagerVar *cm)
         {
@@ -581,30 +483,10 @@ namespace Markov_IO_New {
           agonist_vector_type::push_Types(cm);
           conductance_vector_Type::push_Types(cm);
           Q_matrix_Type::push_Types(cm);
+          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+
 
         }
-
-
-      private:
-        getCVFromBase_type getCVB_;
-        getCV_type getCV_;
-        getClass_type getObj_;
-      };
-
-      struct Q_Markov_Model_type {
-        typedef Markov_Mol_New::ABC_Markov_Model myB;
-        typedef Markov_Mol_New::Q_Markov_Model myC;
-
-        static std::string myId(){return Cls<myC>::name();}
-        static std::string myIdType(){return "a"+Cls<myC>::name();}
-        static std::string myTip(){return "model of channel kinetics";}
-        static std::string myWhatThis(){return "";}
-
-
-        static Implements_Data_Type_New<myC*>*
-        varType(const StructureEnv_New* cm);
-
-        static void push_Types(Markov_CommandManagerVar *cm);
 
       };
 

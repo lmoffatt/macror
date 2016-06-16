@@ -9,13 +9,16 @@
 #include "Markov_IO/ABC_Var.h"
 #include "Markov_IO/Var.h"
 
+#include <clocale>
 
 //TODO: reduce the number of classes and separate semantics (analyse meaning of data) from algorithms (perform calculations)
 
 int main(int argc, char **argv)
 {
 //  Markov_IO_New_Test::test();
-
+  std::cerr<<std::to_string( +0.001);
+  std::locale::global(std::locale::classic());
+  std::cerr<<std::to_string( +0.001);
 
  QApplication app(argc, argv);
    Markov_IO_New::Markov_CommandManagerVar* cm=new Markov_IO_New::Markov_CommandManagerVar();
@@ -23,7 +26,13 @@ int main(int argc, char **argv)
    Markov_IO_New::MacrorMainWindow mainWin(0,cm);
    mainWin.resize(800, 608);
     mainWin.show();
+    std::cerr<<std::to_string( +0.001);
+    std::locale::global(std::locale::classic());
+    std::cerr<<std::to_string( +0.001);
+  // setlocale(LC_ALL, "");
+   std::cerr<<std::to_string( +0.001);
     return app.exec();
+    setlocale(LC_NUMERIC,"C");
 }
 
 

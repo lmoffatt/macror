@@ -485,7 +485,8 @@ HEADERS += \
     Include/Markov_IO/Implements_path.h \
     Include/Markov_IO/FileLoadSave.h \
     Include/Markov_IO/myIterator.h \
-    Include/Markov_IO/VarTempl.h
+    Include/Markov_IO/VarTempl.h \
+    Include/Markov_IO/myTypesExperiment.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
@@ -496,7 +497,8 @@ SOURCES += \
     Source/Markov_IO/Commands.cpp \
     Source/Markov_IO/myTypes.cpp \
     Source/Markov_IO/Implements_path.cpp \
-    Source/Markov_IO/FileLoadSave.cpp
+    Source/Markov_IO/FileLoadSave.cpp \
+    Source/Markov_IO/myTypesExperiment.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

@@ -10,9 +10,9 @@
 namespace Markov_IO_New
 {
 
-class Single_Pulses: public ABC_Experiment
-{
-public:
+  class Single_Pulses: public ABC_Experiment
+  {
+  public:
     virtual Single_Pulses* clone() const;
 
     ///virtual default constructors
@@ -65,17 +65,16 @@ public:
 
     virtual const x_dt&  sub_step(std::size_t i)const;
 
-    Single_Pulses(const std::string& name,
-	double time_of_pulse,
-		  double pulse_duration,
-		  const Markov_LA::M_Matrix<double>& pulse_concentration,
-		  double control_duration,
-		  double control_concentration,
-		  double trace_duration,
-		  double trace_interval_,
-		  double fs,
-		  double time_to_exchange,
-		  double sub_step_time);
+    Single_Pulses(double time_of_pulse,
+                  double pulse_duration,
+                  const Markov_LA::M_Matrix<double>& pulse_concentration,
+                  double control_duration,
+                  double control_concentration,
+                  double trace_duration,
+                  double trace_interval_,
+                  double fs,
+                  double time_to_exchange,
+                  double sub_step_time);
 
     Single_Pulses();
 
@@ -88,9 +87,18 @@ public:
     static std::string ClassName();
 
 
+    double time_of_pulse() const {return ton_d;}
+    double pulse_duration() const {return durpul_d;}
+    const Markov_LA::M_Matrix<double>& pulse_concentration() const {return con_M;}
+    double control_duration() const {return durcon_d;}
+    double control_concentration() const {return concon_d;}
+    double trace_duration() const {return tracedur_d;}
+    double intertrace_interval() const {return trace_interval_d;}
+    double fs() const {return fs_d;}
+    double time_to_exchange() const {return exchange_d;}
+    double sub_step_time () const {return sub_step_time_d;}
 
-private:
-    std::string name_;
+  private:
     double ton_d;
     double durpul_d;
     Markov_LA::M_Matrix<double> con_M;
@@ -122,8 +130,8 @@ private:
 
 
 
-};
-void swap(Single_Pulses& one, Single_Pulses& other);
+  };
+  void swap(Single_Pulses& one, Single_Pulses& other);
 }
 
 
@@ -137,9 +145,9 @@ void swap(Single_Pulses& one, Single_Pulses& other);
 namespace Markov_IO
 {
 
-class Single_Pulses: public ABC_Experiment
-{
-public:
+  class Single_Pulses: public ABC_Experiment
+  {
+  public:
     virtual Single_Pulses* clone() const;
 
     ///virtual default constructors
@@ -193,7 +201,7 @@ public:
     virtual const x_dt&  sub_step(std::size_t i)const;
 
     Single_Pulses(const std::string& name,
-        double time_of_pulse,
+                  double time_of_pulse,
                   double pulse_duration,
                   const Markov_LA::M_Matrix<double>& pulse_concentration,
                   double control_duration,
@@ -221,7 +229,7 @@ public:
     virtual std::string myClass()const;
 
 
-private:
+  private:
     std::string name_;
     double ton_d;
     double durpul_d;
@@ -254,8 +262,8 @@ private:
 
 
 
-};
-void swap(Single_Pulses& one, Single_Pulses& other);
+  };
+  void swap(Single_Pulses& one, Single_Pulses& other);
 }
 #
 

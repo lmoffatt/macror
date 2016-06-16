@@ -5,28 +5,28 @@
 
 namespace Markov_IO_New {
 
-  template class Implements_Value_New<double>;
+//  template class Implements_Value_New<double>;
 
-  template class Implements_Value_New<int>;
+//  template class Implements_Value_New<int>;
 
-  template class Implements_Value_New<std::size_t>;
+//  template class Implements_Value_New<std::size_t>;
 
 
-  template class Implements_Value_New<std::vector<double>>;
+//  template class Implements_Value_New<std::vector<double>>;
 
-  template class Implements_Value_New<std::set<double>>;
+//  template class Implements_Value_New<std::set<double>>;
 
-  template class Implements_Value_New<Markov_LA::M_Matrix<double>>;
+//  template class Implements_Value_New<Markov_LA::M_Matrix<double>>;
 
-  template class Implements_Value_New<Markov_LA::M_Matrix<std::size_t>>;
+//  template class Implements_Value_New<Markov_LA::M_Matrix<std::size_t>>;
 
-  template class Implements_Value_New<std::vector<int>>;
+//  template class Implements_Value_New<std::vector<int>>;
 
-  template class Implements_Value_New<std::map<std::size_t,double>>;
+//  template class Implements_Value_New<std::map<std::size_t,double>>;
 
-  template class Implements_Value_New<ABC_Data_New*>;
+//  template class Implements_Value_New<ABC_Data_New*>;
 
-  template class Implements_Value_New<Implements_Var>;
+//  template class Implements_Value_New<Implements_Var>;
 
 
   namespace

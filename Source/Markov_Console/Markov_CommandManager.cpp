@@ -41,6 +41,8 @@
 
 #include "Markov_IO/Commands.h"
 #include "Markov_IO/myTypes.h"
+#include "Markov_IO/myTypesExperiment.h"
+
 #include "Markov_IO/FileLoadSave.h"
 
 
@@ -91,6 +93,7 @@ namespace Markov_IO_New
     Variable::push_Types(this);
     ComplexVar::push_Types(this);
     _private::_model::push_Types(this);
+_private::_experiment::push_Types(this);
 
 
     e=new ExpressionManager(this);
