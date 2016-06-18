@@ -2,7 +2,13 @@
 #define MYTYPESEXPERIMENT_H
 #include "Markov_IO/ABC_Experiment.h"
 #include "Markov_IO/SinglePulses.h"
+
+#include "Markov_IO/PulsesTrace.h"
+#include "Markov_IO/ABC_Trace.h"
+
 #include "Markov_Console/Markov_CommandManager.h"
+
+
 
 #include "Markov_LA/matrixMaxMin.h"
 #include "Markov_LA/matrixAritmetic.h"
@@ -24,15 +30,14 @@ namespace Markov_IO_New {
       };
 
 
-      inline
-      std::size_t getNumConcentrations(const StructureEnv_New* cm)
+      template<typename numField>
+      std::size_t getNum(const StructureEnv_New* cm)
       {
         std::size_t num;
         std::string WhyNot;
-        if (!cm->getValueFromId(num_Tested_Concentrations_Field::myId(),num,&WhyNot,""))
+        if (!cm->getValueFromId(numField::myId(),num,&WhyNot,""))
           return 1;
         else return num;
-
       }
       inline
       std::size_t oneDim(const StructureEnv_New*)
@@ -106,7 +111,7 @@ namespace Markov_IO_New {
         (const StructureEnv_New* cm
          ,const vType* cv)
         {
-          return getNumConcentrations(cm);
+          return getNum<num_Tested_Concentrations_Field>(cm);
         }
 
         static std::size_t getRowsNumber
@@ -136,7 +141,7 @@ namespace Markov_IO_New {
         }
 
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
           cm->pushRegularType<elem>();
@@ -244,7 +249,7 @@ namespace Markov_IO_New {
         }
 
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
@@ -333,7 +338,7 @@ namespace Markov_IO_New {
         }
 
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
@@ -409,7 +414,7 @@ namespace Markov_IO_New {
         }
 
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
@@ -484,7 +489,7 @@ namespace Markov_IO_New {
         }
 
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
@@ -514,6 +519,8 @@ namespace Markov_IO_New {
         static std::string myIdType(){return Cls<myD*>::name();}
         static std::string myTip(){return "Single pulses protocol type";}
         static std::string myWhatThis(){return "";}
+
+
 
         static myD* map2obj(const StructureEnv_New* cm,
                             const StructureEnv_New* m
@@ -577,8 +584,6 @@ namespace Markov_IO_New {
         }
 
 
-
-
         static  StructureEnv_New* obj2map
         (const StructureEnv_New* cm,
          const myD* x
@@ -622,7 +627,7 @@ namespace Markov_IO_New {
           return f;
         }
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushRegularType<double>();
           pulse_concentration_vector_type::push_Types(cm);
@@ -644,11 +649,442 @@ namespace Markov_IO_New {
 
 
       };
+/******
+ *
+ *    fields of Pulses_trace
+ *
+ * **/
 
 
-      inline void push_Types(Markov_CommandManagerVar* cm)
+
+      struct number_of_concentration_changes_Field
+      {
+        typedef std::size_t myC;
+        typedef Implements_Data_Type_New<myC>  vType;
+        static std::string myId(){return "number_of_concentration_changes";}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "number of changes in concentrations";}
+        static std::string myWhatThis() {return "";}
+
+      };
+
+
+
+      struct time_of_each_concentration_change_type
+
+      {
+        typedef time_of_each_concentration_change_type selfType;
+
+        typedef double elem;
+        typedef  ::Markov_LA::M_Matrix<elem> myC;
+        typedef Implements_Data_Type_New<myC> vType;
+
+        static std::string myId(){return "time_of_each_concentration_change_vector_type";}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "time for each concentration change";}
+        static std::string myWhatThis() {return "";}
+
+
+        static bool comply
+        (const StructureEnv_New* cm
+         ,const myC & x
+         ,const vType* self,
+         std::string *WhyNot
+         , const std::string& objective)
+        {
+            std::size_t numstates;
+            if (!cm->getValueFromId
+                (number_of_concentration_changes_Field::myId()
+                 ,numstates,WhyNot,objective))
+              return false;
+            if (!Matrix::Comply::Size<elem>(x,1,numstates,WhyNot,objective))
+              return false;
+
+            return true;
+          }
+
+        static const Implements_Data_Type_New<elem>* elementType
+        (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
+        {
+          return cm->idToTyped<elem>(Real::types::positive::myId(),whyNot,masterObjective);
+        }
+
+
+        /// increasing
+        static Implements_Data_Type_New<elem>* nextElement (
+            const StructureEnv_New* cm
+            ,const std::vector<elem>& val,
+            std::size_t nrow, std::size_t ncol
+            ,std::size_t i, std::size_t j
+            ,const Implements_Data_Type_New<myC>* self
+            , std::string * whyNot, const std::string& masterObjective,
+            Implements_Data_Type_New<elem>* source)
+        {
+          if (j==0)
+            return Real::types::Zero::varType(source);
+          else
+            return Real::types::greaterThan::varType(source,val[j-1]);
+        }
+
+
+
+
+        static std::size_t getColsNumber
+        (const StructureEnv_New* cm
+         ,const vType* cv)
+        {
+          return getNum<number_of_concentration_changes_Field>(cm);
+        }
+
+        static std::size_t getRowsNumber
+        (const StructureEnv_New* cm
+         ,const vType* cv)
+        {
+          return oneDim(cm);
+        }
+
+        static constexpr bool areColsFixed=true;
+        static constexpr bool areRowsFixed=true;
+
+
+        static Implements_Data_Type_New<myC>*
+        varType(const StructureEnv_New* cm
+                ,std::string* whyNot=nullptr,const std::string& masterObjective="")
+        {
+          auto d=elementType(cm,whyNot,masterObjective);
+          if (d==nullptr)
+            return nullptr;
+          else
+            {
+              return new Implements_Data_Type_New<myC>
+                  (d,&comply,&nextElement,&getColsNumber,&getRowsNumber
+                   ,areColsFixed,areRowsFixed);
+            }
+        }
+
+
+        static void push_Types(StructureEnv_New *cm)
+        {
+          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushRegularType<elem>();
+        }
+
+      };
+
+      struct time_of_each_concentration_change_field
+      {
+        typedef  time_of_each_concentration_change_type vType;
+        typedef  typename vType::myC   myC;
+
+        static std::string myId(){return "time_of_each_concentration_change";}
+        static std::string myIdType(){return vType::myId();}
+        static std::string myTip(){return "time of each change in concentration of concentrations during succesive pulsed applications";}
+        static std::string myWhatThis() {return "";}
+      };
+
+
+
+
+      struct concentration_at_each_time_type
+
+      {
+        typedef concentration_at_each_time_type selfType;
+
+        typedef double elem;
+        typedef  ::Markov_LA::M_Matrix<elem> myC;
+        typedef Implements_Data_Type_New<myC> vType;
+
+        static std::string myId(){return "concentration_at_each_time_type";}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "concentration after each change";}
+        static std::string myWhatThis() {return "";}
+
+
+        static bool comply
+        (const StructureEnv_New* cm
+         ,const myC & x
+         ,const vType* self,
+         std::string *WhyNot
+         , const std::string& objective)
+        {
+            std::size_t numstates;
+            if (!cm->getValueFromId
+                (number_of_concentration_changes_Field::myId()
+                 ,numstates,WhyNot,objective))
+              return false;
+            if (!Matrix::Comply::Size<elem>(x,1,numstates,WhyNot,objective))
+              return false;
+
+            return true;
+          }
+
+        static const Implements_Data_Type_New<elem>* elementType
+        (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
+        {
+          return cm->idToTyped<elem>(Real::types::positive::myId(),whyNot,masterObjective);
+        }
+
+
+        /// increasing
+        static Implements_Data_Type_New<elem>* nextElement (
+            const StructureEnv_New* cm
+            ,const std::vector<elem>& val,
+            std::size_t nrow, std::size_t ncol
+            ,std::size_t i, std::size_t j
+            ,const Implements_Data_Type_New<myC>* self
+            , std::string * whyNot, const std::string& masterObjective,
+            Implements_Data_Type_New<elem>* source)
+        {
+          return source;
+        }
+
+
+
+
+        static std::size_t getColsNumber
+        (const StructureEnv_New* cm
+         ,const vType* cv)
+        {
+          return getNum<number_of_concentration_changes_Field>(cm);
+        }
+
+        static std::size_t getRowsNumber
+        (const StructureEnv_New* cm
+         ,const vType* cv)
+        {
+          return oneDim(cm);
+        }
+
+        static constexpr bool areColsFixed=true;
+        static constexpr bool areRowsFixed=true;
+
+
+        static Implements_Data_Type_New<myC>*
+        varType(const StructureEnv_New* cm
+                ,std::string* whyNot=nullptr,const std::string& masterObjective="")
+        {
+          auto d=elementType(cm,whyNot,masterObjective);
+          if (d==nullptr)
+            return nullptr;
+          else
+            {
+              return new Implements_Data_Type_New<myC>
+                  (d,&comply,&nextElement,&getColsNumber,&getRowsNumber
+                   ,areColsFixed,areRowsFixed);
+            }
+        }
+
+
+        static void push_Types(StructureEnv_New *cm)
+        {
+          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushRegularType<elem>();
+        }
+
+      };
+
+      struct concentration_at_each_time_field
+      {
+        typedef  time_of_each_concentration_change_type vType;
+        typedef  typename vType::myC   myC;
+
+        static std::string myId(){return "concentration_at_each_time";}
+        static std::string myIdType(){return vType::myId();}
+        static std::string myTip(){return "concentration after each corresponding change";}
+        static std::string myWhatThis() {return "";}
+      };
+
+
+
+
+
+
+      struct Pulses_trace_type {
+        typedef ABC_trace myB;
+        typedef Pulses_trace myD;
+        typedef Implements_Data_Type_derived_class<myD,myB>  vType;
+
+        static std::string myId(){return Cls<myD*>::name();}
+        static std::string myIdType(){return Cls<myD*>::name();}
+        static std::string myTip(){return "Program of change in concentrations for a single trace";}
+        static std::string myWhatThis(){return "";}
+
+        template<typename Field>
+        static bool isMandatory() {return true;}
+
+
+        template<typename Field>
+        static typename Field::myC get(const myD* x);
+
+
+
+
+        static myD* map2obj(const StructureEnv_New* cm,
+                            const StructureEnv_New* m
+                            ,const vType* v
+                            ,std::string* WhyNot,
+                            const std::string& masterObjective)
+        {
+
+           return map2objTempl<Pulses_trace_type
+               ,time_of_each_concentration_change_field
+               ,concentration_at_each_time_field
+               ,trace_duration_field
+               ,frequency_of_sampling_field
+               ,time_to_exchange_field
+               ,sub_step_time_field
+               ,intertrace_interval_field>(cm,m,v,WhyNot,masterObjective);
+
+        }
+
+
+        static  StructureEnv_New* obj2map
+        (const StructureEnv_New* cm,
+         const myD* x
+         ,const vType* v
+         , std::string* WhyNot, const std::string& masterObjective)
+        {
+          return obj2mapTempl<Pulses_trace_type
+              ,number_of_concentration_changes_Field
+              ,time_of_each_concentration_change_field
+              ,concentration_at_each_time_field
+              ,trace_duration_field
+              ,frequency_of_sampling_field
+              ,time_to_exchange_field
+              ,sub_step_time_field
+              ,intertrace_interval_field>(cm,x,v,WhyNot,masterObjective);
+
+        }
+
+        static std::vector<std::pair<Implements_Var,bool>> getFields()
+        {
+          return getFieldsTempl<Pulses_trace_type
+              ,number_of_concentration_changes_Field
+              ,time_of_each_concentration_change_field
+              ,concentration_at_each_time_field
+              ,trace_duration_field
+              ,frequency_of_sampling_field
+              ,time_to_exchange_field
+              ,sub_step_time_field
+              ,intertrace_interval_field>();
+
+        }
+
+        static Implements_Data_Type_New<myD*>*
+        varType(const StructureEnv_New* cm)
+        {
+          return new  Implements_Data_Type_derived_class<myD,myB>
+              (getFields(),&obj2map,&map2obj,nullptr,nullptr);
+        }
+
+
+
+
+
+        static void push_Types(StructureEnv_New *cm)
+        {
+          push_TypesTempl<Pulses_trace_type
+              ,number_of_concentration_changes_Field
+              ,time_of_each_concentration_change_field
+              ,concentration_at_each_time_field
+              ,trace_duration_field
+              ,frequency_of_sampling_field
+              ,time_to_exchange_field
+              ,sub_step_time_field
+              ,intertrace_interval_field>(cm);
+        }
+       };
+
+      template<>
+      inline
+      typename number_of_concentration_changes_Field::myC
+      Pulses_trace_type::get<number_of_concentration_changes_Field>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->number_of_concentration_changes();
+      }
+
+
+      template<>
+      inline
+      typename time_of_each_concentration_change_field::myC
+      Pulses_trace_type::get<time_of_each_concentration_change_field>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->time_of_each_concentration_change();
+      }
+
+      template<>
+      inline
+      typename concentration_at_each_time_field::myC
+      Pulses_trace_type::get<concentration_at_each_time_field>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->concentration_at_each_time();
+      }
+
+      template<>
+      inline
+      typename trace_duration_field::myC
+      Pulses_trace_type::get<trace_duration_field>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->trace_duration();
+      }
+
+      template<>
+      inline
+      typename frequency_of_sampling_field::myC
+      Pulses_trace_type::get<frequency_of_sampling_field>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->frequency_of_sampling();
+      }
+      template<>
+      inline
+      typename time_to_exchange_field::myC
+      Pulses_trace_type::get<time_to_exchange_field>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->time_to_exchange();
+      }
+
+      template<>
+      inline
+      typename time_to_exchange_field::myC
+      Pulses_trace_type::get<sub_step_time_field>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->sub_step_time();
+      }
+
+      template<>
+      inline
+      typename time_to_exchange_type::myC
+      Pulses_trace_type::get<time_to_exchange_type>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->time_to_exchange();
+      }
+
+
+      template<>
+      inline
+      typename intertrace_interval_field::myC
+      Pulses_trace_type::get<intertrace_interval_field>
+      (const typename Pulses_trace_type::myD* x)
+      {
+         return x->time_to_next_trace();
+      }
+
+
+
+
+
+      inline void push_Types(StructureEnv_New *cm)
       {
         Single_Pulses_type::push_Types(cm);
+        Pulses_trace_type::push_Types(cm);
       }
 
     }

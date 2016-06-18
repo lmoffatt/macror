@@ -10,14 +10,14 @@
 namespace Markov_IO_New
 {
 
-class Pulses_trace: public ABC_trace
-{
-public:
+  class Pulses_trace: public ABC_trace
+  {
+  public:
     virtual Pulses_trace* clone() const;
 
     virtual Pulses_trace* create() const;
 
-     virtual ~Pulses_trace() ;
+    virtual ~Pulses_trace() ;
 
     virtual std::ostream& put(std::ostream& s) const;
 
@@ -50,17 +50,15 @@ public:
 
     virtual Pulses_trace& set_max_x_trace(double new_max);
 
-    Pulses_trace(const std::string& name,
-		 const Markov_LA::M_Matrix<double>& time_of_each_concentration_change,
-		 const Markov_LA::M_Matrix<double>& concentration_at_each_time,
-		 double trace_duration,
-		 double frequency_of_sampling,
-		 double time_to_exchange,
-		 double sub_step_time,
-		 double time_to_next_trace);
+    Pulses_trace(const Markov_LA::M_Matrix<double>& time_of_each_concentration_change,
+                 const Markov_LA::M_Matrix<double>& concentration_at_each_time,
+                 double trace_duration,
+                 double frequency_of_sampling,
+                 double time_to_exchange,
+                 double sub_step_time,
+                 double time_to_next_trace);
 
-    Pulses_trace(const std::string& name,
-                 std::size_t number_of_concentration_changes);
+    Pulses_trace(std::size_t number_of_concentration_changes);
 
 
     Pulses_trace();
@@ -68,13 +66,24 @@ public:
 
     Pulses_trace(const Pulses_trace& other);
 
-     static std::string ClassName();
+    static std::string ClassName();
 
 
 
+    std::size_t number_of_concentration_changes() const
+    { return Markov_LA::size(t_on_M);}
 
-private:
-    std::string name_;
+    const Markov_LA::M_Matrix<double>& time_of_each_concentration_change()const
+    { return t_on_M ;}
+    const Markov_LA::M_Matrix<double>& concentration_at_each_time()const { return x_on_M;}
+    double trace_duration()const { return tracedur_d;}
+    double frequency_of_sampling()const { return fs_d ;}
+    double time_to_exchange()const { return exchange_d ;}
+    double sub_step_time()const { return sub_step_time_d;}
+    double time_to_next_trace()const { return time_to_next_trace_d ;}
+
+
+  private:
     /** this variables define the object */
     Markov_LA::M_Matrix<double> t_on_M;
     Markov_LA::M_Matrix<double> x_on_M;
@@ -107,7 +116,7 @@ private:
     mutable std::size_t i_max_pulse_u;
     mutable std::size_t n_sub_steps_u;
 
-};
+  };
 
 
 }
@@ -122,14 +131,14 @@ private:
 namespace Markov_IO
 {
 
-class Pulses_trace: public ABC_trace
-{
-public:
+  class Pulses_trace: public ABC_trace
+  {
+  public:
     virtual Pulses_trace* clone() const;
 
     virtual Pulses_trace* create() const;
 
-     virtual ~Pulses_trace() ;
+    virtual ~Pulses_trace() ;
 
     virtual std::ostream& put(std::ostream& s) const;
 
@@ -183,7 +192,7 @@ public:
     virtual ClassDescription GetDescription() const;
 
     virtual bool LoadFromDescription(
-                                     const ClassDescription &classDes);
+        const ClassDescription &classDes);
     static std::string ClassName();
 
     virtual std::string id()const;
@@ -191,7 +200,7 @@ public:
 
 
 
-private:
+  private:
     std::string name_;
     /** this variables define the object */
     Markov_LA::M_Matrix<double> t_on_M;
@@ -225,7 +234,7 @@ private:
     mutable std::size_t i_max_pulse_u;
     mutable std::size_t n_sub_steps_u;
 
-};
+  };
 
 
 }

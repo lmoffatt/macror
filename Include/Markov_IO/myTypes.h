@@ -143,7 +143,7 @@ namespace Markov_IO_New {
             }
         }
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushRegularType<elem>();
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
@@ -246,7 +246,7 @@ namespace Markov_IO_New {
                    ,areColsFixed,areRowsFixed);
             }
         }
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushRegularType<elem>();
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
@@ -339,7 +339,7 @@ namespace Markov_IO_New {
         }
 
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
           cm->pushRegularType<elem>();
@@ -477,7 +477,7 @@ namespace Markov_IO_New {
               (getFields(),&obj2map,&map2obj,nullptr,&objB2map);
         }
 
-        static void push_Types(Markov_CommandManagerVar *cm)
+        static void push_Types(StructureEnv_New *cm)
         {
           cm->pushRegularType<std::size_t>();
           agonist_vector_type::push_Types(cm);
@@ -491,7 +491,7 @@ namespace Markov_IO_New {
       };
 
 
-      void push_Types(Markov_CommandManagerVar* cm);
+      void push_Types(StructureEnv_New *cm);
 
     }
 

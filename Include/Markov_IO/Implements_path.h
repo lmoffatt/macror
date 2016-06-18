@@ -124,7 +124,7 @@ namespace Markov_IO_New {
         }
       };
 
-    void push_Types(Markov_CommandManagerVar* cm);
+    void push_Types(StructureEnv_New *cm);
 
 
 

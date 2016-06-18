@@ -165,8 +165,7 @@ namespace Markov_IO_New
     x_at_ton(0,1)=0.0;
 
     std::vector<Pulses_trace> traces;
-    Pulses_trace p0("pulse_trace",
-                    ton_pulse,
+    Pulses_trace p0(ton_pulse,
                     x_at_ton,
                     tracedur_d,
                     fs_d,
@@ -175,8 +174,7 @@ namespace Markov_IO_New
                     trace_interval_d);
     traces.push_back(p0);
 
-    Pulses_trace  p1("control_trace",
-                     ton_con,
+    Pulses_trace  p1(ton_con,
                      x_at_ton,
                      tracedur_d,
                      fs_d,

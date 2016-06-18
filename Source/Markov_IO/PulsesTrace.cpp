@@ -262,15 +262,13 @@ Pulses_trace& Pulses_trace::set_max_x_trace(double new_max)
 }
 
 
-Pulses_trace::Pulses_trace(const std::string& name,
-    const Markov_LA::M_Matrix<double>& time_of_each_pulse,
+Pulses_trace::Pulses_trace(const Markov_LA::M_Matrix<double>& time_of_each_pulse,
 			       const Markov_LA::M_Matrix<double>& concentration_of_each_pulse,
 			       double trace_duration,
 			       double frequency_of_sampling,
 			       double time_to_exchange,
 			       double sub_step_time,
 			       double time_to_next_trace):
-    name_(name),
     t_on_M(time_of_each_pulse),
     x_on_M (concentration_of_each_pulse),
     tracedur_d(trace_duration),
@@ -296,9 +294,7 @@ Pulses_trace::Pulses_trace(const std::string& name,
     (*this)[0];
 }
 
-Pulses_trace::Pulses_trace(const std::string& name,
-             std::size_t number_of_concentration_changes):
-    name_(name),
+Pulses_trace::Pulses_trace(std::size_t number_of_concentration_changes):
     t_on_M(Markov_LA::M_Matrix<double>(1,number_of_concentration_changes)),
     x_on_M (Markov_LA::M_Matrix<double>(1,number_of_concentration_changes)),
     tracedur_d(0),
@@ -319,7 +315,6 @@ Pulses_trace::Pulses_trace() {}
 
 
 Pulses_trace::Pulses_trace(const Pulses_trace& other):
-    name_(other.name_),
     t_on_M(other.t_on_M),
     x_on_M (other.x_on_M),
     tracedur_d(other.tracedur_d ),

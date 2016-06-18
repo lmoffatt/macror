@@ -234,8 +234,7 @@ Random_Pulses* Random_Pulses::clone() const
      std::vector<Pulses_trace> traces;
 
 
-     Pulses_trace p0("random_trace",
-		     ton_pulse,
+     Pulses_trace p0(ton_pulse,
 		     x_at_ton,
 		     tracedur_d,
 		     fs_d,

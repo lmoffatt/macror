@@ -31,6 +31,10 @@ namespace Markov_IO_New {
   class ABC_Experiment;
   class Single_Pulses;
 
+  class ABC_trace;
+  class Pulses_trace;
+
+
 
   namespace alternatives
   {
@@ -196,11 +200,33 @@ namespace Markov_IO_New {
       };
 
     template<>
+    struct Helper_Type<ABC_trace*>
+    {
+      using t=Implements_Data_Type_class<ABC_trace*>;
+    };
+
+    template<>
+    struct Helper_Type<Pulses_trace*>
+    {
+      using t=Implements_Data_Type_derived_class
+      <Pulses_trace,ABC_trace>;
+      };
+
+    template<>
     struct Helper_Value<Single_Pulses*>
     {
       using v=Implements_Derived_Value_New
       <Single_Pulses,ABC_Experiment>;
     };
+
+    template<>
+    struct Helper_Value<Pulses_trace*>
+    {
+      using v=Implements_Derived_Value_New
+      <Pulses_trace,ABC_trace>;
+    };
+
+
 
 
 

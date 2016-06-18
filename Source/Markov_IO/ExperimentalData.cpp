@@ -383,8 +383,7 @@ namespace Markov_IO_New
 
 
 
-        Pulses_trace atrace(name,
-                            time_of_each_concentration_change,
+        Pulses_trace atrace(time_of_each_concentration_change,
                             concentration_at_each_time,
                             trace_duration,
                             frequency_of_sampling,
@@ -550,8 +549,7 @@ namespace Markov_IO_New
 
 
 
-        Pulses_trace atrace(name,
-                            time_of_each_concentration_change,
+        Pulses_trace atrace(time_of_each_concentration_change,
                             concentration_at_each_time,
                             trace_duration,
                             frequency_of_sampling,

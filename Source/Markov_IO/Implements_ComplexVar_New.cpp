@@ -868,7 +868,7 @@ namespace Markov_IO_New {
     return id;
   }
 
-  void Real::push_Types(Markov_CommandManagerVar *cm)
+  void Real::push_Types(StructureEnv_New *cm)
   {
     cm->pushType(Cls<double>::name(),new Implements_Data_Type_New<double>(),"real number","a regular real number");
     cm->pushType<types::nonZero>();
@@ -882,12 +882,12 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  void Matrix::push_Types(Markov_CommandManagerVar *cm)
+  void Matrix::push_Types(StructureEnv_New *cm)
   {
     cm->pushType(new vType<T>(cm));
   }
 
-  void Identifier::push_Types(Markov_CommandManagerVar *cm)
+  void Identifier::push_Types(StructureEnv_New *cm)
   {
     cm->pushRegularType<std::string>();
     cm->pushType<Identifier::types::idVar>();
@@ -903,13 +903,13 @@ namespace Markov_IO_New {
 
   }
 
-  void Data::push_Types(Markov_CommandManagerVar *cm)
+  void Data::push_Types(StructureEnv_New *cm)
   {
     cm->pushType<types::data>();
 
   }
 
-  void Variable::push_Types(Markov_CommandManagerVar *cm)
+  void Variable::push_Types(StructureEnv_New *cm)
   {
     cm->pushType<types::varNew>();
     cm->pushType<types::varUsed>();
@@ -917,7 +917,7 @@ namespace Markov_IO_New {
 
   }
 
-  void ComplexVar::push_Types(Markov_CommandManagerVar *cm)
+  void ComplexVar::push_Types(StructureEnv_New *cm)
   {
     cm->pushType<types::Var>();
   }

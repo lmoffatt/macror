@@ -1029,7 +1029,7 @@ namespace Markov_IO_New {
         }
       return std::string::npos;
     }
-    void push_Types(Markov_CommandManagerVar* cm);
+    void push_Types(StructureEnv_New *cm);
 
 
     inline
@@ -1629,6 +1629,13 @@ namespace Markov_IO_New {
           return true;
         else
           return (*comply_)(cm,val,this,whyNot,masterObjective);
+      }
+
+      static void push_Types(StructureEnv_New *cm)
+      {
+         cm->pushType(Cls<T>::name()
+                      ,new Implements_Data_Type_New_regular<T>()
+                      ,Cls<T>::name(),"a regular "+Cls<T>::name());
       }
 
       friend class Real::types;
@@ -3381,7 +3388,16 @@ namespace Markov_IO_New {
 
         }
 
+        static void push_Types(StructureEnv_New *cm)
+        {
+          if (!cm->hasType(myId()))
+             cm->pushType(myId(),varType(),myTip(),myWhatThis());
+        }
+
+
       };
+
+
 
 
       struct Zero
@@ -3500,8 +3516,73 @@ namespace Markov_IO_New {
 
 
 
+      struct greaterThan
+      {
+        typedef  double myC;
+        typedef  Implements_Data_Type_New<myC> vType;
+        static std::string idVar(myC x){return "Real_GT_"+std::to_string(x);}
+        static std::string idType(){return Cls<myC>::name();}
+        static std::string Tip(myC x){return "real number greater than"
+              +std::to_string(x);}
+        static std::string WhatThis() {return "";}
+
+        static bool comply
+        (const StructureEnv_New* cm
+         ,const myC& x
+         ,const vType* v,
+         std::string *WhyNot
+         , const std::string& objective)
+        {
+          myC value;
+          if (!v->getEnv()->getDataValue<typename fields::value>(value,WhyNot,objective))
+            return false;
+
+          if (x-value<std::numeric_limits<double>::epsilon())
+            {
+              *WhyNot=objective+": x="+std::to_string(x)+" has to be greater than "
+                  +std::to_string(value);
+              return false;
+            }
+          else
+            return true;
+        }
+
+        static std::set<std::string> alternativeNext
+        (const StructureEnv_New* cm
+         ,const vType* v )
+        {
+          myC value;
+          if (!v->getEnv()->getDataValue<typename fields::value>(value))
+            return {};
+          else
+            return {"<more than "+std::to_string(value)+">"};
+        }
+
+
+
+        static Implements_Data_Type_New<myC>*
+        varType(myC val)
+        {
+          auto out= new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
+          out->getEnv()->pushVar<typename fields::value>(val);
+          return out;
+        }
+        static Implements_Data_Type_New<myC>*
+        varType(Implements_Data_Type_New<myC>* source,myC val)
+        {
+          source->comply_=&comply;
+          source->alternativesNext_=&alternativeNext;
+          source->getEnv()->pushVar<typename fields::value>(val);
+          return source;
+        }
+
+
+      };
+
+
     };
-    void push_Types(Markov_CommandManagerVar* cm);
+    void push_Types(StructureEnv_New *cm);
 
   };
 
@@ -3694,7 +3775,7 @@ namespace Markov_IO_New {
 
 
     template<typename T>
-    void push_Types(Markov_CommandManagerVar* cm);
+    void push_Types(StructureEnv_New *cm);
   };
 
 
@@ -3734,7 +3815,7 @@ namespace Markov_IO_New {
 
     };
 
-    void push_Types(Markov_CommandManagerVar* cm);
+    void push_Types(StructureEnv_New *cm);
 
   };
 
@@ -3897,7 +3978,7 @@ namespace Markov_IO_New {
 
     };
 
-    void push_Types(Markov_CommandManagerVar* cm);
+    void push_Types(StructureEnv_New *cm);
 
   };
 
@@ -4047,7 +4128,7 @@ namespace Markov_IO_New {
 
 
     };
-    void push_Types(Markov_CommandManagerVar* cm);
+    void push_Types(StructureEnv_New *cm);
 
 
   };
@@ -4982,6 +5063,195 @@ namespace Markov_IO_New {
       getDCV  getDCV_;
          // ABC_Data_New interface
     };
+
+
+
+
+
+
+
+
+
+
+
+    template<typename... Fields>
+    struct FieldSet{
+
+
+    };
+
+
+
+    template<class Field,class C>
+    typename Field::myC getMyField(const C* x);
+
+    template<class Field,class C>
+    bool isFieldMandatory();
+
+
+    template <class myType,typename ... Args>
+     typename myType::myD* map2obj_Impl(const FieldSet<>&,
+        const StructureEnv_New* cm,
+                        const StructureEnv_New* m
+                        ,const Implements_Data_Type_New<typename myType::myD*>* v
+                        ,std::string* WhyNot,
+                        const std::string& masterObjective
+                        ,Args ... restArg)
+    {
+
+        return new typename myType::myD
+            (restArg...);
+
+    }
+
+
+
+
+    template <class myType,typename NextField,typename... Field,typename ... Args>
+     typename myType::myD* map2obj_Impl(const FieldSet<NextField,Field...>&,
+        const StructureEnv_New* cm,
+                        const StructureEnv_New* m
+                        ,const Implements_Data_Type_New<typename myType::myD*>* v
+                        ,std::string* WhyNot,
+                        const std::string& masterObjective
+                        ,Args ... restArg)
+    {
+
+      typename NextField::myC nextArg;
+      if (!m->getDataValue<NextField>
+               ( nextArg,WhyNot,masterObjective))
+        return nullptr;
+      else return map2obj_Impl
+            <myType>
+            (FieldSet<Field...>{}
+             ,cm,m,v,WhyNot,masterObjective,restArg...,nextArg);
+
+    }
+
+
+
+
+
+
+    template <class myType,typename FirstField,typename... Field>
+    typename myType::myD* map2objTempl(const StructureEnv_New* cm,
+                        const StructureEnv_New* m
+                        ,const Implements_Data_Type_New<typename myType::myD*>* v
+                        ,std::string* WhyNot,
+                        const std::string& masterObjective)
+    {
+      typename FirstField::myC firstArg;
+
+      if (!m->getDataValue<FirstField>
+               (firstArg,WhyNot,masterObjective))
+        return nullptr;
+      else
+        return map2obj_Impl<myType>
+            (FieldSet<Field...>{},
+                          cm,m,v,WhyNot,masterObjective,firstArg);
+    }
+
+
+
+
+     template <class myType>
+     StructureEnv_New* obj2map_Imp
+   (const StructureEnv_New* cm,
+    const typename myType::myD* x
+    ,const Implements_Data_Type_New<typename myType::myD*>* v
+    , std::string* WhyNot,
+    const std::string& masterObjective,StructureEnv_New* f)
+   {
+return f;
+   }
+
+
+
+      template <class myType,typename FirstField,typename... Field>
+        StructureEnv_New* obj2map_Imp
+      (const StructureEnv_New* cm,
+       const typename myType::myD* x
+       ,const Implements_Data_Type_New<typename myType::myD*>* v
+       , std::string* WhyNot,
+       const std::string& masterObjective,StructureEnv_New* f)
+      {
+
+        f->pushVar< FirstField>(myType::template get<FirstField>(x));
+        return obj2map_Imp<myType,Field...>(cm,x,v,WhyNot,masterObjective,f);
+
+      }
+
+
+        template <class myType,typename FirstField,typename... Field>
+          StructureEnv_New* obj2mapTempl
+        (const StructureEnv_New* cm,
+         const typename myType::myD* x
+         ,const Implements_Data_Type_New<typename myType::myD*>* v
+         , std::string* WhyNot, const std::string& masterObjective)
+        {
+          auto f=new StructureEnv_New(cm,Cls<typename myType::myD>::name());
+          f->pushVar< FirstField>(myType::template get<FirstField>(x));
+          return obj2map_Imp<myType,Field...>(cm,x,v,WhyNot,masterObjective,f);
+        }
+
+
+
+          template <typename myType>
+            std::vector<std::pair<Implements_Var,bool>> getFields_Imp(std::vector<std::pair<Implements_Var,bool>>& f)
+          {
+            return f;
+          }
+
+
+          template <typename myType,typename FirstField,typename... Field>
+            std::vector<std::pair<Implements_Var,bool>> getFields_Imp(std::vector<std::pair<Implements_Var,bool>>& f)
+          {
+            f.push_back({getMyVar<FirstField>(), myType::template isMandatory<FirstField>()});
+            return getFields_Imp<myType,Field...>(f);
+          }
+
+
+
+      template <typename myType,typename FirstField,typename... Field>
+        std::vector<std::pair<Implements_Var,bool>> getFieldsTempl()
+      {
+        std::vector<std::pair<Implements_Var,bool>> f;
+        f.push_back({getMyVar<FirstField>(),myType::template isMandatory<FirstField>()});
+        return getFields_Imp<myType,Field...>(f);
+      }
+
+        template <typename myType>
+         void push_FieldTypes(StructureEnv_New *cm)
+       {
+        }
+
+
+
+
+
+       template <typename myType,typename FirstField,typename... Field>
+        void push_FieldTypes(StructureEnv_New *cm)
+      {
+         FirstField::vType::push_Types(cm);
+         push_FieldTypes<myType,Field...>(cm);
+      }
+
+
+
+       template <typename myType,typename... Fields>
+        void push_TypesTempl(StructureEnv_New *cm)
+      {
+         cm->pushType
+             (myType::myId()
+              ,myType::varType(cm)
+              ,myType::myTip(),myType::myWhatThis());
+         push_FieldTypes<myType,Fields...>(cm);
+      }
+
+
+
+
+
 
 
 
