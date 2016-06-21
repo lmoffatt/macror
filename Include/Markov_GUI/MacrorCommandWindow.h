@@ -82,7 +82,7 @@ public:
   virtual void erase_from_cursor_forward(std::string s) override;
   virtual void erase_from_cursor_backward(std::string s) override;
 
-  virtual void move_cursor(int n) override;
+  virtual std::__cxx11::string move_cursor(int n) override;
 
   virtual void cleanToEndLine() override;
 
@@ -143,7 +143,7 @@ public:
   virtual bool isLineEnd() const override;
   virtual std::string currentLine() const override;
   virtual char pop_next_char() override;
-  virtual void backErase() override;
+  virtual char backErase() override;
   virtual void putTail(const std::string &text) override;
   virtual std::string getTail() override;
 };

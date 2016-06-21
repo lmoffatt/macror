@@ -78,6 +78,7 @@ namespace Markov_IO_New {
         typedef double elem;
         typedef  ::Markov_LA::M_Matrix<elem> myC;
         typedef Implements_Data_Type_New<myC> vType;
+        typedef FieldSet<num_Tested_Concentrations_Field> dependsOn;
 
         static std::string myId(){return "pulse_concentation_vector_type";}
         static std::string myIdType(){return Cls<myC>::name();}
@@ -92,14 +93,14 @@ namespace Markov_IO_New {
          std::string *WhyNot
          , const std::string& objective)
         {
-            std::size_t numstates;
-            if (!cm->getValueFromId(num_Tested_Concentrations_Field::myId(),numstates,WhyNot,objective))
-              return false;
-            if (!Matrix::Comply::Size<elem>(x,1,numstates,WhyNot,objective))
-              return false;
+          std::size_t numstates;
+          if (!cm->getValueFromId(num_Tested_Concentrations_Field::myId(),numstates,WhyNot,objective))
+            return false;
+          if (!Matrix::Comply::Size<elem>(x,1,numstates,WhyNot,objective))
+            return false;
 
-            return true;
-          }
+          return true;
+        }
 
         static const Implements_Data_Type_New<elem>* elementType
         (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
@@ -193,11 +194,13 @@ namespace Markov_IO_New {
         typedef  double myC;
         typedef Implements_Data_Type_New<myC> vType;
 
+        typedef FieldSet<time_of_pulse_field,control_duration_field> dependsOn;
+
         static std::string myId(){return "trace_duration_type";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "duration of trace";}
         static std::string myWhatThis() {return "it has to be greater than the sum "
-              " of pulse duration and two times the time of pulse";}
+                                                " of pulse duration and two times the time of pulse";}
 
 
         static bool comply
@@ -207,19 +210,20 @@ namespace Markov_IO_New {
          std::string *WhyNot
          , const std::string& objective)
         {
-            double time_of_pulse;
-            double durpul;
-            if (!cm->getValueFromId
-                (time_of_pulse_field::myId(),time_of_pulse,WhyNot,objective))
-              return false;
-            if (!cm->getValueFromId
-                (control_duration_field::myId(),durpul,WhyNot,objective))
-              return false;
-            if (x<2*time_of_pulse+durpul)
-              return false;
+          double time_of_pulse;
+          double durpul;
+          if (cm->getValueFromId
+              (time_of_pulse_field::myId(),time_of_pulse,WhyNot,objective))
+            {
+              if (!cm->getValueFromId
+                  (control_duration_field::myId(),durpul,WhyNot,objective))
+                return false;
+              if (x<2*time_of_pulse+durpul)
+                return false;
+            }
 
-            return true;
-          }
+          return true;
+        }
 
         static std::set<std::string> alternativeNext
         (const StructureEnv_New* cm
@@ -229,14 +233,18 @@ namespace Markov_IO_New {
           double durpul;
           std::string WhyNot;
           auto objective="";
-          if (!cm->getValueFromId
+          if (cm->getValueFromId
               (time_of_pulse_field::myId(),time_of_pulse,&WhyNot,objective))
-            return {};
-          if (!cm->getValueFromId
+         {
+            if (!cm->getValueFromId
               (control_duration_field::myId(),durpul,&WhyNot,objective))
             return {};
 
-          return {std::to_string(2*time_of_pulse+durpul)+"<or greatear>"};
+          return {std::to_string(2*time_of_pulse+durpul)+" <lower limit>"
+                  ,"<a longer time>"};
+            }
+          else
+            return {"<time duration>"};
         }
 
 
@@ -244,8 +252,8 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm
                 ,std::string* whyNot=nullptr,const std::string& masterObjective="")
         {
-              return new Implements_Data_Type_New<myC>
-                  (&comply,&alternativeNext);
+          return new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
         }
 
 
@@ -290,11 +298,13 @@ namespace Markov_IO_New {
         typedef  double myC;
         typedef Implements_Data_Type_New<myC> vType;
 
+        typedef FieldSet<trace_duration_field> dependsOn;
+
         static std::string myId(){return "frequency_of_sampling_type";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "frequency of sampling";}
         static std::string myWhatThis() {return "it has to be greater than the sum "
-              " of pulse duration and two times the time of pulse";}
+                                                " of pulse duration and two times the time of pulse";}
 
 
         static bool comply
@@ -304,15 +314,15 @@ namespace Markov_IO_New {
          std::string *WhyNot
          , const std::string& objective)
         {
-            double tracedur;
-            if (!cm->getValueFromId
-                (trace_duration_field::myId(),tracedur,WhyNot,objective))
-              return false;
-            if (x<3.0/tracedur)
-              return false;
+          double tracedur;
+          if (!cm->getValueFromId
+              (trace_duration_field::myId(),tracedur,WhyNot,objective))
+            return false;
+          if (x<3.0/tracedur)
+            return false;
 
-            return true;
-          }
+          return true;
+        }
 
         static std::set<std::string> alternativeNext
         (const StructureEnv_New* cm
@@ -333,8 +343,8 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm
                 ,std::string* whyNot=nullptr,const std::string& masterObjective="")
         {
-              return new Implements_Data_Type_New<myC>
-                  (&comply,&alternativeNext);
+          return new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
         }
 
 
@@ -365,6 +375,7 @@ namespace Markov_IO_New {
 
         typedef  double myC;
         typedef Implements_Data_Type_New<myC> vType;
+        typedef FieldSet<trace_duration_field> dependsOn;
 
         static std::string myId(){return "time_to_exchange_type";}
         static std::string myIdType(){return Cls<myC>::name();}
@@ -379,16 +390,16 @@ namespace Markov_IO_New {
          std::string *WhyNot
          , const std::string& objective)
         {
-            double tracedur;
-            if (!cm->getValueFromId
-                (trace_duration_field::myId(),tracedur,WhyNot,objective))
-              return false;
-            if (x>tracedur/3.0)
-              return false;
+          double tracedur;
+          if (!cm->getValueFromId
+              (trace_duration_field::myId(),tracedur,WhyNot,objective))
+            return false;
+          if (x>tracedur/3.0)
+            return false;
 
 
-            return true;
-          }
+          return true;
+        }
 
         static std::set<std::string> alternativeNext
         (const StructureEnv_New* cm
@@ -409,8 +420,8 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm
                 ,std::string* whyNot=nullptr,const std::string& masterObjective="")
         {
-              return new Implements_Data_Type_New<myC>
-                  (&comply,&alternativeNext);
+          return new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
         }
 
 
@@ -455,15 +466,15 @@ namespace Markov_IO_New {
          std::string *WhyNot
          , const std::string& objective)
         {
-            double tracedur;
-            if (!cm->getValueFromId
-                (trace_duration_field::myId(),tracedur,WhyNot,objective))
-              return false;
-            if (x>tracedur/3.0)
-              return false;
+          double tracedur;
+          if (!cm->getValueFromId
+              (trace_duration_field::myId(),tracedur,WhyNot,objective))
+            return false;
+          if (x>tracedur/3.0)
+            return false;
 
-            return true;
-          }
+          return true;
+        }
 
         static std::set<std::string> alternativeNext
         (const StructureEnv_New* cm
@@ -484,8 +495,8 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm
                 ,std::string* whyNot=nullptr,const std::string& masterObjective="")
         {
-              return new Implements_Data_Type_New<myC>
-                  (&comply,&alternativeNext);
+          return new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
         }
 
 
@@ -544,7 +555,7 @@ namespace Markov_IO_New {
 
 
           if (!m->getDataValue<num_Tested_Concentrations_Field>
-               (num_Tested_Concentrations,WhyNot,masterObjective))
+              (num_Tested_Concentrations,WhyNot,masterObjective))
             return nullptr;
           else if (!m->getDataValue<time_of_pulse_field>
                    (time_of_pulse,WhyNot,masterObjective))
@@ -578,8 +589,8 @@ namespace Markov_IO_New {
             return nullptr;
           else return new Single_Pulses
               (time_of_pulse,pulse_duration,pulse_concentration_vector
-,control_duration,control_concentration,trace_duration,intertrace_interval,
-              frequency_of_sampling,time_to_exchange,sub_step_time);
+               ,control_duration,control_concentration,trace_duration,intertrace_interval,
+               frequency_of_sampling,time_to_exchange,sub_step_time);
 
         }
 
@@ -649,7 +660,7 @@ namespace Markov_IO_New {
 
 
       };
-/******
+      /******
  *
  *    fields of Pulses_trace
  *
@@ -692,16 +703,16 @@ namespace Markov_IO_New {
          std::string *WhyNot
          , const std::string& objective)
         {
-            std::size_t numstates;
-            if (!cm->getValueFromId
-                (number_of_concentration_changes_Field::myId()
-                 ,numstates,WhyNot,objective))
-              return false;
-            if (!Matrix::Comply::Size<elem>(x,1,numstates,WhyNot,objective))
-              return false;
+          std::size_t numstates;
+          if (!cm->getValueFromId
+              (number_of_concentration_changes_Field::myId()
+               ,numstates,WhyNot,objective))
+            return false;
+          if (!Matrix::Comply::Size<elem>(x,1,numstates,WhyNot,objective))
+            return false;
 
-            return true;
-          }
+          return true;
+        }
 
         static const Implements_Data_Type_New<elem>* elementType
         (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
@@ -794,6 +805,8 @@ namespace Markov_IO_New {
         typedef  ::Markov_LA::M_Matrix<elem> myC;
         typedef Implements_Data_Type_New<myC> vType;
 
+        typedef FieldSet<number_of_concentration_changes_Field> dependsOn;
+
         static std::string myId(){return "concentration_at_each_time_type";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "concentration after each change";}
@@ -807,16 +820,16 @@ namespace Markov_IO_New {
          std::string *WhyNot
          , const std::string& objective)
         {
-            std::size_t numstates;
-            if (!cm->getValueFromId
-                (number_of_concentration_changes_Field::myId()
-                 ,numstates,WhyNot,objective))
-              return false;
-            if (!Matrix::Comply::Size<elem>(x,1,numstates,WhyNot,objective))
-              return false;
+          std::size_t numstates;
+          if (!cm->getValueFromId
+              (number_of_concentration_changes_Field::myId()
+               ,numstates,WhyNot,objective))
+            return false;
+          if (!Matrix::Comply::Size<elem>(x,1,numstates,WhyNot,objective))
+            return false;
 
-            return true;
-          }
+          return true;
+        }
 
         static const Implements_Data_Type_New<elem>* elementType
         (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
@@ -885,7 +898,7 @@ namespace Markov_IO_New {
 
       struct concentration_at_each_time_field
       {
-        typedef  time_of_each_concentration_change_type vType;
+        typedef  concentration_at_each_time_type vType;
         typedef  typename vType::myC   myC;
 
         static std::string myId(){return "concentration_at_each_time";}
@@ -903,6 +916,15 @@ namespace Markov_IO_New {
         typedef ABC_trace myB;
         typedef Pulses_trace myD;
         typedef Implements_Data_Type_derived_class<myD,myB>  vType;
+
+
+        typedef FieldSet<time_of_each_concentration_change_field
+        ,concentration_at_each_time_field
+        ,trace_duration_field
+        ,frequency_of_sampling_field
+        ,time_to_exchange_field
+        ,sub_step_time_field
+        ,intertrace_interval_field>    fieldList;
 
         static std::string myId(){return Cls<myD*>::name();}
         static std::string myIdType(){return Cls<myD*>::name();}
@@ -926,14 +948,14 @@ namespace Markov_IO_New {
                             const std::string& masterObjective)
         {
 
-           return map2objTempl<Pulses_trace_type
-               ,time_of_each_concentration_change_field
-               ,concentration_at_each_time_field
-               ,trace_duration_field
-               ,frequency_of_sampling_field
-               ,time_to_exchange_field
-               ,sub_step_time_field
-               ,intertrace_interval_field>(cm,m,v,WhyNot,masterObjective);
+          return map2objTempl<Pulses_trace_type
+              ,time_of_each_concentration_change_field
+              ,concentration_at_each_time_field
+              ,trace_duration_field
+              ,frequency_of_sampling_field
+              ,time_to_exchange_field
+              ,sub_step_time_field
+              ,intertrace_interval_field>(cm,m,v,WhyNot,masterObjective);
 
         }
 
@@ -993,7 +1015,7 @@ namespace Markov_IO_New {
               ,sub_step_time_field
               ,intertrace_interval_field>(cm);
         }
-       };
+      };
 
       template<>
       inline
@@ -1001,7 +1023,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<number_of_concentration_changes_Field>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->number_of_concentration_changes();
+        return x->number_of_concentration_changes();
       }
 
 
@@ -1011,7 +1033,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<time_of_each_concentration_change_field>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->time_of_each_concentration_change();
+        return x->time_of_each_concentration_change();
       }
 
       template<>
@@ -1020,7 +1042,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<concentration_at_each_time_field>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->concentration_at_each_time();
+        return x->concentration_at_each_time();
       }
 
       template<>
@@ -1029,7 +1051,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<trace_duration_field>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->trace_duration();
+        return x->trace_duration();
       }
 
       template<>
@@ -1038,7 +1060,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<frequency_of_sampling_field>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->frequency_of_sampling();
+        return x->frequency_of_sampling();
       }
       template<>
       inline
@@ -1046,7 +1068,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<time_to_exchange_field>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->time_to_exchange();
+        return x->time_to_exchange();
       }
 
       template<>
@@ -1055,7 +1077,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<sub_step_time_field>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->sub_step_time();
+        return x->sub_step_time();
       }
 
       template<>
@@ -1064,7 +1086,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<time_to_exchange_type>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->time_to_exchange();
+        return x->time_to_exchange();
       }
 
 
@@ -1074,7 +1096,7 @@ namespace Markov_IO_New {
       Pulses_trace_type::get<intertrace_interval_field>
       (const typename Pulses_trace_type::myD* x)
       {
-         return x->time_to_next_trace();
+        return x->time_to_next_trace();
       }
 
 

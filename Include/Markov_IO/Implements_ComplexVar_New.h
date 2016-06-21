@@ -490,6 +490,11 @@ namespace Markov_IO_New {
     std::string WhatThis(const std::string& id) const;
 
 
+    std::size_t numIdVars()const {return idVars_.size();}
+    std::size_t numIdTypes()const {return idTypes_.size();}
+    std::size_t numIdCmds()const {return idCmds_.size();}
+
+
 
 
 

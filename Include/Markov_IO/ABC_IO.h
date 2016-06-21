@@ -366,7 +366,7 @@ namespace Markov_IO_New
     virtual bool isLineEnd()const=0;
     virtual std::string currentLine()const=0;
 
-    virtual void move_cursor(int n)=0;
+    virtual std::string move_cursor(int n)=0;
 
     virtual char pop_next_char()=0;
 
@@ -377,7 +377,7 @@ namespace Markov_IO_New
 
 
 
-    virtual void backErase()=0;
+    virtual char backErase()=0;
 
     virtual void move_end()=0;
     virtual void move_home()=0;

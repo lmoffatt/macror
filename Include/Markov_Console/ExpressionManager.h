@@ -29,7 +29,7 @@ namespace Markov_IO_New {
 
     bool push_back(Markov_CommandManagerVar *cm, ABC_IO * io, const std::string& s, std::string *errorMessage);
 
-    char pop_back_char();
+    char pop_back_char(char c);
 
 
     bool isEmpty()const;
@@ -81,6 +81,7 @@ namespace Markov_IO_New {
     build_Statement  bu_;
     Token_New tok_;
     Key previous_key={};
+    std::string spaceChars_;
     std::string rejectedChars_;
 
   };

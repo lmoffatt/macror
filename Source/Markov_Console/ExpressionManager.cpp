@@ -9,9 +9,9 @@ namespace Markov_IO_New {
   {
     if (!io->isLineBegin())
       {
-        pop_back_char();
-        io->move_cursor(-1);
-      }
+        std::string s=io->move_cursor(-1);
+        pop_back_char(s[0]);
+       }
   }
 
   void ExpressionManager::move_Right(Markov_CommandManagerVar *cm,ABC_IO * io)
@@ -29,8 +29,9 @@ namespace Markov_IO_New {
   {
     if (!io->isLineBegin())
       {
-        pop_back_char();
-        io->backErase();
+          char c=io->backErase();
+
+        pop_back_char(c);
       }
   }  // else "beep?"
 
@@ -66,7 +67,7 @@ namespace Markov_IO_New {
   }
 
 
-  void ExpressionManager::suggestCompletion(Markov_CommandManagerVar* cm,ABC_IO * io)
+  void ExpressionManager:: suggestCompletion(Markov_CommandManagerVar* cm,ABC_IO * io)
   {
     auto n=bu_.alternativesNext();
     std::string s=suggestRest(n.second,tok_);
@@ -112,7 +113,7 @@ namespace Markov_IO_New {
               {
                 auto n=tok_.str().size();
                 std::string s=removeHint(sel).substr(n);
-                push_back(cm,io,s+" ",&err);
+                push_back(cm,io,s,&err);
               }
           }
       }
@@ -209,7 +210,7 @@ namespace Markov_IO_New {
 
       case Key_Tab:
         if (previous_key!=Key_Tab)
-            suggestCompletion(cm,io);
+                suggestCompletion(cm,io);
         else
           suggestAlternatives(cm,io);
         break;
@@ -348,7 +349,7 @@ namespace Markov_IO_New {
 
   }
 
-  char ExpressionManager::pop_back_char()
+  char ExpressionManager::pop_back_char(char c)
   {
     if (isEmpty())
       return {};
@@ -359,11 +360,17 @@ namespace Markov_IO_New {
         return r;
       }
     else if (!tok_.isInitial())
-      return tok_.popLastChar();
+      {
+        if ((c!=' ')||(c==tok_.str().back()))
+        return tok_.popLastChar();
+        else return c;
+      }
     else
       {
         tok_=bu_.popBackToken();
+        if ((c!=' ')||(c==tok_.str().back()))
         return tok_.popLastChar();
+        else return c;
       }
 
   }

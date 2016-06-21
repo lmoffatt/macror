@@ -3,6 +3,7 @@
 
 #include <QLabel>
 #include <QString>
+#include <QSyntaxHighlighter>
 
 #include "Markov_Console/Autocomplete.h"
 #include "Markov_GUI/MacrorCommandWindow.h"
@@ -16,6 +17,7 @@
 #include "Markov_GUI/MyInputDialog.h"
 
 #include "Markov_Mol/QMarkovModel.h"
+
 
 
 #include "Markov_Plot/GraphicPage.h"
@@ -211,19 +213,21 @@ namespace Markov_IO_New {
     repaint();
   }
 
-  void MacrorCommandWindow::move_cursor(int n)
+  std::string MacrorCommandWindow::move_cursor(int n)
   {
+
 
     if (n>0)
       {
-        for (int i=0; i<n; ++i)
-          moveCursor(QTextCursor::Right,QTextCursor::MoveAnchor);
+          textCursor().movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,n);
       }
     else
       {
-        for (int i=0; i<-n; ++i)
-          moveCursor(QTextCursor::Left,QTextCursor::MoveAnchor);
+          textCursor().movePosition(QTextCursor::Left,QTextCursor::KeepAnchor,-n);
       }
+    QString out=textCursor().selectedText();
+    textCursor().clearSelection();
+    return out.toStdString();
     repaint();
   }
 
@@ -244,8 +248,14 @@ namespace Markov_IO_New {
   bool MacrorCommandWindow::isLineBegin() const
   {
     auto pos= textCursor().positionInBlock();
-    return pos==cm_->getProgram().spacer().size();
-
+    if (pos==cm_->getProgram().spacer().size())
+      {
+        auto c=textCursor();
+        c.movePosition(QTextCursor::Left,QTextCursor::KeepAnchor,pos);
+        auto t=c.selectedText();
+        return cm_->getProgram().spacer()==t.toStdString();
+      }
+    else return false;
   }
 
 
@@ -284,20 +294,28 @@ namespace Markov_IO_New {
   /// put a string to the output source
   void MacrorCommandWindow::put(const std::string& s)
   {
+    QString qs(s.c_str());
+    QTextCharFormat myClassFormat;
+    //    myClassFormat.setFontWeight(QFont::Black);
+        myClassFormat.setForeground(Qt::black);
+   // qs.replace('\n',"<br>");
+  //  qs.prepend("<font color=\"Black\">").append("</font>");
+    //std::size_t n=qs.size();
+        auto c=textCursor();
+
+
     if (s.find_first_not_of(" ")==s.npos)
+
       {
-        textCursor().insertText(s.c_str());
+        c.insertText(s.c_str(),myClassFormat);
 
       }
     else
       {
-        QString qs(s.c_str());
-        qs.replace('\n',"<br>");
-        qs.prepend("<font color=\"Black\">").append("</font>");
-        //std::size_t n=qs.size();
-        textCursor().insertHtml(qs);
+        c.insertText(qs,myClassFormat);
         //move_cursor(n);
       }
+    setTextCursor(c);
     repaint();
   }
 
@@ -308,14 +326,15 @@ namespace Markov_IO_New {
   /// put a string to the output source
   void MacrorCommandWindow::putError(const std::string& s)
   {
-    auto c=textCursor();
     QString qs(s.c_str());
-    qs.replace('\n',"<br>");
 
     //std::size_t n=qs.size();
-    textCursor().insertHtml("<font color=\"Red\">"+qs+"</font>");
+    QTextCharFormat myClassFormat;
+    //    myClassFormat.setFontWeight(QFont::Black);
+        myClassFormat.setForeground(Qt::red);
+
+    textCursor().insertText(qs,myClassFormat);
     //move_cursor(n);
-    setTextCursor(c);
     repaint();
   }
 
@@ -408,7 +427,7 @@ namespace Markov_IO_New {
 
   }
 
-  void MacrorCommandWindow::backErase()
+  char MacrorCommandWindow::backErase()
   {
     if (!isLineEnd())
       {
@@ -417,8 +436,15 @@ namespace Markov_IO_New {
         c.removeSelectedText();
         setTextCursor(c);
       }
-    textCursor().deletePreviousChar();
+    auto c=textCursor();
+
+    c.movePosition(QTextCursor::Left,QTextCursor::KeepAnchor);
+    auto out=c.selectedText();
+    c.removeSelectedText();
+    setTextCursor(c);
+
     repaint();
+    return out.toStdString()[0];
   }
 
   void MacrorCommandWindow::putTail(const std::string &text)

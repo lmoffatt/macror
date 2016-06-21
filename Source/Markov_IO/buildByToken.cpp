@@ -109,8 +109,8 @@ namespace Markov_IO_New {
       case S_Init:
         if (idtypeB_->pushToken(tok,whyNot,objective))
           {
-            auto idTypeS=idtypeB_->unloadVar();
-            valueType_=parent()->idToType(idTypeS,whyNot,objective);
+            idString_=idtypeB_->unloadVar();
+            valueType_=parent()->idToType(idString_,whyNot,objective);
             if (valueType_==nullptr)
               return false;
             else
@@ -187,6 +187,46 @@ namespace Markov_IO_New {
         return false;
       }
   }
+
+
+  Token_New buildByToken<ABC_Data_New *>::popBackToken()
+
+  {
+    switch (mystate)
+      {
+      case S_Init:
+        return {};
+      case S_ID_Final:
+        {
+          idtypeB_->unPop(idString_);
+          Token_New out=idtypeB_->popBackToken();
+          mystate=S_Init;
+          return out;
+        }
+      case S_DATA_PARTIAL:
+        if (valueB_->isInitial())
+          {
+            mystate=S_ID_Final;
+            return Token_New(Token_New::ASSIGN);
+          }
+        else
+          return valueB_->popBackToken();
+      case  S_Data_Final:
+        {
+          Token_New out=valueB_->popBackToken();
+          mystate=S_DATA_PARTIAL;
+          return out;
+        }
+      case  S_Final:
+        {
+          valueB_->unpopData(data_.release());
+          classx_.reset();
+          mystate=S_Data_Final;
+          return Token_New(Token_New::EOL);
+        }
+      }
+  }
+
 
 
   std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > buildByToken<ABC_Data_New *>::alternativesNext() const
@@ -386,6 +426,81 @@ namespace Markov_IO_New {
 
 
 
+  Token_New buildByToken<Implements_Var>::popBackToken()
+  {
+    switch (mystate) {
+      case S_Init: return {};
+      case  TIP1:
+        mystate= S_Init;
+        return Token_New(Token_New::HASH);
+      case  TIP2:
+        {
+          Token_New out(""""+std::move(iv_.Tip)+"""");
+          iv_.Tip.clear();
+          mystate =TIP1;
+          return out;
+        }
+
+      case WT0_ID0:
+        mystate =TIP2;
+        return Token_New(Token_New::EOL);
+      case WT1:
+        mystate =WT0_ID0;
+        return Token_New(Token_New::HASH);
+      case WT2:
+        mystate =WT1;
+        return Token_New(Token_New::HASH);
+
+      case WT3:
+        {
+          Token_New out(""""+std::move(iv_.WhatThis)+"""");
+          iv_.WhatThis.clear();
+          mystate =WT2;
+          return out;
+        }
+
+      case ID1:
+        {
+          idB_->unPop(std::move(iv_.id));
+          iv_.id={};
+          if (!iv_.WhatThis.empty())
+            mystate=ID0;
+          else if(!iv_.Tip.empty())
+            mystate=WT0_ID0;
+          else
+            mystate=S_Init;
+          return idB_->popBackToken();
+        }
+      case ID2:
+        mystate =ID1;
+        return Token_New(Token_New::COLON);
+      case ID0:
+        mystate =WT3;
+        return Token_New(Token_New::EOL);
+      case  S_DATA_PARTIAL:
+        {
+          Token_New out=dataB_->popBackToken();
+          if (dataB_->isInitial())
+            mystate=ID2;
+          else
+            mystate=S_DATA_PARTIAL;
+          return out;
+        }
+      case S_Final:
+        {
+          dataB_->unpopData(iv_.data);
+          iv_.data={};
+          Token_New out=dataB_->popBackToken();
+          if (dataB_->isInitial())
+            mystate=ID2;
+          else
+            mystate=S_DATA_PARTIAL;
+          return out;
+
+        }
+      }
+  }
+
 
 
   void buildByToken<Implements_Var>::reset_Type(Implements_Data_Type_New<Implements_Var> *ivTy)
@@ -500,7 +615,7 @@ namespace Markov_IO_New {
       case S_All:
         if (tok.tok()==Token_New::RCB)
           {
-              mystate=S_Final;
+            mystate=S_Final;
             return true;
           }
         else
@@ -575,6 +690,7 @@ namespace Markov_IO_New {
       case S_Header_Final:
         mystate=S_Header2;
         return Token_New(Token_New::LCB);
+      case S_Mandatory:
       case S_Data_Separator_Final:
         if (StEnv_->empty())
           {
@@ -593,20 +709,50 @@ namespace Markov_IO_New {
             ivBuild_->unPop(iv_);
             mystate=S_Data_Partial;
             return ivBuild_->popBackToken();
+
           }
       case S_Data_Partial:
         out= ivBuild_->popBackToken();
-        if (ivBuild_->isInitial())
-          mystate=S_Data_Separator_Final;
-        else
+        if (! ivBuild_->isInitial())
           mystate=S_Data_Partial;
+        else  if (varMapType_->hasMandatoryFields
+                  (parent(),StEnv_))
+          mystate=S_Mandatory;
+        else
+          mystate=S_Data_Separator_Final;
         return out;
+      case S_All:
+        {
+          iv_=StEnv_->popVar();
+          std::string whyNot;
+          ivType_=varMapType_->getElementType
+              (parent(),StEnv_,iField_,&whyNot,"",ivType_);
+          ivBuild_->reset_Type(ivType_);
+          ivBuild_->unPop(iv_);
+          mystate=S_Data_Partial;
+          return ivBuild_->popBackToken();
+        }
       case S_Final:
-        mystate=S_Data_Separator_Final;
+        if (varMapType_->hasAllFields
+            (parent(),StEnv_))
+          mystate=S_All;
+        else
+          mystate=S_Mandatory;
         return Token_New(Token_New::RCB);
+
       }
   }
 
+
+
+  bool buildByToken<StructureEnv_New *>::unpopData(ABC_Data_New *data)
+  {
+    auto cm=dynamic_cast<StructureEnv_New*>(data);
+    if (cm!=nullptr)
+      return unPop(cm);
+    else
+      return false;
+  }
 
 
   void buildByToken<StructureEnv_New *>::reset_Type(const Implements_Data_Type_New<StructureEnv_New *> *typeVar)
@@ -638,6 +784,17 @@ namespace Markov_IO_New {
     else return nullptr;
   }
 
+
+
+  bool buildByToken<StructureEnv_New *>::unPop(StructureEnv_New *var)
+  {
+    StEnv_=var;
+    mystate=S_Final;
+    iField_=var->numIdVars();
+    return true;
+
+
+  }
 
   build_Command_Input::build_Command_Input(
       const StructureEnv_New *cm,
@@ -702,6 +859,7 @@ namespace Markov_IO_New {
           {
             iv_=ivB_->unloadVar();
             cmdArg_->pushVar(iv_);
+            ++iArg_;
             if (cmdty_->hasAllFields(parent(),cmdArg_))
               {
                 mystate=S_Input_Final;
@@ -744,6 +902,60 @@ namespace Markov_IO_New {
   }
 
 
+  Token_New build_Command_Input::popBackToken()
+  {
+
+    switch(mystate)
+      {
+      case S_Init: return {};
+      case S_Argument_Partial:
+        {
+
+          Token_New out=ivB_->popBackToken();
+          if (!ivB_->isInitial())
+            mystate=S_Argument_Partial;
+          else if (cmdty_->hasMandatoryFields(parent(),cmdArg_))
+            mystate=S_Mandatory_Final;
+          else
+            mystate=S_Input_Partial;
+          return out;
+        }
+      case S_Input_Final:
+      case S_Mandatory_Final:
+      case S_Input_Partial:
+        {
+          std::string whyNot;
+          iv_= cmdArg_->popVar();
+          --iArg_;
+          ivType_=cmdty_->getElementType
+              (parent(),cmdArg_,iArg_,&whyNot,"masterObjective",ivType_);
+          ivB_->reset_Type(ivType_);
+          ivB_->unPop(iv_);
+          Token_New out=ivB_->popBackToken();
+          if (!ivB_->isInitial())
+            mystate=S_Argument_Partial;
+          else if (iArg_==0)
+            mystate=S_Init;
+          else if (cmdty_->hasMandatoryFields(parent(),cmdArg_))
+            mystate=S_Mandatory_Final;
+          else
+            mystate=S_Input_Partial;
+          return out;
+
+        }
+      case S_Final:
+        if (cmdty_->hasAllFields(parent(),cmdArg_))
+            mystate=S_Input_Final;
+          else if (cmdty_->hasMandatoryFields(parent(),cmdArg_))
+          mystate=S_Mandatory_Final;
+        else
+          mystate=S_Input_Partial;
+        return Token_New(Token_New::EOL);
+
+      }
+  }
+
+
 
 
   std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > build_Command_Input::alternativesNext() const
@@ -769,6 +981,7 @@ namespace Markov_IO_New {
       }
 
   }
+
 
 
 
@@ -804,6 +1017,7 @@ namespace Markov_IO_New {
 
   }
 
+
   bool build_Statement::pushToken
   (Token_New t
    , std::__cxx11::string *whyNot
@@ -818,15 +1032,15 @@ namespace Markov_IO_New {
           {
             if (idCmd_->isFinal())
               {
-                std::string idC=idCmd_->unloadVar();
+                idC_=idCmd_->unloadVar();
                 std::string whynot;
-                cmdTy_=parent()->idToCommand(idC,&whynot,"");
+                cmdTy_=parent()->idToCommand(idC_,&whynot,"");
 
                 c_=new build_Command_Input(parent(),cmdTy_);
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
-                    mystate=S_Command_Final;
+                    mystate=S_Command_PreFinal;
                   }
                 else
                   mystate=S_Command_Partial;
@@ -858,14 +1072,14 @@ namespace Markov_IO_New {
           {
             if (idCmd_->isFinal())
               {
-                std::string idC=idCmd_->unloadVar();
+                idC_=idCmd_->unloadVar();
                 std::string whynot;
-                cmdTy_=parent()->idToCommand(idC,&whynot,"");
+                cmdTy_=parent()->idToCommand(idC_,&whynot,"");
                 c_->reset_Type(cmdTy_);
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
-                    mystate=S_Command_Final;
+                    mystate=S_Command_PreFinal;
                   }
                 else
                   mystate=S_Command_Partial;
@@ -891,7 +1105,7 @@ namespace Markov_IO_New {
             if (c_->isFinal())
               {
                 cmv_=c_->unloadVar();
-                mystate=S_Command_Final;
+                mystate=S_Command_PreFinal;
               }
             else
               mystate=S_Command_Partial;
@@ -906,24 +1120,99 @@ namespace Markov_IO_New {
           {
             if (v_->isFinal())
               {
-                mystate=S_Expression_Final;
+                mystate=S_Expression_PreFinal;
                 x_=v_->unloadVar();
               }
             else
               mystate=S_Expression_Partial;
             return true;
           }
-      case S_Command_Final:
-      case S_Expression_Final:
+      case S_Command_PreFinal:
         if (t.tok()==Token_New::EOL)
-          return true;
+          {
+            mystate=S_Command_Final;
+            return true;
+          }
         else
           {
             *whyNot=objective+": unknown command or variable";
             return false;
           }
+      case S_Expression_PreFinal:
+        if (t.tok()==Token_New::EOL)
+          {
+            mystate=S_Expression_Final;
+            return true;
+          }
+        else
+          {
+            *whyNot=objective+": unknown command or variable";
+            return false;
+          }
+      case S_Command_Final:
+      case S_Expression_Final:
+        return false;
       }
 
+  }
+
+
+
+  Token_New build_Statement::popBackToken()
+  {
+    switch (mystate)
+      {
+      case S_Init: return {};
+      case S_Command_Id_Partial:
+        {
+          Token_New out=idCmd_->popBackToken();
+          if (idCmd_->isInitial())
+            mystate=S_Init;
+          else
+            mystate=S_Command_Id_Partial;
+          return out;
+
+        }
+      case S_Command_PreFinal:
+        c_->unPop(cmv_);
+      case S_Command_Partial:
+        if (c_->isInitial())
+          {
+            idCmd_->unPop(idC_);
+            Token_New out=idCmd_->popBackToken();
+            if (idCmd_->isInitial())
+              mystate=S_Init;
+            else
+              mystate=S_Command_Id_Partial;
+            return out;
+          }
+        else
+          {
+            return c_->popBackToken();
+
+          }
+
+      case S_Expression_PreFinal:
+        v_->unPop(x_);
+
+      case S_Expression_Partial:
+        {
+          Token_New out =v_->popBackToken();
+          if (v_->isInitial())
+            mystate=S_Init;
+          else
+            mystate=S_Expression_Partial;
+          return out;
+        }
+
+      case S_Expression_Final:
+        mystate=S_Expression_PreFinal;
+        return Token_New(Token_New::EOL);
+      case S_Command_Final:
+        mystate=S_Command_PreFinal;
+        return Token_New(Token_New::EOL);
+
+      }
   }
 
 
@@ -1155,11 +1444,17 @@ namespace Markov_IO_New {
     idB_(new buildByToken<std::string>(parent,idType_)),dataB_(new buildByToken<ABC_Data_New*>(parent,dataTy_)),iv_()
 
   {
-    
+
   }
 
 
-  
+
+
+
+
+
+
+
 
 
 
@@ -1183,30 +1478,30 @@ namespace Markov_IO_New_Test{
   void test()
   {
     /*
-    StructureEnv_New* cm(nullptr,"cm","cm","","");
-    Implements_Data_Type_New<std::set<double>> dset(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr);
+             StructureEnv_New* cm(nullptr,"cm","cm","","");
+             Implements_Data_Type_New<std::set<double>> dset(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr);
 
-    Implements_Data_Type_New<std::vector<double>> dv(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr);
+             Implements_Data_Type_New<std::vector<double>> dv(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr);
 
-    Implements_Data_Type_New<Markov_LA::M_Matrix<double>> dmt(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr,nullptr,nullptr,false,false);
-
-
-    Implements_Data_Type_New<std::pair<std::string,double>> dp(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","","",nullptr,nullptr,nullptr,nullptr,{});
-
-    Implements_Data_Type_New<std::map<std::string,double>> dm(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","","",nullptr,nullptr,nullptr,nullptr,{},nullptr,nullptr);
+             Implements_Data_Type_New<Markov_LA::M_Matrix<double>> dmt(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","",nullptr,nullptr,nullptr,{},nullptr,nullptr,nullptr,nullptr,false,false);
 
 
+             Implements_Data_Type_New<std::pair<std::string,double>> dp(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","","",nullptr,nullptr,nullptr,nullptr,{});
 
-    buildByToken<std::set<double>> b(&cm,&dset);
-    std::string whynot;
-    b.pushToken(Token_New('{'), &whynot," const std::string& masterObjective");
-    buildByToken<std::pair<std::string,double>> pp(&cm,&dp);
-    buildByToken<std::map<std::string,double>> pm(&cm,&dm);
+             Implements_Data_Type_New<std::map<std::string,double>> dm(&cm,"set_double",Implements_Data_Type_New<std::set<double>>::ClassName(),"","","","",nullptr,nullptr,nullptr,nullptr,{},nullptr,nullptr);
 
-    buildByToken<std::vector<double>> v(&cm,&dv);
 
-    buildByToken<Markov_LA::M_Matrix<double>> mat(&cm,&dmt);
-*/
+
+             buildByToken<std::set<double>> b(&cm,&dset);
+             std::string whynot;
+             b.pushToken(Token_New('{'), &whynot," const std::string& masterObjective");
+             buildByToken<std::pair<std::string,double>> pp(&cm,&dp);
+             buildByToken<std::map<std::string,double>> pm(&cm,&dm);
+
+             buildByToken<std::vector<double>> v(&cm,&dv);
+
+             buildByToken<Markov_LA::M_Matrix<double>> mat(&cm,&dmt);
+         */
   }
 
 

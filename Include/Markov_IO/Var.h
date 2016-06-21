@@ -352,6 +352,14 @@ namespace Markov_IO_New {
       return value_;
     }
 
+    virtual T unloadValue()
+    {
+      T out=std::move(value_);
+      value_={};
+      empty_=true;
+      return out;
+    }
+
     virtual Implements_Base_Value_New<T>* clone()const
     {
       return new Implements_Base_Value_New<T>(*this);
@@ -397,6 +405,8 @@ namespace Markov_IO_New {
       empty_=true;
     }
 
+
+
     virtual Implements_Base_Value_New<T>* create() const override
     {
       return new Implements_Base_Value_New();
@@ -428,6 +438,14 @@ namespace Markov_IO_New {
     virtual const T* getValue()const
     {
       return value_;
+    }
+
+    virtual T* unloadValue()
+    {
+      T* out=std::move(value_);
+      value_={};
+      empty_=true;
+      return out;
     }
 
     virtual Implements_Base_Value_New<T*>* clone()const
@@ -506,6 +524,14 @@ namespace Markov_IO_New {
     virtual const D* getValue()const override
     {
       return value_;
+    }
+
+    virtual D* unloadValue() override
+    {
+      D* out=std::move(value_);
+      value_={};
+      baseType::empty_=true;
+      return out;
     }
 
     virtual Implements_Derived_Value_New<D,B>* clone()const
