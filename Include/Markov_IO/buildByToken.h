@@ -8,7 +8,6 @@
 #include "Markov_LA/Matrix.h"
 #include "Markov_IO/Var.h"
 
-
 #include <string>
 #include <set>
 #include <map>
@@ -1637,11 +1636,7 @@ namespace Markov_IO_New {
         buildByToken(const StructureEnv_New* parent,
                      const Implements_Data_Type_New<ABC_Data_New *> *varType);
 
-        void clear()override
-        {
-            mystate=S_Init;
-
-        }
+        void clear()override;
 
         virtual ABC_Data_New* unloadData()override
         {
@@ -1745,11 +1740,7 @@ namespace Markov_IO_New {
 
 
 
-        void clear()override
-        {
-            mystate=S_Init;
-
-        }
+        void clear()override;
 
 
         virtual void reset_Type(Implements_Data_Type_New<Implements_Var> *ivTy);
@@ -2035,12 +2026,10 @@ namespace Markov_IO_New {
             S_Init,
             S_Command_Id_Partial,
             S_Command_Partial,
-            S_Command_PreFinal,
-            S_Expression_Partial,
-            S_Expression_PreFinal,
             S_Command_Final,
-            S_Expression_Final
-        } ;
+            S_Expression_Partial,
+            S_Expression_Final,
+            } ;
 
 
         build_Statement(Markov_CommandManagerVar *p);
@@ -2087,15 +2076,13 @@ namespace Markov_IO_New {
         bool isCommand()const
         {
             return mystate==S_Command_Final
-                    || mystate==S_Command_PreFinal
+                    || mystate==S_Command_Final
                     || mystate==S_Command_Partial;
         }
         bool isVar()const
         {
-            return mystate==S_Expression_PreFinal
-                    || mystate==S_Expression_Partial
-                    || mystate==S_Expression_Final
-                    ;
+            return mystate==S_Expression_Final
+                    || mystate==S_Expression_Partial;
 
         }
 
@@ -2125,8 +2112,8 @@ namespace Markov_IO_New {
 
         bool isFinal()const override
         {
-            return mystate==S_Expression_PreFinal
-                    || mystate==S_Command_PreFinal;
+            return mystate==S_Expression_Final
+                    || mystate==S_Command_Final;
 
         }
 
@@ -2172,9 +2159,6 @@ namespace Markov_IO_New {
                     return c_->alternativesNext();
                 case S_Expression_Partial:
                     return v_->alternativesNext();
-                case S_Command_PreFinal:
-                case S_Expression_PreFinal:
-                    return {"ClassNamr()",{alternatives::endOfLine()}};
                 case S_Command_Final:
                 case S_Expression_Final:
                     return {};

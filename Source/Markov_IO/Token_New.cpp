@@ -604,7 +604,7 @@ namespace Markov_IO_New {
       {
         return (tok()==REAL)||(tok()==INTEGER)||(tok()==UNSIGNED);
         *whyNot=masterObjective+": Not a real number";
-        }
+      }
   }
 
   bool Token_New::isInteger(std::string *whyNot, const std::string& masterObjective) const
@@ -665,7 +665,7 @@ namespace Markov_IO_New {
 
             }
           else return true;
-           }
+        }
       else
         {
           *whyNot=objective+" is not a number";
@@ -680,7 +680,7 @@ namespace Markov_IO_New {
   {
     if (identifier.empty())
       return EMPTY;
-    if (identifier.back()==' ')
+    while (identifier.back()==' ')
       identifier.pop_back();
     if ((identifier.front()=='"')||(identifier==".."))
       return STRING;
@@ -885,16 +885,36 @@ namespace Markov_IO_New {
     curr_tok=toKeyword(str_);
     if (curr_tok==EMPTY)
       myState_=S_Init;
+    else if (str_.back()==' ')
+      {
+        if ((*----str_.end()==' ')||(!canBePartial(curr_tok)))
+          myState_=S_PostFinal;
+        else
+          myState_=S_Final;
+      }
     else if (!canBePartial(curr_tok))
       myState_=S_Final;
     else
       myState_=S_Partial;
+
     return r;
   }
+
+
+
   bool Token_New::CharIsSuccesfullyFeed(char ch)
   {
-    if (myState_==S_Final)
-      return false;
+    if ((myState_==S_Final)||(myState_==S_PostFinal))
+      {
+        if (ch==' '|| ch=='\t')
+          {
+            str_.push_back(ch);
+            myState_=S_PostFinal;
+            return true;
+          }
+        else
+          return false;
+      }
     else if (myState_==S_Init)
       {
         curr_tok=toToken(ch);
@@ -904,7 +924,7 @@ namespace Markov_IO_New {
           }
         else if (curr_tok==EMPTY)
           {
-            return true;
+            return false;
           }
         else
           {
@@ -920,7 +940,13 @@ namespace Markov_IO_New {
       {
         myState_=S_Final;  // there is a logical error if we ever get here, since
         // myState could not be S_Partial to begin with
-        return false;
+        if (ch==' '|| ch=='\t')
+          {
+            str_.push_back(ch);
+            return true;
+          }
+        else
+          return false;
       }
     else
       switch (curr_tok) {
@@ -935,7 +961,13 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case ASSIGN:
           if (ch=='=')
@@ -948,7 +980,13 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case NOT:
           if (ch=='=')
@@ -962,7 +1000,13 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
 
         case LSS:
@@ -976,7 +1020,13 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
 
         case GTR:
@@ -990,7 +1040,13 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case DOT:
           if (ch=='.')
@@ -1003,7 +1059,13 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case MINUS:
           if (isdigit(ch))
@@ -1016,7 +1078,13 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case UNSIGNED:
           if (isdigit(ch))
@@ -1040,7 +1108,13 @@ namespace Markov_IO_New {
                 curr_tok=INVALID;
               }
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case REAL:
           if (isdigit(ch)||ch=='E'||ch=='e'||ch=='.'
@@ -1058,7 +1132,13 @@ namespace Markov_IO_New {
                 curr_tok=INVALID;
               }
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case INTEGER:
           if (isdigit(ch))
@@ -1082,7 +1162,13 @@ namespace Markov_IO_New {
                 curr_tok=INVALID;
               }
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case STRING:
           if ((str_.size()==1)||(str_.back()!='"'))
@@ -1094,7 +1180,13 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              return false;
+              if (ch==' '|| ch=='\t')
+                {
+                  str_.push_back(ch);
+                  return true;
+                }
+              else
+                return false;
             }
         case IDENTIFIER:
           if (isNameChar(ch))
@@ -1106,7 +1198,7 @@ namespace Markov_IO_New {
           else
             {
               myState_=S_Final;
-              if (isSpaceChar(ch))
+              if (ch==' '|| ch=='\t')
                 {
                   str_.push_back(ch);
                   return true;

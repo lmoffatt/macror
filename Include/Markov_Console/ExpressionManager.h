@@ -29,11 +29,13 @@ namespace Markov_IO_New {
 
     bool push_back(Markov_CommandManagerVar *cm, ABC_IO * io, const std::string& s, std::string *errorMessage);
 
-    char pop_back_char(char c);
+    char pop_back_char();
 
 
     bool isEmpty()const;
     bool isFinal()const;
+
+    void clear();
 
 
     // talking with internal representations: token and frame around var
@@ -80,10 +82,10 @@ namespace Markov_IO_New {
   private:
     build_Statement  bu_;
     Token_New tok_;
+    std::vector<Token_New> tokVec_;
     Key previous_key={};
-    std::string spaceChars_;
     std::string rejectedChars_;
-
+    std::string errorMessage_;
   };
 
 

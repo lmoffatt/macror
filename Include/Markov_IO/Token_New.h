@@ -145,7 +145,7 @@ namespace Markov_IO_New {
     friend class Token_Stream;
 
     enum DAF{
-      S_Init, S_Partial, S_Final
+      S_Init, S_Partial, S_Final, S_PostFinal
     };
 
 
@@ -154,6 +154,7 @@ namespace Markov_IO_New {
     bool pushChar(char c);
 
     char popLastChar();
+
 
     bool CharIsSuccesfullyFeed(char ch);
 

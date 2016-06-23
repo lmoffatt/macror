@@ -67,6 +67,18 @@ namespace Markov_IO_New {
       }
   }
 
+  inline
+  std::set<std::string> removeHint(const std::set<std::string>& alter)
+  {
+    std::set<std::string> out;
+    for (auto& e:alter)
+      {
+        std::string r=removeHint(e);
+        if(! r.empty())
+          out.insert(r);
+      }
+    return out;
+  }
 
 
   namespace _private

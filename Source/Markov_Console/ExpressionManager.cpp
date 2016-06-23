@@ -10,8 +10,8 @@ namespace Markov_IO_New {
     if (!io->isLineBegin())
       {
         std::string s=io->move_cursor(-1);
-        pop_back_char(s[0]);
-       }
+        pop_back_char();
+      }
   }
 
   void ExpressionManager::move_Right(Markov_CommandManagerVar *cm,ABC_IO * io)
@@ -29,9 +29,8 @@ namespace Markov_IO_New {
   {
     if (!io->isLineBegin())
       {
-          char c=io->backErase();
-
-        pop_back_char(c);
+        char c=io->backErase();
+        pop_back_char();
       }
   }  // else "beep?"
 
@@ -43,7 +42,9 @@ namespace Markov_IO_New {
       {
         while ((tok_.tok()!=Token_New::EOL)&&(!bu_.isInitial()))
           {
-            tok_=bu_.popBackToken();
+            bu_.popBackToken();
+            tok_=tokVec_.back();
+            tokVec_.pop_back();
           }
 
       }
@@ -100,9 +101,14 @@ namespace Markov_IO_New {
             std::string s=removeHint(sel).substr(n);
             bool ok;
             if (s.empty())
-              io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
-            std::string err;
-            push_back(cm,io,s+" ",&err);
+              {
+                io->getItemFromList(pos.first,{pos.second.begin(),pos.second.end()},ok,0);
+              }
+            else
+              {
+                std::string err;
+                push_back(cm,io,s,&err);
+              }
           }
         else
           {
@@ -127,13 +133,19 @@ namespace Markov_IO_New {
 
     std::string t=io->getTail();
     io->cleanToEndLine();
-    std::string errorMessage;
-    if (!push_back(cm,io,t,&errorMessage))
-      io->showMessage(errorMessage);
+    std::string errorTail;
+    if (!push_back(cm,io,t,&errorTail))
+      io->showMessage(errorTail);
 
-    if (!push_back(cm,io,'\n',&errorMessage))
-      io->showMessage(errorMessage);
-    if (bu_.isFinal())
+    if (!push_back(cm,io,'\n',&errorMessage_))
+      {
+
+      io->putError(errorTail+errorMessage_);
+      clear();
+      io->freshLine();
+
+      }
+    else  if (bu_.isFinal())
       {
         if (bu_.isCommand())
           {
@@ -144,18 +156,11 @@ namespace Markov_IO_New {
           {
             cm->pushVar(bu_.unloadVar());
           }
-        bu_.clear();
+        clear();
         io->freshLine();
 
       }
-    else if (!errorMessage.empty())
-      {
-        // io->putNewLine();
-        // io->putError(errorMessage);
-      }
-    tok_.clear();
-    rejectedChars_.clear();
-  }
+   }
 
 
 
@@ -178,7 +183,7 @@ namespace Markov_IO_New {
 
 
   ExpressionManager::ExpressionManager(Markov_CommandManagerVar *cm):
-    bu_(cm),tok_{},previous_key(),rejectedChars_()
+    bu_(cm),tok_{},tokVec_{},previous_key(),rejectedChars_(),errorMessage_()
   {}
 
   void ExpressionManager::KeyEvent(Markov_CommandManagerVar *cm
@@ -210,7 +215,7 @@ namespace Markov_IO_New {
 
       case Key_Tab:
         if (previous_key!=Key_Tab)
-                suggestCompletion(cm,io);
+          suggestCompletion(cm,io);
         else
           suggestAlternatives(cm,io);
         break;
@@ -251,16 +256,13 @@ namespace Markov_IO_New {
                 rejectedChars_=tok_.str();
                 tok_.clear();
                 io->erase_from_cursor_backward(rejectedChars_);
-                if (c!='\n')
-                  {
-                    rejectedChars_.push_back(c);
-                    // write error, wrong token as tail
-                  }
+                rejectedChars_.push_back(c);
                 io->putError(rejectedChars_);
                 return false;
               }
             else
               {
+                tokVec_.push_back(tok_);
                 tok_.clear();
                 if (!tok_.CharIsSuccesfullyFeed(c))     // this means it is an invalid char
                   // an empty token always accept
@@ -281,11 +283,11 @@ namespace Markov_IO_New {
                         rejectedChars_.push_back(c);
 
                         return false;
-                        //  io->putError(c);  // write error, wrong token as tail
                       }
                     else                               // token accepted
                       {
                         io->put(c);
+                        tokVec_.push_back(tok_);
                         tok_.clear();
                         return true;
                       }
@@ -298,7 +300,24 @@ namespace Markov_IO_New {
               }
           }
 
-        else                  // the given char is invalid, the token is still being filled
+        else if ((tok_.tok()==Token_New::EMPTY)&&(c==' '))
+          {
+             if (tokVec_.back().CharIsSuccesfullyFeed(c))
+               {
+                 io->put(c);
+                 return true;
+
+               }
+             else
+               {
+                 rejectedChars_.push_back(c);
+                 io->putError(c);
+                 return false;
+
+               }
+          }
+        else
+          // the given char is invalid, the token is still being filled
           {
             rejectedChars_.push_back(c);
             io->putError(c);
@@ -323,7 +342,9 @@ namespace Markov_IO_New {
             }
           else                                  // the token is good
             {
+              tokVec_.push_back(tok_);
               tok_.clear();
+
               io->put(c);                    // print new char
               return true;
 
@@ -349,7 +370,7 @@ namespace Markov_IO_New {
 
   }
 
-  char ExpressionManager::pop_back_char(char c)
+  char ExpressionManager::pop_back_char()
   {
     if (isEmpty())
       return {};
@@ -361,16 +382,17 @@ namespace Markov_IO_New {
       }
     else if (!tok_.isInitial())
       {
-        if ((c!=' ')||(c==tok_.str().back()))
         return tok_.popLastChar();
-        else return c;
       }
     else
       {
-        tok_=bu_.popBackToken();
-        if ((c!=' ')||(c==tok_.str().back()))
+        bu_.popBackToken();
+        if (!tokVec_.empty())
+          {
+            tok_=tokVec_.back();
+            tokVec_.pop_back();
+          }
         return tok_.popLastChar();
-        else return c;
       }
 
   }
@@ -385,17 +407,26 @@ namespace Markov_IO_New {
     return bu_.isFinal();
   }
 
+  void ExpressionManager::clear()
+  {
+    bu_.clear();
+    errorMessage_.clear();
+    previous_key={};
+    rejectedChars_.clear();
+    tokVec_.clear();
+    tok_.clear();
+
+  }
+
   std::string ExpressionManager::suggestRest(const std::set<std::string> &items, Token_New tok)
   {
     if (items.empty())
-        return {};
+      return {};
     else if (tok.str().empty()&&items.size()==1)
       {
-      auto s=*items.begin();
-      s=removeHint(s);
-      if (!s.empty())
-       s+=" ";
-      return s;
+        auto s=*items.begin();
+        s=removeHint(s);
+        return s;
       }
     else
       {
@@ -428,15 +459,14 @@ namespace Markov_IO_New {
             if (lo==up)
               {
                 std::string out=*lo;
-                if (hint.size()==nh)
-                  out.push_back(' ');
+                out=removeHint(out);
                 return out.substr(hint.size());
 
               }
             else
               {
-                std::string los=*lo;
-                std::string ups=*up;
+                std::string los=removeHint(*lo);
+                std::string ups=removeHint(*up);
                 std::size_t i=0;
                 std::size_t n=std::min(los.size(), ups.size());
                 while((i<n) &&(los[i]==ups[i])) ++i;

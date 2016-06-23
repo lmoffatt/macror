@@ -27,17 +27,193 @@ namespace Markov_IO_New {
   }
 
 
+  template <typename T>
+  Token_New buildByToken<Markov_LA::M_Matrix<T> >::popBackToken()
+  {
+    if (isFinal())
+      {
+        buffer_.resize(nCols_*nRows_);
+        for (std::size_t i=0; i<nRows_; ++i)
+          for (std::size_t j=0; j<nCols_; ++j)
+            buffer_[nCols_*i+j]=x_(i,j);
+
+        if (hasFixedRows_)
+          {
+            runCols_=nCols_;
+            runRows_=nRows_-1;
+          }
+        else
+          {
+            runCols_=0;
+            runRows_=nRows_;
+          }
+      }
+    std::string whyNot;
+    std::string masterObjective;
+    switch (mystate)
+      {
+      case S_Init:
+        return {};
+
+      case S_PInit_NFinal:
+      case S_PInit_NData:
+      case S_PInit_NBoth:
+      case S_PInit_NEOL:
+        {
+          mystate=S_Init;
+          return Token_New(Token_New::EOL);
+        }
+
+      case S_PData_NBoth:
+      case S_PData_NData:
+      case S_PData_NEOL:
+
+        {
+          if (eleB_->isInitial())
+            {
+              --runCols_;
+              eleType_=dataType_->getElementType
+                  (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
+                   ,&whyNot,masterObjective,eleType_);
+              eleB_->reset_Type(eleType_);
+              v_=buffer_[nCols_*runRows_+runCols_];
+              eleB_->unPop(v_);
+
+            }
+          Token_New to=eleB_->popBackToken();
+          if (!eleB_->isInitial())
+            {
+              mystate=S_PData_NData;
+              return to;
+            }
+          else
+            {
+              if ((runRows_==0)&&(runCols_==0))
+                mystate=S_PInit_NData;
+              else if ((runRows_==0)&&(!hasFixedCols_)&&(runCols_>=nCols_Init_))
+                {
+                  nCols_=runCols_;
+                  mystate=S_PBothData_NData;
+                }
+              else if (runCols_==0)
+                {
+                  if (hasFixedCols_||runRows_>0)
+                    {
+                      mystate=S_PEOL_NData;
+                    }
+                  else
+                    {
+                      mystate=S_PBothEOL_NData;
+                    }
+                }
+              else
+                {
+                  mystate=S_PData_NData;
+                }
+              return to;
+            }
+        }
+
+      case S_PBothData_NBoth:
+      case S_PBothData_NData:
+      case S_PBothData_NEOL:
+
+        {
+          Token_New to=eleB_->popBackToken();
+          if (!eleB_->isInitial())
+            {
+              mystate=S_PData_NData;
+              return to;
+            }
+          else
+            {
+              --runCols_;
+              eleType_=dataType_->getElementType
+                  (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
+                   ,&whyNot,masterObjective,eleType_);
+              eleB_->reset_Type(eleType_);
+              if ((runRows_==0)&&(runCols_==0))
+                mystate=S_PInit_NBoth;
+              else if ((runRows_==0)&&(!hasFixedCols_)&&(runCols_>=nCols_Init_))
+                {
+                  nCols_=runCols_;
+                  mystate=S_PBothData_NBoth;
+                }
+              else if (runCols_==0)
+                {
+                  if (hasFixedCols_||runRows_>0)
+                    {
+                      mystate=S_PEOL_NBoth;
+                    }
+                  else
+                    {
+                      mystate=S_PBothEOL_NBoth;
+                    }
+                }
+              else
+                {
+                  mystate=S_PData_NBoth;
+                }
+              return to;
+            }
+        }
 
 
-  template<typename T>
-  buildByToken<std::vector<T> >::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType)
-    :
-      ABC_BuildByToken(parent),
-      mystate(S_Init),
-      x_(),
-      valueBuild_(vecType->getElementBuildByToken(parent)),
-      varType_(vecType){}
+      case S_PEOL_NFinal:
+      case S_PEOL_NBoth:
+      case S_PEOL_NData:
+      case S_PEOL_NEOL:
+        {
+          if (runRows_==0)
+            {
+              mystate=S_PInit_NEOL;
+            }
+          else
+            {
+              --runRows_;
+              runCols_=nCols_;
+              if (hasFixedCols_||(runRows_>0))
+                {
+                  mystate=S_PData_NEOL;
+                }
+              else
+                {
+                  mystate=S_PBothData_NEOL;
+                }
+            }
+          return Token_New(Token_New::EOL);
 
+        }
+      case S_PBothEOL_NFinal:
+      case S_PBothEOL_NBoth:
+      case S_PBothEOL_NData:
+      case S_PBothEOL_NEOL:
+        {
+          if (runRows_==0)
+            {
+              mystate=S_PInit_NBoth;
+            }
+          else
+            {
+              --runRows_;
+              runCols_=nCols_;
+              if (hasFixedCols_||(runRows_>0))
+                {
+                  mystate=S_PData_NBoth;
+                }
+              else
+                {
+                  mystate=S_PBothData_NBoth;
+                }
+            }
+          return Token_New(Token_New::EOL);
+
+        }
+
+      }
+
+
+  }
 
 
 
@@ -87,6 +263,18 @@ namespace Markov_IO_New {
 
 
 
+
+  template<typename T>
+  buildByToken<std::vector<T> >::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType)
+    :
+      ABC_BuildByToken(parent),
+      mystate(S_Init),
+      x_(),
+      valueBuild_(vecType->getElementBuildByToken(parent)),
+      varType_(vecType){}
+
+
+
   buildByToken<ABC_Data_New *>::buildByToken
   (const StructureEnv_New *parent
    , const Implements_Data_Type_New<ABC_Data_New*> *varType):
@@ -97,6 +285,13 @@ namespace Markov_IO_New {
     valueB_(nullptr),data_(nullptr)
   ,convertToClass_(varType->ConvertToClass()),classx_(nullptr){}
 
+  void buildByToken<ABC_Data_New *>::clear()
+  {
+    mystate=S_Init;
+    idtypeB_->clear();
+   // valueB_=nullptr;
+   // data_=nullptr;
+  }
 
 
 
@@ -1014,6 +1209,8 @@ namespace Markov_IO_New {
     mystate=S_Init;
     x_.clear();
     cmv_=nullptr;
+    idC_.clear();
+    cmdTy_=nullptr;
 
   }
 
@@ -1040,7 +1237,7 @@ namespace Markov_IO_New {
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
-                    mystate=S_Command_PreFinal;
+                    mystate=S_Command_Final;
                   }
                 else
                   mystate=S_Command_Partial;
@@ -1079,7 +1276,7 @@ namespace Markov_IO_New {
                 if (c_->isFinal())
                   {
                     cmv_=c_->unloadVar();
-                    mystate=S_Command_PreFinal;
+                    mystate=S_Command_Final;
                   }
                 else
                   mystate=S_Command_Partial;
@@ -1105,7 +1302,7 @@ namespace Markov_IO_New {
             if (c_->isFinal())
               {
                 cmv_=c_->unloadVar();
-                mystate=S_Command_PreFinal;
+                mystate=S_Command_Final;
               }
             else
               mystate=S_Command_Partial;
@@ -1120,34 +1317,12 @@ namespace Markov_IO_New {
           {
             if (v_->isFinal())
               {
-                mystate=S_Expression_PreFinal;
+                mystate=S_Expression_Final;
                 x_=v_->unloadVar();
               }
             else
               mystate=S_Expression_Partial;
             return true;
-          }
-      case S_Command_PreFinal:
-        if (t.tok()==Token_New::EOL)
-          {
-            mystate=S_Command_Final;
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": unknown command or variable";
-            return false;
-          }
-      case S_Expression_PreFinal:
-        if (t.tok()==Token_New::EOL)
-          {
-            mystate=S_Expression_Final;
-            return true;
-          }
-        else
-          {
-            *whyNot=objective+": unknown command or variable";
-            return false;
           }
       case S_Command_Final:
       case S_Expression_Final:
@@ -1173,7 +1348,7 @@ namespace Markov_IO_New {
           return out;
 
         }
-      case S_Command_PreFinal:
+      case S_Command_Final:
         c_->unPop(cmv_);
       case S_Command_Partial:
         if (c_->isInitial())
@@ -1192,7 +1367,7 @@ namespace Markov_IO_New {
 
           }
 
-      case S_Expression_PreFinal:
+      case S_Expression_Final:
         v_->unPop(x_);
 
       case S_Expression_Partial:
@@ -1205,12 +1380,6 @@ namespace Markov_IO_New {
           return out;
         }
 
-      case S_Expression_Final:
-        mystate=S_Expression_PreFinal;
-        return Token_New(Token_New::EOL);
-      case S_Command_Final:
-        mystate=S_Command_PreFinal;
-        return Token_New(Token_New::EOL);
 
       }
   }
@@ -1255,188 +1424,6 @@ namespace Markov_IO_New {
   }
 
 
-  template <typename T>
-  Token_New buildByToken<Markov_LA::M_Matrix<T> >::popBackToken()
-  {
-    if (isFinal())
-      {
-        buffer_.resize(nCols_*nRows_);
-        for (std::size_t i=0; i<nRows_; ++i)
-          for (std::size_t j=0; j<nCols_; ++j)
-            buffer_[nCols_*i+j]=x_(i,j);
-
-        if (hasFixedRows_)
-          {
-            runCols_=nCols_;
-            runRows_=nRows_-1;
-          }
-        else
-          {
-            runCols_=0;
-            runRows_=nRows_;
-          }
-      }
-    std::string whyNot;
-    std::string masterObjective;
-    switch (mystate)
-      {
-      case S_Init:
-        return {};
-
-      case S_PInit_NFinal:
-      case S_PInit_NData:
-      case S_PInit_NBoth:
-      case S_PInit_NEOL:
-        {
-          mystate=S_Init;
-          return Token_New(Token_New::EOL);
-        }
-
-      case S_PData_NBoth:
-      case S_PData_NData:
-      case S_PData_NEOL:
-
-        {
-          Token_New to=eleB_->popBackToken();
-          if (!eleB_->isInitial())
-            {
-              mystate=S_PData_NData;
-              return to;
-            }
-          else
-            {
-              --runCols_;
-              eleType_=dataType_->getElementType
-                  (parent(),buffer_,nRows_,nCols_,runRows_,runCols_
-                   ,&whyNot,masterObjective,eleType_);
-              eleB_->reset_Type(eleType_);
-              if ((runRows_==0)&&(runCols_==0))
-                mystate=S_PInit_NData;
-              else if ((runRows_==0)&&(!hasFixedCols_)&&(runCols_>=nCols_Init_))
-                {
-                  nCols_=runCols_;
-                  mystate=S_PBothData_NData;
-                }
-              else if (runCols_==0)
-                {
-                  if (hasFixedCols_||runRows_>0)
-                    {
-                      mystate=S_PEOL_NData;
-                    }
-                  else
-                    {
-                      mystate=S_PBothEOL_NData;
-                    }
-                }
-              else
-                {
-                  mystate=S_PData_NData;
-                }
-              return to;
-            }
-        }
-
-      case S_PBothData_NBoth:
-      case S_PBothData_NData:
-      case S_PBothData_NEOL:
-
-        {
-          Token_New to=eleB_->popBackToken();
-          if (!eleB_->isInitial())
-            {
-              mystate=S_PData_NData;
-              return to;
-            }
-          else
-            {
-              --runCols_;
-              eleType_=dataType_->getElementType
-                  (parent(),buffer_,nCols_,nRows_,runCols_,runRows_
-                   ,&whyNot,masterObjective,eleType_);
-              eleB_->reset_Type(eleType_);
-              if ((runRows_==0)&&(runCols_==0))
-                mystate=S_PInit_NBoth;
-              else if ((runRows_==0)&&(!hasFixedCols_)&&(runCols_>=nCols_Init_))
-                {
-                  nCols_=runCols_;
-                  mystate=S_PBothData_NBoth;
-                }
-              else if (runCols_==0)
-                {
-                  if (hasFixedCols_||runRows_>0)
-                    {
-                      mystate=S_PEOL_NBoth;
-                    }
-                  else
-                    {
-                      mystate=S_PBothEOL_NBoth;
-                    }
-                }
-              else
-                {
-                  mystate=S_PData_NBoth;
-                }
-              return to;
-            }
-        }
-
-
-      case S_PEOL_NFinal:
-      case S_PEOL_NBoth:
-      case S_PEOL_NData:
-      case S_PEOL_NEOL:
-        {
-          if (runRows_==0)
-            {
-              mystate=S_PInit_NEOL;
-            }
-          else
-            {
-              --runRows_;
-              runCols_=nCols_;
-              if (hasFixedCols_||(runRows_>0))
-                {
-                  mystate=S_PData_NEOL;
-                }
-              else
-                {
-                  mystate=S_PBothData_NEOL;
-                }
-            }
-          return Token_New(Token_New::EOL);
-
-        }
-      case S_PBothEOL_NFinal:
-      case S_PBothEOL_NBoth:
-      case S_PBothEOL_NData:
-      case S_PBothEOL_NEOL:
-        {
-          if (runRows_==0)
-            {
-              mystate=S_PInit_NBoth;
-            }
-          else
-            {
-              --runRows_;
-              runCols_=nCols_;
-              if (hasFixedCols_||(runRows_>0))
-                {
-                  mystate=S_PData_NBoth;
-                }
-              else
-                {
-                  mystate=S_PBothData_NBoth;
-                }
-            }
-          return Token_New(Token_New::EOL);
-
-        }
-
-      }
-
-
-  }
-
   Markov_IO_New::buildByToken<Implements_Var>::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<Implements_Var> *varType):
     ABC_BuildByToken(parent),
     mystate(S_Init),ivarType_(varType),idType_(varType->getKeyType(parent)->clone()),
@@ -1446,6 +1433,17 @@ namespace Markov_IO_New {
   {
 
   }
+
+  void buildByToken<Implements_Var>::clear()
+  {
+    mystate=S_Init;
+    iv_.clear();
+    idB_->clear();
+    dataB_->clear();
+
+  }
+
+
 
 
 
