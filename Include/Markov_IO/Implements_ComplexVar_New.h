@@ -1859,7 +1859,7 @@ namespace Markov_IO_New {
 
       bool getValue(const StructureEnv_New *cm, Markov_LA::M_Matrix<T> &v, ABC_Input *istream, std::string *whyNot, const std::string &masterObjective) const
       {
-        auto etype=this->getElementDataType(cm);
+        auto etype=this->getElementDataType(cm)->clone();
         char c;
         while (!istream->nextCharIs('\n',true)){}
 
@@ -1884,6 +1884,10 @@ namespace Markov_IO_New {
             for (std::size_t j=0; j<nCols; ++j)
               {
                 T d;
+                etype=this->getElementType
+                        (cm,vec,nRows,nCols,i,j
+                         ,whyNot,masterObjective,etype);
+
                 if(!etype->getValue
                    (cm,d,istream,whyNot,masterObjective))
                   {
@@ -1901,6 +1905,9 @@ namespace Markov_IO_New {
                 while (!istream->nextCharIs('\n',false))
                   {
                     T d;
+                    etype=this->getElementType
+                            (cm,vec,nRows,nCols,i,nCols
+                             ,whyNot,masterObjective,etype);
                     if(!etype->getValue
                        (cm,d,istream,whyNot,masterObjective))
                       {
@@ -1930,6 +1937,9 @@ namespace Markov_IO_New {
                 for (std::size_t j=0; j<nCols; ++j)
                   {
                     T d;
+                    etype=this->getElementType
+                            (cm,vec,nRows,nCols,nRows,j
+                             ,whyNot,masterObjective,etype);
                     if(!etype->getValue
                        (cm,d,istream,whyNot,masterObjective))
                       {
@@ -1965,15 +1975,24 @@ namespace Markov_IO_New {
 
       bool putValue(const StructureEnv_New *cm, const Markov_LA::M_Matrix<T> &v, ABC_Output *ostream, std::string *whyNot=nullptr, const std::string &masterObjective="") const
       {
+        std::vector<T> vec(Markov_LA::size(v),T(0));
+
         if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
           {
-            const Implements_Data_Type_New<T>* etype=
-                this->getElementDataType(cm);
+             Implements_Data_Type_New<T>* etype=
+                this->getElementDataType(cm)->clone();
             ostream->put("\n");
+            auto nRows=Markov_LA::nrows(v);
+            auto nCols=Markov_LA::ncols(v);
             for (std::size_t i=0; i<Markov_LA::nrows(v); ++i)
               {
                 for (std::size_t j=0; j<Markov_LA::ncols(v); ++j)
                   {
+                    vec[i*nCols+j]=v(i,j);
+                    etype=this->getElementType
+                            (cm,vec,nRows,nCols,i,j
+                             ,whyNot,masterObjective,etype);
+
                     if(!etype->putValue
                        (cm,v(i,j),ostream,whyNot,masterObjective))
                       {

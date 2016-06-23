@@ -834,7 +834,7 @@ namespace Markov_IO_New {
         static const Implements_Data_Type_New<elem>* elementType
         (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
         {
-          return cm->idToTyped<elem>(Real::types::positive::myId(),whyNot,masterObjective);
+          return cm->idToTyped<elem>(Real::types::nonNegative::myId(),whyNot,masterObjective);
         }
 
 

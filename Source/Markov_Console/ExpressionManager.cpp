@@ -139,10 +139,15 @@ namespace Markov_IO_New {
 
     if (!push_back(cm,io,'\n',&errorMessage_))
       {
-
-      io->putError(errorTail+errorMessage_);
-      clear();
-      io->freshLine();
+        if (previous_key==Key_Return)
+          {
+            io->putError(errorTail+errorMessage_);
+            clear();
+            io->hideMessage();
+            io->freshLine();
+          }
+        else
+          io->showMessage(errorTail+errorMessage_);
 
       }
     else  if (bu_.isFinal())
@@ -160,7 +165,7 @@ namespace Markov_IO_New {
         io->freshLine();
 
       }
-   }
+  }
 
 
 
@@ -302,19 +307,19 @@ namespace Markov_IO_New {
 
         else if ((tok_.tok()==Token_New::EMPTY)&&(c==' '))
           {
-             if (tokVec_.back().CharIsSuccesfullyFeed(c))
-               {
-                 io->put(c);
-                 return true;
+            if (tokVec_.back().CharIsSuccesfullyFeed(c))
+              {
+                io->put(c);
+                return true;
 
-               }
-             else
-               {
-                 rejectedChars_.push_back(c);
-                 io->putError(c);
-                 return false;
+              }
+            else
+              {
+                rejectedChars_.push_back(c);
+                io->putError(c);
+                return false;
 
-               }
+              }
           }
         else
           // the given char is invalid, the token is still being filled

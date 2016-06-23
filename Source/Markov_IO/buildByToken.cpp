@@ -289,8 +289,6 @@ namespace Markov_IO_New {
   {
     mystate=S_Init;
     idtypeB_->clear();
-   // valueB_=nullptr;
-   // data_=nullptr;
   }
 
 
