@@ -45,8 +45,8 @@ const Pulses_program& Pulses_program::trace(std::size_t i)const
 {
   ASSERT_LESS(i, num_traces());
   itrace_u=i;
-    run_trace_T=traces_v[to_i_trace_v[itrace_u]];
-    run_trace_T.set_max_x_trace(pulse_concentration_M[itrace_u]);
+    run_trace_T=*traces_v[to_i_trace_v[itrace_u]];
+    run_trace_T.set_max_x_trace(pulse_concentration_[itrace_u]);
     run_trace_T[0];
     return *this;
 }
@@ -65,7 +65,7 @@ std::size_t Pulses_program::i_trace()const
 
 std::size_t Pulses_program::num_traces() const
 {
-    return size(to_i_trace_v);
+    return to_i_trace_v.size();
 }
 
 
@@ -128,33 +128,28 @@ const x_dt&  Pulses_program::sub_step(std::size_t i)const
     return (run_trace_T).sub_step(i);
 }
 
-Pulses_program::Pulses_program(const std::string& name,
-    const std::vector<Pulses_trace>&
-    vector_of_traces,
-    const Markov_LA::M_Matrix<std::size_t>&
+Pulses_program::Pulses_program(const std::vector<Pulses_trace *> &vector_of_traces,
+    const std::vector<std::size_t>&
     sequence_of_traces,
-    const Markov_LA::M_Matrix<double>&
+    const std::vector<double>&
     concentration_of_each_trace
     ):
-    name_(name),
     traces_v(vector_of_traces),
     to_i_trace_v(sequence_of_traces),
-    pulse_concentration_M(concentration_of_each_trace),
+    pulse_concentration_(concentration_of_each_trace),
 total_samples_u(0),
 itrace_u(0)
 {
-    for (std::size_t i=0; i<size(to_i_trace_v); i++)
-	total_samples_u+=traces_v[to_i_trace_v[i] ].num_measures();
+    for (std::size_t i=0; i<to_i_trace_v.size(); i++)
+        total_samples_u+=traces_v[to_i_trace_v[i] ]->num_measures();
     this->trace(0);
 }
 
-Pulses_program::Pulses_program(const std::string& name,
-       std::size_t numberTraces,
+Pulses_program::Pulses_program(std::size_t numberTraces,
        std::size_t numberRepetitions):
-    name_(name),
-    traces_v(std::vector<Pulses_trace>(numberTraces)),
-    to_i_trace_v(Markov_LA::M_Matrix<std::size_t>(1,numberRepetitions)),
-    pulse_concentration_M(Markov_LA::M_Matrix<double>(1,numberRepetitions)),
+   traces_v(std::vector<Pulses_trace*>(numberTraces)),
+    to_i_trace_v(numberRepetitions),
+    pulse_concentration_(numberRepetitions),
     total_samples_u(0),
     itrace_u(0)
     {}
@@ -162,9 +157,9 @@ Pulses_program::Pulses_program(const std::string& name,
 
 Pulses_program::Pulses_program():
     name_(),
-    traces_v(std::vector<Pulses_trace>()),
-    to_i_trace_v(Markov_LA::M_Matrix<std::size_t>()),
-    pulse_concentration_M(Markov_LA::M_Matrix<double>()),
+    traces_v(std::vector<Pulses_trace*>()),
+    to_i_trace_v(),
+    pulse_concentration_(),
     total_samples_u(0),
     itrace_u(0)
     {}
@@ -174,7 +169,7 @@ Pulses_program::Pulses_program(const Pulses_program& other):
     name_(other.name_),
     traces_v(other.traces_v),
     to_i_trace_v(other.to_i_trace_v),
-    pulse_concentration_M(other.pulse_concentration_M),
+    pulse_concentration_(other.pulse_concentration_),
     total_samples_u(other.total_samples_u),
     itrace_u(other.itrace_u),
     run_trace_T(other.run_trace_T) {}

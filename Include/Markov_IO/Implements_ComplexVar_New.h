@@ -794,6 +794,7 @@ namespace Markov_IO_New {
     {
     public:
 
+
       virtual bool isDataInDomain
       (const StructureEnv_New* cm
        ,const ABC_Data_New* v
@@ -925,6 +926,17 @@ namespace Markov_IO_New {
         : public Implements_Base_Type_New<std::string>
     {
     public:
+      typedef Implements_Data_Type_New_string selfType;
+      typedef std::string myC;
+      static std::string myId() {return Cls<myC>::name();}
+      static selfType* varType(const StructureEnv_New* )
+      {return new selfType{};}
+      static std::string myTip(){return "a regular string of characters";}
+      static std::string myWhatThis(){return "";}
+      typedef mp_list<> dependsOn;
+      typedef mp_list<> fieldList;
+
+
       using typePredicate= bool(*) (const StructureEnv_New* cm,const std::string& val,
       const Implements_Data_Type_New_string* self, std::string* error,const std::string& obj);
 
@@ -1365,13 +1377,7 @@ namespace Markov_IO_New {
 
 
 
-      virtual buildByToken<T>* getElementBuildByToken(const StructureEnv_New* cm)const
-      {
-        const Implements_Data_Type_New<T>* v= getElementDataType(cm);
-        if (v!=nullptr)
-          return new buildByToken<T>(cm,v);
-        else return nullptr;
-      }
+
 
       virtual const Implements_Data_Type_New<T>* getElementDataType(const StructureEnv_New* cm)const=0;
 
@@ -1386,15 +1392,6 @@ namespace Markov_IO_New {
     public:
 
 
-
-
-      virtual buildByToken<T*>* getElementBuildByToken(const StructureEnv_New* cm)const
-      {
-        const Implements_Data_Type_New<T*>* v= getElementDataType(cm);
-        if (v!=nullptr)
-          return new buildByToken<T*>(cm,v);
-        else return nullptr;
-      }
 
 
       virtual const Implements_Data_Type_New<T*>* getElementDataType(const StructureEnv_New* cm)const=0;
@@ -1419,14 +1416,35 @@ namespace Markov_IO_New {
     class Implements_Data_Type_New_vector:public Implements_Container_Type_New<T,My_vec>
     {
     public:
+      typedef  Implements_Data_Type_New_vector<T> selfType;
+      typedef std::vector<T> myC;
+      static std::string myId() {return Cls<myC>::name();}
+      static selfType* varType(const StructureEnv_New* cm)
+      {return new selfType{};}
+      static std::string myTip(){return "vector of "+Cls<T>::name();}
+      static std::string myWhatThis(){return "";}
+      typedef mp_list<Implements_Data_Type_New<T>> dependsOn;
+      typedef mp_list<> fieldList;
+
+
+
       using typePredicate=bool(*)(const StructureEnv_New* cm,
-      const std::vector<T>& val,
+      const std::vector<T>& val,const selfType* self,
       std::string *whyNot,const std::string& masterObjective);
 
-      using typeElementPredicate= bool (*)(const StructureEnv_New*cm
+      using elementTypeGetter=
+      Implements_Data_Type_New<T>* (*)(const StructureEnv_New*cm
       , const std::vector<T>& val,
-      typename std::vector<T>::const_iterator it, const T& elval,
-      std::string *whyNot,const std::string& masterObjective);
+      typename std::vector<T>::const_iterator
+      ,const selfType* self,std::string *whyNot
+      ,const std::string& masterObjective
+      ,Implements_Data_Type_New<T>* source);
+
+
+      using getNumber= std::size_t (*)
+      (const StructureEnv_New* cm
+      ,const selfType* cv);
+
 
 
       virtual bool putValue(const StructureEnv_New* cm,const std::vector<T>& v,ABC_Output* ostream,std::string* whyNot=nullptr,const std::string& masterObjective="")const override
@@ -1513,15 +1531,67 @@ namespace Markov_IO_New {
       }
 
 
+      virtual std::size_t getSize(const StructureEnv_New* cm)const
+      {
+        if (getSize_==nullptr)
+          return 1;
+        else
+          return (*getSize_)(cm,this);
+      }
+
+      bool hasFixedSize()const {return isSizeFixed_;}
+
+      virtual bool isValueInDomain(const StructureEnv_New* cm
+                                   ,const std::vector<T> &val
+                                   , std::string *whyNot
+                                   ,const std::string& masterObjective ) const
+      {
+        return (*complyPred_)(cm,val,this,whyNot,masterObjective);
+      }
+
+      virtual const Implements_Data_Type_New<T>* getElementDataType(const StructureEnv_New* cm)const
+      {
+        return elementVar_;
+      }
+
 
       virtual ~Implements_Data_Type_New_vector(){}
 
       Implements_Data_Type_New_vector
       (const Implements_Data_Type_New<T>* elementVar=nullptr
           ,typePredicate complyPred=nullptr
-          ,typeElementPredicate elemeComply=nullptr
-          )
-        :elementVar_(elementVar),complyPred_(complyPred),elemeComply_(elemeComply) {}
+          ,elementTypeGetter elemeComply=nullptr
+          ,getNumber getSize=nullptr
+          ,bool isSizeFixed=false)
+        :elementVar_(elementVar)
+        ,complyPred_(complyPred)
+        ,getElement_(elemeComply)
+        ,getSize_(getSize)
+        ,isSizeFixed_(isSizeFixed){}
+
+
+      Implements_Data_Type_New<T>* getElementType
+      (const StructureEnv_New*cm, const std::vector<T>& val
+       ,typename std::vector<T>::const_iterator it,
+       std::string *whyNot,const std::string& masterObjective,
+       Implements_Data_Type_New<T>* source=nullptr)
+      {
+        if (getElement_==nullptr) return source;
+        else
+          return (*getElement_)(cm,val,it,this,whyNot,masterObjective,source);
+      }
+
+
+      virtual bool empty()const { return complyPred_==nullptr
+            && getElement_==nullptr
+            && getSize_==nullptr
+            &&!isSizeFixed_;}
+
+      virtual void reset() {complyPred_=nullptr; getElement_
+            =nullptr; getSize_=nullptr;isSizeFixed_=false;}
+
+      virtual selfType* clone()const { return new selfType(*this);}
+      virtual selfType* create()const {return  new selfType();}
 
 
 
@@ -1529,7 +1599,9 @@ namespace Markov_IO_New {
     protected:
       const Implements_Data_Type_New<T>* elementVar_;
       typePredicate complyPred_;
-      typeElementPredicate elemeComply_;
+      elementTypeGetter getElement_;
+      getNumber getSize_;
+      bool isSizeFixed_;
     };
 
 
@@ -1539,6 +1611,14 @@ namespace Markov_IO_New {
     {
     public:
       typedef  Implements_Data_Type_New_regular<T> selfType;
+      typedef T myC;
+      static std::string myId() {return Cls<myC>::name();}
+      static selfType* varType(const StructureEnv_New* cm)
+      {return new selfType{};}
+      static std::string myTip(){return "a regular " +Cls<T>::name();}
+      static std::string myWhatThis(){return "";}
+      typedef mp_list<> dependsOn;
+      typedef mp_list<> fieldList;
 
       using typePredicate=bool (*) (const StructureEnv_New* cm, const T& data
       ,const selfType* self
@@ -1638,9 +1718,9 @@ namespace Markov_IO_New {
 
       static void push_Types(StructureEnv_New *cm)
       {
-         cm->pushType(Cls<T>::name()
-                      ,new Implements_Data_Type_New_regular<T>()
-                      ,Cls<T>::name(),"a regular "+Cls<T>::name());
+        cm->pushType(Cls<T>::name()
+                     ,new Implements_Data_Type_New_regular<T>()
+                     ,Cls<T>::name(),"a regular "+Cls<T>::name());
       }
 
       friend class Real::types;
@@ -1680,7 +1760,7 @@ namespace Markov_IO_New {
             ostream->put("\n{");
             for (auto it=v.begin(); it!=v.end(); ++it)
               {
-                if(!etype->put(cm,*it,ostream,whyNot,masterObjective))
+                if(!etype->putValue(cm,*it,ostream,whyNot,masterObjective))
                   {
                     return false;
                   }
@@ -1713,7 +1793,7 @@ namespace Markov_IO_New {
             while (!istream->nextCharIs('}',false))
               {
                 T d;
-                if (etype->get(cm,d,istream,whyNot,masterObjective))
+                if (etype->getValue(cm,d,istream,whyNot,masterObjective))
                   {
 
                     v.insert(std::move(d));
@@ -1733,6 +1813,15 @@ namespace Markov_IO_New {
       getBuildByToken(const StructureEnv_New* cm)const
       {
         return new buildByToken<std::set<T>>(cm,this);
+      }
+
+
+      virtual const Implements_Data_Type_New<T>* getElementDataType(const StructureEnv_New* cm)const
+      {
+        if (elementVar_!=nullptr)
+          return elementVar_;
+        else
+          return cm->idToTyped<T>(Cls<T>::name());
       }
 
 
@@ -1810,6 +1899,16 @@ namespace Markov_IO_New {
     class Implements_Data_Type_New_M_Matrix:public Implements_Container_Type_New<T,Markov_LA::M_Matrix>
     {
     public:
+      typedef Implements_Data_Type_New_M_Matrix<T> selfType;
+      typedef Markov_LA::M_Matrix<T> myC;
+      static std::string myId() {return Cls<myC>::name();}
+      static selfType* varType(const StructureEnv_New* cm)
+      {return new selfType{};}
+      static std::string myTip(){return "Matrix of "+Cls<T>::name();}
+      static std::string myWhatThis(){return "";}
+      typedef mp_list<Implements_Data_Type_New<T>> dependsOn;
+      typedef mp_list<> fieldList;
+
       using typePredicate=bool(*) (const StructureEnv_New* cm
       , const Markov_LA::M_Matrix<T>& val,
       const Implements_Data_Type_New_M_Matrix<T>* self
@@ -1885,8 +1984,8 @@ namespace Markov_IO_New {
               {
                 T d;
                 etype=this->getElementType
-                        (cm,vec,nRows,nCols,i,j
-                         ,whyNot,masterObjective,etype);
+                    (cm,vec,nRows,nCols,i,j
+                     ,whyNot,masterObjective,etype);
 
                 if(!etype->getValue
                    (cm,d,istream,whyNot,masterObjective))
@@ -1906,8 +2005,8 @@ namespace Markov_IO_New {
                   {
                     T d;
                     etype=this->getElementType
-                            (cm,vec,nRows,nCols,i,nCols
-                             ,whyNot,masterObjective,etype);
+                        (cm,vec,nRows,nCols,i,nCols
+                         ,whyNot,masterObjective,etype);
                     if(!etype->getValue
                        (cm,d,istream,whyNot,masterObjective))
                       {
@@ -1938,8 +2037,8 @@ namespace Markov_IO_New {
                   {
                     T d;
                     etype=this->getElementType
-                            (cm,vec,nRows,nCols,nRows,j
-                             ,whyNot,masterObjective,etype);
+                        (cm,vec,nRows,nCols,nRows,j
+                         ,whyNot,masterObjective,etype);
                     if(!etype->getValue
                        (cm,d,istream,whyNot,masterObjective))
                       {
@@ -1979,7 +2078,7 @@ namespace Markov_IO_New {
 
         if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
           {
-             Implements_Data_Type_New<T>* etype=
+            Implements_Data_Type_New<T>* etype=
                 this->getElementDataType(cm)->clone();
             ostream->put("\n");
             auto nRows=Markov_LA::nrows(v);
@@ -1990,8 +2089,8 @@ namespace Markov_IO_New {
                   {
                     vec[i*nCols+j]=v(i,j);
                     etype=this->getElementType
-                            (cm,vec,nRows,nCols,i,j
-                             ,whyNot,masterObjective,etype);
+                        (cm,vec,nRows,nCols,i,j
+                         ,whyNot,masterObjective,etype);
 
                     if(!etype->putValue
                        (cm,v(i,j),ostream,whyNot,masterObjective))
@@ -2118,24 +2217,6 @@ namespace Markov_IO_New {
           , const std::string & masterObjective,
           Implements_Data_Type_New<T>* source=nullptr)const=0;
 
-      virtual buildByToken<T>* getElementBuildByToken(const StructureEnv_New* cm)const
-      {
-        const Implements_Data_Type_New<T>* v= this->getElementType(cm);
-        if (v!=nullptr)
-          return new buildByToken<T>(cm,v);
-        else return nullptr;
-      }
-
-
-      virtual buildByToken<K>* getKeyBuildByToken(const StructureEnv_New* cm)const
-      {
-        const Implements_Data_Type_New<K>* v= this->getKeyType(cm);
-        if (v!=nullptr)
-          return new buildByToken<K>(cm,v);
-        else return nullptr;
-      }
-
-
 
       virtual ~Implements_Dictionary_Type_New(){}
     };
@@ -2238,11 +2319,11 @@ namespace Markov_IO_New {
         return (whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective));
       }
 
-      virtual buildByToken<T>* getElementBuildByToken(const StructureEnv_New* cm)const
+      virtual buildByToken<buildType<T>>* getElementBuildByToken(const StructureEnv_New* cm)const
       {
         const Implements_Data_Type_New<T>* v= getElementDataType(cm);
         if (v!=nullptr)
-          return new buildByToken<T>(cm,v);
+          return new buildByToken<buildType<T>>(cm,v);
         else return nullptr;
       }
 
@@ -2261,13 +2342,7 @@ namespace Markov_IO_New {
 
 
 
-      virtual buildByToken<K>* getKeyBuildByToken(const StructureEnv_New* cm)const
-      {
-        const Implements_Data_Type_New<K>* v= getKeyDataType(cm);
-        if (v!=nullptr)
-          return new buildByToken<K>(cm,v);
-        else return nullptr;
-      }
+
 
       virtual const Implements_Data_Type_New<K>* getKeyDataType(const StructureEnv_New* cm)const
       {
@@ -3250,6 +3325,156 @@ namespace Markov_IO_New {
 
   };
 
+  namespace Count
+  {
+    typedef  std::size_t myC;
+    typedef  Implements_Data_Type_New<myC> vType;
+
+    struct types
+    {
+      template<typename numField>
+      struct Given
+      {
+        typedef  std::size_t myC;
+        typedef  Implements_Data_Type_New<myC> vType;
+        static std::string myId(myC x){return "Count_given_"+numField::myId();}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string Tip(){return "count exacty equal to "+numField::myId();}
+        static std::string WhatThis() {return "";}
+
+        static bool comply
+        (const StructureEnv_New* cm
+         ,const myC& x
+         ,const vType* v,
+         std::string *WhyNot
+         , const std::string& objective)
+        {
+          myC value;
+          if (!v->getEnv()->getDataValue<numField>(value,WhyNot,objective))
+            return false;
+
+
+          if (x!=value)
+            {
+              *WhyNot=objective+": x="+std::to_string(x)+"is not equal to "
+                  +numField::myId()+" = "+std::to_string(value);
+              return false;
+            }
+          else
+            return true;
+        }
+
+        static std::set<std::string> alternativeNext
+        (const StructureEnv_New* cm
+         ,const vType* v )
+        {
+          myC value;
+          if (!v->getEnv()->getDataValue<numField>(value))
+            return {};
+          else
+            return {std::to_string(value)};
+        }
+
+
+
+        static Implements_Data_Type_New<myC>*
+        varType()
+        {
+          return new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
+        }
+        static Implements_Data_Type_New<myC>*
+        varType(Implements_Data_Type_New<myC>* source,myC val)
+        {
+          source->comply_=&comply;
+          source->alternativesNext_=&alternativeNext;
+          return source;
+        }
+
+
+      };
+
+
+
+      template<typename numField>
+      struct Index
+      {
+        typedef  std::size_t myC;
+        typedef  Implements_Data_Type_New<myC> vType;
+        static std::string myId(){return "index_of_"+numField::myId();}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "index within "+numField::myId();}
+        static std::string myWhatThis() {return "";}
+        typedef mp_list<> dependsOn;
+        typedef mp_list<numField>  fieldList;
+
+        static bool comply
+        (const StructureEnv_New* cm
+         ,const myC& x
+         ,const vType* v,
+         std::string *WhyNot
+         , const std::string& objective)
+        {
+          myC value;
+          if (!cm->getDataValue<numField>(value,WhyNot,objective))
+            return false;
+
+
+          if (x>=value)
+            {
+              *WhyNot=objective+": x="+std::to_string(x)+"is greater than "
+                  +numField::myId()+" = "+std::to_string(value);
+              return false;
+            }
+          else
+            return true;
+        }
+
+        static std::set<std::string> alternativeNext
+        (const StructureEnv_New* cm
+         ,const vType* v )
+        {
+          myC value;
+          if (!cm->getDataValue<numField>(value))
+            return {};
+          else
+            {
+
+              std::set<std::string> out;
+              for (auto i=0; i<value; ++i)
+                out.insert(std::to_string(i));
+              return out;
+            }
+        }
+
+
+        static Implements_Data_Type_New<myC>*
+        varType(const StructureEnv_New *)
+        {
+          return new Implements_Data_Type_New<myC>
+              (&comply,&alternativeNext);
+        }
+        static Implements_Data_Type_New<myC>*
+        varType(Implements_Data_Type_New<myC>* source,myC val)
+        {
+          source->comply_=&comply;
+          source->alternativesNext_=&alternativeNext;
+          return source;
+        }
+
+
+      };
+
+
+
+
+    };
+    void push_Types(StructureEnv_New *cm);
+
+  };
+
+
+
   namespace Real
   {
     typedef  double myC;
@@ -3280,6 +3505,9 @@ namespace Markov_IO_New {
         static std::string myTip(){return "any non zero real number";}
         static std::string myWhatThis() {return "";}
 
+        typedef mp_list<> dependsOn;
+        typedef mp_list<> fieldList;
+
         static bool comply
         (const StructureEnv_New* cm
          ,const myC& x
@@ -3306,7 +3534,7 @@ namespace Markov_IO_New {
 
 
         static Implements_Data_Type_New<myC>*
-        varType()
+        varType(const StructureEnv_New *cm =nullptr)
         {
           return new Implements_Data_Type_New<myC>
               (&comply,&alternativeNext);
@@ -3326,10 +3554,14 @@ namespace Markov_IO_New {
 
       struct nonNegative
       {
+        typedef typename Real::myC myC;
         static std::string myId(){return "real_positive_or_zero";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "zero or positive real number";}
         static std::string myWhatThis() {return "";}
+
+        typedef mp_list<> dependsOn;
+        typedef mp_list<> fieldList;
 
         static bool comply
         (const StructureEnv_New* cm
@@ -3357,7 +3589,7 @@ namespace Markov_IO_New {
 
 
         static Implements_Data_Type_New<myC>*
-        varType()
+        varType(const StructureEnv_New * cm=nullptr)
         {
           return new Implements_Data_Type_New<myC>
               (&comply,&alternativeNext);
@@ -3381,6 +3613,10 @@ namespace Markov_IO_New {
         static std::string myTip(){return "any postive non zero real number";}
         static std::string myWhatThis() {return "";}
 
+        typedef mp_list<> dependsOn;
+        typedef mp_list<> fieldList;
+
+
         static bool comply
         (const StructureEnv_New* cm
          ,const myC& x
@@ -3398,7 +3634,7 @@ namespace Markov_IO_New {
 
 
         static Implements_Data_Type_New<myC>*
-        varType()
+        varType(const StructureEnv_New* cm=nullptr)
         {
           return new Implements_Data_Type_New<myC>
               (&comply,&alternativeNext);
@@ -3415,7 +3651,7 @@ namespace Markov_IO_New {
         static void push_Types(StructureEnv_New *cm)
         {
           if (!cm->hasType(myId()))
-             cm->pushType(myId(),varType(),myTip(),myWhatThis());
+            cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
         }
 
 
@@ -3429,9 +3665,12 @@ namespace Markov_IO_New {
         typedef  double myC;
         typedef  Implements_Data_Type_New<myC> vType;
         static std::string myId(){return "Real_zero";}
-        static std::string idType(){return Cls<myC>::name();}
+        static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "zero real number";}
         static std::string myWhatThis() {return "";}
+
+        typedef mp_list<> dependsOn;
+        typedef mp_list<> fieldList;
 
         static bool comply
         (const StructureEnv_New*
@@ -3459,7 +3698,7 @@ namespace Markov_IO_New {
 
 
         static Implements_Data_Type_New<myC>*
-        varType()
+        varType(const StructureEnv_New*cm=nullptr )
         {
           return new Implements_Data_Type_New<myC>
               (&comply,&alternativeNext);
@@ -3479,10 +3718,10 @@ namespace Markov_IO_New {
       {
         typedef  double myC;
         typedef  Implements_Data_Type_New<myC> vType;
-        static std::string idVar(myC x){return "Real_given_"+std::to_string(x);}
-        static std::string idType(){return Cls<myC>::name();}
-        static std::string Tip(){return "given real number";}
-        static std::string WhatThis() {return "";}
+        static std::string myId(myC x){return "Real_given_"+std::to_string(x);}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "given real number";}
+        static std::string myWhatThis() {return "";}
 
         static bool comply
         (const StructureEnv_New* cm
@@ -3544,11 +3783,14 @@ namespace Markov_IO_New {
       {
         typedef  double myC;
         typedef  Implements_Data_Type_New<myC> vType;
-        static std::string idVar(myC x){return "Real_GT_"+std::to_string(x);}
-        static std::string idType(){return Cls<myC>::name();}
-        static std::string Tip(myC x){return "real number greater than"
+        static std::string myId(myC x){return "Real_GT_"+std::to_string(x);}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(myC x){return "real number greater than"
               +std::to_string(x);}
-        static std::string WhatThis() {return "";}
+        static std::string myWhatThis() {return "";}
+
+        typedef mp_list<> dependsOn;
+        typedef mp_list<> fieldList;
 
         static bool comply
         (const StructureEnv_New* cm
@@ -3796,6 +4038,42 @@ namespace Markov_IO_New {
 
 
     };
+
+
+    template<typename T>
+    void push_Types(StructureEnv_New *cm);
+  };
+
+
+
+  namespace Vector
+  {
+    template <typename T>
+    using vType=  Implements_Data_Type_New<std::vector<T>>;
+    struct Comply
+    {
+      template<typename T>
+      static bool Size(
+          const std::vector<T>& x,
+          std::size_t numElem,
+          std::string* whyNot, const std::string& masterObjective)
+      {
+        std::string objective=masterObjective+": size mismatch";
+        if(x.size()!=numElem)
+          {
+            *whyNot=objective+": size required: "
+                +std::to_string(numElem)+" present:"
+                +std::to_string(x.size());
+            return false;
+          }
+        else
+          return true;
+      }
+
+
+
+    };
+
 
 
     template<typename T>
@@ -4297,7 +4575,7 @@ namespace Markov_IO_New {
                             ,T& v
                             , ABC_Input* istream
                             ,std::string* whyNot
-                            , std::string& MasterObjective )const
+                            ,const std::string& MasterObjective )const
       {
         auto m=new StructureEnv_New(cm,Cls<T>::name());
         if (!CVtype_->getValue(m,m,istream,whyNot,MasterObjective))
@@ -4318,10 +4596,15 @@ namespace Markov_IO_New {
 
 
 
+
+
       virtual buildByToken<StructureEnv_New*>* getBuildByToken(const StructureEnv_New* cm)const
       {
         return new buildByToken<StructureEnv_New*>(cm,CVtype_);
       }
+
+
+      virtual const Implements_Data_Type_New<StructureEnv_New*>* getComplexVarType(const StructureEnv_New* cm) const {return CVtype_;}
 
 
       virtual ~Implements_Data_Type_class(){}
@@ -4407,7 +4690,7 @@ namespace Markov_IO_New {
 
       virtual StructureEnv_New* getComplexMap(
           const StructureEnv_New* cm,
-          const T& v,std::string *WhyNot,const std::string & masterObjective)
+          const T& v,std::string *WhyNot,const std::string & masterObjective)const
       {
         if (getCV_==nullptr)
           return nullptr;
@@ -4452,6 +4735,15 @@ namespace Markov_IO_New {
     {
     public:
       typedef Implements_Data_Type_class<T*> selfType;
+      typedef T* myC;
+      static std::string myId() {return Cls<myC>::name();}
+      static selfType* varType(const StructureEnv_New* cm)
+      {return new Implements_Data_Type_class<T*>();}
+      static std::string myTip(){return "a "+ Cls<myC>::name();}
+      static std::string myWhatThis(){return "";}
+      typedef mp_list<> dependsOn;
+      typedef mp_list<> fieldList;
+
 
       using typePredicate= bool(*)
       (const StructureEnv_New*
@@ -4502,12 +4794,13 @@ namespace Markov_IO_New {
       }
 
 
-
+      virtual selfType* clone()const{return new selfType(*this);}
+      virtual selfType* create()const {return new selfType{};}
 
 
 
       bool includesThisType(const StructureEnv_New *cm, const std::string &childType
-                            , std::string *whyNot, const std::string &masterObjective) const
+                            , std::string *whyNot, const std::string &masterObjective) const override
       {
         std::string id=cm->dataToId(this,whyNot,masterObjective);
         if (id==childType) return true;
@@ -4603,9 +4896,11 @@ namespace Markov_IO_New {
         delete m;
       }
 
+      virtual const Implements_Data_Type_New<StructureEnv_New*>* getComplexVarType(const StructureEnv_New* cm) const {return CVtype_;}
 
 
-      virtual buildByToken<StructureEnv_New*>* getBuildByToken(const StructureEnv_New* cm)const
+      virtual buildByToken<StructureEnv_New*>*
+      getBuildByToken(const StructureEnv_New* cm)const override
       {
         return new buildByToken<StructureEnv_New*>(cm,CVtype_);
       }
@@ -4629,12 +4924,12 @@ namespace Markov_IO_New {
         comply_(nullptr),getClass_(nullptr),getCV_(nullptr),CVtype_(nullptr)
       {
       }
-      virtual bool empty()const
+      virtual bool empty()const override
       {
         return comply_==nullptr&& CVtype_==nullptr;
       }
 
-      virtual void reset()
+      virtual void reset() override
       {
         comply_=nullptr;
         CVtype_=nullptr;
@@ -4642,7 +4937,7 @@ namespace Markov_IO_New {
       }
 
 
-      virtual std::string myType()const
+      virtual std::string myType()const override
       {
         return Cls<T*>::name();
       }
@@ -4651,7 +4946,7 @@ namespace Markov_IO_New {
       virtual bool isOfThisType(const StructureEnv_New* cm,
                                 const std::string& generalType,
                                 std::string* whyNot
-                                ,const std::string &masterObjective)const
+                                ,const std::string &masterObjective)const override
       {
         if ((generalType.empty()||myType()==generalType))
           return true;
@@ -4692,8 +4987,8 @@ namespace Markov_IO_New {
 
 
       virtual T* getClass(const StructureEnv_New* cm
-                         ,const StructureEnv_New*  m
-                         ,std::string *WhyNot,const std::string& masterObjective)const
+                          ,const StructureEnv_New*  m
+                          ,std::string *WhyNot,const std::string& masterObjective)const
       {
         if (getClass_==nullptr)
           return nullptr;
@@ -4746,6 +5041,18 @@ namespace Markov_IO_New {
     public:
       typedef  Implements_Data_Type_class<B*> baseType;
       typedef Implements_Data_Type_derived_class<D,B> selfType;
+
+
+
+      typedef D* myC;
+      static std::string myId() {return Cls<myC>::name();}
+      static selfType* varType(const StructureEnv_New* cm)
+      {return new selfType{};}
+      static std::string myTip(){return "a "+Cls<myC>::name()+" a kind of "+
+            baseType::myTip();}
+      static std::string myWhatThis(){return "";}
+      typedef mp_list<baseType> dependsOn;
+      typedef mp_list<> fieldList;
 
 
       using derivedPredicate= bool(*)
@@ -4911,6 +5218,7 @@ namespace Markov_IO_New {
 
 
 
+
       virtual buildByToken<StructureEnv_New*>* getBuildByToken(const StructureEnv_New* cm)const
       {
         return new buildByToken<StructureEnv_New*>(cm,this->CVtype_);
@@ -4984,7 +5292,6 @@ namespace Markov_IO_New {
 
 
 
-    public:
       virtual Implements_Value_New<D*>* getClassRep(
           const StructureEnv_New* cm,
           const StructureEnv_New* m
@@ -5085,7 +5392,7 @@ namespace Markov_IO_New {
       derivedPredicate complyD_;
       getDClass_type getDClass_;
       getDCV  getDCV_;
-         // ABC_Data_New interface
+      // ABC_Data_New interface
     };
 
 
@@ -5097,12 +5404,6 @@ namespace Markov_IO_New {
 
 
 
-
-    template<typename... Fields>
-    struct FieldSet{
-
-
-    };
 
 
 
@@ -5114,17 +5415,17 @@ namespace Markov_IO_New {
 
 
     template <class myType,typename ... Args>
-     typename myType::myD* map2obj_Impl(const FieldSet<>&,
-        const StructureEnv_New* cm,
-                        const StructureEnv_New* m
-                        ,const Implements_Data_Type_New<typename myType::myD*>* v
-                        ,std::string* WhyNot,
-                        const std::string& masterObjective
-                        ,Args ... restArg)
+    typename myType::myD* map2obj_Impl(const mp_list<>&,
+                                       const StructureEnv_New* cm,
+                                       const StructureEnv_New* m
+                                       ,const Implements_Data_Type_New<typename myType::myD*>* v
+                                       ,std::string* WhyNot,
+                                       const std::string& masterObjective
+                                       ,Args ... restArg)
     {
 
-        return new typename myType::myD
-            (restArg...);
+      return new typename myType::myD
+          (restArg...);
 
     }
 
@@ -5132,25 +5433,26 @@ namespace Markov_IO_New {
 
 
     template <class myType,typename NextField,typename... Field,typename ... Args>
-     typename myType::myD* map2obj_Impl(const FieldSet<NextField,Field...>&,
-        const StructureEnv_New* cm,
-                        const StructureEnv_New* m
-                        ,const Implements_Data_Type_New<typename myType::myD*>* v
-                        ,std::string* WhyNot,
-                        const std::string& masterObjective
-                        ,Args ... restArg)
+    typename myType::myD* map2obj_Impl(const mp_list<NextField,Field...>&,
+                                       const StructureEnv_New* cm,
+                                       const StructureEnv_New* m
+                                       ,const Implements_Data_Type_New<typename myType::myD*>* v
+                                       ,std::string* WhyNot,
+                                       const std::string& masterObjective
+                                       ,Args ... restArg)
     {
 
       typename NextField::myC nextArg;
       if (!m->getDataValue<NextField>
-               ( nextArg,WhyNot,masterObjective))
+          ( nextArg,WhyNot,masterObjective))
         return nullptr;
       else return map2obj_Impl
-            <myType>
-            (FieldSet<Field...>{}
-             ,cm,m,v,WhyNot,masterObjective,restArg...,nextArg);
+          <myType>
+          (mp_list<Field...>{}
+           ,cm,m,v,WhyNot,masterObjective,restArg...,nextArg);
 
     }
+
 
 
 
@@ -5159,118 +5461,178 @@ namespace Markov_IO_New {
 
     template <class myType,typename FirstField,typename... Field>
     typename myType::myD* map2objTempl(const StructureEnv_New* cm,
-                        const StructureEnv_New* m
-                        ,const Implements_Data_Type_New<typename myType::myD*>* v
-                        ,std::string* WhyNot,
-                        const std::string& masterObjective)
+                                       const StructureEnv_New* m
+                                       ,const Implements_Data_Type_New<typename myType::myD*>* v
+                                       ,std::string* WhyNot,
+                                       const std::string& masterObjective,
+                                       const mp_list<FirstField,Field...>&)
     {
       typename FirstField::myC firstArg;
 
       if (!m->getDataValue<FirstField>
-               (firstArg,WhyNot,masterObjective))
+          (firstArg,WhyNot,masterObjective))
         return nullptr;
       else
         return map2obj_Impl<myType>
-            (FieldSet<Field...>{},
-                          cm,m,v,WhyNot,masterObjective,firstArg);
+            (mp_list<Field...>{},
+             cm,m,v,WhyNot,masterObjective,firstArg);
     }
 
 
 
 
-     template <class myType>
-     StructureEnv_New* obj2map_Imp
-   (const StructureEnv_New* cm,
-    const typename myType::myD* x
-    ,const Implements_Data_Type_New<typename myType::myD*>* v
-    , std::string* WhyNot,
-    const std::string& masterObjective,StructureEnv_New* f)
-   {
-return f;
-   }
+    template <class myType>
+    StructureEnv_New* obj2map_Imp
+    (const StructureEnv_New* cm,
+     const typename myType::myD* x
+     ,const Implements_Data_Type_New<typename myType::myD*>* v
+     , std::string* WhyNot,
+     const std::string& masterObjective,StructureEnv_New* f)
+    {
+      return f;
+    }
 
 
 
-      template <class myType,typename FirstField,typename... Field>
-        StructureEnv_New* obj2map_Imp
-      (const StructureEnv_New* cm,
-       const typename myType::myD* x
-       ,const Implements_Data_Type_New<typename myType::myD*>* v
-       , std::string* WhyNot,
-       const std::string& masterObjective,StructureEnv_New* f)
-      {
+    template <class myType,typename FirstField,typename... Field>
+    StructureEnv_New* obj2map_Imp
+    (const StructureEnv_New* cm,
+     const typename myType::myD* x
+     ,const Implements_Data_Type_New<typename myType::myD*>* v
+     , std::string* WhyNot,
+     const std::string& masterObjective,StructureEnv_New* f)
+    {
 
-        f->pushVar< FirstField>(myType::template get<FirstField>(x));
-        return obj2map_Imp<myType,Field...>(cm,x,v,WhyNot,masterObjective,f);
+      f->pushVar< FirstField>(myType::template get<FirstField>(x));
+      return obj2map_Imp<myType,Field...>(cm,x,v,WhyNot,masterObjective,f);
 
-      }
-
-
-        template <class myType,typename FirstField,typename... Field>
-          StructureEnv_New* obj2mapTempl
-        (const StructureEnv_New* cm,
-         const typename myType::myD* x
-         ,const Implements_Data_Type_New<typename myType::myD*>* v
-         , std::string* WhyNot, const std::string& masterObjective)
-        {
-          auto f=new StructureEnv_New(cm,Cls<typename myType::myD>::name());
-          f->pushVar< FirstField>(myType::template get<FirstField>(x));
-          return obj2map_Imp<myType,Field...>(cm,x,v,WhyNot,masterObjective,f);
-        }
+    }
 
 
-
-          template <typename myType>
-            std::vector<std::pair<Implements_Var,bool>> getFields_Imp(std::vector<std::pair<Implements_Var,bool>>& f)
-          {
-            return f;
-          }
-
-
-          template <typename myType,typename FirstField,typename... Field>
-            std::vector<std::pair<Implements_Var,bool>> getFields_Imp(std::vector<std::pair<Implements_Var,bool>>& f)
-          {
-            f.push_back({getMyVar<FirstField>(), myType::template isMandatory<FirstField>()});
-            return getFields_Imp<myType,Field...>(f);
-          }
+    template <class myType,typename FirstField,typename... Field>
+    StructureEnv_New* obj2mapTempl
+    (const StructureEnv_New* cm,
+     const typename myType::myD* x
+     ,const Implements_Data_Type_New<typename myType::myD*>* v
+     , std::string* WhyNot, const std::string& masterObjective,
+     const mp_list<FirstField,Field...>&)
+    {
+      auto f=new StructureEnv_New(cm,Cls<typename myType::myD>::name());
+      f->pushVar< FirstField>(myType::template get<FirstField>(x));
+      return obj2map_Imp<myType,Field...>(cm,x,v,WhyNot,masterObjective,f);
+    }
 
 
 
-      template <typename myType,typename FirstField,typename... Field>
-        std::vector<std::pair<Implements_Var,bool>> getFieldsTempl()
-      {
-        std::vector<std::pair<Implements_Var,bool>> f;
-        f.push_back({getMyVar<FirstField>(),myType::template isMandatory<FirstField>()});
-        return getFields_Imp<myType,Field...>(f);
-      }
+    template <typename myType>
+    std::vector<std::pair<Implements_Var,bool>> getFields_Imp(std::vector<std::pair<Implements_Var,bool>>& f)
+    {
+      return f;
+    }
 
-        template <typename myType>
-         void push_FieldTypes(StructureEnv_New *cm)
-       {
-        }
+
+    template <typename myType,typename FirstField,typename... Field>
+    std::vector<std::pair<Implements_Var,bool>> getFields_Imp(std::vector<std::pair<Implements_Var,bool>>& f)
+    {
+      f.push_back({getMyVar<FirstField>(), myType::template isMandatory<FirstField>()});
+      return getFields_Imp<myType,Field...>(f);
+    }
+
+
+
+    template <typename myType,typename FirstField,typename... Field>
+    std::vector<std::pair<Implements_Var,bool>> getFieldsTempl
+    (const mp_list<FirstField,Field...>&)
+    {
+      std::vector<std::pair<Implements_Var,bool>> f;
+      f.push_back({getMyVar<FirstField>(),myType::template isMandatory<FirstField>()});
+      return getFields_Imp<myType,Field...>(f);
+    }
 
 
 
 
 
-       template <typename myType,typename FirstField,typename... Field>
-        void push_FieldTypes(StructureEnv_New *cm)
-      {
-         FirstField::vType::push_Types(cm);
-         push_FieldTypes<myType,Field...>(cm);
-      }
+    template <typename myType,typename... Field>
+    void push_TypesList(StructureEnv_New *cm, const mp_list<Field...>&);
+
+    template <typename myType,typename... Field>
+    void push_FieldList(StructureEnv_New *cm, const mp_list<Field...>&);
+
+    template<typename myType>
+    void push_Types_Type_impl(StructureEnv_New *cm)
+    {
+      push_TypesList<myType>(cm,typename myType::dependsOn{});
+      push_FieldList<myType>(cm,typename myType::fieldList{});
+      if (!cm->hasType(myType::myId()))
+        cm->pushType
+            (myType::myId()
+             ,myType::varType(cm)
+             ,myType::myTip(),myType::myWhatThis());
+
+    }
 
 
 
-       template <typename myType,typename... Fields>
-        void push_TypesTempl(StructureEnv_New *cm)
-      {
-         cm->pushType
-             (myType::myId()
-              ,myType::varType(cm)
-              ,myType::myTip(),myType::myWhatThis());
-         push_FieldTypes<myType,Fields...>(cm);
-      }
+
+
+    template<typename myField>
+    void push_Types_Field_impl(StructureEnv_New *cm)
+    {
+      push_Types_Type_impl<typename myField::vType>(cm);
+    }
+
+
+
+    template <typename myType>
+    void push_FieldList(StructureEnv_New *cm)
+    {
+    }
+
+
+    template <typename myType,typename FirstField,typename... Field>
+    void push_FieldList(StructureEnv_New *cm)
+    {
+      push_Types_Field_impl<FirstField>(cm);
+      push_FieldList<myType,Field...>(cm);
+    }
+
+    template <typename myType>
+    void push_TypesList(StructureEnv_New *cm)
+    {
+    }
+
+
+    template <typename myType,typename FirstField,typename... Field>
+    void push_TypesList(StructureEnv_New *cm)
+    {
+      push_Types_Type_impl<FirstField>(cm);
+      push_TypesList<myType,Field...>(cm);
+    }
+
+
+    template <typename myType,typename... Field>
+    void push_TypesList(StructureEnv_New *cm, const mp_list<Field...>&)
+    {
+      push_TypesList<myType,Field...>(cm);
+    }
+
+    template <typename myType,typename... Field>
+    void push_FieldList(StructureEnv_New *cm, const mp_list<Field...>&)
+    {
+      push_FieldList<myType,Field...>(cm);
+    }
+
+
+
+    template <typename myType>
+    void push_MyTypes(StructureEnv_New *cm)
+    {
+      push_Types_Type_impl<myType>(cm);
+    }
+
+
+
 
 
 

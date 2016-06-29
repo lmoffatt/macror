@@ -28,7 +28,7 @@ namespace Markov_IO_New {
 
 
   template <typename T>
-  Token_New buildByToken<Markov_LA::M_Matrix<T> >::popBackToken()
+  Token_New buildByToken<Markov_LA::M_Matrix<T>,true >::popBackToken()
   {
     if (isFinal())
       {
@@ -218,7 +218,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<Markov_LA::M_Matrix<T> >::alternativesNext() const
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > buildByToken<Markov_LA::M_Matrix<T>,true >::alternativesNext() const
   {
     std::pair<std::string,std::set<std::string>> out;
     switch (mystate) {
@@ -264,14 +264,14 @@ namespace Markov_IO_New {
 
 
 
-  template<typename T>
-  buildByToken<std::vector<T> >::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType)
-    :
-      ABC_BuildByToken(parent),
-      mystate(S_Init),
-      x_(),
-      valueBuild_(vecType->getElementBuildByToken(parent)),
-      varType_(vecType){}
+//  template<typename T>
+//  buildByToken<std::vector<T> >::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType)
+//    :
+//      ABC_BuildByToken(parent),
+//      mystate(S_Init),
+//      x_(),
+//      valueBuild_(vecType->getElementDataType(parent)->getBuildByToken(parent)),
+//      varType_(vecType){}
 
 
 
@@ -715,7 +715,7 @@ namespace Markov_IO_New {
   ,varMapType_(typeVar)
   ,ivType_(typeVar->getElementType()->clone())
   ,ivBuild_(new buildByToken<Implements_Var>(StEnv_,ivType_))
-  ,StEnv_(new StructureEnv_New(parent,""))
+  ,StEnv_(new StructureEnv_New(parent,varMapType_->myType()))
   ,iv_()
   ,iField_(0)
 
@@ -808,7 +808,7 @@ namespace Markov_IO_New {
       case S_All:
         if (tok.tok()==Token_New::RCB)
           {
-            mystate=S_Final;
+              mystate=S_Final;
             return true;
           }
         else
@@ -842,7 +842,8 @@ namespace Markov_IO_New {
 
 
   
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > Markov_IO_New::buildByToken<StructureEnv_New *>::alternativesNext() const
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
+  buildByToken<StructureEnv_New *>::alternativesNext() const
   {
     std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > out;
     switch (mystate)
@@ -956,18 +957,18 @@ namespace Markov_IO_New {
 
 
 
-  ABC_Data_New *Markov_IO_New::buildByToken<StructureEnv_New *>::unloadData()
+  ABC_Data_New *buildByToken<StructureEnv_New *,true>::unloadData()
   {
 
     return unloadVar();
   }
 
-  StructureEnv_New  *Markov_IO_New::buildByToken<StructureEnv_New *>::unloadVar()
+  StructureEnv_New  *buildByToken<StructureEnv_New *>::unloadVar()
   {
     if (isFinal())
       {
         StructureEnv_New * out=StEnv_;
-        StEnv_=nullptr;
+        StEnv_=new StructureEnv_New(parent(),varMapType_->myType());
         iv_={};
         mystate=S_Init;
         iField_=0;
@@ -992,7 +993,7 @@ namespace Markov_IO_New {
   build_Command_Input::build_Command_Input(
       const StructureEnv_New *cm,
       const Implements_Command_Type_New * vCmd):
-    buildByToken<Markov_IO_New::Implements_Command_Arguments *> (cm,vCmd),
+    buildByToken<Implements_Command_Arguments *> (cm,vCmd),
     mystate(S_Init)
   ,cmdty_(vCmd)
   , cmdArg_
@@ -1407,22 +1408,17 @@ namespace Markov_IO_New {
   template class buildByToken<Markov_LA::M_Matrix<double>>;
   template  class buildByToken<Markov_LA::M_Matrix<std::size_t>>;
 
-  template <typename T>
-  ABC_Data_New *Markov_IO_New::buildByToken<std::vector<T> >::unloadData()
-  {
-    return new Implements_Value_New<std::vector<T>
-        >(parent()->dataToId(varType_),unloadVar());
-  }
+
 
   template <typename T>
-  ABC_Data_New *buildByToken<std::set<T> >::unloadData()
+  ABC_Data_New *buildByToken<std::set<T> ,true>::unloadData()
   {
     return new Implements_Value_New<std::set<T>
         > (parent()->dataToId(dataType_),unloadVar());
   }
 
 
-  Markov_IO_New::buildByToken<Implements_Var>::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<Implements_Var> *varType):
+  buildByToken<Implements_Var>::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<Implements_Var> *varType):
     ABC_BuildByToken(parent),
     mystate(S_Init),ivarType_(varType),idType_(varType->getKeyType(parent)->clone()),
     dataTy_(varType->getElementType(parent)->clone()),

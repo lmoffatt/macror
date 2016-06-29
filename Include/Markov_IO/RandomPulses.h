@@ -82,7 +82,7 @@ public:
 		  double interval_min,
 		  double interval_max,
 		  bool log_scale,
-		  Markov_LA::M_Matrix<double> con,
+		  std::vector<double> con,
 		  double tracedur,
 		  double trace_interval,
 		  double fs,
@@ -113,7 +113,7 @@ private:
     double interval_min_d;
     double interval_max_d;
     bool log_scale_b;
-    Markov_LA::M_Matrix<double> con_M;
+    std::vector<double> con_M;
     double tracedur_d;
     double trace_interval_d;
     double fs_d;

@@ -150,7 +150,7 @@ Random_Pulses* Random_Pulses::clone() const
 			      double minimal_interval,
 			      double maximal_interval,
 			      bool is_log_scale,
-			      Markov_LA::M_Matrix<double> concentrations,
+			      std::vector<double> concentrations,
 			      double trace_duratrion,
 			      double trace_interval,
 			      double frequency_of_sampling,
@@ -173,7 +173,7 @@ Random_Pulses* Random_Pulses::clone() const
      PP_PP()
  {
    // not complete, just copied from other
-   ASSERT_GEQ(con_M,0.00);
+  // ASSERT_GEQ(con_M,0.00);
    ASSERT_GEQ(ton_d,0.0);
    ASSERT_LEQ(ton_d,tracedur_d);
    ASSERT_LEQ(0.00,exchange_d);
@@ -231,10 +231,10 @@ Random_Pulses* Random_Pulses::clone() const
      Markov_LA::M_Matrix<double> ton_pulse(1,ton_v.size(),ton_v);
      Markov_LA::M_Matrix<double> x_at_ton(1,xon_v.size(),xon_v);
 
-     std::vector<Pulses_trace> traces;
+     std::vector<Pulses_trace*> traces;
 
 
-     Pulses_trace p0(ton_pulse,
+     auto p0= new Pulses_trace (ton_pulse,
 		     x_at_ton,
 		     tracedur_d,
 		     fs_d,
@@ -243,15 +243,15 @@ Random_Pulses* Random_Pulses::clone() const
 		     trace_interval_d);
      traces.push_back(p0);
 
-     Markov_LA::M_Matrix<std::size_t> to_i_trace(1,size(con_M));
-     Markov_LA::M_Matrix<double> trace_con(1,size(con_M));
-     for (std::size_t i=0; i<size(con_M); i++)
+     std::vector<std::size_t> to_i_trace(con_M.size());
+     std::vector<double> trace_con(con_M.size());
+     for (std::size_t i=0; i<con_M.size(); i++)
      {
-	 to_i_trace(0,i)=0;
-	 trace_con(0,i)=con_M[i];
+         to_i_trace[i]=0;
+         trace_con[i]=con_M[i];
      };
 
-     PP_PP=Pulses_program("Random_Pulses_Program",traces,to_i_trace,trace_con);
+     PP_PP=Pulses_program(traces,to_i_trace,trace_con);
  };
 
  Random_Pulses::Random_Pulses():
@@ -262,7 +262,7 @@ Random_Pulses* Random_Pulses::clone() const
      interval_min_d(1e-5),
      interval_max_d(1e-5),
      log_scale_b(true),
-     con_M(Markov_LA::M_Matrix<double>(1,1)),
+     con_M(std::vector<double>(1)),
      tracedur_d(1),
      trace_interval_d(10),
      fs_d(10e3),

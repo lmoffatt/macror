@@ -31,6 +31,8 @@ namespace Markov_IO_New {
   class ABC_Experiment;
   class Single_Pulses;
 
+  class Pulses_program;
+
   class ABC_trace;
   class Pulses_trace;
 
@@ -81,6 +83,35 @@ namespace Markov_IO_New {
   }
 
 
+  template<typename... Fields>
+  struct mp_list{
+
+
+  };
+
+  template<class... L> struct mp_append_impl;
+
+  template<class... L> using mp_append = typename mp_append_impl<L...>::type;
+
+  template<> struct mp_append_impl<>
+  {
+      using type = mp_list<>;
+  };
+
+  template<template<class...> class L, class... T>
+  struct mp_append_impl<L<T...>>
+  {
+      using type = L<T...>;
+  };
+
+  template<template<class...> class L1, class... T1,
+      template<class...> class L2, class... T2, class... Lr>
+      struct mp_append_impl<L1<T1...>, L2<T2...>, Lr...>
+  {
+      using type = mp_append<L1<T1..., T2...>, Lr...>;
+  };
+
+
   namespace _private
   {
 
@@ -110,132 +141,173 @@ namespace Markov_IO_New {
 
 
     template<typename T>
-    struct Helper_Value
+    struct mp_Value
     {
       using v=Implements_Base_Value_New<T>;
     };
 
 
     template<typename T>
-    struct Helper_Type
+    struct mp_DataType
     {
-      using t=typename    std::conditional<std::is_arithmetic<T>::value,
+      using type=typename    std::conditional<std::is_arithmetic<T>::value,
       Implements_Data_Type_New_regular<T>,
       Implements_Data_Type_class<T>>::type;
+
+      using buildType=typename    std::conditional<std::is_arithmetic<T>::value,
+      T,
+      StructureEnv_New*>::type;
+
     };
 
     template<typename T>
-    struct Helper_Type<std::vector<T>>
+    struct mp_DataType<std::vector<T>>
     {
-      using t=Implements_Data_Type_New_vector<T>;
+      using type=Implements_Data_Type_New_vector<T>;
+      using buildType=std::vector<T>;
     };
 
     template<typename T>
-    struct Helper_Type<std::set<T>>
+    struct mp_DataType<std::set<T>>
     {
-      using t=Implements_Data_Type_New_set<T>;
+      using type=Implements_Data_Type_New_set<T>;
+      using buildType=std::set<T>;
     };
 
     template<typename T>
-    struct Helper_Type<Markov_LA::M_Matrix<T>>
+    struct mp_DataType<Markov_LA::M_Matrix<T>>
     {
-      using t=Implements_Data_Type_New_M_Matrix<T>;
+      using type=Implements_Data_Type_New_M_Matrix<T>;
+      using buildType=Markov_LA::M_Matrix<T>;
     };
 
     template<typename K,typename T>
-    struct Helper_Type<std::map<K,T>>
+    struct mp_DataType<std::map<K,T>>
     {
-      using t=Implements_Data_Type_New_map<K,T>;
+      using type=Implements_Data_Type_New_map<K,T>;
+      using buildType=std::map<K,T>;
     };
 
     template<typename K,typename T>
-    struct Helper_Type<std::pair<K,T>>
+    struct mp_DataType<std::pair<K,T>>
     {
-      using t=Implements_Data_Type_New_pair<K,T>;
+      using type=Implements_Data_Type_New_pair<K,T>;
+      using buildType=std::pair<K,T>;
     };
 
 
 
     template<>
-    struct Helper_Type<std::string>
+    struct mp_DataType<std::string>
     {
-      using t=Implements_Data_Type_New_string;
+      using type=Implements_Data_Type_New_string;
+      using buildType=std::string;
     };
     template<>
-    struct Helper_Type<ABC_Data_New*>{
-      using t=Implements_Data_Type_New_ABC_Data_New;
-    };
-
-    template<>
-    struct Helper_Type<Implements_Var>{
-      using t=Implements_Data_Type_New_Implements_Var;
-    };
-
-
-    template<>
-    struct Helper_Type<StructureEnv_New*>{
-      using t=Implements_Data_Type_New_StructureEnv;
+    struct mp_DataType<ABC_Data_New*>{
+      using type=Implements_Data_Type_New_ABC_Data_New;
+      using buildType=ABC_Data_New*;
     };
 
     template<>
-    struct Helper_Type<Markov_Mol_New::ABC_Markov_Model*>
+    struct mp_DataType<Implements_Var>{
+      using type=Implements_Data_Type_New_Implements_Var;
+      using buildType=Implements_Var;
+    };
+
+
+    template<>
+    struct mp_DataType<StructureEnv_New*>{
+      using type=Implements_Data_Type_New_StructureEnv;
+      using buildType=StructureEnv_New*;
+    };
+
+    template<>
+    struct mp_DataType<Markov_Mol_New::ABC_Markov_Model*>
     {
-      using t=Implements_Data_Type_class<Markov_Mol_New::ABC_Markov_Model*>;
+      using type=Implements_Data_Type_class<Markov_Mol_New::ABC_Markov_Model*>;
+      using buildType=StructureEnv_New*;
     };
 
     template<>
-    struct Helper_Type<Markov_Mol_New::Q_Markov_Model*>
+    struct mp_DataType<Markov_Mol_New::Q_Markov_Model*>
     {
-      using t=Implements_Data_Type_derived_class
+      using type=Implements_Data_Type_derived_class
       <Markov_Mol_New::Q_Markov_Model,Markov_Mol_New::ABC_Markov_Model>;
+      using buildType=StructureEnv_New*;
       };
 
     template<>
-    struct Helper_Value<Markov_Mol_New::Q_Markov_Model*>
+    struct mp_Value<Markov_Mol_New::Q_Markov_Model*>
     {
       using v=Implements_Derived_Value_New
       <Markov_Mol_New::Q_Markov_Model,Markov_Mol_New::ABC_Markov_Model>;
+      using buildType=StructureEnv_New*;
     };
 
 
     template<>
-    struct Helper_Type<ABC_Experiment*>
+    struct mp_DataType<ABC_Experiment*>
     {
-      using t=Implements_Data_Type_class<ABC_Experiment*>;
+      using type=Implements_Data_Type_class<ABC_Experiment*>;
+      using buildType=StructureEnv_New*;
     };
 
     template<>
-    struct Helper_Type<Single_Pulses*>
+    struct mp_DataType<Single_Pulses*>
     {
-      using t=Implements_Data_Type_derived_class
+      using type=Implements_Data_Type_derived_class
       <Single_Pulses,ABC_Experiment>;
+      using buildType=StructureEnv_New*;
       };
 
     template<>
-    struct Helper_Type<ABC_trace*>
+    struct mp_DataType<Pulses_program*>
     {
-      using t=Implements_Data_Type_class<ABC_trace*>;
+      using type=Implements_Data_Type_derived_class
+      <Pulses_program,ABC_Experiment>;
+      using buildType=StructureEnv_New*;
+      };
+
+
+    template<>
+    struct mp_DataType<ABC_trace*>
+    {
+      using type=Implements_Data_Type_class<ABC_trace*>;
+      using buildType=StructureEnv_New*;
     };
 
     template<>
-    struct Helper_Type<Pulses_trace*>
+    struct mp_DataType<Pulses_trace*>
     {
-      using t=Implements_Data_Type_derived_class
+      using type=Implements_Data_Type_derived_class
       <Pulses_trace,ABC_trace>;
+      using buildType=StructureEnv_New*;
       };
 
     template<>
-    struct Helper_Value<Single_Pulses*>
+    struct mp_Value<Single_Pulses*>
     {
       using v=Implements_Derived_Value_New
       <Single_Pulses,ABC_Experiment>;
+      using buildType=StructureEnv_New*;
     };
 
     template<>
-    struct Helper_Value<Pulses_trace*>
+    struct mp_Value<Pulses_program*>
+    {
+      using v=Implements_Derived_Value_New
+      <Pulses_program,ABC_Experiment>;
+      using buildType=StructureEnv_New*;
+    };
+
+
+    template<>
+    struct mp_Value<Pulses_trace*>
     {
       using v=Implements_Derived_Value_New
       <Pulses_trace,ABC_trace>;
+      using buildType=StructureEnv_New*;
     };
 
 
@@ -246,11 +318,13 @@ namespace Markov_IO_New {
 
   };
   template <class T>
-  using Implements_Data_Type_New=typename _private::Helper_Type<T>::t;
+  using Implements_Data_Type_New=typename _private::mp_DataType<T>::type;
 
   template <class T>
-  using Implements_Value_New=typename _private::Helper_Value<T>::v;
+  using Implements_Value_New=typename _private::mp_Value<T>::v;
 
+  template <class T>
+  using buildType=typename _private::mp_DataType<T>::buildType;
 
 
 

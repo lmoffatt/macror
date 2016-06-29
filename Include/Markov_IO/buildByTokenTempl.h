@@ -10,7 +10,7 @@
 namespace Markov_IO_New {
 
   template<typename T>
-    bool buildByToken<T>::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
+    bool buildByToken<T,false>::pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective)
   {
     const std::string objective=masterObjective+": "+"Token "+t.str()+" was not accepted by ";
     T d;
@@ -28,7 +28,7 @@ namespace Markov_IO_New {
       return false;
   }
      template<typename T>
-     buildByToken<Markov_LA::M_Matrix<T> >::buildByToken
+     buildByToken<Markov_LA::M_Matrix<T> ,true>::buildByToken
      (const StructureEnv_New *parent,
       const _private::Implements_Data_Type_New_M_Matrix<T > *typeVar)
         :ABC_BuildByToken(parent)
@@ -36,7 +36,7 @@ namespace Markov_IO_New {
         ,dataType_(typeVar)
        ,eleTypeInit_(typeVar->getElementDataType(parent))
         ,eleType_(eleTypeInit_->clone())
-        ,eleB_(new buildByToken<T>(parent,eleType_))
+        ,eleB_(new buildByToken<buildType<T>>(parent,eleType_))
         ,x_()
         ,hasFixedCols_(dataType_->hasFixedCols())
       ,  hasFixedRows_(dataType_->hasFixedRows())

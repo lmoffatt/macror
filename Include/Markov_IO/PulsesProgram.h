@@ -16,9 +16,9 @@ namespace Markov_IO_New
 {
 
 
-class Pulses_program: public ABC_Experiment
-{
-public:
+  class Pulses_program: public ABC_Experiment
+  {
+  public:
     virtual Pulses_program* clone() const;
 
     virtual Pulses_program* create() const;
@@ -67,17 +67,13 @@ public:
 
     virtual const x_dt&  sub_step(std::size_t i)const;
 
-    Pulses_program(const std::string& name,
-		   const std::vector<Pulses_trace>&
-		   vector_of_traces,
-		   const Markov_LA::M_Matrix<std::size_t>&
-		   sequence_of_traces,
-		   const Markov_LA::M_Matrix<double>&
-		   concentration_of_each_trace);
+    Pulses_program(const std::vector<Pulses_trace*>& vector_of_traces,
+                   const std::vector<std::size_t> &sequence_of_traces,
+                   const std::vector<double> &concentration_of_each_trace);
 
-    Pulses_program(const std::string& name,
-           std::size_t numberTraces,
-           std::size_t numberRepetitions);
+    Pulses_program(
+        std::size_t numberTraces,
+        std::size_t numberRepetitions);
 
 
     Pulses_program();
@@ -85,6 +81,19 @@ public:
 
     Pulses_program(const Pulses_program& other);
 
+
+    const std::vector<Pulses_trace*>& vector_of_traces() const
+    {
+      return traces_v;
+    }
+    const std::vector<std::size_t> &sequence_of_traces()const
+    {
+      return to_i_trace_v;
+    }
+    const std::vector<double> &concentration_of_each_trace()const
+    {
+      return pulse_concentration_;
+    }
 
 
 
@@ -94,11 +103,11 @@ public:
 
 
 
-private:
+  private:
     std::string name_;
-    std::vector<Pulses_trace> traces_v;
-    Markov_LA::M_Matrix<std::size_t> to_i_trace_v;
-    Markov_LA::M_Matrix<double> pulse_concentration_M;
+    std::vector<Pulses_trace*> traces_v;
+    std::vector<std::size_t> to_i_trace_v;
+    std::vector<double> pulse_concentration_;
     std::size_t total_samples_u;
     mutable std::size_t itrace_u;
     mutable Pulses_trace run_trace_T;
@@ -107,7 +116,7 @@ private:
     std::string author_;
     std::string date_;
     std::string id_;
-};
+  };
 
 }
 
@@ -129,9 +138,9 @@ namespace Markov_IO
 {
 
 
-class Pulses_program: public ABC_Experiment
-{
-public:
+  class Pulses_program: public ABC_Experiment
+  {
+  public:
     virtual Pulses_program* clone() const;
 
     virtual Pulses_program* create() const;
@@ -189,8 +198,8 @@ public:
                    concentration_of_each_trace);
 
     Pulses_program(const std::string& name,
-           std::size_t numberTraces,
-           std::size_t numberRepetitions);
+                   std::size_t numberTraces,
+                   std::size_t numberRepetitions);
 
 
     Pulses_program();
@@ -212,7 +221,7 @@ public:
 
 
 
-private:
+  private:
     std::string name_;
     std::vector<Pulses_trace> traces_v;
     Markov_LA::M_Matrix<std::size_t> to_i_trace_v;
@@ -225,7 +234,7 @@ private:
     std::string author_;
     std::string date_;
     std::string id_;
-};
+  };
 
 }
 

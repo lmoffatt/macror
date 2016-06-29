@@ -164,8 +164,8 @@ namespace Markov_IO_New
     x_at_ton(0,0)=1.0;
     x_at_ton(0,1)=0.0;
 
-    std::vector<Pulses_trace> traces;
-    Pulses_trace p0(ton_pulse,
+    std::vector<Pulses_trace*> traces;
+    Pulses_trace* p0= new Pulses_trace(ton_pulse,
                     x_at_ton,
                     tracedur_d,
                     fs_d,
@@ -174,7 +174,7 @@ namespace Markov_IO_New
                     trace_interval_d);
     traces.push_back(p0);
 
-    Pulses_trace  p1(ton_con,
+    Pulses_trace*  p1= new Pulses_trace(ton_con,
                      x_at_ton,
                      tracedur_d,
                      fs_d,
@@ -182,18 +182,18 @@ namespace Markov_IO_New
                      sub_step_time_d,
                      trace_interval_d);
     traces.push_back(p1);
-    Markov_LA::M_Matrix<std::size_t> to_i_trace(1,2*size(con_M)+1);
-    Markov_LA::M_Matrix<double> trace_con(1,2*size(con_M)+1);
+    std::vector<std::size_t> to_i_trace(1,2*size(con_M)+1);
+    std::vector<double> trace_con(1,2*size(con_M)+1);
     for (std::size_t i=0; i<size(con_M); i++)
       {
-        to_i_trace(0,i*2)=1;
-        trace_con(0,i*2)=concon_d;
-        to_i_trace(0,i*2+1)=0;
-        trace_con(0,i*2+1)=con_M[i];
+        to_i_trace[i* 2]=1;
+        trace_con[i*2]=concon_d;
+        to_i_trace[i*2+1]=0;
+        trace_con[i*2+1]=con_M[i];
       };
-    to_i_trace(0,size(con_M)*2)=1;
-    trace_con(0,size(con_M)*2)=concon_d;
-    PP_PP=Pulses_program("Single_Pulses_Program",traces,to_i_trace,trace_con);
+    to_i_trace[size(con_M)*2]=1;
+    trace_con[size(con_M)*2]=concon_d;
+    PP_PP=Pulses_program(traces,to_i_trace,trace_con);
   };
 
   Single_Pulses2::Single_Pulses2() {};
