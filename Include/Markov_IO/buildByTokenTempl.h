@@ -36,7 +36,7 @@ namespace Markov_IO_New {
         ,dataType_(typeVar)
        ,eleTypeInit_(typeVar->getElementDataType(parent))
         ,eleType_(eleTypeInit_->clone())
-        ,eleB_(new buildByToken<buildType<T>>(parent,eleType_))
+        ,eleB_(new buildByToken<T>(parent,eleType_))
         ,x_()
         ,hasFixedCols_(dataType_->hasFixedCols())
       ,  hasFixedRows_(dataType_->hasFixedRows())

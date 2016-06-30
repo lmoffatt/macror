@@ -295,7 +295,27 @@ namespace Markov_IO_New {
       virtual bool get(double &x, std::string *whyNot, const std::string &masterObjective) override
       {
         f_>>x;
-        return f_.good();
+        if (!f_.good())
+          {
+            f_.clear();
+            std::string nan_val;
+            f_>>nan_val;
+            if (nan_val=="nan")
+              x=std::nan("");
+            else if (nan_val=="-nan")
+              x=-std::nan("");
+            else if (nan_val=="inf")
+              x=std::numeric_limits<double>::infinity();
+            else if (nan_val=="-inf")
+              x=-std::numeric_limits<double>::infinity();
+            else
+              {
+              f_.setstate(f_.rdstate() | std::ios_base::failbit);
+               return false;
+              }
+            return true;
+          }
+        else return true;
 
       }
       virtual bool get(int &n, std::string *whyNot, const std::string &masterObjective) override

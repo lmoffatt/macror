@@ -78,6 +78,9 @@ const Trace& Trace::replicate(std::size_t i)const
 }
 
 
+
+
+
 double Trace::t()const
 {
     return (ty_(i_sample()+1,0)+ty_(i_sample(),0))/2;
@@ -164,11 +167,9 @@ void swap(Trace& one, Trace& other)
 
 }
 
-Trace::Trace(const std::string& traceName,
-             const Markov_LA::M_Matrix<double>& tx,
+Trace::Trace(const Markov_LA::M_Matrix<double>& tx,
              const Markov_LA::M_Matrix<double>& ty,
              double trace_interval):
-    name_(traceName),
     tx_(tx),
     ty_(ty),
     trace_interval_(trace_interval),

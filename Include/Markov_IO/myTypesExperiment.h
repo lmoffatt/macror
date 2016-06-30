@@ -8,6 +8,7 @@
 
 #include "Markov_IO/PulsesProgram.h"
 
+#include "Markov_IO/Experiment.h"
 
 #include "Markov_Console/Markov_CommandManager.h"
 
@@ -975,7 +976,7 @@ namespace Markov_IO_New {
                             const std::string& masterObjective)
         {
 
-          return map2objTempl<Pulses_trace_type>
+          return map2objPtrTempl<Pulses_trace_type>
               (cm,m,v,WhyNot,masterObjective,buildFieldList());
 
         }
@@ -987,7 +988,7 @@ namespace Markov_IO_New {
          ,const vType* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          return obj2mapTempl<Pulses_trace_type>
+          return objPtr2mapTempl<Pulses_trace_type>
               (cm,x,v,WhyNot,masterObjective,fieldList());
 
         }
@@ -1467,7 +1468,7 @@ namespace Markov_IO_New {
                             const std::string& masterObjective)
         {
 
-          return map2objTempl<selfType>
+          return map2objPtrTempl<selfType>
               (cm,m,v,WhyNot,masterObjective,buildFieldList());
 
         }
@@ -1479,7 +1480,7 @@ namespace Markov_IO_New {
          ,const vType* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          return obj2mapTempl<selfType>
+          return objPtr2mapTempl<selfType>
               (cm,x,v,WhyNot,masterObjective,fieldList());
 
         }
@@ -1552,11 +1553,649 @@ namespace Markov_IO_New {
 
 
     }
+
+
+      namespace experiments
+      {
+
+        namespace traces
+
+        {
+
+
+        struct timed_changes_in_x_type
+            {
+              typedef timed_changes_in_x_type selfType;
+              typedef double elem;
+
+              typedef Implements_Data_Type_New<elem> vElemType;
+              typedef  Markov_LA::M_Matrix<elem> myC;
+              typedef Implements_Data_Type_New<myC> vType;
+
+              typedef mp_list<> fieldList;
+              typedef mp_list<vType,vElemType> dependsOn;
+
+              static std::string myId(){return "timed_changes_in_x_type";}
+              static std::string myIdType(){return Cls<myC>::name();}
+              static std::string myTip(){return "times when the concentration changed";}
+              static std::string myWhatThis() {return "";}
+
+
+              static bool comply
+              (const StructureEnv_New* cm
+               ,const myC & x
+               ,const vType* self,
+               std::string *WhyNot
+               , const std::string& objective)
+              {
+
+                return true;
+              }
+
+              static const Implements_Data_Type_New<elem>* elementType
+              (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
+              {
+                return cm->idToTyped<elem>(vElemType::myId(),whyNot,masterObjective);
+              }
+
+
+              static Implements_Data_Type_New<elem>* nextElement (
+                  const StructureEnv_New* cm
+                  ,const std::vector<elem>& val,
+                  std::size_t nrow, std::size_t ncol
+                  ,std::size_t i, std::size_t j
+                  ,const Implements_Data_Type_New<myC>* self
+                  , std::string * whyNot, const std::string& masterObjective,
+                  Implements_Data_Type_New<elem>* source)
+              {
+                if ((j==0)&&(i==0))
+                    return Real::types::Zero::varType(source);
+                else if(j==0)
+                    return Real::types::greaterThan::varType(source,val[(i-1)*ncol]);
+                else
+                  {
+                    return Real::types::nonNegative::varType(source);
+                  }
+               }
+
+
+
+              static std::size_t getColsNumber
+              (const StructureEnv_New* cm
+               ,const vType* cv)
+              {
+                return 2;
+              }
+
+              static std::size_t getRowsNumber
+              (const StructureEnv_New* cm
+               ,const vType* cv)
+              {
+                return 1;
+              }
+
+              static constexpr bool areColsFixed=true;
+              static constexpr bool areRowsFixed=false;
+
+
+              static Implements_Data_Type_New<myC>*
+              varType(const StructureEnv_New* cm
+                      ,std::string* whyNot=nullptr,const std::string& masterObjective="")
+              {
+                auto d=elementType(cm,whyNot,masterObjective);
+                if (d==nullptr)
+                  return nullptr;
+                else
+                  {
+                    return new Implements_Data_Type_New<myC>
+                        (d,&comply,&nextElement,&getColsNumber,&getRowsNumber
+                         ,areColsFixed,areRowsFixed);
+                  }
+              }
+
+
+            };
+
+
+        struct timed_changes_in_x_field
+        {
+          typedef  timed_changes_in_x_type vType;
+          typedef  typename vType::myC   myC;
+
+          static std::string myId(){return "timed_changes_in_x";}
+          static std::string myIdType(){return vType::myId();}
+          static std::string myTip(){return "list of times when the agonist concentration changed and the concentration reached";}
+          static std::string myWhatThis() {return "";}
+
+        };
+
+
+        struct timed_changes_in_y_type
+            {
+              typedef timed_changes_in_x_type selfType;
+              typedef double elem;
+
+              typedef Implements_Data_Type_New<elem> vElemType;
+              typedef  Markov_LA::M_Matrix<elem> myC;
+              typedef Implements_Data_Type_New<myC> vType;
+
+              typedef mp_list<> fieldList;
+              typedef mp_list<vType,vElemType> dependsOn;
+
+              static std::string myId(){return "timed_changes_in_y_type";}
+              static std::string myIdType(){return Cls<myC>::name();}
+              static std::string myTip(){return "average measured current at each time period; nan for missing values";}
+              static std::string myWhatThis() {return "";}
+
+
+              static bool comply
+              (const StructureEnv_New* cm
+               ,const myC & x
+               ,const vType* self,
+               std::string *WhyNot
+               , const std::string& objective)
+              {
+
+                return true;
+              }
+
+              static const Implements_Data_Type_New<elem>* elementType
+              (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
+              {
+                return cm->idToTyped<elem>(vElemType::myId(),whyNot,masterObjective);
+              }
+
+
+              static Implements_Data_Type_New<elem>* nextElement (
+                  const StructureEnv_New* cm
+                  ,const std::vector<elem>& val,
+                  std::size_t nrow, std::size_t ncol
+                  ,std::size_t i, std::size_t j
+                  ,const Implements_Data_Type_New<myC>* self
+                  , std::string * whyNot, const std::string& masterObjective,
+                  Implements_Data_Type_New<elem>* source)
+              {
+                if ((j==0)&&(i==0))
+                    return Real::types::Zero::varType(source);
+                else if(j==0)
+                    return Real::types::greaterThan::varType(source,val[(i-1)*ncol]);
+                else
+                  {
+                    return Real::types::finite::varType(source);
+                  }
+               }
+
+
+
+              static std::size_t getColsNumber
+              (const StructureEnv_New* cm
+               ,const vType* cv)
+              {
+                return 2;
+              }
+
+              static std::size_t getRowsNumber
+              (const StructureEnv_New* cm
+               ,const vType* cv)
+              {
+                return 1;
+              }
+
+              static constexpr bool areColsFixed=true;
+              static constexpr bool areRowsFixed=false;
+
+
+              static Implements_Data_Type_New<myC>*
+              varType(const StructureEnv_New* cm
+                      ,std::string* whyNot=nullptr,const std::string& masterObjective="")
+              {
+                auto d=elementType(cm,whyNot,masterObjective);
+                if (d==nullptr)
+                  return nullptr;
+                else
+                  {
+                    return new Implements_Data_Type_New<myC>
+                        (d,&comply,&nextElement,&getColsNumber,&getRowsNumber
+                         ,areColsFixed,areRowsFixed);
+                  }
+              }
+
+
+            };
+
+
+        struct timed_changes_in_y_field
+        {
+          typedef  timed_changes_in_y_type vType;
+          typedef  typename vType::myC   myC;
+
+          static std::string myId(){return "timed_changes_in_y";}
+          static std::string myIdType(){return vType::myId();}
+          static std::string myTip(){return "measured current for the begining of each time period";}
+          static std::string myWhatThis() {return "";}
+
+        };
+
+
+        struct Traces_type {
+          typedef ABC_trace myB;
+          typedef Trace myD;
+          typedef Implements_Data_Type_derived_class<myD,myB>  vType;
+
+          typedef Traces_type selfType;
+
+
+          typedef mp_list
+          <timed_changes_in_x_field,
+          timed_changes_in_y_field
+          ,intertrace_interval_field>    buildFieldList;
+
+
+          typedef mp_append<mp_list<>
+          ,buildFieldList>    fieldList;
+
+
+
+
+          typedef mp_list<> dependsOn;
+
+
+          static std::string myId(){return Cls<myD*>::name();}
+          static std::string myIdType(){return Cls<myD*>::name();}
+          static std::string myTip(){return "Evolution of the changes in concentrationa and of measured current descibed at low level for a single trace";}
+          static std::string myWhatThis(){return "";}
+
+          template<typename Field>
+          static bool isMandatory() {return true;}
+
+
+          template<typename Field>
+          static typename Field::myC get(const myD* x);
+
+
+
+
+          static myD* map2objPtr(const StructureEnv_New* cm,
+                              const StructureEnv_New* m
+                              ,const vType* v
+                              ,std::string* WhyNot,
+                              const std::string& masterObjective)
+          {
+
+            return map2objPtrTempl<selfType>
+                (cm,m,v,WhyNot,masterObjective,buildFieldList());
+
+          }
+
+
+
+
+
+
+
+
+          static  StructureEnv_New* objPtr2map
+          (const StructureEnv_New* cm,
+           const myD* x
+           ,const vType* v
+           , std::string* WhyNot, const std::string& masterObjective)
+          {
+            return objPtr2mapTempl<selfType>
+                (cm,x,v,WhyNot,masterObjective,fieldList());
+
+          }
+
+          static std::vector<std::pair<Implements_Var,bool>> getFields()
+          {
+            return getFieldsTempl<selfType>(fieldList());
+
+          }
+
+          static Implements_Data_Type_New<myD*>*
+          varType(const StructureEnv_New* cm)
+          {
+            return new  Implements_Data_Type_derived_class<myD,myB>
+                (getFields(),&objPtr2map,&map2objPtr,nullptr,nullptr);
+          }
+
+          struct valueType
+          {
+            typedef   Traces_type      uType;
+            typedef Implements_Data_Type_class<myD>  vType;
+
+            typedef  typename uType::fieldList    fieldList;
+
+
+
+
+            typedef uType::dependsOn dependsOn;
+
+
+
+
+            static std::string myId(){return Cls<myD>::name();}
+            static std::string myIdType(){return Cls<myD>::name();}
+
+            static std::string myTip(){return uType::myTip();}
+            static std::string myWhatThis(){return uType::myWhatThis();}
+
+            static myD map2obj(const StructureEnv_New* cm,
+                                const StructureEnv_New* m
+                               ,bool & success
+                               ,const vType* v
+                                ,std::string* WhyNot,
+                                const std::string& masterObjective)
+            {
+
+              return map2objTempl<selfType>
+                  (cm,m,success,v,WhyNot,masterObjective,buildFieldList());
+
+            }
+
+
+            static  StructureEnv_New* obj2map
+            (const StructureEnv_New* cm,
+             const myD& x
+             ,const vType* v
+             , std::string* WhyNot, const std::string& masterObjective)
+            {
+              return obj2mapTempl<selfType>
+                  (cm,x,v,WhyNot,masterObjective,fieldList());
+
+            }
+
+            static std::vector<std::pair<Implements_Var,bool>> getFields()
+            {
+              return getFieldsTempl<selfType>(fieldList());
+
+            }
+
+            static Implements_Data_Type_New<myD>*
+            varType(const StructureEnv_New* cm)
+            {
+              return new  Implements_Data_Type_class<myD>
+                  (getFields(),&obj2map,&map2obj);
+            }
+
+
+
+
+          };
+
+        };
+
+        template<>
+        inline
+        typename timed_changes_in_x_field::myC
+        Traces_type::get<timed_changes_in_x_field>
+        (const typename Traces_type::myD* x)
+        {
+          return x->tx();
+        }
+
+        template<>
+        inline
+        typename timed_changes_in_y_field::myC
+        Traces_type::get<timed_changes_in_y_field>
+        (const typename Traces_type::myD* x)
+        {
+          return x->ty();
+        }
+
+        template<>
+        inline
+        typename intertrace_interval_field::myC
+        Traces_type::get<intertrace_interval_field>
+        (const typename Traces_type::myD* x)
+        {
+          return x->trace_interval();
+        }
+
+
+
+
+      }
+
+        struct trace_vector_type
+        {
+          typedef trace_vector_type selfType;
+
+          typedef Trace elem;
+          typedef traces::Traces_type::valueType vElemType;
+
+          typedef  std::vector<elem> myC;
+
+          typedef Implements_Data_Type_New<myC> vType;
+
+          typedef mp_list<> fieldList;
+          typedef mp_list<vElemType> dependsOn;
+
+          static std::string myId(){return "trace_vector_type";}
+          static std::string myIdType(){return Cls<myC>::name();}
+          static std::string myTip(){return "list of different traces used";}
+          static std::string myWhatThis() {return "";}
+
+
+          static bool comply
+          (const StructureEnv_New* cm
+           ,const myC & x
+           ,const vType* self,
+           std::string *WhyNot
+           , const std::string& objective)
+          {
+            return true;
+          }
+
+          static const Implements_Data_Type_New<elem>* elementType
+          (const StructureEnv_New* cm, std::string *whyNot,const std::string& masterObjective)
+          {
+            return cm->idToTyped<elem>(vElemType::myId(),whyNot,masterObjective);
+          }
+
+
+          static Implements_Data_Type_New<elem>* nextElement
+          (const StructureEnv_New*cm
+           , const myC& val,
+           typename myC::const_iterator it
+           ,const vType* self,std::string *whyNot,const std::string& masterObjective
+           ,Implements_Data_Type_New<elem>* source )
+          {
+            return source;
+          }
+
+          static std::size_t getSize
+          (const StructureEnv_New* cm
+           ,const vType* cv)
+          {
+            return 0;
+
+          }
+
+
+
+
+          static Implements_Data_Type_New<myC>*
+          varType(const StructureEnv_New* cm
+                  ,std::string* whyNot=nullptr,const std::string& masterObjective="")
+          {
+            auto d=elementType(cm,whyNot,masterObjective);
+            if (d==nullptr)
+              return nullptr;
+            else
+              {
+                return new Implements_Data_Type_New<myC>
+                    (d,&comply,&nextElement,&getSize);
+              }
+          }
+
+
+
+
+        };
+
+
+
+
+      struct trace_vector_field
+      {
+        typedef  trace_vector_type vType;
+        typedef  typename vType::myC   myC;
+
+        static std::string myId(){return "traces_vector";}
+        static std::string myIdType(){return vType::myId();}
+        static std::string myTip(){return "list of traces of the experiment in order";}
+        static std::string myWhatThis() {return "";}
+
+      };
+
+
+
+
+      struct Experiment_type {
+        typedef ABC_Experiment myB;
+        typedef Experiment myD;
+        typedef Implements_Data_Type_derived_class<myD,myB>  vType;
+
+        typedef Experiment_type selfType;
+
+
+        typedef mp_list
+        <trace_vector_field>    buildFieldList;
+
+
+        typedef mp_append<mp_list<>
+        ,buildFieldList>    fieldList;
+
+
+
+
+        typedef mp_list<> dependsOn;
+
+
+        static std::string myId(){return "Experiment";}
+        static std::string myIdType(){return Cls<myD*>::name();}
+        static std::string myTip(){return "Evolution of the changes in concentrationa and of measured current descibed at low level for a single trace";}
+        static std::string myWhatThis(){return "";}
+
+        template<typename Field>
+        static bool isMandatory() {return true;}
+
+
+        template<typename Field>
+        static typename Field::myC get(const myD* x);
+
+
+
+
+        static myD* map2objPtr(const StructureEnv_New* cm,
+                            const StructureEnv_New* m
+                            ,const vType* v
+                            ,std::string* WhyNot,
+                            const std::string& masterObjective)
+        {
+
+          return map2objPtrTempl<selfType>
+              (cm,m,v,WhyNot,masterObjective,buildFieldList());
+
+        }
+
+
+        static  StructureEnv_New* objPtr2map
+        (const StructureEnv_New* cm,
+         const myD* x
+         ,const vType* v
+         , std::string* WhyNot, const std::string& masterObjective)
+        {
+          return objPtr2mapTempl<selfType>
+              (cm,x,v,WhyNot,masterObjective,fieldList());
+
+        }
+
+        static std::vector<std::pair<Implements_Var,bool>> getFields()
+        {
+          return getFieldsTempl<selfType>(fieldList());
+        }
+
+        static Implements_Data_Type_New<myD*>*
+        varType(const StructureEnv_New* cm)
+        {
+          return new  Implements_Data_Type_derived_class<myD,myB>
+              (getFields(),&objPtr2map,&map2objPtr,nullptr,nullptr);
+        }
+
+        struct valueType
+        {
+          typedef Implements_Data_Type_class<myD>  vType;
+
+          static std::string myId(){return Cls<myD>::name();}
+          static std::string myIdType(){return Cls<myD>::name();}
+
+          static myD map2obj(const StructureEnv_New* cm,
+                              const StructureEnv_New* m
+                             ,bool & success
+                             ,const vType* v
+                              ,std::string* WhyNot,
+                              const std::string& masterObjective)
+          {
+
+            return map2objTempl<selfType>
+                (cm,m,success,v,WhyNot,masterObjective,buildFieldList());
+
+          }
+
+
+          static  StructureEnv_New* obj2map
+          (const StructureEnv_New* cm,
+           const myD& x
+           ,const vType* v
+           , std::string* WhyNot, const std::string& masterObjective)
+          {
+            return obj2mapTempl<selfType>
+                (cm,x,v,WhyNot,masterObjective,fieldList());
+
+          }
+
+          static std::vector<std::pair<Implements_Var,bool>> getFields()
+          {
+            return getFieldsTempl<selfType>(fieldList());
+
+          }
+
+          static Implements_Data_Type_New<myD>*
+          varType(const StructureEnv_New* cm)
+          {
+            return new  Implements_Data_Type_class<myD>
+                (getFields(),&obj2map,&map2obj);
+          }
+
+
+
+
+        };
+
+      };
+
+      template<>
+      inline
+      typename trace_vector_field::myC
+      Experiment_type::get<trace_vector_field>
+      (const typename Experiment_type::myD* x)
+      {
+        return x->traces();
+      }
+
+
+
+
+    }
+
+
       inline void push_Types(StructureEnv_New *cm)
       {
         Single_Pulses_type::push_Types(cm);
         Pulses_trace_type::push_Types(cm);
         push_MyTypes<pulses_Program::Pulses_program_type>(cm);
+        push_MyTypes<experiments::Experiment_type>(cm);
 
       }
 

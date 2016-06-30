@@ -32,6 +32,8 @@ namespace Markov_IO_New {
   class Single_Pulses;
 
   class Pulses_program;
+  class Experiment;
+  class Trace;
 
   class ABC_trace;
   class Pulses_trace;
@@ -140,191 +142,222 @@ namespace Markov_IO_New {
     template<class D,class B> class Implements_Data_Type_derived_class;
 
 
-    template<typename T>
-    struct mp_Value
-    {
-      using v=Implements_Base_Value_New<T>;
-    };
 
 
     template<typename T>
-    struct mp_DataType
+    struct mp_DataType_Imp
     {
       using type=typename    std::conditional<std::is_arithmetic<T>::value,
       Implements_Data_Type_New_regular<T>,
       Implements_Data_Type_class<T>>::type;
 
-      using buildType=typename    std::conditional<std::is_arithmetic<T>::value,
-      T,
-      StructureEnv_New*>::type;
+      using type_Ptr=typename    std::conditional<std::is_arithmetic<T>::value,
+      Implements_Data_Type_New_regular<T*>,
+      Implements_Data_Type_class<T*>>::type;
+
+      using value=Implements_Base_Value_New<T>;
+      using value_Ptr=Implements_Base_Value_New<T*>;
 
     };
 
     template<typename T>
-    struct mp_DataType<std::vector<T>>
+    struct mp_DataType_Imp<std::vector<T>>
     {
       using type=Implements_Data_Type_New_vector<T>;
-      using buildType=std::vector<T>;
+      using value=Implements_Base_Value_New<std::vector<T>>;
+
     };
 
     template<typename T>
-    struct mp_DataType<std::set<T>>
+    struct mp_DataType_Imp<std::set<T>>
     {
+      using myC=std::set<T>;
       using type=Implements_Data_Type_New_set<T>;
-      using buildType=std::set<T>;
+      using value=Implements_Base_Value_New<myC>;
     };
 
     template<typename T>
-    struct mp_DataType<Markov_LA::M_Matrix<T>>
+    struct mp_DataType_Imp<Markov_LA::M_Matrix<T>>
     {
+      using myC=Markov_LA::M_Matrix<T>;
       using type=Implements_Data_Type_New_M_Matrix<T>;
-      using buildType=Markov_LA::M_Matrix<T>;
+      using value=Implements_Base_Value_New<myC>;
     };
 
     template<typename K,typename T>
-    struct mp_DataType<std::map<K,T>>
+    struct mp_DataType_Imp<std::map<K,T>>
     {
+      using myC=std::map<K,T>;
       using type=Implements_Data_Type_New_map<K,T>;
-      using buildType=std::map<K,T>;
+      using value=Implements_Base_Value_New<myC>;
     };
 
     template<typename K,typename T>
-    struct mp_DataType<std::pair<K,T>>
+    struct mp_DataType_Imp<std::pair<K,T>>
     {
+      using myC=std::pair<K,T>;
       using type=Implements_Data_Type_New_pair<K,T>;
-      using buildType=std::pair<K,T>;
+      using value=Implements_Base_Value_New<myC>;
     };
 
 
 
     template<>
-    struct mp_DataType<std::string>
+    struct mp_DataType_Imp<std::string>
     {
+      using myC=std::string;
       using type=Implements_Data_Type_New_string;
-      using buildType=std::string;
+      using value=Implements_Base_Value_New<myC>;
     };
     template<>
-    struct mp_DataType<ABC_Data_New*>{
-      using type=Implements_Data_Type_New_ABC_Data_New;
-      using buildType=ABC_Data_New*;
+    struct mp_DataType_Imp<ABC_Data_New>{
+      using type_Ptr=Implements_Data_Type_New_ABC_Data_New;
+      using value_Ptr=Implements_Base_Value_New<ABC_Data_New*>;
     };
 
     template<>
-    struct mp_DataType<Implements_Var>{
+    struct mp_DataType_Imp<Implements_Var>{
       using type=Implements_Data_Type_New_Implements_Var;
-      using buildType=Implements_Var;
+      using value=Implements_Base_Value_New<Implements_Var>;
     };
 
 
     template<>
-    struct mp_DataType<StructureEnv_New*>{
-      using type=Implements_Data_Type_New_StructureEnv;
-      using buildType=StructureEnv_New*;
+    struct mp_DataType_Imp<StructureEnv_New>{
+      using myB=ABC_Data_New;
+      using myD=StructureEnv_New;
+      using type_Ptr=Implements_Data_Type_New_StructureEnv;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
     };
 
     template<>
-    struct mp_DataType<Markov_Mol_New::ABC_Markov_Model*>
+    struct mp_DataType_Imp<Markov_Mol_New::ABC_Markov_Model>
     {
-      using type=Implements_Data_Type_class<Markov_Mol_New::ABC_Markov_Model*>;
-      using buildType=StructureEnv_New*;
+      using myB=Markov_Mol_New::ABC_Markov_Model;
+      using type_Ptr=Implements_Data_Type_class<myB*>;
+      using value_Ptr=Implements_Base_Value_New<myB*>;
     };
 
     template<>
-    struct mp_DataType<Markov_Mol_New::Q_Markov_Model*>
+    struct mp_DataType_Imp<Markov_Mol_New::Q_Markov_Model>
     {
-      using type=Implements_Data_Type_derived_class
-      <Markov_Mol_New::Q_Markov_Model,Markov_Mol_New::ABC_Markov_Model>;
-      using buildType=StructureEnv_New*;
+      using myB=Markov_Mol_New::ABC_Markov_Model;
+      using myD=Markov_Mol_New::Q_Markov_Model;
+      using type_Ptr=Implements_Data_Type_derived_class<myD,myB>;
+      using type=Implements_Data_Type_class<myD>;
+      using value=Implements_Base_Value_New<myD>;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
+    };
+
+
+
+    template<>
+    struct mp_DataType_Imp<ABC_Experiment>
+    {
+      using myB=ABC_Experiment;
+      using type_Ptr=Implements_Data_Type_class<myB*>;
+      using value_Ptr=Implements_Base_Value_New<myB*>;
+    };
+
+    template<>
+    struct mp_DataType_Imp<ABC_trace>
+    {
+      using myB=ABC_trace;
+      using type_Ptr=Implements_Data_Type_class<myB*>;
+      using value_Ptr=Implements_Base_Value_New<myB*>;
+    };
+
+
+    template<>
+    struct mp_DataType_Imp<Single_Pulses>
+    {
+
+      using myD=Single_Pulses;
+      using myB=ABC_Experiment;
+      using type_Ptr=Implements_Data_Type_derived_class<myD,myB>;
+      using type=Implements_Data_Type_class<myD>;
+      using value=Implements_Base_Value_New<myD>;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
+
       };
 
     template<>
-    struct mp_Value<Markov_Mol_New::Q_Markov_Model*>
+    struct mp_DataType_Imp<Experiment>
     {
-      using v=Implements_Derived_Value_New
-      <Markov_Mol_New::Q_Markov_Model,Markov_Mol_New::ABC_Markov_Model>;
-      using buildType=StructureEnv_New*;
-    };
 
+      using myD=Experiment;
+      using myB=ABC_Experiment;
+      using type_Ptr=Implements_Data_Type_derived_class<myD,myB>;
+      using type=Implements_Data_Type_class<myD>;
+      using value=Implements_Base_Value_New<myD>;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
 
-    template<>
-    struct mp_DataType<ABC_Experiment*>
-    {
-      using type=Implements_Data_Type_class<ABC_Experiment*>;
-      using buildType=StructureEnv_New*;
-    };
-
-    template<>
-    struct mp_DataType<Single_Pulses*>
-    {
-      using type=Implements_Data_Type_derived_class
-      <Single_Pulses,ABC_Experiment>;
-      using buildType=StructureEnv_New*;
       };
 
     template<>
-    struct mp_DataType<Pulses_program*>
+    struct mp_DataType_Imp<Pulses_program>
     {
-      using type=Implements_Data_Type_derived_class
-      <Pulses_program,ABC_Experiment>;
-      using buildType=StructureEnv_New*;
-      };
 
+      using myD=Pulses_program;
+      using myB=ABC_Experiment;
+      using type_Ptr=Implements_Data_Type_derived_class<myD,myB>;
+      using type=Implements_Data_Type_class<myD>;
+      using value=Implements_Base_Value_New<myD>;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
 
-    template<>
-    struct mp_DataType<ABC_trace*>
-    {
-      using type=Implements_Data_Type_class<ABC_trace*>;
-      using buildType=StructureEnv_New*;
-    };
-
-    template<>
-    struct mp_DataType<Pulses_trace*>
-    {
-      using type=Implements_Data_Type_derived_class
-      <Pulses_trace,ABC_trace>;
-      using buildType=StructureEnv_New*;
       };
 
     template<>
-    struct mp_Value<Single_Pulses*>
+    struct mp_DataType_Imp<Trace>
     {
-      using v=Implements_Derived_Value_New
-      <Single_Pulses,ABC_Experiment>;
-      using buildType=StructureEnv_New*;
-    };
+
+      using myD=Trace;
+      using myB=ABC_trace;
+      using type_Ptr=Implements_Data_Type_derived_class<myD,myB>;
+      using type=Implements_Data_Type_class<myD>;
+      using value=Implements_Base_Value_New<myD>;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
+
+      };
 
     template<>
-    struct mp_Value<Pulses_program*>
+    struct mp_DataType_Imp<Pulses_trace>
     {
-      using v=Implements_Derived_Value_New
-      <Pulses_program,ABC_Experiment>;
-      using buildType=StructureEnv_New*;
-    };
 
-
-    template<>
-    struct mp_Value<Pulses_trace*>
-    {
-      using v=Implements_Derived_Value_New
-      <Pulses_trace,ABC_trace>;
-      using buildType=StructureEnv_New*;
+      using myD=Pulses_trace;
+      using myB=ABC_trace;
+      using type_Ptr=Implements_Data_Type_derived_class<myD,myB>;
+      using type=Implements_Data_Type_class<myD>;
+      using value=Implements_Base_Value_New<myD>;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
     };
 
 
 
 
+
+   template<class T>
+   struct mp_Data_Type
+    {
+       using type=typename mp_DataType_Imp<T>::type;
+       using valueType=typename mp_DataType_Imp<T>::value;
+   };
+   template<class T>
+   struct mp_Data_Type<T*>
+    {
+       using type=typename mp_DataType_Imp<T>::type_Ptr;
+      using valueType=typename mp_DataType_Imp<T>::value_Ptr;
+   };
 
 
 
   };
   template <class T>
-  using Implements_Data_Type_New=typename _private::mp_DataType<T>::type;
+  using Implements_Data_Type_New=typename _private::mp_Data_Type<T>::type;
+
 
   template <class T>
-  using Implements_Value_New=typename _private::mp_Value<T>::v;
-
-  template <class T>
-  using buildType=typename _private::mp_DataType<T>::buildType;
+  using Implements_Value_New=typename _private::mp_Data_Type<T>::valueType;
 
 
 

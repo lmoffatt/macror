@@ -58,8 +58,9 @@ public:
 
     Experiment(const ABC_Experiment& other);
 
-    Experiment(const std::string& name,
-	       const std::vector<Trace>& traces);
+    Experiment(const std::vector<Trace>& traces);
+
+   const std::vector<Trace>& traces()const{return traces_;}
 
 
 

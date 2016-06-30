@@ -53,10 +53,14 @@ public:
 
     Trace& operator=(const Trace& other);
 
-    Trace(const std::string& traceName,
-      const Markov_LA::M_Matrix<double>& tx,
+    Trace(const Markov_LA::M_Matrix<double>& tx,
       const Markov_LA::M_Matrix<double>& ty,
           double trace_interval);
+
+ const Markov_LA::M_Matrix<double>& tx()const {return tx_;}
+      const Markov_LA::M_Matrix<double>& ty()const {return ty_;}
+          double trace_interval()const {return trace_interval_;}
+
 
 
     void push_back(const x_step& astep);

@@ -108,10 +108,8 @@ namespace Markov_IO_New
 
 
 
-    Experiment::Experiment(const std::string& name,
-			   const std::vector<Trace>& traces):
-	name_(name),
-	traces_(traces),
+    Experiment::Experiment(const std::vector<Trace>& traces):
+        traces_(traces),
 	total_samples_(0),
 	i_trace_(0)
 	{
