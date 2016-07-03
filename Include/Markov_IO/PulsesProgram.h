@@ -99,6 +99,7 @@ namespace Markov_IO_New
 
 
     static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
 
 
 

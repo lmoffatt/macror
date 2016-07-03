@@ -84,6 +84,7 @@ public:
     virtual bool LoadFromDescription(const ClassDescription& classDes);
 
     static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
 
     virtual std::string id()const;
     virtual std::string myClass()const;

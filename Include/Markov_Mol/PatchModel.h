@@ -5,10 +5,10 @@
 
 namespace Markov_Mol_New
 {
- class PatchModel:public ABC_PatchModel
+  class PatchModel:public ABC_PatchModel
 
-{
-public:
+  {
+  public:
     ///virtual copy constructors
     virtual PatchModel* clone() const;
 
@@ -19,31 +19,32 @@ public:
     virtual ~PatchModel();
 
 
-    virtual Experiment_simulation run(const Markov_IO_New::ABC_Experiment& x,
-				      std::size_t n_replicates,
-				      const Markov_IO_New::ABC_Options& opt);
+    virtual Experiment_simulation run
+    (const Markov_IO_New::ABC_Experiment& x,
+     std::size_t n_replicates,
+     const Markov_IO_New::ABC_Options& opt
+     , Borrowed::MersenneTwister::MTRand &sto);
 
 
 
 
     virtual const ABC_Markov_Model& Model()const;
 
-     virtual double AverageNumberOfChannels()const;
+    virtual double AverageNumberOfChannels()const;
 
-     virtual std::size_t ChannelsCount()const;
+    virtual std::size_t ChannelsCount()const;
 
     virtual const ABC_noise& Noise()const;
     virtual ABC_noise& Noise();
 
 
-     static std::string ClassName();
+    static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
 
 
-    PatchModel(const std::string& name,
-	const ABC_Markov_Model& model,
-	       std::size_t nChannels,
-	       const ABC_noise& noise,
-	       const Borrowed::MersenneTwister::MTRand& mtrand);
+    PatchModel(const ABC_Markov_Model* model,
+               std::size_t nChannels,
+               const ABC_noise* noise);
 
     PatchModel();
 
@@ -51,12 +52,10 @@ public:
     friend void swap(PatchModel& one, PatchModel& two);
 
 
-private:
-    std::string name_;
+  private:
     ABC_Markov_Model* model_;
     double nChannels_;
     ABC_noise* noise_;
-    Borrowed::MersenneTwister::MTRand sto;
   };
 
 
@@ -69,10 +68,10 @@ private:
 
 namespace Markov_Mol
 {
- class PatchModel:public ABC_PatchModel
+  class PatchModel:public ABC_PatchModel
 
-{
-public:
+  {
+  public:
     ///virtual copy constructors
     virtual PatchModel* clone() const;
 
@@ -96,9 +95,9 @@ public:
 
     virtual const ABC_Markov_Model& Model()const;
 
-     virtual double AverageNumberOfChannels()const;
+    virtual double AverageNumberOfChannels()const;
 
-     virtual std::size_t ChannelsCount()const;
+    virtual std::size_t ChannelsCount()const;
 
     virtual const ABC_noise& Noise()const;
     virtual ABC_noise& Noise();
@@ -108,13 +107,13 @@ public:
     virtual bool LoadFromDescription(const ClassDescription& classDes);
     //virtual bool LoadFromStringDescription(const ClassDescription& classDes);
 
-     static std::string ClassName();
+    static std::string ClassName();
 
-     virtual std::string id()const;
+    virtual std::string id()const;
     virtual std::string myClass()const;
 
     PatchModel(const std::string& name,
-        const ABC_Markov_Model& model,
+               const ABC_Markov_Model& model,
                std::size_t nChannels,
                const ABC_noise& noise,
                const Borrowed::MersenneTwister::MTRand& mtrand);
@@ -125,7 +124,7 @@ public:
     friend void swap(PatchModel& one, PatchModel& two);
 
 
-private:
+  private:
     std::string name_;
     Markov_IO::Parameters BuildParameters()const;
     ABC_Markov_Model* model_;

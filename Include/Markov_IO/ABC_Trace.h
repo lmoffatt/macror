@@ -19,6 +19,7 @@ public:
     virtual ~ABC_trace();
 
     static std::string ClassName();
+    virtual std::string myClass()const=0;
 
 
     /** last measure is the trace interval*/

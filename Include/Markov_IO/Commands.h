@@ -284,6 +284,7 @@ namespace Markov_IO_New
       {
          std::string typeName= arguments->getDataValueS<arg::typeName_Field>();
          who(cm,typeName);
+         return true;
       }
 
 

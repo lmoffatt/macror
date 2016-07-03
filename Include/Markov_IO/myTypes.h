@@ -1,6 +1,9 @@
 #ifndef MYTYPES_H
 #define MYTYPES_H
 #include "Markov_Mol/QMarkovModel.h"
+#include "Markov_Mol/PatchModel.h"
+#include "Markov_Mol/GaussianNoise.h"
+
 #include "Markov_Console/Markov_CommandManager.h"
 
 #include "Markov_LA/matrixMaxMin.h"
@@ -372,20 +375,53 @@ namespace Markov_IO_New {
 
 
 
+      struct ABC_Markov_Model_type {
+        typedef Markov_Mol_New::ABC_Markov_Model myB;
+        typedef mp_list<> dependsOn;
+        typedef mp_list<>  fieldList;
+
+
+
+        static std::string myId(){return Cls<myB*>::name();}
+        static std::string myIdType(){return Cls<myB*>::name();}
+        static std::string myTip(){return "any model of channel kinetics";}
+        static std::string myWhatThis(){return "";}
+
+      public:
+        typedef Implements_Data_Type_class<myB*> vType;
+
+
+
+
+
+
+
+
+        static Implements_Data_Type_New<myB*>*
+        varType(const StructureEnv_New* cm)
+        {
+          return new  Implements_Data_Type_class<myB*>
+              ();
+        }
+
+
+
+      };
+
+
+
       struct Q_Markov_Model_type {
         typedef Markov_Mol_New::ABC_Markov_Model myB;
         typedef Markov_Mol_New::Q_Markov_Model myC;
 
-        static std::string myId(){return Cls<myC>::name();}
-        static std::string myIdType(){return "a"+Cls<myC>::name();}
+        static std::string myId(){return Cls<myC*>::name();}
+        static std::string myIdType(){return Cls<myC*>::name();}
         static std::string myTip(){return "model of channel kinetics";}
         static std::string myWhatThis(){return "";}
 
       public:
         typedef Implements_Data_Type_derived_class<myC,myB> vType;
         typedef Implements_Data_Type_class<myB*> baseType;
-
-      private:
 
         static myC* map2obj(const StructureEnv_New* cm,
                             const StructureEnv_New* m
@@ -491,7 +527,468 @@ namespace Markov_IO_New {
       };
 
 
-      void push_Types(StructureEnv_New *cm);
+
+      namespace noise
+
+      {
+
+
+     struct frequency_of_sampling_field
+     {
+       typedef  Real::types::positive vType;
+       typedef  typename vType::myC  myC;
+
+       static std::string myId(){return "frequency_of_sampling";}
+       static std::string myIdType(){return vType::myId();}
+       static std::string myTip(){return "frequency of sampling referred by the standar deviation";}
+       static std::string myWhatThis() {return "";}
+     };
+
+
+
+      struct standard_deviation_fs_field
+          {
+            typedef  Real::types::nonNegative vType;
+            typedef  typename vType::myC  myC;
+
+            static std::string myId(){return "standard_deviation_at_fs";}
+            static std::string myIdType(){return vType::myId();}
+            static std::string myTip(){return "standard deviation for "
+                  +frequency_of_sampling_field::myId();}
+            static std::string myWhatThis() {return "";}
+          };
+
+
+      struct Gaussian_type {
+        typedef Markov_Mol_New::ABC_noise myB;
+        typedef Markov_Mol_New::gaussian_noise myD;
+        typedef Implements_Data_Type_derived_class<myD,myB>  vType;
+
+        typedef Gaussian_type selfType;
+
+
+        typedef mp_list
+        <standard_deviation_fs_field,
+         frequency_of_sampling_field
+        >    buildFieldList;
+
+
+
+
+        typedef mp_append<mp_list<>,buildFieldList>    fieldList;
+
+
+
+
+        typedef mp_list<> dependsOn;
+
+
+        static std::string myId(){return Cls<myD*>::name();}
+        static std::string myIdType(){return Cls<myD*>::name();}
+        static std::string myTip(){return "gaussian noise that depends on the frequency of sampling";}
+        static std::string myWhatThis(){return "";}
+
+        template<typename Field>
+        static bool isMandatory() {return true;}
+
+
+        template<typename Field>
+        static typename Field::myC get(const myD* x);
+
+
+
+
+        static myD* map2objPtr(const StructureEnv_New* cm,
+                            const StructureEnv_New* m
+                            ,const vType* v
+                            ,std::string* WhyNot,
+                            const std::string& masterObjective)
+        {
+
+          return map2objPtrTempl<selfType>
+              (cm,m,v,WhyNot,masterObjective,buildFieldList());
+
+        }
+
+        static  StructureEnv_New* objPtr2map
+        (const StructureEnv_New* cm,
+         const myD* x
+         ,const vType* v
+         , std::string* WhyNot, const std::string& masterObjective)
+        {
+          return objPtr2mapTempl<selfType>
+              (cm,x,v,WhyNot,masterObjective,fieldList());
+
+        }
+
+        static std::vector<std::pair<Implements_Var,bool>> getFields()
+        {
+          return getFieldsTempl<selfType>(buildFieldList());
+
+        }
+
+        static Implements_Data_Type_New<myD*>*
+        varType(const StructureEnv_New* cm)
+        {
+          return new  Implements_Data_Type_derived_class<myD,myB>
+              (getFields(),&objPtr2map,&map2objPtr,nullptr,nullptr);
+        }
+
+        struct valueType
+        {
+          typedef   Gaussian_type      uType;
+          typedef Implements_Data_Type_class<myD>  vType;
+
+          typedef  typename uType::fieldList    fieldList;
+
+
+
+
+          typedef uType::dependsOn dependsOn;
+
+
+
+
+          static std::string myId(){return Cls<myD>::name();}
+          static std::string myIdType(){return Cls<myD>::name();}
+
+          static std::string myTip(){return uType::myTip();}
+          static std::string myWhatThis(){return uType::myWhatThis();}
+
+          static myD map2obj(const StructureEnv_New* cm,
+                              const StructureEnv_New* m
+                             ,bool & success
+                             ,const vType* v
+                              ,std::string* WhyNot,
+                              const std::string& masterObjective)
+          {
+
+            return map2objTempl<selfType>
+                (cm,m,success,v,WhyNot,masterObjective,buildFieldList());
+
+          }
+
+
+          static  StructureEnv_New* obj2map
+          (const StructureEnv_New* cm,
+           const myD& x
+           ,const vType* v
+           , std::string* WhyNot, const std::string& masterObjective)
+          {
+            return obj2mapTempl<selfType>
+                (cm,x,v,WhyNot,masterObjective,fieldList());
+
+          }
+
+          static std::vector<std::pair<Implements_Var,bool>> getFields()
+          {
+            return getFieldsTempl<selfType>(fieldList());
+
+          }
+
+          static Implements_Data_Type_New<myD>*
+          varType(const StructureEnv_New* cm)
+          {
+            return new  Implements_Data_Type_class<myD>
+                (getFields(),&obj2map,&map2obj);
+          }
+
+
+
+
+        };
+
+      };
+
+      template<>
+      inline
+      typename frequency_of_sampling_field::myC
+      Gaussian_type::get<frequency_of_sampling_field>
+      (const typename Gaussian_type::myD* x)
+      {
+        return x->frequency_of_sampling();
+      }
+
+      template<>
+      inline
+      typename standard_deviation_fs_field::myC
+      Gaussian_type::get<standard_deviation_fs_field>
+      (const typename Gaussian_type::myD* x)
+      {
+        return x->standard_deviation();
+      }
+
+
+
+
+    }
+
+
+
+      struct ABC_Noise_type {
+        typedef Markov_Mol_New::ABC_noise myB;
+        typedef myB myC;
+        typedef mp_list<_model::noise::Gaussian_type> dependsOn;
+        typedef mp_list<>  fieldList;
+
+
+
+        static std::string myId(){return Cls<myB*>::name();}
+        static std::string myIdType(){return Cls<myB*>::name();}
+        static std::string myTip(){return "any noise of channel kinetics";}
+        static std::string myWhatThis(){return "";}
+
+      public:
+        typedef Implements_Data_Type_class<myB*> vType;
+
+
+        static Implements_Data_Type_New<myB*>*
+        varType(const StructureEnv_New* cm)
+        {
+          return new  Implements_Data_Type_class<myB*>
+              ();
+        }
+
+
+
+      };
+
+
+      namespace patch
+
+      {
+
+        struct Noise_field
+        {
+          typedef  ABC_Noise_type vType;
+          typedef  typename vType::myB*   myC;
+
+          static std::string myId(){return "Noise_model";}
+          static std::string myIdType(){return vType::myId();}
+          static std::string myTip(){return "mathematical model of the noise present in the patch";}
+          static std::string myWhatThis() {return "";}
+
+        };
+
+
+
+
+      struct Number_of_Channels_field
+      {
+        typedef  std::size_t   myC;
+        typedef  Implements_Data_Type_New<myC> vType;
+
+        static std::string myId(){return "Number_of_Channels";}
+        static std::string myIdType(){return vType::myId();}
+        static std::string myTip(){return "list of times when the agonist concentration changed and the concentration reached";}
+        static std::string myWhatThis() {return "";}
+
+      };
+
+
+
+      struct Channel_Model_field
+      {
+        typedef  ABC_Markov_Model_type vType;
+        typedef  typename vType::myB*   myC;
+
+
+        static std::string myId(){return "Channel_Model";}
+        static std::string myIdType(){return vType::myId();}
+        static std::string myTip(){return "mathematical model of the channel present in the patch";}
+        static std::string myWhatThis() {return "";}
+
+      };
+
+
+      struct PatchModel_type {
+        typedef Markov_Mol_New::ABC_PatchModel myB;
+        typedef Markov_Mol_New::PatchModel myD;
+        typedef Implements_Data_Type_derived_class<myD,myB>  vType;
+
+        typedef PatchModel_type selfType;
+
+
+        typedef mp_list
+        <Channel_Model_field
+        ,Number_of_Channels_field
+        ,Noise_field>
+        buildFieldList;
+
+
+        typedef mp_append<mp_list<>
+        ,buildFieldList>    fieldList;
+
+
+
+
+        typedef mp_list<> dependsOn;
+
+
+        static std::string myId(){return Cls<myD*>::name();}
+        static std::string myIdType(){return Cls<myD*>::name();}
+        static std::string myTip(){return "Evolution of the changes in concentrationa and of measured current descibed at low level for a single trace";}
+        static std::string myWhatThis(){return "";}
+
+        template<typename Field>
+        static bool isMandatory() {return true;}
+
+
+        template<typename Field>
+        static typename Field::myC get(const myD* x);
+
+
+
+
+        static myD* map2objPtr(const StructureEnv_New* cm,
+                            const StructureEnv_New* m
+                            ,const vType* v
+                            ,std::string* WhyNot,
+                            const std::string& masterObjective)
+        {
+
+          return map2objPtrTempl<selfType>
+              (cm,m,v,WhyNot,masterObjective,buildFieldList());
+
+        }
+
+
+
+
+
+
+
+
+        static  StructureEnv_New* objPtr2map
+        (const StructureEnv_New* cm,
+         const myD* x
+         ,const vType* v
+         , std::string* WhyNot, const std::string& masterObjective)
+        {
+          return objPtr2mapTempl<selfType>
+              (cm,x,v,WhyNot,masterObjective,fieldList());
+
+        }
+
+        static std::vector<std::pair<Implements_Var,bool>> getFields()
+        {
+          return getFieldsTempl<selfType>(fieldList());
+
+        }
+
+        static Implements_Data_Type_New<myD*>*
+        varType(const StructureEnv_New* cm)
+        {
+          return new  Implements_Data_Type_derived_class<myD,myB>
+              (getFields(),&objPtr2map,&map2objPtr,nullptr,nullptr);
+        }
+
+        struct valueType
+        {
+          typedef   PatchModel_type      uType;
+          typedef Implements_Data_Type_class<myD>  vType;
+
+          typedef  typename uType::fieldList    fieldList;
+
+
+
+
+          typedef uType::dependsOn dependsOn;
+
+
+
+
+          static std::string myId(){return Cls<myD>::name();}
+          static std::string myIdType(){return Cls<myD>::name();}
+
+          static std::string myTip(){return uType::myTip();}
+          static std::string myWhatThis(){return uType::myWhatThis();}
+
+          static myD map2obj(const StructureEnv_New* cm,
+                              const StructureEnv_New* m
+                             ,bool & success
+                             ,const vType* v
+                              ,std::string* WhyNot,
+                              const std::string& masterObjective)
+          {
+
+            return map2objTempl<selfType>
+                (cm,m,success,v,WhyNot,masterObjective,buildFieldList());
+
+          }
+
+
+          static  StructureEnv_New* obj2map
+          (const StructureEnv_New* cm,
+           const myD& x
+           ,const vType* v
+           , std::string* WhyNot, const std::string& masterObjective)
+          {
+            return obj2mapTempl<selfType>
+                (cm,x,v,WhyNot,masterObjective,fieldList());
+
+          }
+
+          static std::vector<std::pair<Implements_Var,bool>> getFields()
+          {
+            return getFieldsTempl<selfType>(fieldList());
+
+          }
+
+          static Implements_Data_Type_New<myD>*
+          varType(const StructureEnv_New* cm)
+          {
+            return new  Implements_Data_Type_class<myD>
+                (getFields(),&obj2map,&map2obj);
+          }
+
+
+
+
+        };
+
+      };
+
+      template<>
+      inline
+       typename Channel_Model_field::myC
+      PatchModel_type::get<Channel_Model_field>
+      (const typename PatchModel_type::myD* x)
+      {
+        return x->Model().clone();
+      }
+
+      template<>
+      inline
+       typename Noise_field::myC
+      PatchModel_type::get<Noise_field>
+      (const typename PatchModel_type::myD* x)
+      {
+        return x->Noise().clone();
+      }
+
+      template<>
+      inline
+       typename Number_of_Channels_field::myC
+      PatchModel_type::get<Number_of_Channels_field>
+      (const typename PatchModel_type::myD* x)
+      {
+        return x->ChannelsCount();
+      }
+
+
+
+
+    }
+
+
+inline
+      void push_Types(StructureEnv_New *cm)
+      {
+       Q_Markov_Model_type::push_Types(cm);
+        push_MyTypes<patch::PatchModel_type>(cm);
+
+      }
 
     }
 

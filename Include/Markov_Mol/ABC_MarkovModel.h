@@ -82,6 +82,8 @@ public:
 
    static std::string ClassName();
 
+   virtual std::string myClass()const=0;
+
     /**
      Patch that owns this model
      */

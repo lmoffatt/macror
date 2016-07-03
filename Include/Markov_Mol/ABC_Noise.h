@@ -19,10 +19,7 @@ public:
 
     virtual ~ABC_noise();
 
-    virtual const ABC_noise& set_random_generator(
-            Borrowed::MersenneTwister::MTRand* sto)const=0;
-
-    virtual double sample(double dt)const=0;
+    virtual double sample(double dt,Borrowed::MersenneTwister::MTRand& sto)const=0;
 
     virtual double std(double dt)const =0;
 
@@ -33,6 +30,7 @@ public:
         virtual double logP(double x,double dt)const=0;
 
         static std::string ClassName();
+        virtual std::string myClass()const=0;
 
 
 

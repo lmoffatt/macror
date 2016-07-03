@@ -16,6 +16,7 @@ public:
     virtual ~Experiment();
 
     static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
 
      virtual std::size_t total_samples()const;
 

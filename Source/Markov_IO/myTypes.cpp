@@ -15,10 +15,8 @@ namespace Markov_IO_New {
 
 
 
-      void push_Types(StructureEnv_New *cm)
-      {
-       Q_Markov_Model_type::push_Types(cm);
-      }
+
+
 
 
     }

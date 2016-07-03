@@ -24,19 +24,17 @@ public:
     std::string Path()const;
 
     gaussian_noise(double standard_deviation,
-                   double frequency_of_sampling,
-                   Borrowed::MersenneTwister::MTRand* sto);
+                   double frequency_of_sampling);
 
 
 //    std::ostream& put(std::ostream& s) const;
 //    virtual std::istream& get(std::string& line,std::istream& is);
 
 
-    virtual const gaussian_noise& set_random_generator(
-            Borrowed::MersenneTwister::MTRand* sto)const;
+    double standard_deviation() const {return std_;}
+                       double frequency_of_sampling() const {return fs_;}
 
-
-    virtual double sample(double dt)const;
+    virtual double sample(double dt, Borrowed::MersenneTwister::MTRand &sto)const;
     virtual double std(double dt)const;
     virtual double var(double dt) const;
     virtual double P(double x,double dt)const;
@@ -48,12 +46,14 @@ public:
 
 
     static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
 
 
 private:
     void buildParameters();
     double s_at_1Hz_d;
-    mutable Borrowed::MersenneTwister::MTRand * sto_Sto;//not owned!!
+    double std_;
+    double fs_;
 
 
 };

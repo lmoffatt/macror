@@ -37,11 +37,6 @@ namespace Markov_IO_New {
    }
 
 
-   template<typename T>
-    T* clone(T const* x)
-    {
-      return x->clone();
-    }
 
 
  namespace Num
@@ -61,6 +56,7 @@ namespace Markov_IO_New {
  };
 
 
+  inline std::string ClsPtr(){return "ptr";}
 
 
   template<typename C>
@@ -70,10 +66,12 @@ namespace Markov_IO_New {
 
   };
 
+
+
   template<typename C>
   struct Cls<C*>
   {
-    static std::string name() { return C::ClassName()+"ptr" ;}
+    static std::string name() { return C::ClassName()+ClsPtr() ;}
   };
 
 
@@ -151,33 +149,26 @@ namespace Markov_IO_New {
   }
 
 
-  template<>
-  inline
-  int *clone<int>(int const * x)
-  {
-    return new int(*x);
-  }
+  template<typename T>
+   auto clone_impl(const T* x,int)->decltype (x->clone())
+   {
+     if (x!=nullptr)
+     return x->clone();
+     else return nullptr;
+   }
 
-  template<>
-  inline
-  double *clone<double>(double const * x)
-  {
-    return new double(*x);
-  }
+   template<typename T>
+   T* clone_impl(const T*x, long )
+   {
+     return new T(x);
+   }
 
-  template<>
-  inline
-  std::size_t *clone<std::size_t>(std::size_t const * x)
-  {
-    return new std::size_t(*x);
-  }
 
-  template<>
-  inline
-  std::string *clone<std::string>(std::string const * x)
-  {
-    return new std::string(*x);
-  }
+   template<typename T>
+   T* cloneThis(const T* x)
+   {
+     return clone_impl(x,0);  // 0 is int so chooses x->clone if exists
+   }
 
 
 }

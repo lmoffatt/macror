@@ -24,6 +24,13 @@ namespace Markov_Mol_New
 {
   class ABC_Markov_Model;
   class Q_Markov_Model;
+
+  class ABC_noise;
+  class gaussian_noise;
+
+  class ABC_PatchModel;
+  class PatchModel;
+
 }
 
 namespace Markov_IO_New {
@@ -249,6 +256,44 @@ namespace Markov_IO_New {
       using value_Ptr=Implements_Derived_Value_New<myD,myB>;
     };
 
+    template<>
+    struct mp_DataType_Imp<Markov_Mol_New::ABC_noise>
+    {
+      using myB=Markov_Mol_New::ABC_noise;
+      using type_Ptr=Implements_Data_Type_class<myB*>;
+      using value_Ptr=Implements_Base_Value_New<myB*>;
+    };
+
+    template<>
+    struct mp_DataType_Imp<Markov_Mol_New::gaussian_noise>
+    {
+      using myB=Markov_Mol_New::ABC_noise;
+      using myD=Markov_Mol_New::gaussian_noise;
+      using type_Ptr=Implements_Data_Type_derived_class<myD,myB>;
+      using type=Implements_Data_Type_class<myD>;
+      using value=Implements_Base_Value_New<myD>;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
+    };
+
+
+    template<>
+    struct mp_DataType_Imp<Markov_Mol_New::ABC_PatchModel>
+    {
+      using myB=Markov_Mol_New::ABC_PatchModel;
+      using type_Ptr=Implements_Data_Type_class<myB*>;
+      using value_Ptr=Implements_Base_Value_New<myB*>;
+    };
+
+    template<>
+    struct mp_DataType_Imp<Markov_Mol_New::PatchModel>
+    {
+      using myB=Markov_Mol_New::ABC_PatchModel;
+      using myD=Markov_Mol_New::PatchModel;
+      using type_Ptr=Implements_Data_Type_derived_class<myD,myB>;
+      using type=Implements_Data_Type_class<myD>;
+      using value=Implements_Base_Value_New<myD>;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
+    };
 
 
     template<>
@@ -358,6 +403,45 @@ namespace Markov_IO_New {
 
   template <class T>
   using Implements_Value_New=typename _private::mp_Data_Type<T>::valueType;
+
+
+
+  template<typename T>
+   auto myCLass_impl(const T* x,int)->decltype (x->myClass())
+   {
+     return x->myClass()+ClsPtr();
+   }
+   template<typename T>
+    auto myCLass_impl(const T& x,int)->decltype (x.myClass())
+    {
+      return x.myClass();
+    }
+
+
+   template<typename T>
+   std::string myCLass_impl(const T*x, long )
+   {
+     return Cls<T*>::name();
+   }
+
+   template<typename T>
+   std::string myCLass_impl(const T x, long )
+   {
+     return Cls<T>::name();
+   }
+
+   template<typename T>
+   std::string myClassOf(const T& x)
+   {
+     return myCLass_impl(x,0);  // 0 is int so chooses x->myClass if exists
+   }
+
+   template<typename T>
+   std::string myClassOf(const T* x)
+   {
+     return myCLass_impl(x,0);  // 0 is int so chooses x->myClass if exists
+   }
+
 
 
 

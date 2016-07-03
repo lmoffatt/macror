@@ -67,6 +67,7 @@ namespace Markov_IO_New
     Pulses_trace(const Pulses_trace& other);
 
     static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
 
 
 

@@ -24,6 +24,7 @@ public:
     //virtual bool operator==(const ABC_Experiment& other)const;
 
     static std::string ClassName();
+    virtual std::string myClass()const=0;
 
 
     virtual std::size_t total_samples()const=0;

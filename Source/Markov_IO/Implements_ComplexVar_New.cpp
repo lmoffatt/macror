@@ -37,7 +37,7 @@ namespace Markov_IO_New {
         {
           const Implements_Identifier* vtype=this->getElementType();
 
-          vtype->putValue(cm,v->myType(),ostream,whyNot,masterObjective);
+          vtype->putValue(cm,v  ->myType(),ostream,whyNot,masterObjective);
           ostream->put("=");
 
           const ABC_Type_of_Value* t=cm->idToType(v->myType(),whyNot,masterObjective);
@@ -922,7 +922,7 @@ namespace Markov_IO_New {
     cm->pushType<types::Var>();
   }
 
-  bool Real::types::positive::comply(const StructureEnv_New *cm, const Real::myC &x, const Real::vType *, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
+  bool Real::types::positive::comply(const StructureEnv_New *cm, const myC &x, const Real::vType *, std::__cxx11::string *WhyNot, const std::__cxx11::string &objective)
   {
     double eps=std::numeric_limits<double>::epsilon();
     if (x < eps)

@@ -121,6 +121,8 @@ namespace Markov_Mol_New
 
 
     static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
+
 
 
     static std::string kij_Label(std::size_t i,

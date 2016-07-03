@@ -10,6 +10,7 @@ class ABC_Options
 public:
 
     static std::string ClassName();
+    virtual std::string myClass()const=0;
 
     virtual ~ABC_Options();
 

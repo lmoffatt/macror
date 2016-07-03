@@ -6,6 +6,7 @@
 #include "Markov_Mol/ExperimentSimulation.h"
 #include "Markov_Mol/ABC_MarkovModel.h"
 #include "Markov_Mol/ABC_Noise.h"
+#include "Borrowed/MersenneTwister.h"
 
 namespace Markov_Mol_New
 {
@@ -27,7 +28,8 @@ public:
 
     virtual Experiment_simulation run(const Markov_IO_New::ABC_Experiment& x,
 				      std::size_t n_replicates,
-				      const Markov_IO_New::ABC_Options& opt)=0;
+				      const Markov_IO_New::ABC_Options& opt,
+				      Borrowed::MersenneTwister::MTRand& mtrand)=0;
 
 
 
@@ -44,6 +46,7 @@ public:
 
 
     static std::string ClassName();
+    virtual std::string myClass()const=0;
 
 
 

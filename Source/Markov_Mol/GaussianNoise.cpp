@@ -21,19 +21,12 @@ gaussian_noise* gaussian_noise::create() const
 
 /// Default constuctor
 gaussian_noise::gaussian_noise():
-        s_at_1Hz_d(){}
+        s_at_1Hz_d(),std_{},fs_{}{}
 
 gaussian_noise::~gaussian_noise() {}
 
 
 
-/// Set the random number generator
-const gaussian_noise& gaussian_noise::set_random_generator(
-        Borrowed::MersenneTwister::MTRand* sto)const
-{
-    sto_Sto=sto;
-    return *this;
-}
 
 /*
 /// Identifies the kind of noise
@@ -50,20 +43,19 @@ std::string gaussian_noise::name()const
   @post gaussian_noise do not own the random number generator.
 */
 gaussian_noise::gaussian_noise(double standard_deviation,
-			       double frequency_of_sampling,
-			       Borrowed::MersenneTwister::MTRand* sto):
-    s_at_1Hz_d(standard_deviation/sqrt(frequency_of_sampling)),
-    sto_Sto(sto)
-{
-    };
+                               double frequency_of_sampling):
+    s_at_1Hz_d(standard_deviation/sqrt(frequency_of_sampling))
+  ,std_(standard_deviation),fs_(frequency_of_sampling)
+ {
+ };
 
 
 /** Copy constructor
 
 */
 gaussian_noise::gaussian_noise(const gaussian_noise& other):
-    s_at_1Hz_d(other.s_at_1Hz_d),
-    sto_Sto(other.sto_Sto)
+    s_at_1Hz_d(other.s_at_1Hz_d)
+  ,std_(other.std_),fs_(other.fs_)
     {
 };
 
@@ -87,9 +79,9 @@ gaussian_noise& gaussian_noise::operator=(const gaussian_noise& other)
   Simulates gaussian noise averaged on a given time interval
   @param dt [s] Time interval of the measurement in seconds
 */
-double gaussian_noise::sample(double dt)const
+double gaussian_noise::sample(double dt,Borrowed::MersenneTwister::MTRand& sto)const
 {
-    double s=sto_Sto->randNorm(0.0,1.0);
+    double s=sto.randNorm(0.0,1.0);
 	   s*= s_at_1Hz_d/sqrt(dt);
     return s;
 }
@@ -136,7 +128,9 @@ double gaussian_noise::logP(double x,double dt)const
 void swap(gaussian_noise& one,gaussian_noise& two)
 {
     std::swap(one.s_at_1Hz_d,two.s_at_1Hz_d);
-    std::swap(one.sto_Sto,two.sto_Sto);
+    std::swap(one.std_,two.std_);
+    std::swap(one.fs_,two.fs_);
+
  }
 
 

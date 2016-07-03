@@ -84,6 +84,7 @@ public:
 
 
     static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
 
 
 

@@ -85,6 +85,7 @@ namespace Markov_IO_New
 
 
     static std::string ClassName();
+    virtual std::string myClass()const {return ClassName();}
 
 
     double time_of_pulse() const {return ton_d;}

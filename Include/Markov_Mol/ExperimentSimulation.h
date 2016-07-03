@@ -24,6 +24,8 @@ namespace Markov_Mol_New
     class Experiment_simulation:public Markov_IO_New::ABC_Experiment
 {
 public:
+
+    virtual std::string myClass()const override {return ClassName();}
     virtual Experiment_simulation* clone() const;
 
     virtual Experiment_simulation* create() const;

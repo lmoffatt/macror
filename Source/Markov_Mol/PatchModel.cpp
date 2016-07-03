@@ -51,36 +51,28 @@ namespace Markov_Mol_New
 
 
 
-  PatchModel::PatchModel(const std::string& name,
-                         const ABC_Markov_Model& model,
+  PatchModel::PatchModel(const ABC_Markov_Model *model,
                          std::size_t nChannels,
-                         const ABC_noise& noise,
-                         const Borrowed::MersenneTwister::MTRand& mtrand):
-    name_(name),
-    model_(model.clone()),
+                         const ABC_noise *noise):
+    model_(model->clone()),
     nChannels_(nChannels),
-    noise_(noise.clone()),
-    sto(mtrand)
+    noise_(noise->clone())
   {
   }
 
   PatchModel::PatchModel():
-    name_(),
     model_(new Q_Markov_Model()),
     nChannels_(0),
-    noise_(new gaussian_noise()),
-    sto()
+    noise_(new gaussian_noise())
   {
   }
 
 
 
   PatchModel::PatchModel(const PatchModel& other):
-    name_(other.name_),
     model_(other.Model().clone()),
     nChannels_(other.nChannels_),
-    noise_(other.Noise().clone()),
-    sto(other.sto)
+    noise_(other.Noise().clone())
   {
     }
 
@@ -89,25 +81,21 @@ namespace Markov_Mol_New
 
   void swap(PatchModel& one, PatchModel& two)
   {
-    std::swap(one.name_,two.name_);
     std::swap(one.model_,two.model_);
 
     std::swap(one.nChannels_,two.nChannels_);
     std::swap(one.noise_,two.noise_);
-    Borrowed::MersenneTwister::MTRand sto2=one.sto;
-    one.sto=two.sto;
-    two.sto=sto2;
     }
 
   Experiment_simulation PatchModel::run(const Markov_IO_New::ABC_Experiment& x,
                                         std::size_t n_replicates,
-                                        const Markov_IO_New::ABC_Options& opt)
+                                        const Markov_IO_New::ABC_Options& opt,
+                                        Borrowed::MersenneTwister::MTRand& sto)
   {
     Experiment_simulation ES(x,
                              *this,
                              n_replicates);
 
-    this->Noise().set_random_generator(&sto);
     double time_step=opt.real("time_step");
     std::size_t num_steps=opt.count("num_steps");
 
@@ -130,7 +118,7 @@ namespace Markov_Mol_New
                 else nSteps=1;
                 nSteps=std::max(nSteps,num_steps);
                 S=Model().run(x[i],S,nSteps,sto);
-                double yval=S.ymean()+this->Noise().sample(x.dt());
+                double yval=S.ymean()+this->Noise().sample(x.dt(),sto);
                 ES.y(yval);
                 // std::cout<<"\r \t"<<i;
               };
