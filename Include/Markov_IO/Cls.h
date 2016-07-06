@@ -139,6 +139,13 @@ namespace Markov_IO_New {
 
 
 
+  template <typename T>
+  std::string Cls_name(T x)
+  {
+    return Cls<T>::name();
+  }
+
+
   template<typename T>
   std::set<std::string> getMapKeys(const std::map<std::string,T>& m)
   {

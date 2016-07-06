@@ -6318,6 +6318,365 @@ namespace Markov_IO_New {
     }
 
 
+
+    template<typename Fn,Fn f,typename...Args>
+    class mp_Arguments
+    {
+    public:
+
+    private:
+
+
+    };
+
+
+
+    template<typename Fn,typename...Args>
+    class Implements_Function_Type:public ABC_Type_of_Value
+    {
+    public:
+      typedef  Implements_Function_Type<Fn,Args...>  selfType;
+      typedef mp_function<Fn,Args...> myC;
+
+      using typePredicate= bool(*)
+      (const StructureEnv_New* cm
+      ,const myC & f
+      ,const selfType* self
+      , std::string* whyNot
+      ,const std::string& objective);
+
+
+
+      using getClass_type=myC (*)(const StructureEnv_New* cm
+      ,const StructureEnv_New*  m
+      ,const selfType* self
+      ,std::string *WhyNot,const std::string& masterObjective);
+
+      using getCV=StructureEnv_New* (*)(
+      const StructureEnv_New* cm,
+      const myC& v
+      ,const selfType* self,
+      std::string *WhyNot,const std::string & masterObjective);
+
+
+      using runCommand
+      = bool  (*)
+      (Markov_CommandManagerVar* cm
+      , const StructureEnv_New* arguments
+      ,const Implements_Command_Type_New* self
+      ,std::string* WhyFail, const std::string& masterObjective);
+
+
+
+      virtual ~Implements_Function_Type(){}
+
+    public:
+
+
+
+
+      virtual bool run(Markov_CommandManagerVar* cm,
+                       const StructureEnv_New* m,
+                       std::string *WhyNot, const std::string& masterObjective)const
+      {
+        return (*run_)(cm,m,this,WhyNot,masterObjective);
+      }
+
+
+
+      // ABC_Type_of_Value interface
+    public:
+      virtual build_Command_Input *getBuildByToken(const StructureEnv_New *cm) const override
+      {
+        return new build_Command_Input(cm,this);
+
+      }
+
+
+
+
+
+      virtual bool isDataInDomain
+      (const StructureEnv_New* cm
+       ,const ABC_Data_New* v
+       , std::string *whyNot
+       , const std::string& masterObjective)const override
+      {
+        const std::string objective=masterObjective+": "+cm->dataToId(this)+ "do not has it in domain";
+        auto x=dynamic_cast<const Implements_Value_New<myC>* >(v);
+        if (x==nullptr)
+          {
+            return false;
+          }
+        else
+          return isValueInDomain(cm,x->getValue(),whyNot,objective);
+      }
+
+      virtual bool isValueInDomain(const StructureEnv_New* cm,const myC& v
+                                   , std::string *whyNot, const std::string& masterObjective)const
+      {
+
+        if (comply_==nullptr)
+          return true;
+        else
+          return  (*comply_) (cm,v,this,whyNot,masterObjective);
+      }
+
+
+
+      bool includesThisType(
+          const StructureEnv_New *cm, const std::string &childType
+          , std::string *whyNot, const std::string &masterObjective) const
+      {
+        std::string id=cm->dataToId(this,whyNot,masterObjective);
+        if (id==childType) return true;
+        else
+          {
+            const Implements_Data_Type_New<myC>*
+                ctype=cm->idToTyped<myC>(childType,whyNot,masterObjective);
+            if (ctype==nullptr)
+              {
+                *whyNot=masterObjective+": "+childType+"is not a"+ id;
+                return false;
+              }
+            else return empty();
+
+          }
+      }
+
+
+
+      virtual bool putData(const StructureEnv_New* cm
+                           ,const ABC_Data_New* v
+                           ,ABC_Output* ostream
+                           ,std::string* error,
+                           const std::string& masterObjective)const override
+      {
+        auto data=dynamic_cast<const Implements_Value_New<myC>* >(v);
+        if (data==nullptr)
+          {
+            *error=masterObjective+ ": "+data->myType()+" is not a "+myType();
+            return false;
+          }
+        else return putValue(cm,data->getValue(),ostream,error,masterObjective);
+      }
+
+      virtual bool getData(const StructureEnv_New* cm
+                           ,ABC_Data_New*& v
+                           , ABC_Input* istream
+                           ,std::string* error
+                           , const std::string& masterObjective)const override
+      {
+        myC data;
+        if (!getValue(cm,data,istream,error,masterObjective))
+          return false;
+        else
+          {
+            std::string id=cm->dataToId(v,error,masterObjective);
+            if (id.empty()) return false;
+            else{
+                v= new Implements_Value_New<myC>(id,data);
+                return true;
+              }
+          }
+      }
+
+
+
+
+      virtual bool putValue(const StructureEnv_New* cm
+                            ,const myC& c
+                            ,ABC_Output* ostream
+                            ,std::string* whyNot
+                            , const std::string& masterObjective)const
+      {
+        auto v= cm->idToTyped<myC>(myClassOf(c),whyNot,masterObjective);
+        if (v==nullptr)
+          return false;
+        if (v==this)
+          {
+
+            StructureEnv_New* m
+                =getComplexMap(cm,c,whyNot,masterObjective);
+            if (m==nullptr)
+              return false;
+            else
+              return CVtype_->putValue
+                  (m,m,ostream,whyNot,masterObjective);
+          }
+        else
+          return v->putValue(cm,c,ostream,whyNot,masterObjective);
+      }
+
+      virtual bool getValue(const StructureEnv_New* cm
+                            ,myC& v
+                            , ABC_Input* istream
+                            ,std::string* whyNot
+                            ,const std::string& MasterObjective )const
+      {
+        auto m=new StructureEnv_New(cm,Cls<myC>::name());
+        if (!CVtype_->getValue(m,m,istream,whyNot,MasterObjective))
+          return false;
+        else
+          {
+            bool success;
+            auto x=getClass(cm,m,success,whyNot,MasterObjective);
+            if (!success||!isValueInDomain(cm,x,whyNot,MasterObjective))
+              return false;
+            else
+              {
+                v=std::move(x);
+                return true;
+              }
+          }
+        delete m;
+      }
+
+
+
+
+
+       virtual const Implements_Data_Type_New<StructureEnv_New*>* getComplexVarType(const StructureEnv_New* cm) const {return CVtype_;}
+
+
+
+      Implements_Function_Type(
+          const std::vector<std::pair<Implements_Var,bool>> fields={}
+          ,getCV getmyCV=nullptr
+          ,getClass_type getClass=nullptr
+          ,typePredicate complyPred=nullptr):
+        comply_(complyPred),getClass_(getClass),getCV_(getmyCV),CVtype_(nullptr)
+      {
+        if (!fields.empty())
+        CVtype_=ComplexVar::types::ClassDescript::varType(fields);
+        else
+          CVtype_=ComplexVar::types::Var::varType();
+
+      }
+
+
+
+      virtual selfType* clone()const{return new selfType(*this);}
+      virtual selfType* create()const {return new selfType{};}
+
+
+      virtual bool empty()const
+      {
+        return comply_==nullptr;
+      }
+
+      virtual void reset()
+      {
+        comply_=nullptr;
+
+      }
+
+
+      virtual std::string myType()const
+      {
+        return Cls<myC>::name();
+      }
+
+
+      virtual bool isOfThisType(const StructureEnv_New* cm,
+                                const std::string& generalType,
+                                std::string* whyNot
+                                ,const std::string &masterObjective)const
+      {
+        if ((generalType.empty()||myType()==generalType))
+          return true;
+        else
+          {
+            auto gTp
+                =cm->idToTyped<myC>(generalType,whyNot,masterObjective);
+            std::string id=cm->dataToId(this,whyNot,masterObjective);
+            if ((id.empty())||(gTp==nullptr))
+              return false;
+            else
+              return gTp->includesThisType(cm,id,whyNot,masterObjective);
+          }
+
+      }
+
+
+
+      virtual Implements_Value_New<myC>* getClassRep(
+          const StructureEnv_New* cm,
+          const StructureEnv_New* m
+          , std::string *whyNot,
+          const std::string& masterObjective) const override
+      {
+        std::string id=cm->dataToId(this, whyNot,masterObjective);
+
+        bool success;
+        myC o=getClass(cm,m,success,whyNot,masterObjective);
+        if (success)
+          return new Implements_Value_New<myC>
+              (id,o);
+        else
+          return nullptr;
+
+      }
+
+       myC getClass(const StructureEnv_New* cm
+                         ,const StructureEnv_New*  m
+                         ,bool &success,std::string *WhyNot,const std::string& masterObjective)const
+      {
+        if (getClass_==nullptr)
+          {
+            success=false;
+            return myC{};
+
+          }
+        else
+          return (*getClass_)(cm,m,success,this,WhyNot,masterObjective);
+      }
+
+       StructureEnv_New* getComplexMap(
+          const StructureEnv_New* cm,
+          const myC& v,std::string *WhyNot,const std::string & masterObjective)const
+      {
+        if (getCV_==nullptr)
+          return nullptr;
+        else
+          return (*getCV_)(cm,v,this,WhyNot,masterObjective);
+
+      }
+
+
+      virtual StructureEnv_New* getComplexVarRep(
+          const StructureEnv_New* cm,
+          const ABC_Data_New *var
+          , std::string *whyNot
+          , const std::string& masterObjective) const override
+      {
+        auto v=dynamic_cast<const Implements_Value_New<myC>*>(var);
+
+        if (v==nullptr)
+          {
+            return nullptr;
+          }
+        else{
+
+            myC d=v->getValue();
+            return getComplexMap(cm,d,whyNot,masterObjective);
+          }
+      }
+
+
+    protected:
+
+      runCommand run_;
+      typePredicate comply_;
+      getClass_type getClass_;
+      getCV getCV_;
+      const Implements_Data_Type_New<StructureEnv_New*>* CVtype_;
+
+    };
+
+
+
+
   };
 
 

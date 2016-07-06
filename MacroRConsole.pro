@@ -18,11 +18,11 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
+CONFIG += c++14
 
-
-QMAKE_CXXFLAGS_RELEASE += -std=c++11 #-lpthread
-QMAKE_CXXFLAGS_DEBUG += -std=c++11 #-lpthread
-QMAKE_CXXFLAGS += -std=c++11 #-lpthread
+QMAKE_CXXFLAGS_RELEASE += -std=c++14 #-lpthread
+QMAKE_CXXFLAGS_DEBUG += -std=c++14 #-lpthread
+QMAKE_CXXFLAGS += -std=c++14 #-lpthread
 
 
 INCLUDEPATH = Include \

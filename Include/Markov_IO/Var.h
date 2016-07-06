@@ -14,6 +14,8 @@
 
 #include "Markov_Mol/QMarkovModel.h"
 #include "type_traits"
+#include <utility>
+
 namespace Markov_Mol_New
 {
   class ABC_Markov_Model;
@@ -119,6 +121,36 @@ namespace Markov_IO_New {
   {
       using type = mp_append<L1<T1..., T2...>, Lr...>;
   };
+
+
+
+      template<typename F, typename Tuple, size_t... I>
+        auto
+        apply_Impl(F&& f, Tuple&& args,std::index_sequence<I...>)
+        -> decltype(std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...))
+        {
+          return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...);
+        }
+
+      template<typename F, typename Tuple,
+               typename Indices = std::make_index_sequence<std::tuple_size<Tuple>::value>>
+        auto
+        mp_apply(F&& f, Tuple&& args)
+        -> decltype(apply_Impl(std::forward<F>(f), std::forward<Tuple>(args), Indices()))
+        {
+          return apply_Impl(std::forward<F>(f), std::forward<Tuple>(args), Indices());
+        }
+
+
+
+   template <typename F, typename...Args>
+    struct  mp_function
+    {
+      F f_;
+      std::tuple<Args...> args_;
+    };
+
+
 
 
   namespace _private
@@ -407,25 +439,26 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-   auto myCLass_impl(const T* x,int)->decltype (x->myClass())
+   auto myCLass_impl(const T& x,long)->decltype (x->myClass())
    {
      return x->myClass()+ClsPtr();
    }
    template<typename T>
-    auto myCLass_impl(const T& x,int)->decltype (x.myClass())
+    auto myCLass_impl(const T& x,long)->decltype (x.myClass())
     {
       return x.myClass();
     }
 
+//    template<typename T>
+//    std::string myCLass_impl(const T* x, int )
+//    {
+//      return Cls<T*>::name();
+//    }
+
+
 
    template<typename T>
-   std::string myCLass_impl(const T*x, long )
-   {
-     return Cls<T*>::name();
-   }
-
-   template<typename T>
-   std::string myCLass_impl(const T x, long )
+   std::string myCLass_impl(const T& x, int )
    {
      return Cls<T>::name();
    }
@@ -433,13 +466,13 @@ namespace Markov_IO_New {
    template<typename T>
    std::string myClassOf(const T& x)
    {
-     return myCLass_impl(x,0);  // 0 is int so chooses x->myClass if exists
+     return myCLass_impl(x,{long(0)});  // 0 is int so chooses x->myClass if exists
    }
 
    template<typename T>
    std::string myClassOf(const T* x)
    {
-     return myCLass_impl(x,0);  // 0 is int so chooses x->myClass if exists
+     return myCLass_impl(x,long(-1));  // 0 is int so chooses x->myClass if exists
    }
 
 
@@ -848,6 +881,14 @@ namespace Markov_IO_New {
     iv.data=new Implements_Value_New<typename Field::myC>(Field::myIdType(),{});
     return iv;
   }
+
+
+
+
+
+
+
+
 
 }
 
