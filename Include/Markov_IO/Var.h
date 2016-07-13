@@ -106,49 +106,49 @@ namespace Markov_IO_New {
 
   template<> struct mp_append_impl<>
   {
-      using type = mp_list<>;
+    using type = mp_list<>;
   };
 
   template<template<class...> class L, class... T>
   struct mp_append_impl<L<T...>>
   {
-      using type = L<T...>;
+    using type = L<T...>;
   };
 
   template<template<class...> class L1, class... T1,
-      template<class...> class L2, class... T2, class... Lr>
-      struct mp_append_impl<L1<T1...>, L2<T2...>, Lr...>
+           template<class...> class L2, class... T2, class... Lr>
+  struct mp_append_impl<L1<T1...>, L2<T2...>, Lr...>
   {
-      using type = mp_append<L1<T1..., T2...>, Lr...>;
+    using type = mp_append<L1<T1..., T2...>, Lr...>;
   };
 
 
 
-      template<typename F, typename Tuple, size_t... I>
-        auto
-        apply_Impl(F&& f, Tuple&& args,std::index_sequence<I...>)
-        -> decltype(std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...))
-        {
-          return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...);
-        }
+  template<typename F, typename Tuple, size_t... I>
+  auto
+  apply_Impl(F&& f, Tuple&& args,std::index_sequence<I...>)
+  -> decltype(std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...))
+  {
+    return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...);
+  }
 
-      template<typename F, typename Tuple,
-               typename Indices = std::make_index_sequence<std::tuple_size<Tuple>::value>>
-        auto
-        mp_apply(F&& f, Tuple&& args)
-        -> decltype(apply_Impl(std::forward<F>(f), std::forward<Tuple>(args), Indices()))
-        {
-          return apply_Impl(std::forward<F>(f), std::forward<Tuple>(args), Indices());
-        }
+  template<typename F, typename Tuple,
+           typename Indices = std::make_index_sequence<std::tuple_size<Tuple>::value>>
+  auto
+  mp_apply(F&& f, Tuple&& args)
+  -> decltype(apply_Impl(std::forward<F>(f), std::forward<Tuple>(args), Indices()))
+  {
+    return apply_Impl(std::forward<F>(f), std::forward<Tuple>(args), Indices());
+  }
 
 
 
-   template <typename F, typename...Args>
-    struct  mp_function
-    {
-      F f_;
-      std::tuple<Args...> args_;
-    };
+  template <typename F, typename...Args>
+  struct  mp_function
+  {
+    F f_;
+    std::tuple<Args...> args_;
+  };
 
 
 
@@ -356,7 +356,7 @@ namespace Markov_IO_New {
       using value=Implements_Base_Value_New<myD>;
       using value_Ptr=Implements_Derived_Value_New<myD,myB>;
 
-      };
+    };
 
     template<>
     struct mp_DataType_Imp<Experiment>
@@ -369,7 +369,7 @@ namespace Markov_IO_New {
       using value=Implements_Base_Value_New<myD>;
       using value_Ptr=Implements_Derived_Value_New<myD,myB>;
 
-      };
+    };
 
     template<>
     struct mp_DataType_Imp<Pulses_program>
@@ -382,7 +382,7 @@ namespace Markov_IO_New {
       using value=Implements_Base_Value_New<myD>;
       using value_Ptr=Implements_Derived_Value_New<myD,myB>;
 
-      };
+    };
 
     template<>
     struct mp_DataType_Imp<Trace>
@@ -395,7 +395,7 @@ namespace Markov_IO_New {
       using value=Implements_Base_Value_New<myD>;
       using value_Ptr=Implements_Derived_Value_New<myD,myB>;
 
-      };
+    };
 
     template<>
     struct mp_DataType_Imp<Pulses_trace>
@@ -413,18 +413,18 @@ namespace Markov_IO_New {
 
 
 
-   template<class T>
-   struct mp_Data_Type
+    template<class T>
+    struct mp_Data_Type
     {
-       using type=typename mp_DataType_Imp<T>::type;
-       using valueType=typename mp_DataType_Imp<T>::value;
-   };
-   template<class T>
-   struct mp_Data_Type<T*>
+      using type=typename mp_DataType_Imp<T>::type;
+      using valueType=typename mp_DataType_Imp<T>::value;
+    };
+    template<class T>
+    struct mp_Data_Type<T*>
     {
-       using type=typename mp_DataType_Imp<T>::type_Ptr;
+      using type=typename mp_DataType_Imp<T>::type_Ptr;
       using valueType=typename mp_DataType_Imp<T>::value_Ptr;
-   };
+    };
 
 
 
@@ -439,41 +439,41 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-   auto myCLass_impl(const T& x,long)->decltype (x->myClass())
-   {
-     return x->myClass()+ClsPtr();
-   }
-   template<typename T>
-    auto myCLass_impl(const T& x,long)->decltype (x.myClass())
-    {
-      return x.myClass();
-    }
+  auto myCLass_impl(const T& x,long)->decltype (x->myClass())
+  {
+    return x->myClass()+ClsPtr();
+  }
+  template<typename T>
+  auto myCLass_impl(const T& x,long)->decltype (x.myClass())
+  {
+    return x.myClass();
+  }
 
-//    template<typename T>
-//    std::string myCLass_impl(const T* x, int )
-//    {
-//      return Cls<T*>::name();
-//    }
+  //    template<typename T>
+  //    std::string myCLass_impl(const T* x, int )
+  //    {
+  //      return Cls<T*>::name();
+  //    }
 
 
 
-   template<typename T>
-   std::string myCLass_impl(const T& x, int )
-   {
-     return Cls<T>::name();
-   }
+  template<typename T>
+  std::string myCLass_impl(const T& x, int )
+  {
+    return Cls<T>::name();
+  }
 
-   template<typename T>
-   std::string myClassOf(const T& x)
-   {
-     return myCLass_impl(x,{long(0)});  // 0 is int so chooses x->myClass if exists
-   }
+  template<typename T>
+  std::string myClassOf(const T& x)
+  {
+    return myCLass_impl(x,{long(0)});  // 0 is int so chooses x->myClass if exists
+  }
 
-   template<typename T>
-   std::string myClassOf(const T* x)
-   {
-     return myCLass_impl(x,long(-1));  // 0 is int so chooses x->myClass if exists
-   }
+  template<typename T>
+  std::string myClassOf(const T* x)
+  {
+    return myCLass_impl(x,long(-1));  // 0 is int so chooses x->myClass if exists
+  }
 
 
 
@@ -536,6 +536,14 @@ namespace Markov_IO_New {
 
   class ABC_Type_of_Value;
 
+  class ABC_Type_of_Function;
+
+
+  template<typename Fn, typename...Args>
+  class Implements_Data_Type_FnClosure;
+
+
+
   class ABC_Data_New//: public ABC_Value_New
   {
 
@@ -567,262 +575,266 @@ namespace Markov_IO_New {
 
   namespace _private
   {
-  template<typename T>
-  class Implements_Base_Value_New: public ABC_Data_New
-  {
-    // ABC_Value_New interface
-  public:
-
-    virtual std::string myType()const override
+    template<typename T>
+    class Implements_Base_Value_New: public ABC_Data_New
     {
-      return varType_;
-    }
+      // ABC_Value_New interface
+    public:
 
-    virtual T& getValue()
+      virtual std::string myType()const override
+      {
+        return varType_;
+      }
+
+      virtual T& getValue()
+      {
+        return value_;
+      }
+
+      virtual const T& getValue()const
+      {
+        return value_;
+      }
+
+      virtual T unloadValue()
+      {
+        T out=std::move(value_);
+        value_={};
+        empty_=true;
+        return out;
+      }
+
+      virtual Implements_Base_Value_New<T>* clone()const
+      {
+        return new Implements_Base_Value_New<T>(*this);
+      }
+
+      virtual ~Implements_Base_Value_New()
+      {
+      }
+
+      virtual bool isOfThisType(const StructureEnv_New* cm,
+                                const std::string& generalType,
+                                std::string* whyNot
+                                ,const std::string &masterObjective)const override;
+
+
+      Implements_Base_Value_New(const std::string& var,
+                                T value):
+        varType_(var),value_(value),empty_(false){}
+
+      Implements_Base_Value_New(const std::string& var):
+        varType_(var),value_(),empty_(true)
+      {}
+
+      Implements_Base_Value_New(const Implements_Base_Value_New<T>& other)=default;
+
+      Implements_Base_Value_New(Implements_Base_Value_New<T>&& other)=default;
+
+      Implements_Base_Value_New& operator=(const Implements_Base_Value_New<T>& other)=default;
+
+      Implements_Base_Value_New& operator=(Implements_Base_Value_New<T>&& other)=default;
+
+      Implements_Base_Value_New()=default;
+
+
+      virtual bool empty() const override
+      {
+        return empty_;
+      }
+
+      virtual void reset() override
+      {
+        value_=T{};
+        empty_=true;
+      }
+
+
+
+      virtual Implements_Base_Value_New<T>* create() const override
+      {
+        return new Implements_Base_Value_New();
+
+      }
+    protected:
+      std::string varType_;
+      T value_;
+      bool empty_;
+    };
+
+
+
+
+
+
+    template<typename T>
+    class Implements_Base_Value_New<T*>: public ABC_Data_New
     {
-      return value_;
-    }
+      // ABC_Value_New interface
+    public:
 
-    virtual const T& getValue()const
+      virtual std::string myType()const override
+      {
+        return varType_;
+      }
+
+      virtual T* getValue()
+      {
+        return value_;
+      }
+
+      virtual const T* getValue()const
+      {
+        return value_;
+      }
+
+      virtual T* unloadValue()
+      {
+        T* out=std::move(value_);
+        value_={};
+        empty_=true;
+        return out;
+      }
+
+      virtual Implements_Base_Value_New<T*>* clone()const
+      {
+        return new Implements_Base_Value_New<T*>(*this);
+      }
+
+      virtual ~Implements_Base_Value_New()
+      {
+      }
+
+      virtual bool isOfThisType(const StructureEnv_New* cm,
+                                const std::string& generalType,
+                                std::string* whyNot
+                                ,const std::string &masterObjective)const override;
+
+
+      Implements_Base_Value_New(const std::string& var,
+                                T* value):
+        varType_(var),value_(value),empty_(false){}
+
+      Implements_Base_Value_New(const std::string& var):
+        varType_(var),value_(),empty_(true)
+      {}
+
+      Implements_Base_Value_New(const Implements_Base_Value_New<T*>& other)=default;
+
+      Implements_Base_Value_New(Implements_Base_Value_New<T*>&& other)=default;
+
+      Implements_Base_Value_New& operator=(const Implements_Base_Value_New<T*>& other)=default;
+
+      Implements_Base_Value_New& operator=(Implements_Base_Value_New<T*>&& other)=default;
+
+      Implements_Base_Value_New()=default;
+
+
+      virtual bool empty() const override
+      {
+        return empty_;
+      }
+
+      virtual void reset() override
+      {
+        value_=nullptr;
+        empty_=true;
+      }
+
+      virtual Implements_Base_Value_New<T*>* create() const override
+      {
+        return new Implements_Base_Value_New();
+
+      }
+    protected:
+      std::string varType_;
+      T* value_;
+      bool empty_;
+    };
+
+
+
+
+
+    template<typename D,typename B>
+    class Implements_Derived_Value_New: public Implements_Value_New<B*>
     {
-      return value_;
-    }
 
-    virtual T unloadValue()
-    {
-      T out=std::move(value_);
-      value_={};
-      empty_=true;
-      return out;
-    }
+      // ABC_Value_New interface
+    public:
+      typedef Implements_Value_New<B*> baseType;
 
-    virtual Implements_Base_Value_New<T>* clone()const
-    {
-      return new Implements_Base_Value_New<T>(*this);
-    }
+      virtual D* getValue() override
+      {
+        return value_;
+      }
 
-    virtual ~Implements_Base_Value_New()
-    {
-    }
+      virtual const D* getValue()const override
+      {
+        return value_;
+      }
 
-    virtual bool isOfThisType(const StructureEnv_New* cm,
-                              const std::string& generalType,
-                              std::string* whyNot
-                              ,const std::string &masterObjective)const override;
+      virtual D* unloadValue() override
+      {
+        D* out=std::move(value_);
+        value_={};
+        baseType::empty_=true;
+        return out;
+      }
 
+      virtual Implements_Derived_Value_New<D,B>* clone()const
+      {
+        return new Implements_Derived_Value_New<D,B>(*this);
+      }
 
-    Implements_Base_Value_New(const std::string& var,
-                         T value):
-      varType_(var),value_(value),empty_(false){}
+      virtual ~Implements_Derived_Value_New()
+      {
+      }
 
-    Implements_Base_Value_New(const std::string& var):
-      varType_(var),value_(),empty_(true)
-    {}
-
-    Implements_Base_Value_New(const Implements_Base_Value_New<T>& other)=default;
-
-    Implements_Base_Value_New(Implements_Base_Value_New<T>&& other)=default;
-
-    Implements_Base_Value_New& operator=(const Implements_Base_Value_New<T>& other)=default;
-
-    Implements_Base_Value_New& operator=(Implements_Base_Value_New<T>&& other)=default;
-
-    Implements_Base_Value_New()=default;
+      virtual bool isOfThisType(const StructureEnv_New* cm,
+                                const std::string& generalType,
+                                std::string* whyNot
+                                ,const std::string &masterObjective)const override;
 
 
-    virtual bool empty() const override
-    {
-      return empty_;
-    }
-
-    virtual void reset() override
-    {
-      value_=T{};
-      empty_=true;
-    }
-
-
-
-    virtual Implements_Base_Value_New<T>* create() const override
-    {
-      return new Implements_Base_Value_New();
-
-    }
-  protected:
-    std::string varType_;
-    T value_;
-    bool empty_;
-  };
-
-
-  template<typename T>
-  class Implements_Base_Value_New<T*>: public ABC_Data_New
-  {
-    // ABC_Value_New interface
-  public:
-
-    virtual std::string myType()const override
-    {
-      return varType_;
-    }
-
-    virtual T* getValue()
-    {
-      return value_;
-    }
-
-    virtual const T* getValue()const
-    {
-      return value_;
-    }
-
-    virtual T* unloadValue()
-    {
-      T* out=std::move(value_);
-      value_={};
-      empty_=true;
-      return out;
-    }
-
-    virtual Implements_Base_Value_New<T*>* clone()const
-    {
-      return new Implements_Base_Value_New<T*>(*this);
-    }
-
-    virtual ~Implements_Base_Value_New()
-    {
-    }
-
-    virtual bool isOfThisType(const StructureEnv_New* cm,
-                              const std::string& generalType,
-                              std::string* whyNot
-                              ,const std::string &masterObjective)const override;
-
-
-    Implements_Base_Value_New(const std::string& var,
-                         T* value):
-      varType_(var),value_(value),empty_(false){}
-
-    Implements_Base_Value_New(const std::string& var):
-      varType_(var),value_(),empty_(true)
-    {}
-
-    Implements_Base_Value_New(const Implements_Base_Value_New<T*>& other)=default;
-
-    Implements_Base_Value_New(Implements_Base_Value_New<T*>&& other)=default;
-
-    Implements_Base_Value_New& operator=(const Implements_Base_Value_New<T*>& other)=default;
-
-    Implements_Base_Value_New& operator=(Implements_Base_Value_New<T*>&& other)=default;
-
-    Implements_Base_Value_New()=default;
-
-
-    virtual bool empty() const override
-    {
-      return empty_;
-    }
-
-    virtual void reset() override
-    {
-      value_=nullptr;
-      empty_=true;
-    }
-
-    virtual Implements_Base_Value_New<T*>* create() const override
-    {
-      return new Implements_Base_Value_New();
-
-    }
-  protected:
-    std::string varType_;
-    T* value_;
-    bool empty_;
-  };
-
-
-
-
-
-  template<typename D,typename B>
-  class Implements_Derived_Value_New: public Implements_Value_New<B*>
-  {
-
-    // ABC_Value_New interface
-  public:
-    typedef Implements_Value_New<B*> baseType;
-
-    virtual D* getValue() override
-    {
-      return value_;
-    }
-
-    virtual const D* getValue()const override
-    {
-      return value_;
-    }
-
-    virtual D* unloadValue() override
-    {
-      D* out=std::move(value_);
-      value_={};
-      baseType::empty_=true;
-      return out;
-    }
-
-    virtual Implements_Derived_Value_New<D,B>* clone()const
-    {
-      return new Implements_Derived_Value_New<D,B>(*this);
-    }
-
-    virtual ~Implements_Derived_Value_New()
-    {
-    }
-
-    virtual bool isOfThisType(const StructureEnv_New* cm,
-                              const std::string& generalType,
-                              std::string* whyNot
-                              ,const std::string &masterObjective)const override;
-
-
-    Implements_Derived_Value_New(const std::string& var,
-                         D* value):
-      Implements_Base_Value_New<B*>(var,value)
+      Implements_Derived_Value_New(const std::string& var,
+                                   D* value):
+        Implements_Base_Value_New<B*>(var,value)
       ,value_(value){}
 
-    Implements_Derived_Value_New(const std::string& var):
-      Implements_Base_Value_New<B*>(var)
+      Implements_Derived_Value_New(const std::string& var):
+        Implements_Base_Value_New<B*>(var)
       ,value_(){}
 
 
-    Implements_Derived_Value_New(const Implements_Derived_Value_New<D,B>& other)=default;
+      Implements_Derived_Value_New(const Implements_Derived_Value_New<D,B>& other)=default;
 
-    Implements_Derived_Value_New(Implements_Derived_Value_New<D,B>&& other)=default;
+      Implements_Derived_Value_New(Implements_Derived_Value_New<D,B>&& other)=default;
 
-    Implements_Derived_Value_New& operator=(const Implements_Derived_Value_New<D,B>& other)=default;
+      Implements_Derived_Value_New& operator=(const Implements_Derived_Value_New<D,B>& other)=default;
 
-    Implements_Derived_Value_New& operator=(Implements_Derived_Value_New<D,B>&& other)=default;
+      Implements_Derived_Value_New& operator=(Implements_Derived_Value_New<D,B>&& other)=default;
 
-    Implements_Derived_Value_New()=default;
-
-
-
-    virtual void reset() override
-    {
-      value_=nullptr;
-
-    }
-
-    virtual Implements_Derived_Value_New<D,B>* create() const override
-    {
-      return new Implements_Derived_Value_New();
-
-    }
+      Implements_Derived_Value_New()=default;
 
 
-  protected:
-    D* value_;
-  };
+
+      virtual void reset() override
+      {
+        value_=nullptr;
+
+      }
+
+      virtual Implements_Derived_Value_New<D,B>* create() const override
+      {
+        return new Implements_Derived_Value_New();
+
+      }
+
+
+    protected:
+      D* value_;
+    };
 
   }
 
@@ -856,9 +868,9 @@ namespace Markov_IO_New {
     }
 
     const_Implements_Var( std::string _id,
-    const ABC_Data_New* _data,
-    std::string _Tip,
-    std::string _WhatThis)
+                          const ABC_Data_New* _data,
+                          std::string _Tip,
+                          std::string _WhatThis)
       :id(_id),data(_data),Tip(_Tip),WhatThis(_WhatThis){}
 
     const_Implements_Var( const Implements_Var& other)
@@ -881,9 +893,6 @@ namespace Markov_IO_New {
     iv.data=new Implements_Value_New<typename Field::myC>(Field::myIdType(),{});
     return iv;
   }
-
-
-
 
 
 

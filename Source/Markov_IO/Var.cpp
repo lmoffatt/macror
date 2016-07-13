@@ -129,6 +129,36 @@ namespace Markov_IO_New {
   }
 
 
+  bool StructureEnv_New::hasFunctionofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
+  {
+    auto it=funcs_.find(name);
+    if (it==funcs_.end())
+      {
+        if(!recursive||(parent()==nullptr))
+          {
+            *whyNot=masterObjective+": "+name+" is not a type in ";
+            return false;
+          }
+        else
+          return parent()->hasFunctionofType(name, type,whyNot,masterObjective,recursive);
+      }
+    else
+      {
+        auto t=idToFunc(type,whyNot,masterObjective);
+        if (t==nullptr)
+          return false;
+        else
+          {
+            const ABC_Type_of_Function* subt=it->second;
+            return t->includesThisType(this,name,whyNot,masterObjective);
+          }
+      }
+
+  }
+
+
+
+
 
   std::vector<std::string> StructureEnv_New::getIdsOfVarType(const std::string &varType,bool recursive) const
   {

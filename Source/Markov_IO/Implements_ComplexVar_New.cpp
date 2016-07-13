@@ -290,6 +290,8 @@ namespace Markov_IO_New {
     vars_.clear();
     types_.clear();
     cmds_.clear();
+    funcs_.clear();
+    fnNames_.clear();
   }
 
   std::__cxx11::string StructureEnv_New::myType() const
@@ -413,6 +415,22 @@ namespace Markov_IO_New {
       }
   }
 
+  std::string StructureEnv_New::fnAddrToId(const void* data, std::__cxx11::string *whyNot, const std::string& objective) const
+  {
+    auto it=fnNames_.find(data);
+    if (it!=fnNames_.end())
+      return it->second;
+    else if (parent()!=nullptr)
+      return  parent()->fnAddrToId(data, whyNot,objective);
+    else
+      {
+        if (whyNot!=nullptr)
+          *whyNot=objective+": data has no id ";
+        return {};
+      }
+  }
+
+
   std::__cxx11::string StructureEnv_New::Tip(const std::__cxx11::string &id) const
   {
     auto it=idTipWt_.find(id);
@@ -458,6 +476,10 @@ namespace Markov_IO_New {
 
   }
 
+
+
+
+
   ABC_Type_of_Value *StructureEnv_New::idToType(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
   {
     const std::string objective=masterObjective+": "+name+" is not a type";
@@ -472,6 +494,47 @@ namespace Markov_IO_New {
       }
 
   }
+
+
+
+  const ABC_Type_of_Function *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)const
+  {
+    const std::string objective=masterObjective+": "+name+" is not a type";
+    auto it=funcs_.find(name);
+    if (it!=funcs_.end())
+      return it->second;
+    else
+      {
+        if (whyNot!=nullptr)
+          *whyNot=objective;
+        return nullptr;
+      }
+
+  }
+
+
+
+
+
+
+  ABC_Type_of_Function *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  {
+    const std::string objective=masterObjective+": "+name+" is not a type";
+    auto it=funcs_.find(name);
+    if (it!=funcs_.end())
+      return it->second;
+    else
+      {
+        if (whyNot!=nullptr)
+          *whyNot=objective;
+        return nullptr;
+      }
+
+  }
+
+
+
+
 
   const Implements_Command_Type_New *StructureEnv_New::idToCommand(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterobjective) const
   {
@@ -532,6 +595,26 @@ namespace Markov_IO_New {
       }
     else return parent()->hasType(name, whyNot,objective,recursive);
   }
+
+
+
+  bool StructureEnv_New::hasFunction(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const
+  {
+    const std::string objective=masterObjective+ ": "+name+"is not present ";
+    if (funcs_.find(name)!=funcs_.end())
+      {
+        return true;
+      }
+    if (!recursive||(parent()==nullptr))
+      {
+        if (whyNot!=nullptr)
+          *whyNot=objective;
+        return false;
+      }
+    else return parent()->hasType(name, whyNot,objective,recursive);
+  }
+
+
 
   bool StructureEnv_New::hasCommand(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const
   {if (cmds_.find(name)!=cmds_.end())
@@ -613,6 +696,13 @@ namespace Markov_IO_New {
     idTipWt_[id]={tip,whatthis};
   }
 
+  void StructureEnv_New::pushFunction(const std::__cxx11::string &id, ABC_Type_of_Function *f, std::__cxx11::string tip, std::__cxx11::string whatthis)
+  {
+    funcs_[id]=f;
+    fnNames_[f->getFunction()]=id;
+    idTipWt_[id]={tip,whatthis};
+  }
+
   void StructureEnv_New::pushCommand(const std::__cxx11::string &id, Implements_Command_Type_New *cmd, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
     ;
@@ -630,8 +720,12 @@ namespace Markov_IO_New {
   }
 
 
+
+
+
+
   StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const std::__cxx11::string &myType):
-    p_(parent),structType_(myType),idVars_(),idTypes_(),idCmds_(),all_(),allId_(),vars_(),types_(),cmds_()
+    p_(parent),structType_(myType),idVars_(),idTypes_(),idCmds_(),all_(),allId_(),vars_(),types_(),cmds_(),funcs_(),idTipWt_(),fnNames_()
   {
 
   }
@@ -651,10 +745,28 @@ namespace Markov_IO_New {
     return types_;
   }
 
+
+
+
   const std::map<std::__cxx11::string, ABC_Type_of_Value *> &StructureEnv_New::getTypes() const
   {
     return types_;
   }
+
+  std::map<std::__cxx11::string, ABC_Type_of_Function *> &StructureEnv_New::getFunctions()
+  {
+    return funcs_;
+  }
+
+
+
+
+  const  std::map<std::__cxx11::string, ABC_Type_of_Function *> &StructureEnv_New::getFunctions()const
+  {
+    return funcs_;
+  }
+
+
 
   std::map<std::__cxx11::string, Implements_Command_Type_New *> &StructureEnv_New::getCommands()
   {

@@ -225,7 +225,7 @@ namespace Markov_IO_New {
       virtual void put(const std::__cxx11::string &s) override
       {
         if (s.back()!='\n')
-        f_<<s<<spacer_;
+          f_<<s<<spacer_;
         else
           f_<<s;
 
@@ -310,8 +310,8 @@ namespace Markov_IO_New {
               x=-std::numeric_limits<double>::infinity();
             else
               {
-              f_.setstate(f_.rdstate() | std::ios_base::failbit);
-               return false;
+                f_.setstate(f_.rdstate() | std::ios_base::failbit);
+                return false;
               }
             return true;
           }
@@ -360,6 +360,16 @@ namespace Markov_IO_New {
           f_.putback(d);
         return false;
       }
+      virtual bool testIfNextCharIs(char c) override
+      {
+        char d;
+        f_.get(d);
+        while (d==' ') {f_.get(d);}
+        f_.putback(d);
+        return  d==c;
+      }
+
+
       virtual bool eof()const override
       {
         return f_.eof();
