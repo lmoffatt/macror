@@ -11,7 +11,7 @@ namespace Markov_IO_New {
                                                     std::string* whyNot
                                                     ,const std::string &masterObjective)const
     {
-      if ((generalType.empty()||myType()==generalType))
+      if ((generalType.empty()||myTypeId()==generalType))
         return true;
       else
         {
@@ -31,7 +31,7 @@ namespace Markov_IO_New {
                                                   std::string* whyNot
                                                   ,const std::string &masterObjective)const
   {
-    if ((generalType.empty()||myType()==generalType))
+    if ((generalType.empty()||myTypeId()==generalType))
       return true;
     else
       {
@@ -51,7 +51,7 @@ namespace Markov_IO_New {
                                                   std::string* whyNot
                                                   ,const std::string &masterObjective)const
   {
-    if ((generalType.empty()||this->myType()==generalType))
+    if ((generalType.empty()||this->myTypeId()==generalType))
       return true;
     else
       {

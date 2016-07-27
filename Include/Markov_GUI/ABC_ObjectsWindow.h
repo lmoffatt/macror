@@ -38,7 +38,7 @@ public slots:
     if (m!=nullptr)
     {
         list.append(new QStandardItem(modelName));
-        list.append(new QStandardItem(QString(m->myType().c_str())));
+          list.append(new QStandardItem(QString(m->myTypeId().c_str())));
       //  auto superclasses=m->mySuperClasses();
      //   for (std::string sc:superclasses)
        // list.append(new QStandardItem(QString(sc.c_str())));

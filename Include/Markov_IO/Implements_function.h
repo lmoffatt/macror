@@ -118,7 +118,7 @@ namespace Markov_IO_New
 
     typedef Implements_FnClosure<Fn,Args...> selfType;
 
-    virtual std::string myType()const override
+    virtual ABC_Type_of_Value const * myType()const override
     {
       return fnType_;
     }

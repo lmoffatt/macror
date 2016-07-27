@@ -76,7 +76,7 @@ namespace Markov_IO_New
   }
 
   Markov_CommandManagerVar::Markov_CommandManagerVar():
-    StructureEnv_New(nullptr,"CommandManager"),
+    StructureEnv_New(nullptr,nullptr),
     io_(nullptr),
     vt_{Variable::types::varNew::varType()},
     idCmd_(Identifier::types::idCmd::varType()),
@@ -118,7 +118,7 @@ _private::_experiment::push_Types(this);
   void Markov_CommandManagerVar::run(const Implements_Command_Arguments *arg)
   {
     std::string dummyError;
-    const Implements_Command_Type_New* ctp=idToCommand(arg->myType(),&dummyError,"");
+    const Implements_Command_Type_New* ctp=idToCommand(arg->myTypeId(),&dummyError,"");
     ctp->run(this,arg,&dummyError,"");
   }
 

@@ -52,14 +52,14 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm)
         {
           return new Implements_Data_Type_New<myC>
-              (&comply
+              (myId(),nullptr,&comply
                ,&alternativeNext);
         }
         static Implements_Data_Type_New<myC>*
         varType(const StructureEnv_New* cm, const std::string& ext)
         {
          auto out= new Implements_Data_Type_New<myC>
-              (&comply
+              (myId(),nullptr,&comply
                ,&alternativeNext);
          out->getEnv()->pushVar<fields::extension_field>(ext);
          return out;
@@ -85,17 +85,6 @@ namespace Markov_IO_New {
 
         static std::string getWorkingPath();
 
-        static Implements_Var
-        varValue()
-        {
-
-          Implements_Var iv;
-          iv.id=myId();
-          iv.data=new Implements_Value_New<myC>(myIdType(),getWorkingPath());
-          iv.Tip=myTip();
-          iv.WhatThis=myWhatThis();
-          return iv;
-        }
       };
 
 
@@ -111,17 +100,6 @@ namespace Markov_IO_New {
 
         static std::string getExecutablePath();
 
-        static Implements_Var
-        varValue()
-        {
-
-          Implements_Var iv;
-          iv.id=myId();
-          iv.data=new Implements_Value_New<myC>(myIdType(),getExecutablePath());
-          iv.Tip=myTip();
-          iv.WhatThis=myWhatThis();
-          return iv;
-        }
       };
 
     void push_Types(StructureEnv_New *cm);

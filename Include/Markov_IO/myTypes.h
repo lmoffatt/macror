@@ -457,7 +457,7 @@ namespace Markov_IO_New {
          ,const baseType* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          auto f=new StructureEnv_New(cm,Cls<myB*>::name());
+          auto f=new StructureEnv_New(cm,v->getCVType());
           f->pushVar<numStates_Field>(Q->k());
           f->pushVar<Q_matrix_Field>(Q->Q());
 
@@ -479,7 +479,7 @@ namespace Markov_IO_New {
          ,const vType* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          auto f=new StructureEnv_New(cm,Cls<myC*>::name());
+          auto f=new StructureEnv_New(cm,v->getCVType());
           f->pushVar<numStates_Field>(Q->k());
           f->pushVar<Q_matrix_Field>(Q->Q());
 
@@ -494,14 +494,14 @@ namespace Markov_IO_New {
         }
       public:
 
-        static std::vector<std::pair<Implements_Var,bool>> getFields()
+        static std::vector<std::pair<Implements_Var,bool>> getFields(const StructureEnv_New* cm)
         {
           std::vector<std::pair<Implements_Var,bool>> f;
-          f.push_back({getMyVar<numStates_Field>(),true});
-          f.push_back({getMyVar<Q_matrix_Field>(),true});
-          f.push_back({getMyVar<conductance_vector_Field>(),true});
-          f.push_back({getMyVar<agonist_vector_field>(),true});
-          f.push_back({getMyVar<unitary_conductance_field>(),true});
+          f.push_back({getMyVar<numStates_Field>(cm),true});
+          f.push_back({getMyVar<Q_matrix_Field>(cm),true});
+          f.push_back({getMyVar<conductance_vector_Field>(cm),true});
+          f.push_back({getMyVar<agonist_vector_field>(cm),true});
+          f.push_back({getMyVar<unitary_conductance_field>(cm),true});
           return f;
         }
 
@@ -510,7 +510,7 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm)
         {
           return new  Implements_Data_Type_derived_class<myC,myB>
-              (getFields(),&obj2map,&map2obj,nullptr,&objB2map);
+              (getFields(cm),&obj2map,&map2obj,nullptr,&objB2map);
         }
 
         static void push_Types(StructureEnv_New *cm)
@@ -621,9 +621,9 @@ namespace Markov_IO_New {
 
         }
 
-        static std::vector<std::pair<Implements_Var,bool>> getFields()
+        static std::vector<std::pair<Implements_Var,bool>> getFields(const StructureEnv_New* cm)
         {
-          return getFieldsTempl<selfType>(buildFieldList());
+          return getFieldsTempl<selfType>(cm,buildFieldList());
 
         }
 
@@ -631,7 +631,7 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm)
         {
           return new  Implements_Data_Type_derived_class<myD,myB>
-              (getFields(),&objPtr2map,&map2objPtr,nullptr,nullptr);
+              (getFields(cm),&objPtr2map,&map2objPtr,nullptr,nullptr);
         }
 
         struct valueType
@@ -680,9 +680,9 @@ namespace Markov_IO_New {
 
           }
 
-          static std::vector<std::pair<Implements_Var,bool>> getFields()
+          static std::vector<std::pair<Implements_Var,bool>> getFields(const StructureEnv_New* cm)
           {
-            return getFieldsTempl<selfType>(fieldList());
+            return getFieldsTempl<selfType>(cm,fieldList());
 
           }
 
@@ -690,7 +690,7 @@ namespace Markov_IO_New {
           varType(const StructureEnv_New* cm)
           {
             return new  Implements_Data_Type_class<myD>
-                (getFields(),&obj2map,&map2obj);
+                (getFields(cm),&obj2map,&map2obj);
           }
 
 
@@ -870,9 +870,9 @@ namespace Markov_IO_New {
 
         }
 
-        static std::vector<std::pair<Implements_Var,bool>> getFields()
+        static std::vector<std::pair<Implements_Var,bool>> getFields(const StructureEnv_New* cm)
         {
-          return getFieldsTempl<selfType>(fieldList());
+          return getFieldsTempl<selfType>(cm,fieldList());
 
         }
 
@@ -880,7 +880,7 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm)
         {
           return new  Implements_Data_Type_derived_class<myD,myB>
-              (getFields(),&objPtr2map,&map2objPtr,nullptr,nullptr);
+              (getFields(cm),&objPtr2map,&map2objPtr,nullptr,nullptr);
         }
 
         struct valueType
@@ -929,9 +929,9 @@ namespace Markov_IO_New {
 
           }
 
-          static std::vector<std::pair<Implements_Var,bool>> getFields()
+          static std::vector<std::pair<Implements_Var,bool>> getFields(const StructureEnv_New* cm)
           {
-            return getFieldsTempl<selfType>(fieldList());
+            return getFieldsTempl<selfType>(cm,fieldList());
 
           }
 
@@ -939,7 +939,7 @@ namespace Markov_IO_New {
           varType(const StructureEnv_New* cm)
           {
             return new  Implements_Data_Type_class<myD>
-                (getFields(),&obj2map,&map2obj);
+                (getFields(cm),&obj2map,&map2obj);
           }
 
 

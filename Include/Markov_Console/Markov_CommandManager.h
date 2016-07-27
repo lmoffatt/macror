@@ -84,6 +84,12 @@ namespace Markov_IO_New
       return vt_;
     }
 
+    const Implements_Data_Type_New<ABC_Closure*>* getFnType()
+    {
+      return ct_;
+    }
+
+
     const Implements_Data_Type_New<std::string>* getIdCmd()
     {
       return idCmd_;
@@ -113,6 +119,8 @@ namespace Markov_IO_New
   protected:
     ABC_IO* io_;
     Implements_Data_Type_New<Implements_Var>* vt_;
+    Implements_Data_Type_New<ABC_Closure*>* ct_;
+
     Implements_Identifier* idCmd_;
     ExpressionManager* e;
     bool lastCmdRst;

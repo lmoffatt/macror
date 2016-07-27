@@ -65,6 +65,20 @@ namespace Markov_IO_New {
   struct Implements_Var;
   class StructureEnv_New;
 
+ class ABC_Closure;
+ template<typename Fn, typename...Args>
+ class Implements_FnClosure;
+
+ class ABC_Type_of_Value;
+
+ class ABC_Type_of_Function;
+
+
+ template<typename Fn, typename...Args>
+ class Implements_Data_Type_FnClosure;
+
+  class Implements_Data_Type_Function;
+
 
   inline
   std::string removeHint(const std::string& alter)
@@ -165,6 +179,7 @@ namespace Markov_IO_New {
 
 
 
+
     template<typename T> class Implements_Base_Value_New;
     template<typename D,typename B> class Implements_Derived_Value_New;
 
@@ -253,6 +268,15 @@ namespace Markov_IO_New {
       using type_Ptr=Implements_Data_Type_New_ABC_Data_New;
       using value_Ptr=Implements_Base_Value_New<ABC_Data_New*>;
     };
+
+
+    template<>
+    struct mp_DataType_Imp<ABC_Closure>{
+      using type_Ptr=Implements_Data_Type_Function;
+      using value_Ptr=Implements_Base_Value_New<ABC_Closure*>;
+    };
+
+
 
     template<>
     struct mp_DataType_Imp<Implements_Var>{
@@ -534,14 +558,6 @@ namespace Markov_IO_New {
 
 
 
-  class ABC_Type_of_Value;
-
-  class ABC_Type_of_Function;
-
-
-  template<typename Fn, typename...Args>
-  class Implements_Data_Type_FnClosure;
-
 
 
   class ABC_Data_New//: public ABC_Value_New
@@ -558,7 +574,9 @@ namespace Markov_IO_New {
     virtual ABC_Data_New* clone()const=0;
     virtual ABC_Data_New* create()const=0;
 
-    virtual std::string myType()const=0;
+    virtual ABC_Type_of_Value const* myType()const=0;
+
+    virtual std::string myTypeId()const=0;
 
 
     virtual bool isOfThisType(const StructureEnv_New* cm,
@@ -581,10 +599,23 @@ namespace Markov_IO_New {
       // ABC_Value_New interface
     public:
 
-      virtual std::string myType()const override
+      virtual ABC_Type_of_Value const* myType()const override
       {
         return varType_;
       }
+
+      virtual Implements_Data_Type_New<T> const* myTypeD()const
+      {
+        return varType_;
+      }
+
+      std::string myTypeId()const override  {
+        if (myType()==nullptr)
+          return Cls<T>::name();
+        else
+          return myType()->typeId();
+      }
+
 
       virtual T& getValue()
       {
@@ -619,13 +650,19 @@ namespace Markov_IO_New {
                                 ,const std::string &masterObjective)const override;
 
 
-      Implements_Base_Value_New(const std::string& var,
+      Implements_Base_Value_New(const Implements_Data_Type_New<T> * var,
                                 T value):
         varType_(var),value_(value),empty_(false){}
 
-      Implements_Base_Value_New(const std::string& var):
+      Implements_Base_Value_New(const Implements_Data_Type_New<T> * var):
         varType_(var),value_(),empty_(true)
       {}
+
+      template <class S>
+      Implements_Base_Value_New(const S* s, const std::string idType,
+                                T value):
+        varType_(s->template idToTyped<T>(idType)),value_(value),empty_(false){}
+
 
       Implements_Base_Value_New(const Implements_Base_Value_New<T>& other)=default;
 
@@ -657,7 +694,7 @@ namespace Markov_IO_New {
 
       }
     protected:
-      std::string varType_;
+      Implements_Data_Type_New<T> const* varType_;
       T value_;
       bool empty_;
     };
@@ -673,9 +710,22 @@ namespace Markov_IO_New {
       // ABC_Value_New interface
     public:
 
-      virtual std::string myType()const override
+      virtual ABC_Type_of_Value const* myType()const override
       {
         return varType_;
+      }
+
+      virtual Implements_Data_Type_New<T*> const* myTypeD()const
+      {
+        return varType_;
+      }
+
+
+      std::string myTypeId()const override  {
+        if (myType()==nullptr)
+          return Cls<T*>::name();
+        else
+          return myType()->typeId();
       }
 
       virtual T* getValue()
@@ -711,13 +761,20 @@ namespace Markov_IO_New {
                                 ,const std::string &masterObjective)const override;
 
 
-      Implements_Base_Value_New(const std::string& var,
+      Implements_Base_Value_New( const Implements_Data_Type_New<T*> * var,
                                 T* value):
         varType_(var),value_(value),empty_(false){}
 
-      Implements_Base_Value_New(const std::string& var):
+      Implements_Base_Value_New(const Implements_Data_Type_New<T*> * var):
         varType_(var),value_(),empty_(true)
       {}
+
+      template <class S>
+      Implements_Base_Value_New(const S* s, const std::string idType,
+                                T* value):
+        varType_(s->template idToTyped<T*>(idType)),value_(value),empty_(false){}
+
+
 
       Implements_Base_Value_New(const Implements_Base_Value_New<T*>& other)=default;
 
@@ -747,7 +804,7 @@ namespace Markov_IO_New {
 
       }
     protected:
-      std::string varType_;
+      Implements_Data_Type_New<T*> const* varType_;
       T* value_;
       bool empty_;
     };
@@ -797,14 +854,14 @@ namespace Markov_IO_New {
                                 ,const std::string &masterObjective)const override;
 
 
-      Implements_Derived_Value_New(const std::string& var,
+      Implements_Derived_Value_New(const Implements_Data_Type_New<D*> * var,
                                    D* value):
         Implements_Base_Value_New<B*>(var,value)
-      ,value_(value){}
+      ,derType_(var),value_(value){}
 
-      Implements_Derived_Value_New(const std::string& var):
+      Implements_Derived_Value_New(const Implements_Data_Type_New<D*> * var):
         Implements_Base_Value_New<B*>(var)
-      ,value_(){}
+      ,derType_(var),value_(){}
 
 
       Implements_Derived_Value_New(const Implements_Derived_Value_New<D,B>& other)=default;
@@ -833,6 +890,7 @@ namespace Markov_IO_New {
 
 
     protected:
+      const Implements_Data_Type_New<D*> * derType_;
       D* value_;
     };
 
@@ -884,13 +942,14 @@ namespace Markov_IO_New {
 
 
   template<class Field>
-  Implements_Var getMyVar()
+  Implements_Var getMyVar(const StructureEnv_New * cm)
   {
     Implements_Var iv;
     iv.id=Field::myId();
     iv.Tip=Field::myTip();
     iv.WhatThis=Field::myWhatThis();
-    iv.data=new Implements_Value_New<typename Field::myC>(Field::myIdType(),{});
+    iv.data=new Implements_Value_New<typename Field::myC>
+        (cm,Field::myIdType(),{});
     return iv;
   }
 

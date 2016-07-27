@@ -49,7 +49,7 @@ namespace Markov_IO_New
       for (std::size_t i=0; i<fields.size(); ++i)
         {
           const Implements_Var& v=fields[i].first;
-          if (!val->hasNameofType(v.id,v.data->myType(),false,error,obj))
+          if (!val->hasNameofType(v.id,v.data->myTypeId(),false,error,obj))
             return false;
         }
       return true;
@@ -65,7 +65,7 @@ namespace Markov_IO_New
       for (std::size_t i=0; i<fields.size(); ++i)
         {
           const Implements_Var& v=fields[i].first;
-          if (!val->hasNameofType(v.id,v.data->myType(),false,error,obj))
+          if (!val->hasNameofType(v.id,v.data->myTypeId(),false,error,obj))
             return !fields[i].second;
         }
       return true;
@@ -125,14 +125,14 @@ namespace Markov_IO_New
               ,const Implements_Command_Type_New* self
               ,std::string* WhyFail, const std::string& masterObjective);
 
-      static std::vector<std::pair<Implements_Var,bool>> getArgList()
+      static std::vector<std::pair<Implements_Var,bool>> getArgList(const StructureEnv_New* cm)
       {
              return {};
       }
 
-      static Implements_Command_Type_New* cmdType()
+      static Implements_Command_Type_New* cmdType(const StructureEnv_New* cm)
       {
-        auto fields=getArgList();
+        auto fields=getArgList(cm);
         Implements_Var firstVar{};
         if (fields.size()>0)
             firstVar=fields[0].first;
@@ -171,15 +171,16 @@ namespace Markov_IO_New
               ,std::string* WhyFail, const std::string& masterObjective);
 
 
-      static std::vector<std::pair<Implements_Var,bool>> getArgList()
+      static std::vector<std::pair<Implements_Var,bool>>
+      getArgList(const StructureEnv_New* cm)
       {
-           return {{getMyVar<arg::typeName_Field>(),false}};
+           return {{getMyVar<arg::typeName_Field>(cm),false}};
 
       }
 
-      static Implements_Command_Type_New* cmdType()
+      static Implements_Command_Type_New* cmdType(const StructureEnv_New* cm)
       {
-        auto fields=getArgList();
+        auto fields=getArgList(cm);
         Implements_Var firstVar;
         if (fields.size()>0)
             firstVar=fields[0].first;
@@ -231,15 +232,15 @@ namespace Markov_IO_New
       }
 
 
-      static std::vector<std::pair<Implements_Var,bool>> getArgList()
+      static std::vector<std::pair<Implements_Var,bool>> getArgList(const StructureEnv_New* cm)
       {
            return {};
 
       }
 
-      static Implements_Command_Type_New* cmdType()
+      static Implements_Command_Type_New* cmdType(const StructureEnv_New* cm)
       {
-        auto fields=getArgList();
+        auto fields=getArgList(cm);
         Implements_Var firstVar{};
         if (fields.size()>0)
             firstVar=fields[0].first;
@@ -288,15 +289,15 @@ namespace Markov_IO_New
       }
 
 
-      static std::vector<std::pair<Implements_Var,bool>> getArgList()
+      static std::vector<std::pair<Implements_Var,bool>> getArgList(const StructureEnv_New* cm)
       {
-           return {{getMyVar<arg::typeName_Field>(),false}};
+           return {{getMyVar<arg::typeName_Field>(cm),false}};
 
       }
 
-      static Implements_Command_Type_New* cmdType()
+      static Implements_Command_Type_New* cmdType(const StructureEnv_New* cm)
       {
-        auto fields=getArgList();
+        auto fields=getArgList(cm);
         Implements_Var firstVar;
         if (fields.size()>0)
             firstVar=fields[0].first;

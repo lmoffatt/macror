@@ -37,10 +37,10 @@ namespace Markov_IO_New {
         {
           const Implements_Identifier* vtype=this->getElementType();
 
-          vtype->putValue(cm,v  ->myType(),ostream,whyNot,masterObjective);
+          vtype->putValue(cm,v->myTypeId(),ostream,whyNot,masterObjective);
           ostream->put("=");
 
-          const ABC_Type_of_Value* t=cm->idToType(v->myType(),whyNot,masterObjective);
+          const ABC_Type_of_Value* t=cm->idToType(v->myTypeId(),whyNot,masterObjective);
           if (t==nullptr)
             return false;
           else if (!t->putData(cm,v,ostream,whyNot,masterObjective))
@@ -294,10 +294,19 @@ namespace Markov_IO_New {
     fnNames_.clear();
   }
 
-  std::__cxx11::string StructureEnv_New::myType() const
+  ABC_Type_of_Value const * StructureEnv_New::myType() const
   {
-    return structType_;
+    return strType_;
   }
+
+  std::__cxx11::string StructureEnv_New::myTypeId() const  {
+    if (myType()==nullptr)
+      return Cls<StructureEnv_New*>::name();
+    else
+      return myType()->typeId();
+  }
+
+
 
   const StructureEnv_New *StructureEnv_New::parent() const
   {
@@ -571,7 +580,7 @@ namespace Markov_IO_New {
     if (it!=all_.end())
       {
         const ABC_Data_New* v=it->second;
-        *whyNot=masterObjective+": "+name+" is currently a"+v->myType();
+        *whyNot=masterObjective+": "+name+" is currently a"+v->myTypeId();
         return false;
       }
     else if (recursive&&(parent()!=nullptr))
@@ -699,7 +708,6 @@ namespace Markov_IO_New {
   void StructureEnv_New::pushFunction(const std::__cxx11::string &id, ABC_Type_of_Function *f, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
     funcs_[id]=f;
-    fnNames_[f->getFunction()]=id;
     idTipWt_[id]={tip,whatthis};
   }
 
@@ -724,8 +732,8 @@ namespace Markov_IO_New {
 
 
 
-  StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const std::__cxx11::string &myType):
-    p_(parent),structType_(myType),idVars_(),idTypes_(),idCmds_(),all_(),allId_(),vars_(),types_(),cmds_(),funcs_(),idTipWt_(),fnNames_()
+  StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const Implements_Data_Type_New<StructureEnv_New *> *myType):
+    p_(parent),strType_(myType),idVars_(),idTypes_(),idCmds_(),all_(),allId_(),vars_(),types_(),cmds_(),funcs_(),idTipWt_(),fnNames_()
   {
 
   }
@@ -780,7 +788,7 @@ namespace Markov_IO_New {
 
   bool StructureEnv_New::isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
   {
-    if ((generalType.empty()||myType()==generalType))
+    if ((generalType.empty()||myTypeId()==generalType))
       return true;
     else
       {
