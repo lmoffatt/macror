@@ -137,7 +137,7 @@ namespace Markov_IO_New
         if (fields.size()>0)
             firstVar=fields[0].first;
 
-        return new Implements_Command_Type_New(
+        return new Implements_Command_Type_New(myId(),nullptr,
               fields,
               &run,
               Variable::types::varGiven::varType(firstVar),
@@ -185,7 +185,7 @@ namespace Markov_IO_New
         if (fields.size()>0)
             firstVar=fields[0].first;
 
-        return new Implements_Command_Type_New(
+        return new Implements_Command_Type_New(myId(),nullptr,
               fields,
               &run,
               Variable::types::varGiven::varType(firstVar),
@@ -245,7 +245,7 @@ namespace Markov_IO_New
         if (fields.size()>0)
             firstVar=fields[0].first;
 
-        return new Implements_Command_Type_New(
+        return new Implements_Command_Type_New(myId(),nullptr,
               fields,
               &run,
               Variable::types::varGiven::varType(firstVar),
@@ -302,7 +302,7 @@ namespace Markov_IO_New
         if (fields.size()>0)
             firstVar=fields[0].first;
 
-        return new Implements_Command_Type_New(
+        return new Implements_Command_Type_New(myId(),nullptr,
               fields,
               &run,
               Variable::types::varGiven::varType(firstVar),

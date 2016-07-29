@@ -176,8 +176,11 @@ namespace Markov_IO_New {
     template class Implements_Data_Type_New_M_Matrix<std::size_t>;
 
 
-    Implements_Data_Type_New_Implements_Var::Implements_Data_Type_New_Implements_Var(Implements_Identifier *idType, Implements_Data_Type_New<ABC_Data_New *> *dataType, Implements_Data_Type_New_Implements_Var::typePredicate comply, Implements_Data_Type_New_Implements_Var::elemType getElement, Implements_Data_Type_New_Implements_Var::keyType getKey)
-      :idType_(idType),dataType_(dataType),comply_(comply)
+    Implements_Data_Type_New_Implements_Var::Implements_Data_Type_New_Implements_Var(
+        const std::string& id,Implements_Data_Type_New_Implements_Var* const typeType,
+        Implements_Identifier *idType, Implements_Data_Type_New<ABC_Data_New *> *dataType, Implements_Data_Type_New_Implements_Var::typePredicate comply, Implements_Data_Type_New_Implements_Var::elemType getElement, Implements_Data_Type_New_Implements_Var::keyType getKey)
+      :typeId_(id),typeType_(typeType),
+        idType_(idType),dataType_(dataType),comply_(comply)
       ,getKey_(getKey),getElement_(getElement){}
 
 

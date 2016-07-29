@@ -141,7 +141,7 @@ namespace Markov_IO_New {
           else
             {
               return new Implements_Data_Type_New<myC>
-                  (d,&comply,&nextElement,&getColsNumber,&getRowsNumber
+                  (myId(),nullptr,d,&comply,&nextElement,&getColsNumber,&getRowsNumber
                    ,areColsFixed,areRowsFixed);
             }
         }
@@ -245,7 +245,7 @@ namespace Markov_IO_New {
           else
             {
               return new Implements_Data_Type_New<myC>
-                  (d,&comply,&nextElement,&getColsNumber,&getRowsNumber
+                  (myId(),nullptr,d,&comply,&nextElement,&getColsNumber,&getRowsNumber
                    ,areColsFixed,areRowsFixed);
             }
         }
@@ -336,7 +336,7 @@ namespace Markov_IO_New {
           else
             {
               return new Implements_Data_Type_New<myC>
-                  (d,&comply,nullptr,&getColsNumber,&getRowsNumber
+                  (myId(),nullptr,d,&comply,nullptr,&getColsNumber,&getRowsNumber
                    ,areColsFixed,areRowsFixed);
             }
         }
@@ -510,7 +510,7 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm)
         {
           return new  Implements_Data_Type_derived_class<myC,myB>
-              (getFields(cm),&obj2map,&map2obj,nullptr,&objB2map);
+              (myId(),nullptr,getFields(cm),&obj2map,&map2obj,nullptr,&objB2map);
         }
 
         static void push_Types(StructureEnv_New *cm)
@@ -631,7 +631,7 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm)
         {
           return new  Implements_Data_Type_derived_class<myD,myB>
-              (getFields(cm),&objPtr2map,&map2objPtr,nullptr,nullptr);
+              (myId(),nullptr,getFields(cm),&objPtr2map,&map2objPtr,nullptr,nullptr);
         }
 
         struct valueType
@@ -690,7 +690,7 @@ namespace Markov_IO_New {
           varType(const StructureEnv_New* cm)
           {
             return new  Implements_Data_Type_class<myD>
-                (getFields(cm),&obj2map,&map2obj);
+                (myId(),nullptr,getFields(cm),&obj2map,&map2obj);
           }
 
 
@@ -880,7 +880,7 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm)
         {
           return new  Implements_Data_Type_derived_class<myD,myB>
-              (getFields(cm),&objPtr2map,&map2objPtr,nullptr,nullptr);
+              (myId(),nullptr,getFields(cm),&objPtr2map,&map2objPtr,nullptr,nullptr);
         }
 
         struct valueType
@@ -939,7 +939,7 @@ namespace Markov_IO_New {
           varType(const StructureEnv_New* cm)
           {
             return new  Implements_Data_Type_class<myD>
-                (getFields(cm),&obj2map,&map2obj);
+                (myId(),nullptr,getFields(cm),&obj2map,&map2obj);
           }
 
 

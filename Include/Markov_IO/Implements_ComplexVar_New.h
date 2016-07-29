@@ -1495,7 +1495,7 @@ namespace Markov_IO_New {
       typedef std::string myC;
       static std::string myId() {return Cls<myC>::name();}
       static selfType* varType(const StructureEnv_New* )
-      {return new selfType{};}
+      {return new selfType{myId(),nullptr};}
       static std::string myTip(){return "a regular string of characters";}
       static std::string myWhatThis(){return "";}
       typedef mp_list<> dependsOn;
@@ -1575,8 +1575,8 @@ namespace Markov_IO_New {
       }
 
 
-      Implements_Data_Type_New_string(const std::string id=Cls<myC>::name(),
-          selfType const* typeType=nullptr,
+      Implements_Data_Type_New_string(const std::string id,
+          selfType const* typeType,
                                       typePredicate complyPred=nullptr
           ,getSet alterNext=nullptr):
         id_(id),
@@ -1592,6 +1592,8 @@ namespace Markov_IO_New {
       Implements_Data_Type_New_string& operator=(const Implements_Data_Type_New_string& other)=default;
       Implements_Data_Type_New_string& operator=(Implements_Data_Type_New_string&& other)=default;
 
+
+      Implements_Data_Type_New_string():Implements_Data_Type_New_string(Cls<myC>::name(),nullptr){}
 
       // ABC_Data_New interface
     public:
@@ -1609,7 +1611,7 @@ namespace Markov_IO_New {
         return new Implements_Data_Type_New_string(*this);}
 
       virtual Implements_Data_Type_New_string *create() const override
-      {return new Implements_Data_Type_New_string();}
+      {return new Implements_Data_Type_New_string(Cls<myC>::name(),nullptr);}
 
       virtual selfType const* myType()const override
       {
@@ -1726,7 +1728,7 @@ namespace Markov_IO_New {
       return new Implements_Identifier();
     }
 
-    Implements_Identifier(){}
+    Implements_Identifier():Implements_Identifier("empty",nullptr,"",false,false,false,false,false,false){}
 
   private:
     static std::string toId
@@ -1741,7 +1743,7 @@ namespace Markov_IO_New {
      bool isFixed,bool isVar, bool isType,
      bool isCommand,bool isNew, bool isUsed):
       Implements_Data_Type_New_string
-      (),
+      (nameId,typeType),
      typeId_(nameId),typeType_(typeType),
       name_(name),isFixed_(isFixed)
     , isVar_(isVar), isType_(isType),isCommand_(isCommand)
@@ -2034,7 +2036,7 @@ namespace Markov_IO_New {
       typedef std::vector<T> myC;
       static std::string myId() {return Cls<myC>::name();}
       static selfType* varType(const StructureEnv_New* cm)
-      {return new selfType{};}
+      {return new selfType{myId(),nullptr};}
       static std::string myTip(){return "vector of "+Cls<T>::name();}
       static std::string myWhatThis(){return "";}
       typedef mp_list<Implements_Data_Type_New<T>> dependsOn;
@@ -2190,7 +2192,7 @@ namespace Markov_IO_New {
       virtual ~Implements_Data_Type_New_vector(){}
 
       Implements_Data_Type_New_vector
-      (const std::string& id=Cls<myC>::name(), selfType const * typeType=nullptr,
+      (const std::string& id, selfType const * typeType,
           const Implements_Data_Type_New<T>* elementVar=nullptr
           ,typePredicate complyPred=nullptr
           ,elementTypeGetter elemeComply=nullptr
@@ -2225,7 +2227,7 @@ namespace Markov_IO_New {
             =nullptr; getSize_=nullptr;isSizeFixed_=false;}
 
       virtual selfType* clone()const { return new selfType(*this);}
-      virtual selfType* create()const {return  new selfType();}
+      virtual selfType* create()const {return  new selfType(Cls<myC>::name(),nullptr);}
 
 
 
@@ -2522,8 +2524,8 @@ namespace Markov_IO_New {
 
 
 
-      Implements_Data_Type_New_regular(const std::string& id=Cls<myC>::name(),
-                                       const Implements_Data_Type_New<myC>*  typeType=nullptr,
+      Implements_Data_Type_New_regular(const std::string& id,
+                                       const Implements_Data_Type_New<myC>*  typeType,
           typePredicate complyPred=nullptr,
                                        getSet alternatives=nullptr)
         :typeId_(id),typeType_(typeType),
@@ -2531,6 +2533,8 @@ namespace Markov_IO_New {
 
       {}
 
+      Implements_Data_Type_New_regular()
+        :Implements_Data_Type_New_regular(Cls<myC>::name(),nullptr){}
       Implements_Data_Type_New_regular(const Implements_Data_Type_New_regular<T>& other)=default;
       Implements_Data_Type_New_regular& operator=(const Implements_Data_Type_New_regular<T>& other)=default;
       Implements_Data_Type_New_regular(Implements_Data_Type_New_regular<T>&& other)=default;
@@ -2809,7 +2813,7 @@ namespace Markov_IO_New {
       typedef Markov_LA::M_Matrix<T> myC;
       static std::string myId() {return Cls<myC>::name();}
       static selfType* varType(const StructureEnv_New* cm)
-      {return new selfType{};}
+      {return new selfType(myId(),nullptr);}
       static std::string myTip(){return "Matrix of "+Cls<T>::name();}
       static std::string myWhatThis(){return "";}
       typedef mp_list<Implements_Data_Type_New<T>> dependsOn;
@@ -3030,13 +3034,15 @@ namespace Markov_IO_New {
       }
 
       Implements_Data_Type_New_M_Matrix
-      (const Implements_Data_Type_New<T>* elementVar=nullptr
+      (const std::string& idType, const selfType* typeType,
+          const Implements_Data_Type_New<T>* elementVar=nullptr
           ,typePredicate complyPred=nullptr
           ,elementType getElement=nullptr
           ,getNumber getNumCols=nullptr
           ,getNumber getNumRows=nullptr
           ,bool areColsFixed=false
           ,bool areRowsFixed=false):
+        typeId_(idType),typeType_(typeType),
         elementType_(elementVar)
       ,complyPred_(complyPred),getElement_(getElement),
         getNumCols_(getNumCols),getNumRows_(getNumRows),
@@ -3090,7 +3096,7 @@ namespace Markov_IO_New {
       }
       virtual Implements_Data_Type_New_M_Matrix* create()const
       {
-        return new Implements_Data_Type_New_M_Matrix();
+        return new Implements_Data_Type_New_M_Matrix(Cls<myC>::name(),nullptr);
       }
 
       virtual bool isValueInDomain(const StructureEnv_New* cm
@@ -3815,7 +3821,7 @@ namespace Markov_IO_New {
       }
       virtual Implements_Data_Type_New_ABC_Data_New *create() const override
       {
-        return new Implements_Data_Type_New_ABC_Data_New();
+        return new Implements_Data_Type_New_ABC_Data_New(Cls<myC>::name(),nullptr);
       }
 
       // Implements_Base_Type_New<T *> interface
@@ -3860,8 +3866,8 @@ namespace Markov_IO_New {
     private:
 
       Implements_Data_Type_New_ABC_Data_New
-      ( const std::string& id=Cls<myC>::name()
-          , Implements_Data_Type_New<myC> const * typeType=nullptr,
+      ( const std::string& id
+          , Implements_Data_Type_New<myC> const * typeType,
           Implements_Identifier* idType=nullptr
           , typePredicate typeComply=nullptr
           ,elementType getElement=nullptr
@@ -4043,6 +4049,8 @@ namespace Markov_IO_New {
       {
         return new Implements_Data_Type_New_Implements_Var();
       }
+      Implements_Data_Type_New_Implements_Var():
+      Implements_Data_Type_New_Implements_Var(Cls<myC>::name(),nullptr,nullptr,nullptr){}
 
 
       virtual bool getData(const StructureEnv_New* cm
@@ -4106,8 +4114,9 @@ namespace Markov_IO_New {
 
 
       Implements_Data_Type_New_Implements_Var
-      ( Implements_Identifier* idType=nullptr,
-        Implements_Data_Type_New<ABC_Data_New*>* dataType=nullptr,
+      ( const std::string& id, Implements_Data_Type_New_Implements_Var* const typeType,
+          Implements_Identifier* idType,
+        Implements_Data_Type_New<ABC_Data_New*>* dataType,
         typePredicate comply=nullptr,
         elemType getElement=nullptr,
         keyType getKey=nullptr);
@@ -4358,13 +4367,15 @@ namespace Markov_IO_New {
       }
 
     protected:
-      Implements_Data_Type_New_StructureEnv(
+      Implements_Data_Type_New_StructureEnv(const std::string& idtype,Implements_Data_Type_New_StructureEnv const * typeType,
           std::vector<std::pair<Implements_Var,bool>> fields,
           const Implements_Data_Type_New<Implements_Var>* elemeType,
           typePredicate comply,
           typePredicate hasMandatory,
           typePredicate hasAll,
           elementType elem):
+        typeId_(idtype),
+        typeType_(typeType),
         fields_(fields),
         elementType_(elemeType),
         comply_(comply),
@@ -5392,6 +5403,7 @@ namespace Markov_IO_New {
         {
 
           return new Implements_Data_Type_New<Implements_Var>(
+                myId(nameoftype),nullptr,
                 Identifier::types::idVar::varType(nameoftype)
                 ,Data::types::data::varType(nameoftype)
                 ,nullptr,nullptr);
@@ -5417,6 +5429,7 @@ namespace Markov_IO_New {
         {
 
           return new Implements_Data_Type_New<Implements_Var>(
+                myId(nameoftype),nullptr,
                 Identifier::types::idVarNew::varType(nameoftype)
                 ,Data::types::data::varType(nameoftype)
                 ,nullptr,nullptr);
@@ -5428,6 +5441,7 @@ namespace Markov_IO_New {
         {
 
           return new Implements_Data_Type_New<Implements_Var>(
+                myId(nameoftype),nullptr,
                 Identifier::types::idVarNew::varType(nameoftype)
                 ,Data::types::data::varType(nameoftype)
                 ,nullptr,nullptr);
@@ -5450,6 +5464,7 @@ namespace Markov_IO_New {
         {
 
           return new Implements_Data_Type_New<Implements_Var>(
+                myId(nameoftype),nullptr,
                 Identifier::types::idVarUsed::varType(nameoftype)
                 ,Data::types::data::varType(nameoftype)
                 ,nullptr,nullptr);
@@ -5508,6 +5523,7 @@ namespace Markov_IO_New {
             varType=var.data->myTypeId();
 
           return new Implements_Data_Type_New<Implements_Var>(
+                myId(),nullptr,
                 Identifier::types::idVarGiven::varType(var.id)
                 ,Data::types::data::varType(varType)
                 ,&comply,&nextElement,&nextKey);
@@ -5543,7 +5559,7 @@ namespace Markov_IO_New {
     {
     public:
       template <class T>
-      static  Implements_Data_Type_New<myC>* getVarType(
+      static  Implements_Data_Type_New<myC>* getVarType(const std::string& classId,
           std::vector<std::pair<Implements_Var,bool>> fields)
 
       {
@@ -5552,7 +5568,8 @@ namespace Markov_IO_New {
           firstVar=fields[0].first;
 
         return new Implements_Data_Type_New<StructureEnv_New*>
-            (fields,
+            (T::myId(classId),nullptr,
+              fields,
              Variable::types::varGiven::varType(firstVar)
              ,&T::comply,
              &T::hasMandatory,
@@ -5640,10 +5657,10 @@ namespace Markov_IO_New {
         }
 
 
-        static  Implements_Data_Type_New<myC>* varType(
+        static  Implements_Data_Type_New<myC>* varType(const std::string& classId,
             std::vector<std::pair<Implements_Var,bool>> fields)
         {
-          return getVarType<ClassDescript>(fields);
+          return getVarType<ClassDescript>(classId,fields);
 
         }
 
@@ -5663,7 +5680,8 @@ namespace Markov_IO_New {
         {
 
           return new Implements_Data_Type_New<StructureEnv_New*>
-              ({},
+              (myId(),nullptr,
+          {},
                Variable::types::var::varType()
                ,nullptr,
                nullptr,
@@ -5870,15 +5888,16 @@ namespace Markov_IO_New {
 
       virtual ~Implements_Data_Type_class(){}
 
-      Implements_Data_Type_class(
+      Implements_Data_Type_class(const std::string& idType, selfType* const typeType,
           const std::vector<std::pair<Implements_Var,bool>> fields={}
           ,getCV getmyCV=nullptr
           ,getClass_type getClass=nullptr
           ,typePredicate complyPred=nullptr):
+        typeId_(idType),typeType_(typeType),
         comply_(complyPred),getClass_(getClass),getCV_(getmyCV),CVtype_(nullptr)
       {
         if (!fields.empty())
-        CVtype_=ComplexVar::types::ClassDescript::varType(fields);
+        CVtype_=ComplexVar::types::ClassDescript::varType(typeId(),fields);
         else
           CVtype_=ComplexVar::types::Var::varType();
 
@@ -5887,7 +5906,7 @@ namespace Markov_IO_New {
 
 
       virtual selfType* clone()const{return new selfType(*this);}
-      virtual selfType* create()const {return new selfType{};}
+      virtual selfType* create()const {return new selfType{Cls<T>::name(),nullptr};}
 
 
       virtual bool empty()const
@@ -6204,22 +6223,23 @@ namespace Markov_IO_New {
       virtual ~Implements_Data_Type_class(){}
 
 
-      Implements_Data_Type_class(
+      Implements_Data_Type_class(const std::string& idType,selfType* const typeType,
           const std::vector<std::pair<Implements_Var,bool>> fields
           ,getClass_type getClass
           ,getCV getmyCV
           ,typePredicate complyPred=nullptr):
+        typeId_(idType),typeType_(typeType),
         comply_(complyPred),getClass_(getClass),getCV_(getmyCV),CVtype_(nullptr)
       {
         if (!fields.empty())
-        CVtype_=ComplexVar::types::ClassDescript::varType(fields);
+        CVtype_=ComplexVar::types::ClassDescript::varType(typeId(),fields);
         else
           CVtype_=ComplexVar::types::Var::varType();
 
        }
 
 
-      Implements_Data_Type_class():
+      Implements_Data_Type_class():typeId_(Cls<T*>::name()),typeType_(nullptr),
         comply_(nullptr),getClass_(nullptr),getCV_(nullptr),CVtype_(ComplexVar::types::Var::varType())
       {
       }
@@ -6544,14 +6564,18 @@ namespace Markov_IO_New {
 
 
       Implements_Data_Type_derived_class
-      (const std::vector<std::pair<Implements_Var,bool>> fields
+      (const std::string& idType,selfType* const typeType,
+
+          const std::vector<std::pair<Implements_Var,bool>> fields
        ,getDCV  getDerivedCV
        , getDClass_type getDerClass
        , derivedPredicate comply=nullptr
           ,typename baseType::getCV getBaseCV=nullptr
           ,typename baseType::getClass_type getBClass=nullptr
           ,typename baseType::typePredicate baseComply=nullptr):
-        baseType(fields,getBClass,getBaseCV,baseComply)
+        baseType(idType,typeType,fields,getBClass,getBaseCV,baseComply)
+      ,typeId_(idType)
+      ,typeType_(typeType)
       ,getDClass_(getDerClass),getDCV_(getDerivedCV),
         complyD_(comply)
       {
@@ -7252,7 +7276,8 @@ namespace Markov_IO_New {
 
 
     Implements_Command_Type_New
-    (std::vector<std::pair<Implements_Var,bool>> argList
+    (const std::string& id,Implements_Command_Type_New const * typeType,
+        std::vector<std::pair<Implements_Var,bool>> argList
      ,runCommand run_,
      const Implements_Data_Type_New<Implements_Var>* elemeType,
      typePredicate comply,
@@ -7260,8 +7285,9 @@ namespace Markov_IO_New {
      typePredicate hasAll,
      elementType elem):
       _private::Implements_Data_Type_New_StructureEnv
-      (argList,elemeType,comply,hasMandatory,hasAll,elem)
-    ,run_(run_)
+      (id,typeType,argList,elemeType,comply,hasMandatory,hasAll,elem)
+    ,idCmd_(id),
+      run_(run_)
     {
     }
 
@@ -7293,11 +7319,25 @@ namespace Markov_IO_New {
 
 
   protected:
-
+    std::string idCmd_;
     runCommand run_;
 
 
 
+
+    // ABC_Data_New interface
+  public:
+    virtual std::__cxx11::string myTypeId() const override
+    {
+       return "command";
+    }
+
+    std::string typeId() const override
+    {
+      return idCmd_;
+    }
+
+    // Implements_Base_Type_New<T *> interface
   };
 
 
