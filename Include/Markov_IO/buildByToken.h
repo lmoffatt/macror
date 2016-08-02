@@ -190,7 +190,7 @@ namespace Markov_IO_New {
           return unPop(d->unloadValue());
         }
       else return false;
-     }
+    }
 
 
     virtual ~buildByToken(){}
@@ -223,7 +223,7 @@ namespace Markov_IO_New {
     typedef Implements_Data_Type_New<myC>  vType;
 
     enum DFA {
-      S_Init, S_Element_Partial, S_Element_Final,S_Final};
+      S_Init, S_Element_Partial, S_Element_Final,S_Mandatory,S_Final};
 
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<myC>* typeVar):
@@ -248,6 +248,8 @@ namespace Markov_IO_New {
 
     myC unloadVar()
     {
+      if ((iArg_ )< (std::tuple_size<myC>::value))
+      varType_->fill_imp<0>(x_,iArg_,varType_->getArguments());
       auto out=std::move(x_);
       x_= {};
       mystate=S_Init;
@@ -255,10 +257,11 @@ namespace Markov_IO_New {
       return out;
     }
 
+
+
     template<std::size_t I>
     static bool pushToken_imp(DFA &state,std::size_t i
-                              ,buildTuple& b, myC& x,
-                              const dataArgumentsTuple& arg
+                              ,buildTuple& b, myC& x
                               ,Token_New t, std::string* whyNot
                               , const std::string& masterObjective)
     {
@@ -274,7 +277,6 @@ namespace Markov_IO_New {
             }
           else if (eB->isFinal())
             {
-              std::get<I>(x)=eB->unloadVar();
               state=S_Element_Final;
               return true;
             }
@@ -286,6 +288,25 @@ namespace Markov_IO_New {
 
         }
     }
+
+
+
+    template<std::size_t I>
+    static bool isMandatory_imp(std::size_t i
+                              ,const dataArgumentsTuple& arg
+                              )
+    {
+      if (I<i)
+        return isMandatory_imp<I+1>(i,arg);
+      else
+        {
+          typedef typename std::tuple_element<I,dataArgumentsTuple>::type aType;
+          aType a=std::get<I>(arg);
+          return a.isMandatory();
+
+        }
+    }
+
 
 
 
@@ -304,6 +325,10 @@ namespace Markov_IO_New {
               ++iArg_;
               if (iArg_==std::tuple_size<myC>::value)
                 mystate=S_Final;
+              else if (isMandatory_imp<0>(iArg_,varType_->getArguments()))
+                mystate=S_Element_Final;
+              else
+                mystate=S_Mandatory;
               return true;
             }
           else {
@@ -429,13 +454,16 @@ namespace Markov_IO_New {
       return mystate==S_Init;
     }
 
+    bool hasMandatory()const
+    {
+      return (mystate==S_Mandatory)
+          &&(mystate==S_Final);
+
+    }
 
     virtual ABC_Data_New* unloadData()override
     {
-      std::string whynot;
-      std::string id=parent()->dataToId(varType_,&whynot,"");
-      return new Implements_Value_New<myC>
-          (id,unloadVar());
+      return unloadVar();
     }
 
     virtual bool unpopData(ABC_Data_New* data) override
@@ -447,10 +475,13 @@ namespace Markov_IO_New {
           return unPop(d->unloadValue());
         }
       else return false;
-      }
+    }
 
 
     virtual ~buildByToken(){}
+
+    std::size_t iArg()const {return iArg_;}
+
 
   protected:
     DFA mystate;
@@ -999,7 +1030,7 @@ namespace Markov_IO_New {
           return unPop(d->unloadValue());
         }
       else return false;
-       }
+    }
 
 
   private:
@@ -2429,7 +2460,7 @@ namespace Markov_IO_New {
           return unPop(d->unloadValue());
         }
       else return false;
-     }
+    }
 
 
     virtual ~buildByToken(){}
@@ -2626,7 +2657,7 @@ namespace Markov_IO_New {
           return unPop(d->unloadValue());
         }
       else return false;
-     }
+    }
 
 
     virtual ~buildByToken(){}
@@ -2758,6 +2789,8 @@ namespace Markov_IO_New {
 
     virtual bool UnPopClosure(ABC_Closure* cl)=0;
     virtual ~ABC_BuildClosure(){}
+
+    virtual bool hasNoArguments()const =0;
   protected:
     ABC_BuildClosure(const StructureEnv_New* p):ABC_BuildByToken(p){}
   };
@@ -2768,6 +2801,253 @@ namespace Markov_IO_New {
       :public ABC_BuildClosure
   {
   public:
+
+    enum DFA {
+      S_Init=0, S_Closure_PARTIAL, S_Closure_Mandatory,S_Closure_Final,S_Final
+    } ;
+
+    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
+
+    bool isFinal()const override
+    {
+      return mystate==S_Final;
+
+    }
+    bool isInitial()const override
+    {
+      return mystate==S_Init;
+
+    }
+
+    virtual bool hasMandatory()const override
+    {
+      return (mystate==S_Closure_Mandatory)
+          && (mystate==S_Closure_Final)
+          && (mystate==S_Final);
+    }
+
+
+    ~buildByToken(){}
+
+
+    virtual bool hasNoArguments()const override
+    {
+      return hasNoArguments(vecValueB_,nPushedTokens_,nPushedTokensIn_);
+    }
+
+    ABC_Closure* unloadVar()
+    {
+      if (isFinal())
+        {
+          ABC_Closure* out;
+          mystate=S_Init;
+          out= data_.release();
+          return out;
+        }
+      else
+        return {};
+    }
+
+    bool unPop(ABC_Closure* var)
+    {
+      data_.reset(var)  ;
+      mystate=S_Final;
+      return true;
+
+    }
+
+    buildByToken(const StructureEnv_New* parent,
+                 const Implements_Data_Type_New<ABC_Closure *> *varType);
+
+    void clear()override
+    {}
+
+    virtual ABC_Data_New* unloadData()override
+    {
+      return unloadVar();
+    }
+    virtual bool unpopData(ABC_Data_New* data) override
+    {
+      return false;
+    }
+
+    virtual bool UnPopClosure(ABC_Closure* cl)override
+    {
+      return false;
+    }
+
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
+
+    virtual Token_New popBackToken() override;
+
+    virtual void reset_Type(Implements_Data_Type_New<ABC_Closure*> *dataTy);
+
+
+
+    virtual ABC_Closure* unloadClosure() override
+    {
+      if (isFinal())
+        {
+          ABC_Closure* out=data_.release();
+          mystate=S_Init;
+          nPushedTokens_=0;
+          return out;
+        }
+      else return nullptr;
+
+
+    }
+
+
+
+  protected:
+    DFA mystate;
+    const Implements_Data_Type_New<ABC_Closure*> * fnType_;
+
+    const Implements_Identifier* idtype_;
+    std::string idString_;
+    std::unique_ptr<buildByToken<std::string>> idtypeB_;
+    std::vector<ABC_BuildClosure*> vecValueB_;
+    std::vector<size_t> nPushedTokensIn_;
+    std::size_t nPushedTokens_;
+    std::unique_ptr<ABC_BuildClosure> valueB_;
+    std::unique_ptr<ABC_Closure> data_;
+
+    static bool isFinal(const std::vector<ABC_BuildClosure*>& vecValue, std::size_t nPushedTokens,const std::vector<std::size_t> & nPushedTokensIn)
+    {
+      bool out=false;
+      for (std::size_t i=0; i<vecValue.size(); ++i)
+        {
+          if (nPushedTokensIn[i]==nPushedTokens)
+            {
+              if (vecValue[i]->isFinal())
+                out=true;
+              else
+                return false;
+            }
+        }
+      return out;
+    }
+
+    static std::pair<std::string, std::set<std::string> > alternativesNext(const std::vector<ABC_BuildClosure*>& vecValue, std::size_t nPushedTokens,const std::vector<std::size_t> & nPushedTokensIn)
+    {
+      std::pair<std::string, std::set<std::string> > out;
+      for (std::size_t i=0; i<vecValue.size(); ++i)
+        {
+          if (nPushedTokensIn[i]==nPushedTokens)
+            {
+              out+=vecValue[i]->alternativesNext();
+            }
+        }
+      return out;
+    }
+
+
+    static bool hasNoArguments(const std::vector<ABC_BuildClosure*>& vecValue, std::size_t nPushedTokens,const std::vector<std::size_t> & nPushedTokensIn)
+    {
+      for (std::size_t i=0; i<vecValue.size(); ++i)
+        {
+          if (nPushedTokensIn[i]==nPushedTokens)
+            {
+              return vecValue[i]->hasNoArguments();
+            }
+        }
+      return false;
+    }
+
+
+    static bool hasMandatory(const std::vector<ABC_BuildClosure*>& vecValue, std::size_t nPushedTokens,const std::vector<std::size_t> & nPushedTokensIn)
+    {
+      for (std::size_t i=0; i<vecValue.size(); ++i)
+        {
+          if (nPushedTokensIn[i]==nPushedTokens)
+            {
+              if (vecValue[i]->hasMandatory())
+                return true;
+            }
+        }
+      return false;
+    }
+
+
+    static bool pushToken(std::vector<ABC_BuildClosure*>& vecValue, std::size_t &nPushedTokens, std::vector<std::size_t> & nPushedTokensIn,Token_New tok, std::string* whyNot,const std::string& masterObjective)
+    {
+      bool out=false;
+      for (std::size_t i=0; i<vecValue.size(); ++i)
+        {
+          if (nPushedTokensIn[i]==nPushedTokens)
+            {
+              if (vecValue[i]->pushToken(tok,whyNot,masterObjective))
+                {
+                  out=true;
+                  ++nPushedTokensIn[i];
+                }
+            }
+        }
+      if (out) ++nPushedTokens;
+      return out;
+
+    }
+
+    static Token_New popBackToken(std::vector<ABC_BuildClosure*>& vecValue, std::size_t &nPushedTokens, std::vector<std::size_t> & nPushedTokensIn)
+    {
+      Token_New out;
+      if (nPushedTokens>0)
+        {
+          for (std::size_t i=0; i<vecValue.size(); ++i)
+            {
+              if (nPushedTokensIn[i]==nPushedTokens)
+                {
+                  out=vecValue[i]->popBackToken();
+                  --nPushedTokensIn[i];
+                }
+            }
+          --nPushedTokens;
+        }
+      return out;
+
+    }
+
+
+    static ABC_Closure* unloadClosure(std::vector<ABC_BuildClosure*>& vecValue, std::size_t &nPushedTokens, std::vector<std::size_t> & nPushedTokensIn)
+    {
+      for (std::size_t i=0; i<vecValue.size(); ++i)
+        {
+          if ((nPushedTokensIn[i]==nPushedTokens)&& vecValue[i]->hasMandatory())
+            {
+              return vecValue[i]->unloadClosure();
+            }
+        }
+      return nullptr;
+    }
+
+
+
+
+    static bool isInitial(const std::vector<ABC_BuildClosure*>& vecValue, std::size_t nPushedTokens, const std::vector<std::size_t> & nPushedTokensIn)
+    {
+      for (std::size_t i=0; i<vecValue.size(); ++i)
+        {
+          if ((nPushedTokensIn[i]==nPushedTokens)&& vecValue[i]->isInitial())
+            {
+              return true;
+            }
+        }
+      return false;
+    }
+
+  };
+
+
+
+
+  template<typename Fn, typename...Args>
+  class buildByToken<Implements_FnClosure<Fn,Args...>*,true>
+      :public ABC_BuildClosure
+  {
+  public:
+
+    typedef Implements_FnClosure<Fn,Args...> myC;
 
     enum DFA {
       S_Init=0, S_Closure_PARTIAL, S_Closure_Mandatory,S_Closure_Final,S_Final
@@ -2797,7 +3077,7 @@ namespace Markov_IO_New {
         {
           ABC_Closure* out;
           mystate=S_Init;
-          out= data_.release();
+          out= valueCl_.release();
           return out;
         }
       else
@@ -2806,18 +3086,11 @@ namespace Markov_IO_New {
 
     bool unPop(ABC_Closure* var)
     {
-      data_.reset(var)  ;
-      mystate=S_Final;
-      return true;
-
+    return false;
     }
 
     buildByToken(const StructureEnv_New* parent,
-                 const Implements_Data_Type_New<ABC_Closure *> *varType)
-      :   ABC_BuildClosure(parent),   mystate(S_Init), dataType_(varType), idtype_()
-      ,idString_(), idtypeB_(), valueB_(nullptr), fnType_(nullptr),
-        data_(nullptr)
-    {}
+                 const Implements_Data_Type_New<Implements_FnClosure<Fn,Args...> *> *varType);
 
     void clear()override
     {}
@@ -2828,15 +3101,12 @@ namespace Markov_IO_New {
     }
     virtual bool unpopData(ABC_Data_New* data) override
     {
-      auto c=dynamic_cast<ABC_Closure*>(data);
-      if (c!=nullptr)
-        return unPop(c);
-      else return false;
+      return false;
     }
 
     virtual bool UnPopClosure(ABC_Closure* cl)override
     {
-      return unPop(cl);
+      return false;
     }
 
     virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
@@ -2846,8 +3116,15 @@ namespace Markov_IO_New {
     virtual void reset_Type(Implements_Data_Type_New<ABC_Closure*> *dataTy);
 
 
+    virtual bool hasNoArguments()const override
+    {
+      return isInitial();
+    }
+
     virtual bool hasMandatory()const override
     {
+      return (mystate==S_Closure_Mandatory)
+          || (mystate==S_Closure_Final);
     }
 
     virtual ABC_Closure* unloadClosure() override
@@ -2860,28 +3137,13 @@ namespace Markov_IO_New {
 
   protected:
     DFA mystate;
-    const Implements_Data_Type_New<ABC_Closure*> * dataType_;
-    const Implements_Identifier* idtype_;
-    std::string idString_;
-    std::unique_ptr<buildByToken<std::string>> idtypeB_;
-    std::unique_ptr<ABC_BuildClosure> valueB_;
-    const ABC_Type_of_Function* fnType_;
-    std::unique_ptr<ABC_Closure> data_;
-    bool convertToClass_;
-    std::unique_ptr<ABC_Data_New> classx_;
-
+    const Implements_Data_Type_New<Implements_FnClosure<Fn,Args...>*> * fnType_;
+    const Implements_Data_Type_New<std::tuple<Args...>> * tupleType_;
+    buildByToken<std::tuple<Args...>> tupleB_;
+    std::unique_ptr<Implements_FnClosure<Fn,Args...>*> valueCl_;
 
   };
 
-
-
-
-  template<typename Fn, typename...Args>
-  class buildByToken<Implements_FnClosure<Fn,Args...>*,true>
-      :public ABC_BuildClosure
-  {
-
-  };
 
 
 
@@ -3147,15 +3409,6 @@ namespace Markov_IO_New {
       return mystate==S_Init;
     }
 
-  private:
-    DFA mystate;
-    buildByToken<Implements_Var>*   v_;
-    buildByToken<ABC_Closure*>* cb_;
-
-    ABC_Closure* cl_;
-    Implements_Var x_;
-
-    // ABC_BuildByToken interface
   public:
     virtual bool pushToken(Token_New t, std::string *whyNot, const std::string &masterObjective) override;
 
@@ -3180,6 +3433,17 @@ namespace Markov_IO_New {
         }
 
     }
+
+
+  private:
+    DFA mystate;
+    buildByToken<Implements_Var>*   v_;
+    buildByToken<ABC_Closure*>* cb_;
+
+    ABC_Closure* cl_;
+    Implements_Var x_;
+
+    // ABC_BuildByToken interface
 
   };
 

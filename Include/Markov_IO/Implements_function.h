@@ -69,7 +69,7 @@ namespace Markov_IO_New
 
 
 
-
+  class ABC_Type_of_Closure;
 
 
   class ABC_Closure:   public ABC_Data_New
@@ -87,10 +87,16 @@ namespace Markov_IO_New
     virtual  const void* getFunction()const =0;
 
 
+    virtual std::string getFunctionId()const=0;
+
     virtual std::size_t numArguments()const =0;
 
 
     virtual ABC_Data_New* operator()(std::vector<ABC_Data_New*> var)const=0;
+
+    virtual ABC_Type_of_Value const* myType()const=0;
+
+    virtual ABC_Type_of_Closure const* myClosureType()const=0;
 
 
     virtual selfType* clone()const =0;
@@ -122,12 +128,27 @@ namespace Markov_IO_New
     {
       return fnType_;
     }
+    virtual ABC_Type_of_Closure const * myClosureType()const override
+    {
+      return fnType_;
+    }
+
+    virtual Implements_Data_Type_FnClosure<Fn,Args...> const * myTypeD()const override
+    {
+      return fnType_;
+    }
 
     template <int I>
     typename std::tuple_element<I,argumentTuple>::type inputArgument()const
     {
       return std::get<I>(inputTu_);
     }
+
+    const argumentTuple& getArguments()const {return inputTu_;}
+
+    argumentTuple& getArguments() {return inputTu_;}
+
+
 
     Fn f()
     {
@@ -155,10 +176,9 @@ namespace Markov_IO_New
                               ,const std::string &masterObjective)const override;
 
 
-    Implements_FnClosure(const std::string& id,
-                        Fn value
-                        ,Args... vars):
-      fnType_(id),f_(value),inputTu_(vars...){}
+    Implements_FnClosure(const Implements_Data_Type_FnClosure<Fn,Args...> * idtype,
+                        Args... vars):
+      fnType_(idtype),f_(idtype->f()),inputTu_(vars...){}
 
 
     Implements_FnClosure(const selfType& other)=default;
@@ -191,13 +211,7 @@ namespace Markov_IO_New
     returnType eval()
     {
        return f_(std::get<std::integer_sequence<Args...>>(inputTu_));
-  }
-
-  protected:
-    std::string fnType_;
-    Fn f_;
-    std::tuple<Args...> inputTu_;
-
+    }
     // ABC_Closure interface
   public:
     virtual ABC_Data_New *evalData(const StructureEnv_New* cm) override
@@ -218,7 +232,19 @@ namespace Markov_IO_New
       else
         return &f_;
     }
+
+
+    std::string getFunctionId() const override
+    {
+      return myTypeD()->getFunctionId();
+    }
     virtual ABC_Data_New *operator ()(std::vector<ABC_Data_New *> var) const override;
+
+  protected:
+    Implements_Data_Type_FnClosure<Fn,Args...> const * fnType_;
+    Fn f_;
+    std::tuple<Args...> inputTu_;
+
   };
 
 

@@ -509,7 +509,7 @@ namespace Markov_IO_New {
 
 
 
-  const ABC_Type_of_Function *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)const
+  const Implements_Data_Type_Function *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)const
   {
     const std::string objective=masterObjective+": "+name+" is not a type";
     auto it=funcs_.find(name);
@@ -529,7 +529,7 @@ namespace Markov_IO_New {
 
 
 
-  ABC_Type_of_Function *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  Implements_Data_Type_Function *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
   {
     const std::string objective=masterObjective+": "+name+" is not a type";
     auto it=funcs_.find(name);
@@ -708,7 +708,7 @@ namespace Markov_IO_New {
     idTipWt_[id]={tip,whatthis};
   }
 
-  void StructureEnv_New::pushFunction(const std::__cxx11::string &id, ABC_Type_of_Function *f, std::__cxx11::string tip, std::__cxx11::string whatthis)
+  void StructureEnv_New::pushFunction(const std::__cxx11::string &id, Implements_Data_Type_Function *f, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
     funcs_[id]=f;
     idTipWt_[id]={tip,whatthis};
@@ -764,7 +764,7 @@ namespace Markov_IO_New {
     return types_;
   }
 
-  std::map<std::__cxx11::string, ABC_Type_of_Function *> &StructureEnv_New::getFunctions()
+  std::map<std::__cxx11::string, Implements_Data_Type_Function *> &StructureEnv_New::getFunctions()
   {
     return funcs_;
   }
@@ -772,7 +772,7 @@ namespace Markov_IO_New {
 
 
 
-  const  std::map<std::__cxx11::string, ABC_Type_of_Function *> &StructureEnv_New::getFunctions()const
+  const  std::map<std::__cxx11::string, Implements_Data_Type_Function *> &StructureEnv_New::getFunctions()const
   {
     return funcs_;
   }
@@ -1057,6 +1057,34 @@ namespace Markov_IO_New {
       }
     else
       return true;
+  }
+
+  bool Implements_Data_Type_Function::getClosure(const StructureEnv_New *cm, ABC_Closure *&v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+  {
+    std::string idF;
+    if (!getIdType()->getValue(cm,idF,istream,whyNot,masterObjective))
+      return false;
+    else
+      {
+        std::string argStr;
+        Implements_Data_Type_Function const * f=cm->idToFunc(idF,whyNot,masterObjective);
+        if (istream->getLine(argStr,whyNot,masterObjective))
+          return false;
+        else
+          {
+            argStr=idF+" "+argStr;
+            for (std::size_t i=0; i<f->getOverrideTypes().size(); ++i)
+              {
+                ABC_Type_of_Closure const * t=f->getOverrideTypes()[i];
+                StringInput ss(argStr);
+                if (t->getClosure(cm,v,&ss,whyNot,masterObjective))
+                  return true;
+
+              }
+            return false;
+          }
+
+      }
   }
 
 

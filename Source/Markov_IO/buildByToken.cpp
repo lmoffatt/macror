@@ -994,6 +994,17 @@ namespace Markov_IO_New {
   }
 
 
+  buildByToken<ABC_Closure *>::buildByToken
+  (const StructureEnv_New *parent
+   , const Implements_Data_Type_New<ABC_Closure*> *varType):
+    ABC_BuildClosure(parent),
+    mystate(S_Init)
+  ,fnType_(varType),
+idtype_(varType->getIdType()),idString_()
+  ,idtypeB_(varType->getIdType()->getBuildByToken(parent))
+  ,vecValueB_(),nPushedTokensIn_()
+  ,nPushedTokens_(0), valueB_(),data_(){}
+
 
 
 
@@ -1013,15 +1024,15 @@ namespace Markov_IO_New {
               return false;
             else
               {
-                valueB_.reset(fnType_->getBuildByToken(parent()));
-                if (valueB_==nullptr)
-                  return false;
-                else if (valueB_->isFinal())
+                vecValueB_=fnType_->getOverrideBuild(parent());
+                nPushedTokensIn_=std::vector<std::size_t>(vecValueB_.size(),0);
+                nPushedTokens_=0;
+                if (isFinal(vecValueB_,nPushedTokens_,nPushedTokensIn_))
                   {
                     mystate =S_Closure_Final;
                     return true;
                   }
-                else if (valueB_->hasMandatory())
+                else if (hasMandatory(vecValueB_,nPushedTokens_,nPushedTokensIn_))
                   {
                     mystate=S_Closure_Mandatory;
                     return true;
@@ -1034,16 +1045,17 @@ namespace Markov_IO_New {
               }
           }
       case S_Closure_PARTIAL:
-        if (!valueB_->pushToken(tok, whyNot,objective))
+        if (!pushToken(vecValueB_,nPushedTokens_,nPushedTokensIn_
+                       ,tok, whyNot,objective))
           return false;
         else
           {
-            if (valueB_->isFinal())
+            if (isFinal(vecValueB_,nPushedTokens_,nPushedTokensIn_))
               {
                 mystate =S_Closure_Final;
                 return true;
               }
-            else if (valueB_->hasMandatory())
+            else  if (hasMandatory(vecValueB_,nPushedTokens_,nPushedTokensIn_))
               {
                 mystate=S_Closure_Mandatory;
                 return true;
@@ -1082,7 +1094,7 @@ namespace Markov_IO_New {
           }
         else
           {
-            data_.reset(valueB_->unloadClosure());
+            data_.reset(unloadClosure(vecValueB_,nPushedTokens_,nPushedTokensIn_));
             mystate=S_Final;
             return true;
           }
@@ -1104,7 +1116,7 @@ namespace Markov_IO_New {
       case S_Closure_Mandatory:
       case S_Closure_Final:
         {
-          if (valueB_->isInitial())
+          if (hasNoArguments(vecValueB_,nPushedTokens_,nPushedTokensIn_))
             {
               idtypeB_->unPop(idString_);
               Token_New out=idtypeB_->popBackToken();
@@ -1113,8 +1125,9 @@ namespace Markov_IO_New {
             }
           else
             {
-              Token_New out=valueB_->popBackToken();
-              if (valueB_->hasMandatory())
+              Token_New out=popBackToken
+                  (vecValueB_,nPushedTokens_,nPushedTokensIn_);
+              if (hasMandatory(vecValueB_,nPushedTokens_,nPushedTokensIn_))
                 {
                   mystate=S_Closure_Mandatory;
                   return out;
@@ -1128,14 +1141,7 @@ namespace Markov_IO_New {
         }
       case  S_Final:
         {
-          valueB_->UnPopClosure(data_.release());
-          if (valueB_->isFinal())
-            mystate =S_Closure_Final;
-          else if (valueB_->hasMandatory())
-            mystate=S_Closure_Mandatory;
-          else
-            mystate=S_Closure_PARTIAL;
-          return Token_New(Token_New::EOL);
+          return {};
         }
       }
   }
@@ -1152,11 +1158,11 @@ namespace Markov_IO_New {
       case S_Init:
         return idtypeB_->alternativesNext();
       case S_Closure_PARTIAL:
-        return valueB_->alternativesNext();
+        return alternativesNext(vecValueB_,nPushedTokens_,nPushedTokensIn_);
 
       case S_Closure_Mandatory:
         {
-          auto out= valueB_->alternativesNext();
+          auto out= alternativesNext(vecValueB_,nPushedTokens_,nPushedTokensIn_);
           out.second.insert(alternatives::endOfLine());
           return out;
         }
@@ -1175,15 +1181,173 @@ namespace Markov_IO_New {
 
   void buildByToken<ABC_Closure *>::reset_Type(Implements_Data_Type_New<ABC_Closure *> *dataTy)
   {
-    if (dataType_!=dataTy)
+    if (fnType_!=dataTy)
       {
-        dataType_=dataTy;
-        idtype_=dataType_->getIdType();
+        fnType_=dataTy;
+        idtype_=fnType_->getIdType();
         idtypeB_->reset_Type(idtype_);
       }
   }
 
 
+
+  template <typename Fn, typename... Args>
+   buildByToken<Implements_FnClosure<Fn, Args...> *, true>::buildByToken
+  (const StructureEnv_New *parent
+   , const Implements_Data_Type_New<Implements_FnClosure<Fn, Args...> *> *varType):
+    ABC_BuildClosure(parent),
+    mystate(S_Init)
+  ,fnType_(varType), tupleType_(varType->getArgumentsType(parent)),
+   tupleB_(varType->getArgumentsType(parent)->getBuildByToken(parent))
+   ,valueCl_(new myC(varType)){}
+
+
+
+
+
+   template <typename Fn, typename... Args>
+  bool buildByToken<Implements_FnClosure<Fn, Args...> *, true>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
+
+  {
+    const std::string objective=masterObjective+":  rejected token "+tok.str();
+    switch (mystate)
+      {
+      case S_Init:
+      case S_Closure_PARTIAL:
+        if (tupleB_->pushToken(tok,whyNot,objective))
+          {
+             if (tupleB_->isFinal())
+                  {
+                    mystate =S_Closure_Final;
+                    return true;
+                  }
+                else if (tupleB_->hasMandatory())
+                  {
+                    mystate=S_Closure_Mandatory;
+                    return true;
+                  }
+                else
+                  {
+                    mystate=S_Closure_PARTIAL;
+                    return true;
+                  }
+              }
+        else return false;
+
+      case S_Closure_Mandatory:
+        if (tupleB_->pushToken(tok, whyNot,objective))
+          {
+            if (tupleB_->isFinal())
+              {
+                mystate =S_Closure_Final;
+                return true;
+              }
+            else if (tupleB_->hasMandatory())
+              {
+                mystate=S_Closure_Mandatory;
+                return true;
+              }
+            else
+              {
+                mystate=S_Closure_PARTIAL;
+                return true;
+              }
+          }
+
+      case S_Closure_Final:
+        if (tok.tok()!=Token_New::EOL)
+          {
+            *whyNot=objective+" is not an end of line";
+            return false;
+          }
+        else
+          {
+            valueCl_.reset(new myC(tupleB_.unloadVar()));
+            mystate=S_Final;
+            return true;
+          }
+
+      case S_Final:
+        return false;
+      }
+  }
+
+
+
+  template <typename Fn, typename... Args>
+  Token_New buildByToken<Implements_FnClosure<Fn, Args...> *, true>::popBackToken()
+
+  {
+    switch (mystate)
+      {
+      case S_Init:
+        return {};
+      case S_Closure_PARTIAL:
+      case S_Closure_Mandatory:
+      case S_Closure_Final:
+        {
+              Token_New out=tupleB_->popBackToken();
+              if (tupleB_->hasMandatory())
+                {
+                  mystate=S_Closure_Mandatory;
+                  return out;
+                }
+              else
+                {
+                  mystate=S_Closure_PARTIAL;
+                  return out;
+                }
+          }
+      case  S_Final:
+        {
+          return {};
+        }
+      }
+  }
+
+
+
+
+  template <typename Fn, typename... Args>
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
+  buildByToken<Implements_FnClosure<Fn, Args...> *, true>::alternativesNext() const
+
+  {
+    std::pair<std::string, std::set<std::string> > out;
+    switch (mystate)
+      {
+      case S_Init:
+      case S_Closure_PARTIAL:
+        return tupleB_->alternativesNext();
+
+      case S_Closure_Mandatory:
+        {
+          auto out=tupleB_->alternativesNext();
+          out.second.insert(alternatives::endOfLine());
+          return out;
+        }
+
+      case S_Closure_Final:
+        return {"ClassNamr()",{alternatives::endOfLine()}};
+
+      case S_Final:
+        return {};
+      }
+  }
+
+
+
+
+
+  template <typename Fn, typename... Args>
+  void buildByToken<Implements_FnClosure<Fn, Args...> *, true>::
+  reset_Type(Implements_Data_Type_New<ABC_Closure *> *dataTy)
+  {
+    if (fnType_!=dataTy)
+      {
+        fnType_=dataTy;
+      }
+  }
 
 
 
@@ -1769,6 +1933,8 @@ namespace Markov_IO_New {
     dataB_->clear();
 
   }
+
+
 
 
 

@@ -10,6 +10,7 @@
 #include "Markov_IO/Implements_function.h"
 #include <cmath>
 #include <iostream>
+#include <sstream>
 namespace Markov_IO_New {
 
   class ABC_interfase
@@ -35,51 +36,6 @@ namespace Markov_IO_New {
     virtual void put(std::size_t n)=0;
     virtual void put(char c)=0;
 
-    /*
-
-    template<typename T>
-    void put(const std::vector<T>& v)
-    {
-      put('[');
-      for (auto& e:v)
-        { put(e); put('\t');}
-      put(']');
-    }
-    
-    template<typename T>
-    void put(const std::set<T>& v)
-    {
-      put('{');
-      for (auto& e:v)
-        { put(e); put('\t');}
-      put('}');
-    }
-    
-    template<typename K,typename T>
-    void put(const std::map<K,T>& v)
-    {
-      put('{');
-      for (auto& e:v)
-        { put(e.first); put('\t:\t'); put(e.second);}
-      put('}');
-    }
-    
-    
-    
-    template<typename T>
-    void put(const Markov_LA::M_Matrix<T>& v)
-    {
-      put('\n');
-      for (std::size_t i=0; i<nrows(v);++i )
-        {
-          for (std::size_t j=0; j<Markov_LA::ncols(v); ++j)
-            { put(v(i,j)); put('\t');}
-          put('\n');
-        }
-      put('\n');
-    }
-    
-*/
 
 
     virtual ~ABC_Output(){}
@@ -102,9 +58,143 @@ namespace Markov_IO_New {
 
     virtual bool testIfNextCharIs(char c)=0;
 
-
-    virtual bool eof()const=0;
+      virtual bool eof()const=0;
     virtual ~ABC_Input(){}
+  };
+
+
+
+  class StringInput: public ABC_Input
+  {
+  public:
+    virtual bool getLine(std::string& line,std::string* whyNot,const std::string& masterObjective) override
+    {
+      std::getline(ss_,line);
+      return ss_.good();
+    }
+
+    virtual  bool get( std::string& s,std::string* whyNot,const std::string& masterObjective) override {
+      ss_>>s;
+      return ss_.good();
+    }
+    virtual  bool get(double& x,std::string* whyNot,const std::string& masterObjective) override {
+      ss_>>x;
+      return ss_.good();
+    }
+    virtual  bool get(int& n,std::string* whyNot,const std::string& masterObjective) override {
+      ss_>>n;
+      return ss_.good();
+    }
+    virtual  bool get(std::size_t& n,std::string* whyNot,const std::string& masterObjective) override {
+      ss_>>n;
+      return ss_.good();
+    }
+    virtual bool get(char &c, std::string *whyNot, const std::string &masterObjective) override
+    {
+      ss_.get(c);
+      return ss_.good();
+    }
+    virtual bool get(char &c) override
+    {
+      ss_.get(c);
+      return ss_.good();
+
+    }
+
+    virtual bool nextCharIs(char c, char &found) override
+    {
+
+      ss_.get(found);
+      while (found==' ') {ss_.get(found);}
+      return found==c;
+    }
+    virtual bool nextCharIs(char c, bool advanceInFailure) override
+    {
+      char d;
+      ss_.get(d);
+      while (d==' ') {ss_.get(d);}
+      if (d==c)
+        return true;
+      else if (!advanceInFailure)
+        ss_.putback(d);
+      return false;
+    }
+    virtual bool testIfNextCharIs(char c) override
+    {
+      char d;
+      ss_.get(d);
+      while (d==' ') {ss_.get(d);}
+      ss_.putback(d);
+      return  d==c;
+    }
+
+
+    virtual bool eof()const override
+    {
+      return ss_.eof();
+    }
+    virtual ~StringInput(){}
+
+
+    StringInput(const std::string & s, char spacer=' ')
+      : spacer_(spacer),ss_(s){}
+    void setSpacer(char c)override{spacer_=c;}
+    char  getSpacer()const override {return spacer_;}
+
+  private:
+    char spacer_;
+    std::istringstream ss_;
+
+
+  };
+
+
+  class StringOutput:public ABC_Output  {
+  public:
+    template<typename T>
+    void put(const T& x, std::string* error)
+    {
+      *error=Cls<T>::name()+ "is not supported";
+    }
+
+    virtual void put(const std::string& s)
+    {
+      ss_<<s<<getSpacer();
+    }
+
+    virtual void put(double x)
+    {
+      ss_<<x<<getSpacer();
+    }
+
+    virtual void put(int n)
+    {
+      ss_<<n<<getSpacer();
+    }
+
+    virtual void put(std::size_t n)
+    {
+      ss_<<n<<getSpacer();
+    }
+
+    virtual void put(char c)
+    {
+      ss_.put(c);
+    }
+
+
+
+    virtual ~StringOutput(){}
+    StringOutput(char spacer=' ')
+      : spacer_(spacer),ss_(){}
+
+    std::string getString(){return ss_.str();}
+    void setSpacer(char c)override{spacer_=c;}
+    char  getSpacer()const override {return spacer_;}
+
+  private:
+    char spacer_;
+    std::ostringstream ss_;
   };
 
 
@@ -593,12 +683,17 @@ namespace Markov_IO_New {
 
 
     std::string fnAddrToId(const void *data, std::__cxx11::string *whyNot, const std::string &objective) const;
-     ABC_Type_of_Function *idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective);
-     const ABC_Type_of_Function *idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const;
+     Implements_Data_Type_Function *idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective);
+     const Implements_Data_Type_Function *idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const;
+
      bool hasFunction(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const;
-     void pushFunction(const std::__cxx11::string &id, ABC_Type_of_Function *tvar, std::__cxx11::string tip, std::__cxx11::string whatthis);
-     std::map<std::__cxx11::string, ABC_Type_of_Function *> &getFunctions();
-     const std::map<std::__cxx11::string, ABC_Type_of_Function *> &getFunctions() const;
+
+     void pushFunction(const std::__cxx11::string &id, Implements_Data_Type_Function *tvar, std::__cxx11::string tip, std::__cxx11::string whatthis);
+
+     std::map<std::__cxx11::string, Implements_Data_Type_Function *> &getFunctions();
+
+     const std::map<std::__cxx11::string, Implements_Data_Type_Function *> &getFunctions() const;
+
      bool hasFunctionofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const;
   private:
 
@@ -614,7 +709,7 @@ namespace Markov_IO_New {
     std::map<std::string,ABC_Data_New*> all_;
     std::map<const ABC_Data_New*, std::string> allId_;
     std::map<std::string,ABC_Data_New*> vars_;
-    std::map<std::string,ABC_Type_of_Function*> funcs_;
+    std::map<std::string,Implements_Data_Type_Function*> funcs_;
     std::map<std::string,ABC_Type_of_Value*> types_;
     std::map<std::string,Implements_Command_Type_New*> cmds_;
 
@@ -802,6 +897,8 @@ namespace Markov_IO_New {
 
 
 
+    virtual std::string getFunctionId()const=0;
+
 
     virtual bool includesThisFunction(const StructureEnv_New* cm
                                   ,const std::string& childType
@@ -838,6 +935,8 @@ namespace Markov_IO_New {
 
 
     virtual  const void* getFunction()const =0;
+
+    virtual std::string getFuncitionId()const =0;
 
     virtual ~ABC_Type_of_Closure()
     {
@@ -920,6 +1019,16 @@ namespace Markov_IO_New {
       return f_;
       else
         return &f_;
+    }
+
+    virtual std::string getFunctionId()const override
+    {
+      return myTypeD()->getFunctionId();
+    }
+
+    Implements_Identifier const * getIdType()const override
+    {
+      return myTypeD()->getIdType();
     }
 
 
@@ -1080,18 +1189,20 @@ namespace Markov_IO_New {
 
 
 
+
     virtual bool putValue(const StructureEnv_New* cm
                           ,const myC* c
                           ,ABC_Output* ostream
                           ,std::string* whyNot
                           , const std::string& masterObjective)const
     {
-        std::string fnName=cm->fnAddrToId(c->getFunction(),whyNot,masterObjective);
-        ostream->put(fnName);
-        return true;
-
-
-
+      if (! getIdType()->putValue(cm,c->myFunctionId(),ostream,whyNot,masterObjective))
+        return false;
+      else if (!getArgumentsType()->putValue(cm,c->getArguments(),ostream,whyNot,masterObjective))
+        {
+          return false;
+        }
+      else return true;
     }
 
     virtual bool getValue(const StructureEnv_New* cm
@@ -1100,23 +1211,27 @@ namespace Markov_IO_New {
                           ,std::string* whyNot
                           ,const std::string& masterObjective )const
     {
-        std::string fnName;
-        return true;
-
-
+      std::string idFn;
+      argumentFnTypes args;
+      if (! getIdType()->getValue(cm,idFn,istream,whyNot,masterObjective))
+        return false;
+      else if (!getArgumentsType()->getValue(cm,args,istream,whyNot,masterObjective))
+        {
+          return false;
+        }
+      else
+        {
+          delete v;
+          v= new myC(this,args);
+          return true;
+        }
     }
-
-
-
-
-
-
-
 
 
     virtual std::string myTypeId()const
     {
-      return Cls<myC>::name();
+
+      return myType()->typeId();
     }
 
 
@@ -1142,23 +1257,20 @@ namespace Markov_IO_New {
 
 
 
-    virtual const Implements_Identifier* getElementType()const
-    {
-      return idType_;
-    }
 
-
+  Implements_Data_Type_Function const * myTypeD()const {return functionType_;}
 
 
 
   protected:
     Fn f_;
+    std::string functionName_;
     returnFnType returnArg_;
     argumentFnTypes inputArg_;
     std::vector<const ABC_Fn_Argument*>  inputVec_;
     typePredicate comply_;
     Implements_Data_Type_New<std::tuple<Args...>>* argType_;
-    Implements_Identifier* idType_;
+    const Implements_Data_Type_New<ABC_Closure*>*  functionType_;
   };
 
 
@@ -1171,11 +1283,12 @@ namespace Markov_IO_New {
 
     // ABC_Data_New interface
   public:
+    typedef ABC_Closure*  myC;
+
     virtual bool empty() const override;
     virtual void reset() override;
     virtual ABC_Data_New *clone() const override;
     virtual ABC_Data_New *create() const override;
-    virtual ABC_Type_of_Function const* myType() const override;
     virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override;
 
 
@@ -1184,7 +1297,11 @@ namespace Markov_IO_New {
                          ,const ABC_Closure* v
                          ,ABC_Output* ostream
                          ,std::string* error,
-                         const std::string& masterObjective)const override;
+                         const std::string& masterObjective)const override
+    {
+
+
+    }
 
 
     virtual bool getClosure(const StructureEnv_New* cm
@@ -1242,14 +1359,58 @@ namespace Markov_IO_New {
                                       std::string* whyNot,
                                       const std::string& masterObjective)const override;
 
-    virtual const Implements_Identifier* getElementType()const
+    const Implements_Identifier* getIdType()const override
     {
       return idType_;
     }
 
+
+    virtual std::__cxx11::string myTypeId() const override
+     {
+      if (myType()==nullptr)
+       return Cls<myC>::name();
+      else return myType()->typeId();
+     }
+
+     std::string typeId()const override
+     {
+       return functionName_;
+     }
+
+     std::string getFunctionId()const override
+     {
+       return functionName_;
+     }
+
+     virtual ABC_Type_of_Function const* myType() const override {return typeType_;}
+
+
+     virtual const std::vector<ABC_Type_of_Closure*>& getOverrideTypes()const
+     {
+       return overrideTypes_;
+     }
+
+     virtual std::vector<ABC_BuildClosure*> getOverrideBuild(const StructureEnv_New* cm)const
+     {
+       std::size_t n=getOverrideTypes().size();
+       std::vector<ABC_BuildClosure*> out(n);
+       for (std::size_t i=0; i<n; ++i)
+         {
+           out[i]=getOverrideTypes()[i]->getBuildByToken(cm);
+         }
+       return out;
+     }
+
+
+
   private:
+    std::string functionName_;
+    const selfType*  typeType_;
     Implements_Identifier*  idType_;
-  };
+    std::vector<ABC_Type_of_Closure*> overrideTypes_;
+
+    // ABC_Data_New interface
+   };
 
   
 
@@ -2335,16 +2496,30 @@ namespace Markov_IO_New {
       }
 
 
+
+
       template <std::size_t I>
       static void fill_imp(myC& v, const dataArgumentsTuple& arg)
       {
         std::get<I>(v)=std::get<I>(arg).defaultValue();
-        if (I+1<std::tuple_size<myC>::value)
+        if ((I+1) < (std::tuple_size<myC>::value))
             fill_imp<I+1>(v,arg);
       }
 
       
-      
+      template <std::size_t I>
+      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg)
+      {
+        if (I<iArg)  fill_imp<I+1>(v,iArg,arg);
+        else
+          fill_imp<I>(v,arg);
+      }
+
+
+
+
+
+
       template <std::size_t I>
       static bool getValue_imp(const StructureEnv_New* cm,
                                    myC& v,const dataArgumentsTuple& arg
@@ -2358,7 +2533,7 @@ namespace Markov_IO_New {
             vType=cm->idToTyped<eType>(Cls<eType>::name());
           eType& x=std::get<I>(v);
 
-          if (!mandatory &&  istream->testIfNextCharIs('\n'))
+          if (!mandatory &&  (istream->testIfNextCharIs('\n')||istream->eof()))
               {
                  fill_imp<I>(v,arg);
                  return true;
