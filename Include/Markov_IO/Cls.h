@@ -75,6 +75,35 @@ namespace Markov_IO_New {
   };
 
 
+  template <typename T>
+  T sum_pack(T x)
+  {
+    return x;
+  }
+
+
+  template<typename T,typename...As>
+  auto sum_pack(T x,As...as)
+  {
+     return x+sum_pack(as...);
+  }
+
+
+  template<typename...Args>
+  std::string Cls_name_imp()
+  {
+      return sum_pack(Cls<Args>::name()...);
+  };
+
+
+  template<typename... Ts>
+  struct Cls<std::tuple<Ts...>>
+  {
+    static std::string name() { return "tuple_of_"+Cls_name_imp<Ts...>() ;}
+  };
+
+
+
   template<typename T>
   struct Cls<std::vector<T>>
   {
@@ -137,6 +166,11 @@ namespace Markov_IO_New {
     static std::string name(){return "boolean";}
   };
 
+  template<>
+  struct Cls<void>
+  {
+    static std::string name(){return "void";}
+  };
 
 
   template <typename T>

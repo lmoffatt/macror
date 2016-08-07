@@ -42,6 +42,11 @@ namespace Markov_IO_New {
 
     template class Implements_Data_Type_New_map<std::string,double> ;
 
+    const ABC_Type_of_Value *Implements_Base_Value_New<void>::myType() const
+    {
+      return varType_;
+    }
+
   }
 
   bool StructureEnv_New::hasNameofType(const std::string &name, const std::string &type, bool recursive, std::string *whyNot, const std::string &masterObjective) const

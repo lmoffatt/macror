@@ -42,6 +42,8 @@ namespace Markov_IO_New {
 
   class Implements_Identifier;
 
+  template<typename T>
+  class Implements_Fn_Argument;
 
   class Markov_CommandManagerVar;
 
@@ -218,8 +220,7 @@ namespace Markov_IO_New {
 
     typedef std::tuple<Implements_Fn_Argument<Args>...> dataArgumentsTuple;
 
-    typedef std::tuple<buildByToken<Args>*...>  buildTuple;
-
+    
     typedef Implements_Data_Type_New<myC>  vType;
 
     enum DFA {
@@ -231,53 +232,89 @@ namespace Markov_IO_New {
       mystate(S_Init),
       varType_(typeVar)
     ,buildTupl_(getBuildTuple(parent,typeVar,std::index_sequence_for<myC>()))
-    ,x_{}
+    ,xTupl_{}
     ,iArg_(0)
     {
 
     }
 
     template<std::size_t ...Is>
-    static buildTuple getBuildTuple(const StructureEnv_New* parent,
+    static std::tuple<buildByToken<Args>*...> getBuildTuple(const StructureEnv_New* parent,
                                     const Implements_Data_Type_New<myC>* typeVar, const std::index_sequence<Is...>& )
     {
-      return buildTuple {new buildByToken<Args>
-              (parent,std::get<Is>
-               (typeVar->getArguments())->dataType())...};
+return std::tuple<buildByToken<Args>*...> (
+      (std::get<Is>(typeVar->getArgumentTypes()))->getBuildByToken(parent)...);
     }
 
     myC unloadVar()
     {
       if ((iArg_ )< (std::tuple_size<myC>::value))
-      varType_->fill_imp<0>(x_,iArg_,varType_->getArguments());
-      auto out=std::move(x_);
-      x_= {};
+      varType_->fill_imp<0>(xTupl_,iArg_,varType_->getArguments());
+      auto out=std::move(xTupl_);
+      xTupl_= {};
       mystate=S_Init;
       iArg_=0;
       return out;
     }
 
+    template<std::size_t D>
+    static bool pushToken_imp(DFA &state,std::size_t &i
+                              ,std::tuple<buildByToken<Args>*...>& b
+                              ,const dataArgumentsTuple& a
+                              ,myC& x
+                              ,Token_New t, std::string* whyNot
+                              , const std::string& masterObjective)
+    {
+        return false;
+      }
 
 
-    template<std::size_t I>
-    static bool pushToken_imp(DFA &state,std::size_t i
-                              ,buildTuple& b, myC& x
+
+    template<std::size_t D,std::size_t I, std::size_t...Is>
+    static bool pushToken_imp(DFA &state,std::size_t &i
+                              ,std::tuple<buildByToken<Args>*...>& b
+                              ,const dataArgumentsTuple& a
+                              ,myC& x
                               ,Token_New t, std::string* whyNot
                               , const std::string& masterObjective)
     {
       if (I<i)
-        return pushToken_imp<I+1>(state,i,b,x,t,whyNot,masterObjective);
+        return pushToken_imp<D,Is...>(state,i,b,a,x,t,whyNot,masterObjective);
       else
         {
           typedef typename std::tuple_element<I,myC>::type eType;
           buildByToken<eType>* eB=std::get<I>(b);
-          if (!eB->pushToken(t,whyNot,masterObjective))
+          Implements_Fn_Argument<eType> aT=std::get<I>(a);
+          if (aT.dataType()==nullptr)
+            {
+               std::get<I>(x)=aT.defaultValue();
+               ++i;
+               if (i==std::tuple_size<myC>::value)
+                 {
+                 state=S_Final;
+                 return true;
+                 }
+               else if (isMandatory_imp<0>(i,a))
+                 state=S_Element_Final;
+               else
+                 state=S_Mandatory;
+               return pushToken_imp<D,Is...>(state,i,b,a,x,t,whyNot,masterObjective);
+
+            }
+          else if (!eB->pushToken(t,whyNot,masterObjective))
             {
               return false;
             }
           else if (eB->isFinal())
             {
-              state=S_Element_Final;
+              std::get<I>(x)=eB->unloadVar();
+              ++i;
+              if (i==std::tuple_size<myC>::value)
+                state=S_Final;
+              else if (isMandatory_imp<0>(std::index_sequence_for<Args...>(),i,a))
+                state=S_Element_Final;
+              else
+                state=S_Mandatory;
               return true;
             }
           else
@@ -291,13 +328,41 @@ namespace Markov_IO_New {
 
 
 
-    template<std::size_t I>
+    template<std::size_t...Is>
+    static bool pushToken_imp(std::index_sequence<Is...>,DFA &state,std::size_t &i
+                              ,std::tuple<buildByToken<Args>*...>& b
+                              ,const dataArgumentsTuple& a
+                              ,myC& x
+                              ,Token_New t, std::string* whyNot
+                              , const std::string& masterObjective)
+    {
+
+      return pushToken_imp<0,Is...>(state,i,b,a,x,t,whyNot,masterObjective);
+     }
+
+
+
+
+
+    template<std::size_t D>
+    static bool isMandatory_imp(std::size_t i
+                              ,const dataArgumentsTuple& arg
+                              )
+    {
+        return false;
+     }
+
+
+
+
+
+    template<std::size_t D,std::size_t I, std::size_t ... Is>
     static bool isMandatory_imp(std::size_t i
                               ,const dataArgumentsTuple& arg
                               )
     {
       if (I<i)
-        return isMandatory_imp<I+1>(i,arg);
+        return isMandatory_imp<D,Is...>(i,arg);
       else
         {
           typedef typename std::tuple_element<I,dataArgumentsTuple>::type aType;
@@ -305,6 +370,16 @@ namespace Markov_IO_New {
           return a.isMandatory();
 
         }
+    }
+
+
+
+    template<std::size_t ... Is>
+    static bool isMandatory_imp(std::index_sequence<Is...>,std::size_t i
+                              ,const dataArgumentsTuple& arg
+                              )
+    {
+        return isMandatory_imp<0,Is...>(i,arg);
     }
 
 
@@ -318,24 +393,8 @@ namespace Markov_IO_New {
         case S_Init:
         case S_Element_Partial:
         case S_Element_Final:
-          if (!pushToken_imp<0>(mystate,iArg_,buildTupl_,x_,t,whyNot,objective))
-            return false;
-          else if (mystate==S_Element_Final)
-            {
-              ++iArg_;
-              if (iArg_==std::tuple_size<myC>::value)
-                mystate=S_Final;
-              else if (isMandatory_imp<0>(iArg_,varType_->getArguments()))
-                mystate=S_Element_Final;
-              else
-                mystate=S_Mandatory;
-              return true;
-            }
-          else {
-              mystate=S_Element_Partial;
-              return true;
-            }
-
+          return pushToken_imp(std::index_sequence_for<Args...>(),mystate,iArg_,buildTupl_
+               ,varType_->getArguments(),xTupl_,t,whyNot,objective);
         case    S_Final:
           return false;
 
@@ -343,16 +402,29 @@ namespace Markov_IO_New {
     }
 
 
-    template<std::size_t I>
-    std::pair<std::string,std::set<std::string>> alternativesNext_imp
+
+
+    template<std::size_t D>
+    static std::pair<std::string,std::set<std::string>> alternativesNext_imp
     (DFA state,std::size_t i
-     ,const buildTuple& b,
+     ,const std::tuple<buildByToken<Args>*...>& b,
+     const dataArgumentsTuple& arg)
+    {
+        return {};
+     }
+
+
+
+    template<std::size_t D,std::size_t I, std::size_t... Is>
+    static std::pair<std::string,std::set<std::string>> alternativesNext_imp
+    (DFA state,std::size_t i
+     ,const std::tuple<buildByToken<Args>*...>& b,
      const dataArgumentsTuple& arg)
     {
       if (state==S_Final)
         return {};
       if (I<i)
-        return alternativesNext_imp<I+1>(state,i,b);
+        return alternativesNext_imp<D,Is...>(state,i,b,arg);
       else
         {
           typedef typename std::tuple_element<I,myC>::type eType;
@@ -363,13 +435,22 @@ namespace Markov_IO_New {
         }
     }
 
+    template<std::size_t... Is>
+    static std::pair<std::string,std::set<std::string>> alternativesNext_imp
+    (std::index_sequence<Is...>,DFA state,std::size_t i
+     ,const std::tuple<buildByToken<Args>*...>& b,
+     const dataArgumentsTuple& arg)
+    {
+        return alternativesNext_imp<0,Is...>(state,i,b,arg);
+
+    }
 
 
 
     std::pair<std::string,std::set<std::string>> alternativesNext()const override
     {
       return alternativesNext_imp<0>
-          (mystate,iArg_
+          (std::index_sequence_for<Args...>(),mystate,iArg_
            ,buildTupl_,
            varType_->getArguments());
     }
@@ -377,7 +458,7 @@ namespace Markov_IO_New {
 
     void clear()override
     {
-      x_={};
+      xTupl_={};
       mystate=S_Init;
       iArg_=0;
     }
@@ -392,21 +473,29 @@ namespace Markov_IO_New {
 
     bool unPop(myC var)
     {
-      x_=std::move(var);
+      xTupl_=std::move(var);
       mystate=S_Final;
       iArg_=std::tuple_size<myC>::value;
       return true;
     }
 
+    template<std::size_t D>
+    static Token_New popBackToken_imp(DFA &state,std::size_t &i
+                                      ,std::tuple<buildByToken<Args>*...>& b, myC& x)
+    {
+
+          return {};
+
+    }
 
 
 
-    template<std::size_t I>
-    static Token_New popBackToken_imp(DFA &state,std::size_t i
-                                      ,buildTuple& b, myC& x)
+    template<std::size_t D,std::size_t I,std::size_t... Is>
+    static Token_New popBackToken_imp(DFA &state,std::size_t &i
+                                      ,std::tuple<buildByToken<Args>*...>& b, myC& x)
     {
       if (I<i)
-        return popBackToken_imp<I+1>(state,i,b,x);
+        return popBackToken_imp<D,Is...>(state,i,b,x);
       else {
           typedef typename std::tuple_element<I,myC>::type eType;
           buildByToken<eType>* eB=std::get<I>(b);
@@ -430,6 +519,19 @@ namespace Markov_IO_New {
     }
 
 
+    template<std::size_t... Is>
+    static Token_New popBackToken_imp(std::index_sequence<Is...>,DFA &state,std::size_t &i
+                                      ,std::tuple<buildByToken<Args>*...>& b, myC& x)
+    {
+        return popBackToken_imp<0,Is...>(state,i,b,x);
+
+    }
+
+
+
+
+
+
 
     Token_New popBackToken() override
     {
@@ -440,7 +542,7 @@ namespace Markov_IO_New {
         case S_Final:
           --iArg_;
         case S_Element_Partial:
-          return popBackToken_imp<0>(mystate,iArg_,buildTupl_,x_);
+          return popBackToken_imp<0>(std::index_sequence_for<Args...>(),mystate,iArg_,buildTupl_,xTupl_);
         }
     }
 
@@ -461,10 +563,7 @@ namespace Markov_IO_New {
 
     }
 
-    virtual ABC_Data_New* unloadData()override
-    {
-      return unloadVar();
-    }
+    virtual ABC_Data_New* unloadData()override;
 
     virtual bool unpopData(ABC_Data_New* data) override
     {
@@ -485,9 +584,10 @@ namespace Markov_IO_New {
 
   protected:
     DFA mystate;
-    const Implements_Data_Type_New<myC>* varType_;
-    buildTuple buildTupl_;
-    myC x_;
+    const Implements_Data_Type_New<std::tuple<Args...>>* varType_;
+    std::tuple<const Implements_Data_Type_New<Args>*...> tuVarTypes_;
+    std::tuple<buildByToken<Args>*...> buildTupl_;
+    myC xTupl_;
     std::size_t iArg_;
   };
 
@@ -2269,207 +2369,216 @@ namespace Markov_IO_New {
     std::size_t iField_;
   };
 
+  template<>
+  class buildByToken<Markov_CommandManagerVar*,true>
+      :public buildByToken<StructureEnv_New*,true>
+
+  {
+  public:
+
+    using buildByToken<StructureEnv_New*,true>::buildByToken;
+  };
 
 
 
 
   template<typename T>
-  class buildByToken<T,true>: public ABC_BuildByToken
-  {
-  public:
-    enum DFA {
-      S_Init=0, S_DATA_PARTIAL, S_Data_Final,S_Final
-    } ;
+   class buildByToken<T,true>: public ABC_BuildByToken
+   {
+   public:
+     enum DFA {
+       S_Init=0, S_DATA_PARTIAL, S_Data_Final,S_Final
+     } ;
 
 
-    buildByToken(const StructureEnv_New* parent,
-                 const Implements_Data_Type_New<T>* typeVar):
-      ABC_BuildByToken(parent),
-      varType_(typeVar),
-      bStr_(typeVar->getBuildByToken(parent)),
-      x_(),
-      mystate(S_Init)
-    {
+     buildByToken(const StructureEnv_New* parent,
+                  const Implements_Data_Type_New<T>* typeVar):
+       ABC_BuildByToken(parent),
+       varType_(typeVar),
+       bStr_(typeVar->getBuildByToken(parent)),
+       x_(),
+       mystate(S_Init)
+     {
 
-    }
-
-
-    T unloadVar()
-    {
-      if (isFinal())
-        {
-          auto out=std::move(x_);
-          x_= {};
-          mystate=S_Init;
-          return out;
-        }
-      else return {};
-    }
-
-    bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override
-    {
-      switch (mystate)
-        {
-        case S_Init:
-        case S_DATA_PARTIAL:
-          if (!bStr_->pushToken(t,whyNot,masterObjective))
-            return false;
-          else
-            if (bStr_->isFinal())
-              {
-                StructureEnv_New* c=bStr_->unloadVar();
-                mystate=S_Data_Final;
-                if (c!=nullptr)
-                  {
-                    bool success;
-                    x_=varType_->getClass
-                        (parent(),c,success,whyNot, masterObjective);
-                    if (!success) return false;
-                    else
-                      return varType_->isValueInDomain(parent(),x_,whyNot,masterObjective);
+     }
 
 
-                  }
-                else return false;
+     T unloadVar()
+     {
+       if (isFinal())
+         {
+           auto out=std::move(x_);
+           x_= {};
+           mystate=S_Init;
+           return out;
+         }
+       else return {};
+     }
 
-              }
-            else
-              {
-                mystate=S_DATA_PARTIAL;
-                return true;
-
-              }
-        case S_Data_Final:
-          {
-            if (t.tok()!=Token_New::EOL)
-              {
-                *whyNot=masterObjective+" is not an end of line";
-                return false;
-              }
-            else
-              {
-                mystate=S_Final;
-                return true;
-              }
-
-
-          }
-        case S_Final:
-          return false;
-        }
-    }
-
-    std::pair<std::string,std::set<std::string>> alternativesNext()const override
-    {
-      switch (mystate)
-        {
-        case S_Init:
-        case S_DATA_PARTIAL:
-
-          return bStr_->alternativesNext();
-
-        case S_Data_Final:
-          return {"ClassNamr()",{alternatives::endOfLine()}};
-
-        case S_Final:
-          return {};
-        }
-
-    }
-
-    void clear()override
-    {
-      x_={};
-      bStr_->clear();
-      mystate=S_Init;
-    }
-
-    virtual void reset_Type(const Implements_Data_Type_New<T>* var)
-    {
-      clear();
-      varType_=var;
-      bStr_->reset_Type(var->getComplexVarType(parent()));
-    }
-
-    bool unPop(T var)
-    {
-      if (isFinal())
-        {
-          x_=std::move(var);
-          std::string whyNot;
-          StructureEnv_New* c=varType_->getComplexMap(parent(),x_,&whyNot,"");
-          bStr_->unPop(c);
-          return true;
-        }
-      else return false;
-    }
+     bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override
+     {
+       switch (mystate)
+         {
+         case S_Init:
+         case S_DATA_PARTIAL:
+           if (!bStr_->pushToken(t,whyNot,masterObjective))
+             return false;
+           else
+             if (bStr_->isFinal())
+               {
+                 StructureEnv_New* c=bStr_->unloadVar();
+                 mystate=S_Data_Final;
+                 if (c!=nullptr)
+                   {
+                     bool success;
+                     x_=varType_->getClass
+                         (parent(),c,success,whyNot, masterObjective);
+                     if (!success) return false;
+                     else
+                       return varType_->isValueInDomain(parent(),x_,whyNot,masterObjective);
 
 
-    Token_New popBackToken() override
-    {
-      Token_New out;
-      switch (mystate)
-        {
-        case S_Init:
-          return {};
-        case S_Data_Final:
-        case S_DATA_PARTIAL:
-          {
-            out= bStr_->popBackToken();
-            if (bStr_->isInitial())
-              mystate=S_Init;
-            else
-              mystate=S_DATA_PARTIAL;
-            return out;
-          }
-        case S_Final:
-          {
-            std::string whyNot;
-            StructureEnv_New* c=varType_->getComplexMap(parent(),x_,&whyNot,"");
-            bStr_->unPop(c);
-            mystate=S_Data_Final;
-            return Token_New(Token_New::EOL);
+                   }
+                 else return false;
 
-          }
-        }
-    }
+               }
+             else
+               {
+                 mystate=S_DATA_PARTIAL;
+                 return true;
 
-    bool isFinal()const override
-    {
-      return mystate==S_Final;
-    }
-
-    bool isInitial()const override
-    {
-      return mystate==S_Init;
-    }
+               }
+         case S_Data_Final:
+           {
+             if (t.tok()!=Token_New::EOL)
+               {
+                 *whyNot=masterObjective+" is not an end of line";
+                 return false;
+               }
+             else
+               {
+                 mystate=S_Final;
+                 return true;
+               }
 
 
-    virtual ABC_Data_New* unloadData()override
-    {
-      return new Implements_Value_New<T>
-          (varType_,unloadVar());
-    }
+           }
+         case S_Final:
+           return false;
+         }
+     }
 
-    virtual bool unpopData(ABC_Data_New* data) override
-    {
-      auto d=dynamic_cast<Implements_Value_New<T>*>(data);
-      if (d!=nullptr)
-        {
-          varType_=d->myTypeD();
-          return unPop(d->unloadValue());
-        }
-      else return false;
-    }
+     std::pair<std::string,std::set<std::string>> alternativesNext()const override
+     {
+       switch (mystate)
+         {
+         case S_Init:
+         case S_DATA_PARTIAL:
+
+           return bStr_->alternativesNext();
+
+         case S_Data_Final:
+           return {"ClassNamr()",{alternatives::endOfLine()}};
+
+         case S_Final:
+           return {};
+         }
+
+     }
+
+     void clear()override
+     {
+       x_={};
+       bStr_->clear();
+       mystate=S_Init;
+     }
+
+     virtual void reset_Type(const Implements_Data_Type_New<T>* var)
+     {
+       clear();
+       varType_=var;
+       bStr_->reset_Type(var->getComplexVarType(parent()));
+     }
+
+     bool unPop(T var)
+     {
+       if (isFinal())
+         {
+           x_=std::move(var);
+           std::string whyNot;
+           StructureEnv_New* c=varType_->getComplexMap(parent(),x_,&whyNot,"");
+           bStr_->unPop(c);
+           return true;
+         }
+       else return false;
+     }
 
 
-    virtual ~buildByToken(){}
-  protected:
-    const Implements_Data_Type_New<T>* varType_;
-    buildByToken<StructureEnv_New*>* bStr_;
-    T x_;
-    DFA mystate;
-  };
+     Token_New popBackToken() override
+     {
+       Token_New out;
+       switch (mystate)
+         {
+         case S_Init:
+           return {};
+         case S_Data_Final:
+         case S_DATA_PARTIAL:
+           {
+             out= bStr_->popBackToken();
+             if (bStr_->isInitial())
+               mystate=S_Init;
+             else
+               mystate=S_DATA_PARTIAL;
+             return out;
+           }
+         case S_Final:
+           {
+             std::string whyNot;
+             StructureEnv_New* c=varType_->getComplexMap(parent(),x_,&whyNot,"");
+             bStr_->unPop(c);
+             mystate=S_Data_Final;
+             return Token_New(Token_New::EOL);
+
+           }
+         }
+     }
+
+     bool isFinal()const override
+     {
+       return mystate==S_Final;
+     }
+
+     bool isInitial()const override
+     {
+       return mystate==S_Init;
+     }
+
+
+     virtual ABC_Data_New* unloadData()override
+     {
+       return new Implements_Value_New<T>
+           (varType_,unloadVar());
+     }
+
+     virtual bool unpopData(ABC_Data_New* data) override
+     {
+       auto d=dynamic_cast<Implements_Value_New<T>*>(data);
+       if (d!=nullptr)
+         {
+           varType_=d->myTypeD();
+           return unPop(d->unloadValue());
+         }
+       else return false;
+      }
+
+
+     virtual ~buildByToken(){}
+   protected:
+     const Implements_Data_Type_New<T>* varType_;
+     buildByToken<StructureEnv_New*>* bStr_;
+     T x_;
+     DFA mystate;
+   };
 
 
 
@@ -2862,10 +2971,7 @@ namespace Markov_IO_New {
     void clear()override
     {}
 
-    virtual ABC_Data_New* unloadData()override
-    {
-      return unloadVar();
-    }
+    virtual ABC_Data_New* unloadData()override;
     virtual bool unpopData(ABC_Data_New* data) override
     {
       return false;
@@ -3041,13 +3147,13 @@ namespace Markov_IO_New {
 
 
 
-  template<typename Fn, typename...Args>
-  class buildByToken<Implements_FnClosure<Fn,Args...>*,true>
+  template<typename Fn, typename R,typename...Args>
+  class buildByToken<Implements_FnClosure<Fn,R,Args...>*,true>
       :public ABC_BuildClosure
   {
   public:
 
-    typedef Implements_FnClosure<Fn,Args...> myC;
+    typedef Implements_FnClosure<Fn,R,Args...> myC;
 
     enum DFA {
       S_Init=0, S_Closure_PARTIAL, S_Closure_Mandatory,S_Closure_Final,S_Final
@@ -3090,7 +3196,7 @@ namespace Markov_IO_New {
     }
 
     buildByToken(const StructureEnv_New* parent,
-                 const Implements_Data_Type_New<Implements_FnClosure<Fn,Args...> *> *varType);
+                 const Implements_Data_Type_New<Implements_FnClosure<Fn,R,Args...> *> *varType);
 
     void clear()override
     {}
@@ -3137,10 +3243,10 @@ namespace Markov_IO_New {
 
   protected:
     DFA mystate;
-    const Implements_Data_Type_New<Implements_FnClosure<Fn,Args...>*> * fnType_;
+    const Implements_Data_Type_New<Implements_FnClosure<Fn,R,Args...>*> * fnType_;
     const Implements_Data_Type_New<std::tuple<Args...>> * tupleType_;
     buildByToken<std::tuple<Args...>> tupleB_;
-    std::unique_ptr<Implements_FnClosure<Fn,Args...>*> valueCl_;
+    std::unique_ptr<Implements_FnClosure<Fn,R,Args...>*> valueCl_;
 
   };
 

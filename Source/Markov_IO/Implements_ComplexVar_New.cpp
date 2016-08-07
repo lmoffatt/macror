@@ -183,6 +183,13 @@ namespace Markov_IO_New {
         idType_(idType),dataType_(dataType),comply_(comply)
       ,getKey_(getKey),getElement_(getElement){}
 
+    void Implements_Data_Type_New_regular<void>::push_Types(StructureEnv_New *cm)
+    {
+      cm->pushType(Cls<void>::name()
+                   ,new Implements_Data_Type_New_regular<void>()
+                   ,Cls<void>::name(),"a regular "+Cls<void>::name());
+    }
+
 
 
 
@@ -1085,6 +1092,13 @@ namespace Markov_IO_New {
           }
 
       }
+  }
+
+  template <typename Fn,typename...Args>
+  ABC_Data_New *Implements_FnClosure<Fn, void, Args...>::evalData(const StructureEnv_New *cm)
+  {
+
+    return Implements_Value_New<void>(cm->idToTyped<void>(Cls<void>::name()));
   }
 
 

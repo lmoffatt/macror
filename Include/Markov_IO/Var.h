@@ -64,9 +64,10 @@ namespace Markov_IO_New {
   class ABC_Data_New;
   struct Implements_Var;
   class StructureEnv_New;
+ class Markov_CommandManagerVar;
 
  class ABC_Closure;
- template<typename Fn, typename...Args>
+ template<typename Fn, typename R,typename...Args>
  class Implements_FnClosure;
 
  class ABC_Type_of_Value;
@@ -74,7 +75,7 @@ namespace Markov_IO_New {
  class ABC_Type_of_Function;
 
 
- template<typename Fn, typename...Args>
+ template<typename Fn, typename R,typename...Args>
  class Implements_Data_Type_FnClosure;
 
   class Implements_Data_Type_Function;
@@ -190,6 +191,7 @@ namespace Markov_IO_New {
     template<typename K,typename T> class Implements_Data_Type_New_pair;
     template<typename K,typename T> class Implements_Data_Type_New_map;
 
+    template<typename... Args> class Implements_Data_Type_New_tuple;
 
     template<typename T> class Implements_Data_Type_New_regular;
     template<class C> class Implements_Data_Type_class;
@@ -221,6 +223,15 @@ namespace Markov_IO_New {
       using value=Implements_Base_Value_New<std::vector<T>>;
 
     };
+
+    template<typename...Args>
+    struct mp_DataType_Imp<std::tuple<Args...>>
+    {
+      using type=Implements_Data_Type_New_tuple<Args...>;
+      using value=Implements_Base_Value_New<std::tuple<Args...>>;
+
+    };
+
 
     template<typename T>
     struct mp_DataType_Imp<std::set<T>>
@@ -268,6 +279,12 @@ namespace Markov_IO_New {
       using type_Ptr=Implements_Data_Type_New_ABC_Data_New;
       using value_Ptr=Implements_Base_Value_New<ABC_Data_New*>;
     };
+    template<>
+    struct mp_DataType_Imp<void>
+    {
+      using type=Implements_Data_Type_New_regular<void>;
+      using value=Implements_Base_Value_New<void>;
+    };
 
 
     template<>
@@ -275,6 +292,15 @@ namespace Markov_IO_New {
       using type_Ptr=Implements_Data_Type_Function;
       using value_Ptr=Implements_Base_Value_New<ABC_Closure*>;
     };
+
+    template<typename Fn, typename R,typename...Args>
+    struct mp_DataType_Imp<Implements_FnClosure<Fn,R,Args...>>
+    {
+      using type_Ptr=Implements_Data_Type_FnClosure<Fn,R,Args...>;
+      using value_Ptr=Implements_Base_Value_New<Implements_FnClosure<Fn,R,Args...>*>;
+    };
+
+
 
 
 
@@ -292,6 +318,15 @@ namespace Markov_IO_New {
       using type_Ptr=Implements_Data_Type_New_StructureEnv;
       using value_Ptr=Implements_Derived_Value_New<myD,myB>;
     };
+
+    template<>
+    struct mp_DataType_Imp<Markov_CommandManagerVar>{
+      using myB=ABC_Data_New;
+      using myD=Markov_CommandManagerVar;
+      using type_Ptr=Implements_Data_Type_New_StructureEnv;
+      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
+    };
+
 
     template<>
     struct mp_DataType_Imp<Markov_Mol_New::ABC_Markov_Model>
@@ -809,6 +844,91 @@ namespace Markov_IO_New {
       bool empty_;
     };
 
+
+
+    template<>
+    class Implements_Base_Value_New<void>: public ABC_Data_New
+    {
+      // ABC_Value_New interface
+    public:
+
+      virtual ABC_Type_of_Value const* myType()const override;
+
+      virtual Implements_Data_Type_New<void> const* myTypeD()const
+      {
+        return varType_;
+      }
+
+      std::string myTypeId()const override  {
+          return Cls<void>::name();
+        }
+
+
+      virtual void getValue() const
+      {
+      }
+
+
+      virtual void unloadValue()
+      {
+      }
+
+      virtual Implements_Base_Value_New<void>* clone()const override
+      {
+        return new Implements_Base_Value_New<void>(*this);
+      }
+
+      virtual ~Implements_Base_Value_New()
+      {
+      }
+
+      virtual bool isOfThisType(const StructureEnv_New* cm,
+                                const std::string& generalType,
+                                std::string* whyNot
+                                ,const std::string &masterObjective)const override
+      {
+         return myTypeId()==generalType;
+      }
+
+
+
+
+
+
+
+      Implements_Base_Value_New(const Implements_Base_Value_New<void>& other)=default;
+
+      Implements_Base_Value_New(Implements_Base_Value_New<void>&& other)=default;
+
+      Implements_Base_Value_New& operator=(const Implements_Base_Value_New<void>& other)=default;
+
+      Implements_Base_Value_New& operator=(Implements_Base_Value_New<void>&& other)=default;
+
+      Implements_Base_Value_New()=default;
+
+
+      virtual bool empty() const override
+      {
+        return empty_;
+      }
+
+      virtual void reset() override
+      {
+      }
+
+
+
+      virtual Implements_Base_Value_New<void>* create() const override
+      {
+        return new Implements_Base_Value_New();
+
+      }
+      Implements_Base_Value_New(const Implements_Data_Type_New<void> * var):
+        varType_(var),empty_(false){}
+    protected:
+      const Implements_Data_Type_New<void> * varType_;
+      bool empty_;
+    };
 
 
 

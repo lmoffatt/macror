@@ -1000,7 +1000,7 @@ namespace Markov_IO_New {
     ABC_BuildClosure(parent),
     mystate(S_Init)
   ,fnType_(varType),
-idtype_(varType->getIdType()),idString_()
+  idtype_(varType->getIdType()),idString_()
   ,idtypeB_(varType->getIdType()->getBuildByToken(parent))
   ,vecValueB_(),nPushedTokensIn_()
   ,nPushedTokens_(0), valueB_(),data_(){}
@@ -1191,10 +1191,10 @@ idtype_(varType->getIdType()),idString_()
 
 
 
-  template <typename Fn, typename... Args>
-   buildByToken<Implements_FnClosure<Fn, Args...> *, true>::buildByToken
+  template <typename Fn,typename R ,typename... Args>
+   buildByToken<Implements_FnClosure<Fn, R,Args...> *, true>::buildByToken
   (const StructureEnv_New *parent
-   , const Implements_Data_Type_New<Implements_FnClosure<Fn, Args...> *> *varType):
+   , const Implements_Data_Type_New<Implements_FnClosure<Fn, R,Args...> *> *varType):
     ABC_BuildClosure(parent),
     mystate(S_Init)
   ,fnType_(varType), tupleType_(varType->getArgumentsType(parent)),
@@ -1205,8 +1205,8 @@ idtype_(varType->getIdType()),idString_()
 
 
 
-   template <typename Fn, typename... Args>
-  bool buildByToken<Implements_FnClosure<Fn, Args...> *, true>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
+   template <typename Fn,typename R , typename... Args>
+  bool buildByToken<Implements_FnClosure<Fn,R, Args...> *, true>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
 
   {
     const std::string objective=masterObjective+":  rejected token "+tok.str();
@@ -1274,8 +1274,8 @@ idtype_(varType->getIdType()),idString_()
 
 
 
-  template <typename Fn, typename... Args>
-  Token_New buildByToken<Implements_FnClosure<Fn, Args...> *, true>::popBackToken()
+  template <typename Fn, typename R ,typename... Args>
+  Token_New buildByToken<Implements_FnClosure<Fn, R, Args...> *, true>::popBackToken()
 
   {
     switch (mystate)
@@ -1308,9 +1308,9 @@ idtype_(varType->getIdType()),idString_()
 
 
 
-  template <typename Fn, typename... Args>
+  template <typename Fn, typename R ,typename... Args>
   std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
-  buildByToken<Implements_FnClosure<Fn, Args...> *, true>::alternativesNext() const
+  buildByToken<Implements_FnClosure<Fn,R, Args...> *, true>::alternativesNext() const
 
   {
     std::pair<std::string, std::set<std::string> > out;
@@ -1339,8 +1339,8 @@ idtype_(varType->getIdType()),idString_()
 
 
 
-  template <typename Fn, typename... Args>
-  void buildByToken<Implements_FnClosure<Fn, Args...> *, true>::
+  template <typename Fn, typename R ,typename... Args>
+  void buildByToken<Implements_FnClosure<Fn, R,Args...> *, true>::
   reset_Type(Implements_Data_Type_New<ABC_Closure *> *dataTy)
   {
     if (fnType_!=dataTy)
@@ -1932,6 +1932,17 @@ idtype_(varType->getIdType()),idString_()
     idB_->clear();
     dataB_->clear();
 
+  }
+
+  ABC_Data_New *buildByToken<ABC_Closure *, true>::unloadData()
+  {
+    return unloadVar();
+  }
+
+  template <typename ... Args>
+  ABC_Data_New *buildByToken<std::tuple<Args...>, true>::unloadData()
+  {
+    return unloadVar();
   }
 
 

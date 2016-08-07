@@ -259,7 +259,8 @@ HEADERS += \
     Include/Markov_IO/ABC_Y_dt.h
 
 
-SOURCES +=  \
+SOURCES += \
+    Source/Markov_IO/FunctionCommand.cpp \
     Source/Markov_IO/ABC_Var.cpp \
     Source/Markov_IO/Token_New.cpp \
     Source/Markov_IO/buildByToken.cpp\
@@ -489,7 +490,9 @@ HEADERS += \
     Include/Markov_IO/myTypesExperiment.h \
     Include/Markov_IO/mp_Function.h \
     Include/Markov_IO/Implements_function.h \
-    Include/Markov_IO/Implemenst_Function_Type.h
+    Include/Markov_IO/Implemenst_Function_Type.h \
+    Include/Markov_IO/FunctionCommand.h \
+    Include/Markov_IO/StructureEnv.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
@@ -501,7 +504,9 @@ SOURCES += \
     Source/Markov_IO/myTypes.cpp \
     Source/Markov_IO/Implements_path.cpp \
     Source/Markov_IO/FileLoadSave.cpp \
-    Source/Markov_IO/myTypesExperiment.cpp
+    Source/Markov_IO/myTypesExperiment.cpp \
+    Source/Markov_IO/Implements_function.cpp \
+    Source/Markov_IO/StructureEnv.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt
