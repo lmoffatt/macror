@@ -94,76 +94,96 @@ namespace Markov_IO_New
 
       struct save_cm
       {
-        static void save(std::string );
+        static void save(Markov_CommandManagerVar* cm,
+                         const std::string& pathfileName, const std::__cxx11::string varType="");
 
+        typedef void returnType;
+        typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
+
+        typedef decltype(&save)  functionType;
+
+        typedef mp_append
+        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        >                        vType;
 
         typedef
+        mp_insert
+        <
+        Implements_Fn_Argument<void>,argTypes
+        >
+        argFnTuple;
 
-        std::tuple<
-        Implements_Fn_Argument<std::string>>  argTuple;
 
-        argTuple
+        typedef Implements_Fn_Argument<void>  returnFnType;
+
+
+        static returnFnType
+        getReturnFnType(Markov_CommandManagerVar* cm)
+        {
+          return {};
+        }
+
+
+        static argFnTuple
         getArgumentTypes(Markov_CommandManagerVar* cm)
         {
-          return argTuple(
+          return argFnTuple(
+                Implements_Fn_Argument<Markov_CommandManagerVar*>(cm),
                 Implements_Fn_Argument<std::string>("macror.txt")
                 );
 
         }
 
-
-
-
-
-        std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+        static ABC_Type_of_Closure*
+        varType(Markov_CommandManagerVar* cm)
         {
-          std::vector<ABC_Type_of_Closure*> out;
 
-
-          auto a=getArgumentTypes(cm);
-
-          auto v=Implements_Fn_Argument<void> ();
-
-          auto c=new Implements_Data_Type_FnClosure<decltype (&save),void,std::string>
+          return new Implements_Data_Type_FnClosure<
+              functionType,returnType,Markov_CommandManagerVar*,std::string>
               (&save
-               ,v
-               ,a);
-          out.push_back(c);
-          return out;
-
+               ,getReturnFnType(cm), getArgumentTypes(cm));
         }
+
 
 
 
         typedef mp_list<> dependsOn;
       };
 
-      static std::string myId(){}
+      static std::string myId(){return "save";}
       static std::string myIdType(){}
       static std::string myTip(){return "Program of change in concentrations for a single trace";}
       static std::string myWhatThis(){return "";}
 
-      template<typename Field>
-      static bool isMandatory() {return true;}
 
-
-
-
-
-/*      static Implements_Data_Type_New<myD*>*
-      varType(const StructureEnv_New* cm)
+      static Implements_Identifier* myIdIdentifier(const Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Data_Type_derived_class<myD,myB>
-            (myId(),nullptr,getFields(cm),&obj2map,&map2obj,nullptr,nullptr);
+
       }
 
-*/
+     static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      {
+        std::vector<ABC_Type_of_Closure*> out;
+
+        out.push_back(save_cm::varType(cm));
+        return out;
+
+      }
+
+      static vType*
+      varType(Markov_CommandManagerVar* cm)
+      {
+        return new  Implements_Data_Type_Function
+            (myId(),nullptr,myIdIdentifier(cm),getOverrides(cm));
+      }
+
+
 
 
 
     };
 
-/*
+    /*
     struct Load
     {
       static void load(Markov_CommandManagerVar* cm,

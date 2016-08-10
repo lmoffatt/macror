@@ -15,6 +15,12 @@
 
 int main(int argc, char **argv)
 {
+
+   std::vector<Markov_IO_New::myTuple<std::string>>  r{{"9.htf"}};
+
+
+   r[0].print();
+
 //  Markov_IO_New_Test::test();
   std::cerr<<std::to_string( +0.001);
   std::locale::global(std::locale::classic());

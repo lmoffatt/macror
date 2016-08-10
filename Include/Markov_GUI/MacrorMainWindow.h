@@ -17,6 +17,8 @@
 #include "Markov_IO/Implements_ComplexVar_New.h"
 
 
+#include <iostream>
+
 class ToolBar;
 class QMenu;
 class QSignalMapper;
@@ -24,6 +26,42 @@ class QString;
 
 
 namespace Markov_IO_New {
+
+
+
+
+
+  template<typename...Args>
+  class myTuple
+  {
+  public:
+    myTuple(Args...a):t(a...){}
+
+
+    template<std::size_t D>
+    void print_imp1(){}
+
+    template<std::size_t D, std::size_t I, std::size_t...Is>
+    void print_imp1()
+    {
+      std::cerr<<std::get<I>(t)<<"  tuple"<<I<<" ";
+      print_imp1<D, Is...>();
+    }
+
+      template<std::size_t...Is>
+      void print_imp0(std::index_sequence<Is...>)
+        {
+           print_imp1<0,Is...>();
+      }
+
+      void print()
+      {
+         print_imp0(std::index_sequence_for<Args...>());
+      }
+
+      std::tuple<Args...>t;
+  };
+
 
 
   class MacrorMainWindow : public QMainWindow

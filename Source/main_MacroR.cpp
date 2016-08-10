@@ -6,6 +6,7 @@
 
 int main(int argc, char **argv)
 {
+
     QApplication app(argc, argv);
     MacrorMainWindow mainWin;
     mainWin.resize(800, 608);

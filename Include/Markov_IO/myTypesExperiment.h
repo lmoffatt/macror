@@ -556,6 +556,10 @@ namespace Markov_IO_New {
                             const std::string& masterObjective)
         {
 
+          std::tuple<std::string> a("hola");
+          std::cerr<<std::get<0>(a);
+
+
           num_Tested_Concentrations_Field::myC num_Tested_Concentrations;
           time_of_pulse_field::myC time_of_pulse;
           pulse_duration_field::myC pulse_duration;

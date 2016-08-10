@@ -138,6 +138,40 @@ namespace Markov_IO_New {
   };
 
 
+  template<class...L> struct mp_insert_impl;
+
+  template<class...L>
+  using mp_insert
+  = typename mp_insert_impl<L...>::type;
+
+
+
+
+  template<template <typename>class F,template<class...> class L0,class...Fs
+          ,template<class...> class L1, typename T, typename...Ts>
+  struct mp_insert_impl<F<void>, L0<Fs...>,L1<T,Ts...>>
+  {
+    using type=mp_insert<F<void>,L0<Fs...,F<T>>,L1<Ts...>>;
+  };
+
+  template<template <typename>class F,template<class...> class L0,class...Fs
+          ,template<class...> class L1>
+  struct mp_insert_impl<F<void>, L0<Fs...>,L1<>>
+  {
+    using type=L0<Fs...>;
+  };
+
+  template<template <typename>class F
+          ,template<class...> class L1, typename T, typename...Ts>
+  struct mp_insert_impl<F<void>, L1<T,Ts...>>
+  {
+    using type=mp_insert<F<void>,L1<F<T>>,L1<Ts...>>;
+  };
+
+
+
+
+
 
   template<typename F, typename Tuple, size_t... I>
   auto
@@ -195,6 +229,8 @@ namespace Markov_IO_New {
 
     template<typename T> class Implements_Data_Type_New_regular;
     template<class C> class Implements_Data_Type_class;
+    template<class C> class Implements_Data_Type_singleton;
+
     template<class D,class B> class Implements_Data_Type_derived_class;
 
 
@@ -323,7 +359,7 @@ namespace Markov_IO_New {
     struct mp_DataType_Imp<Markov_CommandManagerVar>{
       using myB=ABC_Data_New;
       using myD=Markov_CommandManagerVar;
-      using type_Ptr=Implements_Data_Type_New_StructureEnv;
+      using type_Ptr=Implements_Data_Type_singleton<Markov_CommandManagerVar>;
       using value_Ptr=Implements_Derived_Value_New<myD,myB>;
     };
 

@@ -1392,21 +1392,6 @@ namespace Markov_IO_New {
     public:
 
 
-      virtual bool putData(const StructureEnv_New* cm
-                           ,const ABC_Data_New* v
-                           ,ABC_Output* ostream
-                           ,std::string* error,
-                           const std::string& masterObjective)const override
-      {
-        auto data=dynamic_cast<const Implements_Value_New<T>* >(v);
-        if (data==nullptr)
-          {
-            *error=masterObjective+ ": "+data->myTypeId()+" is not a "+myTypeId();
-            return false;
-          }
-        else return putValue(cm,data->getValue(),ostream,error,masterObjective);
-      }
-
 
 
 
@@ -1424,6 +1409,35 @@ namespace Markov_IO_New {
                             , const std::string& masterObjective)const =0;
 
 
+
+      virtual bool isValueInDomain(const StructureEnv_New* cm
+                                   ,const T &val
+                                   , std::string *whyNot
+                                   ,const std::string& masterObjective ) const=0;
+
+
+
+
+
+
+      virtual ~Implements_Base_Type_New(){}
+
+      virtual bool putData(const StructureEnv_New* cm
+                           ,const ABC_Data_New* v
+                           ,ABC_Output* ostream
+                           ,std::string* error,
+                           const std::string& masterObjective)const override
+      {
+        auto data=dynamic_cast<const Implements_Value_New<T>* >(v);
+        if (data==nullptr)
+          {
+            *error=masterObjective+ ": "+data->myTypeId()+" is not a "+myTypeId();
+            return false;
+          }
+        else return putValue(cm,data->getValue(),ostream,error,masterObjective);
+      }
+
+
       virtual bool isDataInDomain(const StructureEnv_New* cm,const ABC_Data_New* v
                                   , std::string *whyNot, const std::string& masterObjective)const override
       {
@@ -1438,12 +1452,6 @@ namespace Markov_IO_New {
           return isValueInDomain(cm,x->getValue(),whyNot,masterObjective);
 
       }
-
-      virtual bool isValueInDomain(const StructureEnv_New* cm
-                                   ,const T &val
-                                   , std::string *whyNot
-                                   ,const std::string& masterObjective ) const=0;
-
 
       virtual bool includesThisType(const StructureEnv_New* cm,
                                     const std::string& childType,
@@ -1463,10 +1471,6 @@ namespace Markov_IO_New {
       {
         return nullptr;
       }
-
-
-
-      virtual ~Implements_Base_Type_New(){}
 
 
       virtual bool isOfThisType
@@ -2385,13 +2389,14 @@ namespace Markov_IO_New {
 
 
     template<typename... Args>
-    class Implements_Data_Type_New_tuple:public Implements_Base_Type_New<std::tuple<Args...>>
+    class Implements_Data_Type_New_tuple:public ABC_Type_of_Value
     {
     public:
 
       constexpr static std::size_t N=sizeof...(Args);
       typedef  Implements_Data_Type_New_tuple<Args...> selfType;
       typedef std::tuple<Args...> myC;
+
 
       typedef std::tuple<Implements_Fn_Argument<Args>...> dataArgumentsTuple;
 
@@ -2407,13 +2412,104 @@ namespace Markov_IO_New {
       ,const selfType* self
       , std::string *whyNot, const std::string& masterObjective);
 
-      virtual buildByToken<myC>* getBuildByToken(
+
+
+
+      virtual bool putData(const StructureEnv_New* cm
+                           ,const ABC_Data_New* v
+                           ,ABC_Output* ostream
+                           ,std::string* error,
+                           const std::string& masterObjective)const override
+      {
+        auto data=dynamic_cast<const Implements_Value_New<std::tuple<Args...>>* >(v);
+        if (data==nullptr)
+          {
+            *error=masterObjective+ ": "+data->myTypeId()+" is not a "+myTypeId();
+            return false;
+          }
+        else return putValue(cm,data->getValue(),ostream,error,masterObjective);
+      }
+
+
+      virtual bool isDataInDomain(const StructureEnv_New* cm,const ABC_Data_New* v
+                                  , std::string *whyNot, const std::string& masterObjective)const override
+      {
+        auto x=dynamic_cast<const Implements_Value_New<std::tuple<Args...>>* >(v);
+        if (x==nullptr)
+          {
+            if (whyNot!=nullptr)
+              *whyNot=masterObjective+": is not a "+Cls<myC>::name();
+            return false;
+          }
+        else
+          return isValueInDomain(cm,x->getValue(),whyNot,masterObjective);
+
+      }
+
+      virtual bool includesThisType(const StructureEnv_New* cm,
+                                    const std::string& childType,
+                                    std::string *whyNot
+                                    , const std::string &masterObjective)const override;
+
+      virtual StructureEnv_New* getComplexVarRep(
+          const StructureEnv_New* cm,
+          const ABC_Data_New* ,std::string* ,const std::string& )const override
+      {
+        return nullptr;
+      }
+
+      virtual ABC_Data_New* getClassRep(
+          const StructureEnv_New* cm,
+          const StructureEnv_New*   ,std::string*, const std::string& )const override
+      {
+        return nullptr;
+      }
+
+
+      virtual bool isOfThisType
+      (const StructureEnv_New *cm
+       , const std::__cxx11::string &generalType
+       , std::__cxx11::string *whyNot
+       , const std::__cxx11::string &masterObjective) const override
+      {
+
+        if ((generalType.empty()||myTypeId()==generalType))
+          return true;
+        else
+          {
+            auto gTp
+                =cm->idToTyped<myC>(generalType,whyNot,masterObjective);
+            std::string id=cm->dataToId(this,whyNot,masterObjective);
+            if ((id.empty())||(gTp==nullptr))
+              return false;
+            else
+              return gTp->includesThisType(cm,id,whyNot,masterObjective);
+          }
+
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      virtual buildByToken<std::tuple<Args...>>* getBuildByToken(
           const StructureEnv_New* cm)const override
       {
-        return new buildByToken<myC>(cm,this);
+        return new buildByToken<std::tuple<Args...>>(cm,this);
       }
 
       
+
       
       static constexpr std::size_t num_elements()
       {
@@ -2476,7 +2572,7 @@ namespace Markov_IO_New {
 
       virtual bool putValue(const StructureEnv_New* cm,
                             const myC& v,ABC_Output* ostream,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")const override
+          ,const std::string& masterObjective="")const
       {
         if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
           {
@@ -2570,7 +2666,7 @@ namespace Markov_IO_New {
 
       virtual bool getValue(const StructureEnv_New* cm
                             ,myC& v, ABC_Input* istream,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")const override
+          ,const std::string& masterObjective="")const
       {
 
         if (!getValue_imp<0>(cm,v,args_,istream,whyNot,masterObjective))
@@ -2604,7 +2700,7 @@ namespace Markov_IO_New {
                                      typePredicate complyPred=nullptr)
         :args_(arg),
           comply_(complyPred),
-          varTypes_(getTypesFromArg(arg,std::index_sequence_for<Args...>()))
+          varTypes_(/*getTypesFromArg(arg,std::index_sequence_for<Args...>())*/)
       {}
 
 
@@ -2638,7 +2734,7 @@ namespace Markov_IO_New {
       virtual bool isValueInDomain(const StructureEnv_New* cm
                                    ,const myC &val
                                    , std::string *whyNot
-                                   ,const std::string& masterObjective ) const override
+                                   ,const std::string& masterObjective ) const
       {
         if (comply_==nullptr)
           return true;
@@ -3211,12 +3307,22 @@ namespace Markov_IO_New {
       return out;
     }
 
+    virtual bool includesThisFunction(const StructureEnv_New* cm
+                                      ,const std::string& childType
+                                      ,std::string *whyNot
+                                      , const std::string &masterObjective)const{}
+
+
     Implements_Data_Type_Function (const std::string functionName,const selfType* typeType,
                                    Implements_Identifier* idType
                                    , std::vector<ABC_Type_of_Closure*> overrideTypes
                                    )
       : functionName_(functionName),typeType_(typeType),idType_(idType),overrideTypes_(overrideTypes)
     {}
+
+
+
+
 
   private:
     std::string functionName_;
@@ -7271,6 +7377,171 @@ namespace Markov_IO_New {
       getCV getCV_;
       const Implements_Data_Type_New<StructureEnv_New*>* CVtype_;
     };
+
+
+
+    template<typename Markov_CommandManagerVar>
+    class Implements_Data_Type_singleton:public ABC_Type_of_Value
+    {
+    public:
+      typedef Implements_Data_Type_singleton selfType;
+      typedef Markov_CommandManagerVar* myC;
+      static std::string myId() {return Cls<myC>::name();}
+      static selfType* varType(const StructureEnv_New* cm)
+      {return new Implements_Data_Type_singleton();}
+      static std::string myTip(){return "a "+ Cls<myC>::name();}
+      static std::string myWhatThis(){return "";}
+      typedef mp_list<> dependsOn;
+      typedef mp_list<> fieldList;
+
+
+      virtual bool isDataInDomain
+      (const StructureEnv_New* cm
+       ,const ABC_Data_New* v
+       , std::string *whyNot
+       , const std::string& masterObjective)const override
+      {
+          return cm==v;
+      }
+
+      virtual bool isValueInDomain(const StructureEnv_New* cm,const Markov_CommandManagerVar* v
+                                   , std::string *whyNot, const std::string& masterObjective)const
+      {
+
+         return  cm==v;
+      }
+
+
+      virtual selfType* clone()const{return new selfType(*this);}
+      virtual selfType* create()const {return new selfType{};}
+
+
+
+      bool includesThisType(const StructureEnv_New *cm, const std::string &childType
+                            , std::string *whyNot, const std::string &masterObjective) const override
+      {
+          return childType==myId();
+      }
+
+
+
+      virtual bool putData(const StructureEnv_New* cm
+                           ,const ABC_Data_New* v
+                           ,ABC_Output* ostream
+                           ,std::string* error,
+                           const std::string& masterObjective)const override
+      {
+        if (cm!=v)
+          {
+            *error=masterObjective+ ": "+v->myTypeId()+" is not a "+Cls<Markov_CommandManagerVar*>::name();
+            return false;
+          }
+        else return true;
+      }
+
+      virtual bool getData(const StructureEnv_New* cm
+                           ,ABC_Data_New*& v
+                           , ABC_Input* istream
+                           ,std::string* error
+                           , const std::string& masterObjective)const override
+      {
+         return false;
+       }
+
+
+
+
+      virtual bool putValue(const StructureEnv_New* cm
+                            ,const Markov_CommandManagerVar* c
+                            ,ABC_Output* ostream
+                            ,std::string* whyNot
+                            , const std::string& masterObjective)const
+      {
+       return false;
+      }
+
+
+      virtual const ABC_Type_of_Value* getComplexVarType(const StructureEnv_New* cm) const {return nullptr;}
+
+
+      virtual buildByToken<Markov_CommandManagerVar*>*
+      getBuildByToken(const StructureEnv_New* cm)const override
+      {
+        return new buildByToken<Markov_CommandManagerVar*>(cm,this);
+      }
+
+
+      virtual ~Implements_Data_Type_singleton(){}
+
+
+      Implements_Data_Type_singleton(){}
+
+      virtual bool empty()const override
+      {
+        return false;
+      }
+
+      virtual void reset() override
+      {
+
+      }
+
+
+
+
+      virtual bool isOfThisType(const StructureEnv_New* cm,
+                                const std::string& generalType,
+                                std::string* whyNot
+                                ,const std::string &masterObjective)const override
+      {
+        if ((generalType.empty()||myTypeId()==generalType))
+          return true;
+        else
+          {
+              return false;
+          }
+
+      }
+
+
+
+      virtual ABC_Data_New* getClassRep(
+          const StructureEnv_New* cm,
+          const StructureEnv_New* m
+          , std::string *whyNot,
+          const std::string& masterObjective) const override
+      {
+          return nullptr;
+
+      }
+
+
+
+
+
+      virtual StructureEnv_New* getComplexVarRep(
+          const StructureEnv_New* cm,
+          const ABC_Data_New *var
+          , std::string *whyNot
+          , const std::string& masterObjective) const override
+      {
+
+        return nullptr;
+      }
+
+      virtual ABC_Type_of_Value const* myType()const override {return nullptr;}
+
+      std::string typeId()const override {
+         return Cls<Markov_CommandManagerVar*>::name();}
+
+      std::string myTypeId()const override  {
+          return typeId();
+      }
+
+
+
+    };
+
 
 
 

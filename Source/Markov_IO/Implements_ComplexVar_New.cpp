@@ -1098,7 +1098,7 @@ namespace Markov_IO_New {
   ABC_Data_New *Implements_FnClosure<Fn, void, Args...>::evalData(const StructureEnv_New *cm)
   {
 
-    return Implements_Value_New<void>(cm->idToTyped<void>(Cls<void>::name()));
+    return new Implements_Value_New<void>(cm->idToTyped<void>(Cls<void>::name()));
   }
 
 
