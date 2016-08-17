@@ -89,15 +89,13 @@ namespace Markov_Mol_New
 
   Experiment_simulation PatchModel::run(const Markov_IO_New::ABC_Experiment& x,
                                         std::size_t n_replicates,
-                                        const Markov_IO_New::ABC_Options& opt,
-                                        Borrowed::MersenneTwister::MTRand& sto)
+                                        double time_step, std::size_t num_steps,
+                                        Borrowed::MersenneTwister::MTRand& sto)const
   {
     Experiment_simulation ES(x,
                              *this,
                              n_replicates);
 
-    double time_step=opt.real("time_step");
-    std::size_t num_steps=opt.count("num_steps");
 
     //#pragma omp parallel for
     for (std::size_t i_r=0; i_r<n_replicates; i_r++)

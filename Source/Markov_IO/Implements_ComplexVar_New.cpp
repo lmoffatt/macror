@@ -888,6 +888,13 @@ namespace Markov_IO_New {
             o.insert(o2.begin(),o2.end());
 
           }
+        if (isFunction_)
+          {
+            std::string functionType=name_;
+            std::set<std::string> o2= cm->getIdsOfFncType(functionType,true);
+            o.insert(o2.begin(),o2.end());
+
+          }
       }
     return o;
   }
@@ -937,10 +944,17 @@ namespace Markov_IO_New {
               if (cm->hasCommand(idCandidate,whyNot,objective,true ))
                 return true;
             }
+          if (isFunction_)
+            {
+              if (cm->hasFunction(idCandidate,whyNot,objective,true ))
+                return true;
+            }
           return false;
         }
       else if (isCommand_)
         return cm->hasCommand(idCandidate,whyNot,objective,true );
+      else if (isFunction_)
+        return cm->hasFunction(idCandidate,whyNot,objective,true );
       else
         {
           std::string varType=name_;
@@ -960,7 +974,7 @@ namespace Markov_IO_New {
   std::string Implements_Identifier::toId
   (const std::string& name,
    bool isFixed,bool isVar, bool isType,
-   bool isCommand,bool isNew, bool isUsed)
+   bool isCommand,bool isNew, bool isUsed,bool isFunction)
   {
     std::string id="_id";
     if (isFixed)
@@ -981,6 +995,10 @@ namespace Markov_IO_New {
         if (isCommand)
           {
             id+="Cmd";
+          }
+        if (isFunction)
+          {
+            id+="Funct";
           }
         if (isNew&&!isUsed)
           {
@@ -1094,12 +1112,11 @@ namespace Markov_IO_New {
       }
   }
 
-  template <typename Fn,typename...Args>
-  ABC_Data_New *Implements_FnClosure<Fn, void, Args...>::evalData(const StructureEnv_New *cm)
+  ABC_BuildClosure *Implements_Data_Type_Function::getBuildByToken(const StructureEnv_New *cm) const
   {
-
-    return new Implements_Value_New<void>(cm->idToTyped<void>(Cls<void>::name()));
+    return new buildByToken<ABC_Closure*>(cm,this);
   }
+
 
 
 

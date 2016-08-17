@@ -623,7 +623,7 @@ namespace Markov_IO_New {
         {
 
 
-          auto f=new StructureEnv_New(cm,v->getCVType());
+          auto f=new StructureEnv_New(cm,v->getComplexVarType(cm));
           f->pushVar<num_Tested_Concentrations_Field>(::Markov_LA::ncols(x->pulse_concentration()));
           f->pushVar<time_of_pulse_field>(x->time_of_pulse());
           f->pushVar<pulse_duration_field>(x->pulse_duration());

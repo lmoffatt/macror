@@ -7,6 +7,15 @@
 #include "Markov_IO/ABC_IO.h"
 
 
+namespace Borrowed
+{
+  namespace MersenneTwister
+     {
+    class MTRand;
+  };
+};
+
+
 namespace Markov_IO_New
 {
   class ExpressionManager;
@@ -67,6 +76,7 @@ namespace Markov_IO_New
 
      void KeyEvent(Key k);
 
+     static std::string ClassName(){return "Markov_CommandManagerVar";}
 
     Markov_CommandManagerVar();
     virtual ~Markov_CommandManagerVar()
@@ -113,7 +123,19 @@ namespace Markov_IO_New
     bool setDir(const std::string &dir);
 
 
+    template<class Type>
+    void pushFunction()
+    {
+      StructureEnv_New::pushFunction(Type::myId()
+                  ,Type::functionType(this)
+                  ,Type::myTip()
+                  ,Type::myWhatThis());
+    }
 
+   Borrowed::MersenneTwister::MTRand& sto()
+   {
+     return *sto_;
+   }
 
 
   protected:
@@ -126,6 +148,7 @@ namespace Markov_IO_New
     bool lastCmdRst;
     ProgramVersion program_ver_;
     CommandHistory* h_;
+    Borrowed::MersenneTwister::MTRand* sto_;
 
   };
 

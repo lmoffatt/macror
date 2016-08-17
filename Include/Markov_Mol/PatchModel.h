@@ -10,10 +10,10 @@ namespace Markov_Mol_New
   {
   public:
     ///virtual copy constructors
-    virtual PatchModel* clone() const;
+    virtual PatchModel* clone() const override;
 
     ///virtual default constructors
-    virtual PatchModel* create() const;
+    virtual PatchModel* create() const override;
 
 
     virtual ~PatchModel();
@@ -22,24 +22,25 @@ namespace Markov_Mol_New
     virtual Experiment_simulation run
     (const Markov_IO_New::ABC_Experiment& x,
      std::size_t n_replicates,
-     const Markov_IO_New::ABC_Options& opt
-     , Borrowed::MersenneTwister::MTRand &sto);
+     double time_step
+     , std::size_t num_steps,
+     Borrowed::MersenneTwister::MTRand &sto) const override;
 
 
 
 
-    virtual const ABC_Markov_Model& Model()const;
+    virtual const ABC_Markov_Model& Model()const override;
 
-    virtual double AverageNumberOfChannels()const;
+    virtual double AverageNumberOfChannels()const override;
 
-    virtual std::size_t ChannelsCount()const;
+    virtual std::size_t ChannelsCount()const override;
 
-    virtual const ABC_noise& Noise()const;
-    virtual ABC_noise& Noise();
+    virtual const ABC_noise& Noise()const override;
+    virtual ABC_noise& Noise() override;
 
 
     static std::string ClassName();
-    virtual std::string myClass()const {return ClassName();}
+    virtual std::string myClass()const override {return ClassName();}
 
 
     PatchModel(const ABC_Markov_Model* model,

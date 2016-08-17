@@ -538,6 +538,17 @@ namespace Markov_IO_New {
 
     }
 
+    template<class T>
+    void pushData(const std::string& myId, T x, const std::string& myTip="", const std::string& myWhatThis="")
+    {
+       pushVar(myId
+               ,new Implements_Value_New<T>
+               (idToTyped<T>(Cls<T>::name()),x)
+               ,myTip,myWhatThis);
+    }
+
+
+
     template<class Field>
     bool getDataValue(typename Field::myC &val,std::string* whyNot=nullptr,const std::string &masterObjective="")const
     {
@@ -606,6 +617,7 @@ namespace Markov_IO_New {
 
 
 
+
     void pushCommand(const std::string& id
                      ,Implements_Command_Type_New* var
                      , std::string tip
@@ -620,6 +632,11 @@ namespace Markov_IO_New {
                   ,Type::myTip()
                   ,Type::myWhatThis());
     }
+
+    void pushFunction(const std::__cxx11::string &id
+                      , Implements_Data_Type_Function *tvar
+                      , std::__cxx11::string tip
+                      , std::__cxx11::string whatthis);
 
 
     StructureEnv_New(const StructureEnv_New* parent, const Implements_Data_Type_New<StructureEnv_New *> *myType);
@@ -692,13 +709,13 @@ namespace Markov_IO_New {
 
     bool hasFunction(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const;
 
-    void pushFunction(const std::__cxx11::string &id, Implements_Data_Type_Function *tvar, std::__cxx11::string tip, std::__cxx11::string whatthis);
 
     std::map<std::__cxx11::string, Implements_Data_Type_Function *> &getFunctions();
 
     const std::map<std::__cxx11::string, Implements_Data_Type_Function *> &getFunctions() const;
 
     bool hasFunctionofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const;
+    std::set<std::string> getIdsOfFncType(const std::string &fucnType, bool recursive) const;
   private:
 
 
@@ -920,7 +937,7 @@ namespace Markov_IO_New {
     virtual void clear()=0;
 
     virtual std::string id()const=0;
-    virtual const ABC_Type_of_Value* dataType()const=0;
+    virtual const ABC_Type_of_Value* dataType(const StructureEnv_New* cm)const=0;
     virtual std::string Tip()const=0;
     virtual std::string WhatThis()const=0;
 
@@ -956,6 +973,49 @@ namespace Markov_IO_New {
                            ,const std::string& whatthis):
       id_(id),dataType_(datatype),defaultValue_(defaultValue),isMandatory_(isMandatory),tip_(tip),whatThis_(whatthis){}
 
+    Implements_Fn_Argument(const StructureEnv_New *cm,
+                            std::string id
+                           ,const std::string& tip
+                           ,const std::string& whatthis):
+      Implements_Fn_Argument(id,
+                             cm->idToTyped<T>(Cls<T>::name()),
+    {},true,tip,whatthis){}
+
+    Implements_Fn_Argument(const StructureEnv_New *cm,
+                            std::string id
+                           ,const T& defaultValue
+                           ,bool isMandatory
+                           ,const std::string& tip
+                           ,const std::string& whatthis):
+      Implements_Fn_Argument(id,
+                             cm->idToTyped<T>(Cls<T>::name()),
+    defaultValue,isMandatory,tip,whatthis){}
+
+
+
+    template<typename Field>
+    Implements_Fn_Argument(StructureEnv_New *cm,
+                            std::string id,
+                           Field,
+                           const T& defaultValue
+                           ,bool isMandatory
+                           ,const std::string& tip
+                           ,const std::string& whatthis):
+      Implements_Fn_Argument(id,
+                             cm->idToTyped<T>(Field::myId()),
+    defaultValue,isMandatory,tip,whatthis){}
+
+
+    template<typename Field>
+    Implements_Fn_Argument(StructureEnv_New *cm
+                           , std::string id
+                           ,Field
+                           ,const std::string& tip
+                           ,const std::string& whatthis):
+      Implements_Fn_Argument(id,
+                             cm->idToTyped<T>(Field::myId()),
+   {},true,tip,whatthis){}
+
 
 
 
@@ -963,7 +1023,12 @@ namespace Markov_IO_New {
 
     virtual bool isMandatory()const{return isMandatory_;}
 
-    virtual const Implements_Data_Type_New<T>* dataType()const override {return dataType_;}
+    virtual const Implements_Data_Type_New<T>* dataType(const StructureEnv_New * cm)const override
+    {if (dataType_!=nullptr)
+      return dataType_;
+    else
+      return cm->idToTyped<T>(Cls<T>::name());
+    }
     virtual std::string Tip()const {return tip_;}
     virtual std::string WhatThis()const override{return whatThis_;}
     virtual ~Implements_Fn_Argument(){}
@@ -999,7 +1064,7 @@ namespace Markov_IO_New {
 
     virtual bool isMandatory()const override {return false;}
 
-    virtual const ABC_Type_of_Value* dataType()const override {return nullptr;}
+    virtual const ABC_Type_of_Value* dataType(const StructureEnv_New* cm)const override {return nullptr;}
     virtual std::string Tip()const  override {return "void";}
     virtual std::string WhatThis() const override {return "returns nothing";}
     virtual ~Implements_Fn_Argument(){}
@@ -1018,7 +1083,7 @@ namespace Markov_IO_New {
 
     virtual ABC_Data_New* evalData(const StructureEnv_New* cm)=0;
 
-    virtual const std::vector<const ABC_Data_New*>& inputArguments()const=0;
+   // virtual const std::vector<const ABC_Data_New*>& inputArguments()const=0;
 
 
     virtual  const void* getFunction()const =0;
@@ -1153,9 +1218,9 @@ namespace Markov_IO_New {
     virtual ABC_Data_New *evalData(const StructureEnv_New* cm) override
     {
 
-      return Implements_Value_New<returnType>("",eval());
+      return Implements_Value_New<returnType>
+          (fnType_->returnArgument().dataType(),eval());
     }
-    virtual const std::vector<const ABC_Data_New *> &inputArguments() const override;
 
     virtual std::size_t numArguments()const override
     {
@@ -1257,11 +1322,13 @@ namespace Markov_IO_New {
     virtual bool isOfThisType(const StructureEnv_New* cm,
                               const std::string& generalType,
                               std::string* whyNot
-                              ,const std::string &masterObjective)const override;
+                              ,const std::string &masterObjective)const override
+    {
+
+    }
 
 
-    Implements_FnClosure(const Implements_Data_Type_FnClosure<Fn,void,Args...> * idtype,
-                         std::tuple<Args... >& vars):
+    Implements_FnClosure(const Implements_Data_Type_FnClosure<Fn,void,Args...> * idtype,const  std::tuple<Args... >& vars={}):
       fnType_(idtype),f_(idtype->f()),inputTu_(vars){}
 
 
@@ -1292,14 +1359,19 @@ namespace Markov_IO_New {
       return new selfType();
     }
 
-    returnType eval()
+    void eval()
     {
-      return f_(std::get<std::integer_sequence<Args...>>(inputTu_));
+      mp_apply_void<Fn,Args...>(f_,inputTu_);
     }
     // ABC_Closure interface
   public:
-    virtual ABC_Data_New *evalData(const StructureEnv_New* cm) override;
-    virtual const std::vector<const ABC_Data_New *> &inputArguments() const override;
+    virtual ABC_Data_New *evalData(const StructureEnv_New* cm) override
+    {
+      eval();
+
+      return nullptr;
+    }
+//    virtual const std::vector<const ABC_Data_New *> &inputArguments() const override;
 
     virtual std::size_t numArguments()const override
     {
@@ -1855,20 +1927,20 @@ namespace Markov_IO_New {
     static std::string toId
     (const std::string& name,
      bool isFixed,bool isVar, bool isType,
-     bool isCommand,bool isNew, bool isUsed);
+     bool isCommand,bool isNew, bool isUsed, bool isFunction=false);
 
     Implements_Identifier
     (const std::string& nameId,
      Implements_Data_Type_New<myC>* const typeType
      ,const std::string& name,
      bool isFixed,bool isVar, bool isType,
-     bool isCommand,bool isNew, bool isUsed):
+     bool isCommand,bool isNew, bool isUsed, bool isFunction=false):
       Implements_Data_Type_New_string
       (nameId,typeType),
       typeId_(nameId),typeType_(typeType),
       name_(name),isFixed_(isFixed)
     , isVar_(isVar), isType_(isType),isCommand_(isCommand)
-    ,isNew_(isNew),isUsed_(isUsed)
+    ,isNew_(isNew),isUsed_(isUsed),isFunction_(isFunction)
     {}
     std::string typeId_;
     Implements_Data_Type_New<myC> const *typeType_;
@@ -1880,7 +1952,12 @@ namespace Markov_IO_New {
     bool isField_;
     bool isNew_;
     bool isUsed_;
+    bool isFunction_;
+
   };
+
+
+
 
   namespace Identifier {
 
@@ -1891,9 +1968,8 @@ namespace Markov_IO_New {
       {
         return new Implements_Identifier
             (toId<T>(idName),nullptr,idName,T::isFixed,T::isVar
-             ,T::isType,T::isCommand,T::isNew,T::isUsed);
+             ,T::isType,T::isCommand,T::isNew,T::isUsed, T::isFunction);
       }
-
 
 
 
@@ -1902,7 +1978,7 @@ namespace Markov_IO_New {
       {
         return Implements_Identifier::toId
             (idName,T::isFixed,T::isVar
-             ,T::isType,T::isCommand,T::isNew,T::isUsed);
+             ,T::isType,T::isCommand,T::isNew,T::isUsed, T::isFunction);
 
       }
 
@@ -1927,6 +2003,8 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=false;
         static constexpr bool isNew=true;
         static constexpr bool isUsed=true;
+        static constexpr bool isFunction=false;
+
 
       };
 
@@ -1951,6 +2029,7 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=false;
         static constexpr bool isNew=true;
         static constexpr bool isUsed=false;
+        static constexpr bool isFunction=false;
 
       };
 
@@ -1979,6 +2058,7 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=false;
         static constexpr bool isNew=false;
         static constexpr bool isUsed=true;
+        static constexpr bool isFunction=false;
 
       };
 
@@ -2004,6 +2084,7 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=false;
         static constexpr bool isNew=false;
         static constexpr bool isUsed=true;
+        static constexpr bool isFunction=false;
 
       };
 
@@ -2029,8 +2110,37 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=true;
         static constexpr bool isNew=false;
         static constexpr bool isUsed=true;
+        static constexpr bool isFunction=false;
       };
 
+
+
+
+      struct idFunct{
+        typedef  std::string myC;
+        typedef idFunct selfType;
+
+        static std::string myId(const std::string& funName=""){return toId<selfType>(funName);}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "a typeindentifer";}
+        static std::string myWhatThis(){return "an identifier to a type";}
+
+
+        static Implements_Identifier*
+        varType(const std::string& funName="")
+        {
+          return getVarType<selfType>(funName);
+        }
+
+
+        static constexpr bool isFixed=false;
+        constexpr static  bool isVar=false;
+        constexpr static  bool isType=false;
+        static constexpr bool isCommand=false;
+        static constexpr bool isNew=false;
+        static constexpr bool isUsed=true;
+        static constexpr bool isFunction=true;
+      };
 
 
 
@@ -2058,6 +2168,7 @@ namespace Markov_IO_New {
         static constexpr bool isCommand=false;
         static constexpr bool isNew=false;
         static constexpr bool isUsed=true;
+        static constexpr bool isFunction=false;
       };
 
 
@@ -2449,7 +2560,7 @@ namespace Markov_IO_New {
       virtual bool includesThisType(const StructureEnv_New* cm,
                                     const std::string& childType,
                                     std::string *whyNot
-                                    , const std::string &masterObjective)const override;
+                                    , const std::string &masterObjective)const override{}
 
       virtual StructureEnv_New* getComplexVarRep(
           const StructureEnv_New* cm,
@@ -2539,7 +2650,7 @@ namespace Markov_IO_New {
       {
 
         typedef typename std::tuple_element<I,std::tuple<Args...>>::type eType;
-        const Implements_Data_Type_New<eType>* vType=std::get<I>(arg).dataType();
+        const Implements_Data_Type_New<eType>* vType=std::get<I>(arg).dataType(cm);
         if (vType==nullptr)
           vType=cm->idToTyped<eType>(Cls<eType>::name());
         eType x=std::get<I>(v);
@@ -2584,9 +2695,9 @@ namespace Markov_IO_New {
 
       template<std::size_t...Is>
       constexpr static std::tuple<const Implements_Data_Type_New<Args>*...>
-      getTypesFromArg (const dataArgumentsTuple& arg,std::index_sequence<Is...>)
+      getTypesFromArg (const StructureEnv_New* cm,const dataArgumentsTuple& arg,std::index_sequence<Is...>)
       {
-        return std::tuple<const Implements_Data_Type_New<Args>*...>(std::get<Is>(arg).dataType()...);
+        return {std::get<Is>(arg).dataType(cm)...};
       }
 
       template<std::size_t D>
@@ -2696,11 +2807,12 @@ namespace Markov_IO_New {
 
 
 
-      Implements_Data_Type_New_tuple(dataArgumentsTuple arg={},
+      Implements_Data_Type_New_tuple(const StructureEnv_New* cm,
+                                     dataArgumentsTuple arg={},
                                      typePredicate complyPred=nullptr)
         :args_(arg),
           comply_(complyPred),
-          varTypes_(/*getTypesFromArg(arg,std::index_sequence_for<Args...>())*/)
+          varTypes_(getTypesFromArg(cm,arg,std::index_sequence_for<Args...>()))
       {}
 
 
@@ -2728,7 +2840,7 @@ namespace Markov_IO_New {
       }
       virtual Implements_Data_Type_New_tuple *create() const override
       {
-        return new Implements_Data_Type_New_tuple();
+        return new Implements_Data_Type_New_tuple(nullptr);
       }
 
       virtual bool isValueInDomain(const StructureEnv_New* cm
@@ -2880,12 +2992,13 @@ namespace Markov_IO_New {
 
 
 
-    Implements_Data_Type_FnClosure(const Fn& value
+    Implements_Data_Type_FnClosure(const StructureEnv_New* cm,
+        const Fn& value
                                    ,returnFnType returnArg
                                    ,argumentFnTypes inputArg):
       f_(value),returnArg_(returnArg),inputArg_(inputArg)
     ,inputVec_(getInputVector(inputArg,std::index_sequence_for<Args...>{}))
-    ,argType_(new _private::Implements_Data_Type_New_tuple<Args...>(inputArg)){}
+    ,argType_(new _private::Implements_Data_Type_New_tuple<Args...>(cm,inputArg)){}
 
     Implements_Data_Type_FnClosure():
       f_(nullptr)
@@ -3191,11 +3304,16 @@ namespace Markov_IO_New {
   public:
     typedef ABC_Closure*  myC;
 
-    virtual bool empty() const override;
-    virtual void reset() override;
-    virtual ABC_Data_New *clone() const override;
-    virtual ABC_Data_New *create() const override;
-    virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override;
+    virtual bool empty() const override{}
+    virtual void reset() override{}
+    virtual ABC_Data_New *clone() const override{
+      return new Implements_Data_Type_Function(*this);
+    }
+    virtual ABC_Data_New *create() const override
+    {
+      return new Implements_Data_Type_Function();
+    }
+    virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override{}
 
 
     // ABC_Type_of_Function
@@ -3222,7 +3340,7 @@ namespace Markov_IO_New {
     virtual bool isClosureInDomain(const StructureEnv_New* cm
                                    ,const ABC_Closure* v
                                    , std::string *whyNot
-                                   , const std::string& masterObjective)const override;
+                                   , const std::string& masterObjective)const override{}
 
 
 
@@ -3231,13 +3349,13 @@ namespace Markov_IO_New {
                          ,const ABC_Data_New* v
                          ,ABC_Output* ostream
                          ,std::string* error,
-                         const std::string& masterObjective)const override;
+                         const std::string& masterObjective)const override{}
 
     virtual bool getData(const StructureEnv_New* cm
                          ,ABC_Data_New*& v
                          , ABC_Input* istream
                          ,std::string* error
-                         , const std::string& masterObjective)const override;
+                         , const std::string& masterObjective)const override{}
 
     virtual ABC_BuildClosure* getBuildByToken(
         const StructureEnv_New* cm)const override;
@@ -3246,24 +3364,24 @@ namespace Markov_IO_New {
     virtual bool isDataInDomain(const StructureEnv_New* cm
                                 ,const ABC_Data_New* v
                                 , std::string *whyNot
-                                , const std::string& masterObjective)const override;
+                                , const std::string& masterObjective)const override{}
 
     virtual bool includesThisType(const StructureEnv_New* cm
                                   ,const std::string& childType
                                   ,std::string *whyNot
-                                  , const std::string &masterObjective)const override;
+                                  , const std::string &masterObjective)const override{}
 
     virtual StructureEnv_New* getComplexVarRep(
         const StructureEnv_New* cm,
 
         const ABC_Data_New* var
         ,std::string* whyNot
-        ,const std::string& masterObjective)const override;
+        ,const std::string& masterObjective)const override {return nullptr;}
 
     virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
                                       const StructureEnv_New* cvar,
                                       std::string* whyNot,
-                                      const std::string& masterObjective)const override;
+                                      const std::string& masterObjective)const override{return nullptr;}
 
     const Implements_Identifier* getIdType()const override
     {
@@ -3310,9 +3428,16 @@ namespace Markov_IO_New {
     virtual bool includesThisFunction(const StructureEnv_New* cm
                                       ,const std::string& childType
                                       ,std::string *whyNot
-                                      , const std::string &masterObjective)const{}
+                                      , const std::string &masterObjective)const override{}
 
 
+    virtual ~Implements_Data_Type_Function(){};
+
+
+    Implements_Data_Type_Function():
+      functionName_(""),typeType_(nullptr)
+    ,idType_(Identifier::types::idFunct::varType("")),overrideTypes_()
+{}
     Implements_Data_Type_Function (const std::string functionName,const selfType* typeType,
                                    Implements_Identifier* idType
                                    , std::vector<ABC_Type_of_Closure*> overrideTypes
@@ -6896,9 +7021,9 @@ namespace Markov_IO_New {
 
 
 
-      virtual buildByToken<StructureEnv_New*>* getBuildByToken(const StructureEnv_New* cm)const
+      virtual buildByToken<T>* getBuildByToken(const StructureEnv_New* cm)const
       {
-        return new buildByToken<StructureEnv_New*>(cm,CVtype_);
+        return new buildByToken<T>(cm,this);
       }
 
 
@@ -7232,10 +7357,10 @@ namespace Markov_IO_New {
       virtual const Implements_Data_Type_New<StructureEnv_New*>* getComplexVarType(const StructureEnv_New* cm) const {return CVtype_;}
 
 
-      virtual buildByToken<StructureEnv_New*>*
+      virtual buildByToken<T*>*
       getBuildByToken(const StructureEnv_New* cm)const override
       {
-        return new buildByToken<StructureEnv_New*>(cm,CVtype_);
+        return new buildByToken<T*>(cm,this);
       }
 
 
@@ -7367,7 +7492,6 @@ namespace Markov_IO_New {
       }
 
 
-      const Implements_Data_Type_New<StructureEnv_New*>* getCVType()const {return CVtype_;}
 
     protected:
       std::string typeId_;
@@ -7738,9 +7862,9 @@ namespace Markov_IO_New {
 
 
 
-      virtual buildByToken<StructureEnv_New*>* getBuildByToken(const StructureEnv_New* cm)const
+      virtual buildByTokenD<D,B>* getBuildByToken(const StructureEnv_New* cm)const
       {
-        return new buildByToken<StructureEnv_New*>(cm,this->CVtype_);
+        return new buildByTokenD<D,B>(cm,this);
       }
 
 

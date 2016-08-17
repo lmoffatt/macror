@@ -1045,36 +1045,25 @@ namespace Markov_IO_New {
               }
           }
       case S_Closure_PARTIAL:
-        if (!pushToken(vecValueB_,nPushedTokens_,nPushedTokensIn_
+      case S_Closure_Mandatory:
+        if (pushToken(vecValueB_,nPushedTokens_,nPushedTokensIn_
                        ,tok, whyNot,objective))
-          return false;
-        else
           {
             if (isFinal(vecValueB_,nPushedTokens_,nPushedTokensIn_))
               {
+                if (tok.tok()!=Token_New::EOL)
+                  {
                 mystate =S_Closure_Final;
                 return true;
+                  }
+                else
+                  {
+                    data_.reset(unloadClosure(vecValueB_,nPushedTokens_,nPushedTokensIn_));
+                    mystate=S_Final;
+                    return true;
+                  }
               }
             else  if (hasMandatory(vecValueB_,nPushedTokens_,nPushedTokensIn_))
-              {
-                mystate=S_Closure_Mandatory;
-                return true;
-              }
-            else
-              {
-                mystate=S_Closure_PARTIAL;
-                return true;
-              }
-          }
-      case S_Closure_Mandatory:
-        if (valueB_->pushToken(tok, whyNot,objective))
-          {
-            if (valueB_->isFinal())
-              {
-                mystate =S_Closure_Final;
-                return true;
-              }
-            else if (valueB_->hasMandatory())
               {
                 mystate=S_Closure_Mandatory;
                 return true;
@@ -1191,15 +1180,15 @@ namespace Markov_IO_New {
 
 
 
-  template <typename Fn,typename R ,typename... Args>
+ /* template <typename Fn,typename R ,typename... Args>
    buildByToken<Implements_FnClosure<Fn, R,Args...> *, true>::buildByToken
   (const StructureEnv_New *parent
    , const Implements_Data_Type_New<Implements_FnClosure<Fn, R,Args...> *> *varType):
-    ABC_BuildClosure(parent),
-    mystate(S_Init)
-  ,fnType_(varType), tupleType_(varType->getArgumentsType(parent)),
-   tupleB_(varType->getArgumentsType(parent)->getBuildByToken(parent))
-   ,valueCl_(new myC(varType)){}
+     ABC_BuildClosure(parent),
+     mystate(S_Init)
+   ,fnType_(varType), tupleType_(varType->getArgumentsType(parent)),
+    tupleB_(varType->getArgumentsType(parent)->getBuildByToken(parent))
+    ,valueCl_(new myC(varType)){}
 
 
 
@@ -1349,7 +1338,7 @@ namespace Markov_IO_New {
       }
   }
 
-
+*/
 
 
 
@@ -1939,17 +1928,14 @@ namespace Markov_IO_New {
     return unloadVar();
   }
 
-  template <typename ... Args>
-  ABC_Data_New *buildByToken<std::tuple<Args...>, true>::unloadData()
-  {
-    return unloadVar();
-  }
 
 
   ABC_Data_New *buildByToken<Markov_CommandManagerVar *, true>::unloadData()
   {
     return nullptr;
   }
+
+
 
 
 

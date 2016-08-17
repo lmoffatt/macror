@@ -15,6 +15,7 @@
 #include "Markov_Mol/QMarkovModel.h"
 #include "type_traits"
 #include <utility>
+#include <tuple>
 
 namespace Markov_Mol_New
 {
@@ -173,22 +174,41 @@ namespace Markov_IO_New {
 
 
 
-  template<typename F, typename Tuple, size_t... I>
-  auto
-  apply_Impl(F&& f, Tuple&& args,std::index_sequence<I...>)
-  -> decltype(std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...))
+  template<typename Fn, typename R,typename... Args, size_t... I>
+  R
+  apply_Impl(Fn f, std::tuple<Args...> args,std::index_sequence<I...>)
   {
-    return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...);
+    return f(std::get<I>(args)...);
   }
 
-  template<typename F, typename Tuple,
-           typename Indices = std::make_index_sequence<std::tuple_size<Tuple>::value>>
-  auto
-  mp_apply(F&& f, Tuple&& args)
-  -> decltype(apply_Impl(std::forward<F>(f), std::forward<Tuple>(args), Indices()))
+  template<typename Fn, typename R,typename...Args>
+  R
+  mp_apply(Fn f, std::tuple<Args...> args)
   {
-    return apply_Impl(std::forward<F>(f), std::forward<Tuple>(args), Indices());
+    return apply_Impl(f, args,
+                      std::index_sequence_for<Args...>());
   }
+
+
+  template<typename Fn,typename... Args, size_t... I>
+
+  void
+  apply_void_Impl(Fn f, std::tuple<Args...> args,std::index_sequence<I...>)
+  {
+     f(std::get<I>(args)...);
+  }
+
+  template<typename Fn, typename...Args>
+  void
+  mp_apply_void(Fn f, std::tuple<Args...> args)
+  {
+    return apply_void_Impl(f, args,
+                      std::index_sequence_for<Args...>());
+  }
+
+
+
+
 
 
 

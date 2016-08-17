@@ -80,7 +80,7 @@ namespace Markov_IO_New {
 
 
   private:
-    build_Statement  bu_;
+    build_StatementNew  bu_;
     Token_New tok_;
     std::vector<Token_New> tokVec_;
     Key previous_key={};

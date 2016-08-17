@@ -154,8 +154,8 @@ namespace Markov_IO_New {
       {
         if (bu_.isCommand())
           {
-            auto cmd=bu_.unloadCommandArguments();
-            cm->run(cmd);
+            auto cmd=bu_.unloadClosure();
+            cmd->evalData(cm);
           }
         else
           {

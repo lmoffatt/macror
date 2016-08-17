@@ -219,6 +219,38 @@ namespace Markov_IO_New {
 
 
 
+  std::set<std::string> StructureEnv_New::getIdsOfFncType(const std::string &fucnType,bool recursive) const
+  {
+    std::set<std::string> o;
+    if (recursive&& parent()!=nullptr)
+      {
+        o=parent()->getIdsOfFncType(fucnType,recursive);
+      }
+    std::string whyNot;
+    std::string objective;
+    if (fucnType.empty())
+      {
+        auto s=getMapKeys(funcs_);
+        s.insert(o.begin(),o.end());
+        return s;
+      }
+    else
+      {
+        const Implements_Data_Type_Function* t=
+            idToFunc(fucnType,&whyNot,objective);
+        std::set<std::string> s;
+        for (const auto &p:funcs_)
+          {
+            std::string why;
+            if (t->includesThisType(this,p.first,&why,objective))
+              s.insert(p.first);
+          }
+        s.insert(o.begin(),o.end());
+        return s;
+      }
+  }
+
+
   std::string StructureEnv_New::defaultIdOfVarType(const std::string &varType,bool recursive) const
   {
     std::string whyNot;

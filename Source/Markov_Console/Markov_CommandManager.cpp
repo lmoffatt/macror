@@ -48,6 +48,10 @@
 
 #include "Markov_IO/Implements_path.h"
 
+#include "Markov_IO/FunctionCommand.h"
+
+
+#include "Borrowed/MersenneTwister.h"
 
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
@@ -79,14 +83,20 @@ namespace Markov_IO_New
     StructureEnv_New(nullptr,nullptr),
     io_(nullptr),
     vt_{Variable::types::varNew::varType()},
+    ct_{new Implements_Data_Type_Function()},
     idCmd_(Identifier::types::idCmd::varType()),
     e(nullptr),
     lastCmdRst{},
     program_ver_(ProgramVersion()),
-    h_(new CommandHistory(""))
+    h_(new CommandHistory("")),
+    sto_(new Borrowed::MersenneTwister::MTRand())
   {
     pushVar<pathName::vars::workingPath>(Markov_IO_New::fd::getWorkingPath());
+
     cmd::pushAllCommands(this);
+    pushRegularType<Markov_CommandManagerVar*>();
+    pushRegularType<void>();
+
     Real::push_Types(this);
     Identifier::push_Types(this);
     Data::push_Types(this);
@@ -94,7 +104,7 @@ namespace Markov_IO_New
     ComplexVar::push_Types(this);
     _private::_model::push_Types(this);
 _private::_experiment::push_Types(this);
-
+    funct::pushAllFunctions(this);
 
     e=new ExpressionManager(this);
 

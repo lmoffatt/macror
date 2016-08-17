@@ -3,10 +3,13 @@
 
 #include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_IO/Implements_path.h"
+#include "Markov_IO/VarTempl.h"
+
+#include "Markov_Console/Markov_CommandManager.h"
 
 namespace Markov_IO_New
 {
-  namespace arg {
+  namespace argFunc {
     struct typeName_Field
     {
       typedef std::string myC;
@@ -34,9 +37,18 @@ namespace Markov_IO_New
   }
 
 
-  namespace fcmd {
+  namespace funct {
 
+    void pushAllFunctions(Markov_CommandManagerVar *cm);
 
+    template<class Fn>
+    ABC_Type_of_Closure *varTypeT(typename Fn::functionType f,Markov_CommandManagerVar *cm)
+    {
+
+      return new typename Fn::vType
+          (cm,f
+           ,Fn::getReturnFnType(cm), Fn::getArgumentTypes(cm));
+    }
 
     namespace arg
     {
@@ -65,42 +77,117 @@ namespace Markov_IO_New
 
 
 
-    struct  Save
-    {
-      static void save(Markov_CommandManagerVar* cm,
-                       const std::string& pathfileName, const std::__cxx11::string varType="");
 
+
+    struct Save {
+      typedef Implements_Data_Type_Function  vType;
 
       static std::string myId(){return "save";}
-      static std::string myTip(){return "save all the variables";}
+      static std::string myTip(){return "Save variables";}
       static std::string myWhatThis(){return "";}
 
+      struct save_cm
+      {
+        static void save(Markov_CommandManagerVar* cm,
+                         const std::string& pathfileName);
+
+        typedef save_cm selfType;
+
+        typedef void returnType;
+        typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
+
+        typedef decltype(&save)  functionType;
+
+        typedef mp_append
+        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        >                        vType;
+
+        typedef
+        mp_insert
+        <
+        Implements_Fn_Argument<void>,argTypes
+        >
+        argFnTuple;
 
 
-      static   bool  run
-      (Markov_CommandManagerVar* cm
-       , const StructureEnv_New* arguments
-       ,const Implements_Command_Type_New* self
-       ,std::string* WhyFail, const std::string& masterObjective);
+        typedef Implements_Fn_Argument<void>  returnFnType;
+
+
+
+
+
+        static returnFnType
+        getReturnFnType(Markov_CommandManagerVar* cm)
+        {
+          return {};
+        }
+
+
+        static argFnTuple
+        getArgumentTypes(Markov_CommandManagerVar* cm)
+        {
+          return argFnTuple(
+                Implements_Fn_Argument<Markov_CommandManagerVar*>(cm),
+                Implements_Fn_Argument<std::string>("macror.txt")
+                );
+
+        }
+
+
+        static ABC_Type_of_Closure*
+        varType(Markov_CommandManagerVar* cm)
+        {
+          return varTypeT<selfType>(save,cm);
+        }
+
+
+
+
+        typedef mp_list<> dependsOn;
+      };
+
+
+
+
+      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      {
+        std::vector<ABC_Type_of_Closure*> out;
+
+        out.push_back(save_cm::varType(cm));
+        return out;
+
+      }
+
+      static vType*
+      functionType(Markov_CommandManagerVar* cm)
+      {
+        return new  Implements_Data_Type_Function
+            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
+      }
+
+
 
 
 
     };
 
 
-
-    struct Save_fcn {
+    struct Load {
       typedef Implements_Data_Type_Function  vType;
 
-      struct save_cm
+      static std::string myId(){return "load";}
+      static std::string myTip(){return "load variables";}
+      static std::string myWhatThis(){return "";}
+
+      struct load_cm
       {
-        static void save(Markov_CommandManagerVar* cm,
-                         const std::string& pathfileName, const std::__cxx11::string varType="");
+        static void load(Markov_CommandManagerVar* cm,
+                         const std::string& pathfileName);
 
         typedef void returnType;
         typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
 
-        typedef decltype(&save)  functionType;
+        typedef decltype(&load)  functionType;
 
         typedef mp_append
         <Implements_Data_Type_FnClosure<functionType,void>,argTypes
@@ -134,14 +221,186 @@ namespace Markov_IO_New
 
         }
 
+
+        static ABC_Type_of_Closure*
+        varType(Markov_CommandManagerVar* cm);
+
+
+
+
+        typedef mp_list<> dependsOn;
+      };
+
+
+
+
+      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      {
+        std::vector<ABC_Type_of_Closure*> out;
+
+        out.push_back(load_cm::varType(cm));
+        return out;
+
+      }
+
+      static vType*
+      functionType(Markov_CommandManagerVar* cm)
+      {
+        return new  Implements_Data_Type_Function
+            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
+      }
+
+
+
+
+
+    };
+
+
+
+
+    struct Who {
+      typedef Implements_Data_Type_Function  vType;
+
+      static std::string myId(){return "who";}
+      static std::string myTip(){return "list variables";}
+      static std::string myWhatThis(){return "";}
+
+      struct who_cm
+      {
+        static void who(Markov_CommandManagerVar* cm,
+                        const std::string& typeName);
+
+        typedef void returnType;
+        typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
+
+        typedef decltype(&who)  functionType;
+
+        typedef mp_append
+        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        >                        vType;
+
+        typedef
+        mp_insert
+        <
+        Implements_Fn_Argument<void>,argTypes
+        >
+        argFnTuple;
+
+
+        typedef Implements_Fn_Argument<void>  returnFnType;
+
+
+        static returnFnType
+        getReturnFnType(Markov_CommandManagerVar* cm)
+        {
+          return {};
+        }
+
+
+        static argFnTuple
+        getArgumentTypes(Markov_CommandManagerVar* cm)
+        {
+          return argFnTuple(
+                Implements_Fn_Argument<Markov_CommandManagerVar*>(cm),
+                Implements_Fn_Argument<std::string>("")
+                );
+
+        }
+
+
+        static ABC_Type_of_Closure*
+        varType(Markov_CommandManagerVar* cm);
+
+
+
+
+        typedef mp_list<> dependsOn;
+      };
+
+
+
+
+      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      {
+        std::vector<ABC_Type_of_Closure*> out;
+
+        out.push_back(who_cm::varType(cm));
+        return out;
+
+      }
+
+      static vType*
+      functionType(Markov_CommandManagerVar* cm)
+      {
+        return new  Implements_Data_Type_Function
+            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
+      }
+
+    };
+
+
+
+
+    struct Exit {
+      typedef Implements_Data_Type_Function  vType;
+
+      static std::string myId(){return "exit";}
+      static std::string myTip(){return "Exit Program";}
+      static std::string myWhatThis(){return "";}
+
+      struct exit_cm
+      {
+        static void exitProgram(Markov_CommandManagerVar* cm,
+                                const std::string& pathfileName);
+
+        typedef exit_cm selfType;
+
+        typedef void returnType;
+        typedef std::tuple<Markov_CommandManagerVar*, std::string> argTypes;
+
+        typedef decltype(&exitProgram)  functionType;
+
+        typedef mp_append
+        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        >                        vType;
+
+        typedef
+        mp_insert
+        <
+        Implements_Fn_Argument<void>,argTypes
+        >
+        argFnTuple;
+
+
+        typedef Implements_Fn_Argument<void>  returnFnType;
+
+
+
+
+
+        static returnFnType
+        getReturnFnType(Markov_CommandManagerVar* cm)
+        {
+          return {};
+        }
+
+
+        static argFnTuple
+        getArgumentTypes(Markov_CommandManagerVar* cm)
+        {
+          return argFnTuple(
+                Implements_Fn_Argument<Markov_CommandManagerVar*>(cm)
+                ,Implements_Fn_Argument<std::string>("")
+                );
+
+        }
+
+
         static ABC_Type_of_Closure*
         varType(Markov_CommandManagerVar* cm)
         {
-
-          return new Implements_Data_Type_FnClosure<
-              functionType,returnType,Markov_CommandManagerVar*,std::string>
-              (&save
-               ,getReturnFnType(cm), getArgumentTypes(cm));
+          return varTypeT<selfType>(exitProgram,cm);
         }
 
 
@@ -150,31 +409,23 @@ namespace Markov_IO_New
         typedef mp_list<> dependsOn;
       };
 
-      static std::string myId(){return "save";}
-      static std::string myIdType(){}
-      static std::string myTip(){return "Program of change in concentrations for a single trace";}
-      static std::string myWhatThis(){return "";}
 
 
-      static Implements_Identifier* myIdIdentifier(const Markov_CommandManagerVar* cm)
-      {
 
-      }
-
-     static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
       {
         std::vector<ABC_Type_of_Closure*> out;
 
-        out.push_back(save_cm::varType(cm));
+        out.push_back(exit_cm::varType(cm));
         return out;
 
       }
 
       static vType*
-      varType(Markov_CommandManagerVar* cm)
+      functionType(Markov_CommandManagerVar* cm)
       {
         return new  Implements_Data_Type_Function
-            (myId(),nullptr,myIdIdentifier(cm),getOverrides(cm));
+            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
       }
 
 
@@ -183,110 +434,129 @@ namespace Markov_IO_New
 
     };
 
-    /*
-    struct Load
-    {
-      static void load(Markov_CommandManagerVar* cm,
-                       const std::string& pathfileName);
-
-
-      static std::string myId(){return "load";}
-      static std::string myIdType(){return Cls<myC>::name();}
-      static std::string myTip() {return "list the availabe variables";}
-
-      static std::string myWhatThis(){return "";};
-
-      static   bool  run
-      (Markov_CommandManagerVar* cm
-       , const StructureEnv_New* arguments
-       ,const Implements_Command_Type_New* self
-       ,std::string* WhyFail, const std::string& masterObjective);
-
-
-      static std::vector<std::pair<Implements_Var,bool>>
-      getArgList(const StructureEnv_New* cm)
-      {
-        return {{getMyVar<arg::typeName_Field>(cm),false}};
-
-      }
-
-      static Implements_Command_Type_New* cmdType(const StructureEnv_New* cm)
-      {
-        auto fields=getArgList(cm);
-        Implements_Var firstVar;
-        if (fields.size()>0)
-          firstVar=fields[0].first;
-
-        return new Implements_Command_Type_New(myId(),nullptr,
-                                               fields,
-                                               &run,
-                                               Variable::types::varGiven::varType(firstVar),
-                                               &comply,
-                                               &hasMandatory,
-                                               &hasAll,
-                                               &nextElement);
-      }
 
 
 
 
-    };
 
 
-    struct Exit
 
-    {
+    struct Simulate {
+      typedef Implements_Data_Type_Function  vType;
 
-      static bool exitProgram(Markov_CommandManagerVar* cm
-                              , const StructureEnv_New*&
-                              ,const Implements_Command_Type_New*
-                              ,std::string*, const std::string&)
-      {
-        exit(0);
-        return true;
-      }
-
-      static std::string myId(){return "exit";}
-      static std::string myIdType(){return Cls<myC>::name();}
-      static std::string myTip() {return "closes everything and exits the program";}
-
+      static std::string myId(){return "simulate";}
+      static std::string myTip(){return "simulate experiment";}
       static std::string myWhatThis(){return "";}
 
-      static   bool  run
-      (Markov_CommandManagerVar* cm
-       , const StructureEnv_New* arguments
-       ,const Implements_Command_Type_New* self
-       ,std::string* WhyFail, const std::string& masterObjective)
+      struct simulate_cm
       {
-        exit(0);
-        return true;
+        static void
+        simulate(Markov_CommandManagerVar* cm,
+                 Markov_Mol_New::ABC_PatchModel* p,
+                 ABC_Experiment* experiment_in,
+                 std::string experiment_out,
+                 double time_step
+                 , std::size_t num_steps,
+                 std::size_t n_replicates,
+                 std::size_t seed);
+
+        typedef simulate_cm selfType;
+
+        typedef void returnType;
+
+        typedef std::tuple<
+        Markov_CommandManagerVar*,
+        Markov_Mol_New::ABC_PatchModel*,
+        ABC_Experiment* ,
+        std::string ,
+        double
+        , std::size_t ,
+        std::size_t ,
+        std::size_t
+        > argTypes;
+
+        typedef decltype(&simulate)  functionType;
+
+        typedef mp_append
+        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        >                        vType;
+
+        typedef
+        mp_insert
+        <
+        Implements_Fn_Argument<void>,argTypes
+        >
+        argFnTuple;
+
+
+        typedef Implements_Fn_Argument<void>  returnFnType;
+
+
+
+
+
+        static returnFnType
+        getReturnFnType(Markov_CommandManagerVar* cm)
+        {
+          return {};
+        }
+
+
+
+        static argFnTuple
+        getArgumentTypes(Markov_CommandManagerVar* cm)
+        {
+          return argFnTuple(
+                Implements_Fn_Argument<Markov_CommandManagerVar*>(cm),
+                Implements_Fn_Argument<Markov_Mol_New::ABC_PatchModel*>
+                (cm,"patchModel","simulated model",""),
+                Implements_Fn_Argument<ABC_Experiment*>
+                (cm,"experiment","simulated experiment", ""),
+                Implements_Fn_Argument<std::string>
+                (cm,"simulation_id",Identifier::types::idVarNew(),"mySimulation",false,"id for simulated experiment", "identifier to recover the simulated experiment"),
+                Implements_Fn_Argument<double>
+                (cm,"time_step",Real::types::positive(),"step time of simulation","")
+                , Implements_Fn_Argument<std::size_t>
+                (cm,"num_steps","number of substeps",""),
+                Implements_Fn_Argument<std::size_t>
+                (cm,"number_of_replicates",1,false,"number of times the simulation is run",""),
+                Implements_Fn_Argument<std::size_t>
+                (cm,"seed",0,false,"seed for the random generator","")
+                );
+
+        }
+
+
+        static ABC_Type_of_Closure*
+        varType(Markov_CommandManagerVar* cm)
+        {
+          return varTypeT<selfType>(simulate,cm);
+        }
+
+
+
+
+        typedef mp_list<> dependsOn;
+      };
+
+
+
+
+      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      {
+        std::vector<ABC_Type_of_Closure*> out;
+
+        out.push_back(simulate_cm::varType(cm));
+        return out;
 
       }
 
-
-      static std::vector<std::pair<Implements_Var,bool>> getArgList(const StructureEnv_New* cm)
+      static vType*
+      functionType(Markov_CommandManagerVar* cm)
       {
-        return {};
-
+        return new  Implements_Data_Type_Function
+            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
       }
-
-      static Implements_Command_Type_New* cmdType(const StructureEnv_New* cm)
-      {
-        auto fields=getArgList(cm);
-        Implements_Var firstVar{};
-        if (fields.size()>0)
-          firstVar=fields[0].first;
-
-        return new Implements_Command_Type_New(myId(),nullptr,
-                                               fields,
-                                               &run,
-                                               Variable::types::varGiven::varType(firstVar),
-                                               &comply,
-                                               &hasMandatory,
-                                               &hasAll,
-                                               &nextElement);
-      }
-
 
 
 
@@ -294,60 +564,9 @@ namespace Markov_IO_New
 
     };
 
-    struct   Who
-
-    {
-    public:
-
-      static void who(Markov_CommandManagerVar* cm,
-                      std::string typeName);
 
 
-      static std::string myId(){return "who";}
-      static std::string myIdType(){return Cls<myC>::name();}
-      static std::string myTip() {return "list the availabe variables";}
 
-      static std::string myWhatThis(){return "";}
-
-      static   bool  run
-      (Markov_CommandManagerVar* cm
-       , const StructureEnv_New* arguments
-       ,const Implements_Command_Type_New* self
-       ,std::string* WhyFail, const std::string& masterObjective)
-      {
-        std::string typeName= arguments->getDataValueS<arg::typeName_Field>();
-        who(cm,typeName);
-        return true;
-      }
-
-
-      static std::vector<std::pair<Implements_Var,bool>> getArgList(const StructureEnv_New* cm)
-      {
-        return {{getMyVar<arg::typeName_Field>(cm),false}};
-
-      }
-
-      static Implements_Command_Type_New* cmdType(const StructureEnv_New* cm)
-      {
-        auto fields=getArgList(cm);
-        Implements_Var firstVar;
-        if (fields.size()>0)
-          firstVar=fields[0].first;
-
-        return new Implements_Command_Type_New(myId(),nullptr,
-                                               fields,
-                                               &run,
-                                               Variable::types::varGiven::varType(firstVar),
-                                               &comply,
-                                               &hasMandatory,
-                                               &hasAll,
-                                               &nextElement);
-      }
-
-    };
-
-
-*/
 
     class CdCommand: public Implements_Command_Type_New
     {
@@ -421,7 +640,6 @@ namespace Markov_IO_New
     };
 
 
-    void pushAllCommands (StructureEnv_New* cm);
   };
 
 }

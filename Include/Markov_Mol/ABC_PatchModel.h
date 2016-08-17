@@ -28,8 +28,9 @@ public:
 
     virtual Experiment_simulation run(const Markov_IO_New::ABC_Experiment& x,
 				      std::size_t n_replicates,
-				      const Markov_IO_New::ABC_Options& opt,
-				      Borrowed::MersenneTwister::MTRand& mtrand)=0;
+				      double time_step
+				      , std::size_t num_steps,
+			      Borrowed::MersenneTwister::MTRand& mtrand)const =0;
 
 
 

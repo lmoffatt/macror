@@ -457,7 +457,7 @@ namespace Markov_IO_New {
          ,const baseType* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          auto f=new StructureEnv_New(cm,v->getCVType());
+          auto f=new StructureEnv_New(cm,v->getComplexVarType(cm));
           f->pushVar<numStates_Field>(Q->k());
           f->pushVar<Q_matrix_Field>(Q->Q());
 
@@ -479,7 +479,7 @@ namespace Markov_IO_New {
          ,const vType* v
          , std::string* WhyNot, const std::string& masterObjective)
         {
-          auto f=new StructureEnv_New(cm,v->getCVType());
+          auto f=new StructureEnv_New(cm,v->getComplexVarType(cm));
           f->pushVar<numStates_Field>(Q->k());
           f->pushVar<Q_matrix_Field>(Q->Q());
 
