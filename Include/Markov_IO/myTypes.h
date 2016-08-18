@@ -390,21 +390,12 @@ namespace Markov_IO_New {
       public:
         typedef Implements_Data_Type_class<myB*> vType;
 
-
-
-
-
-
-
-
         static Implements_Data_Type_New<myB*>*
-        varType(const StructureEnv_New* cm)
+        varType(const StructureEnv_New* cm=nullptr)
         {
           return new  Implements_Data_Type_class<myB*>
               ();
         }
-
-
 
       };
 
@@ -975,6 +966,33 @@ namespace Markov_IO_New {
       {
         return x->ChannelsCount();
       }
+
+
+
+      struct ABC_PatchModel_type        {
+        typedef Markov_Mol_New::ABC_PatchModel myB;
+
+        typedef mp_list<> dependsOn;
+        typedef mp_list<>  fieldList;
+
+
+
+        static std::string myId(){return Cls<myB*>::name();}
+        static std::string myIdType(){return Cls<myB*>::name();}
+        static std::string myTip(){return "any patch model of channel kinetics";}
+        static std::string myWhatThis(){return "";}
+
+      public:
+        typedef Implements_Data_Type_class<myB*> vType;
+
+        static Implements_Data_Type_New<myB*>*
+        varType(const StructureEnv_New* cm=nullptr)
+        {
+          return new  Implements_Data_Type_class<myB*>
+              ();
+        }
+
+      };
 
 
 

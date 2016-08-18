@@ -24,6 +24,33 @@ namespace Markov_IO_New {
   {
     namespace _experiment {
 
+      struct ABC_Experiment_type        {
+        typedef ABC_Experiment myB;
+
+        typedef mp_list<> dependsOn;
+        typedef mp_list<>  fieldList;
+
+
+
+        static std::string myId(){return Cls<myB*>::name();}
+        static std::string myIdType(){return Cls<myB*>::name();}
+        static std::string myTip(){return "any experiment";}
+        static std::string myWhatThis(){return "";}
+
+      public:
+        typedef Implements_Data_Type_class<myB*> vType;
+
+        static Implements_Data_Type_New<myB*>*
+        varType(const StructureEnv_New* cm=nullptr)
+        {
+          return new  Implements_Data_Type_class<myB*>
+              ();
+        }
+
+      };
+
+
+
       struct num_Tested_Concentrations_Field
       {
         typedef std::size_t myC;
@@ -534,6 +561,8 @@ namespace Markov_IO_New {
         static std::string myTip(){return "time step used for calculations";}
         static std::string myWhatThis() {return "";}
       };
+
+
 
 
 

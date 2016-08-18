@@ -7,6 +7,9 @@
 
 #include "Markov_Console/Markov_CommandManager.h"
 
+#include "Markov_IO/myTypes.h"
+#include "Markov_IO/myTypesExperiment.h"
+
 namespace Markov_IO_New
 {
   namespace argFunc {
@@ -437,10 +440,6 @@ namespace Markov_IO_New
 
 
 
-
-
-
-
     struct Simulate {
       typedef Implements_Data_Type_Function  vType;
 
@@ -509,9 +508,10 @@ namespace Markov_IO_New
           return argFnTuple(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>(cm),
                 Implements_Fn_Argument<Markov_Mol_New::ABC_PatchModel*>
-                (cm,"patchModel","simulated model",""),
+                (cm,"patchModel",_private::_model::patch::ABC_PatchModel_type(),"simulated model",""),
                 Implements_Fn_Argument<ABC_Experiment*>
-                (cm,"experiment","simulated experiment", ""),
+                (cm,"experiment",_private::_experiment::ABC_Experiment_type()
+                 ,"simulated experiment", ""),
                 Implements_Fn_Argument<std::string>
                 (cm,"simulation_id",Identifier::types::idVarNew(),"mySimulation",false,"id for simulated experiment", "identifier to recover the simulated experiment"),
                 Implements_Fn_Argument<double>
