@@ -21,9 +21,7 @@ namespace Markov_IO_New {
   std::pair<std::string, std::set<std::string> > buildByToken<std::string>::alternativesNext() const
   {
 
-    std::string whynot;
-    std::string id=parent()->dataToId(varType_,&whynot,"");
-    return {id,varType_->alternativeNext(this->parent())};
+    return {varType_->typeId(),varType_->alternativeNext(this->parent())};
   }
 
 
@@ -1000,8 +998,8 @@ namespace Markov_IO_New {
     ABC_BuildClosure(parent),
     mystate(S_Init)
   ,fnType_(varType),
-  idtype_(varType->getIdType()),idString_()
-  ,idtypeB_(varType->getIdType()->getBuildByToken(parent))
+  idtype_(varType->getFunctionIdType(parent)),idString_()
+  ,idtypeB_(varType->getFunctionIdType(parent)->getBuildByToken(parent))
   ,vecValueB_(),nPushedTokensIn_()
   ,nPushedTokens_(0), valueB_(),data_(){}
 
@@ -1173,7 +1171,7 @@ namespace Markov_IO_New {
     if (fnType_!=dataTy)
       {
         fnType_=dataTy;
-        idtype_=fnType_->getIdType();
+        idtype_=fnType_->getFunctionIdType(parent());
         idtypeB_->reset_Type(idtype_);
       }
   }
@@ -1933,6 +1931,11 @@ namespace Markov_IO_New {
   ABC_Data_New *buildByToken<Markov_CommandManagerVar *, true>::unloadData()
   {
     return nullptr;
+  }
+
+  const Implements_Identifier *getIdentifierType(const ABC_Type_of_Value *t)
+  {
+    return Identifier::types::idType::varType(t->typeId());
   }
 
 

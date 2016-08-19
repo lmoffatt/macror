@@ -1087,7 +1087,7 @@ namespace Markov_IO_New {
   bool Implements_Data_Type_Function::getClosure(const StructureEnv_New *cm, ABC_Closure *&v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
   {
     std::string idF;
-    if (!getIdType()->getValue(cm,idF,istream,whyNot,masterObjective))
+    if (!getVarIdType(cm)->getValue(cm,idF,istream,whyNot,masterObjective))
       return false;
     else
       {

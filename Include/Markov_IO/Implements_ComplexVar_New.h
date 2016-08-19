@@ -274,6 +274,23 @@ namespace Markov_IO_New {
 
     virtual ABC_Type_of_Value* idToType(const std::string& name, std::string *whyNot=nullptr,const std::string& masterObjective="");
 
+    template<typename T>
+    bool getDataFromId(const std::string& idname, T& x)const
+    {
+       ABC_Data_New* d=idToValue(idname)->clone();
+      if (d!=nullptr)
+        {
+          auto o=dynamic_cast< Implements_Value_New<T>*>(d);
+          if (o!=nullptr)
+            {
+              x=o->getValue();
+              return true;
+            }
+          else return false;
+        }
+      else return false;
+    }
+
 
     const Implements_Command_Type_New* idToCommand(const std::string& name, std::string *whyNot, const std::string& masterobjective)const;
 
@@ -865,6 +882,10 @@ namespace Markov_IO_New {
 
     virtual std::string typeId()const =0;
 
+    virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const=0;
+    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const=0;
+
+
   private:
     StructureEnv_New* env_;
 
@@ -904,7 +925,6 @@ namespace Markov_IO_New {
         const StructureEnv_New* cm)const=0;
 
 
-    virtual const Implements_Identifier* getIdType()const=0;
 
     virtual bool isClosureInDomain(const StructureEnv_New* cm
                                    ,const ABC_Closure* v
@@ -942,6 +962,8 @@ namespace Markov_IO_New {
     virtual std::string WhatThis()const=0;
 
     virtual bool isMandatory()const =0;
+
+    virtual bool isDefaulted()const=0;
     virtual ~ABC_Fn_Argument(){}
   };
 
@@ -1034,6 +1056,10 @@ namespace Markov_IO_New {
 
     virtual bool isMandatory()const{return isMandatory_;}
 
+    virtual bool isDefaulted()const{return dataType_==nullptr;}
+
+
+
     virtual const Implements_Data_Type_New<T>* dataType(const StructureEnv_New * cm)const override
     {if (dataType_!=nullptr)
         return dataType_;
@@ -1074,6 +1100,9 @@ namespace Markov_IO_New {
     virtual void defaultValue()const {}
 
     virtual bool isMandatory()const override {return false;}
+
+    virtual bool isDefaulted()const override {return true;}
+
 
     virtual const ABC_Type_of_Value* dataType(const StructureEnv_New* cm)const override {return nullptr;}
     virtual std::string Tip()const  override {return "void";}
@@ -1834,6 +1863,18 @@ namespace Markov_IO_New {
         return id_;
       }
 
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+
+
+
+
 
     protected:
       std::string id_;
@@ -2441,7 +2482,10 @@ namespace Markov_IO_New {
           ,elementTypeGetter elemeComply=nullptr
           ,getNumber getSize=nullptr
           ,bool isSizeFixed=false)
-        :typeId_(id),typeType_(typeType),
+        :typeId_(id)
+        ,varIdType_(Identifier::types::idVarUsed::varType(id))
+        ,typeIdType_(Identifier::types::idType::varType(id))
+        ,typeType_(typeType),
           elementVar_(elementVar)
         ,complyPred_(complyPred)
         ,getElement_(elemeComply)
@@ -2490,10 +2534,20 @@ namespace Markov_IO_New {
           return myType()->typeId();
       }
 
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return varIdType_;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return typeIdType_;
+      }
 
 
     protected:
       std::string typeId_;
+      const Implements_Identifier* varIdType_;
+      const Implements_Identifier* typeIdType_;
       Implements_Data_Type_New<myC> const * typeType_;
       const Implements_Data_Type_New<T>* elementVar_;
       typePredicate complyPred_;
@@ -2879,6 +2933,16 @@ namespace Markov_IO_New {
       virtual std::string typeId()const {return myId();}
 
 
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+
+
     protected:
 
       typePredicate comply_;
@@ -2985,10 +3049,6 @@ namespace Markov_IO_New {
 
 
 
-    Implements_Identifier const * getIdType()const override
-    {
-      return myTypeD()->getIdType();
-    }
 
 
     virtual selfType* clone()const
@@ -3163,7 +3223,7 @@ namespace Markov_IO_New {
                           ,std::string* whyNot
                           , const std::string& masterObjective)const
     {
-      if (! getIdType()->putValue(cm,c->getFunctionId(),ostream,whyNot,masterObjective))
+      if (! getVarIdType(cm)->putValue(cm,c->getFunctionId(),ostream,whyNot,masterObjective))
         return false;
       else if (!getArgumentsType(cm)->putValue(cm,c->getArguments(),ostream,whyNot,masterObjective))
         {
@@ -3180,7 +3240,7 @@ namespace Markov_IO_New {
     {
       std::string idFn;
       std::tuple<Args...> args;
-      if (! getIdType()->getValue(cm,idFn,istream,whyNot,masterObjective))
+      if (! getVarIdType( cm)->getValue(cm,idFn,istream,whyNot,masterObjective))
         return false;
       else if (!getArgumentsType(cm)->getValue(cm,args,istream,whyNot,masterObjective))
         {
@@ -3278,6 +3338,16 @@ namespace Markov_IO_New {
                                       ,std::string *whyNot
                                       , const std::string &masterObjective)const{}
 
+
+    Implements_Identifier const * getVarIdType(const StructureEnv_New* cm)const override
+    {
+      return myTypeD()->getVarIdType(cm);
+    }
+
+    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+    {
+      return nullptr;
+    }
 
 
 
@@ -3394,9 +3464,18 @@ namespace Markov_IO_New {
                                       std::string* whyNot,
                                       const std::string& masterObjective)const override{return nullptr;}
 
-    const Implements_Identifier* getIdType()const override
+    const Implements_Identifier* getFunctionIdType(const StructureEnv_New* cm)const
     {
-      return idType_;
+      return funIdType_;
+    }
+
+    virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+    {
+      return getFunctionIdType(cm);
+    }
+    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+    {
+      return nullptr;
     }
 
 
@@ -3447,13 +3526,13 @@ namespace Markov_IO_New {
 
     Implements_Data_Type_Function():
       functionName_(""),typeType_(nullptr)
-    ,idType_(Identifier::types::idFunct::varType("")),overrideTypes_()
+    ,funIdType_(Identifier::types::idFunct::varType("")),overrideTypes_()
     {}
     Implements_Data_Type_Function (const std::string functionName,const selfType* typeType,
                                    Implements_Identifier* idType
                                    , std::vector<ABC_Type_of_Closure*> overrideTypes
                                    )
-      : functionName_(functionName),typeType_(typeType),idType_(idType),overrideTypes_(overrideTypes)
+      : functionName_(functionName),typeType_(typeType),funIdType_(idType),overrideTypes_(overrideTypes)
     {}
 
 
@@ -3463,7 +3542,8 @@ namespace Markov_IO_New {
   private:
     std::string functionName_;
     const selfType*  typeType_;
-    Implements_Identifier*  idType_;
+    Implements_Identifier*  funIdType_;
+
     std::vector<ABC_Type_of_Closure*> overrideTypes_;
 
     // ABC_Data_New interface
@@ -3547,7 +3627,10 @@ namespace Markov_IO_New {
                                        const Implements_Data_Type_New<myC>*  typeType,
                                        typePredicate complyPred=nullptr,
                                        getSet alternatives=nullptr)
-        :typeId_(id),typeType_(typeType),
+        :typeId_(id)
+        ,varIdType_(Identifier::types::idVarUsed::varType(id))
+        ,typeIdType_(Identifier::types::idType::varType(id))
+        ,typeType_(typeType),
           comply_(complyPred),alternativesNext_(alternatives)
 
       {}
@@ -3628,10 +3711,19 @@ namespace Markov_IO_New {
           return myType()->typeId();
       }
 
-
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return varIdType_;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return typeIdType_;
+      }
 
     protected:
       std::string typeId_;
+      const Implements_Identifier* varIdType_;
+      const Implements_Identifier* typeIdType_;
       Implements_Data_Type_New<myC> const * typeType_;
       typePredicate comply_;
       getSet alternativesNext_;
@@ -3759,6 +3851,14 @@ namespace Markov_IO_New {
 
       static void push_Types(StructureEnv_New *cm);
 
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
 
 
       virtual ABC_Type_of_Value const* myType()const override {return nullptr;}
@@ -4197,7 +4297,10 @@ namespace Markov_IO_New {
           ,getNumber getNumRows=nullptr
           ,bool areColsFixed=false
           ,bool areRowsFixed=false):
-        typeId_(idType),typeType_(typeType),
+        typeId_(idType)
+      ,varIdType_(Identifier::types::idVarUsed::varType(idType))
+      ,typeIdType_(Identifier::types::idType::varType(idType))
+      ,typeType_(typeType),
         elementType_(elementVar)
       ,complyPred_(complyPred),getElement_(getElement),
         getNumCols_(getNumCols),getNumRows_(getNumRows),
@@ -4277,10 +4380,20 @@ namespace Markov_IO_New {
           return myType()->typeId();
       }
 
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return varIdType_;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return typeIdType_;
+      }
 
 
     protected:
       std::string typeId_;
+      const Implements_Identifier* varIdType_;
+      const Implements_Identifier* typeIdType_;
       Implements_Data_Type_New<myC> const * typeType_;
       const Implements_Data_Type_New<T>* elementType_;
       typePredicate complyPred_;
@@ -4836,11 +4949,21 @@ namespace Markov_IO_New {
         else
           return myType()->typeId();
       }
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return varIdType_;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return typeIdType_;
+      }
 
 
 
     protected:
       std::string typeId_;
+      const Implements_Identifier* varIdType_;
+      const Implements_Identifier* typeIdType_;
       Implements_Data_Type_New<myC> const * typeType_;
       typePredicate comply_;
       keyTypeGetter keyType_;
@@ -5014,6 +5137,15 @@ namespace Markov_IO_New {
           return Cls<myC>::name();
         else
           return myType()->typeId();
+      }
+
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
       }
 
 
@@ -5262,6 +5394,14 @@ namespace Markov_IO_New {
           return (*comply_)(cm,val,this,whyNot,masterObjective);
       }
 
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
 
 
 
@@ -5500,6 +5640,14 @@ namespace Markov_IO_New {
           return myType()->typeId();
       }
 
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
 
 
 
@@ -7041,6 +7189,7 @@ namespace Markov_IO_New {
       virtual const Implements_Data_Type_New<StructureEnv_New*>* getComplexVarType(const StructureEnv_New* cm) const {return CVtype_;}
 
 
+
       virtual ~Implements_Data_Type_class(){}
 
       Implements_Data_Type_class(const std::string& idType, selfType* const typeType,
@@ -7048,7 +7197,10 @@ namespace Markov_IO_New {
           ,getCV getmyCV=nullptr
           ,getClass_type getClass=nullptr
           ,typePredicate complyPred=nullptr):
-        typeId_(idType),typeType_(typeType),
+        typeId_(idType)
+      ,varIdType_(Identifier::types::idVarUsed::varType(idType))
+      ,typeIdType_(Identifier::types::idType::varType(idType))
+      ,typeType_(typeType),
         comply_(complyPred),getClass_(getClass),getCV_(getmyCV),CVtype_(nullptr)
       {
         if (!fields.empty())
@@ -7177,11 +7329,20 @@ namespace Markov_IO_New {
           return myType()->typeId();
       }
 
-
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return varIdType_;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return typeIdType_;
+      }
 
 
     protected:
       std::string typeId_;
+      const Implements_Identifier* varIdType_;
+      const Implements_Identifier* typeIdType_;
       selfType const * typeType_;
       typePredicate comply_;
       getClass_type getClass_;
@@ -7368,6 +7529,7 @@ namespace Markov_IO_New {
       virtual const Implements_Data_Type_New<StructureEnv_New*>* getComplexVarType(const StructureEnv_New* cm) const {return CVtype_;}
 
 
+
       virtual buildByToken<T*>*
       getBuildByToken(const StructureEnv_New* cm)const override
       {
@@ -7383,8 +7545,12 @@ namespace Markov_IO_New {
                                  ,getClass_type getClass
                                  ,getCV getmyCV
                                  ,typePredicate complyPred=nullptr):
-        typeId_(idType),typeType_(typeType),
+        typeId_(idType)
+      ,varIdType_(Identifier::types::idVarUsed::varType(idType))
+      ,typeIdType_(Identifier::types::idType::varType(idType))
+      ,typeType_(typeType),
         comply_(complyPred),getClass_(getClass),getCV_(getmyCV),CVtype_(nullptr)
+
       {
         if (!fields.empty())
           CVtype_=ComplexVar::types::ClassDescript::varType(typeId(),fields);
@@ -7394,7 +7560,11 @@ namespace Markov_IO_New {
       }
 
 
-      Implements_Data_Type_class():typeId_(Cls<T*>::name()),typeType_(nullptr),
+      Implements_Data_Type_class():
+        typeId_(Cls<T*>::name())
+      ,varIdType_(Identifier::types::idVarUsed::varType(Cls<T*>::name()))
+      ,typeIdType_(Identifier::types::idType::varType(Cls<T*>::name()))
+      ,typeType_(nullptr),
         comply_(nullptr),getClass_(nullptr),getCV_(nullptr),CVtype_(ComplexVar::types::Var::varType())
       {
       }
@@ -7501,16 +7671,27 @@ namespace Markov_IO_New {
         else
           return myType()->typeId();
       }
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return varIdType_;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return typeIdType_;
+      }
 
 
 
     protected:
       std::string typeId_;
+      const Implements_Identifier* varIdType_;
+      const Implements_Identifier* typeIdType_;
       selfType const * typeType_;
       typePredicate comply_;
       getClass_type getClass_;
       getCV getCV_;
       const Implements_Data_Type_New<StructureEnv_New*>* CVtype_;
+
     };
 
 
@@ -7599,6 +7780,9 @@ namespace Markov_IO_New {
       virtual const ABC_Type_of_Value* getComplexVarType(const StructureEnv_New* cm) const {return nullptr;}
 
 
+
+
+
       virtual buildByToken<Markov_CommandManagerVar*>*
       getBuildByToken(const StructureEnv_New* cm)const override
       {
@@ -7672,6 +7856,16 @@ namespace Markov_IO_New {
       std::string myTypeId()const override  {
         return typeId();
       }
+
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+
 
 
 
