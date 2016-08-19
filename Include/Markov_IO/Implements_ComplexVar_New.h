@@ -546,12 +546,18 @@ namespace Markov_IO_New {
         , const std::string& myTip=Field::myTip()
         , const std::string& myWhatThis=Field::myWhatThis()  )
     {
-
+       if (myClassOf(val)==Cls<typename Field::myC>::name())
 
       pushVar(myId
               ,new Implements_Value_New<typename Field::myC>
               (idToTyped<typename Field::myC>(Field::myIdType()),val)
               ,myTip,myWhatThis);
+       else
+         pushVar(myId
+                 ,new Implements_Value_New<typename Field::myC>
+                 (idToTyped<typename Field::myC>(myClassOf(val)),val)
+                 ,myTip,myWhatThis);
+
 
     }
 

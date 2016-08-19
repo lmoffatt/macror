@@ -2105,7 +2105,7 @@ namespace Markov_IO_New {
         typedef mp_list<> dependsOn;
 
 
-        static std::string myId(){return "Experiment";}
+        static std::string myId(){return Cls<myD*>::name();}
         static std::string myIdType(){return Cls<myD*>::name();}
         static std::string myTip(){return "Evolution of the changes in concentrationa and of measured current descibed at low level for a single trace";}
         static std::string myWhatThis(){return "";}

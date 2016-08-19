@@ -2734,7 +2734,7 @@ namespace Markov_IO_New {
   {
   public:
     enum DFA {
-      S_Init=0, S_DATA_PARTIAL, S_Data_Final,S_Identifier_Partial, S_Identifier_Final,S_Final,
+      S_Init=0, S_DATA_PARTIAL, S_Data_Final,S_Identifier_Partial,S_Final,
     } ;
 
 
@@ -2745,6 +2745,7 @@ namespace Markov_IO_New {
       bStr_(typeVar->getComplexVarType(parent)->getBuildByToken(parent)),
       bId_(typeVar->getVarIdType(parent)->getBuildByToken(parent)),
       x_(),
+      id_of_x_(""),
       mystate(S_Init)
     {
 
@@ -2773,12 +2774,14 @@ namespace Markov_IO_New {
             {
               if (bId_->isFinal())
                 {
-                  std::string idV=bId_->unloadVar();
-                  mystate=S_Identifier_Final;
-                  if (!parent()->getDataFromId(idV,x_))
+                  id_of_x_=bId_->unloadVar();
+                  if (!parent()->getDataFromId(id_of_x_,x_))
                     return false;
                   else
-                    return true;
+                    {
+                      mystate=S_Final;
+                      return true;
+                    }
                 }
               else
                 {
@@ -2799,6 +2802,7 @@ namespace Markov_IO_New {
                 {
                   x_=varType_->getClass
                       (parent(),c,whyNot, masterObjective);
+                  id_of_x_.clear();
                   return varType_->isValueInDomain(parent(),x_,whyNot,masterObjective);
 
 
@@ -2813,7 +2817,6 @@ namespace Markov_IO_New {
 
             }
 
-        case S_Identifier_Final:
         case S_Data_Final:
           {
             if (t.tok()!=Token_New::EOL)
@@ -2848,7 +2851,6 @@ namespace Markov_IO_New {
 
         case S_Identifier_Partial:
           return bId_->alternativesNext();
-        case S_Identifier_Final:
         case S_Data_Final:
           return {"ClassNamr()",{alternatives::endOfLine()}};
 
@@ -2863,6 +2865,7 @@ namespace Markov_IO_New {
       x_={};
       bStr_->clear();
       bId_->clear();
+      id_of_x_.clear();
       mystate=S_Init;
     }
 
@@ -2906,7 +2909,6 @@ namespace Markov_IO_New {
             return out;
           }
         case S_Identifier_Partial:
-        case S_Identifier_Final:
           {
             out=bId_->popBackToken();
             if (bId_->isInitial())
@@ -2917,11 +2919,24 @@ namespace Markov_IO_New {
           }
         case S_Final:
           {
-            std::string whyNot;
-            StructureEnv_New* c=varType_->getComplexMap(parent(),x_,&whyNot,"");
-            bStr_->unPop(c);
-            mystate=S_Data_Final;
-            return Token_New(Token_New::EOL);
+            if (id_of_x_.empty())
+              {
+                std::string whyNot;
+                StructureEnv_New* c=varType_->getComplexMap(parent(),x_,&whyNot,"");
+                bStr_->unPop(c);
+                mystate=S_Data_Final;
+                return Token_New(Token_New::EOL);
+              }
+            else
+              {
+                bId_->unPop(id_of_x_);
+                Token_New out=bId_->popBackToken();
+                if (bId_->isInitial())
+                  mystate=S_Init;
+                else
+                  mystate=S_Identifier_Partial;
+                return out;
+              }
 
           }
         }
@@ -2962,6 +2977,7 @@ namespace Markov_IO_New {
     buildByToken<std::string>* bId_;
 
     T* x_;
+    std::string id_of_x_;
     DFA mystate;
   };
 
@@ -2971,7 +2987,7 @@ namespace Markov_IO_New {
   {
   public:
     enum DFA {
-      S_Init=0, S_DATA_PARTIAL, S_Data_Final,S_Identifier_Partial, S_Identifier_Final,S_Final
+      S_Init=0, S_DATA_PARTIAL, S_Data_Final,S_Identifier_Partial, S_Final
     } ;
 
 
@@ -2982,6 +2998,7 @@ namespace Markov_IO_New {
       bStr_(typeVar->getComplexVarType(parent)->getBuildByToken(parent)),
       bId_(getIdentifierType(typeVar)->getBuildByToken(parent)),
       x_(),
+      id_of_x_(),
       mystate(S_Init)
     {
 
@@ -3010,12 +3027,14 @@ namespace Markov_IO_New {
             {
               if (bId_->isFinal())
                 {
-                  std::string idV=bId_->unloadVar();
-                  mystate=S_Identifier_Final;
-                  if (!this->parent()->getDataFromId(idV,x_))
+                  id_of_x_=bId_->unloadVar();
+                  if (!this->parent()->getDataFromId(id_of_x_,x_))
                     return false;
                   else
-                    return true;
+                    {
+                      mystate=S_Final;
+                      return true;
+                    }
                 }
               else
                 {
@@ -3051,7 +3070,6 @@ namespace Markov_IO_New {
                 return true;
 
               }
-        case S_Identifier_Final:
         case S_Data_Final:
           {
             if (t.tok()!=Token_New::EOL)
@@ -3086,7 +3104,6 @@ namespace Markov_IO_New {
 
         case S_Identifier_Partial:
           return bId_->alternativesNext();
-        case S_Identifier_Final:
         case S_Data_Final:
           return {"ClassNamr()",{alternatives::endOfLine()}};
 
@@ -3100,6 +3117,7 @@ namespace Markov_IO_New {
     {
       x_={};
       bStr_->clear();
+      bId_->clear();
       mystate=S_Init;
     }
 
@@ -3108,7 +3126,7 @@ namespace Markov_IO_New {
       clear();
       varType_=var;
       bStr_->reset_Type(var->getComplexVarType(this->parent()));
-      bId_->reset_Type(getIdentifierType(var));
+      bId_->reset_Type(var->getVarIdType(this->parent()));
 
     }
 
@@ -3144,7 +3162,6 @@ namespace Markov_IO_New {
             return out;
           }
         case S_Identifier_Partial:
-        case S_Identifier_Final:
           {
             out=bId_->popBackToken();
             if (bId_->isInitial())
@@ -3155,12 +3172,24 @@ namespace Markov_IO_New {
           }
         case S_Final:
           {
-            std::string whyNot;
-            StructureEnv_New* c=varType_->getComplexMap(this->parent(),x_,&whyNot,"");
-            bStr_->unPop(c);
-            mystate=S_Data_Final;
-            return Token_New(Token_New::EOL);
-
+            if (id_of_x_.empty())
+              {
+                std::string whyNot;
+                StructureEnv_New* c=varType_->getComplexMap(this->parent(),x_,&whyNot,"");
+                bStr_->unPop(c);
+                mystate=S_Data_Final;
+                return Token_New(Token_New::EOL);
+              }
+            else
+              {
+                bId_->unPop(id_of_x_);
+                Token_New out=bId_->popBackToken();
+                if (bId_->isInitial())
+                  mystate=S_Init;
+                else
+                  mystate=S_Identifier_Partial;
+                return out;
+              }
           }
         }
     }
@@ -3199,6 +3228,7 @@ namespace Markov_IO_New {
     buildByToken<StructureEnv_New*>* bStr_;
     buildByToken<std::string>* bId_;
     D* x_;
+    std::string id_of_x_;
     DFA mystate;
   };
 
@@ -4104,7 +4134,7 @@ namespace Markov_IO_New {
 
     {
       std::pair<std::string,std::set<std::string>> out;
-      switch (mystate)
+          switch (mystate)
         {
         case S_Init:
           out=cb_->alternativesNext();
@@ -7121,7 +7151,7 @@ namespace Markov_IO {
           if (t.tok()==Token_New::EOL)
             {
               mystate=S_Final;
-              
+
               return true;
             }
           else
