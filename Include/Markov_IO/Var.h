@@ -65,22 +65,34 @@ namespace Markov_IO_New {
   class ABC_Data_New;
   struct Implements_Var;
   class StructureEnv_New;
- class Markov_CommandManagerVar;
+  class Markov_CommandManagerVar;
 
- class ABC_Closure;
- template<typename Fn, typename R,typename...Args>
- class Implements_FnClosure;
+  class ABC_Closure;
 
- class ABC_Type_of_Value;
+  template<typename R>
+  class ABC_R_Closure;
+  template<typename R>
+  class ABC_R_function;
 
- class ABC_Type_of_Function;
+  template<typename Fn, typename R,typename...Args>
+  class Implements_FnClosure;
 
+  class ABC_Type_of_Value;
 
- template<typename Fn, typename R,typename...Args>
- class Implements_Data_Type_FnClosure;
+  class ABC_Type_of_Function;
+
+  class Implements_Identifier;
+
+  template<typename Fn, typename R,typename...Args>
+  class Implements_Data_Type_FnClosure;
+
+  template<class C,typename Fn, typename R,typename...Args>
+  class Implements_Data_Type_MethodClosure;
+
 
   class Implements_Data_Type_Function;
 
+  template<typename R> class Implements_Data_Type_R_Function;
 
   inline
   std::string removeHint(const std::string& alter)
@@ -149,21 +161,21 @@ namespace Markov_IO_New {
 
 
   template<template <typename>class F,template<class...> class L0,class...Fs
-          ,template<class...> class L1, typename T, typename...Ts>
+           ,template<class...> class L1, typename T, typename...Ts>
   struct mp_insert_impl<F<void>, L0<Fs...>,L1<T,Ts...>>
   {
     using type=mp_insert<F<void>,L0<Fs...,F<T>>,L1<Ts...>>;
   };
 
   template<template <typename>class F,template<class...> class L0,class...Fs
-          ,template<class...> class L1>
+           ,template<class...> class L1>
   struct mp_insert_impl<F<void>, L0<Fs...>,L1<>>
   {
     using type=L0<Fs...>;
   };
 
   template<template <typename>class F
-          ,template<class...> class L1, typename T, typename...Ts>
+           ,template<class...> class L1, typename T, typename...Ts>
   struct mp_insert_impl<F<void>, L1<T,Ts...>>
   {
     using type=mp_insert<F<void>,L1<F<T>>,L1<Ts...>>;
@@ -195,7 +207,7 @@ namespace Markov_IO_New {
   void
   apply_void_Impl(Fn f, std::tuple<Args...> args,std::index_sequence<I...>)
   {
-     f(std::get<I>(args)...);
+    f(std::get<I>(args)...);
   }
 
   template<typename Fn, typename...Args>
@@ -203,8 +215,30 @@ namespace Markov_IO_New {
   mp_apply_void(Fn f, std::tuple<Args...> args)
   {
     return apply_void_Impl(f, args,
-                      std::index_sequence_for<Args...>());
+                           std::index_sequence_for<Args...>());
   }
+
+
+
+
+
+
+  template<typename Fn,typename... Args, size_t... I>
+
+  void
+  apply_void_Impl(Markov_CommandManagerVar* cm,Fn f, std::tuple<ABC_R_Closure<Args>*...> args,std::index_sequence<I...>)
+  {
+    f(std::get<I>(args)->eval(cm)...);
+  }
+
+  template<typename Fn, typename...Args>
+  void
+  mp_apply_void(Markov_CommandManagerVar* cm,Fn f, std::tuple<ABC_R_Closure<Args>*...> args)
+  {
+    return apply_void_Impl(cm,f, args,
+                           std::index_sequence_for<Args...>());
+  }
+
 
 
 
@@ -239,6 +273,11 @@ namespace Markov_IO_New {
     template<typename D,typename B> class Implements_Derived_Value_New;
 
 
+    template<typename T> class Implements_Base_Value_Identifier;
+
+    template <typename T> class Implements_Data_Type_Identifier_Closure;
+
+    template<typename R> class Implements_Data_Type_ABC_R_Closure;
     template<typename T> class Implements_Data_Type_New_vector;
     template<typename T> class Implements_Data_Type_New_set;
     template<typename T> class Implements_Data_Type_New_M_Matrix;
@@ -253,6 +292,15 @@ namespace Markov_IO_New {
 
     template<class D,class B> class Implements_Data_Type_derived_class;
 
+
+    template<typename T>
+    struct mp_DataTypeId_Imp
+    {
+
+      using idValue=Implements_Base_Value_Identifier<T>;
+
+
+    };
 
 
 
@@ -270,6 +318,10 @@ namespace Markov_IO_New {
       using value=Implements_Base_Value_New<T>;
       using value_Ptr=Implements_Base_Value_New<T*>;
 
+      using idValue=Implements_Base_Value_Identifier<T>;
+      using idValue_Ptr=Implements_Base_Value_Identifier<T*>;
+
+
     };
 
     template<typename T>
@@ -277,6 +329,7 @@ namespace Markov_IO_New {
     {
       using type=Implements_Data_Type_New_vector<T>;
       using value=Implements_Base_Value_New<std::vector<T>>;
+      using idValue=Implements_Base_Value_Identifier<T>;
 
     };
 
@@ -349,6 +402,27 @@ namespace Markov_IO_New {
       using value_Ptr=Implements_Base_Value_New<ABC_Closure*>;
     };
 
+    template<typename R>
+    struct mp_DataType_Imp<ABC_R_Closure<R>>{
+      using type_Ptr=Implements_Data_Type_ABC_R_Closure<R>;
+      using value_Ptr=Implements_Base_Value_New<R>;
+
+    };
+
+    template<typename R>
+    struct mp_DataType_Imp<ABC_R_function<R>>{
+      using type_Ptr=Implements_Data_Type_R_Function<R>;
+      using value_Ptr=void;
+
+    };
+
+    template<typename R>
+    struct mp_DataType_Imp<Implements_Base_Value_Identifier<R>>{
+      using type_Ptr=Implements_Data_Type_Identifier_Closure<R>;
+      using value_Ptr=Implements_Base_Value_Identifier<R>;
+
+    };
+
     template<typename Fn, typename R,typename...Args>
     struct mp_DataType_Imp<Implements_FnClosure<Fn,R,Args...>>
     {
@@ -377,10 +451,10 @@ namespace Markov_IO_New {
 
     template<>
     struct mp_DataType_Imp<Markov_CommandManagerVar>{
-      using myB=ABC_Data_New;
+     // using myB=ABC_Data_New;
       using myD=Markov_CommandManagerVar;
       using type_Ptr=Implements_Data_Type_singleton<Markov_CommandManagerVar>;
-      using value_Ptr=Implements_Derived_Value_New<myD,myB>;
+      using value_Ptr=Implements_Base_Value_New<myD*>;
     };
 
 
@@ -551,6 +625,9 @@ namespace Markov_IO_New {
   template <class T>
   using Implements_Value_New=typename _private::mp_Data_Type<T>::valueType;
 
+  template <class T>
+  using Implements_Identifier_Value=typename _private::mp_DataTypeId_Imp<T>::idValue;
+
 
 
   template<typename T>
@@ -644,13 +721,6 @@ namespace Markov_IO_New {
 
 
 
-
-
-
-
-
-
-
   class ABC_Data_New//: public ABC_Value_New
   {
 
@@ -669,6 +739,7 @@ namespace Markov_IO_New {
 
     virtual std::string myTypeId()const=0;
 
+    virtual ABC_Data_New* evalData(Markov_CommandManagerVar* cm)=0;
 
     virtual bool isOfThisType(const StructureEnv_New* cm,
                               const std::string& generalType,
@@ -679,16 +750,67 @@ namespace Markov_IO_New {
 
   };
 
+  class ABC_Closure:   public ABC_Data_New
+  {
+    // ABC_Value_New interface
+  public:
+
+    typedef ABC_Closure selfType;
+
+    virtual ABC_Data_New* evalData(Markov_CommandManagerVar* cm)=0;
+
+    virtual ABC_Type_of_Value const* myType()const=0;
+
+    virtual selfType* clone()const =0;
+
+    virtual ~ABC_Closure()
+    {
+    }
+  };
+
+  template<typename R>
+  class ABC_R_Closure: public ABC_Closure
+  {
+    // ABC_Value_New interface
+  public:
+
+    typedef R returnType;
+
+
+
+    virtual returnType eval(Markov_CommandManagerVar* cm)=0;
+
+    virtual ~ABC_R_Closure()
+    {
+    }
+
+    // ABC_Closure interface
+  };
+
+
+
+  template<typename R>
+  class ABC_R_function: public ABC_R_Closure<R>
+  {
+    virtual ~ABC_R_function()
+    {
+    }
+  };
+
+
 
 
 
   namespace _private
   {
     template<typename T>
-    class Implements_Base_Value_New: public ABC_Data_New
+    class Implements_Base_Value_New: public ABC_R_Closure<T>
     {
       // ABC_Value_New interface
     public:
+
+      typedef T returnType;
+      typedef Implements_Value_New<T> selfType;
 
       virtual ABC_Type_of_Value const* myType()const override
       {
@@ -705,6 +827,18 @@ namespace Markov_IO_New {
           return Cls<T>::name();
         else
           return myType()->typeId();
+      }
+
+
+      virtual selfType* evalData(Markov_CommandManagerVar* ) override
+      {
+        return this;
+      }
+
+
+      virtual returnType eval(Markov_CommandManagerVar* )
+      {
+        return getValue();
       }
 
 
@@ -796,10 +930,12 @@ namespace Markov_IO_New {
 
 
     template<typename T>
-    class Implements_Base_Value_New<T*>: public ABC_Data_New
+    class Implements_Base_Value_New<T*>: public ABC_R_Closure<T*>
     {
       // ABC_Value_New interface
     public:
+      typedef T* returnType;
+      typedef Implements_Value_New<T*> selfType;
 
       virtual ABC_Type_of_Value const* myType()const override
       {
@@ -809,6 +945,16 @@ namespace Markov_IO_New {
       virtual Implements_Data_Type_New<T*> const* myTypeD()const
       {
         return varType_;
+      }
+      virtual selfType* evalData(Markov_CommandManagerVar* ) override
+      {
+        return this;
+      }
+
+
+      virtual returnType eval(Markov_CommandManagerVar* )
+      {
+        return getValue();
       }
 
 
@@ -853,7 +999,7 @@ namespace Markov_IO_New {
 
 
       Implements_Base_Value_New( const Implements_Data_Type_New<T*> * var,
-                                T* value):
+                                 T* value):
         varType_(var),value_(value),empty_(false){}
 
       Implements_Base_Value_New(const Implements_Data_Type_New<T*> * var):
@@ -903,10 +1049,14 @@ namespace Markov_IO_New {
 
 
     template<>
-    class Implements_Base_Value_New<void>: public ABC_Data_New
+    class Implements_Base_Value_New<void>: public ABC_R_Closure<void>
     {
       // ABC_Value_New interface
     public:
+
+      typedef void returnType;
+      typedef Implements_Value_New<void> selfType;
+
 
       virtual ABC_Type_of_Value const* myType()const override;
 
@@ -916,8 +1066,19 @@ namespace Markov_IO_New {
       }
 
       std::string myTypeId()const override  {
-          return Cls<void>::name();
-        }
+        return Cls<void>::name();
+      }
+
+      virtual selfType* evalData(Markov_CommandManagerVar* ) override
+      {
+        return this;
+      }
+
+
+      virtual returnType eval(Markov_CommandManagerVar* )
+      {
+        return getValue();
+      }
 
 
       virtual void getValue() const
@@ -934,6 +1095,7 @@ namespace Markov_IO_New {
         return new Implements_Base_Value_New<void>(*this);
       }
 
+
       virtual ~Implements_Base_Value_New()
       {
       }
@@ -943,7 +1105,7 @@ namespace Markov_IO_New {
                                 std::string* whyNot
                                 ,const std::string &masterObjective)const override
       {
-         return myTypeId()==generalType;
+        return myTypeId()==generalType;
       }
 
 
@@ -986,6 +1148,109 @@ namespace Markov_IO_New {
       bool empty_;
     };
 
+
+    template<typename T>
+    class Implements_Base_Value_Identifier: public ABC_R_Closure<T>
+    {
+      // ABC_Value_New interface
+    public:
+
+      typedef T returnType;
+
+      typedef Implements_Base_Value_Identifier<T> selfType;
+
+      virtual ABC_Type_of_Value const* myType()const override
+      {
+        return varType_;
+      }
+
+      virtual Implements_Data_Type_New<selfType*> const* myTypeD()const
+      {
+        return varType_;
+      }
+
+      std::string myTypeId()const override  {
+        if (myType()==nullptr)
+          return Cls<T>::name();
+        else
+          return myType()->typeId();
+      }
+
+
+      virtual selfType* evalData(Markov_CommandManagerVar* ) override
+      {
+        return this;
+      }
+
+
+      virtual returnType eval(Markov_CommandManagerVar* cm);
+
+
+      virtual std::string getIdentifier()const
+      {
+        return id_;
+      }
+
+
+
+      virtual Implements_Base_Value_Identifier<T>* clone()const
+      {
+        return new Implements_Base_Value_Identifier<T>(*this);
+      }
+
+      virtual ~Implements_Base_Value_Identifier()
+      {
+      }
+
+      virtual bool isOfThisType(const StructureEnv_New* cm,
+                                const std::string& generalType,
+                                std::string* whyNot
+                                ,const std::string &masterObjective)const override{}
+
+
+      Implements_Base_Value_Identifier(
+          Implements_Data_Type_New<Implements_Identifier_Value<T>*> const* varType,
+          const std::string& id):
+        varType_(varType),id_(id){}
+
+
+      template <class S>
+      Implements_Base_Value_Identifier(const S* s, const std::string idType,
+                                       const std::string& id):
+        varType_(s->template idToTyped<T>(idType)),id_(id){}
+
+
+      Implements_Base_Value_Identifier(const Implements_Base_Value_Identifier<T>& other)=default;
+
+      Implements_Base_Value_Identifier(Implements_Base_Value_Identifier<T>&& other)=default;
+
+      Implements_Base_Value_Identifier& operator=(const Implements_Base_Value_Identifier<T>& other)=default;
+
+      Implements_Base_Value_Identifier& operator=(Implements_Base_Value_Identifier<T>&& other)=default;
+
+      Implements_Base_Value_Identifier()=default;
+
+
+      virtual bool empty() const override
+      {
+        return id_.empty();
+      }
+
+      virtual void reset() override
+      {
+        id_.clear();
+      }
+
+      virtual Implements_Base_Value_Identifier<T>* create() const override
+      {
+        return new Implements_Base_Value_Identifier();
+
+      }
+    protected:
+      const Implements_Data_Type_New<Implements_Identifier_Value<T>*>* varType_;
+      const Implements_Identifier* idType_;
+      std::string id_;
+    };
 
 
 

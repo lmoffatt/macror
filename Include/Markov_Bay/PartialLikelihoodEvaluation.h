@@ -1,11 +1,13 @@
 #ifndef PARTIALLIKELIHOODEVALUATION_H
 #define PARTIALLIKELIHOODEVALUATION_H
+
+
 #include "Markov_Bay/LikelihoodEvaluation.h"
 
 namespace Markov_Bay
 {
    class PartialLikelihoodEvaluation:
-	   public LikelihoodEvaluation
+           public LikelihoodEvaluation
    {
    public:
        ///virtual copy constructors
@@ -21,10 +23,10 @@ namespace Markov_Bay
        static std::string ClassName();
 
        virtual std::string id()const;
-	   virtual std::string myClass()const;
+           virtual std::string myClass()const;
 
 
-	   virtual const Markov_LA::M_Matrix<double>& plogL()const;
+           virtual const Markov_LA::M_Matrix<double>& plogL()const;
 
 
 	   PartialLikelihoodEvaluation(Markov_IO::ABC_Environment *e,

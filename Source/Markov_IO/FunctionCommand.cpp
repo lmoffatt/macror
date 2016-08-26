@@ -7,6 +7,7 @@
 
 #include "Markov_IO/Experiment.h"
 
+#include "Markov_Bay/MarkovLikelihood.h"
 
 
 namespace Markov_IO_New
@@ -105,6 +106,54 @@ namespace Markov_IO_New
       cm->pushData(experiment_out,sim,"simulation");
 
     }
+
+//    void Likelihood::likelihood_cm::likelihood(Markov_CommandManagerVar *cm
+//                                               , Markov_Mol_New::ABC_PatchModel *patch, ABC_Experiment *experiment, const std::__cxx11::string algorithm, bool isaveraging, bool zeroGuard, double dxForScore, bool showPartialLikelihood, bool showPredictedValue, bool runApproximation, std::size_t numSteps, std::size_t numSamples)
+
+//    {
+
+
+//      Markov_Bay_New::Markov_Likelihood ml(patch,experiment,algorithm, isaveraging,  zeroGuard,  dxForScore,  showPartialLikelihood,  showPredictedValue,  runApproximation,  numSteps, numSamples);
+
+
+//      if (!showPartialLikelihood)
+//        {
+//          Markov_Bay_New::LikelihoodEvaluation* lik =new
+//              Markov_Bay_New::LikelihoodEvaluation(ml.run());
+
+//        }
+//      else
+//        if (!showPredictedValue)
+//          {                 Markov_Bay_New::PartialLikelihoodEvaluation* lik =new
+//                Markov_Bay_New::PartialLikelihoodEvaluation(ml.run(std::string("")));
+
+////            cm_->add_var(algorithm,lik);
+////            std::stringstream ss;
+////            ss<<*lik;
+////            output_=ss.str();
+////            errorMessage_.clear();
+////            return true;
+
+
+//          }
+//        else
+//          {
+//            Markov_Bay_New::YfitLikelihoodEvaluation* lik =new
+//                Markov_Bay_New::YfitLikelihoodEvaluation(ml.run(std::string("dummy"),
+//                                                            std::string("dummy")));
+
+////            cm_->add_var(algorithm,lik);
+////            std::stringstream ss;
+////            ss<<*lik;
+////            output_=ss.str();
+////            errorMessage_.clear();
+////            return true;
+//          }
+
+
+//    }
+
+
 
   }
 }

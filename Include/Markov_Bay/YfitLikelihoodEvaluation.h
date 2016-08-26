@@ -1,11 +1,12 @@
 #ifndef YFITLIKELIHOODEVALUATION_H
 #define YFITLIKELIHOODEVALUATION_H
+
 #include "Markov_Bay/PartialLikelihoodEvaluation.h"
 
 namespace Markov_Bay
 {
    class YfitLikelihoodEvaluation:
-	   public PartialLikelihoodEvaluation
+           public PartialLikelihoodEvaluation
    {
    public:
        ///virtual copy constructors
@@ -21,7 +22,7 @@ namespace Markov_Bay
        static std::string ClassName();
 
        virtual std::string id()const;
-	   virtual std::string myClass()const;
+           virtual std::string myClass()const;
 
 	   virtual const Markov_LA::M_Matrix<double>& s2()const;
 	   virtual const Markov_LA::M_Matrix<double>& yfit()const;
@@ -48,15 +49,16 @@ namespace Markov_Bay
 
 
    protected:
-	  Markov_LA::M_Matrix<double> s2_;
-	  Markov_LA::M_Matrix<double> yfit_;
-	  Markov_LA::M_Matrix<double> y_;
+          Markov_LA::M_Matrix<double> s2_;
+          Markov_LA::M_Matrix<double> yfit_;
+          Markov_LA::M_Matrix<double> y_;
    };
 
 
 
 
 }
+
 
 
 #endif // YFITLIKELIHOODEVALUATION_H

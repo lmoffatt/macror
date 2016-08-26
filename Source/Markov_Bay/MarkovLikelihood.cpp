@@ -15,6 +15,28 @@
 
 #include "Markov_LA/auxiliarMath.h"
 
+
+
+
+
+
+#include "Markov_Bay/MarkovLikelihood.h"
+
+#include "Markov_LA/matrixMath.h"
+#include "Markov_LA/matrixRounding.h"  //isfinite
+#include "Markov_LA/matrixMaxMin.h"
+#include "Markov_LA/matrixRelational.h"
+#include "Markov_LA/matrixProduct.h"
+#include "Markov_LA/matrixAritmetic.h"
+#include "Markov_Bay/MacroDRStep.h"
+#include "Markov_Bay/MacroRStep.h"
+#include "Markov_Bay/MacroNRStep.h"
+#include "Markov_Bay/MacroAproxStep.h"
+
+
+
+#include "Markov_LA/auxiliarMath.h"
+
 namespace Markov_Bay
 {
 
@@ -37,7 +59,7 @@ namespace Markov_Bay
   {
 
     return dynamic_cast<const Markov_IO::ABC_Experiment*>(E_->getVar(experimentName_));
-  }
+     }
 
 
 

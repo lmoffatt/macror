@@ -1084,38 +1084,13 @@ namespace Markov_IO_New {
       return true;
   }
 
-  bool Implements_Data_Type_Function::getClosure(const StructureEnv_New *cm, ABC_Closure *&v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
-  {
-    std::string idF;
-    if (!getVarIdType(cm)->getValue(cm,idF,istream,whyNot,masterObjective))
-      return false;
-    else
-      {
-        std::string argStr;
-        Implements_Data_Type_Function const * f=cm->idToFunc(idF,whyNot,masterObjective);
-        if (istream->getLine(argStr,whyNot,masterObjective))
-          return false;
-        else
-          {
-            argStr=idF+" "+argStr;
-            for (std::size_t i=0; i<f->getOverrideTypes().size(); ++i)
-              {
-                ABC_Type_of_Closure const * t=f->getOverrideTypes()[i];
-                StringInput ss(argStr);
-                if (t->getClosure(cm,v,&ss,whyNot,masterObjective))
-                  return true;
-
-              }
-            return false;
-          }
-
-      }
-  }
 
   ABC_BuildClosure *Implements_Data_Type_Function::getBuildByToken(const StructureEnv_New *cm) const
   {
     return new buildByToken<ABC_Closure*>(cm,this);
   }
+
+  ABC_Data_New *Markov_CommandManagerVar_Closure::evalData(Markov_CommandManagerVar *cm) {return cm;}
 
 
 

@@ -47,6 +47,10 @@ namespace Markov_IO_New {
       return varType_;
     }
 
+
+
+
+
   }
 
   bool StructureEnv_New::hasNameofType(const std::string &name, const std::string &type, bool recursive, std::string *whyNot, const std::string &masterObjective) const

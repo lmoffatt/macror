@@ -3,6 +3,7 @@
 #include "Markov_IO/Var.h"
 #include "Markov_IO/buildByToken.h"
 #include "Markov_IO/Implements_ComplexVar_New.h"
+#include "Markov_Console/Markov_CommandManager.h"
 namespace Markov_IO_New {
   namespace _private{
     template<typename T>
@@ -65,6 +66,17 @@ namespace Markov_IO_New {
   }
 
 
+
+
+  template<typename T>
+T Implements_Base_Value_Identifier<T>::eval(Markov_CommandManagerVar *cm)
+  {
+    T out;
+    if (cm->getDataFromId(id_,out))
+      return out;
+    else
+      return {};
+  }
 
 }
 
