@@ -8,12 +8,12 @@
 
 namespace Markov_IO_New {
 
-  const StructureEnv_New* ABC_BuildByToken::parent() const
+  const StructureEnv_New* ABC_BuildByToken_::parent() const
   {
     return parent_;
   }
 
-  ABC_BuildByToken::ABC_BuildByToken(const StructureEnv_New *p):parent_(p){}
+  ABC_BuildByToken_::ABC_BuildByToken_(const StructureEnv_New *p):parent_(p){}
 
 
 
@@ -221,7 +221,7 @@ namespace Markov_IO_New {
     std::pair<std::string,std::set<std::string>> out;
     switch (mystate) {
       case S_Init:
-        return {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
+        return {dataType_->typeId(),{alternatives::endOfLine()}};
 
       case S_PInit_NData:
       case S_PEOL_NData:
@@ -237,7 +237,7 @@ namespace Markov_IO_New {
       case S_PData_NEOL:
       case S_PBothData_NEOL:
       case S_PBothEOL_NEOL:
-        return {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
+        return {dataType_->typeId(),{alternatives::endOfLine()}};
 
       case S_PInit_NBoth:
       case S_PEOL_NBoth:
@@ -246,7 +246,7 @@ namespace Markov_IO_New {
       case S_PBothEOL_NBoth:
         {
           out=eleB_->alternativesNext();
-          out+= {parent()->dataToId(dataType_),{alternatives::endOfLine()}};
+          out+= {dataType_->typeId(),{alternatives::endOfLine()}};
           return out;
         }
       case S_PEOL_NFinal:
@@ -992,196 +992,11 @@ namespace Markov_IO_New {
   }
 
 
-  buildByToken<ABC_Closure *>::buildByToken
-  (const StructureEnv_New *parent
-   , const Implements_Data_Type_New<ABC_Closure*> *varType):
-    ABC_BuildClosure(parent),
-    mystate(S_Init)
-  ,fnType_(varType),
-  idtype_(varType->getFunctionIdType(parent)),idString_()
-  ,idtypeB_(varType->getFunctionIdType(parent)->getBuildByToken(parent))
-  ,vecValueB_(),nPushedTokensIn_()
-  ,nPushedTokens_(0), valueB_(),data_(){}
-
-
-
-
-
-  bool buildByToken<ABC_Closure *>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
-
-  {
-    const std::string objective=masterObjective+":  rejected token "+tok.str();
-    switch (mystate)
-      {
-      case S_Init:
-        if (idtypeB_->pushToken(tok,whyNot,objective))
-          {
-            idString_=idtypeB_->unloadVar();
-            fnType_=parent()->idToFunc(idString_,whyNot,objective);
-            if (fnType_==nullptr)
-              return false;
-            else
-              {
-                vecValueB_=fnType_->getOverrideBuild(parent());
-                nPushedTokensIn_=std::vector<std::size_t>(vecValueB_.size(),0);
-                nPushedTokens_=0;
-                if (isFinal(vecValueB_,nPushedTokens_,nPushedTokensIn_))
-                  {
-                    mystate =S_Closure_Final;
-                    return true;
-                  }
-                else if (hasMandatory(vecValueB_,nPushedTokens_,nPushedTokensIn_))
-                  {
-                    mystate=S_Closure_Mandatory;
-                    return true;
-                  }
-                else
-                  {
-                    mystate=S_Closure_PARTIAL;
-                    return true;
-                  }
-              }
-          }
-      case S_Closure_PARTIAL:
-      case S_Closure_Mandatory:
-        if (pushToken(vecValueB_,nPushedTokens_,nPushedTokensIn_
-                       ,tok, whyNot,objective))
-          {
-            if (isFinal(vecValueB_,nPushedTokens_,nPushedTokensIn_))
-              {
-                if (tok.tok()!=Token_New::EOL)
-                  {
-                mystate =S_Closure_Final;
-                return true;
-                  }
-                else
-                  {
-                    data_.reset(unloadClosure(vecValueB_,nPushedTokens_,nPushedTokensIn_));
-                    mystate=S_Final;
-                    return true;
-                  }
-              }
-            else  if (hasMandatory(vecValueB_,nPushedTokens_,nPushedTokensIn_))
-              {
-                mystate=S_Closure_Mandatory;
-                return true;
-              }
-            else
-              {
-                mystate=S_Closure_PARTIAL;
-                return true;
-              }
-          }
-
-      case S_Closure_Final:
-        if (tok.tok()!=Token_New::EOL)
-          {
-            *whyNot=objective+" is not an end of line";
-            return false;
-          }
-        else
-          {
-            data_.reset(unloadClosure(vecValueB_,nPushedTokens_,nPushedTokensIn_));
-            mystate=S_Final;
-            return true;
-          }
-
-      case S_Final:
-        return false;
-      }
-  }
-
-
-  Token_New buildByToken<ABC_Closure *>::popBackToken()
-
-  {
-    switch (mystate)
-      {
-      case S_Init:
-        return {};
-      case S_Closure_PARTIAL:
-      case S_Closure_Mandatory:
-      case S_Closure_Final:
-        {
-          if (hasNoArguments(vecValueB_,nPushedTokens_,nPushedTokensIn_))
-            {
-              idtypeB_->unPop(idString_);
-              Token_New out=idtypeB_->popBackToken();
-              mystate=S_Init;
-              return out;
-            }
-          else
-            {
-              Token_New out=popBackToken
-                  (vecValueB_,nPushedTokens_,nPushedTokensIn_);
-              if (hasMandatory(vecValueB_,nPushedTokens_,nPushedTokensIn_))
-                {
-                  mystate=S_Closure_Mandatory;
-                  return out;
-                }
-              else
-                {
-                  mystate=S_Closure_PARTIAL;
-                  return out;
-                }
-            }
-        }
-      case  S_Final:
-        {
-          return {};
-        }
-      }
-  }
-
-
-
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
-  buildByToken<ABC_Closure *>::alternativesNext() const
-
-  {
-    std::pair<std::string, std::set<std::string> > out;
-    switch (mystate)
-      {
-      case S_Init:
-        return idtypeB_->alternativesNext();
-      case S_Closure_PARTIAL:
-        return alternativesNext(vecValueB_,nPushedTokens_,nPushedTokensIn_);
-
-      case S_Closure_Mandatory:
-        {
-          auto out= alternativesNext(vecValueB_,nPushedTokens_,nPushedTokensIn_);
-          out.second.insert(alternatives::endOfLine());
-          return out;
-        }
-
-      case S_Closure_Final:
-        return {"ClassNamr()",{alternatives::endOfLine()}};
-
-      case S_Final:
-        return {};
-      }
-  }
-
-
-
-
-
-  void buildByToken<ABC_Closure *>::reset_Type(Implements_Data_Type_New<ABC_Closure *> *dataTy)
-  {
-    if (fnType_!=dataTy)
-      {
-        fnType_=dataTy;
-        idtype_=fnType_->getFunctionIdType(parent());
-        idtypeB_->reset_Type(idtype_);
-      }
-  }
-
-
 
  /* template <typename Fn,typename R ,typename... Args>
-   buildByToken<Implements_FnClosure<Fn, R,Args...> *, true>::buildByToken
+   buildByToken<Implements_Closure_Value_R_Fn_Args_Function<Fn, R,Args...> *, true>::buildByToken
   (const StructureEnv_New *parent
-   , const Implements_Data_Type_New<Implements_FnClosure<Fn, R,Args...> *> *varType):
+   , const Implements_Data_Type_New<Implements_Closure_Value_R_Fn_Args_Function<Fn, R,Args...> *> *varType):
      ABC_BuildClosure(parent),
      mystate(S_Init)
    ,fnType_(varType), tupleType_(varType->getArgumentsType(parent)),
@@ -1193,7 +1008,7 @@ namespace Markov_IO_New {
 
 
    template <typename Fn,typename R , typename... Args>
-  bool buildByToken<Implements_FnClosure<Fn,R, Args...> *, true>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
+  bool buildByToken<Implements_Closure_Value_R_Fn_Args_Function<Fn,R, Args...> *, true>::pushToken(Token_New tok, std::string *whyNot, const std::string &masterObjective)
 
   {
     const std::string objective=masterObjective+":  rejected token "+tok.str();
@@ -1262,7 +1077,7 @@ namespace Markov_IO_New {
 
 
   template <typename Fn, typename R ,typename... Args>
-  Token_New buildByToken<Implements_FnClosure<Fn, R, Args...> *, true>::popBackToken()
+  Token_New buildByToken<Implements_Closure_Value_R_Fn_Args_Function<Fn, R, Args...> *, true>::popBackToken()
 
   {
     switch (mystate)
@@ -1297,7 +1112,7 @@ namespace Markov_IO_New {
 
   template <typename Fn, typename R ,typename... Args>
   std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
-  buildByToken<Implements_FnClosure<Fn,R, Args...> *, true>::alternativesNext() const
+  buildByToken<Implements_Closure_Value_R_Fn_Args_Function<Fn,R, Args...> *, true>::alternativesNext() const
 
   {
     std::pair<std::string, std::set<std::string> > out;
@@ -1327,7 +1142,7 @@ namespace Markov_IO_New {
 
 
   template <typename Fn, typename R ,typename... Args>
-  void buildByToken<Implements_FnClosure<Fn, R,Args...> *, true>::
+  void buildByToken<Implements_Closure_Value_R_Fn_Args_Function<Fn, R,Args...> *, true>::
   reset_Type(Implements_Data_Type_New<ABC_Closure *> *dataTy)
   {
     if (fnType_!=dataTy)
@@ -1514,7 +1329,7 @@ namespace Markov_IO_New {
   {
 
     std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
-        out={parent()->dataToId(cmdty_),{alternatives::endOfLine()}};
+        out={cmdty_->typeId(),{alternatives::endOfLine()}};
 
     switch (mystate)
       {
@@ -1742,136 +1557,6 @@ namespace Markov_IO_New {
   }
 
 
-  build_StatementNew::build_StatementNew(Markov_CommandManagerVar *p):
-    build_StatementNew(p,p->getVarType(),p->getFnType()){}
-
-
-  build_StatementNew::build_StatementNew(Markov_CommandManagerVar *p
-      , const Implements_Data_Type_New<Implements_Var> *varType
-      , const Implements_Data_Type_New<ABC_Closure *> *clType
-      ):
-    ABC_BuildByToken(p),
-    mystate(S_Init),
-    v_(varType->getBuildByToken(p)),
-    cb_(new buildByToken<ABC_Closure*>(p,clType)),
-    cl_(),
-    x_()
-
-  {}
-
-  void build_StatementNew::clear()
-  {
-    v_->clear();
-    mystate=S_Init;
-    x_.clear();
-    cb_->clear();
-    delete cl_;
-    cl_=nullptr;
-
-  }
-
-
-
-  bool build_StatementNew::pushToken(Token_New t, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
-
-  {
-    const std::string objective=masterObjective;
-    switch (mystate)
-      {
-      case S_Init:
-        if (cb_->pushToken(t, whyNot,objective))
-          {
-                  mystate=S_Function_Partial;
-                  return true;
-          }
-        else if (v_->pushToken(t, whyNot, objective))
-          {
-            mystate=S_Expression_Partial;
-            return true;
-          }
-        else
-          {
-            if (t.tok()==Token_New::EOL)
-              return true;
-            else
-              {
-                *whyNot=objective+": unknown command or variable";
-                return false;
-              }
-          }
-      case S_Function_Partial:
-        if (!cb_->pushToken(t, whyNot,objective))
-          {
-            return false;
-          }
-        else
-          {
-            if (cb_->isFinal())
-              {
-                mystate=S_Function_Final;
-                cl_=cb_->unloadClosure();
-              }
-            else
-              mystate=S_Function_Partial;
-            return true;
-          }
-      case S_Expression_Partial:
-        if (!v_->pushToken(t, whyNot,objective))
-          {
-            return false;
-          }
-        else
-          {
-            if (v_->isFinal())
-              {
-                mystate=S_Expression_Final;
-                x_=v_->unloadVar();
-              }
-            else
-              mystate=S_Expression_Partial;
-            return true;
-          }
-      case S_Function_Final:
-      case S_Expression_Final:
-        return false;
-      }
-
-  }
-
-  Token_New build_StatementNew::popBackToken()
-  {
-    switch (mystate)
-      {
-      case S_Init: return {};
-      case S_Function_Final:
-        cb_->UnPopClosure(cl_);
-
-      case S_Function_Partial:
-        {
-          Token_New out =cb_->popBackToken();
-          if (cb_->isInitial())
-            mystate=S_Init;
-          else
-            mystate=S_Expression_Partial;
-          return out;
-        }
-
-      case S_Expression_Final:
-        v_->unPop(x_);
-
-      case S_Expression_Partial:
-        {
-          Token_New out =v_->popBackToken();
-          if (v_->isInitial())
-            mystate=S_Init;
-          else
-            mystate=S_Expression_Partial;
-          return out;
-        }
-
-
-      }
-  }
 
 
 
@@ -1921,10 +1606,6 @@ namespace Markov_IO_New {
 
   }
 
-  ABC_Data_New *buildByToken<ABC_Closure *, true>::unloadData()
-  {
-    return unloadVar();
-  }
 
 
 
@@ -1936,6 +1617,126 @@ namespace Markov_IO_New {
   const Implements_Identifier *getIdentifierType(const ABC_Type_of_Value *t)
   {
     return Identifier::types::idType::varType(t->typeId());
+  }
+
+  bool BuildByTokenString_Union::pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  {
+    bool out=false;
+    for (std::size_t i=0; i<vecValue.size(); ++i)
+      {
+        if (nPushedTokensIn[i]==nPushedTokens)
+          {
+            if (vecValue[i]->pushToken(tok,whyNot,masterObjective))
+              {
+                out=true;
+                ++nPushedTokensIn[i];
+              }
+          }
+      }
+    if (out)
+      ++nPushedTokens;
+    return out;
+
+  }
+
+  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> > BuildByTokenString_Union::alternativesNext() const
+  {
+    std::pair<std::string, std::set<std::string> > out;
+    for (std::size_t i=0; i<vecValue.size(); ++i)
+      {
+        if (nPushedTokensIn[i]==nPushedTokens)
+          {
+            out+=vecValue[i]->alternativesNext();
+          }
+      }
+    return out;
+
+  }
+
+  Token_New BuildByTokenString_Union::popBackToken()
+  {
+    Token_New out;
+    if (nPushedTokens>0)
+      {
+        for (std::size_t i=0; i<vecValue.size(); ++i)
+          {
+            if (nPushedTokensIn[i]==nPushedTokens)
+              {
+                out=vecValue[i]->popBackToken();
+                --nPushedTokensIn[i];
+              }
+          }
+        --nPushedTokens;
+      }
+    return out;
+
+  }
+
+  bool BuildByTokenString_Union::isFinal() const
+  {
+    bool out=false;
+    for (std::size_t i=0; i<vecValue.size(); ++i)
+      {
+        if (nPushedTokensIn[i]==nPushedTokens)
+          {
+            if (vecValue[i]->isFinal())
+              out=true;
+            else
+              return false;
+          }
+      }
+    return out;
+
+  }
+
+  bool BuildByTokenString_Union::isInitial() const
+  {
+    for (std::size_t i=0; i<vecValue.size(); ++i)
+      {
+        if ((nPushedTokensIn[i]==nPushedTokens)&& vecValue[i]->isInitial())
+          {
+            return true;
+          }
+      }
+    return false;
+
+  }
+
+  BuildByTokenString_Union::~BuildByTokenString_Union(){}
+
+  void BuildByTokenString_Union::clear()
+  {
+    for (std::size_t i=0; i<vecValue.size(); ++i)
+      {
+        vecValue[i]->clear();
+        nPushedTokensIn[i]=0;
+
+      }
+    nPushedTokens=0;
+  }
+
+  ABC_Data_New *BuildByTokenString_Union::unloadData()
+  {
+    for (std::size_t i=0; i<vecValue.size(); ++i)
+      {
+        if ((nPushedTokensIn[i]==nPushedTokens)&& vecValue[i]->isFinal())
+          {
+            return vecValue[i]->unloadData();
+          }
+      }
+    return nullptr;
+
+  }
+
+  bool BuildByTokenString_Union::unpopData(ABC_Data_New *data)
+  {
+    return false;
+  }
+
+  BuildByTokenString_Union::BuildByTokenString_Union(const StructureEnv_New *cm, const Identifier_Union *t)
+    :buildByToken<std::string>(cm,nullptr),
+      uType_(t),vecValue(getBuildByTokenVector(cm,t)),nPushedTokensIn(),nPushedTokens(0){
+    nPushedTokensIn=std::vector<std::size_t>(vecValue.size(),0);
   }
 
 

@@ -83,7 +83,7 @@ namespace Markov_IO_New
     StructureEnv_New(nullptr,nullptr),
     io_(nullptr),
     vt_{Variable::types::varNew::varType()},
-    ct_{new Implements_Data_Type_Function()},
+    ct_{new Implements_Closure_Type<void*>()},
     idCmd_(Identifier::types::idCmd::varType()),
     e(nullptr),
     lastCmdRst{},

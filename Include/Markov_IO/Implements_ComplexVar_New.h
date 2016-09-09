@@ -5,7 +5,10 @@
 
 #include "Markov_IO/Var.h"
 #include "Markov_IO/buildByToken.h"
+
+#include "Markov_IO/Closure.h"
 #include "Markov_LA/matrixSum.h"
+#include "Markov_IO/StructureEnv.h"
 
 //#include "Markov_IO/Implements_function.h"
 #include <cmath>
@@ -14,794 +17,9 @@
 #include <tuple>
 #include <type_traits>
 
+
+
 namespace Markov_IO_New {
-
-  class ABC_interfase
-  {
-  public:
-    virtual void setSpacer(char sp)=0;
-    virtual char getSpacer()const=0;
-    virtual ~ABC_interfase(){} ;
-  };
-
-  class ABC_Output:public ABC_interfase
-  {
-  public:
-    template<typename T>
-    void put(const T& x, std::string* error)
-    {
-      *error=Cls<T>::name()+ "is not supported";
-    }
-
-    virtual void put(const std::string& s)=0;
-    virtual void put(double x)=0;
-    virtual void put(int n)=0;
-    virtual void put(std::size_t n)=0;
-    virtual void put(char c)=0;
-
-
-
-    virtual ~ABC_Output(){}
-  };
-
-  class ABC_Input: public ABC_interfase
-  {
-  public:
-    virtual bool getLine(std::string& line,std::string* whyNot,const std::string& masterObjective)=0;
-
-    virtual  bool get( std::string& s,std::string* whyNot,const std::string& masterObjective)=0;
-    virtual  bool get(double& x,std::string* whyNot,const std::string& masterObjective)=0;
-    virtual  bool get(int& n,std::string* whyNot,const std::string& masterObjective)=0;
-    virtual  bool get(std::size_t& n,std::string* whyNot,const std::string& masterObjective)=0;
-    virtual  bool get(char& c,std::string* whyNot,const std::string& masterObjective)=0;
-    virtual  bool get(char& c)=0;
-    virtual bool nextCharIs(char c,char& found)=0;
-
-    virtual bool nextCharIs(char c,bool advanceInFailure)=0;
-
-    virtual bool testIfNextCharIs(char c)=0;
-
-    virtual bool eof()const=0;
-    virtual ~ABC_Input(){}
-  };
-
-
-
-  class StringInput: public ABC_Input
-  {
-  public:
-    virtual bool getLine(std::string& line,std::string* whyNot,const std::string& masterObjective) override
-    {
-      std::getline(ss_,line);
-      return ss_.good();
-    }
-
-    virtual  bool get( std::string& s,std::string* whyNot,const std::string& masterObjective) override {
-      ss_>>s;
-      return ss_.good();
-    }
-    virtual  bool get(double& x,std::string* whyNot,const std::string& masterObjective) override {
-      ss_>>x;
-      return ss_.good();
-    }
-    virtual  bool get(int& n,std::string* whyNot,const std::string& masterObjective) override {
-      ss_>>n;
-      return ss_.good();
-    }
-    virtual  bool get(std::size_t& n,std::string* whyNot,const std::string& masterObjective) override {
-      ss_>>n;
-      return ss_.good();
-    }
-    virtual bool get(char &c, std::string *whyNot, const std::string &masterObjective) override
-    {
-      ss_.get(c);
-      return ss_.good();
-    }
-    virtual bool get(char &c) override
-    {
-      ss_.get(c);
-      return ss_.good();
-
-    }
-
-    virtual bool nextCharIs(char c, char &found) override
-    {
-
-      ss_.get(found);
-      while (found==' ') {ss_.get(found);}
-      return found==c;
-    }
-    virtual bool nextCharIs(char c, bool advanceInFailure) override
-    {
-      char d;
-      ss_.get(d);
-      while (d==' ') {ss_.get(d);}
-      if (d==c)
-        return true;
-      else if (!advanceInFailure)
-        ss_.putback(d);
-      return false;
-    }
-    virtual bool testIfNextCharIs(char c) override
-    {
-      char d;
-      ss_.get(d);
-      while (d==' ') {ss_.get(d);}
-      ss_.putback(d);
-      return  d==c;
-    }
-
-
-    virtual bool eof()const override
-    {
-      return ss_.eof();
-    }
-    virtual ~StringInput(){}
-
-
-    StringInput(const std::string & s, char spacer=' ')
-      : spacer_(spacer),ss_(s){}
-    void setSpacer(char c)override{spacer_=c;}
-    char  getSpacer()const override {return spacer_;}
-
-  private:
-    char spacer_;
-    std::istringstream ss_;
-
-
-  };
-
-
-  class StringOutput:public ABC_Output  {
-  public:
-    template<typename T>
-    void put(const T& x, std::string* error)
-    {
-      *error=Cls<T>::name()+ "is not supported";
-    }
-
-    virtual void put(const std::string& s) override
-    {
-      ss_<<s<<getSpacer();
-    }
-
-    virtual void put(double x) override
-    {
-      ss_<<x<<getSpacer();
-    }
-
-    virtual void put(int n)
-    {
-      ss_<<n<<getSpacer();
-    }
-
-    virtual void put(std::size_t n)
-    {
-      ss_<<n<<getSpacer();
-    }
-
-    virtual void put(char c)
-    {
-      ss_.put(c);
-    }
-
-
-
-    virtual ~StringOutput(){}
-    StringOutput(char spacer=' ')
-      : spacer_(spacer),ss_(){}
-
-    std::string getString(){return ss_.str();}
-    void setSpacer(char c)override{spacer_=c;}
-    char  getSpacer()const override {return spacer_;}
-
-  private:
-    char spacer_;
-    std::ostringstream ss_;
-  };
-
-
-  class Implements_Command_Type_New;
-
-
-
-  class StructureEnv_New: public ABC_Data_New
-  {
-    // ABC_Value_New interface
-  public:
-    static std::string ClassName(){return "StructureEnv_New";}
-
-    // no me queda claro
-    StructureEnv_New(const StructureEnv_New& other):
-      p_(other.p_),
-      strType_(other.strType_),
-      structType_(other.structType_),
-      idVars_(other.idVars_),
-      idTypes_(other.idTypes_),
-      idCmds_(other.idCmds_),
-      all_(other.all_),
-      allId_(other.allId_),
-      vars_(other.vars_),
-      types_(other.types_),
-      cmds_(other.cmds_),
-      funcs_(other.funcs_),
-      idTipWt_(other.idTipWt_)
-    ,fnNames_(other.fnNames_){}
-
-    virtual bool empty() const override {return all_.empty();}
-
-    virtual void reset() override;
-    virtual ABC_Type_of_Value const* myType() const override;
-    virtual Implements_Data_Type_New<StructureEnv_New*>  const* myTypeD() const {return strType_;}
-
-    virtual std::string myTypeId()const override;
-
-  public:
-
-    const StructureEnv_New* parent()const;
-
-    const ABC_Data_New* idToValue
-    (const std::string& name
-     , const std::string & typeName
-     ,std::string* whyNot=nullptr, const std::string& masterObjective="")const;
-
-
-
-
-    std::vector<std::string> loadVars(StructureEnv_New other, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool overwrite);
-
-    ABC_Data_New* idToValue
-    (const std::string& name
-     , const std::string & typeName
-     ,std::string* whyNot=nullptr, const std::string& masterObjective="");
-
-
-    const_Implements_Var idToVar
-    (const std::string& name
-     , const std::string & typeName=""
-        ,std::string* whyNot=nullptr, const std::string& masterObjective="")const;
-
-
-    Implements_Var idToVar
-    (const std::string& name
-     , const std::string & typeName=""
-        ,std::string* whyNot=nullptr, const std::string& masterObjective="");
-
-
-    const ABC_Data_New* idToValue(const std::string& name, std::string *whyNot=nullptr)const;
-
-    ABC_Data_New* idToValue(const std::string& name, std::string* whyNot=nullptr, const std::string & masterObective="");
-
-    virtual const ABC_Type_of_Value* idToType(const std::string& name, std::string *whyNot=nullptr, const std::string& masterObjective="")const;
-
-    virtual ABC_Type_of_Value* idToType(const std::string& name, std::string *whyNot=nullptr,const std::string& masterObjective="");
-
-    template<typename T>
-    bool getDataFromId(const std::string& idname, T& x)const
-    {
-      ABC_Data_New* d=idToValue(idname)->clone();
-      if (d!=nullptr)
-        {
-          auto o=dynamic_cast< Implements_Value_New<T>*>(d);
-          if (o!=nullptr)
-            {
-              x=o->getValue();
-              return true;
-            }
-          else return false;
-        }
-      else return false;
-    }
-
-
-    const Implements_Command_Type_New* idToCommand(const std::string& name, std::string *whyNot, const std::string& masterobjective)const;
-
-    template<typename T>
-    const Implements_Data_Type_New<T>* idToTyped(
-        const std::string& name
-        , std::string *whyNot=nullptr
-        , const std::string& masterObjective="")const
-    {
-      const std::string objective
-          =masterObjective
-          +": "+name+ "is not a "+ Cls<T>::name();
-      auto it=types_.find(name);
-      if (it!=types_.end())
-        {
-          return dynamic_cast<Implements_Data_Type_New<T>*>(
-                it->second);
-        }
-      else if (parent()!=nullptr)
-        return  parent()->idToTyped<T>(name, whyNot,objective);
-      else
-        {   if (whyNot!=nullptr)
-            *whyNot=objective+": name not found in type list";
-          return nullptr;
-        }
-
-    }
-
-
-
-
-    template<typename T>
-    const Implements_Data_Type_New<ABC_R_Closure<T>*>* idToTypeC(
-        const std::string& name
-        , std::string *whyNot=nullptr
-        , const std::string& masterObjective="")const
-    {
-      const std::string objective
-          =masterObjective
-          +": "+name+ "is not a "+ Cls<T>::name();
-      auto it=typeC_.find(name);
-      if (it!=typeC_.end())
-        {
-          return dynamic_cast<Implements_Data_Type_New<ABC_R_Closure<T>*>*>(
-                it->second);
-        }
-      else if (parent()!=nullptr)
-        return  parent()->idToTypeC<T>(name, whyNot,objective);
-      else
-        {   if (whyNot!=nullptr)
-            *whyNot=objective+": name not found in type list";
-          return nullptr;
-        }
-
-    }
-
-
-
-
-
-    template<typename Fn, typename R,typename...Args>
-    const Implements_Data_Type_FnClosure<Fn,R,Args...>* idToFuncF(
-        const std::string& name
-        , std::string *whyNot=nullptr
-        , const std::string& masterObjective="")const
-    {
-      typedef Implements_Data_Type_FnClosure<Fn,R,Args...> fnType;
-      const std::string objective
-          =masterObjective
-          +": "+name+ "is not a "+ Cls<fnType>::name();
-      auto it=funcs_.find(name);
-      if (it!=funcs_.end())
-        {
-          return dynamic_cast<fnType*>(
-                it->second);
-        }
-      else if (parent()!=nullptr)
-        return  parent()->idToFuncF<Fn,R,Args...>(name, whyNot,objective);
-      else
-        {   if (whyNot!=nullptr)
-            *whyNot=objective+": name not found in type list";
-          return nullptr;
-        }
-
-    }
-
-
-
-
-
-
-    template<typename T>
-    bool getValueFromId(const std::string& name
-                        , T& value
-                        ,std::string* whyNot=nullptr, const std::string& masterObjective="")const
-    {
-
-      std::string objective;
-      if (whyNot!=nullptr)
-        objective=masterObjective+": "+ name+" is not a "+Cls<T>::name();
-
-      auto it=vars_.find(name);
-      const ABC_Data_New* var=it->second;
-      if (it!=vars_.end())
-        {
-          auto v=dynamic_cast<
-              const Implements_Value_New<T>*>(var);
-          if (v==nullptr)
-            {
-              return false;
-            }
-          else if (v->empty())
-            {
-              if (whyNot!=nullptr)
-                *whyNot=objective+": varType not found";
-              return false;
-            }
-          else
-            {
-              value=v->getValue();
-              return true;
-            }
-        }
-
-      else if (parent()!=nullptr)
-        return  parent()->getValueFromId(name,value,whyNot,objective);
-      else
-        {
-          if (whyNot!=nullptr)
-            *whyNot=objective+": does not have it and it has no parent";
-          return false;
-        }
-    }
-
-
-
-    template<typename T>
-    bool getValueFromId(const std::string& name
-                        , T*& value
-                        ,std::string* whyNot=nullptr, const std::string& masterObjective="")const
-    {
-
-      std::string objective;
-      if (whyNot!=nullptr)
-        objective=masterObjective+": "+ name+" is not a "+Cls<T*>::name();
-
-      auto it=vars_.find(name);
-      const ABC_Data_New* var=it->second;
-      if (it!=vars_.end())
-        {
-          auto v=dynamic_cast<
-              const Implements_Value_New<T*>*>(var);
-          if (v==nullptr)
-            {
-              return false;
-            }
-          else if (v->empty())
-            {
-              if (whyNot!=nullptr)
-                *whyNot=objective+": varType not found";
-              return false;
-            }
-          else
-            {
-              value=cloneThis(v->getValue());
-              return true;
-            }
-        }
-
-      else if (parent()!=nullptr)
-        return  parent()->getValueFromId(name,value,whyNot,objective);
-      else
-        {
-          if (whyNot!=nullptr)
-            *whyNot=objective+": does not have it and it has no parent";
-          return false;
-        }
-    }
-
-
-
-    template<typename T>
-    bool setValueToId(const std::string& name
-                      ,const T& value
-                      ,std::string* whyNot=nullptr, const std::string& masterObjective="")
-    {
-
-      std::string objective;
-      if (whyNot!=nullptr)
-        objective=masterObjective+": "+ name+" is not a "+Cls<T>::name();
-
-      auto it=vars_.find(name);
-      ABC_Data_New* var=it->second;
-      if (it!=vars_.end())
-        {
-          auto v=dynamic_cast<
-              Implements_Value_New<T>*>(var);
-          if (v==nullptr)
-            {
-              return false;
-            }
-          else if (v->empty())
-            {
-              if (whyNot!=nullptr)
-                *whyNot=objective+": varType not found";
-              return false;
-            }
-          else
-            {
-              v->getValue()=value;
-              return true;
-            }
-        }
-
-      else
-        {
-          if (whyNot!=nullptr)
-            *whyNot=objective+": does not have it and it has no parent";
-          return false;
-        }
-    }
-
-
-
-
-
-
-    bool hasName(const std::string& name
-                 , std::string* whyNot
-                 ,const std::string &masterObjective,
-                 bool recursive)const;
-
-
-
-    bool hasNameofType(const std::string& name, const std::string& type,
-                       bool recursive,
-                       std::string* whyNot=nullptr
-        , const std::string &masterObjective="")const;
-
-
-
-    bool hasCmdofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const;
-
-
-    bool hasTypeofType(const std::string& name, const std::string& type,
-                       std::string* whyNot
-                       , const std::string &masterObjective, bool recursive)const;
-
-
-
-    bool isNameUnOcuppied(const std::string& name,std::string* whyNot,const std::string &masterObjective, bool recursive)const;
-
-
-    bool hasType(const std::string& name
-                 , std::string* whyNot=nullptr
-        ,const std::string &masterObjective="",
-                 bool recursive=false)const;
-
-
-
-    bool hasCommand(const std::string& name,   std::string* whyNot
-                    ,const std::string &masterObjective,
-                    bool recursive)const;
-
-
-
-    void pushVar(Implements_Var v)
-    {
-      pushVar(v.id,v.data,v.Tip,v.WhatThis);
-    }
-
-    Implements_Var popVar();
-
-
-    void pushVar(const std::string& id
-                 ,ABC_Data_New* var
-                 , std::string tip
-                 , std::string whatthis);
-
-
-    template<class Field>
-    void pushVar(typename Field::myC val={}
-        , const std::string myId=Field::myId()
-        , const std::string& myTip=Field::myTip()
-        , const std::string& myWhatThis=Field::myWhatThis()  )
-    {
-      if (myClassOf(val)==Cls<typename Field::myC>::name())
-
-        pushVar(myId
-                ,new Implements_Value_New<typename Field::myC>
-                (idToTyped<typename Field::myC>(Field::myIdType()),val)
-                ,myTip,myWhatThis);
-      else
-        pushVar(myId
-                ,new Implements_Value_New<typename Field::myC>
-                (idToTyped<typename Field::myC>(myClassOf(val)),val)
-                ,myTip,myWhatThis);
-
-
-    }
-
-    template<class T>
-    void pushData(const std::string& myId, T x, const std::string& myTip="", const std::string& myWhatThis="")
-    {
-      pushVar(myId
-              ,new Implements_Value_New<T>
-              (idToTyped<T>(Cls<T>::name()),x)
-              ,myTip,myWhatThis);
-    }
-
-
-
-    template<class Field>
-    bool getDataValue(typename Field::myC &val,std::string* whyNot=nullptr,const std::string &masterObjective="")const
-    {
-      return getValueFromId(Field::myId(),val,whyNot,masterObjective);
-    }
-
-    template<class Field>
-    typename Field::myC getDataValueS(std::string* whyNot=nullptr,const std::string &masterObjective="")const
-    {
-      typename Field::myC val;
-      getValueFromId(Field::myId(),val,whyNot,masterObjective);
-      return val;
-    }
-
-
-
-
-    template<class Field>
-    bool setDataValue(const typename Field::myC &val,std::string* whyNot=nullptr,const std::string &masterObjective="")
-    {
-      return setValueToId<typename Field::myC>
-          (Field::myId(),val,whyNot,masterObjective);
-    }
-
-
-
-
-    void pushType(const std::string& id
-                  ,ABC_Type_of_Value* var
-                  , std::string tip
-                  , std::string whatthis);
-
-
-    template<class Type>
-    void pushType(const std::string& name)
-    {
-      if (!hasType(Type::myId(name)))
-        pushType(Type::myId(name)
-                 ,Type::varType(name)
-                 ,Type::myTip(),Type::myWhatThis());
-    }
-
-
-
-
-
-
-    template<class Type>
-    void pushType()
-    {
-      if (!hasType(Type::myId()))
-        pushType(Type::myId()
-                 ,Type::varType()
-                 ,Type::myTip()
-                 ,Type::myWhatThis());
-    }
-
-    template<class T>
-    void pushRegularType()
-    {
-      if (!hasType(Cls<T>::name()))
-        pushType(Cls<T>::name()
-                 , new Implements_Data_Type_New<T>(),"a "+Cls<T>::name(),"");
-    }
-
-
-
-
-
-    void pushCommand(const std::string& id
-                     ,Implements_Command_Type_New* var
-                     , std::string tip
-                     , std::string whatthis);
-
-
-    template<class Type>
-    void pushCommand()
-    {
-      pushCommand(Type::myId()
-                  ,Type::cmdType(this)
-                  ,Type::myTip()
-                  ,Type::myWhatThis());
-    }
-
-    void pushFunction(const std::__cxx11::string &id
-                      , Implements_Data_Type_Function *tvar
-                      , std::__cxx11::string tip
-                      , std::__cxx11::string whatthis);
-
-
-    StructureEnv_New(const StructureEnv_New* parent, const Implements_Data_Type_New<StructureEnv_New *> *myType);
-
-    StructureEnv_New(const StructureEnv_New* parent, const std::string& idType):
-      StructureEnv_New(parent,parent->idToTyped<StructureEnv_New*>(idType)){}
-
-
-    StructureEnv_New()=default;
-
-
-    std::vector<std::__cxx11::string> getIdsOfVarType(const std::string& varType, bool recursive)const;
-
-
-
-
-
-    // Implements_Value_New interface
-
-    std::set<std::string> getIdsOfTypeType(const std::string &typeType, bool recursive) const;
-    std::string defaultIdOfVarType(const std::string &varType, bool recursive) const;
-    std::string defaultIdOfTypeType(const std::string &typeType, bool recursive) const;
-    std::string defaultIdOfCommand(const std::string &typeType, bool recursive) const;
-
-
-    std::string defaultIdOfCmdType(const std::string &cmdType, bool recursive) const;
-    std::set<std::string> getIdsOfCmdType(const std::string &cmdType, bool recursive) const;
-
-    friend class buildByToken<std::map<std::string, ABC_Data_New *> >;
-
-
-    std::map<std::string,ABC_Data_New*>& getVars();
-    const std::map<std::string,ABC_Data_New*>& getVars()const;
-    std::map<std::string,ABC_Type_of_Value*>& getTypes();
-    const std::map<std::string,ABC_Type_of_Value*>& getTypes()const;
-    std::map<std::string,Implements_Command_Type_New*>& getCommands();
-    const std::map<std::string,Implements_Command_Type_New*>& getCommands()const;
-
-
-
-    // ABC_Data_New interface
-  public:
-    virtual StructureEnv_New *clone() const override
-    {
-      return new StructureEnv_New(*this);
-    }
-    virtual ABC_Data_New *create() const override
-    {
-      return new StructureEnv_New(p_,strType_);
-    }
-    virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override;
-
-    std::string dataToId(const ABC_Data_New *data, std::__cxx11::string *whyNot=nullptr, const std::string &objective="") const;
-
-    std::string Tip(const std::string& id)const ;
-    std::string WhatThis(const std::string& id) const;
-
-
-    std::size_t numIdVars()const {return idVars_.size();}
-    std::size_t numIdTypes()const {return idTypes_.size();}
-    std::size_t numIdCmds()const {return idCmds_.size();}
-
-
-
-
-
-    std::string fnAddrToId(const void *data, std::__cxx11::string *whyNot, const std::string &objective) const;
-    Implements_Data_Type_Function *idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective);
-    const Implements_Data_Type_Function *idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const;
-
-    bool hasFunction(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const;
-
-
-    std::map<std::__cxx11::string, Implements_Data_Type_Function *> &getFunctions();
-
-    const std::map<std::__cxx11::string, Implements_Data_Type_Function *> &getFunctions() const;
-
-    bool hasFunctionofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const;
-    std::set<std::string> getIdsOfFncType(const std::string &fucnType, bool recursive) const;
-  private:
-
-
-    const StructureEnv_New* p_;
-    Implements_Data_Type_New<StructureEnv_New*> const* strType_;
-    std::string structType_;
-    std::vector<std::string> idVars_;
-    std::vector<std::string> idFunctions_;
-    std::vector<std::string> idTypes_;
-    std::vector<std::string> idCmds_;
-
-    std::map<std::string,ABC_Data_New*> all_;
-    std::map<const ABC_Data_New*, std::string> allId_;
-    std::map<std::string,ABC_Data_New*> vars_;
-    std::map<std::string,Implements_Data_Type_Function*> funcs_;
-    std::map<std::string,ABC_Type_of_Value*> types_;
-    std::map<std::string,ABC_Type_of_Value*> typeC_;
-
-    std::map<std::string,Implements_Command_Type_New*> cmds_;
-
-    std::map<std::string,std::pair<std::string,std::string>> idTipWt_;
-    std::map<const void*,std::string> fnNames_;
-
-    // ABC_Data_New interface
-  public:
-    virtual StructureEnv_New *evalData(Markov_CommandManagerVar *cm) override
-    {
-      return this;
-    }
-  };
 
 
 
@@ -880,9 +98,31 @@ namespace Markov_IO_New {
 
   class Implements_Identifier;
 
-  class ABC_Type_of_Value : public ABC_Data_New
+  class ABC_Type_of_Value //: public ABC_Data_New
   {
   public:
+
+    virtual bool empty()const =0;
+
+    virtual void reset()=0;
+
+    virtual ABC_Type_of_Value* clone()const=0;
+    virtual ABC_Type_of_Value* create()const=0;
+
+
+
+    virtual ABC_Type_of_Value const* myType()const=0;
+
+    virtual std::string myTypeId()const=0;
+
+    virtual bool isOfThisType(const StructureEnv_New* cm,
+                              const std::string& generalType,
+                              std::string* whyNot=nullptr
+                              ,const std::string &masterObjective="")const=0;
+
+
+
+
     ABC_Type_of_Value();
     virtual ~ABC_Type_of_Value(){}
     virtual bool putData(const StructureEnv_New* cm
@@ -938,65 +178,6 @@ namespace Markov_IO_New {
   private:
     StructureEnv_New* env_;
 
-
-
-    // ABC_Data_New interface
-  public:
-    virtual ABC_Type_of_Value *evalData(Markov_CommandManagerVar *cm) override
-    {
-      return this;
-    }
-  };
-
-
-  class ABC_Type_of_Function: public ABC_Type_of_Value
-  {
-    // ABC_Value_New interface
-  public:
-
-
-    typedef ABC_Type_of_Function selfType;
-
-
-    virtual ~ABC_Type_of_Function()
-    {
-    }
-
-
-//    virtual bool putClosure(const StructureEnv_New* cm
-//                            ,const ABC_Closure* v
-//                            ,ABC_Output* ostream
-//                            ,std::string* error,
-//                            const std::string& masterObjective)const=0;
-
-
-//    virtual bool getClosure(const StructureEnv_New* cm
-//                            ,ABC_Closure*& v
-//                            , ABC_Input* istream
-//                            ,std::string* error
-//                            , const std::string& masterObjective)const=0;
-
-
-    virtual ABC_BuildClosure* getBuildByToken(
-        const StructureEnv_New* cm)const=0;
-
-
-
-//    virtual bool isClosureInDomain(const StructureEnv_New* cm
-//                                   ,const ABC_Closure* v
-//                                   , std::string *whyNot
-//                                   , const std::string& masterObjective)const=0;
-
-
-
-    virtual std::string getFunctionId()const=0;
-
-
-//    virtual bool includesThisFunction(const StructureEnv_New* cm
-//                                      ,const std::string& childType
-//                                      ,std::string *whyNot
-//                                      , const std::string &masterObjective)const=0;
-
   };
 
 
@@ -1004,663 +185,172 @@ namespace Markov_IO_New {
 
 
 
-
-
-  class ABC_Fn_Argument
+  class Type_Union : public ABC_Type_of_Value
   {
   public:
-    static std::string ClassName(){return "Implements_Fn_Argument";}
-    virtual void clear()=0;
 
-    virtual std::string id()const=0;
-    virtual const ABC_Type_of_Value* dataType(const StructureEnv_New* cm)const=0;
-    virtual std::string Tip()const=0;
-    virtual std::string WhatThis()const=0;
+    virtual bool empty()const{return s_.empty();}
 
-    virtual bool isMandatory()const =0;
+    virtual void reset(){s_.clear();}
 
-    virtual bool isDefaulted()const=0;
-    virtual ~ABC_Fn_Argument(){}
-  };
+    virtual Type_Union* clone()const{return new Type_Union(*this);}
+    virtual Type_Union* create()const {return new Type_Union();}
 
-  template<typename T>
-  class Implements_Fn_Argument: public ABC_Fn_Argument
-  {
-  public:
-    typedef T myC;
 
-    typedef Implements_Fn_Argument<T> selfType;
-
-    virtual void clear()
-    {
-      id_.clear();dataType_=nullptr; whatThis_.clear(); tip_.clear();
-    }
-
-    virtual std::string id()const
-    {
-      return id_;
-    }
-
-    Implements_Fn_Argument(T defaultValue):
-      Implements_Fn_Argument(""
-                             ,nullptr
-                             ,new Implements_Value_New<T>(nullptr,defaultValue)
-                             ,true,"",""){}
-
-    Implements_Fn_Argument(ABC_R_Closure<T>* defaultValue):
-      Implements_Fn_Argument("",nullptr,defaultValue,true,"",""){}
-
-
-    Implements_Fn_Argument(std::string id
-                           ,const Implements_Data_Type_New<ABC_R_Closure<T>*>* datatype
-                           ,ABC_R_Closure<T>* defaultValue
-                           ,bool isMandatory
-                           ,const std::string& tip
-                           ,const std::string& whatthis):
-      id_(id),dataType_(datatype),defaultValue_(defaultValue),isMandatory_(isMandatory),tip_(tip),whatThis_(whatthis){}
-
-    Implements_Fn_Argument(const StructureEnv_New *cm,
-                           std::string id
-                           ,const std::string& tip
-                           ,const std::string& whatthis):
-      Implements_Fn_Argument(id,
-                             cm->idToTypeC<T>(Cls<T>::name()),
-    nullptr,true,tip,whatthis){}
-
-    Implements_Fn_Argument(const StructureEnv_New *cm,
-                           std::string id
-                           ,const T& defaultValue
-                           ,bool isMandatory
-                           ,const std::string& tip
-                           ,const std::string& whatthis):
-      Implements_Fn_Argument(id,
-                             cm->idToTypeC<T>(Cls<T>::name()),
-                             new Implements_Value_New<T>
-                             (cm->idToTyped<T>(Cls<T>::name()),defaultValue)
-                             ,isMandatory,tip,whatthis){}
-
-
-
-    template<typename Field>
-    Implements_Fn_Argument(StructureEnv_New *cm,
-                           std::string id,
-                           Field,
-                           T defaultValue
-                           ,bool isMandatory
-                           ,const std::string& tip
-                           ,const std::string& whatthis):
-      Implements_Fn_Argument(id,
-                             cm->idToTypeC<T>(Field::myId()),
-                             new Implements_Value_New<T>
-                             (cm->idToTyped<T>(Field::myId()),defaultValue)
-                             ,isMandatory,tip,whatthis){}
-
-
-    template<typename Field>
-    Implements_Fn_Argument(StructureEnv_New *cm
-                           , std::string id
-                           ,Field
-                           ,const std::string& tip
-                           ,const std::string& whatthis):
-      Implements_Fn_Argument(id,
-                             cm->idToTypeC<T>(Field::myId()),
-    nullptr,true,tip,whatthis)
-    {
-      if (dataType_==nullptr)
-        {
-          auto dataType=Field::varType();
-          auto dataTypeC=new Implements_Data_Type_New<ABC_R_Closure<T>*>(dataType);
-          cm->pushType(Field::myId()
-                       ,dataType
-                       ,Field::myTip()
-                       ,Field::myWhatThis());
-
-          dataType_=dataTypeC;
-        }
-    }
-
-
-
-
-    virtual ABC_R_Closure<T>* defaultValue()const {return defaultValue_;}
-
-    virtual bool isMandatory()const{return isMandatory_;}
-
-    virtual bool isDefaulted()const{return dataType_==nullptr;}
-
-
-
-    virtual const Implements_Data_Type_New<ABC_R_Closure<T>*>* dataType(const StructureEnv_New * cm)const override
-    {if (dataType_!=nullptr)
-        return dataType_;
-      else
-        return cm->idToTypeC<T>(Cls<T>::name());
-    }
-    virtual std::string Tip()const {return tip_;}
-    virtual std::string WhatThis()const override{return whatThis_;}
-    virtual ~Implements_Fn_Argument(){}
-    virtual selfType* clone(){return new selfType(*this);}
-  private:
-    std::string id_;
-    const Implements_Data_Type_New<ABC_R_Closure<T>*>* dataType_;
-    ABC_R_Closure<T>* defaultValue_;
-    bool isMandatory_;
-    std::string tip_;
-    std::string whatThis_;
-  };
-
-
-
-
-
-  template<>
-  class Implements_Fn_Argument<void>: public ABC_Fn_Argument
-  {
-  public:
-    typedef void myC;
-    virtual void clear() override
-    {
-    }
-
-    virtual std::string id()const override
-    {
-      return "void";
-    }
-
-    Implements_Fn_Argument(){}
-
-
-    virtual void defaultValue()const {}
-
-    virtual bool isMandatory()const override {return false;}
-
-    virtual bool isDefaulted()const override {return true;}
-
-
-    virtual const ABC_Type_of_Value* dataType(const StructureEnv_New* cm)const override {return nullptr;}
-
-
-
-    virtual std::string Tip()const  override {return "void";}
-    virtual std::string WhatThis() const override {return "returns nothing";}
-    virtual ~Implements_Fn_Argument(){}
-
-  };
-
-  class ABC_Type_of_Closure;
-
-
-
-  class Markov_CommandManagerVar_Closure: public ABC_R_Closure<Markov_CommandManagerVar*>
-
-  {
-    // ABC_Value_New interface
-  public:
-
-    typedef Markov_CommandManagerVar* returnType;
-
-    typedef Markov_CommandManagerVar_Closure selfType;
-
-
-
-    virtual returnType eval(Markov_CommandManagerVar* cm)
-    {
-      return cm;
-    }
-
-    virtual ~Markov_CommandManagerVar_Closure()
-    {
-    }
-
-    // ABC_Closure interface
-
-    // ABC_Data_New interface
-  public:
-    virtual bool empty() const override{return false;}
-    virtual void reset() override{}
-    virtual selfType *clone() const override{return new selfType();}
-    virtual selfType *create() const override {return new selfType();}
-    virtual const ABC_Type_of_Value *myType() const override {return nullptr;}
-    virtual std::__cxx11::string myTypeId() const override {}
-    virtual ABC_Data_New *evalData(Markov_CommandManagerVar *cm) override;
-    virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override{}
-  };
-
-
-
-
-
-  template<typename Fn, typename R,typename...Args>
-  class Implements_FnClosure: public ABC_R_Closure<R>
-  {
-    // ABC_Value_New interface
-  public:
-
-    typedef R returnType;
-
-    typedef  mp_list<Args...> argumentTypes;
-
-    typedef std::tuple<ABC_R_Closure<Args>*...>  argumentTuple;
-
-    typedef Implements_FnClosure<Fn,R,Args...> selfType;
-
-    virtual ABC_Type_of_Value const * myType()const override
-    {
-      return fnType_;
-    }
-
-
-    virtual Implements_Data_Type_FnClosure<Fn,R,Args...> const * myTypeD()const
-    {
-      return fnType_;
-    }
-
-    template <int I>
-    typename std::tuple_element<I,argumentTuple>::type inputArgument()const
-    {
-      return std::get<I>(inputTu_);
-    }
-
-    const argumentTuple& getArguments()const {return inputTu_;}
-
-    argumentTuple& getArguments() {return inputTu_;}
-
-
-    Fn f()
-    {
-      return f_;
-    }
-
-
-    virtual selfType* clone()const
-    {
-      return new selfType(*this);
-    }
-
-    virtual ~Implements_FnClosure()
-    {
-    }
-
-    virtual bool isOfThisType(const StructureEnv_New* cm,
-                              const std::string& generalType,
-                              std::string* whyNot
-                              ,const std::string &masterObjective)const override;
-
-
-    Implements_FnClosure(const Implements_Data_Type_FnClosure<Fn,R,Args...> * idtype,
-                         std::tuple<ABC_R_Closure<Args>*... >& vars):
-      fnType_(idtype),f_(idtype->f()),inputTu_(vars){}
-
-
-    Implements_FnClosure(const selfType& other)=default;
-
-    Implements_FnClosure(Implements_FnClosure&& other)=default;
-
-    Implements_FnClosure& operator=(const Implements_FnClosure& other)=default;
-
-    Implements_FnClosure& operator=(Implements_FnClosure&& other)=default;
-
-    Implements_FnClosure()=default;
-
-
-    virtual bool empty() const override
-    {
-      return f_==nullptr;
-    }
-
-    virtual void reset() override
-    {
-      f_=nullptr;
-      inputTu_=argumentTuple{};
-    }
-
-    virtual selfType* create() const override
-    {
-      return new selfType();
-    }
-
-    returnType eval(Markov_CommandManagerVar* cm)override
-    {
-      return f_(std::get<std::integer_sequence<Args...>>(inputTu_)->eval(cm));
-    }
-    // ABC_Closure interface
-  public:
-    virtual ABC_Data_New *evalData(Markov_CommandManagerVar* cm) override
-    {
-
-      return Implements_Value_New<returnType>
-          (fnType_->returnArgument().dataType(),eval(cm));
-    }
-
-
-
-
-
-    std::string getFunctionId() const override
-    {
-      return myTypeD()->getFunctionId();
-    }
-    virtual ABC_Data_New *operator ()(std::vector<ABC_Data_New *> var) const override{}
-
+    virtual ABC_Type_of_Value const* myType()const{return nullptr;}
 
     virtual std::string myTypeId()const
     {
-      return getFunctionId();
-    }
-
-
-  protected:
-    const Implements_Data_Type_FnClosure<Fn,R,Args...>  * fnType_;
-    Fn f_;
-    std::tuple<ABC_R_Closure<Args>*...> inputTu_;
-
-  };
-
-
-
-  template<typename Fn, typename...Args>
-  class Implements_FnClosure<Fn,void,Args...>: public ABC_Closure
-  {
-    // ABC_Value_New interface
-  public:
-
-    typedef void returnType;
-
-    typedef  mp_list<Args...> argumentTypes;
-
-    typedef std::tuple<ABC_R_Closure<Args>*...>  argumentTuple;
-
-    typedef Implements_FnClosure<Fn,void,Args...> selfType;
-
-    virtual ABC_Type_of_Value const * myType()const override
-    {
-      return fnType_;
-    }
-
-
-    virtual Implements_Data_Type_FnClosure<Fn,void,Args...> const * myTypeD()const
-    {
-      return fnType_;
-    }
-
-    template <int I>
-    typename std::tuple_element<I,argumentTuple>::type inputArgument()const
-    {
-      return std::get<I>(inputTu_);
-    }
-
-    const argumentTuple& getArguments()const {return inputTu_;}
-
-    argumentTuple& getArguments() {return inputTu_;}
-
-
-
-    Fn f()
-    {
-      return f_;
-    }
-
-
-    virtual selfType* clone()const
-    {
-      return new selfType(*this);
-    }
-
-    virtual ~Implements_FnClosure()
-    {
+      std::set<std::string> s;
+      for (auto e:s_)
+        s.insert(e->myTypeId());
+      std::string out;
+      for (auto e:s)
+        out+=e+"_";
+      return out;
     }
 
     virtual bool isOfThisType(const StructureEnv_New* cm,
                               const std::string& generalType,
                               std::string* whyNot
-                              ,const std::string &masterObjective)const override
+                              ,const std::string &masterObjective)const
     {
-
+      for (const ABC_Type_of_Value* e:s_)
+        {
+          if (!e->isOfThisType(cm,generalType,whyNot,masterObjective))
+            return false;
+        }
+       return true;
     }
 
 
-    Implements_FnClosure(const Implements_Data_Type_FnClosure<Fn,void,Args...> * idtype,const  std::tuple<ABC_R_Closure<Args>*... >& vars={}):
-      fnType_(idtype),f_(idtype->f()),inputTu_(vars){}
 
 
-    Implements_FnClosure(const selfType& other)=default;
-
-    Implements_FnClosure(Implements_FnClosure&& other)=default;
-
-    Implements_FnClosure& operator=(const Implements_FnClosure& other)=default;
-
-    Implements_FnClosure& operator=(Implements_FnClosure&& other)=default;
-
-    Implements_FnClosure()=default;
-
-
-    virtual bool empty() const override
+    Type_Union()=default;
+    Type_Union(std::vector<const ABC_Type_of_Value*> v):s_(v){}
+    virtual ~Type_Union(){}
+    virtual bool putData(const StructureEnv_New* cm
+                         ,const ABC_Data_New* v
+                         ,ABC_Output* ostream
+                         ,std::string* error,
+                         const std::string& masterObjective)const
     {
-      return f_==nullptr;
+      if (isDataInDomain(cm,v,error,masterObjective))
+       return v->myType()->putData(cm,v,ostream,error,masterObjective);
+      else return false;
     }
 
-    virtual void reset() override
+    virtual bool getData(const StructureEnv_New* cm
+                         ,ABC_Data_New*& v
+                         , ABC_Input* istream
+                         ,std::string* error
+                         , const std::string& masterObjective)const
     {
-      f_=nullptr;
-      inputTu_=argumentTuple{};
+      for (const ABC_Type_of_Value* t:s_)
+        {
+          if (t->getData(cm,v,istream,error,masterObjective))
+            return true;
+        }
+      return false;
     }
 
-    virtual selfType* create() const override
+    virtual BuildByToken_Union* getBuildByToken(
+        const StructureEnv_New* cm)const
     {
-      return new selfType();
+      return new BuildByToken_Union(cm,this);
     }
 
-    void eval(Markov_CommandManagerVar* cm)
-    {
-      mp_apply_void<Fn,Args...>(cm,f_,inputTu_);
-    }
-    // ABC_Closure interface
-  public:
-    virtual ABC_Data_New *evalData(Markov_CommandManagerVar* cm) override
-    {
-      eval(cm);
 
+    virtual bool isDataInDomain(const StructureEnv_New* cm
+                                ,const ABC_Data_New* v
+                                , std::string *whyNot
+                                , const std::string& masterObjective)const
+    {
+      for (const ABC_Type_of_Value* t:s_)
+        {
+          if (t->isDataInDomain(cm,v,whyNot,masterObjective))
+            return true;
+        }
+      return false;
+
+    }
+
+    virtual bool includesThisType(const StructureEnv_New* cm
+                                  ,const std::string& childType
+                                  ,std::string *whyNot=nullptr
+                                  , const std::string &masterObjective="")const
+    {
+      for (const ABC_Type_of_Value* t:s_)
+        {
+          if (t->includesThisType(cm,childType,whyNot,masterObjective))
+            return true;
+        }
+      return false;
+
+    }
+
+    virtual StructureEnv_New* getComplexVarRep(
+        const StructureEnv_New* cm,
+        const ABC_Data_New* var
+        ,std::string* whyNot
+        ,const std::string& masterObjective)const
+    {
       return nullptr;
     }
-    //    virtual const std::vector<const ABC_Data_New *> &inputArguments() const override;
 
-
-
-
-    std::string getFunctionId() const
+    virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
+                                      const StructureEnv_New* cvar,
+                                      std::string* whyNot,
+                                      const std::string& masterObjective)const
     {
-      return myTypeD()->getFunctionId();
-    }
-
-
-    virtual std::string myTypeId()const
-    {
-      return getFunctionId();
+      return nullptr;
     }
 
 
 
+    virtual std::string typeId()const
+    {
+      std::string out;
+      for (const ABC_Type_of_Value* t:s_)
+        {
+          out+=t->typeId()+"_";
+        }
 
+    }
 
-  protected:
-    const Implements_Data_Type_FnClosure<Fn,void,Args...>  * fnType_;
-    Fn f_;
-    std::tuple<ABC_R_Closure<Args>*...> inputTu_;
+    virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const {return nullptr;}
+    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const {return nullptr;}
 
+   const std::vector<const ABC_Type_of_Value*>&
+     getAllTypes()const
+   {
+     return s_;
+   }
+
+   void push_Type(const ABC_Type_of_Value* t)
+   {
+     if (names_.find(t->typeId())==names_.end())
+       {
+       s_.push_back(t);
+       names_.insert(t->typeId());
+       }
+   }
+
+  private:
+    std::set<std::string> names_;
+    std::vector<const ABC_Type_of_Value*> s_;
   };
 
-
-
-  template<class C,typename Fn, typename R,typename...Args>
-  class Implements_MethodClosure: public ABC_Closure
+  inline std::vector<ABC_BuildByToken*>
+  getBuildByTokenVector(const StructureEnv_New* cm,const Type_Union* t)
   {
-    // ABC_Value_New interface
-  public:
-
-    typedef R returnType;
-
-    typedef  mp_list<Args...> argumentTypes;
-
-    typedef std::tuple<Args...>  argumentTuple;
-
-    typedef Implements_MethodClosure<C,Fn,R,Args...> selfType;
-
-    virtual ABC_Type_of_Value const * myType()const override
-    {
-      return fnType_;
-    }
-
-    virtual Implements_Data_Type_MethodClosure<C,Fn,R,Args...> const * myTypeD()const
-    {
-      return fnType_;
-    }
-
-    template <int I>
-    typename std::tuple_element<I,argumentTuple>::type inputArgument()const
-    {
-      return std::get<I>(inputTu_);
-    }
-
-    const argumentTuple& getArguments()const {return inputTu_;}
-
-    argumentTuple& getArguments() {return inputTu_;}
+      std::vector<ABC_BuildByToken*> out(t->getAllTypes().size());
+     for (std::size_t i=0; i<t->getAllTypes().size(); ++i)
+       out[i]=t->getAllTypes()[i]->getBuildByToken(cm);
+     return out;
+  }
 
 
-
-    Fn f()
-    {
-      return f_;
-    }
-
-    returnType operator()(Args... vars)
-    {
-      return f_(vars...);
-    }
-
-
-    virtual selfType* clone()const
-    {
-      return new selfType(*this);
-    }
-
-    virtual ~Implements_MethodClosure()
-    {
-    }
-
-    virtual bool isOfThisType(const StructureEnv_New* cm,
-                              const std::string& generalType,
-                              std::string* whyNot
-                              ,const std::string &masterObjective)const override;
-
-
-    Implements_MethodClosure(const Implements_Data_Type_MethodClosure<C,Fn,R,Args...> * idtype,
-                             C* x, std::tuple<Args... >& vars):
-      x_(x),fnType_(idtype),f_(idtype->f()),inputTu_(vars){}
-
-
-    Implements_MethodClosure(const selfType& other)=default;
-
-    Implements_MethodClosure(Implements_MethodClosure&& other)=default;
-
-    Implements_MethodClosure& operator=(const Implements_MethodClosure& other)=default;
-
-    Implements_MethodClosure& operator=(Implements_MethodClosure&& other)=default;
-
-    Implements_MethodClosure()=default;
-
-
-    virtual bool empty() const override
-    {
-      return f_==nullptr;
-    }
-
-    virtual void reset() override
-    {
-      f_=nullptr;
-      inputTu_=argumentTuple{};
-    }
-
-    virtual selfType* create() const override
-    {
-      return new selfType();
-    }
-
-    returnType eval()
-    {
-      return x_->*f_(std::get<std::integer_sequence<Args...>>(inputTu_));
-    }
-    // ABC_Closure interface
-  public:
-    virtual ABC_Data_New *evalData(const StructureEnv_New* cm) override
-    {
-
-      return Implements_Value_New<returnType>
-          (fnType_->returnArgument().dataType(),eval());
-    }
-
-
-
-    std::string getFunctionId() const override
-    {
-      return myTypeD()->getFunctionId();
-    }
-
-
-    virtual std::string myTypeId()const
-    {
-      return getFunctionId();
-    }
-
-
-
-
-
-  protected:
-    const Implements_Data_Type_MethodClosure<C,Fn,R,Args...>  * fnType_;
-    C* x_;
-    Fn f_;
-    std::tuple<Args...> inputTu_;
-
-  };
-
-
-
-
-
-
-  class ABC_Type_of_Closure: public ABC_Type_of_Function
-  {
-    // ABC_Value_New interface
-  public:
-
-
-    typedef ABC_Type_of_Function selfType;
-
-
-    virtual const ABC_Fn_Argument* returnArgument()const=0;
-
-    virtual const std::vector<const ABC_Fn_Argument*>& inputArguments()const=0;
-
-    virtual const ABC_Type_of_Value*
-    getArgumentsType(const StructureEnv_New * cm)const =0;
-
-
-    virtual ABC_BuildByToken* getBuildArguments(const StructureEnv_New* cm)const=0;
-
-
-
-    virtual ~ABC_Type_of_Closure()
-    {
-    }
-
-    virtual bool includesThisFunction(const StructureEnv_New* cm
-                                      ,const std::string& childType
-                                      ,std::string *whyNot
-                                      , const std::string &masterObjective)const=0;
-
-  };
-
-  
 
 
   namespace Real
@@ -1772,7 +462,7 @@ namespace Markov_IO_New {
           {
             auto gTp
                 =cm->idToTyped<T>(generalType,whyNot,masterObjective);
-            std::string id=cm->dataToId(this,whyNot,masterObjective);
+            std::string id=typeId();
             if ((id.empty())||(gTp==nullptr))
               return false;
             else
@@ -1825,7 +515,7 @@ namespace Markov_IO_New {
           {
             auto gTp
                 =cm->idToTyped<T*>(generalType,whyNot,masterObjective);
-            std::string id=cm->dataToId(this,whyNot,masterObjective);
+            std::string id=typeId();
             if ((id.empty())||(gTp==nullptr))
               return false;
             else
@@ -2183,114 +873,182 @@ namespace Markov_IO_New {
   };
 
 
-  namespace _private
+  class Identifier_Union;
+
+  std::vector<buildByToken<std::string>*>
+  getBuildByTokenVector(const StructureEnv_New* cm,const Identifier_Union* t);
+
+
+  class Identifier_Union: public Implements_Identifier
+
   {
-    template <typename T>
-    class Implements_Data_Type_Identifier_Closure: public ABC_Type_of_Value
+  public:
+
+    static std::string ClassName(){return "Identifier_Union";}
+
+    virtual Identifier_Union const * myType()const override {return nullptr;}
+
+    std::string typeId()const override
+    {
+      std::string out;
+      for (const Implements_Identifier* e:v_)
+        {
+          out+=e->typeId()+"_";
+        }
+      return out;
+
+
+    }
+
+    virtual std::set<std::string> alternativeNext(const StructureEnv_New* cm)const override
+    {
+      std::set<std::string> out;
+      for (const Implements_Identifier* e:v_)
+        {
+          out+=e->alternativeNext(cm);
+        }
+      return out;
+
+    }
+
+    virtual bool isValueInDomain(const StructureEnv_New* cm,const std::string &idCandidate, std::string *whyNot,const std::string& objective ) const override
+    {
+      for (const Implements_Identifier* e:v_)
+        {
+          if (e->isValueInDomain(cm,idCandidate,whyNot,objective))
+            return true;
+        }
+      return false;
+    }
+
+    std::string getName()const {
+      std::string out;
+      for (const Implements_Identifier* e:v_)
+        {
+          out+=e->getName()+"_";
+        }
+      return out;
+
+    }
+
+    void setName(const std::string& name)
     {
 
-
-      // ABC_Data_New interface
-    public:
-      typedef Implements_Identifier_Value<T> myC;
-
-      virtual bool empty() const override{}
-      virtual void reset() override{}
-      virtual ABC_Data_New *clone() const override{}
-      virtual ABC_Data_New *create() const override{}
-      virtual const ABC_Type_of_Value *myType() const override{}
-      virtual std::__cxx11::string myTypeId() const override
-      {
-
-      }
-      virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override{}
-
-      virtual bool putData(const StructureEnv_New* cm
-                           ,const ABC_Data_New* v
-                           ,ABC_Output* ostream
-                           ,std::string* error,
-                           const std::string& masterObjective)const{}
-
-      virtual bool getData(const StructureEnv_New* cm
-                           ,ABC_Data_New*& v
-                           , ABC_Input* istream
-                           ,std::string* error
-                           , const std::string& masterObjective)const{}
-
-      
-      virtual bool putValue(const StructureEnv_New* cm
-                           ,const myC* v
-                           ,ABC_Output* ostream
-                           ,std::string* error,
-                           const std::string& masterObjective)const{}
-
-      virtual bool getValue(const StructureEnv_New* cm
-                           ,myC*& v
-                           , ABC_Input* istream
-                           ,std::string* error
-                           , const std::string& masterObjective)const{}
-
-      
-      
-      virtual buildByToken<myC*>* getBuildByToken(
-          const StructureEnv_New* cm)const override
-      {
-        return new buildByToken<myC*>(cm,this);
-      }
+    }
 
 
-      virtual bool isDataInDomain(const StructureEnv_New* cm
-                                  ,const ABC_Data_New* v
-                                  , std::string *whyNot
-                                  , const std::string& masterObjective)const{}
+    Identifier_Union* clone()const override
+    {
+      return new Identifier_Union(*this);
+    }
 
-      virtual bool includesThisType(const StructureEnv_New* cm
-                                    ,const std::string& childType
-                                    ,std::string *whyNot
-                                    , const std::string &masterObjective)const{}
+    Identifier_Union* create()const override
+    {
+      return new Identifier_Union();
+    }
 
-      virtual StructureEnv_New* getComplexVarRep(
-          const StructureEnv_New* cm,
-          const ABC_Data_New* var
-          ,std::string* whyNot
-          ,const std::string& masterObjective)const override
-      {
-        return nullptr;
-      }
-
-      virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                        const StructureEnv_New* cvar,
-                                        std::string* whyNot,
-                                        const std::string& masterObjective)const
-      {
-        return nullptr;
-      }
+    Identifier_Union(){}
 
 
 
 
 
-      virtual std::string typeId()const {}
 
-      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const{
-        return varType_->getVarIdType(cm);
-        
-      }
-      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const{}
-
-      
-      
-    private: 
-      const Implements_Data_Type_New<T>* varType_;
+    virtual BuildByTokenString_Union* getBuildByToken(
+        const StructureEnv_New* cm)const override
+    {
+       return new BuildByTokenString_Union(cm,this);
+    }
 
 
-    };
 
+    virtual ~Identifier_Union (){}
+
+    virtual bool putValue(const StructureEnv_New* cm,
+                          const std::string& v
+                          ,ABC_Output* ostream
+                          ,std::string* whyNot=nullptr
+        ,const std::string& masterObjective="")const override
+    {
+
+      if ((whyNot==nullptr)||(isValueInDomain(cm,v,whyNot,masterObjective)))
+        {
+          ostream->put(v);
+          return true;
+        }
+      else return false;
+    }
+
+
+    virtual bool getData(const StructureEnv_New* cm
+                         ,ABC_Data_New*& v
+                         , ABC_Input* istream
+                         ,std::string* error
+                         , const std::string& masterObjective)const override
+    {
+      for (const Implements_Identifier* t:v_)
+        {
+          if (t->getData(cm,v,istream,error,masterObjective))
+            return true;
+        }
+      return false;
+    }
+
+
+
+
+    virtual bool getValue(const StructureEnv_New* cm
+                          ,std::string& v, ABC_Input* istream,std::string* whyNot=nullptr
+        ,const std::string& masterObjective="")const override
+    {
+      for (const Implements_Identifier* t:v_)
+        {
+
+          if (t->getValue(cm,v,istream,whyNot,masterObjective))
+                 return true;
+
+        }
+      return false;
+
+    }
+
+
+    // ABC_Data_New interface
+  public:
+    virtual bool empty() const override
+    {
+      return v_.empty();
+    }
+    virtual void reset() override
+    {
+      return v_.clear();
+    }
+
+
+
+    virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+    {
+      return nullptr;
+    }
+    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+    {
+      return nullptr;
+    }
+
+    const std::vector<const Implements_Identifier*>&
+    getAllTypes()const {return v_;}
+  protected:
+   std::vector<const Implements_Identifier*> v_;
   };
 
-
-
-
+  inline std::vector<buildByToken<std::string>*>
+  getBuildByTokenVector(const StructureEnv_New* cm,const Identifier_Union* t)
+  {
+      std::vector<buildByToken<std::string>*> out(t->getAllTypes().size());
+     for (std::size_t i=0; i<t->getAllTypes().size(); ++i)
+       out[i]=t->getAllTypes()[i]->getBuildByToken(cm);
+     return out;
+  }
 
 
   namespace Identifier {
@@ -2553,76 +1311,6 @@ namespace Markov_IO_New {
 
 
   namespace _private{
-
-   template<typename T>
-    class Implements_Data_Type_Value_Identifier
-        : public ABC_Type_of_Value
-    {
-
-
-      // ABC_Data_New interface
-    public:
-      virtual bool empty() const override;
-      virtual void reset() override;
-      virtual ABC_Type_of_Value *clone() const override;
-      virtual ABC_Type_of_Value *create() const override;
-      virtual const ABC_Type_of_Value *myType() const override;
-      virtual std::__cxx11::string myTypeId() const override;
-      virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override;
-      virtual bool putData(const StructureEnv_New* cm
-                           ,const ABC_Data_New* v
-                           ,ABC_Output* ostream
-                           ,std::string* error,
-                           const std::string& masterObjective)const=0;
-
-      virtual bool getData(const StructureEnv_New* cm
-                           ,ABC_Data_New*& v
-                           , ABC_Input* istream
-                           ,std::string* error
-                           , const std::string& masterObjective)const=0;
-
-      virtual ABC_BuildClosure* getBuildByToken(
-          const StructureEnv_New* cm)const=0;
-
-
-      virtual bool isDataInDomain(const StructureEnv_New* cm
-                                  ,const ABC_Data_New* v
-                                  , std::string *whyNot
-                                  , const std::string& masterObjective)const=0;
-
-      virtual bool includesThisType(const StructureEnv_New* cm
-                                    ,const std::string& childType
-                                    ,std::string *whyNot
-                                    , const std::string &masterObjective)const=0;
-
-      virtual StructureEnv_New* getComplexVarRep(
-          const StructureEnv_New* cm,
-          const ABC_Data_New* var
-          ,std::string* whyNot
-          ,const std::string& masterObjective)const=0;
-
-      virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                        const StructureEnv_New* cvar,
-                                        std::string* whyNot,
-                                        const std::string& masterObjective)const=0;
-
-
-
-      virtual StructureEnv_New* getEnv(){return env_;}
-      virtual const StructureEnv_New* getEnv()const {return env_;}
-
-
-      virtual std::string typeId()const =0;
-
-      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const=0;
-      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const=0;
-
-
-
-    };
-
-
-
 
 
     template<typename T, template<typename> class C>
@@ -2915,8 +1603,6 @@ namespace Markov_IO_New {
 
 
 
-
-
     template<typename... Args>
     class Implements_Data_Type_New_tuple:public ABC_Type_of_Value
     {
@@ -2927,9 +1613,9 @@ namespace Markov_IO_New {
       typedef std::tuple<Args...> myC;
 
 
-      typedef std::tuple<Implements_Fn_Argument<Args>...> dataArgumentsTuple;
+      typedef std::tuple<const Implements_Data_Type_New<Args>* ...> dataTypesTuple;
 
-      static std::string myId() {return Cls<dataArgumentsTuple>::name();}
+      static std::string myId() {return Cls<myC>::name();}
       static selfType* varType(const StructureEnv_New* cm)
       {return new selfType{};}
       static std::string myTip(){return "a regular " +Cls<myC>::name();}
@@ -3008,7 +1694,7 @@ namespace Markov_IO_New {
           {
             auto gTp
                 =cm->idToTyped<myC>(generalType,whyNot,masterObjective);
-            std::string id=cm->dataToId(this,whyNot,masterObjective);
+            std::string id=typeId();
             if ((id.empty())||(gTp==nullptr))
               return false;
             else
@@ -3016,18 +1702,6 @@ namespace Markov_IO_New {
           }
 
       }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3042,13 +1716,13 @@ namespace Markov_IO_New {
       
       static constexpr std::size_t num_elements()
       {
-        return std::tuple_size<dataArgumentsTuple>::value;
+        return std::tuple_size<dataTypesTuple>::value;
       }
 
       template <std::size_t dummy>
       static bool putValue_imp(const StructureEnv_New* cm,
                                const std::tuple<Args...>& v
-                               ,const std::tuple<Implements_Fn_Argument<Args>...> arg
+                               ,const dataTypesTuple& arg
                                ,ABC_Output* ostream
                                ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
@@ -3061,14 +1735,14 @@ namespace Markov_IO_New {
       template <std::size_t dummy,std::size_t I, std::size_t... Is>
       static bool putValue_imp(const StructureEnv_New* cm,
                                const std::tuple<Args...>& v
-                               ,const std::tuple<Implements_Fn_Argument<Args>...> arg
+                               ,const dataTypesTuple& arg
                                ,ABC_Output* ostream
                                ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
       {
 
         typedef typename std::tuple_element<I,std::tuple<Args...>>::type eType;
-        const Implements_Data_Type_New<eType>* vType=std::get<I>(arg).dataType(cm);
+        const Implements_Data_Type_New<eType>* vType=std::get<I>(arg);
         if (vType==nullptr)
           vType=cm->idToTyped<eType>(Cls<eType>::name());
         eType x=std::get<I>(v);
@@ -3085,7 +1759,7 @@ namespace Markov_IO_New {
       template <std::size_t... Is>
       static bool putValue_imp(std::index_sequence<Is...>,const StructureEnv_New* cm,
                                const std::tuple<Args...>& v
-                               ,const std::tuple<Implements_Fn_Argument<Args>...> arg
+                               ,const dataTypesTuple& arg
                                ,ABC_Output* ostream
                                ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
@@ -3100,7 +1774,8 @@ namespace Markov_IO_New {
 
 
       virtual bool putValue(const StructureEnv_New* cm,
-                            const myC& v,ABC_Output* ostream,std::string* whyNot=nullptr
+                            const myC& v,ABC_Output* ostream
+                            ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")const
       {
         if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
@@ -3113,23 +1788,23 @@ namespace Markov_IO_New {
 
       template<std::size_t...Is>
       constexpr static std::tuple<const Implements_Data_Type_New<Args>*...>
-      getTypesFromArg (const StructureEnv_New* cm,const dataArgumentsTuple& arg,std::index_sequence<Is...>)
+      getTypesFromArg (const StructureEnv_New* cm,const dataTypesTuple& arg,std::index_sequence<Is...>)
       {
         return {std::get<Is>(arg).dataType(cm)...};
       }
 
       template<std::size_t D>
-      static void fill_imp(myC& , const dataArgumentsTuple&)
+      static void fill_imp(myC& , const dataTypesTuple&)
       {
       }
 
       template <std::size_t D>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg)
+      static void fill_imp(myC& v, std::size_t iArg,const dataTypesTuple& arg)
       {}
 
 
       template <std::size_t D,std::size_t I,std::size_t... Is>
-      static void fill_imp(myC& v, const dataArgumentsTuple& arg)
+      static void fill_imp(myC& v, const dataTypesTuple& arg)
       {
         std::get<I>(v)=std::get<I>(arg).defaultValue();
         fill_imp<D,Is...>(v,arg);
@@ -3137,7 +1812,7 @@ namespace Markov_IO_New {
 
 
       template <std::size_t D,std::size_t I,std::size_t... Is>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg)
+      static void fill_imp(myC& v, std::size_t iArg,const dataTypesTuple& arg)
       {
         if (I<iArg)  fill_imp<D,Is...>(v,iArg,arg);
         else
@@ -3146,7 +1821,7 @@ namespace Markov_IO_New {
 
       
       template <std::size_t... Is>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg,
+      static void fill_imp(myC& v, std::size_t iArg,const dataTypesTuple& arg,
                            std::index_sequence<Is...>)
       {
         fill_imp<0,Is...>(v,iArg,arg);
@@ -3155,7 +1830,7 @@ namespace Markov_IO_New {
 
       template <std::size_t D>
       static bool getValue_imp(const StructureEnv_New* cm,
-                               myC& v,const dataArgumentsTuple& arg
+                               myC& v,const dataTypesTuple& arg
                                ,ABC_Input* istream,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
       {
@@ -3168,12 +1843,12 @@ namespace Markov_IO_New {
 
       template <std::size_t D,std::size_t I,size_t...Is>
       static bool getValue_imp(const StructureEnv_New* cm,
-                               myC& v,const dataArgumentsTuple& arg
+                               myC& v,const dataTypesTuple& arg
                                ,ABC_Input* istream,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
       {
         typedef typename std::tuple_element<I,myC>::type eType;
-        const Implements_Data_Type_New<eType>* vType=std::get<I>(arg).dataType();
+        const Implements_Data_Type_New<eType>* vType=std::get<I>(arg);
         bool mandatory=std::get<I>(arg).isMandatory();
         if (vType==nullptr)
           vType=cm->idToTyped<eType>(Cls<eType>::name());
@@ -3205,14 +1880,10 @@ namespace Markov_IO_New {
       }
 
 
-      const dataArgumentsTuple& getArguments()const{return args_;}
+      const dataTypesTuple& getArguments()const{return args_;}
 
 
-      const std::tuple<const Implements_Data_Type_New<Args>*...>&
-      getArgumentTypes()const
-      {
-        return varTypes_;
-      }
+
 
 
 
@@ -3226,18 +1897,17 @@ namespace Markov_IO_New {
 
 
       Implements_Data_Type_New_tuple(const StructureEnv_New* cm,
-                                     dataArgumentsTuple arg={},
+                                     dataTypesTuple arg={},
                                      typePredicate complyPred=nullptr)
         :args_(arg),
-          comply_(complyPred),
-          varTypes_(getTypesFromArg(cm,arg,std::index_sequence_for<Args...>()))
+          comply_(complyPred)
       {}
 
 
 
       Implements_Data_Type_New_tuple(const Implements_Data_Type_New_tuple<myC>& other)
         :args_(other.args_),
-          comply_(other.comply_), varTypes_(other.varTypes_){}
+          comply_(other.comply_){}
 
 
 
@@ -3297,389 +1967,8 @@ namespace Markov_IO_New {
 
 
     protected:
-
       typePredicate comply_;
-      std::tuple<Implements_Fn_Argument<Args>...>  args_;
-      std::tuple<const Implements_Data_Type_New<Args>*...> varTypes_;
-
-    };
-
-
-    template<typename... Args>
-    class Implements_Data_Type_New_tuple<ABC_R_Closure<Args>*...>:public ABC_Type_of_Value
-    {
-    public:
-
-      constexpr static std::size_t N=sizeof...(Args);
-      typedef  Implements_Data_Type_New_tuple<ABC_R_Closure<Args>*...> selfType;
-      typedef std::tuple<ABC_R_Closure<Args>*...> myC;
-
-
-      typedef std::tuple<Implements_Fn_Argument<Args>...> dataArgumentsTuple;
-
-      static std::string myId() {return Cls<dataArgumentsTuple>::name();}
-      static selfType* varType(const StructureEnv_New* cm)
-      {return new selfType{};}
-      static std::string myTip(){return "a regular " +Cls<myC>::name();}
-      static std::string myWhatThis(){return "";}
-      typedef mp_list<Implements_Data_Type_New<Args>...> dependsOn;
-      typedef mp_list<> fieldList;
-
-      using typePredicate=bool (*) (const StructureEnv_New* cm, const myC& data
-      ,const selfType* self
-      , std::string *whyNot, const std::string& masterObjective);
-
-
-
-
-      virtual bool putData(const StructureEnv_New* cm
-                           ,const ABC_Data_New* v
-                           ,ABC_Output* ostream
-                           ,std::string* error,
-                           const std::string& masterObjective)const override
-      {
-        auto data=dynamic_cast<
-            const Implements_Value_New<std::tuple<ABC_R_Closure<Args>*...>>* >(v);
-        if (data==nullptr)
-          {
-            *error=masterObjective+ ": "+data->myTypeId()+" is not a "+myTypeId();
-            return false;
-          }
-        else return putValue(cm,data->getValue(),ostream,error,masterObjective);
-      }
-
-
-      virtual bool isDataInDomain(const StructureEnv_New* cm,const ABC_Data_New* v
-                                  , std::string *whyNot, const std::string& masterObjective)const override
-      {
-        auto x=dynamic_cast<const Implements_Value_New<std::tuple<ABC_R_Closure<Args>*...>>* >(v);
-        if (x==nullptr)
-          {
-            if (whyNot!=nullptr)
-              *whyNot=masterObjective+": is not a "+Cls<myC>::name();
-            return false;
-          }
-        else
-          return isValueInDomain(cm,x->getValue(),whyNot,masterObjective);
-
-      }
-
-      virtual bool includesThisType(const StructureEnv_New* cm,
-                                    const std::string& childType,
-                                    std::string *whyNot
-                                    , const std::string &masterObjective)const override{}
-
-      virtual StructureEnv_New* getComplexVarRep(
-          const StructureEnv_New* cm,
-          const ABC_Data_New* ,std::string* ,const std::string& )const override
-      {
-        return nullptr;
-      }
-
-      virtual ABC_Data_New* getClassRep(
-          const StructureEnv_New* cm,
-          const StructureEnv_New*   ,std::string*, const std::string& )const override
-      {
-        return nullptr;
-      }
-
-
-      virtual bool isOfThisType
-      (const StructureEnv_New *cm
-       , const std::__cxx11::string &generalType
-       , std::__cxx11::string *whyNot
-       , const std::__cxx11::string &masterObjective) const override
-      {
-
-        if ((generalType.empty()||myTypeId()==generalType))
-          return true;
-        else
-          {
-            auto gTp
-                =cm->idToTyped<myC>(generalType,whyNot,masterObjective);
-            std::string id=cm->dataToId(this,whyNot,masterObjective);
-            if ((id.empty())||(gTp==nullptr))
-              return false;
-            else
-              return gTp->includesThisType(cm,id,whyNot,masterObjective);
-          }
-
-      }
-
-
-      virtual buildByToken<std::tuple<ABC_R_Closure<Args>*...>>* getBuildByToken(
-          const StructureEnv_New* cm)const override
-      {
-        return new buildByToken<std::tuple<ABC_R_Closure<Args>*...>>(cm,this);
-      }
-
-
-
-
-      static constexpr std::size_t num_elements()
-      {
-        return std::tuple_size<dataArgumentsTuple>::value;
-      }
-
-      template <std::size_t dummy>
-      static bool putValue_imp(const StructureEnv_New* cm,
-                               const std::tuple<ABC_R_Closure<Args>*...>& v
-                               ,const std::tuple<Implements_Fn_Argument<Args>...> arg
-                               ,ABC_Output* ostream
-                               ,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")
-      {
-        return true;
-
-      }
-
-
-      template <std::size_t dummy,std::size_t I, std::size_t... Is>
-      static bool putValue_imp(const StructureEnv_New* cm,
-                               const std::tuple<ABC_R_Closure<Args>*...>& v
-                               ,const std::tuple<Implements_Fn_Argument<Args>...> arg
-                               ,ABC_Output* ostream
-                               ,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")
-      {
-
-        typedef typename std::tuple_element<I,std::tuple<Implements_Fn_Argument<Args>...> >::
-            type::myC eType;
-        const Implements_Data_Type_New<ABC_R_Closure<eType>*>*
-            vType=std::get<I>(arg).dataType(cm);
-        if (vType==nullptr)
-          vType=cm->idToTypeC<eType>(Cls<eType>::name());
-        ABC_R_Closure<eType>* x=std::get<I>(v);
-
-        if (! vType->putValue(cm,x,ostream,whyNot,masterObjective))
-          return false;
-        else return putValue_imp<dummy,Is...>(cm,v,arg,ostream,whyNot,masterObjective);
-
-      }
-
-
-
-
-      template <std::size_t... Is>
-      static bool putValue_imp(std::index_sequence<Is...>,const StructureEnv_New* cm,
-                               const std::tuple<ABC_R_Closure<Args>*...>& v
-                               ,const std::tuple<Implements_Fn_Argument<Args>...> arg
-                               ,ABC_Output* ostream
-                               ,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")
-      {
-        return putValue_imp<0,Is...>(cm,v,arg,ostream,whyNot,masterObjective);
-      }
-
-
-
-
-
-
-
-      virtual bool putValue(const StructureEnv_New* cm,
-                            const myC& v,ABC_Output* ostream,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")const
-      {
-        if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
-          {
-            return putValue_imp(std::index_sequence_for<Args...>(),cm,v,args_,ostream,whyNot,masterObjective);
-          }
-        else return false;
-      }
-
-
-      template<std::size_t...Is>
-      constexpr static std::tuple<const Implements_Data_Type_New<ABC_R_Closure<Args>*>*...>
-      getTypesFromArg (const StructureEnv_New* cm,const dataArgumentsTuple& arg,std::index_sequence<Is...>)
-      {
-        return {std::get<Is>(arg).dataType(cm)...};
-      }
-
-      template<std::size_t D>
-      static void fill_imp(myC& , const dataArgumentsTuple&)
-      {
-      }
-
-      template <std::size_t D>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg)
-      {}
-
-
-      template <std::size_t D,std::size_t I,std::size_t... Is>
-      static void fill_imp(myC& v, const dataArgumentsTuple& arg)
-      {
-        std::get<I>(v)=std::get<I>(arg).defaultValue();
-        fill_imp<D,Is...>(v,arg);
-      }
-
-
-      template <std::size_t D,std::size_t I,std::size_t... Is>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg)
-      {
-        if (I<iArg)  fill_imp<D,Is...>(v,iArg,arg);
-        else
-          fill_imp<D,Is...>(v,arg);
-      }
-
-
-      template <std::size_t... Is>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg,
-                           std::index_sequence<Is...>)
-      {
-        fill_imp<0,Is...>(v,iArg,arg);
-      }
-
-
-      template <std::size_t D>
-      static bool getValue_imp(const StructureEnv_New* cm,
-                               myC& v,const dataArgumentsTuple& arg
-                               ,ABC_Input* istream,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")
-      {
-        return true;
-
-      }
-
-
-
-
-      template <std::size_t D,std::size_t I,size_t...Is>
-      static bool getValue_imp(const StructureEnv_New* cm,
-                               myC& v,const dataArgumentsTuple& arg
-                               ,ABC_Input* istream,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")
-      {
-        typedef typename std::tuple_element<I,myC>::type eType;
-        const Implements_Data_Type_New<eType>* vType=std::get<I>(arg).dataType();
-        bool mandatory=std::get<I>(arg).isMandatory();
-        if (vType==nullptr)
-          vType=cm->idToTyped<eType>(Cls<eType>::name());
-        eType& x=std::get<I>(v);
-
-        if (!mandatory &&  (istream->testIfNextCharIs('\n')||istream->eof()))
-          {
-            fill_imp<0,Is...>(v,arg);
-            return true;
-          }
-        else if (! vType->getValue(cm,x,istream,whyNot,masterObjective))
-          return false;
-        else
-          return getValue_imp<0,Is...>(cm,v,arg,istream,whyNot,masterObjective);
-
-      }
-
-
-
-      virtual bool getValue(const StructureEnv_New* cm
-                            ,myC& v, ABC_Input* istream,std::string* whyNot=nullptr
-          ,const std::string& masterObjective="")const
-      {
-
-        if (!getValue_imp<0>(cm,v,args_,istream,whyNot,masterObjective))
-          return false;
-        else
-          return (whyNot==nullptr)||this->isValueInDomain(cm,v,whyNot,masterObjective);
-      }
-
-
-      const dataArgumentsTuple& getArguments()const{return args_;}
-
-
-      const std::tuple<const Implements_Data_Type_New<ABC_R_Closure<Args>*>*...>&
-      getArgumentTypes()const
-      {
-        return varTypes_;
-      }
-
-
-
-      virtual std::set<std::string> alternativeNext(const StructureEnv_New* cm)const
-      {
-        return {"<"+Cls<myC>::name()+">"};
-      }
-
-      virtual ~Implements_Data_Type_New_tuple(){}
-
-
-
-      Implements_Data_Type_New_tuple(const StructureEnv_New* cm,
-                                     dataArgumentsTuple arg={},
-                                     typePredicate complyPred=nullptr)
-        :args_(arg),
-          comply_(complyPred),
-          varTypes_(getTypesFromArg(cm,arg,std::index_sequence_for<Args...>()))
-      {}
-
-
-
-      Implements_Data_Type_New_tuple(const Implements_Data_Type_New_tuple<myC>& other)
-        :args_(other.args_),
-          comply_(other.comply_), varTypes_(other.varTypes_){}
-
-
-
-
-      // ABC_Data_New interface
-    public:
-      virtual bool empty() const override
-      {
-        return comply_==nullptr;
-      }
-      virtual void reset() override
-      {
-        comply_=nullptr;
-      }
-      virtual Implements_Data_Type_New_tuple *clone() const override
-      {
-        return new Implements_Data_Type_New_tuple(*this);
-      }
-      virtual Implements_Data_Type_New_tuple *create() const override
-      {
-        return nullptr;
-      }
-
-      virtual bool isValueInDomain(const StructureEnv_New* cm
-                                   ,const myC &val
-                                   , std::string *whyNot
-                                   ,const std::string& masterObjective ) const
-      {
-        if (comply_==nullptr)
-          return true;
-        else
-          return (*comply_)(cm,val,this,whyNot,masterObjective);
-      }
-
-
-
-      virtual ABC_Type_of_Value const* myType()const{return nullptr;}
-      virtual std::string myTypeId()const{ return Cls<myC>::name();};
-
-      virtual bool getData(const StructureEnv_New* cm
-                           ,ABC_Data_New*& v
-                           , ABC_Input* istream
-                           ,std::string* error
-                           , const std::string& masterObjective)const{}
-
-      virtual std::string typeId()const {return myId();}
-
-
-      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
-      {
-        return nullptr;
-      }
-      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
-      {
-        return nullptr;
-      }
-
-
-    protected:
-
-      typePredicate comply_;
-      std::tuple<Implements_Fn_Argument<Args>...>  args_;
-      std::tuple<const Implements_Data_Type_New<ABC_R_Closure<Args>*>*...> varTypes_;
-
+      dataTypesTuple args_;
     };
 
 
@@ -3697,1408 +1986,10 @@ namespace Markov_IO_New {
 
 
 
-  template<typename...Args, std::size_t...Is>
-  std::string getId(const std::tuple<Implements_Fn_Argument<Args>...>& arg,
-                    std::index_sequence<Is...>)
-  {
 
-    return sum_pack("_"+std::get<Is>(arg).id()...);
 
-  }
 
 
-
-  template<typename Fn, typename R,typename...Args>
-  class Implements_Data_Type_FnClosure: public ABC_Type_of_Closure
-  {
-
-    // ABC_Value_New interface
-  public:
-    typedef Implements_FnClosure<Fn,R,Args...> myC;
-
-    typedef Fn functionType;
-    typedef R returnType;
-
-    typedef  mp_list<Args...> argumentTypes;
-
-    typedef Implements_Fn_Argument<returnType>  returnFnType;
-
-    typedef std::tuple<Implements_Fn_Argument<Args>...>  argumentFnTypes;
-
-    typedef Implements_Data_Type_FnClosure<Fn,R,Args...> selfType;
-
-
-
-    using typePredicate= bool(*)
-    (const StructureEnv_New* cm
-    ,const myC * f
-    ,const selfType* self
-    , std::string* whyNot
-    ,const std::string& objective);
-
-
-
-
-    virtual const Implements_Fn_Argument<returnType>* returnArgument()const override
-    {
-      return &returnArg_;
-    }
-
-    virtual const std::vector<const ABC_Fn_Argument*>& inputArguments()const
-    {
-      return inputVec_;
-    }
-
-    template <int I>
-    typename std::tuple_element<I,argumentFnTypes>::type inputArgument()const
-    {
-      return std::get<I>(inputArg_);
-    }
-
-
-    virtual functionType f() const
-    {
-      return f_;
-    }
-
-    returnType operator()(Args... vars)
-    {
-      return f_(vars...);
-    }
-
-
-
-    virtual std::string getFunctionId()const override
-    {
-      return myTypeD()->getFunctionId();
-    }
-
-
-
-
-
-    virtual selfType* clone()const
-    {
-      return new selfType(*this);
-    }
-
-    virtual ~Implements_Data_Type_FnClosure()
-    {
-    }
-
-
-
-
-    Implements_Data_Type_FnClosure(const StructureEnv_New* cm,
-                                   const Fn& value
-                                   ,returnFnType returnArg
-                                   ,argumentFnTypes inputArg):
-      f_(value),returnArg_(returnArg),inputArg_(inputArg)
-    ,inputVec_(getInputVector(inputArg,std::index_sequence_for<Args...>{}))
-    ,argType_(new _private::Implements_Data_Type_New_tuple<ABC_R_Closure<Args>*...>(cm,inputArg)){}
-
-
-    Implements_Data_Type_FnClosure(const selfType& other):
-      f_(other.f_),returnArg_(other.returnArg_),inputArg_(other.inputArg_)
-    ,inputVec_(other.inputVec_){}
-
-
-    Implements_Data_Type_FnClosure(Implements_Data_Type_FnClosure&& other)=default;
-
-    Implements_Data_Type_FnClosure& operator=(const Implements_Data_Type_FnClosure& other)=default;
-
-    Implements_Data_Type_FnClosure& operator=(Implements_Data_Type_FnClosure&& other)=default;
-
-
-
-    virtual bool empty() const override
-    {
-      return f_==nullptr;
-    }
-
-    virtual void reset() override
-    {
-      f_=nullptr;
-    }
-
-    virtual selfType* create() const override
-    {
-      return nullptr;
-
-    }
-
-    virtual std::string typeId()const
-    {
-      return getFunctionId()+getId(inputArg_,std::index_sequence_for<Args...>());
-    }
-
-
-  public:
-    virtual buildByToken<myC*> *getBuildByToken(const StructureEnv_New *cm) const override
-    {
-      return new buildByToken<myC*,true>(cm,this);
-
-    }
-
-
-    virtual const Implements_Data_Type_New<std::tuple<ABC_R_Closure<Args>*...>>*
-    getArgumentsType(const StructureEnv_New * cm)const override
-    {
-      return argType_;
-    }
-
-
-    virtual buildByToken<std::tuple<ABC_R_Closure<Args>*...>>* getBuildArguments(const StructureEnv_New * cm)const override
-    {
-      return new buildByToken<std::tuple<ABC_R_Closure<Args>*...>>(cm,getArgumentsType(cm));
-    }
-
-
-    virtual bool isDataInDomain
-    (const StructureEnv_New* cm
-     ,const ABC_Data_New* v
-     , std::string *whyNot
-     , const std::string& masterObjective)const override
-    {
-      const std::string objective=masterObjective+": "+cm->dataToId(this)+ "do not has it in domain";
-      auto x=dynamic_cast<const myC* >(v);
-      if (x==nullptr)
-        {
-          return false;
-        }
-      else
-        return isValueInDomain(cm,x,whyNot,objective);
-    }
-
-    virtual bool isValueInDomain(const StructureEnv_New* cm,const myC* v
-                                 , std::string *whyNot, const std::string& masterObjective)const
-    {
-
-      if (comply_==nullptr)
-        return true;
-      else
-        return  (*comply_) (cm,v,this,whyNot,masterObjective);
-    }
-
-
-
-    bool includesThisType(
-        const StructureEnv_New *cm, const std::string &childType
-        , std::string *whyNot, const std::string &masterObjective) const
-    {
-      std::string id=cm->dataToId(this,whyNot,masterObjective);
-      if (id==childType) return true;
-      else
-        {
-          const selfType*
-              ctype=cm->idToFuncF<Fn,R,Args...>(childType,whyNot,masterObjective);
-          if (ctype==nullptr)
-            {
-              *whyNot=masterObjective+": "+childType+"is not a"+ id;
-              return false;
-            }
-          else return empty();
-
-        }
-    }
-
-
-
-    virtual bool putData(const StructureEnv_New* cm
-                         ,const ABC_Data_New* v
-                         ,ABC_Output* ostream
-                         ,std::string* error,
-                         const std::string& masterObjective)const override
-    {
-      auto data=dynamic_cast<const myC* >(v);
-      if (data==nullptr)
-        {
-          *error=masterObjective+ ": "+data->myTypeId()+" is not a "+myTypeId();
-          return false;
-        }
-      else return putValue(cm,data,ostream,error,masterObjective);
-    }
-
-    virtual bool getData(const StructureEnv_New* cm
-                         ,ABC_Data_New*& v
-                         , ABC_Input* istream
-                         ,std::string* error
-                         , const std::string& masterObjective)const override
-    {
-      myC* data;
-      if (!getValue(cm,data,istream,error,masterObjective))
-        return false;
-      else
-        {
-          v= data;
-          return true;
-
-        }
-    }
-
-
-
-
-
-    virtual bool putValue(const StructureEnv_New* cm
-                          ,const myC* c
-                          ,ABC_Output* ostream
-                          ,std::string* whyNot
-                          , const std::string& masterObjective)const
-    {
-      if (! getVarIdType(cm)->putValue(cm,c->getFunctionId(),ostream,whyNot,masterObjective))
-        return false;
-      else if (!getArgumentsType(cm)->putValue(cm,c->getArguments(),ostream,whyNot,masterObjective))
-        {
-          return false;
-        }
-      else return true;
-    }
-
-    virtual bool getValue(const StructureEnv_New* cm
-                          ,myC* v
-                          , ABC_Input* istream
-                          ,std::string* whyNot
-                          ,const std::string& masterObjective )const
-    {
-      std::string idFn;
-      std::tuple<ABC_R_Closure<Args>*...> args;
-      if (! getVarIdType( cm)->getValue(cm,idFn,istream,whyNot,masterObjective))
-        return false;
-      else if (!getArgumentsType(cm)->getValue(cm,args,istream,whyNot,masterObjective))
-        {
-          return false;
-        }
-      else
-        {
-          delete v;
-          v= new myC(this,args);
-          return true;
-        }
-    }
-
-
-    virtual std::string myTypeId()const
-    {
-
-      return myType()->typeId();
-    }
-
-
-    virtual bool isOfThisType(const StructureEnv_New* cm,
-                              const std::string& generalType,
-                              std::string* whyNot
-                              ,const std::string &masterObjective)const
-    {
-      if ((generalType.empty()||myTypeId()==generalType))
-        return true;
-      else
-        {
-          auto gTp
-              =cm->idToTyped<myC*>(generalType,whyNot,masterObjective);
-          std::string id=cm->dataToId(this,whyNot,masterObjective);
-          if ((id.empty())||(gTp==nullptr))
-            return false;
-          else
-            return gTp->includesThisType(cm,id,whyNot,masterObjective);
-        }
-
-    }
-
-
-
-
-    Implements_Data_Type_Function const * myTypeD()const {return functionType_;}
-
-    virtual StructureEnv_New* getComplexVarRep(
-        const StructureEnv_New* cm,
-        const ABC_Data_New* var
-        ,std::string* whyNot
-        ,const std::string& masterObjective)const{return nullptr;}
-
-    virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                      const StructureEnv_New* cvar,
-                                      std::string* whyNot,
-                                      const std::string& masterObjective)const{return nullptr;}
-
-
-    virtual ABC_Type_of_Value const* myType()const
-    {
-      return functionType_;
-    }
-
-
-    virtual bool putClosure(const StructureEnv_New* cm
-                            ,const ABC_Closure* v
-                            ,ABC_Output* ostream
-                            ,std::string* error,
-                            const std::string& masterObjective)const
-    {
-
-    }
-
-
-    virtual bool getClosure(const StructureEnv_New* cm
-                            ,ABC_Closure*& v
-                            , ABC_Input* istream
-                            ,std::string* error
-                            , const std::string& masterObjective)const
-    {
-
-    }
-
-    virtual bool isClosureInDomain(const StructureEnv_New* cm
-                                   ,const ABC_Closure* v
-                                   , std::string *whyNot
-                                   , const std::string& masterObjective)const{}
-
-
-
-
-
-    virtual bool includesThisFunction(const StructureEnv_New* cm
-                                      ,const std::string& childType
-                                      ,std::string *whyNot
-                                      , const std::string &masterObjective)const{}
-
-
-    Implements_Identifier const * getVarIdType(const StructureEnv_New* cm)const override
-    {
-      return myTypeD()->getVarIdType(cm);
-    }
-
-    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
-    {
-      return nullptr;
-    }
-
-
-
-
-  protected:
-    Fn f_;
-    std::string functionName_;
-    returnFnType returnArg_;
-    argumentFnTypes inputArg_;
-    std::vector<const ABC_Fn_Argument*>  inputVec_;
-    typePredicate comply_;
-    Implements_Data_Type_New<std::tuple<ABC_R_Closure<Args>*...>>* argType_;
-    const Implements_Data_Type_New<ABC_Closure*>*  functionType_;
-
-    template <std::size_t...Is>
-    static  std::vector<const ABC_Fn_Argument*>
-    getInputVector(argumentFnTypes inputArg,std::index_sequence<Is...> )
-    {
-      return {&std::get<Is>(inputArg)...};
-    }
-
-
-
-  };
-
-
-
-
-  template<class C,typename Fn, typename R,typename...Args>
-  class Implements_Data_Type_MethodClosure: public ABC_Type_of_Closure
-  {
-
-    // ABC_Value_New interface
-  public:
-    typedef Implements_MethodClosure<C,Fn,R,Args...> myC;
-
-    typedef Fn functionType;
-    typedef R returnType;
-    typedef C objectType;
-
-    typedef  mp_list<Args...> argumentTypes;
-
-    typedef Implements_Fn_Argument<returnType>  returnFnType;
-
-    typedef std::tuple<Implements_Fn_Argument<Args>...>  argumentFnTypes;
-
-    typedef Implements_Data_Type_FnClosure<Fn,R,Args...> selfType;
-
-
-
-    using typePredicate= bool(*)
-    (const StructureEnv_New* cm
-    ,const myC * f
-    ,const selfType* self
-    , std::string* whyNot
-    ,const std::string& objective);
-
-
-
-
-    virtual const Implements_Fn_Argument<returnType>* returnArgument()const override
-    {
-      return &returnArg_;
-    }
-
-    virtual const std::vector<const ABC_Fn_Argument*>& inputArguments()const
-    {
-      return inputVec_;
-    }
-
-    template <int I>
-    typename std::tuple_element<I,argumentFnTypes>::type inputArgument()const
-    {
-      return std::get<I>(inputArg_);
-    }
-
-
-    virtual functionType f() const
-    {
-      return f_;
-    }
-
-
-
-    virtual std::string getFunctionId()const override
-    {
-      return myTypeD()->getFunctionId();
-    }
-
-
-
-
-
-    virtual selfType* clone()const
-    {
-      return new selfType(*this);
-    }
-
-    virtual ~Implements_Data_Type_MethodClosure()
-    {
-    }
-
-
-
-
-    Implements_Data_Type_MethodClosure(const StructureEnv_New* cm,
-                                       const Fn& value
-                                       ,returnFnType returnArg
-                                       ,argumentFnTypes inputArg):
-      f_(value),returnArg_(returnArg),inputArg_(inputArg)
-    ,inputVec_(getInputVector(inputArg,std::index_sequence_for<Args...>{}))
-    ,argType_(new _private::Implements_Data_Type_New_tuple<Args...>(cm,inputArg)){}
-
-    Implements_Data_Type_MethodClosure():
-      f_(nullptr)
-    {}
-
-    Implements_Data_Type_MethodClosure(const selfType& other):
-      f_(other.f_),returnArg_(other.returnArg_),inputArg_(other.inputArg_)
-    ,inputVec_(other.inputVec_){}
-
-
-    Implements_Data_Type_MethodClosure(Implements_Data_Type_MethodClosure&& other)=default;
-
-    Implements_Data_Type_MethodClosure& operator=(const Implements_Data_Type_MethodClosure& other)=default;
-
-    Implements_Data_Type_MethodClosure& operator=(Implements_Data_Type_MethodClosure&& other)=default;
-
-
-
-    virtual bool empty() const override
-    {
-      return f_==nullptr;
-    }
-
-    virtual void reset() override
-    {
-      f_=nullptr;
-    }
-
-    virtual selfType* create() const override
-    {
-      return new selfType();
-
-    }
-
-    virtual std::string typeId()const
-    {
-      return Cls<C>::name()+"_"
-          +getFunctionId()+getId(inputArg_,std::index_sequence_for<Args...>());
-    }
-
-
-  public:
-    virtual buildByToken<myC*> *getBuildByToken(const StructureEnv_New *cm) const override
-    {
-      return new buildByToken<myC*,true>(cm,this);
-
-    }
-
-
-    virtual const Implements_Data_Type_New<std::tuple<Args...>>*
-    getArgumentsType(const StructureEnv_New * cm)const override
-    {
-      return argType_;
-    }
-
-
-    virtual buildByToken<std::tuple<Args...>>* getBuildArguments(const StructureEnv_New * cm)const override
-    {
-      return new buildByToken<std::tuple<Args...>>(cm,getArgumentsType(cm));
-    }
-
-
-    virtual bool isDataInDomain
-    (const StructureEnv_New* cm
-     ,const ABC_Data_New* v
-     , std::string *whyNot
-     , const std::string& masterObjective)const override
-    {
-      const std::string objective=masterObjective+": "+cm->dataToId(this)+ "do not has it in domain";
-      auto x=dynamic_cast<const myC* >(v);
-      if (x==nullptr)
-        {
-          return false;
-        }
-      else
-        return isValueInDomain(cm,x,whyNot,objective);
-    }
-
-    virtual bool isValueInDomain(const StructureEnv_New* cm,const myC* v
-                                 , std::string *whyNot, const std::string& masterObjective)const
-    {
-
-      if (comply_==nullptr)
-        return true;
-      else
-        return  (*comply_) (cm,v,this,whyNot,masterObjective);
-    }
-
-
-
-    bool includesThisType(
-        const StructureEnv_New *cm, const std::string &childType
-        , std::string *whyNot, const std::string &masterObjective) const
-    {
-      std::string id=cm->dataToId(this,whyNot,masterObjective);
-      if (id==childType) return true;
-      else
-        {
-          const selfType*
-              ctype=cm->idToFuncF<Fn,R,Args...>(childType,whyNot,masterObjective);
-          if (ctype==nullptr)
-            {
-              *whyNot=masterObjective+": "+childType+"is not a"+ id;
-              return false;
-            }
-          else return empty();
-
-        }
-    }
-
-
-
-    virtual bool putData(const StructureEnv_New* cm
-                         ,const ABC_Data_New* v
-                         ,ABC_Output* ostream
-                         ,std::string* error,
-                         const std::string& masterObjective)const override
-    {
-      auto data=dynamic_cast<const myC* >(v);
-      if (data==nullptr)
-        {
-          *error=masterObjective+ ": "+data->myTypeId()+" is not a "+myTypeId();
-          return false;
-        }
-      else return putValue(cm,data,ostream,error,masterObjective);
-    }
-
-    virtual bool getData(const StructureEnv_New* cm
-                         ,ABC_Data_New*& v
-                         , ABC_Input* istream
-                         ,std::string* error
-                         , const std::string& masterObjective)const override
-    {
-      myC* data;
-      if (!getValue(cm,data,istream,error,masterObjective))
-        return false;
-      else
-        {
-          v= data;
-          return true;
-
-        }
-    }
-
-
-
-
-
-    virtual bool putValue(const StructureEnv_New* cm
-                          ,const myC* c
-                          ,ABC_Output* ostream
-                          ,std::string* whyNot
-                          , const std::string& masterObjective)const
-    {
-      if (! getVarIdType(cm)->putValue(cm,c->getFunctionId(),ostream,whyNot,masterObjective))
-        return false;
-      else if (!getArgumentsType(cm)->putValue(cm,c->getArguments(),ostream,whyNot,masterObjective))
-        {
-          return false;
-        }
-      else return true;
-    }
-
-    virtual bool getValue(const StructureEnv_New* cm
-                          ,myC* v
-                          , ABC_Input* istream
-                          ,std::string* whyNot
-                          ,const std::string& masterObjective )const
-    {
-      std::string idFn;
-      std::tuple<Args...> args;
-      if (! getVarIdType( cm)->getValue(cm,idFn,istream,whyNot,masterObjective))
-        return false;
-      else if (!getArgumentsType(cm)->getValue(cm,args,istream,whyNot,masterObjective))
-        {
-          return false;
-        }
-      else
-        {
-          delete v;
-          v= new myC(this,args);
-          return true;
-        }
-    }
-
-
-    virtual std::string myTypeId()const
-    {
-
-      return myType()->typeId();
-    }
-
-
-    virtual bool isOfThisType(const StructureEnv_New* cm,
-                              const std::string& generalType,
-                              std::string* whyNot
-                              ,const std::string &masterObjective)const
-    {
-      if ((generalType.empty()||myTypeId()==generalType))
-        return true;
-      else
-        {
-          auto gTp
-              =cm->idToTyped<myC*>(generalType,whyNot,masterObjective);
-          std::string id=cm->dataToId(this,whyNot,masterObjective);
-          if ((id.empty())||(gTp==nullptr))
-            return false;
-          else
-            return gTp->includesThisType(cm,id,whyNot,masterObjective);
-        }
-
-    }
-
-
-
-
-    Implements_Data_Type_Function const * myTypeD()const {return functionType_;}
-
-    virtual StructureEnv_New* getComplexVarRep(
-        const StructureEnv_New* cm,
-        const ABC_Data_New* var
-        ,std::string* whyNot
-        ,const std::string& masterObjective)const{return nullptr;}
-
-    virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                      const StructureEnv_New* cvar,
-                                      std::string* whyNot,
-                                      const std::string& masterObjective)const{return nullptr;}
-
-
-    virtual ABC_Type_of_Value const* myType()const
-    {
-      return functionType_;
-    }
-
-
-    virtual bool putClosure(const StructureEnv_New* cm
-                            ,const ABC_Closure* v
-                            ,ABC_Output* ostream
-                            ,std::string* error,
-                            const std::string& masterObjective)const
-    {
-
-    }
-
-
-    virtual bool getClosure(const StructureEnv_New* cm
-                            ,ABC_Closure*& v
-                            , ABC_Input* istream
-                            ,std::string* error
-                            , const std::string& masterObjective)const
-    {
-
-    }
-
-    virtual bool isClosureInDomain(const StructureEnv_New* cm
-                                   ,const ABC_Closure* v
-                                   , std::string *whyNot
-                                   , const std::string& masterObjective)const{}
-
-
-
-
-
-    virtual bool includesThisFunction(const StructureEnv_New* cm
-                                      ,const std::string& childType
-                                      ,std::string *whyNot
-                                      , const std::string &masterObjective)const{}
-
-
-    Implements_Identifier const * getVarIdType(const StructureEnv_New* cm)const override
-    {
-      return myTypeD()->getVarIdType(cm);
-    }
-
-    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
-    {
-      return nullptr;
-    }
-
-
-
-
-  protected:
-    Fn f_;
-    std::string functionName_;
-    returnFnType returnArg_;
-    argumentFnTypes inputArg_;
-    std::vector<const ABC_Fn_Argument*>  inputVec_;
-    typePredicate comply_;
-    Implements_Data_Type_New<std::tuple<Args...>>* argType_;
-    const Implements_Data_Type_New<ABC_Closure*>*  functionType_;
-
-    template <std::size_t...Is>
-    static  std::vector<const ABC_Fn_Argument*>
-    getInputVector(argumentFnTypes inputArg,std::index_sequence<Is...> )
-    {
-      return {&std::get<Is>(inputArg)...};
-    }
-
-
-
-  };
-
-
-
-
-  class Implements_Data_Type_Function: public ABC_Type_of_Function
-  {
-
-
-    // ABC_Data_New interface
-  public:
-    typedef ABC_Closure*  myC;
-
-    virtual bool empty() const override{}
-    virtual void reset() override{}
-    virtual ABC_Data_New *clone() const override{
-      return new Implements_Data_Type_Function(*this);
-    }
-    virtual ABC_Data_New *create() const override
-    {
-      return new Implements_Data_Type_Function();
-    }
-    virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override{}
-
-    // ABC_type_of_Value
-    virtual bool putData(const StructureEnv_New* cm
-                         ,const ABC_Data_New* v
-                         ,ABC_Output* ostream
-                         ,std::string* error,
-                         const std::string& masterObjective)const override{}
-
-    virtual bool getData(const StructureEnv_New* cm
-                         ,ABC_Data_New*& v
-                         , ABC_Input* istream
-                         ,std::string* error
-                         , const std::string& masterObjective)const override{}
-
-    virtual ABC_BuildClosure* getBuildByToken(
-        const StructureEnv_New* cm)const override;
-
-
-    virtual bool isDataInDomain(const StructureEnv_New* cm
-                                ,const ABC_Data_New* v
-                                , std::string *whyNot
-                                , const std::string& masterObjective)const override{}
-
-    virtual bool includesThisType(const StructureEnv_New* cm
-                                  ,const std::string& childType
-                                  ,std::string *whyNot
-                                  , const std::string &masterObjective)const override{}
-
-    virtual StructureEnv_New* getComplexVarRep(
-        const StructureEnv_New* cm,
-
-        const ABC_Data_New* var
-        ,std::string* whyNot
-        ,const std::string& masterObjective)const override {return nullptr;}
-
-    virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                      const StructureEnv_New* cvar,
-                                      std::string* whyNot,
-                                      const std::string& masterObjective)const override{return nullptr;}
-
-    const Implements_Identifier* getFunctionIdType(const StructureEnv_New* cm)const
-    {
-      return funIdType_;
-    }
-
-    virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
-    {
-      return getFunctionIdType(cm);
-    }
-    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
-    {
-      return nullptr;
-    }
-
-
-    virtual std::__cxx11::string myTypeId() const override
-    {
-      if (myType()==nullptr)
-        return Cls<myC>::name();
-      else return myType()->typeId();
-    }
-
-    std::string typeId()const override
-    {
-      return functionName_;
-    }
-
-    std::string getFunctionId()const override
-    {
-      return functionName_;
-    }
-
-    virtual ABC_Type_of_Function const* myType() const override {return typeType_;}
-
-
-    virtual const std::vector<ABC_Type_of_Closure*>& getOverrideTypes()const
-    {
-      return overrideTypes_;
-    }
-
-    virtual std::vector<ABC_BuildClosure*> getOverrideBuild(const StructureEnv_New* cm,
-                                                            const ABC_Type_of_Value* vt=nullptr)const
-    {
-      std::size_t n=getOverrideTypes().size();
-      std::vector<ABC_BuildClosure*> out;
-      for (std::size_t i=0; i<n; ++i)
-        {
-          if ((vt==nullptr)||(vt->includesThisType(cm,getOverrideTypes()[i]->myTypeId())))
-           out.push_back(getOverrideTypes()[i]->getBuildByToken(cm));
-        }
-      return out;
-    }
-
-
-
-    virtual ~Implements_Data_Type_Function(){};
-
-
-    Implements_Data_Type_Function():
-      functionName_(""),typeType_(nullptr)
-    ,funIdType_(Identifier::types::idFunct::varType("")),overrideTypes_()
-    {}
-    Implements_Data_Type_Function (const std::string functionName
-                                   ,const selfType* typeType,
-                                   Implements_Identifier* idType
-                                   , std::vector<ABC_Type_of_Closure*> overrideTypes
-                                   )
-      : functionName_(functionName),typeType_(typeType),funIdType_(idType),overrideTypes_(overrideTypes)
-    {}
-
-
-
-
-
-  private:
-    std::string functionName_;
-    const selfType*  typeType_;
-    Implements_Identifier*  funIdType_;
-
-    std::vector<ABC_Type_of_Closure*> overrideTypes_;
-
-    // ABC_Data_New interface
-  };
-
-  template<typename R>
-  class Implements_Data_Type_R_Function
-      : public ABC_Type_of_Function
-  {
-
-
-    // ABC_Data_New interface
-  public:
-    typedef ABC_R_function<R>  myC;
-
-    virtual bool empty() const override{}
-    virtual void reset() override{}
-    virtual ABC_Data_New *clone() const override{
-      return new Implements_Data_Type_Function(*this);
-    }
-    virtual ABC_Data_New *create() const override
-    {
-      return new Implements_Data_Type_R_Function();
-    }
-    virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override{}
-
-    // ABC_type_of_Value
-    virtual bool putData(const StructureEnv_New* cm
-                         ,const ABC_Data_New* v
-                         ,ABC_Output* ostream
-                         ,std::string* error,
-                         const std::string& masterObjective)const override{}
-
-    virtual bool getData(const StructureEnv_New* cm
-                         ,ABC_Data_New*& v
-                         , ABC_Input* istream
-                         ,std::string* error
-                         , const std::string& masterObjective)const override{}
-
-    virtual buildByToken<myC*>* getBuildByToken(
-        const StructureEnv_New* cm)const override
-    {
-      return new buildByToken<myC*>(cm,this);
-    }
-
-
-    virtual bool isDataInDomain(const StructureEnv_New* cm
-                                ,const ABC_Data_New* v
-                                , std::string *whyNot
-                                , const std::string& masterObjective)const override{}
-
-    virtual bool includesThisType(const StructureEnv_New* cm
-                                  ,const std::string& childType
-                                  ,std::string *whyNot
-                                  , const std::string &masterObjective)const override{}
-
-    virtual StructureEnv_New* getComplexVarRep(
-        const StructureEnv_New* cm,
-
-        const ABC_Data_New* var
-        ,std::string* whyNot
-        ,const std::string& masterObjective)const override {return nullptr;}
-
-    virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                      const StructureEnv_New* cvar,
-                                      std::string* whyNot,
-                                      const std::string& masterObjective)const override{return nullptr;}
-
-    const Implements_Identifier* getFunctionIdType(const StructureEnv_New* cm)const
-    {
-      return funIdType_;
-    }
-
-    virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
-    {
-      return getFunctionIdType(cm);
-    }
-    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
-    {
-      return nullptr;
-    }
-
-
-    virtual std::__cxx11::string myTypeId() const override
-    {
-      if (myType()==nullptr)
-        return Cls<myC>::name();
-      else return myType()->typeId();
-    }
-
-    std::string typeId()const override
-    {
-      return functionName_;
-    }
-
-    std::string getFunctionId()const override
-    {
-      return functionName_;
-    }
-
-    virtual ABC_Type_of_Function const* myType() const override {return typeType_;}
-
-
-    virtual const std::vector<ABC_Type_of_Closure*>& getOverrideTypes()const
-    {
-      return overrideTypes_;
-    }
-
-    virtual std::vector<ABC_BuildClosure*> getOverrideBuild(const StructureEnv_New* cm,
-                                                            const ABC_Type_of_Value* vt=nullptr)const
-    {
-      std::size_t n=getOverrideTypes().size();
-      std::vector<ABC_BuildClosure*> out;
-      for (std::size_t i=0; i<n; ++i)
-        {
-          if ((vt==nullptr)||(vt->includesThisType(getOverrideTypes()[i]->myTypeId())))
-           out.push_back(getOverrideTypes()[i]->getBuildByToken(cm));
-        }
-      return out;
-
-    }
-
-
-
-    virtual ~Implements_Data_Type_R_Function(){};
-
-
-    Implements_Data_Type_R_Function():
-      functionName_(""),typeType_(nullptr)
-    ,funIdType_(Identifier::types::idFunct::varType("")),overrideTypes_()
-    {}
-    Implements_Data_Type_R_Function (const std::string functionName,const selfType* typeType,
-                                   Implements_Identifier* idType
-                                   , std::vector<ABC_Type_of_Closure*> overrideTypes
-                                   )
-      : functionName_(functionName),typeType_(typeType),funIdType_(idType),overrideTypes_(overrideTypes)
-    {}
-
-
-
-
-
-  private:
-    std::string functionName_;
-    const selfType*  typeType_;
-    Implements_Identifier*  funIdType_;
-
-    std::vector<ABC_Type_of_Closure*> overrideTypes_;
-
-    // ABC_Data_New interface
-  };
-
-
-
-
-namespace _private {
-  template <typename T>
-  class Implements_Data_Type_ABC_R_Closure: public ABC_Type_of_Function
-  {
-
-
-    // ABC_Data_New interface
-  public:
-    typedef ABC_R_Closure<T>  myC;
-
-    typedef Implements_Data_Type_ABC_R_Closure<T> selfType;
-
-    virtual bool empty() const override{}
-    virtual void reset() override{}
-    virtual selfType *clone() const override{
-      return new selfType(*this);
-    }
-    virtual selfType *create() const override
-    {
-      return new selfType();
-    }
-    virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override{}
-
-    virtual std::string getFunctionId()const{};
-
-    // ABC_type_of_Value
-    virtual bool putData(const StructureEnv_New* cm
-                         ,const ABC_Data_New* v
-                         ,ABC_Output* ostream
-                         ,std::string* error,
-                         const std::string& masterObjective)const override{}
-
-    virtual bool getData(const StructureEnv_New* cm
-                         ,ABC_Data_New*& v
-                         , ABC_Input* istream
-                         ,std::string* error
-                         , const std::string& masterObjective)const override{}
-
-
-    virtual bool putValue(const StructureEnv_New* cm
-                         ,const myC* v
-                         ,ABC_Output* ostream
-                         ,std::string* error,
-                         const std::string& masterObjective)const {}
-
-    virtual bool getValue(const StructureEnv_New* cm
-                         ,myC*& v
-                         , ABC_Input* istream
-                         ,std::string* error
-                         , const std::string& masterObjective)const {}
-
-
-    virtual buildByToken<myC*>* getBuildByToken(
-        const StructureEnv_New* cm)const override
-    {
-      return new buildByToken<myC*>(cm,this);
-    }
-
-
-    virtual bool isDataInDomain(const StructureEnv_New* cm
-                                ,const ABC_Data_New* v
-                                , std::string *whyNot
-                                , const std::string& masterObjective)const override{}
-
-    virtual bool includesThisType(const StructureEnv_New* cm
-                                  ,const std::string& childType
-                                  ,std::string *whyNot
-                                  , const std::string &masterObjective)const override{}
-
-    virtual StructureEnv_New* getComplexVarRep(
-        const StructureEnv_New* cm,
-
-        const ABC_Data_New* var
-        ,std::string* whyNot
-        ,const std::string& masterObjective)const override {return nullptr;}
-
-    virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                      const StructureEnv_New* cvar,
-                                      std::string* whyNot,
-                                      const std::string& masterObjective)const override{return nullptr;}
-
-
-    virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
-    {
-    }
-    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
-    {
-      return nullptr;
-    }
-
-     const Implements_Data_Type_New<T>* getDataType(const StructureEnv_New* cm)const
-    {
-      return type_;
-    }
-
-     const Implements_Data_Type_New<Implements_Identifier_Value<T>*>*
-     getIdentifierClosure(const StructureEnv_New*)const
-     { return idtype_;}
-     const Implements_Data_Type_R_Function<T>*
-     getFunctionClosure(const StructureEnv_New*)const {
-     return fnType_;}
-
-
-    virtual std::__cxx11::string myTypeId() const override
-    {
-      if (myType()==nullptr)
-        return Cls<myC>::name();
-      else return myType()->typeId();
-    }
-
-    std::string typeId()const override
-    {
-       }
-
-
-    virtual ABC_Type_of_Function const* myType() const override {
-    }
-
-
-
-
-
-    virtual ~Implements_Data_Type_ABC_R_Closure(){};
-
-
-    Implements_Data_Type_ABC_R_Closure(){}
-
-
-    Implements_Data_Type_ABC_R_Closure(const Implements_Data_Type_New<T>* type):
-    type_(type){}
-
-
-  private:
-      const Implements_Data_Type_New<T>* type_;
-      const Implements_Data_Type_New<Implements_Identifier_Value<T>*>* idtype_;
-      const Implements_Data_Type_R_Function<T>* fnType_;
-
-      };
-
-
-}
-
-
-  template<class C>
-  class Implements_Data_Type_Method: public ABC_Type_of_Function
-  {
-
-
-    // ABC_Data_New interface
-  public:
-    typedef ABC_Closure*  myC;
-
-    virtual bool empty() const override{}
-    virtual void reset() override{}
-    virtual ABC_Data_New *clone() const override{
-      return new Implements_Data_Type_Method(*this);
-    }
-    virtual ABC_Data_New *create() const override
-    {
-      return new Implements_Data_Type_Method();
-    }
-    virtual bool isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const override{}
-
-
-    // ABC_Type_of_Function
-    virtual bool putClosure(const StructureEnv_New* cm
-                            ,const ABC_Closure* v
-                            ,ABC_Output* ostream
-                            ,std::string* error,
-                            const std::string& masterObjective)const override
-    {
-
-
-    }
-
-
-    virtual bool getClosure(const StructureEnv_New* cm
-                            ,ABC_Closure*& v
-                            , ABC_Input* istream
-                            ,std::string* error
-                            , const std::string& masterObjective)const override;
-
-
-
-
-    virtual bool isClosureInDomain(const StructureEnv_New* cm
-                                   ,const ABC_Closure* v
-                                   , std::string *whyNot
-                                   , const std::string& masterObjective)const override{}
-
-
-
-    // ABC_type_of_Value
-    virtual bool putData(const StructureEnv_New* cm
-                         ,const ABC_Data_New* v
-                         ,ABC_Output* ostream
-                         ,std::string* error,
-                         const std::string& masterObjective)const override{}
-
-    virtual bool getData(const StructureEnv_New* cm
-                         ,ABC_Data_New*& v
-                         , ABC_Input* istream
-                         ,std::string* error
-                         , const std::string& masterObjective)const override{}
-
-    virtual ABC_BuildClosure* getBuildByToken(
-        const StructureEnv_New* cm)const override;
-
-
-    virtual bool isDataInDomain(const StructureEnv_New* cm
-                                ,const ABC_Data_New* v
-                                , std::string *whyNot
-                                , const std::string& masterObjective)const override{}
-
-    virtual bool includesThisType(const StructureEnv_New* cm
-                                  ,const std::string& childType
-                                  ,std::string *whyNot
-                                  , const std::string &masterObjective)const override{}
-
-    virtual StructureEnv_New* getComplexVarRep(
-        const StructureEnv_New* cm,
-
-        const ABC_Data_New* var
-        ,std::string* whyNot
-        ,const std::string& masterObjective)const override {return nullptr;}
-
-    virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                      const StructureEnv_New* cvar,
-                                      std::string* whyNot,
-                                      const std::string& masterObjective)const override{return nullptr;}
-
-    const Implements_Identifier* getFunctionIdType(const StructureEnv_New* cm)const
-    {
-      return funIdType_;
-    }
-
-    virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
-    {
-      return getFunctionIdType(cm);
-    }
-    virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
-    {
-      return nullptr;
-    }
-
-
-    virtual std::__cxx11::string myTypeId() const override
-    {
-      if (myType()==nullptr)
-        return Cls<myC>::name();
-      else return myType()->typeId();
-    }
-
-    std::string typeId()const override
-    {
-      return functionName_;
-    }
-
-    std::string getFunctionId()const override
-    {
-      return functionName_;
-    }
-
-    virtual ABC_Type_of_Function const* myType() const override {return typeType_;}
-
-
-    virtual const std::vector<ABC_Type_of_Closure*>& getOverrideTypes()const
-    {
-      return overrideTypes_;
-    }
-
-    virtual std::vector<ABC_BuildClosure*> getOverrideBuild(const StructureEnv_New* cm,
-                                                            const ABC_Type_of_Value* vt=nullptr)const
-    {
-      std::size_t n=getOverrideTypes().size();
-      std::vector<ABC_BuildClosure*> out;
-      for (std::size_t i=0; i<n; ++i)
-        {
-          if ((vt==nullptr)||(vt->includesThisType(getOverrideTypes()[i]->myTypeId())))
-           out.push_back(getOverrideTypes()[i]->getBuildByToken(cm));
-        }
-      return out;
-    }
-
-    virtual bool includesThisFunction(const StructureEnv_New* cm
-                                      ,const std::string& childType
-                                      ,std::string *whyNot
-                                      , const std::string &masterObjective)const override{}
-
-
-    virtual ~Implements_Data_Type_Method(){};
-
-
-    Implements_Data_Type_Method():
-      functionName_(""),typeType_(nullptr)
-    ,funIdType_(Identifier::types::idFunct::varType("")),overrideTypes_()
-    {}
-    Implements_Data_Type_Method (const std::string functionName,const selfType* typeType,
-                                 Implements_Identifier* idType
-                                 , std::vector<ABC_Type_of_Closure*> overrideTypes
-                                 )
-      : functionName_(functionName),typeType_(typeType),funIdType_(idType),overrideTypes_(overrideTypes)
-    {}
-
-
-
-
-
-  private:
-    std::string functionName_;
-    const selfType*  typeType_;
-    Implements_Identifier*  funIdType_;
-
-    std::vector<ABC_Type_of_Closure*> overrideTypes_;
-
-    // ABC_Data_New interface
-  };
 
 
 
@@ -6467,7 +3358,7 @@ namespace _private {
       {
         return new selfType(*this);
       }
-      virtual ABC_Data_New *create() const override
+      virtual selfType *create() const override
       {
         return new selfType();
       }
@@ -6997,6 +3888,8 @@ namespace _private {
     public:
 
       typedef StructureEnv_New*  myC;
+
+      typedef Implements_Data_Type_New_StructureEnv selfType;
       using typePredicate= bool(*) (const StructureEnv_New* cm,const StructureEnv_New* val,
       const Implements_Data_Type_New_StructureEnv* self
       , std::string* error,const std::string& obj);
@@ -7158,7 +4051,7 @@ namespace _private {
       {
         return new Implements_Data_Type_New<StructureEnv_New*>(*this);
       }
-      virtual ABC_Data_New* create()const override
+      virtual selfType* create()const override
       {
         return new Implements_Data_Type_New<StructureEnv_New*>();
       }
@@ -8602,7 +5495,7 @@ namespace _private {
        , std::string *whyNot
        , const std::string& masterObjective)const override
       {
-        const std::string objective=masterObjective+": "+cm->dataToId(this)+ "do not has it in domain";
+        const std::string objective=masterObjective+": "+typeId()+ "do not has it in domain";
         auto x=dynamic_cast<const Implements_Value_New<T>* >(v);
         if (x==nullptr)
           {
@@ -8628,7 +5521,7 @@ namespace _private {
           const StructureEnv_New *cm, const std::string &childType
           , std::string *whyNot, const std::string &masterObjective) const
       {
-        std::string id=cm->dataToId(this,whyNot,masterObjective);
+        std::string id=typeId();
         if (id==childType) return true;
         else
           {
@@ -8793,7 +5686,7 @@ namespace _private {
           {
             auto gTp
                 =cm->idToTyped<T>(generalType,whyNot,masterObjective);
-            std::string id=cm->dataToId(this,whyNot,masterObjective);
+            std::string id=typeId();
             if ((id.empty())||(gTp==nullptr))
               return false;
             else
@@ -8977,7 +5870,7 @@ namespace _private {
       bool includesThisType(const StructureEnv_New *cm, const std::string &childType
                             , std::string *whyNot, const std::string &masterObjective) const override
       {
-        std::string id=cm->dataToId(this,whyNot,masterObjective);
+        std::string id=typeId();
         if (id==childType) return true;
         else
           {
@@ -9145,7 +6038,7 @@ namespace _private {
           {
             auto gTp
                 =cm->idToTyped<T*>(generalType,whyNot,masterObjective);
-            std::string id=cm->dataToId(this,whyNot,masterObjective);
+            std::string id=typeId();
             if ((id.empty())||(gTp==nullptr))
               return false;
             else
@@ -9248,182 +6141,6 @@ namespace _private {
 
 
 
-    template<typename Markov_CommandManagerVar>
-    class Implements_Data_Type_singleton:public ABC_Type_of_Value
-    {
-    public:
-      typedef Implements_Data_Type_singleton selfType;
-      typedef Markov_CommandManagerVar* myC;
-      static std::string myId() {return Cls<myC>::name();}
-      static selfType* varType(const StructureEnv_New* cm)
-      {return new Implements_Data_Type_singleton();}
-      static std::string myTip(){return "a "+ Cls<myC>::name();}
-      static std::string myWhatThis(){return "";}
-      typedef mp_list<> dependsOn;
-      typedef mp_list<> fieldList;
-
-
-      virtual bool isDataInDomain
-      (const StructureEnv_New* cm
-       ,const ABC_Data_New* v
-       , std::string *whyNot
-       , const std::string& masterObjective)const override
-      {
-        return cm==v;
-      }
-
-      virtual bool isValueInDomain(const StructureEnv_New* cm,const Markov_CommandManagerVar* v
-                                   , std::string *whyNot, const std::string& masterObjective)const
-      {
-
-        return  cm==v;
-      }
-
-
-      virtual selfType* clone()const{return new selfType(*this);}
-      virtual selfType* create()const {return new selfType{};}
-
-
-
-      bool includesThisType(const StructureEnv_New *cm, const std::string &childType
-                            , std::string *whyNot, const std::string &masterObjective) const override
-      {
-        return childType==myId();
-      }
-
-
-
-      virtual bool putData(const StructureEnv_New* cm
-                           ,const ABC_Data_New* v
-                           ,ABC_Output* ostream
-                           ,std::string* error,
-                           const std::string& masterObjective)const override
-      {
-        if (cm!=v)
-          {
-            *error=masterObjective+ ": "+v->myTypeId()+" is not a "+Cls<Markov_CommandManagerVar*>::name();
-            return false;
-          }
-        else return true;
-      }
-
-      virtual bool getData(const StructureEnv_New* cm
-                           ,ABC_Data_New*& v
-                           , ABC_Input* istream
-                           ,std::string* error
-                           , const std::string& masterObjective)const override
-      {
-        return false;
-      }
-
-
-
-
-      virtual bool putValue(const StructureEnv_New* cm
-                            ,const Markov_CommandManagerVar* c
-                            ,ABC_Output* ostream
-                            ,std::string* whyNot
-                            , const std::string& masterObjective)const
-      {
-        return false;
-      }
-
-
-      virtual const ABC_Type_of_Value* getComplexVarType(const StructureEnv_New* cm) const {return nullptr;}
-
-
-
-
-
-      virtual buildByToken<Markov_CommandManagerVar*>*
-      getBuildByToken(const StructureEnv_New* cm)const override
-      {
-        return new buildByToken<Markov_CommandManagerVar*>(cm,this);
-      }
-
-
-      virtual ~Implements_Data_Type_singleton(){}
-
-
-      Implements_Data_Type_singleton(){}
-
-      virtual bool empty()const override
-      {
-        return false;
-      }
-
-      virtual void reset() override
-      {
-
-      }
-
-
-
-
-      virtual bool isOfThisType(const StructureEnv_New* cm,
-                                const std::string& generalType,
-                                std::string* whyNot
-                                ,const std::string &masterObjective)const override
-      {
-        if ((generalType.empty()||myTypeId()==generalType))
-          return true;
-        else
-          {
-            return false;
-          }
-
-      }
-
-
-
-      virtual ABC_Data_New* getClassRep(
-          const StructureEnv_New* cm,
-          const StructureEnv_New* m
-          , std::string *whyNot,
-          const std::string& masterObjective) const override
-      {
-        return nullptr;
-
-      }
-
-
-
-
-
-      virtual StructureEnv_New* getComplexVarRep(
-          const StructureEnv_New* cm,
-          const ABC_Data_New *var
-          , std::string *whyNot
-          , const std::string& masterObjective) const override
-      {
-
-        return nullptr;
-      }
-
-      virtual ABC_Type_of_Value const* myType()const override {return nullptr;}
-
-      std::string typeId()const override {
-        return Cls<Markov_CommandManagerVar*>::name();}
-
-      std::string myTypeId()const override  {
-        return typeId();
-      }
-
-      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
-      {
-        return nullptr;
-      }
-      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
-      {
-        return nullptr;
-      }
-
-
-
-
-    };
-
-
 
 
     template<class D, class B>
@@ -9513,7 +6230,7 @@ namespace _private {
       bool includesThisType(const StructureEnv_New *cm, const std::string &childType
                             , std::string *whyNot, const std::string &masterObjective) const
       {
-        std::string id=cm->dataToId(this,whyNot,masterObjective);
+        std::string id=typeId();
         if (id==childType) return true;
         else
           {
@@ -9595,9 +6312,6 @@ namespace _private {
                             ,std::string* whyNot
                             ,const std::string& MasterObjective )const
       {
-        std::string id=cm->dataToId(this);
-        if (id.empty())
-          id=Cls<D*>::name();
 
         auto m=new StructureEnv_New(cm,this->CVtype_);
         if (!this->CVtype_->getValue(m,m,istream,whyNot,MasterObjective))
@@ -9682,7 +6396,7 @@ namespace _private {
           {
             auto gTp
                 =cm->idToTyped<D*>(generalType,whyNot,masterObjective);
-            std::string id=cm->dataToId(this,whyNot,masterObjective);
+            std::string id=typeId();
             if ((id.empty())||(gTp==nullptr))
               return false;
             else
@@ -9811,18 +6525,6 @@ namespace _private {
       getDCV  getDCV_;
       // ABC_Data_New interface
     };
-
-
-
-
-
-
-
-
-
-
-
-
 
     template<class Field,class C>
     typename Field::myC getMyField(const C* x);
@@ -10281,12 +6983,11 @@ namespace _private {
   public:
     virtual Implements_Value_New<T*>* getClassRep(const StructureEnv_New *cm, std::string *whyNot, const std::string& masterObjective) const override
     {
-      std::string id=cm->dataToId(this, whyNot,masterObjective);
 
       auto o=(*toObj_)(cm,this,whyNot);
       if (o!=nullptr)
         return Implements_Value_New<T*>
-            (id,o);
+            (this,o);
       else
         return nullptr;
 
@@ -10303,6 +7004,193 @@ namespace _private {
 
   class Markov_CommandManagerVar;
 
+
+  namespace _private {
+
+
+
+    template<typename Markov_CommandManagerVar>
+    class Implements_Data_Type_singleton:public ABC_Type_of_Value
+    {
+    public:
+      typedef Implements_Data_Type_singleton selfType;
+      typedef Markov_CommandManagerVar* myC;
+      static std::string myId() {return Cls<myC>::name();}
+      static selfType* varType(const StructureEnv_New* cm)
+      {return new Implements_Data_Type_singleton();}
+      static std::string myTip(){return "a "+ Cls<myC>::name();}
+      static std::string myWhatThis(){return "";}
+      typedef mp_list<> dependsOn;
+      typedef mp_list<> fieldList;
+
+
+      virtual bool isDataInDomain
+      (const StructureEnv_New* cm
+       ,const ABC_Data_New* v
+       , std::string *whyNot
+       , const std::string& masterObjective)const override
+      {
+        return cm==v;
+      }
+
+      virtual bool isValueInDomain(const StructureEnv_New* cm,const Markov_CommandManagerVar* v
+                                   , std::string *whyNot, const std::string& masterObjective)const
+      {
+
+        return  cm==v;
+      }
+
+
+      virtual selfType* clone()const{return new selfType(*this);}
+      virtual selfType* create()const {return new selfType{};}
+
+
+
+      bool includesThisType(const StructureEnv_New *cm, const std::string &childType
+                            , std::string *whyNot, const std::string &masterObjective) const override
+      {
+        return childType==myId();
+      }
+
+
+
+      virtual bool putData(const StructureEnv_New* cm
+                           ,const ABC_Data_New* v
+                           ,ABC_Output* ostream
+                           ,std::string* error,
+                           const std::string& masterObjective)const override
+      {
+        if (cm!=v)
+          {
+            *error=masterObjective+ ": "+v->myTypeId()+" is not a "+Cls<Markov_CommandManagerVar*>::name();
+            return false;
+          }
+        else return true;
+      }
+
+      virtual bool getData(const StructureEnv_New* cm
+                           ,ABC_Data_New*& v
+                           , ABC_Input* istream
+                           ,std::string* error
+                           , const std::string& masterObjective)const override
+      {
+        return false;
+      }
+
+
+
+
+      virtual bool putValue(const StructureEnv_New* cm
+                            ,const Markov_CommandManagerVar* c
+                            ,ABC_Output* ostream
+                            ,std::string* whyNot
+                            , const std::string& masterObjective)const
+      {
+        return false;
+      }
+
+
+      virtual const ABC_Type_of_Value* getComplexVarType(const StructureEnv_New* cm) const {return nullptr;}
+
+
+
+
+
+      virtual buildByToken<Markov_CommandManagerVar*>*
+      getBuildByToken(const StructureEnv_New* cm)const override
+      {
+        return new buildByToken<Markov_CommandManagerVar*>(cm,this);
+      }
+
+
+      virtual ~Implements_Data_Type_singleton(){}
+
+
+      Implements_Data_Type_singleton(){}
+
+      virtual bool empty()const override
+      {
+        return false;
+      }
+
+      virtual void reset() override
+      {
+
+      }
+
+
+
+
+      virtual bool isOfThisType(const StructureEnv_New* cm,
+                                const std::string& generalType,
+                                std::string* whyNot
+                                ,const std::string &masterObjective)const override
+      {
+        if ((generalType.empty()||myTypeId()==generalType))
+          return true;
+        else
+          {
+            return false;
+          }
+
+      }
+
+
+
+      virtual ABC_Data_New* getClassRep(
+          const StructureEnv_New* cm,
+          const StructureEnv_New* m
+          , std::string *whyNot,
+          const std::string& masterObjective) const override
+      {
+        return nullptr;
+
+      }
+
+
+
+
+
+      virtual StructureEnv_New* getComplexVarRep(
+          const StructureEnv_New* cm,
+          const ABC_Data_New *var
+          , std::string *whyNot
+          , const std::string& masterObjective) const override
+      {
+
+        return nullptr;
+      }
+
+      virtual ABC_Type_of_Value const* myType()const override {return nullptr;}
+
+      std::string typeId()const override {
+        return Cls<Markov_CommandManagerVar*>::name();}
+
+      std::string myTypeId()const override  {
+        return typeId();
+      }
+
+      virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+      virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+      {
+        return nullptr;
+      }
+
+
+
+
+    };
+
+
+
+
+
+
+
+  }
 
 
   class Implements_Command_Arguments: public StructureEnv_New
@@ -10433,7 +7321,7 @@ namespace _private {
 
     template<typename T>
     bool Implements_Base_Type_New<T>::includesThisType(const StructureEnv_New *cm, const std::string &childType, std::string *whyNot, const std::string &masterObjective) const
-    { std::string id=cm->dataToId(this,whyNot,masterObjective);
+    { std::string id=typeId();
       if (childType==id)
         return true;
       else
@@ -10453,7 +7341,7 @@ namespace _private {
     template<typename T>
     bool Implements_Base_Type_New<T*>::includesThisType(const StructureEnv_New *cm, const std::string &childType, std::string *whyNot, const std::string &masterObjective) const
 
-    { std::string id=cm->dataToId(this,whyNot,masterObjective);
+    { std::string id=typeId();
       if (childType==id)
         return true;
       else

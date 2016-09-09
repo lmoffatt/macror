@@ -5,6 +5,7 @@
 #include "Markov_IO/Implements_path.h"
 #include "Markov_IO/VarTempl.h"
 
+#include "Markov_IO/Implements_Closures.h"
 #include "Markov_Console/Markov_CommandManager.h"
 
 #include "Markov_IO/myTypes.h"
@@ -45,7 +46,7 @@ namespace Markov_IO_New
     void pushAllFunctions(Markov_CommandManagerVar *cm);
 
     template<class Fn>
-    ABC_Type_of_Closure *varTypeT(typename Fn::functionType f,Markov_CommandManagerVar *cm)
+    ABC_Type_of_Function *varTypeT(typename Fn::functionType f,Markov_CommandManagerVar *cm)
     {
 
       return new typename Fn::vType
@@ -55,14 +56,7 @@ namespace Markov_IO_New
 
     namespace arg
     {
-      struct void_arg
-      {
-        typedef void myC;
-        typedef Implements_Fn_Argument<myC> argType;
 
-        argType* arg(){return new argType();}
-
-      };
 
       struct workingPath_arg
       {
@@ -80,10 +74,10 @@ namespace Markov_IO_New
 
 
 
-
+/*
 
     struct Save {
-      typedef Implements_Data_Type_Function  vType;
+      typedef Implements_Closure_Type<void*>  vType;
 
       static std::string myId(){return "save";}
       static std::string myTip(){return "Save variables";}
@@ -101,9 +95,7 @@ namespace Markov_IO_New
 
         typedef decltype(&save)  functionType;
 
-        typedef mp_append
-        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
-        >                        vType;
+                               vType;
 
         typedef
         mp_insert
@@ -131,14 +123,14 @@ namespace Markov_IO_New
         {
           return argFnTuple(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Markov_CommandManagerVar_Closure),
+                (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self(),
                 Implements_Fn_Argument<std::string>("macror.txt")
                 );
 
         }
 
 
-        static ABC_Type_of_Closure*
+        static ABC_Type_of_Function*
         varType(Markov_CommandManagerVar* cm)
         {
           return varTypeT<selfType>(save,cm);
@@ -153,11 +145,11 @@ namespace Markov_IO_New
 
 
 
-      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
       {
-        std::vector<ABC_Type_of_Closure*> out;
+        std::set<ABC_Type_of_Function*> out;
 
-        out.push_back(save_cm::varType(cm));
+        out.insert(save_cm::varType(cm));
         return out;
 
       }
@@ -165,7 +157,7 @@ namespace Markov_IO_New
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Data_Type_Function
+        return new  Implements_Closure_Type<void*>
             (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
       }
 
@@ -175,9 +167,10 @@ namespace Markov_IO_New
 
     };
 
-
+    */
+/*
     struct Load {
-      typedef Implements_Data_Type_Function  vType;
+      typedef Implements_Closure_Type<void*>  vType;
 
       static std::string myId(){return "load";}
       static std::string myTip(){return "load variables";}
@@ -194,7 +187,7 @@ namespace Markov_IO_New
         typedef decltype(&load)  functionType;
 
         typedef mp_append
-        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
         >                        vType;
 
         typedef
@@ -220,14 +213,14 @@ namespace Markov_IO_New
         {
           return argFnTuple(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Markov_CommandManagerVar_Closure),
+                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
                 Implements_Fn_Argument<std::string>("macror.txt")
                 );
 
         }
 
 
-        static ABC_Type_of_Closure*
+        static ABC_Type_of_Function*
         varType(Markov_CommandManagerVar* cm);
 
 
@@ -239,11 +232,11 @@ namespace Markov_IO_New
 
 
 
-      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
       {
-        std::vector<ABC_Type_of_Closure*> out;
+        std::set<ABC_Type_of_Function*> out;
 
-        out.push_back(load_cm::varType(cm));
+        out.insert(load_cm::varType(cm));
         return out;
 
       }
@@ -251,7 +244,7 @@ namespace Markov_IO_New
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Data_Type_Function
+        return new  Implements_Closure_Type<void*>
             (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
       }
 
@@ -265,7 +258,7 @@ namespace Markov_IO_New
 
 
     struct Who {
-      typedef Implements_Data_Type_Function  vType;
+      typedef Implements_Closure_Type<void*>  vType;
 
       static std::string myId(){return "who";}
       static std::string myTip(){return "list variables";}
@@ -282,7 +275,7 @@ namespace Markov_IO_New
         typedef decltype(&who)  functionType;
 
         typedef mp_append
-        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
         >                        vType;
 
         typedef
@@ -308,14 +301,14 @@ namespace Markov_IO_New
         {
           return argFnTuple(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Markov_CommandManagerVar_Closure),
+                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
                 Implements_Fn_Argument<std::string>("")
                 );
 
         }
 
 
-        static ABC_Type_of_Closure*
+        static ABC_Type_of_Function*
         varType(Markov_CommandManagerVar* cm);
 
 
@@ -327,11 +320,11 @@ namespace Markov_IO_New
 
 
 
-      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
       {
-        std::vector<ABC_Type_of_Closure*> out;
+        std::set<ABC_Type_of_Function*> out;
 
-        out.push_back(who_cm::varType(cm));
+        out.insert(who_cm::varType(cm));
         return out;
 
       }
@@ -339,7 +332,7 @@ namespace Markov_IO_New
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Data_Type_Function
+        return new  Implements_Closure_Type<void*>
             (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
       }
 
@@ -349,7 +342,7 @@ namespace Markov_IO_New
 
 
     struct Exit {
-      typedef Implements_Data_Type_Function  vType;
+      typedef Implements_Closure_Type<void*>  vType;
 
       static std::string myId(){return "exit";}
       static std::string myTip(){return "Exit Program";}
@@ -368,7 +361,7 @@ namespace Markov_IO_New
         typedef decltype(&exitProgram)  functionType;
 
         typedef mp_append
-        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
         >                        vType;
 
         typedef
@@ -397,14 +390,14 @@ namespace Markov_IO_New
         {
           return argFnTuple(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Markov_CommandManagerVar_Closure),
+                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
                 Implements_Fn_Argument<std::string>("")
                 );
 
         }
 
 
-        static ABC_Type_of_Closure*
+        static ABC_Type_of_Function*
         varType(Markov_CommandManagerVar* cm)
         {
           return varTypeT<selfType>(exitProgram,cm);
@@ -419,11 +412,11 @@ namespace Markov_IO_New
 
 
 
-      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
       {
-        std::vector<ABC_Type_of_Closure*> out;
+        std::set<ABC_Type_of_Function*> out;
 
-        out.push_back(exit_cm::varType(cm));
+        out.insert(exit_cm::varType(cm));
         return out;
 
       }
@@ -431,7 +424,7 @@ namespace Markov_IO_New
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Data_Type_Function
+        return new  Implements_Closure_Type<void*>
             (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
       }
 
@@ -445,7 +438,7 @@ namespace Markov_IO_New
 
 
     struct Simulate {
-      typedef Implements_Data_Type_Function  vType;
+      typedef Implements_Closure_Type<void*>  vType;
 
       static std::string myId(){return "simulate";}
       static std::string myTip(){return "simulate experiment";}
@@ -481,7 +474,7 @@ namespace Markov_IO_New
         typedef decltype(&simulate)  functionType;
 
         typedef mp_append
-        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
         >                        vType;
 
         typedef
@@ -511,7 +504,7 @@ namespace Markov_IO_New
         {
           return argFnTuple(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Markov_CommandManagerVar_Closure),
+                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
                 Implements_Fn_Argument<Markov_Mol_New::ABC_PatchModel*>
                 (cm,"patchModel",_private::_model::patch::ABC_PatchModel_type(),"simulated model",""),
                 Implements_Fn_Argument<ABC_Experiment*>
@@ -532,7 +525,7 @@ namespace Markov_IO_New
         }
 
 
-        static ABC_Type_of_Closure*
+        static ABC_Type_of_Function*
         varType(Markov_CommandManagerVar* cm)
         {
           return varTypeT<selfType>(simulate,cm);
@@ -547,11 +540,11 @@ namespace Markov_IO_New
 
 
 
-      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
       {
-        std::vector<ABC_Type_of_Closure*> out;
+        std::set<ABC_Type_of_Function*> out;
 
-        out.push_back(simulate_cm::varType(cm));
+        out.insert(simulate_cm::varType(cm));
         return out;
 
       }
@@ -559,7 +552,7 @@ namespace Markov_IO_New
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Data_Type_Function
+        return new  Implements_Closure_Type<void*>
             (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
       }
 
@@ -569,6 +562,8 @@ namespace Markov_IO_New
 
     };
 
+
+    */
 /*
     struct Likelihood {
       typedef Implements_Data_Type_Function  vType;
@@ -612,7 +607,7 @@ namespace Markov_IO_New
         typedef decltype(&likelihood)  functionType;
 
         typedef mp_append
-        <Implements_Data_Type_FnClosure<functionType,void>,argTypes
+        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
         >                        vType;
 
         typedef
@@ -642,7 +637,7 @@ namespace Markov_IO_New
         {
           return argFnTuple(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Markov_CommandManagerVar_Closure),
+                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
                 Implements_Fn_Argument<Markov_Mol_New::ABC_PatchModel*>
                 (cm,"patchModel",_private::_model::patch::ABC_PatchModel_type(),"simulated model",""),
                 Implements_Fn_Argument<ABC_Experiment*>
@@ -678,9 +673,9 @@ namespace Markov_IO_New
 
 
 
-      static  std::vector<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
+      static  std::set<ABC_Type_of_Closure*> getOverrides(Markov_CommandManagerVar* cm)
       {
-        std::vector<ABC_Type_of_Closure*> out;
+        std::set<ABC_Type_of_Closure*> out;
 
         out.push_back(likelihood_cm::varType(cm));
         return out;

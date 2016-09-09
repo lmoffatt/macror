@@ -42,7 +42,7 @@ namespace Markov_IO_New {
 
     template class Implements_Data_Type_New_map<std::string,double> ;
 
-    const ABC_Type_of_Value *Implements_Base_Value_New<void>::myType() const
+    const ABC_Type_of_Value *Implements_Value_Base_New<void>::myType() const
     {
       return varType_;
     }
@@ -158,8 +158,7 @@ namespace Markov_IO_New {
           return false;
         else
           {
-            const ABC_Type_of_Function* subt=it->second;
-            return t->includesThisType(this,name,whyNot,masterObjective);
+            return true;
           }
       }
 
@@ -240,13 +239,12 @@ namespace Markov_IO_New {
       }
     else
       {
-        const Implements_Data_Type_Function* t=
+        const Implements_Closure_Type<void*>* t=
             idToFunc(fucnType,&whyNot,objective);
         std::set<std::string> s;
         for (const auto &p:funcs_)
           {
             std::string why;
-            if (t->includesThisType(this,p.first,&why,objective))
               s.insert(p.first);
           }
         s.insert(o.begin(),o.end());

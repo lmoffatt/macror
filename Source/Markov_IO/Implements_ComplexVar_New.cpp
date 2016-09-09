@@ -292,16 +292,16 @@ namespace Markov_IO_New {
 
   void StructureEnv_New::reset()
   {
+    idUsed_.clear();
     idVars_.clear();
     idTypes_.clear();
     idCmds_.clear();
-    all_.clear();
-    allId_.clear();
     vars_.clear();
     types_.clear();
+    typeC_.clear();
     cmds_.clear();
     funcs_.clear();
-    fnNames_.clear();
+    methods_.clear();
   }
 
   ABC_Type_of_Value const * StructureEnv_New::myType() const
@@ -419,35 +419,6 @@ namespace Markov_IO_New {
       }
   }
 
-  std::string StructureEnv_New::dataToId(const ABC_Data_New* data, std::__cxx11::string *whyNot, const std::string& objective) const
-  {
-    auto it=allId_.find(data);
-    if (it!=allId_.end())
-      return it->second;
-    else if (parent()!=nullptr)
-      return  parent()->dataToId(data, whyNot,objective);
-    else
-      {
-        if (whyNot!=nullptr)
-          *whyNot=objective+": data has no id ";
-        return {};
-      }
-  }
-
-  std::string StructureEnv_New::fnAddrToId(const void* data, std::__cxx11::string *whyNot, const std::string& objective) const
-  {
-    auto it=fnNames_.find(data);
-    if (it!=fnNames_.end())
-      return it->second;
-    else if (parent()!=nullptr)
-      return  parent()->fnAddrToId(data, whyNot,objective);
-    else
-      {
-        if (whyNot!=nullptr)
-          *whyNot=objective+": data has no id ";
-        return {};
-      }
-  }
 
 
   std::__cxx11::string StructureEnv_New::Tip(const std::__cxx11::string &id) const
@@ -516,7 +487,7 @@ namespace Markov_IO_New {
 
 
 
-  const Implements_Data_Type_Function *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)const
+  const Implements_Closure_Type<void*> *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)const
   {
     const std::string objective=masterObjective+": "+name+" is not a type";
     auto it=funcs_.find(name);
@@ -536,7 +507,7 @@ namespace Markov_IO_New {
 
 
 
-  Implements_Data_Type_Function *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  Implements_Closure_Type<void *> *StructureEnv_New::idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
   {
     const std::string objective=masterObjective+": "+name+" is not a type";
     auto it=funcs_.find(name);
@@ -572,7 +543,7 @@ namespace Markov_IO_New {
   bool StructureEnv_New::hasName(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const
   {
     const std::string objective=masterObjective+ ": "+name+"is not present ";
-    if (all_.find(name)!=all_.end())
+    if (idUsed_.find(name)!=idUsed_.end())
       {
         return true;
       }
@@ -586,11 +557,9 @@ namespace Markov_IO_New {
 
   bool StructureEnv_New::isNameUnOcuppied(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const
   {
-    auto it=all_.find(name);
-    if (it!=all_.end())
+    auto it=idUsed_.find(name);
+    if (it!=idUsed_.end())
       {
-        const ABC_Data_New* v=it->second;
-        *whyNot=masterObjective+": "+name+" is currently a"+v->myTypeId();
         return false;
       }
     else if (recursive&&(parent()!=nullptr))
@@ -653,26 +622,8 @@ namespace Markov_IO_New {
     Implements_Var iv;
     iv.id=std::move(idVars_.back());
     idVars_.pop_back();
-    iv.data=all_[iv.id];
-    all_.erase(iv.id);
-    allId_.erase(iv.data);
-    auto itv=vars_.find(iv.id);
-    if (itv!=vars_.end())
-      {
-        vars_.erase(itv);
-      }
-    else
-      {
-        auto itt=types_.find(iv.id);
-        if (itt!=types_.end())
-          types_.erase(itt);
-        else
-          {
-            auto itc=cmds_.find(iv.id);
-            if (itc!=cmds_.end())
-              cmds_.erase(itc);
-          }
-      }
+    iv.data=vars_[iv.id];
+    vars_.erase(iv.id);
     auto itw=this->idTipWt_.find(iv.id);
     if (itw!=idTipWt_.end())
       {
@@ -686,36 +637,26 @@ namespace Markov_IO_New {
 
   void StructureEnv_New::pushVar(const std::__cxx11::string &id, ABC_Data_New *var, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
-    if (all_.find(id)!=all_.end())
+    if (vars_.find(id)!=vars_.end())
       {
-        allId_.erase(all_[id]);
-        delete all_[id];
+        delete vars_[id];
+        vars_.erase(id);
+
       }
     else
       idVars_.push_back(id);
-    all_[id]=var;
-    allId_[var]=id;
     vars_[id]=var;
     idTipWt_[id]={tip,whatthis};
   }
 
   void StructureEnv_New::pushType(const std::__cxx11::string &id, ABC_Type_of_Value *tvar, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
-    ;
-    if (all_.find(id)!=all_.end())
-      {
-        allId_.erase(all_[id]);
-        delete all_[id];
-      }
-    else
-      idTypes_.push_back(id);
-    all_[id]=tvar;
-    allId_[tvar]=id;
+    idTypes_.push_back(id);
     types_[id]=tvar;
     idTipWt_[id]={tip,whatthis};
   }
 
-  void StructureEnv_New::pushFunction(const std::__cxx11::string &id, Implements_Data_Type_Function *f, std::__cxx11::string tip, std::__cxx11::string whatthis)
+  void StructureEnv_New::pushFunction(const std::__cxx11::string &id, Implements_Closure_Type<void *> *f, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
     funcs_[id]=f;
     idTipWt_[id]={tip,whatthis};
@@ -723,16 +664,7 @@ namespace Markov_IO_New {
 
   void StructureEnv_New::pushCommand(const std::__cxx11::string &id, Implements_Command_Type_New *cmd, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
-    ;
-    if (all_.find(id)!=all_.end())
-      {
-        allId_.erase(all_[id]);
-        delete all_[id];
-      }
-    else
-      idCmds_.push_back(id);
-    all_[id]=cmd;
-    allId_[cmd]=id;
+    idCmds_.push_back(id);
     cmds_[id]=cmd;
     idTipWt_[id]={tip,whatthis};
   }
@@ -743,7 +675,7 @@ namespace Markov_IO_New {
 
 
   StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const Implements_Data_Type_New<StructureEnv_New *> *myType):
-    p_(parent),strType_(myType),idVars_(),idTypes_(),idCmds_(),all_(),allId_(),vars_(),types_(),cmds_(),funcs_(),idTipWt_(),fnNames_()
+    p_(parent),strType_(myType),idVars_(),idTypes_(),idCmds_(),vars_(),types_(),cmds_(),funcs_(),idTipWt_()
   {
 
   }
@@ -771,7 +703,7 @@ namespace Markov_IO_New {
     return types_;
   }
 
-  std::map<std::__cxx11::string, Implements_Data_Type_Function *> &StructureEnv_New::getFunctions()
+  std::map<std::__cxx11::string, Implements_Closure_Type<void*> *> &StructureEnv_New::getFunctions()
   {
     return funcs_;
   }
@@ -779,7 +711,7 @@ namespace Markov_IO_New {
 
 
 
-  const  std::map<std::__cxx11::string, Implements_Data_Type_Function *> &StructureEnv_New::getFunctions()const
+  const std::map<std::__cxx11::string, Implements_Closure_Type<void *> *> &StructureEnv_New::getFunctions()const
   {
     return funcs_;
   }
@@ -1085,12 +1017,7 @@ namespace Markov_IO_New {
   }
 
 
-  ABC_BuildClosure *Implements_Data_Type_Function::getBuildByToken(const StructureEnv_New *cm) const
-  {
-    return new buildByToken<ABC_Closure*>(cm,this);
-  }
 
-  ABC_Data_New *Markov_CommandManagerVar_Closure::evalData(Markov_CommandManagerVar *cm) {return cm;}
 
 
 

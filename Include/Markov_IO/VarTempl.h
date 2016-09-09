@@ -7,7 +7,7 @@
 namespace Markov_IO_New {
   namespace _private{
     template<typename T>
-    bool Implements_Base_Value_New<T>::isOfThisType(const StructureEnv_New* cm,
+    bool Implements_Value_Base_New<T>::isOfThisType(const StructureEnv_New* cm,
                                                     const std::string& generalType,
                                                     std::string* whyNot
                                                     ,const std::string &masterObjective)const
@@ -27,7 +27,7 @@ namespace Markov_IO_New {
 
 
   template<typename T>
-  bool Implements_Base_Value_New<T*>::isOfThisType(const StructureEnv_New* cm,
+  bool Implements_Value_Base_New<T*>::isOfThisType(const StructureEnv_New* cm,
                                                   const std::string& generalType,
                                                   std::string* whyNot
                                                   ,const std::string &masterObjective)const
@@ -47,7 +47,7 @@ namespace Markov_IO_New {
 
 
   template<typename D,typename B>
-  bool Implements_Derived_Value_New<D,B>::isOfThisType(const StructureEnv_New* cm,
+  bool Implements_Value_Derived_New<D,B>::isOfThisType(const StructureEnv_New* cm,
                                                   const std::string& generalType,
                                                   std::string* whyNot
                                                   ,const std::string &masterObjective)const
@@ -68,15 +68,6 @@ namespace Markov_IO_New {
 
 
 
-  template<typename T>
-T Implements_Base_Value_Identifier<T>::eval(Markov_CommandManagerVar *cm)
-  {
-    T out;
-    if (cm->getDataFromId(id_,out))
-      return out;
-    else
-      return {};
-  }
 
 }
 

@@ -188,7 +188,8 @@ namespace Markov_IO_New {
 
 
   ExpressionManager::ExpressionManager(Markov_CommandManagerVar *cm):
-    bu_(cm),tok_{},tokVec_{},previous_key(),rejectedChars_(),errorMessage_()
+    bu_(cm,cm->getVarType(),cm->getFnType())
+  ,tok_{},tokVec_{},previous_key(),rejectedChars_(),errorMessage_()
   {}
 
   void ExpressionManager::KeyEvent(Markov_CommandManagerVar *cm

@@ -490,9 +490,12 @@ HEADERS += \
     Include/Markov_IO/myTypesExperiment.h \
     Include/Markov_IO/mp_Function.h \
     Include/Markov_IO/Implements_function.h \
-    Include/Markov_IO/Implemenst_Function_Type.h \
     Include/Markov_IO/FunctionCommand.h \
-    Include/Markov_IO/StructureEnv.h
+    Include/Markov_IO/StructureEnv.h \
+    Include/Markov_IO/Closure.h \
+    Include/Markov_IO/Closure_type.h \
+    Include/Markov_IO/buildClosureByToken.h \
+    Include/Markov_IO/Implements_Closures.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \
@@ -506,7 +509,9 @@ SOURCES += \
     Source/Markov_IO/FileLoadSave.cpp \
     Source/Markov_IO/myTypesExperiment.cpp \
     Source/Markov_IO/Implements_function.cpp \
-    Source/Markov_IO/StructureEnv.cpp
+    Source/Markov_IO/StructureEnv.cpp \
+    Source/Markov_IO/buildClosureByToken.cpp \
+    Source/Markov_IO/Implements_Closures.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

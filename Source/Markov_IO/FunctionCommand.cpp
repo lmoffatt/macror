@@ -17,18 +17,19 @@ namespace Markov_IO_New
 
     void pushAllFunctions(Markov_CommandManagerVar *cm)
     {
+      /*
       cm->pushFunction<Save>();
       cm->pushFunction<Load>();
       cm->pushFunction<Who>();
       cm->pushFunction<Exit>();
       cm->pushFunction<Simulate>();
 
-
+*/
 
 
     }
 
-
+/*
     void Save::save_cm::save(Markov_CommandManagerVar *cm, const std::__cxx11::string &pathfileName)
     {
       fd::FileOut f(pathfileName);
@@ -62,10 +63,10 @@ namespace Markov_IO_New
       //      getCommandManager()->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
     }
 
-    ABC_Type_of_Closure *Load::load_cm::varType(Markov_CommandManagerVar *cm)
+    ABC_Type_of_Function *Load::load_cm::varType(Markov_CommandManagerVar *cm)
     {
 
-      return new Implements_Data_Type_FnClosure<
+      return new Implements_Closure_Type_R_Fn_Args_Function<
           functionType,returnType,Markov_CommandManagerVar*,std::string>
           (cm,&load
            ,getReturnFnType(cm), getArgumentTypes(cm));
@@ -82,9 +83,9 @@ namespace Markov_IO_New
         }
     }
 
-    ABC_Type_of_Closure *Who::who_cm::varType(Markov_CommandManagerVar *cm)
+    ABC_Type_of_Function *Who::who_cm::varType(Markov_CommandManagerVar *cm)
     {
-      return new Implements_Data_Type_FnClosure<
+      return new Implements_Closure_Type_R_Fn_Args_Function<
           functionType,returnType,Markov_CommandManagerVar*,std::string>
           (cm,&who
            ,getReturnFnType(cm), getArgumentTypes(cm));
@@ -106,7 +107,7 @@ namespace Markov_IO_New
       cm->pushData(experiment_out,sim,"simulation");
 
     }
-
+*/
 //    void Likelihood::likelihood_cm::likelihood(Markov_CommandManagerVar *cm
 //                                               , Markov_Mol_New::ABC_PatchModel *patch, ABC_Experiment *experiment, const std::__cxx11::string algorithm, bool isaveraging, bool zeroGuard, double dxForScore, bool showPartialLikelihood, bool showPredictedValue, bool runApproximation, std::size_t numSteps, std::size_t numSamples)
 

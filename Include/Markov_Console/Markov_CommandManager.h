@@ -94,7 +94,7 @@ namespace Markov_IO_New
       return vt_;
     }
 
-    const Implements_Data_Type_New<ABC_Closure*>* getFnType()
+    const Implements_Closure_Type<void*>* getFnType()
     {
       return ct_;
     }
@@ -141,7 +141,7 @@ namespace Markov_IO_New
   protected:
     ABC_IO* io_;
     Implements_Data_Type_New<Implements_Var>* vt_;
-    Implements_Data_Type_New<ABC_Closure*>* ct_;
+    Implements_Closure_Type<void*>* ct_;
 
     Implements_Identifier* idCmd_;
     ExpressionManager* e;

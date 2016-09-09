@@ -89,6 +89,32 @@ namespace Markov_IO_New {
   }
 
 
+  template<typename T>
+  bool and_pack(T x)
+  {
+    return bool(x);
+  }
+
+  template <typename T,typename... Ts>
+  bool and_pack(T x,Ts... xs)
+  {
+     return bool(x)&& and_pack(xs...);
+  }
+
+  template<typename T>
+  bool or_pack(T x)
+  {
+    return bool(x);
+  }
+
+  template <typename T,typename... Ts>
+  bool or_pack(T x,Ts... xs)
+  {
+     return bool(x)&& or_pack(xs...);
+  }
+
+
+
   template<typename...Args>
   std::string Cls_name_imp()
   {
