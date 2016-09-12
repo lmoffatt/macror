@@ -2,10 +2,9 @@
 #include "Markov_Console/Markov_CommandManager.h"
 #include "Markov_IO/VarTempl.h"
 
-
-
-
+#include "Markov_IO/Implements_Closures.h"
 #include "Markov_LA/matrixSum.h"
+#include "Markov_IO/StructureEnv_templ.h"
 #include <limits>
 
 namespace Markov_IO_New {
@@ -16,6 +15,20 @@ namespace Markov_IO_New {
   buildByToken<std::string> *Implements_Data_Type_New<std::string>::getBuildByToken(const StructureEnv_New *cm) const
   {
     return new buildByToken<std::string>(cm,this);
+  }
+
+
+
+  template <>
+  void StructureEnv_New::pushType<void>(const std::string& id
+                ,Implements_Data_Type_New<void>* tvar
+                , std::string tip
+                , std::string whatthis)
+  {
+    idTypes_.push_back(id);
+    types_[id]=tvar;
+    idTipWt_[id]={tip,whatthis};
+
   }
 
 
@@ -183,9 +196,11 @@ namespace Markov_IO_New {
         idType_(idType),dataType_(dataType),comply_(comply)
       ,getKey_(getKey),getElement_(getElement){}
 
+
+
     void Implements_Data_Type_New_regular<void>::push_Types(StructureEnv_New *cm)
     {
-      cm->pushType(Cls<void>::name()
+      cm->pushType<void>(Cls<void>::name()
                    ,new Implements_Data_Type_New_regular<void>()
                    ,Cls<void>::name(),"a regular "+Cls<void>::name());
     }
@@ -649,15 +664,15 @@ namespace Markov_IO_New {
     idTipWt_[id]={tip,whatthis};
   }
 
-  void StructureEnv_New::pushType(const std::__cxx11::string &id, ABC_Type_of_Value *tvar, std::__cxx11::string tip, std::__cxx11::string whatthis)
-  {
-    idTypes_.push_back(id);
-    types_[id]=tvar;
-    idTipWt_[id]={tip,whatthis};
-  }
+
+
+
+
+
 
   void StructureEnv_New::pushFunction(const std::__cxx11::string &id, Implements_Closure_Type<void *> *f, std::__cxx11::string tip, std::__cxx11::string whatthis)
   {
+    idFunctions_.push_back(id);
     funcs_[id]=f;
     idTipWt_[id]={tip,whatthis};
   }
@@ -950,7 +965,7 @@ namespace Markov_IO_New {
 
   void Real::push_Types(StructureEnv_New *cm)
   {
-    cm->pushType(Cls<double>::name(),new Implements_Data_Type_New<double>(),"real number","a regular real number");
+    cm->pushType<double>(Cls<double>::name(),new Implements_Data_Type_New<double>(),"real number","a regular real number");
     cm->pushType<types::nonZero>();
     cm->pushType<types::positive>();
     cm->pushType<types::nonNegative>();

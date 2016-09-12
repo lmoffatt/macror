@@ -6,7 +6,7 @@
 #include "Markov_IO/Var.h"
 #include "Markov_IO/buildByToken.h"
 
-#include "Markov_IO/Closure.h"
+//#include "Markov_IO/Closure.h"
 #include "Markov_LA/matrixSum.h"
 #include "Markov_IO/StructureEnv.h"
 
@@ -253,6 +253,8 @@ namespace Markov_IO_New {
         }
       return false;
     }
+
+    typedef BuildByToken_Union myBuild;
 
     virtual BuildByToken_Union* getBuildByToken(
         const StructureEnv_New* cm)const
@@ -602,8 +604,11 @@ namespace Markov_IO_New {
       using typePredicate= bool(*) (const StructureEnv_New* cm,const std::string& val,
       const Implements_Data_Type_New_string* self, std::string* error,const std::string& obj);
 
+
       using getSet=std::set<std::string>(*)(const StructureEnv_New*,
       const Implements_Data_Type_New_string*);
+
+      typedef buildByToken<myC> myBuild;
 
       virtual buildByToken<std::string>* getBuildByToken(
           const StructureEnv_New* cm)const override;
@@ -1481,6 +1486,7 @@ namespace Markov_IO_New {
 
       }
 
+      typedef buildByToken<myC> myBuild;
 
 
       virtual buildByToken<std::vector<T>>* getBuildByToken(
@@ -1702,6 +1708,8 @@ namespace Markov_IO_New {
           }
 
       }
+
+      typedef buildByToken<myC> myBuild;
 
 
 
@@ -2021,6 +2029,7 @@ namespace Markov_IO_New {
       const selfType* SELF);
 
 
+      typedef buildByToken<T> myBuild;
 
 
       virtual buildByToken<T>* getBuildByToken(
@@ -2119,7 +2128,7 @@ namespace Markov_IO_New {
 
       static void push_Types(StructureEnv_New *cm)
       {
-        cm->pushType(Cls<T>::name()
+        cm->pushType<T>(Cls<T>::name()
                      ,new Implements_Data_Type_New_regular<T>()
                      ,Cls<T>::name(),"a regular "+Cls<T>::name());
       }
@@ -2217,6 +2226,8 @@ namespace Markov_IO_New {
       {
         return isDataInDomain(cm,v,whyNot,masterObjective);
       }
+      typedef ABC_BuildByToken myBuild;
+
 
       virtual ABC_BuildByToken* getBuildByToken(
           const StructureEnv_New* cm)const override
@@ -2509,6 +2520,7 @@ namespace Markov_IO_New {
     public:
       typedef Implements_Data_Type_New_M_Matrix<T> selfType;
       typedef Markov_LA::M_Matrix<T> myC;
+
       static std::string myId() {return Cls<myC>::name();}
       static selfType* varType(const StructureEnv_New* cm)
       {return new selfType(myId(),nullptr);}
@@ -2536,6 +2548,8 @@ namespace Markov_IO_New {
       virtual ~Implements_Data_Type_New_M_Matrix(){}
 
 
+
+      typedef buildByToken<myC> myBuild;
       virtual buildByToken<Markov_LA::M_Matrix<T>>* getBuildByToken(
           const StructureEnv_New* cm)const
       {
@@ -3063,8 +3077,9 @@ namespace Markov_IO_New {
       virtual ~Implements_Data_Type_New_pair(){}
 
 
+      typedef std::pair<K,T> myC;
 
-
+      typedef buildByToken<myC> myBuild;
 
       virtual buildByToken<std::pair<K,T>> *getBuildByToken(const StructureEnv_New *cm) const override
       {
@@ -3260,6 +3275,7 @@ namespace Markov_IO_New {
 
       }
 
+      typedef buildByToken<myC> myBuild;
 
       virtual buildByToken<std::map<K,T>>* getBuildByToken(
           const StructureEnv_New* cm)const override
@@ -3514,6 +3530,9 @@ namespace Markov_IO_New {
       //          return (*getElement_)(cm,data,this,whyNot,masterObjective,source);
       //      }
 
+
+      typedef buildByToken<myC> myBuild;
+
       virtual buildByToken<ABC_Data_New*>* getBuildByToken(const StructureEnv_New* cm)const override
       {
         return new buildByToken<ABC_Data_New*>(cm,this);
@@ -3737,6 +3756,7 @@ namespace Markov_IO_New {
         else return (*getElement_)(cm,v,this,whyNot,masterObjective,source);
       }
 
+      typedef buildByToken<myC> myBuild;
       virtual buildByToken<Implements_Var>* getBuildByToken(const StructureEnv_New* cm)const override
       {
         return new buildByToken<Implements_Var>(cm,this);
@@ -4096,7 +4116,7 @@ namespace Markov_IO_New {
 
 
 
-
+typedef buildByToken<myC> myBuild;
 
       virtual buildByToken<StructureEnv_New*>* getBuildByToken(
           const StructureEnv_New* cm)const override
@@ -4489,7 +4509,7 @@ namespace Markov_IO_New {
         static void push_Types(StructureEnv_New *cm)
         {
           if (!cm->hasType(myId()))
-            cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+            cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
 
@@ -4545,7 +4565,7 @@ namespace Markov_IO_New {
         static void push_Types(StructureEnv_New *cm)
         {
           if (!cm->hasType(myId()))
-            cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+            cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
 
@@ -4601,7 +4621,7 @@ namespace Markov_IO_New {
         static void push_Types(StructureEnv_New *cm)
         {
           if (!cm->hasType(myId()))
-            cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+            cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
 
@@ -4657,7 +4677,7 @@ namespace Markov_IO_New {
         static void push_Types(StructureEnv_New *cm)
         {
           if (!cm->hasType(myId()))
-            cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+            cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
 
@@ -5301,10 +5321,10 @@ namespace Markov_IO_New {
 
   namespace ComplexVar
   {
-    typedef StructureEnv_New* myC;
 
     class types
     {
+      typedef StructureEnv_New* myC;
     public:
       template <class T>
       static  Implements_Data_Type_New<myC>* getVarType(const std::string& classId,
@@ -5418,6 +5438,8 @@ namespace Markov_IO_New {
 
       struct Var
       {
+        typedef StructureEnv_New* myC;
+
         static std::string myId(){return "_varEnvironment";}
         static std::string myIdType(){return Cls<myC>::name();}
         static std::string myTip(){return "working variables";}
@@ -5623,7 +5645,7 @@ namespace Markov_IO_New {
 
 
 
-
+      typedef buildByToken<T> myBuild;
 
       virtual buildByToken<T>* getBuildByToken(const StructureEnv_New* cm)const
       {
@@ -5974,6 +5996,8 @@ namespace Markov_IO_New {
       virtual const Implements_Data_Type_New<StructureEnv_New*>* getComplexVarType(const StructureEnv_New* cm) const {return CVtype_;}
 
 
+
+      typedef buildByToken<T*> myBuild;
 
       virtual buildByToken<T*>*
       getBuildByToken(const StructureEnv_New* cm)const override
@@ -6331,7 +6355,7 @@ namespace Markov_IO_New {
       }
 
 
-
+       typedef buildByTokenD<D,B> myBuild;
 
       virtual buildByTokenD<D,B>* getBuildByToken(const StructureEnv_New* cm)const
       {
@@ -6823,7 +6847,7 @@ namespace Markov_IO_New {
       push_TypesList<myType>(cm,typename myType::dependsOn{});
       push_FieldList<myType>(cm,typename myType::fieldList{});
       if (!cm->hasType(myType::myId()))
-        cm->pushType
+        cm->pushType<typename myType::myC>
             (myType::myId()
              ,myType::varType(cm)
              ,myType::myTip(),myType::myWhatThis());
@@ -6943,6 +6967,8 @@ namespace Markov_IO_New {
         return isValueInDomain(*v,whyNot);
     }
 
+
+    typedef buildByToken<T*> myBuild;
 
 
     virtual buildByToken<T*>* getBuildByToken(const StructureEnv_New* cm)const
@@ -7102,7 +7128,7 @@ namespace Markov_IO_New {
 
 
 
-
+      typedef buildByToken<Markov_CommandManagerVar*> myBuild;
 
       virtual buildByToken<Markov_CommandManagerVar*>*
       getBuildByToken(const StructureEnv_New* cm)const override
@@ -7272,6 +7298,7 @@ namespace Markov_IO_New {
 
     // ABC_Type_of_Value interface
   public:
+    typedef build_Command_Input myBuild;
     virtual build_Command_Input *getBuildByToken(const StructureEnv_New *cm) const override
     {
       return new build_Command_Input(cm,this);

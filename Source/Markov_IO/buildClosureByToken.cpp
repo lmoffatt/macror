@@ -1,6 +1,7 @@
 #include "Markov_IO/buildClosureByToken.h"
 #include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_IO/Implements_Closures.h"
+#include "Markov_IO/StructureEnv_templ.h"
 
 namespace Markov_IO_New
 {
@@ -153,7 +154,7 @@ inline
       idtype_(varType->myFunctionIdentifier(parent)),
       idString_(),
       idObjB_(varType->myFunctionIdentifier(parent)->getBuildByToken(parent)),
-      vecValueB_(varType->getOverloadBuild(parent)),
+      vecValueB_(varType->getOverloadBuild(parent,nullptr)),
       nPushedTokensIn_(),
       nPushedTokens_(0),
       valueB_(),
@@ -177,7 +178,7 @@ inline
               return false;
             else
               {
-                vecValueB_=fnType_->getOverloadBuild(parent());
+                vecValueB_=fnType_->getOverloadBuild(parent(),nullptr);
                 nPushedTokensIn_=std::vector<std::size_t>(vecValueB_.size(),0);
                 nPushedTokens_=0;
                 if (isFinal(vecValueB_,nPushedTokens_,nPushedTokensIn_))
@@ -253,7 +254,7 @@ inline
     idtype_=varType->myFunctionIdentifier(parent());
     idString_.clear();
     idObjB_.reset(varType->myFunctionIdentifier(parent())->getBuildByToken(parent()));
-    vecValueB_=varType->getOverloadBuild(parent());
+    vecValueB_=varType->getOverloadBuild(parent(),nullptr);
     nPushedTokensIn_=std::vector<std::size_t>(vecValueB_.size(),0);
     nPushedTokens_=0;
     valueB_.reset();

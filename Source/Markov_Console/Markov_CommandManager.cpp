@@ -52,7 +52,7 @@
 
 
 #include "Borrowed/MersenneTwister.h"
-
+#include "Markov_IO/StructureEnv_templ.h"
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
 
@@ -95,7 +95,7 @@ namespace Markov_IO_New
 
     cmd::pushAllCommands(this);
     pushRegularType<Markov_CommandManagerVar*>();
-    pushRegularType<void>();
+    pushVoidType();
 
     Real::push_Types(this);
     Identifier::push_Types(this);
@@ -242,6 +242,7 @@ _private::_experiment::push_Types(this);
     wllc+=helpmss+"\n";
     return wllc;
   }
+
 
 
 

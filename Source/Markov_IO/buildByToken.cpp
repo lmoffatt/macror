@@ -5,6 +5,7 @@
 #include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_IO/buildByTokenTempl.h"
 #include "Markov_IO/VarTempl.h"
+#include "Markov_IO/StructureEnv_templ.h"
 
 namespace Markov_IO_New {
 

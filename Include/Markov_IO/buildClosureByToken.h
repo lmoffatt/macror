@@ -1693,7 +1693,9 @@ namespace Markov_IO_New {
 
   protected:
     const Implements_Closure_Type<T,int>*  varType_;
-    std::unique_ptr<buildByToken<T>> xB_;
+    typedef  typename Implements_Data_Type_New<T>::myBuild myBuild;
+
+    std::unique_ptr<myBuild> xB_;
     std::unique_ptr<Implements_Closure_Value<T,int>> xC_;
   };
 

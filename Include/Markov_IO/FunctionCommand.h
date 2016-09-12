@@ -144,6 +144,7 @@ namespace Markov_IO_New
         auto out= new  Implements_Closure_Type<void*>
             (myId(),Identifier::types::idFunct::varType(myId()));
         out->push_overload(cm,save_cm::closureType(cm));
+        return out;
 
 
 

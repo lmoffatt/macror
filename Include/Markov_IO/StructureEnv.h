@@ -346,8 +346,7 @@ namespace Markov_IO_New {
       auto it=typeC_.find(name);
       if (it!=typeC_.end())
         {
-          return dynamic_cast<Implements_Closure_Type<T>*>(
-                it->second);
+          return dynamic_cast<Implements_Closure_Type<T>*>(it->second);
         }
       else if (parent()!=nullptr)
         return  parent()->idToTypeC<T>(name, whyNot,objective);
@@ -358,9 +357,6 @@ namespace Markov_IO_New {
         }
 
     }
-
-
-
 
 
 
@@ -614,10 +610,17 @@ namespace Markov_IO_New {
 
 
 
+
+
+
+
+
+    template <typename T>
     void pushType(const std::string& id
-                  ,ABC_Type_of_Value* var
+                  ,Implements_Data_Type_New<T>* var
                   , std::string tip
                   , std::string whatthis);
+
 
 
     template<class Type>
@@ -638,7 +641,7 @@ namespace Markov_IO_New {
     void pushType()
     {
       if (!hasType(Type::myId()))
-        pushType(Type::myId()
+        pushType<typename Type::myC>(Type::myId()
                  ,Type::varType()
                  ,Type::myTip()
                  ,Type::myWhatThis());
@@ -648,11 +651,11 @@ namespace Markov_IO_New {
     void pushRegularType()
     {
       if (!hasType(Cls<T>::name()))
-        pushType(Cls<T>::name()
+        pushType<T>(Cls<T>::name()
                  , new Implements_Data_Type_New<T>(),"a "+Cls<T>::name(),"");
     }
 
-
+    void pushVoidType();
 
 
 

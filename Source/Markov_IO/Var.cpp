@@ -2,7 +2,7 @@
 #include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_IO/buildByToken.h"
 #include "Markov_IO/VarTempl.h"
-
+#include "Markov_IO/StructureEnv_templ.h"
 namespace Markov_IO_New {
 
 //  template class Implements_Value_New<double>;

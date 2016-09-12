@@ -8,6 +8,7 @@
 #include "Markov_IO/Experiment.h"
 
 #include "Markov_Bay/MarkovLikelihood.h"
+#include "Markov_IO/StructureEnv_templ.h"
 
 
 namespace Markov_IO_New

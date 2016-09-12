@@ -163,6 +163,11 @@ namespace Markov_IO_New
   }
 
   template <typename T>
+  const Implements_Data_Type_New<T> *cm_resultType(const ABC_R_Closure<T> *cl, const Markov_CommandManagerVar *cm)
+  {
+    return cl->resultType(cm);
+  }
+  template <typename T>
    Implements_Value_New<T>*
   cm_idToValued( Markov_CommandManagerVar *cm
                 , const std::string& id

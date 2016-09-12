@@ -9,6 +9,7 @@
 #include "Markov_LA/matrixMaxMin.h"
 #include "Markov_LA/matrixAritmetic.h"
 #include "Markov_IO/Implements_ComplexVar_New.h"
+#include "Markov_IO/Implements_Closures.h"
 namespace Markov_IO_New {
   
   using Markov_Mol_New::Q_Markov_Model;
@@ -149,7 +150,7 @@ namespace Markov_IO_New {
         static void push_Types(StructureEnv_New *cm)
         {
           cm->pushRegularType<elem>();
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
 
@@ -252,7 +253,7 @@ namespace Markov_IO_New {
         static void push_Types(StructureEnv_New *cm)
         {
           cm->pushRegularType<elem>();
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
       };
@@ -344,7 +345,7 @@ namespace Markov_IO_New {
 
         static void push_Types(StructureEnv_New *cm)
         {
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
           cm->pushRegularType<elem>();
         }
 
@@ -390,6 +391,7 @@ namespace Markov_IO_New {
       public:
         typedef Implements_Data_Type_class<myB*> vType;
 
+        typedef myB* myC;
         static Implements_Data_Type_New<myB*>*
         varType(const StructureEnv_New* cm=nullptr)
         {
@@ -510,7 +512,7 @@ namespace Markov_IO_New {
           agonist_vector_type::push_Types(cm);
           conductance_vector_Type::push_Types(cm);
           Q_matrix_Type::push_Types(cm);
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC*>(myId(),varType(cm),myTip(),myWhatThis());
 
 
         }
@@ -553,6 +555,8 @@ namespace Markov_IO_New {
       struct Gaussian_type {
         typedef Markov_Mol_New::ABC_noise myB;
         typedef Markov_Mol_New::gaussian_noise myD;
+
+        typedef myD* myC;
         typedef Implements_Data_Type_derived_class<myD,myB>  vType;
 
         typedef Gaussian_type selfType;
@@ -630,6 +634,7 @@ namespace Markov_IO_New {
           typedef   Gaussian_type      uType;
           typedef Implements_Data_Type_class<myD>  vType;
 
+          typedef myD myC;
           typedef  typename uType::fieldList    fieldList;
 
 
@@ -718,7 +723,7 @@ namespace Markov_IO_New {
 
       struct ABC_Noise_type {
         typedef Markov_Mol_New::ABC_noise myB;
-        typedef myB myC;
+        typedef myB* myC;
         typedef mp_list<_model::noise::Gaussian_type> dependsOn;
         typedef mp_list<>  fieldList;
 
@@ -867,6 +872,7 @@ namespace Markov_IO_New {
 
         }
 
+        typedef myD* myC;
         static Implements_Data_Type_New<myD*>*
         varType(const StructureEnv_New* cm)
         {

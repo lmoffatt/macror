@@ -343,10 +343,9 @@ namespace Markov_IO_New {
 
     template<>
     struct mp_DataType_Imp<StructureEnv_New>{
-      using myB=ABC_Data_New;
-      using myD=StructureEnv_New;
+      using myC=StructureEnv_New;
       using type_Ptr=Implements_Data_Type_New_StructureEnv;
-      using value_Ptr=Implements_Value_Derived_New<myD,myB>;
+      using value_Ptr=Implements_Value_Base_New<myC*>;
     };
 
     template<>

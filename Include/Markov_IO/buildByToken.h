@@ -71,8 +71,6 @@ namespace Markov_IO_New {
     
     const StructureEnv_New* parent()const;
 
-    
-    
   protected:
     ABC_BuildByToken_(const StructureEnv_New* p);
     

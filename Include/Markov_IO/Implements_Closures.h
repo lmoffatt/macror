@@ -113,7 +113,8 @@ namespace Markov_IO_New {
 
 
     virtual const Implements_Closure_Type<T>* closureType(const StructureEnv_New * cm)const override
-    {if (closureType_!=nullptr)
+    {
+      if (closureType_!=nullptr)
         return closureType_;
       else
         return cm->idToTypeC<T>(Cls<T>::name());
@@ -370,13 +371,19 @@ namespace Markov_IO_New {
 
       Implements_Data_Type_New<T> const * myResultType(const StructureEnv_New* cm)const override
       {
-        return resultType_;
+        if (resultType_==nullptr)
+          return cm->idToTyped<T>(Cls<T>::name());
+        else
+          return resultType_;
       }
 
       Implements_Closure_Type_T_Identifier(const Implements_Data_Type_New<T>* myresultType=nullptr)
         :
           resultType_(myresultType){}
 
+
+      virtual selfType* clone()const override{return new selfType(*this);}
+      virtual selfType* create()const override {return new selfType();}
 
     private:
       const Implements_Data_Type_New<T>* resultType_;
@@ -398,7 +405,7 @@ namespace Markov_IO_New {
 
 
       virtual bool empty() const override{
-        varType_==nullptr;
+        return (varType_==nullptr)||(varType_->empty());
       }
       virtual void reset() override{
         varType_=nullptr;
@@ -1119,7 +1126,7 @@ namespace Markov_IO_New {
         return resultType_.get();
       }
 
-      virtual  const std::vector<std::unique_ptr< ABC_Function_Overload>>& getOverloads (const StructureEnv_New * cm) const
+      const std::vector<std::unique_ptr< ABC_Function_Overload>>& getOverloads (const StructureEnv_New * cm) const
       {
         return overloadTypes_;
       };
@@ -1147,8 +1154,8 @@ namespace Markov_IO_New {
       }
 
 
-      virtual std::vector<std::unique_ptr<ABC_BuildClosure>> getOverloadBuild
-      (const StructureEnv_New* cm,const ABC_Type_of_Value* vt=nullptr)const;
+      std::vector<std::unique_ptr<ABC_BuildClosure>> getOverloadBuild
+      (const StructureEnv_New* cm,const ABC_Type_of_Value* vt)const;
 
 
 
@@ -1910,12 +1917,23 @@ namespace Markov_IO_New {
         return type_;
       }
 
+      void push_function (const Implements_Closure_Type<void*>* f)
+      {
+        fns_.push_back(f);
+      }
+
+      void push_method (const ABC_Type_of_Method* m)
+      {
+        mtds_.push_back(m);
+      }
+
+      Implements_Closure_Type_R_function(const Implements_Data_Type_New<T>* type)
+        : type_(type),fns_(),mtds_(){}
+
     private:
       const Implements_Data_Type_New<T>* type_;
       std::vector<const Implements_Closure_Type<void*> *> fns_;
-      std::vector<const ABC_Type_of_Value*> obj_;
-
-
+      std::vector<const ABC_Type_of_Method*> mtds_;
     };
 
 
@@ -1936,7 +1954,8 @@ namespace Markov_IO_New {
 
       virtual bool empty() const override{}
       virtual void reset() override{}
-      virtual selfType *clone() const override{
+      virtual selfType *clone() const override
+      {
         return new selfType(*this);
       }
       virtual selfType *create() const override
@@ -2004,17 +2023,17 @@ namespace Markov_IO_New {
       const Implements_Closure_Type<R,int>*
       myConstantType(const StructureEnv_New* cm)const
       {
-        return cType_;
+        return cType_.get();
       }
       const Implements_Closure_Type<R,std::string>*
       myIdentifierType(const StructureEnv_New* cm)const
       {
-        return idtype_;
+        return idtype_.get();
       }
       const Implements_Closure_Type<R,void*>*
       myFunctionType(const StructureEnv_New* cm)const
       {
-        return fnType_;
+        return fnType_.get();
       }
 
 
@@ -2022,12 +2041,36 @@ namespace Markov_IO_New {
       virtual ~Implements_Closure_Type_ABC_R(){};
 
 
+
       Implements_Closure_Type_ABC_R(){}
 
+      Implements_Closure_Type_ABC_R
+      ( Implements_Closure_Type<R,int>* cType,
+        Implements_Closure_Type<R,std::string>* idtype,
+        Implements_Closure_Type<R,void*>* fnType)
+        :cType_(cType),idtype_(idtype),fnType_(fnType){}
+
+
+      Implements_Closure_Type_ABC_R(const Implements_Data_Type_New<R>* dType)
+        : Implements_Closure_Type_ABC_R
+          (new Implements_Closure_Type<R,int>(dType)
+           ,new Implements_Closure_Type<R,std::string>(dType)
+           ,new Implements_Closure_Type<R,void*>(dType)){}
+
+
+      Implements_Closure_Type_ABC_R(const Implements_Closure_Type_ABC_R& other)
+        :cType_(other.cType_->clone())
+        ,idtype_(other.idtype_->clone())
+        ,fnType_(other.fnType_->clone()){}
+      Implements_Closure_Type_ABC_R( Implements_Closure_Type_ABC_R&& other)=default;
+      Implements_Closure_Type_ABC_R& operator=( Implements_Closure_Type_ABC_R&& other)=default;
+      Implements_Closure_Type_ABC_R& operator=(const Implements_Closure_Type_ABC_R& other)=default;
+
+
     private:
-      const Implements_Closure_Type<R,int>* cType_;
-      const Implements_Closure_Type<R,std::string>* idtype_;
-      const Implements_Closure_Type<R,void*>* fnType_;
+      std::unique_ptr<Implements_Closure_Type<R,int>> cType_;
+      std::unique_ptr<Implements_Closure_Type<R,std::string>> idtype_;
+      std::unique_ptr<Implements_Closure_Type<R,void*>> fnType_;
 
 
       // ABC_Type_of_Closure interface

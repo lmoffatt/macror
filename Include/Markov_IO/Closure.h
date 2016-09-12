@@ -38,6 +38,7 @@ namespace Markov_IO_New {
 
   };
 
+
   template<typename R>
   class ABC_R_Closure: public ABC_Closure
   {
@@ -93,11 +94,13 @@ namespace Markov_IO_New {
                 ,const std::string & typeId);
 
 
-
   template<typename T>
   bool cm_getDataFromId(const Markov_CommandManagerVar* cm
                         ,const std::string& idname, T& x);
 
+
+  template <typename T>
+  const Implements_Data_Type_New<T> *cm_resultType(const ABC_R_Closure<T> *cl, const Markov_CommandManagerVar *cm);
 
 
   namespace _private
@@ -125,7 +128,7 @@ namespace Markov_IO_New {
 
       virtual Implements_Value_New<T>* evalData(Markov_CommandManagerVar* cm) const override
       {
-        return cm_idToValued<T>(cm,id_,resultType(cm)->typeId());
+        return cm_idToValued<T>(cm,id_,cm_resultType(this,cm)->typeId());
       }
 
 
@@ -226,7 +229,7 @@ namespace Markov_IO_New {
 
           virtual Implements_Value_New<T>* evalData(Markov_CommandManagerVar* cm) const override
           {
-            return new Implements_Value_New<T>(resultType(cm),x_);
+            return new Implements_Value_New<T>(cm_resultType(this,cm),x_);
           }
 
 

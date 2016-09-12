@@ -178,7 +178,7 @@ namespace Markov_IO_New {
 
         static void push_Types(StructureEnv_New *cm)
         {
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
           cm->pushRegularType<elem>();
         }
 
@@ -295,7 +295,7 @@ namespace Markov_IO_New {
 
         static void push_Types(StructureEnv_New *cm)
         {
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
       };
@@ -389,7 +389,7 @@ namespace Markov_IO_New {
 
         static void push_Types(StructureEnv_New *cm)
         {
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
       };
@@ -468,7 +468,7 @@ namespace Markov_IO_New {
 
         static void push_Types(StructureEnv_New *cm)
         {
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
       };
@@ -545,7 +545,7 @@ namespace Markov_IO_New {
 
         static void push_Types(StructureEnv_New *cm)
         {
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
         }
 
       };
@@ -695,7 +695,7 @@ namespace Markov_IO_New {
           trace_duration_type::push_Types(cm);
           sub_step_time_type::push_Types(cm);
           frequency_of_sampling_type::push_Types(cm);
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myD*>(myId(),varType(cm),myTip(),myWhatThis());
 
         }
 
@@ -941,7 +941,7 @@ namespace Markov_IO_New {
 
         static void push_Types(StructureEnv_New *cm)
         {
-          cm->pushType(myId(),varType(cm),myTip(),myWhatThis());
+          cm->pushType<myC>(myId(),varType(cm),myTip(),myWhatThis());
           cm->pushRegularType<elem>();
         }
 
@@ -968,6 +968,7 @@ namespace Markov_IO_New {
       struct Pulses_trace_type {
         typedef ABC_trace myB;
         typedef Pulses_trace myD;
+        typedef myD* myC;
         typedef Implements_Data_Type_derived_class<myD,myB>  vType;
         typedef Pulses_trace_type selfType;
 
@@ -1524,6 +1525,7 @@ namespace Markov_IO_New {
 
         }
 
+        typedef myD* myC;
         static Implements_Data_Type_New<myD*>*
         varType(const StructureEnv_New* cm)
         {
@@ -1895,6 +1897,7 @@ namespace Markov_IO_New {
           {
             typedef   Traces_type      uType;
             typedef Implements_Data_Type_class<myD>  vType;
+            typedef myD myC;
 
             typedef  typename uType::fieldList    fieldList;
 
@@ -2149,6 +2152,7 @@ namespace Markov_IO_New {
           return getFieldsTempl<selfType>(cm,fieldList());
         }
 
+        typedef myD* myC;
         static Implements_Data_Type_New<myD*>*
         varType(const StructureEnv_New* cm)
         {
