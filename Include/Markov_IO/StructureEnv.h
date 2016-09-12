@@ -346,7 +346,7 @@ namespace Markov_IO_New {
       auto it=typeC_.find(name);
       if (it!=typeC_.end())
         {
-          return dynamic_cast<Implements_Data_Type_New<ABC_R_Closure<T>*>*>(
+          return dynamic_cast<Implements_Closure_Type<T>*>(
                 it->second);
         }
       else if (parent()!=nullptr)

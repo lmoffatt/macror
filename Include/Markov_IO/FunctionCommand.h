@@ -5,6 +5,7 @@
 #include "Markov_IO/Implements_path.h"
 #include "Markov_IO/VarTempl.h"
 
+#include "Markov_IO/buildClosureByToken.h"
 #include "Markov_IO/Implements_Closures.h"
 #include "Markov_Console/Markov_CommandManager.h"
 
@@ -38,6 +39,9 @@ namespace Markov_IO_New
       static std::string myWhatThis() {return "different types of variables";}
     };
 
+
+
+
   }
 
 
@@ -45,14 +49,6 @@ namespace Markov_IO_New
 
     void pushAllFunctions(Markov_CommandManagerVar *cm);
 
-    template<class Fn>
-    ABC_Type_of_Function *varTypeT(typename Fn::functionType f,Markov_CommandManagerVar *cm)
-    {
-
-      return new typename Fn::vType
-          (cm,f
-           ,Fn::getReturnFnType(cm), Fn::getArgumentTypes(cm));
-    }
 
     namespace arg
     {
@@ -74,7 +70,7 @@ namespace Markov_IO_New
 
 
 
-/*
+
 
     struct Save {
       typedef Implements_Closure_Type<void*>  vType;
@@ -95,46 +91,42 @@ namespace Markov_IO_New
 
         typedef decltype(&save)  functionType;
 
-                               vType;
-
         typedef
-        mp_insert
+        mp_append
         <
-        Implements_Fn_Argument<void>,argTypes
+        Implements_Closure_Type<returnType,void,functionType>,argTypes
         >
-        argFnTuple;
+        ClosureType;
 
 
-        typedef Implements_Fn_Argument<void>  returnFnType;
-
-
-
-
-
-        static returnFnType
-        getReturnFnType(Markov_CommandManagerVar* cm)
+        static const Implements_Data_Type_New<returnType>*
+        getReturnType(Markov_CommandManagerVar* cm)
         {
-          return {};
+          return cm->idToTyped<returnType>(Cls<returnType>::name());
         }
 
 
-        static argFnTuple
+        static Implements_Closure_Type<argTypes>*
         getArgumentTypes(Markov_CommandManagerVar* cm)
         {
-          return argFnTuple(
+          return new Implements_Closure_Type<argTypes>(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self(),
-                Implements_Fn_Argument<std::string>("macror.txt")
+                (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
+                Implements_Fn_Argument<std::string>(cm,
+                  "file name",
+                  "macror.txt",
+                  "filename where to save the data","")
                 );
 
         }
 
 
-        static ABC_Type_of_Function*
-        varType(Markov_CommandManagerVar* cm)
+        static ClosureType*
+        closureType(Markov_CommandManagerVar* cm)
         {
-          return varTypeT<selfType>(save,cm);
+          return new ClosureType(getReturnType(cm),save,getArgumentTypes(cm));
         }
+
 
 
 
@@ -145,20 +137,16 @@ namespace Markov_IO_New
 
 
 
-      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
-      {
-        std::set<ABC_Type_of_Function*> out;
-
-        out.insert(save_cm::varType(cm));
-        return out;
-
-      }
 
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Closure_Type<void*>
-            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
+        auto out= new  Implements_Closure_Type<void*>
+            (myId(),Identifier::types::idFunct::varType(myId()));
+        out->push_overload(cm,save_cm::closureType(cm));
+
+
+
       }
 
 
@@ -167,7 +155,7 @@ namespace Markov_IO_New
 
     };
 
-    */
+
 /*
     struct Load {
       typedef Implements_Closure_Type<void*>  vType;

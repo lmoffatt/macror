@@ -153,6 +153,30 @@ namespace Markov_IO_New
   };
 
 
+  template <typename T>
+  const Implements_Value_New<T>*
+  cm_idToValued(const Markov_CommandManagerVar *cm
+                , const std::string& id
+                , const std::string & typeId)
+  {
+    return cm->idToValued<T>(id,typeId);
+  }
+
+  template <typename T>
+   Implements_Value_New<T>*
+  cm_idToValued( Markov_CommandManagerVar *cm
+                , const std::string& id
+                , const std::string & typeId)
+  {
+    return cm->idToValued<T>(id,typeId);
+  }
+
+  template<typename T>
+  bool cm_getDataFromId(const Markov_CommandManagerVar* cm
+                        ,const std::string& idname, T& x)
+  {
+    return cm->getDataFromId(idname,x);
+  }
 
 
 }

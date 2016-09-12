@@ -42,7 +42,7 @@ namespace Markov_IO_New {
 
     virtual void clear()
     {
-      id_.clear();closureType_=nullptr; whatThis_.clear(); tip_.clear();
+      id_.clear();closureType_=nullptr; isDefaulted_=true;whatThis_.clear(); tip_.clear();
     }
 
     virtual std::string id()const
@@ -55,10 +55,31 @@ namespace Markov_IO_New {
     Implements_Fn_Argument(std::string id
                            ,const Implements_Closure_Type<T>* datatype
                            ,ABC_R_Closure<T>* defaultValue
-                           ,bool isMandatory
                            ,const std::string& tip
                            ,const std::string& whatthis):
-      id_(id),closureType_(datatype),defaultValue_(defaultValue),isMandatory_(isMandatory),tip_(tip),whatThis_(whatthis){}
+      id_(id),closureType_(datatype),defaultValue_(defaultValue),isDefaulted_(false),tip_(tip),whatThis_(whatthis){}
+
+
+    Implements_Fn_Argument(ABC_R_Closure<T>* defaultValue
+                           ):
+      id_(""),closureType_(nullptr),defaultValue_(defaultValue),isDefaulted_(true)
+    ,tip_(""),whatThis_(""){}
+
+
+    Implements_Fn_Argument():
+      id_(""),closureType_(nullptr),defaultValue_(nullptr),isDefaulted_(false)
+    ,tip_(""),whatThis_(""){}
+
+
+    Implements_Fn_Argument(const Implements_Fn_Argument& other):
+      id_(other.id_),closureType_(other.closureType_)
+    ,defaultValue_(other.defaultValue_->clone()),isDefaulted_(other.isDefaulted_),
+      tip_(other.tip_),whatThis_(other.whatThis_){}
+    Implements_Fn_Argument( Implements_Fn_Argument&& other)=default;
+    Implements_Fn_Argument& operator=(const Implements_Fn_Argument& other)=default;
+    Implements_Fn_Argument& operator=(Implements_Fn_Argument&& other)=default;
+
+
 
     Implements_Fn_Argument(const StructureEnv_New *cm,
                            std::string id
@@ -66,16 +87,28 @@ namespace Markov_IO_New {
                            ,const std::string& whatthis):
       Implements_Fn_Argument(id,
                              cm->idToTypeC<T>(Cls<T>::name()),
-                             nullptr,true,tip,whatthis){}
+                             nullptr,tip,whatthis){}
+
+    Implements_Fn_Argument(const StructureEnv_New *cm
+                           ,std::string id
+                           ,T defaultValue
+                           ,const std::string& tip
+                           ,const std::string& whatthis):
+      Implements_Fn_Argument(id,
+                             cm->idToTypeC<T>(Cls<T>::name()),
+                             new Implements_Closure_Value<T,int>
+                             (defaultValue)
+                             ,tip,whatthis){}
+
 
 
 
 
     virtual ABC_R_Closure<T>* defaultValue()const {return defaultValue_->clone();}
 
-    virtual bool isMandatory()const{return isMandatory_;}
+    virtual bool isMandatory()const{return defaultValue_==nullptr;}
 
-    virtual bool isDefaulted()const{return closureType_==nullptr;}
+    virtual bool isDefaulted()const{return isDefaulted_;}
 
 
 
@@ -93,7 +126,7 @@ namespace Markov_IO_New {
     std::string id_;
     const Implements_Closure_Type<T>* closureType_;
     std::unique_ptr<ABC_R_Closure<T>> defaultValue_;
-    bool isMandatory_;
+    bool isDefaulted_;
     std::string tip_;
     std::string whatThis_;
   };
@@ -166,7 +199,7 @@ namespace Markov_IO_New {
     }
 
 
-    virtual ABC_Type_of_Value * const myResultType(const StructureEnv_New* cm)const=0;
+    virtual const ABC_Type_of_Value *  myResultType(const StructureEnv_New* cm)const=0;
 
     virtual ABC_BuildClosure* getBuildClosureByToken(
         const StructureEnv_New* cm)const=0;
@@ -189,6 +222,10 @@ namespace Markov_IO_New {
   public:
 
 
+    virtual ABC_Type_of_Function* clone()const=0;
+    virtual ABC_Type_of_Function* create()const=0;
+
+
     virtual const Implements_Identifier* myFunctionIdentifier(const StructureEnv_New* )const=0;
 
     virtual Implements_Closure_Type<void*> const* myFunctionType(const StructureEnv_New * cm)const=0;
@@ -207,6 +244,10 @@ namespace Markov_IO_New {
   public:
 
     virtual ~ABC_Function_Overload(){}
+    virtual   void setFunction(const Implements_Closure_Type<void*>* f)=0;
+    virtual ABC_Function_Overload* clone()const=0;
+    virtual ABC_Function_Overload* create()const=0;
+
   };
 
   class ABC_Type_of_Method: public ABC_Type_of_Closure
@@ -217,6 +258,8 @@ namespace Markov_IO_New {
     virtual const Implements_Identifier* myMethodIdentifier(const StructureEnv_New* cm)const=0;
 
     virtual ABC_Type_of_Method const* myMethodType(const StructureEnv_New* cm)const=0;
+    virtual ABC_Type_of_Method* clone()const=0;
+    virtual ABC_Type_of_Method* create()const=0;
 
     virtual ~ABC_Type_of_Method(){}
   };
@@ -250,7 +293,7 @@ namespace Markov_IO_New {
     {
     }
 
-    virtual Implements_Data_Type_New<R> * const
+    virtual Implements_Data_Type_New<R> const *
     myResultType(const StructureEnv_New* cm)const=0;
 
   };
@@ -276,7 +319,6 @@ namespace Markov_IO_New {
 
       typedef buildClosureByToken<T,std::string> buildType;
 
-      typedef Implements_Data_Type_New<T> resultType;
 
       virtual bool empty() const override
       {
@@ -294,7 +336,7 @@ namespace Markov_IO_New {
                               const std::string& masterObjective)const
       {
         return getIdentifierType(cm)
-            ->putValue(cm,v->getIdentifier(cm),ostream,error,masterObjective);
+            ->putValue(cm,v->getIdentifier(),ostream,error,masterObjective);
 
       }
 
@@ -323,15 +365,15 @@ namespace Markov_IO_New {
       }
 
 
-      Implements_Identifier* getIdentifierType(const StructureEnv_New* cm)
+      const Implements_Identifier* getIdentifierType(const StructureEnv_New* cm) const
       {return myResultType(cm)->getVarIdType(cm);}
 
-      resultType const * myResultType(const StructureEnv_New* cm)const override
+      Implements_Data_Type_New<T> const * myResultType(const StructureEnv_New* cm)const override
       {
-          return resultType_;
-        }
+        return resultType_;
+      }
 
-      Implements_Closure_Type_T_Identifier(const resultType* myresultType=nullptr)
+      Implements_Closure_Type_T_Identifier(const Implements_Data_Type_New<T>* myresultType=nullptr)
         :
           resultType_(myresultType){}
 
@@ -354,7 +396,6 @@ namespace Markov_IO_New {
 
       typedef buildClosureByToken<T,int> buildType;
 
-      typedef Implements_Data_Type_New<T> resultType;
 
       virtual bool empty() const override{
         varType_==nullptr;
@@ -380,7 +421,8 @@ namespace Markov_IO_New {
                               ,myC*& v
                               , ABC_Input* istream
                               ,std::string* error
-                              , const std::string& masterObjective)const{
+                              , const std::string& masterObjective)const
+      {
         T x;
         if (myResultType(cm)->getValue(cm,x,istream,error,masterObjective))
           {
@@ -392,6 +434,14 @@ namespace Markov_IO_New {
 
       }
 
+      virtual const Implements_Data_Type_New<T> *  myResultType(const StructureEnv_New* cm)const override
+      {
+        if (varType_==nullptr)
+          return cm->idToTyped<T>(Cls<T>::name());
+        else
+          return varType_;
+      }
+
 
 
       virtual buildType* getBuildClosureByToken(
@@ -399,6 +449,12 @@ namespace Markov_IO_New {
       {
         return new buildType(cm,this);
       }
+
+      Implements_Closure_Type_T_Constant(const Implements_Data_Type_New<T>* varType)
+        :varType_(varType){}
+
+      Implements_Closure_Type_T_Constant()
+        :varType_(nullptr){}
 
     private:
       const Implements_Data_Type_New<T>* varType_;
@@ -414,6 +470,34 @@ namespace Markov_IO_New {
       typedef Implements_Closure_Value<std::tuple<Args...>> selfType;
       typedef std::tuple<Args...> myC;
 
+
+
+      virtual Implements_Closure_Type<myC> const* closureType(const StructureEnv_New* cm)const
+      {
+        return clType_;
+      }
+
+
+      const std::tuple<std::unique_ptr<ABC_R_Closure<Args>>...>& getTuple() const
+      {
+        return clData_;
+      }
+      std::tuple<std::unique_ptr<ABC_R_Closure<Args>>...>& getTuple()
+      {
+        return clData_;
+      }
+
+
+      virtual bool putMe(const StructureEnv_New* cm
+                         ,ABC_Output* ostream
+                         ,std::string* error,
+                         const std::string& masterObjective)const
+      {
+        return closureType(cm)->putClosure(cm,this,ostream,error,masterObjective);
+      }
+
+
+
       virtual bool empty() const override
       {
         return empty_imp(clData_,std::index_sequence_for<Args...>());
@@ -424,44 +508,49 @@ namespace Markov_IO_New {
         return reset_imp(clData_,std::index_sequence_for<Args...>());
 
       }
-      virtual selfType *clone() const override {return new selfType(*this);}
+      virtual selfType *clone() const override {
+        return new selfType(*this);
+      }
       virtual selfType *create() const override {return new selfType();}
 
-      virtual const Implements_Closure_Type<myC> *
-      closureType(const StructureEnv_New * cm) const override
-      {
-        return clType_;
-      }
 
       virtual const Implements_Data_Type_New<myC> *resultType(const StructureEnv_New * cm) const override
       {
-        return closureType(cm)->resultType(cm);
+        return closureType(cm)->myResultType(cm);
       }
       virtual Implements_Value_New<myC> *evalData(Markov_CommandManagerVar *cm) const  override
       {
-        return Implements_Value_New<myC>(resultType(),eval(cm));
+        return new Implements_Value_New<myC>(resultType(cm),eval(cm));
       }
 
-      Implements_Closure_Value_tuple( const Implements_Closure_Type<myC> * clType,
-                                      std::tuple<std::unique_ptr<ABC_R_Closure<Args>>...> clData)
+      Implements_Closure_Value_tuple
+      ( const Implements_Closure_Type<myC> * clType,
+        std::tuple<std::unique_ptr<ABC_R_Closure<Args>>...> clData)
         : clType_(clType),clData_(clData){}
 
 
-      Implements_Closure_Value_tuple(const Implements_Closure_Value_tuple& other)=default;
+      Implements_Closure_Value_tuple()
+        : clType_(),clData_(){}
+
+
+      Implements_Closure_Value_tuple(const Implements_Closure_Value_tuple& other)
+        : clType_(other.clType_),clData_(clone_tuple(other.clData_)){}
+
+      Implements_Closure_Value_tuple( Implements_Closure_Value_tuple&& other)=default;
+      Implements_Closure_Value_tuple& operator=(const Implements_Closure_Value_tuple& other)=default;
+      Implements_Closure_Value_tuple& operator=(Implements_Closure_Value_tuple&& other)=default;
 
 
 
       // ABC_R_Closure interface
     public:
-      virtual myC eval(Markov_CommandManagerVar *cm) const override
+      virtual myC eval(Markov_CommandManagerVar *cm) const  override
       {
         return eval_imp(cm,clData_,std::index_sequence_for<Args...>());
       }
       ~Implements_Closure_Value_tuple(){}
 
-    private:
-      const Implements_Closure_Type<myC> * clType_;
-      std::tuple<std::unique_ptr<ABC_R_Closure<Args>>...> clData_;
+    protected:
 
       template<std::size_t... Is>
       static  myC eval_imp(Markov_CommandManagerVar *cm
@@ -481,11 +570,14 @@ namespace Markov_IO_New {
 
 
       template<std::size_t... Is>
-      static  void reset_imp(std::tuple<std::unique_ptr<ABC_R_Closure<Args>>...> clData
+      static  void reset_imp(std::tuple<std::unique_ptr<ABC_R_Closure<Args>>...>& clData
                              ,std::index_sequence<Is...>)
       {
-        int a {std::get<Is>(clData)->empty()...,1};
+        auto a= {(std::get<Is>(clData)->reset(),0)...};
       }
+    private:
+      const Implements_Closure_Type<myC> * clType_;
+      std::tuple<std::unique_ptr<ABC_R_Closure<Args>>...> clData_;
 
     };
 
@@ -513,7 +605,7 @@ namespace Markov_IO_New {
 
       template <std::size_t D>
       static bool putClosure_imp(const StructureEnv_New* cm,
-                                 const myC& v
+                                 const myC* v
                                  ,const dataArgumentsTuple arg
                                  ,ABC_Output* ostream
                                  ,std::string* whyNot=nullptr
@@ -526,16 +618,16 @@ namespace Markov_IO_New {
 
       template <std::size_t D,std::size_t I, std::size_t... Is>
       static bool putClosure_imp(const StructureEnv_New* cm,
-                                 const myC& v
+                                 const myC* v
                                  ,const dataArgumentsTuple arg
                                  ,ABC_Output* ostream
                                  ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
       {
 
-        auto e=std::get<I>(v);
+        auto& e=std::get<I>(v->getTuple());
 
-        if (! e->putClosure(cm,ostream,whyNot,masterObjective))
+        if (! e->putMe(cm,ostream,whyNot,masterObjective))
           return false;
         else return putClosure_imp<D,Is...>(cm,v,arg,ostream,whyNot,masterObjective);
 
@@ -546,7 +638,7 @@ namespace Markov_IO_New {
 
       template <std::size_t... Is>
       static bool putClosure_imp(std::index_sequence<Is...>,const StructureEnv_New* cm,
-                                 const myC& v
+                                 const myC* v
                                  ,const dataArgumentsTuple arg
                                  ,ABC_Output* ostream
                                  ,std::string* whyNot=nullptr
@@ -557,7 +649,7 @@ namespace Markov_IO_New {
 
 
       virtual bool putClosure(const StructureEnv_New* cm,
-                              const myC& v
+                              const myC* v
                               ,ABC_Output* ostream
                               ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")const
@@ -568,28 +660,34 @@ namespace Markov_IO_New {
              ,cm,v,getFnArguments(cm),ostream,whyNot,masterObjective);
       }
 
+      virtual Implements_Data_Type_New<std::tuple<Args...>>  const *
+      myResultType(const StructureEnv_New* cm)const
+      {
+        return nullptr;
+      }
 
 
       template<std::size_t D>
-      static void fill_imp(myC& , const dataArgumentsTuple&)
+      static void fill_imp(myC* , const dataArgumentsTuple&)
       {
       }
 
-      template <std::size_t D>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg)
-      {}
+      template<std::size_t D>
+      static void fill_imp(myC* ,std::size_t iArg, const dataArgumentsTuple&)
+      {
+      }
 
 
       template <std::size_t D,std::size_t I,std::size_t... Is>
-      static void fill_imp(myC& v, const dataArgumentsTuple& arg)
+      static void fill_imp(myC* v, const dataArgumentsTuple& arg)
       {
-        std::get<I>(v)=std::get<I>(arg).defaultValue();
+        std::get<I>(v->getTuple()).reset(std::get<I>(arg).defaultValue()->clone());
         fill_imp<D,Is...>(v,arg);
       }
 
 
       template <std::size_t D,std::size_t I,std::size_t... Is>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg)
+      static void fill_imp(myC* v, std::size_t iArg,const dataArgumentsTuple& arg)
       {
         if (I<iArg)  fill_imp<D,Is...>(v,iArg,arg);
         else
@@ -598,7 +696,8 @@ namespace Markov_IO_New {
 
 
       template <std::size_t... Is>
-      static void fill_imp(myC& v, std::size_t iArg,const dataArgumentsTuple& arg,
+      static void fill_imp(myC* v, std::size_t iArg
+                           ,const dataArgumentsTuple& arg,
                            std::index_sequence<Is...>)
       {
         fill_imp<0,Is...>(v,iArg,arg);
@@ -607,7 +706,7 @@ namespace Markov_IO_New {
 
       template <std::size_t D>
       static bool getClosure_imp(const StructureEnv_New* cm,
-                                 myC& v,const dataArgumentsTuple& arg
+                                 myC* v,const dataArgumentsTuple& arg
                                  ,ABC_Input* istream,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
       {
@@ -620,11 +719,11 @@ namespace Markov_IO_New {
 
       template <std::size_t D,std::size_t I,size_t...Is>
       static bool getClosure_imp(const StructureEnv_New* cm,
-                                 myC& v,const dataArgumentsTuple& arg
+                                 myC* v,const dataArgumentsTuple& arg
                                  ,ABC_Input* istream,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
       {
-        typedef typename std::tuple_element<I,myC>::type::returnType eType;
+        typedef typename std::tuple_element<I,std::tuple<Args...>>::type eType;
         const Implements_Closure_Type<eType>* clType=std::get<I>(arg).closureType(cm);
         bool mandatory=std::get<I>(arg).isMandatory();
         if (clType==nullptr)
@@ -642,8 +741,9 @@ namespace Markov_IO_New {
           return false;
         else
           {
-            std::get<I>(v)=x;
-            return getClosure_imp<0,Is...>(cm,v,arg,istream,whyNot,masterObjective);
+            std::get<I>(v->getTuple()).reset(x);
+            return getClosure_imp<0,Is...>
+                (cm,v,arg,istream,whyNot,masterObjective);
           }
       }
 
@@ -651,7 +751,7 @@ namespace Markov_IO_New {
 
       template <std::size_t... Is>
       static bool getClosure_imp(std::index_sequence<Is...>,const StructureEnv_New* cm,
-                                 myC& v
+                                 myC* v
                                  ,const dataArgumentsTuple arg
                                  ,ABC_Input* istream
                                  ,std::string* whyNot=nullptr
@@ -662,13 +762,13 @@ namespace Markov_IO_New {
 
 
       virtual bool getClosure(const StructureEnv_New* cm,
-                              myC& v
+                              myC* v
                               ,ABC_Input* istream
                               ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")const
       {
 
-        return putClosure_imp
+        return getClosure_imp
             (std::index_sequence_for<Args...>(),cm,v,getFnArguments(cm)
              ,istream,whyNot,masterObjective);
       }
@@ -683,6 +783,10 @@ namespace Markov_IO_New {
 
       virtual ~Implements_Closure_Type_tuple(){}
 
+
+      Implements_Closure_Type_tuple(Implements_Fn_Argument<Args>&&... arg)
+        :args_(arg...)
+      {}
 
 
       Implements_Closure_Type_tuple(dataArgumentsTuple arg={})
@@ -708,7 +812,7 @@ namespace Markov_IO_New {
       }
       virtual selfType *create() const override
       {
-        return selfType();
+        return new selfType();
       }
 
     protected:
@@ -757,12 +861,12 @@ namespace Markov_IO_New {
         return mp_apply<Fn,R,Args...>(cm,f_,inputTu_->eval(cm));
       }
 
-      const Implements_Closure_Value<std::tuple<Args...>>& getArgumentsValue()const
+      const Implements_Closure_Value<std::tuple<Args...>>* getArgumentsValue()const
 
-      {return inputTu_;}
+      {return &inputTu_;}
 
-      Implements_Closure_Value<std::tuple<Args...>>& getArgumentsValue()
-      {return inputTu_;}
+      Implements_Closure_Value<std::tuple<Args...>>* getArgumentsValue()
+      {return &inputTu_;}
 
 
       Fn f()
@@ -853,7 +957,7 @@ namespace Markov_IO_New {
 
       typedef Implements_Closure_Value<void,void,Fn,Args...> selfType;
 
-      virtual Implements_Closure_Type_R_Fn_Args_Function<Fn,void,Args...> const * closureType(const StructureEnv_New* cm)const
+      virtual Implements_Closure_Type_R_Fn_Args_Function<void,Fn,Args...> const * closureType(const StructureEnv_New* cm)const
       {
         return fnType_;
       }
@@ -863,9 +967,9 @@ namespace Markov_IO_New {
         return closureType(cm)->myResultType(cm);
       }
 
-      const argumentTuple& getArgumentsValue()const {return inputTu_;}
+      const argumentTuple* getArgumentsValue()const {return inputTu_.get();}
 
-      argumentTuple& getArgumentsValue() {return inputTu_;}
+      argumentTuple* getArgumentsValue() {return inputTu_.get();}
 
 
 
@@ -885,11 +989,15 @@ namespace Markov_IO_New {
       }
 
 
-      Implements_Closure_Value_R_Fn_Args_Function(const Implements_Closure_Type_R_Fn_Args_Function<Fn,void,Args...> * idtype,const  std::tuple<ABC_R_Closure<Args>*... >& vars={}):
-        fnType_(idtype),f_(idtype->f()),inputTu_(vars){}
+      Implements_Closure_Value_R_Fn_Args_Function
+      (const Implements_Closure_Type<void,void,Fn,Args...> * idtype
+       ,Implements_Closure_Value<std::tuple<Args...>>* args ):
+        fnType_(idtype),f_(idtype->f()),inputTu_(args){}
 
 
-      Implements_Closure_Value_R_Fn_Args_Function(const Implements_Closure_Value_R_Fn_Args_Function& other)=default;
+      Implements_Closure_Value_R_Fn_Args_Function(const Implements_Closure_Value_R_Fn_Args_Function& other):
+        fnType_(other.fnType_),f_(other.f_)
+      ,inputTu_(other.inputTu_->clone()){}
 
       Implements_Closure_Value_R_Fn_Args_Function(Implements_Closure_Value_R_Fn_Args_Function&& other)=default;
 
@@ -908,7 +1016,7 @@ namespace Markov_IO_New {
       virtual void reset() override
       {
         f_=nullptr;
-        inputTu_=argumentTuple{};
+        inputTu_.reset();
       }
 
       virtual selfType* create() const override
@@ -916,9 +1024,9 @@ namespace Markov_IO_New {
         return new selfType();
       }
 
-      void eval(Markov_CommandManagerVar* cm)const
+      returnType eval(Markov_CommandManagerVar* cm) const override
       {
-        mp_apply_void<Fn,Args...>(cm,f_,inputTu_->eval(cm));
+        mp_apply_void<Fn,Args...>(f_,inputTu_->eval(cm));
       }
       // ABC_Closure interface
     public:
@@ -926,32 +1034,36 @@ namespace Markov_IO_New {
       {
         eval(cm);
 
-        return nullptr;
+        return new Implements_Value_New<void>;
       }
       //    virtual const std::vector<const ABC_Data_New *> &inputArguments() const override;
 
-
-
-
-      std::string getFunctionId() const
+      virtual bool putMe(const StructureEnv_New* cm
+                         ,ABC_Output* ostream
+                         ,std::string* error,
+                         const std::string& masterObjective)const
       {
-        return closureType()->getFunctionId();
+        return closureType(cm)->putClosure(cm,this,ostream,error,masterObjective);
       }
 
 
-      virtual std::string myTypeId()const
+
+
+      std::string getFunctionId(const StructureEnv_New * cm) const
       {
-        return getFunctionId();
+        return closureType(cm)->myFunctionType(cm)->getFunctionId();
       }
+
+
 
 
 
 
 
     protected:
-      const Implements_Closure_Type<void,Fn,void,Args...>  * fnType_;
+      const Implements_Closure_Type<void,void,Fn,Args...>  * fnType_;
       Fn f_;
-      Implements_Closure_Value<std::tuple<Args...>> inputTu_;
+      std::unique_ptr<Implements_Closure_Value<std::tuple<Args...>>> inputTu_;
 
     };
 
@@ -1002,12 +1114,12 @@ namespace Markov_IO_New {
         return this;
       }
 
-      virtual Type_Union * const myResultType(const StructureEnv_New* cm)const override
+      virtual const Type_Union *  myResultType(const StructureEnv_New* cm)const override
       {
         return resultType_.get();
       }
 
-      virtual  const std::vector<const ABC_Function_Overload*>& getOverloads (const StructureEnv_New * cm) const
+      virtual  const std::vector<std::unique_ptr< ABC_Function_Overload>>& getOverloads (const StructureEnv_New * cm) const
       {
         return overloadTypes_;
       };
@@ -1050,34 +1162,30 @@ namespace Markov_IO_New {
       {}
 
       Implements_Closure_Type_Function
-      (const StructureEnv_New* cm,
-          const std::string functionName
-        ,Implements_Identifier* idType
-        , std::vector<const ABC_Function_Overload*> overloadTypes={}
+      (   const std::string functionName
+          ,Implements_Identifier* idType
           )
         : functionName_(functionName)
         ,funIdType_(idType)
         ,resultType_(new Type_Union)
-        ,overloadTypes_(overloadTypes)
+        ,overloadTypes_()
       {
 
-        for (const ABC_Function_Overload* e:overloadTypes)
-          {
-            resultType_->push_Type(e->myResultType(cm));
-
-          }
       }
 
       Implements_Closure_Type_Function(const Implements_Closure_Type_Function& other):
         functionName_(other.functionName_),funIdType_(other.funIdType_->clone()),
         resultType_(other.resultType_->clone()),
-        overloadTypes_(other.overloadTypes_){}
+        overloadTypes_(clone_vector<ABC_Function_Overload>(other.overloadTypes_)){}
 
 
 
-      void push_overload(const ABC_Function_Overload* g)
+      void push_overload(const StructureEnv_New* cm,
+                         ABC_Function_Overload* g)
       {
-        overloadTypes_.push_back(g);
+        g->setFunction(this);
+        overloadTypes_.emplace_back(g);
+        resultType_->push_Type(g->myResultType(cm));
 
       }
 
@@ -1086,7 +1194,7 @@ namespace Markov_IO_New {
       std::string functionName_;
       std::unique_ptr<Implements_Identifier>  funIdType_;
       std::unique_ptr<Type_Union> resultType_;
-      std::vector<const ABC_Function_Overload*> overloadTypes_;
+      std::vector<std::unique_ptr<ABC_Function_Overload>> overloadTypes_;
       // ABC_Data_New interface
     };
 
@@ -1122,7 +1230,7 @@ namespace Markov_IO_New {
         return closureType(cm)->myResultType(cm);
       }
 
-      returnType eval(Markov_CommandManagerVar* cm)override
+      returnType eval(Markov_CommandManagerVar* cm) const override
       {
         return mp_apply_Obj<R,C,Args...>
             (cm,obj_->eval(cm),f_,inputTu_->eval(cm));
@@ -1224,11 +1332,15 @@ namespace Markov_IO_New {
       typedef Fn functionType;
       typedef Implements_Data_Type_New<R> resultType;
 
-      typedef buildClosureByToken<void,Fn,R,Args...> buildType;
+      typedef buildClosureByToken<R,void,Fn,Args...> buildType;
       typedef  mp_list<Args...> argumentTypes;
 
       typedef Implements_Closure_Type<R,void,Fn,Args...> selfType;
 
+      virtual const Implements_Data_Type_New<R> *  myResultType(const StructureEnv_New* cm)const
+      {
+        return resultType_;
+      }
 
 
 
@@ -1250,14 +1362,19 @@ namespace Markov_IO_New {
 
 
       Implements_Closure_Type_R_Fn_Args_Function
-      (const Implements_Closure_Type<void*>*  functionType,
-       const resultType* resultType,
+      (const resultType* resultType,
        Fn f,
        Implements_Closure_Type<std::tuple<Args...>>* argType):
-        functionType_(functionType),resultType_(resultType),f_(f),argType_(argType)
+        functionType_(nullptr),resultType_(resultType),f_(f),argType_(argType)
       {}
 
 
+      void setFunction(const Implements_Closure_Type<void*>* f) override
+      {
+        functionType_=f;
+      }
+
+      Implements_Closure_Type_R_Fn_Args_Function(const Implements_Closure_Type_R_Fn_Args_Function& other)=default;
 
 
       Implements_Closure_Type_R_Fn_Args_Function(Implements_Closure_Type_R_Fn_Args_Function&& other)=default;
@@ -1296,7 +1413,7 @@ namespace Markov_IO_New {
 
 
       virtual const Implements_Closure_Type<std::tuple<Args...>>*
-      getArgumentsType(const StructureEnv_New * cm)const override
+      getArgumentsType(const StructureEnv_New * cm)const
       {
         return argType_;
       }
@@ -1312,9 +1429,10 @@ namespace Markov_IO_New {
                               ,std::string* whyNot
                               , const std::string& masterObjective)const
       {
-        if (! getFnIdType(cm)->putValue(cm,c->getFunctionId(),ostream,whyNot,masterObjective))
+        if (! getFnIdType(cm)->putValue(cm,c->getFunctionId(cm),ostream,whyNot,masterObjective))
           return false;
-        else if (!getArgumentsType(cm)->putClosure(cm,c->getArguments(),ostream,whyNot,masterObjective))
+        else if (!getArgumentsType(cm)->putClosure
+                 (cm,c->getArgumentsValue(),ostream,whyNot,masterObjective))
           {
             return false;
           }
@@ -1338,7 +1456,6 @@ namespace Markov_IO_New {
           }
         else
           {
-            delete v;
             v= new myC(this,args);
             return true;
           }
@@ -1362,14 +1479,14 @@ namespace Markov_IO_New {
 
       Implements_Identifier const * getFnIdType(const StructureEnv_New* cm)const
       {
-        return functionType()->getVarIdType(cm);
+        return myFunctionType(cm)->myFunctionIdentifier(cm);
       }
 
 
 
     protected:
       Fn f_;
-      resultType resultType_;
+      const resultType* resultType_;
       Implements_Closure_Type<std::tuple<Args...>>* argType_;
       const Implements_Closure_Type<void*>*  functionType_;
 
@@ -1687,7 +1804,7 @@ namespace Markov_IO_New {
       }
 
       virtual std::vector<std::unique_ptr<ABC_BuildClosure>> getOverloadBuild(const StructureEnv_New* cm,
-                                                              const ABC_Type_of_Value* vt=nullptr)const
+                                                                              const ABC_Type_of_Value* vt=nullptr)const
       {
         std::size_t n=getOverloadTypes().size();
         std::vector<std::unique_ptr<ABC_BuildClosure>> out;
@@ -1741,6 +1858,72 @@ namespace Markov_IO_New {
     };
 
 
+    template <typename T>
+    class Implements_Closure_Type_R_function: public ABC_Type_of_R_Closure<T>
+    {
+
+      // ABC_Data_New interface
+    public:
+      typedef ABC_R_function<T>  myC;
+
+      typedef Implements_Closure_Type<T,void*> selfType;
+
+      typedef buildClosureByToken<T,void*> buildType;
+
+      virtual bool empty() const override{}
+      virtual void reset() override{}
+      virtual selfType *clone() const override{
+        return new selfType(*this);
+      }
+      virtual selfType *create() const override
+      {
+        return new selfType();
+      }
+
+
+      virtual bool putClosure(const StructureEnv_New* cm
+                              ,const myC* v
+                              ,ABC_Output* ostream
+                              ,std::string* error,
+                              const std::string& masterObjective)const {
+
+      }
+
+      virtual bool getClosure(const StructureEnv_New* cm
+                              ,myC*& v
+                              , ABC_Input* istream
+                              ,std::string* error
+                              , const std::string& masterObjective)const {}
+
+
+      virtual buildType* getBuildClosureByToken(
+          const StructureEnv_New* cm)const override
+      {
+        return new buildType(cm,this);
+      }
+
+
+      Implements_Closure_Type_R_function(){}
+
+      virtual const Implements_Data_Type_New<T> *myResultType(const StructureEnv_New *cm) const override
+      {
+        return type_;
+      }
+
+    private:
+      const Implements_Data_Type_New<T>* type_;
+      std::vector<const Implements_Closure_Type<void*> *> fns_;
+      std::vector<const ABC_Type_of_Value*> obj_;
+
+
+    };
+
+
+
+
+
+
+
     template <typename R>
     class Implements_Closure_Type_ABC_R: public ABC_Type_of_R_Closure<R>
     {
@@ -1777,13 +1960,32 @@ namespace Markov_IO_New {
                               ,std::string* error
                               , const std::string& masterObjective)const
       {
-        if (myIdentifierType(cm)->getClosure(cm,v,istream,error,masterObjective))
-          return true;
-        else if  (myConstantType(cm)->getClosure(cm,v,istream,error,masterObjective))
-          return true;
-        else
-          return myFunctionType(cm)->getClosure(cm,v,istream,error,masterObjective);
 
+        Implements_Closure_Value<R, std::string>* idV;
+        if (myIdentifierType(cm)->getClosure(cm,idV,istream,error,masterObjective))
+          {
+            v=idV;
+            return true;
+          }
+        else
+          {
+            Implements_Closure_Value<R, int>* cV;
+            if  (myConstantType(cm)->getClosure(cm,cV,istream,error,masterObjective))
+              {
+                v=cV;
+                return true;
+              }
+            else
+              {
+                Implements_Closure_Value<R, void*>* fV;
+                if (myFunctionType(cm)->getClosure(cm,fV,istream,error,masterObjective))
+                  {
+                    v=fV;
+                    return true;
+                  }
+                else return false;
+              }
+          }
       }
 
 
@@ -1793,22 +1995,25 @@ namespace Markov_IO_New {
         return new buildType(cm,this);
       }
 
-      virtual Implements_Data_Type_New<R> * const myResultType(const StructureEnv_New *cm) const override
+      virtual Implements_Data_Type_New<R>  const *  myResultType(const StructureEnv_New *cm) const override
       {
         return myIdentifierType(cm)->myResultType(cm);
       }
 
 
       const Implements_Closure_Type<R,int>*
-      myConstantType(const StructureEnv_New* cm){
+      myConstantType(const StructureEnv_New* cm)const
+      {
         return cType_;
       }
       const Implements_Closure_Type<R,std::string>*
-      myIdentifierType(const StructureEnv_New* cm){
+      myIdentifierType(const StructureEnv_New* cm)const
+      {
         return idtype_;
       }
       const Implements_Closure_Type<R,void*>*
-      myFunctionType(const StructureEnv_New* cm){
+      myFunctionType(const StructureEnv_New* cm)const
+      {
         return fnType_;
       }
 
@@ -1831,64 +2036,6 @@ namespace Markov_IO_New {
 
 
 
-    template <typename T>
-    class Implements_Closure_Type_R_function: public ABC_Type_of_R_Closure<T>
-    {
-
-      // ABC_Data_New interface
-    public:
-      typedef ABC_R_Closure<T>  myC;
-
-      typedef Implements_Closure_Type_ABC_R<T> selfType;
-
-      typedef buildClosureByToken<T> buildType;
-
-      virtual bool empty() const override{}
-      virtual void reset() override{}
-      virtual selfType *clone() const override{
-        return new selfType(*this);
-      }
-      virtual selfType *create() const override
-      {
-        return new selfType();
-      }
-
-
-      virtual bool putClosure(const StructureEnv_New* cm
-                              ,const myC* v
-                              ,ABC_Output* ostream
-                              ,std::string* error,
-                              const std::string& masterObjective)const {
-
-      }
-
-      virtual bool getClosure(const StructureEnv_New* cm
-                              ,myC*& v
-                              , ABC_Input* istream
-                              ,std::string* error
-                              , const std::string& masterObjective)const {}
-
-
-      virtual buildType* getBuildClosureByToken(
-          const StructureEnv_New* cm)const override
-      {
-        return new buildType(cm,this);
-      }
-
-
-
-
-
-      Implements_Closure_Type_R_function(){}
-
-
-    private:
-      const Implements_Data_Type_New<T>* type_;
-      std::vector<const Implements_Closure_Type<void*> *> fns_;
-      std::vector<const ABC_Type_of_Value*> obj_;
-
-    };
-
 
 
 
@@ -1904,7 +2051,7 @@ namespace Markov_IO_New {
 
 
 
-      virtual returnType eval(Markov_CommandManagerVar* cm) override
+      virtual returnType eval(Markov_CommandManagerVar* cm) const override
       {
         return cm;
       }
@@ -1921,9 +2068,9 @@ namespace Markov_IO_New {
       virtual void reset() override{}
 
       virtual bool putMe(const StructureEnv_New* cm
-                            ,ABC_Output* ostream
-                            ,std::string* error,
-                            const std::string& masterObjective)const override
+                         ,ABC_Output* ostream
+                         ,std::string* error,
+                         const std::string& masterObjective)const override
       {
         return true;
       }
@@ -1940,7 +2087,7 @@ namespace Markov_IO_New {
 
       virtual ABC_Type_of_Closure const* closureType(const StructureEnv_New* cm)const override
       {
-         return nullptr;
+        return nullptr;
       }
 
       virtual Implements_Data_Type_New<returnType> const * resultType(const StructureEnv_New* cm)const override{

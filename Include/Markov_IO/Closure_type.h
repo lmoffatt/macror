@@ -92,6 +92,7 @@ namespace Markov_IO_New {
     template <typename T> class Implements_Closure_Type_T_Constant;
 
     template<typename R> class Implements_Closure_Type_ABC_R;
+    template<typename R> class Implements_Closure_Type_R_function;
 
     template<typename... Args> class Implements_Closure_Type_tuple;
     template<typename... Args> class Implements_Closure_Value_tuple;
@@ -125,14 +126,14 @@ namespace Markov_IO_New {
 
     template<typename R>
     struct mp_ClosureType_Imp<R,void*>{
-      using type=Implements_Data_Type_R_Function<R>;
+      using type=Implements_Closure_Type_R_function<R>;
       using value=ABC_R_function<R>;
     };
 
     template<typename R>
     struct mp_ClosureType_Imp<R,std::string>{
       using type=Implements_Closure_Type_T_Identifier<R>;
-      using value=Implements_Closure_Value_Base_T_Identifier<R>*;
+      using value=Implements_Closure_Value_Base_T_Identifier<R>;
     };
     template<typename R>
     struct mp_ClosureType_Imp<R,int>{

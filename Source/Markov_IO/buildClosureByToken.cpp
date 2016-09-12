@@ -15,6 +15,7 @@ namespace Markov_IO_New
     ABC_BuildByToken_(p),
     mystate(S_Init),
     v_(varType->getBuildByToken(p)),
+    cb_(clType->getBuildClosureByToken(p)),
     cl_(),
     x_()
 
@@ -37,7 +38,7 @@ inline
       {
       case S_Init: return {};
       case S_Function_Final:
-        cb_->UnPopClosure(cl_.release());
+    //    cb_->UnPopClosure(cl_.release());
 
       case S_Function_Partial:
         {

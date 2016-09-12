@@ -8,6 +8,8 @@
 #include <map>
 #include <vector>
 #include <limits>
+#include <algorithm>
+#include <memory>
 
 namespace Markov_IO_New {
 
@@ -34,6 +36,39 @@ namespace Markov_IO_New {
 
       one.second.insert(two.second.begin(),two.second.end());
      return one;
+   }
+
+
+
+
+   template <typename T>
+   std::vector<std::unique_ptr<T>>
+   clone_vector(const std::vector<std::unique_ptr<T>>& other)
+   {
+     std::vector<std::unique_ptr<T>> out(other.size());
+     for (std::size_t i=0; i<other.size(); ++i)
+       {
+         out[i].reset(other[i]->clone());
+       }
+     return out;
+
+   }
+
+   template <typename... Ts, std::size_t...Is>
+   std::tuple<std::unique_ptr<Ts>...>
+   clone_tuple_imp(const std::tuple<std::unique_ptr<Ts>...>& other, std::index_sequence<Is...>)
+   {
+      return  std::tuple<std::unique_ptr<Ts>...>(std::get<Is>(other)->clone()...);
+   }
+
+
+
+
+   template <typename... Ts>
+   std::tuple<std::unique_ptr<Ts>...>
+   clone_tuple(const std::tuple<std::unique_ptr<Ts>...>& other)
+   {
+      return clone_tuple_imp(other,std::index_sequence_for<Ts...>());
    }
 
 

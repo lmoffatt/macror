@@ -46,12 +46,15 @@ namespace Markov_IO_New {
 
     typedef R returnType;
 
+    virtual ABC_R_Closure* clone()const=0;
+    virtual ABC_R_Closure* create()const=0;
+
     virtual ABC_Type_of_Closure const* closureType(const StructureEnv_New* cm)const=0;
 
     virtual Implements_Data_Type_New<R> const * resultType(const StructureEnv_New* cm)const=0;
 
 
-    virtual returnType eval(Markov_CommandManagerVar* cm)=0;
+    virtual returnType eval(Markov_CommandManagerVar* cm)const=0;
 
 
 
@@ -77,6 +80,25 @@ namespace Markov_IO_New {
 
 
 
+  template <typename T>
+  const Implements_Value_New<T>*
+  cm_idToValued(const Markov_CommandManagerVar* cm
+                , const std::string& id
+                ,const std::string & typeId);
+
+  template <typename T>
+  Implements_Value_New<T>*
+  cm_idToValued( Markov_CommandManagerVar* cm
+                , const std::string& id
+                ,const std::string & typeId);
+
+
+
+  template<typename T>
+  bool cm_getDataFromId(const Markov_CommandManagerVar* cm
+                        ,const std::string& idname, T& x);
+
+
 
   namespace _private
   {
@@ -98,20 +120,21 @@ namespace Markov_IO_New {
 
       virtual Implements_Data_Type_New<T> const* resultType(const StructureEnv_New* cm)const override
       {
-        return closureType(cm)->resultType(cm);
+        return closureType(cm)->myResultType(cm);
       }
 
-      virtual Implements_Value_New<T>* evalData(StructureEnv_New* cm) const override
+      virtual Implements_Value_New<T>* evalData(Markov_CommandManagerVar* cm) const override
       {
-        cm->idToValued(id_,resultType(cm)->typeId());
+        return cm_idToValued<T>(cm,id_,resultType(cm)->typeId());
       }
 
 
-      virtual returnType eval(StructureEnv_New* cm) const
+      virtual returnType eval(Markov_CommandManagerVar* cm) const override
       {
         T out;
-        cm->getDataFromId(id_,out);
+        if (cm_getDataFromId(cm,id_,out))
         return out;
+        else return {};
       }
 
 
@@ -171,8 +194,9 @@ namespace Markov_IO_New {
                             ,std::string* error,
                             const std::string& masterObjective)const
       {
-        return closureType(cm)->putValue(cm,this,ostream,error,masterObjective);
+        return closureType(cm)->putClosure(cm,this,ostream,error,masterObjective);
       }
+
 
     protected:
       const Implements_Closure_Type<T,std::string>* varType_;
@@ -192,21 +216,21 @@ namespace Markov_IO_New {
 
           virtual Implements_Closure_Type<T,int> const* closureType(const StructureEnv_New* cm)const override
           {
-            return clType_;
+            return clType_.get();
           }
 
           virtual Implements_Data_Type_New<T> const* resultType(const StructureEnv_New* cm)const override
           {
-            return closureType(cm)->resultType(cm);
+            return closureType(cm)->myResultType(cm);
           }
 
-          virtual Implements_Value_New<T>* evalData(StructureEnv_New* cm) const override
+          virtual Implements_Value_New<T>* evalData(Markov_CommandManagerVar* cm) const override
           {
             return new Implements_Value_New<T>(resultType(cm),x_);
           }
 
 
-          virtual returnType eval(StructureEnv_New* cm)
+          virtual returnType eval(Markov_CommandManagerVar* cm)const override
           {
             return x_;
           }
@@ -226,17 +250,30 @@ namespace Markov_IO_New {
 
 
           Implements_Closure_Value_Base_T_Constant
-          (Implements_Closure_Type<T,std::string> const* clType,
+          (const Implements_Closure_Type<T,int> * clType,
               const T& x):
-            clType_(clType),x_(x),empty_(false){}
+            clType_(clType->clone()),x_(x),empty_(false){}
+
+          Implements_Closure_Value_Base_T_Constant
+          (const Implements_Data_Type_New<T> * datType,
+              const T& x):
+            clType_(new Implements_Closure_Type<T,int>(datType)),x_(x),empty_(false){}
+
+          Implements_Closure_Value_Base_T_Constant
+          (const T& x):
+            clType_(new Implements_Closure_Type<T,int>),x_(x),empty_(false){}
 
           Implements_Closure_Value_Base_T_Constant
           ():
-            clType_(nullptr),x_(),empty_(true){}
+            clType_(new Implements_Closure_Type<T,int>),x_(),empty_(true){}
 
 
 
-          Implements_Closure_Value_Base_T_Constant(const Implements_Closure_Value_Base_T_Constant<T>& other)=default;
+
+
+          Implements_Closure_Value_Base_T_Constant(const Implements_Closure_Value_Base_T_Constant<T>& other):
+            clType_(other.clType_->clone()),
+            x_(other.x_),empty_(other.empty_){}
 
           Implements_Closure_Value_Base_T_Constant(Implements_Closure_Value_Base_T_Constant<T>&& other)=default;
 
@@ -268,10 +305,10 @@ namespace Markov_IO_New {
                                 ,std::string* error,
                                 const std::string& masterObjective)const
           {
-            return closureType(cm)->putValue(cm,this,ostream,error,masterObjective);
+            return closureType(cm)->putClosure(cm,this,ostream,error,masterObjective);
           }
         protected:
-          const Implements_Closure_Type<T,int>* clType_;
+          std::unique_ptr<Implements_Closure_Type<T,int>> clType_;
           T x_;
           bool empty_;
     };

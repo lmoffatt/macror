@@ -7090,6 +7090,14 @@ namespace Markov_IO_New {
       }
 
 
+     bool getValue(const StructureEnv_New* cm
+                   ,Markov_CommandManagerVar*& c
+                   ,ABC_Input* istream
+                   ,std::string* whyNot
+                   , const std::string& masterObjective) const
+     {
+        return false;
+      }
       virtual const ABC_Type_of_Value* getComplexVarType(const StructureEnv_New* cm) const {return nullptr;}
 
 

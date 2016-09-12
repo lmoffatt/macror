@@ -34,14 +34,13 @@ namespace Markov_IO_New {
   {
   public:
 
-    virtual bool hasMandatory()const=0;
 
     virtual ABC_Closure* unloadClosure()=0;
+    virtual bool hasMandatory()const=0;
+    virtual bool hasNoArguments()const =0;
 
-    virtual bool UnPopClosure(ABC_Closure* cl)=0;
     virtual ~ABC_BuildClosure(){}
 
-    virtual bool hasNoArguments()const =0;
   protected:
     ABC_BuildClosure(const StructureEnv_New* p):ABC_BuildByToken_(p){}
   };
@@ -57,14 +56,14 @@ namespace Markov_IO_New {
 
   template<typename... Args>
   class buildClosureByToken<std::tuple<Args...>>
-      :public ABC_BuildByToken
+      :public ABC_BuildClosure
 
   {
   public:
     typedef Implements_Closure_Value<std::tuple<Args...>> myC;
     typedef std::tuple<Implements_Fn_Argument<Args>...> dataArgumentsTuple;
     typedef Implements_Closure_Type<std::tuple<Args...>>  vType;
-    typedef std::tuple<buildClosureByToken<Args>*...> buildTuple;
+    typedef std::tuple<std::unique_ptr<buildClosureByToken<Args>>...> buildTuple;
     typedef std::tuple<Args...> argTuple;
 
 
@@ -73,49 +72,174 @@ namespace Markov_IO_New {
 
     buildClosureByToken(const StructureEnv_New* paren,
                         const Implements_Closure_Type<std::tuple<Args...>>* typeVar):
-      ABC_BuildByToken(paren),
+      ABC_BuildClosure(paren),
       mystate(S_Init),
       varType_(typeVar)
-    ,buildTupl_(getBuildTuple(paren,typeVar->getArgumentTypes()
+    ,buildTupl_(getBuildTuple(paren,typeVar->getFnArguments(paren)
                               ,std::index_sequence_for<Args...>()))
     ,xTupl_()
     ,iArg_(0)
     {
-      if (isMandatory_imp(parent(),std::index_sequence_for<Args...>(),iArg_,varType_->getArguments()))
+      if (isMandatory_imp(parent(),std::index_sequence_for<Args...>(),iArg_,varType_->getFnArguments(parent())))
         mystate=S_Init;
       else
         mystate=S_Mandatory;
 
     }
 
-    template<std::size_t ...Is>
-    static buildTuple getBuildTuple
-    (const StructureEnv_New* parent,
-     const dataArgumentsTuple& types
-     , const std::index_sequence<Is...> )
+    bool hasMandatory()const
     {
-      return std::tuple<buildClosureByToken<Args>*...> (
-            std::get<Is>(types)->closureType(parent)->getBuildByToken(parent)...
-            );
+      return (mystate==S_Mandatory)
+          &&(mystate==S_Final);
+
     }
 
-    myC unloadVar()
+
+    virtual bool UnPopClosure(ABC_Closure* cl)
     {
-      if ((iArg_ )< (std::tuple_size<myC>::value))
-        varType_->template fill_imp<0>(xTupl_,iArg_,varType_->getArguments());
-      auto out=std::move(xTupl_);
+      return false;
+    }
+
+
+    virtual bool hasNoArguments()const
+    {
+
+    }
+
+
+
+
+    myC* unloadClosure() override
+    {
+      if ((iArg_ )< (std::tuple_size<std::tuple<Args...>>::value))
+        varType_->fill_imp(xTupl_.get(),iArg_,varType_->getFnArguments(parent()),
+                           std::index_sequence_for<Args...>());
+      auto out=xTupl_.release();
       xTupl_= {};
       mystate=S_Init;
       iArg_=0;
       return out;
     }
 
+
+
+
+
+    bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override
+    {
+      const std::string objective=masterObjective+": "+"Token "+t.str()+" was not accepted by ";
+      switch (mystate)
+        {
+        case S_Init:
+        case S_Element_Partial:
+        case S_Element_Final:
+        case S_Mandatory:
+          return pushToken_imp(parent()
+                               ,std::index_sequence_for<Args...>()
+                               ,mystate
+                               ,iArg_
+                               ,buildTupl_
+                               ,varType_->getFnArguments(parent())
+                               ,xTupl_
+                               ,t
+                               ,whyNot
+                               ,objective);
+        case    S_Final:
+          return false;
+
+        }
+    }
+
+
+
+    std::pair<std::string,std::set<std::string>> alternativesNext()const override
+    {
+      return alternativesNext_imp<0>
+          (parent(),std::index_sequence_for<Args...>(),mystate,iArg_
+           ,buildTupl_,
+           varType_->getFnArguments(parent()));
+    }
+
+
+    void clear()override
+    {
+      xTupl_={};
+      mystate=S_Init;
+      iArg_=0;
+    }
+
+//    virtual void reset_Type(const Implements_Data_Type_New<myC>* var)
+//    {
+//      clear();
+//      varType_=var;
+//      buildTupl_=getBuildTuple(parent(),varType_->getArgumentTypes()
+//                               ,std::index_sequence_for<Args...>());
+
+//    }
+
+    bool unPop(myC var)
+    {
+      xTupl_=std::move(var);
+      mystate=S_Final;
+      iArg_=std::tuple_size<myC>::value;
+      return true;
+    }
+
+    Token_New popBackToken() override
+    {
+      switch (mystate)
+        {
+        case S_Init: return {};
+        case S_Element_Final:
+        case S_Final:
+          --iArg_;
+        case S_Element_Partial:
+          return popBackToken_imps(parent()
+                                   ,std::index_sequence_for<Args...>()
+                                   ,mystate
+                                   ,iArg_
+                                   ,buildTupl_
+                                   ,varType_->getFnArguments(parent())
+                                   ,xTupl_);
+        }
+    }
+
+    bool isFinal()const override
+    {
+      return mystate==S_Final;
+    }
+
+    bool isInitial()const override
+    {
+      return mystate==S_Init;
+    }
+
+
+
+
+    virtual ~buildClosureByToken(){}
+
+    std::size_t iArg()const {return iArg_;}
+
+
+  protected:
+    template<std::size_t ...Is>
+    static buildTuple getBuildTuple
+    (const StructureEnv_New* parent,
+     const dataArgumentsTuple& types
+     , const std::index_sequence<Is...> )
+    {
+      return std::tuple<std::unique_ptr<buildClosureByToken<Args>>...> (
+            std::get<Is>(types).closureType(parent)->getBuildClosureByToken(parent)...
+            );
+    }
+
     template<std::size_t D>
     static bool pushToken_imp(const StructureEnv_New* cm,
                               DFA &state,std::size_t &i
-                              ,std::tuple<buildClosureByToken<Args>*...>& b
+                              ,buildTuple& b
                               ,const dataArgumentsTuple& a
-                              ,myC& x
+                              ,std::unique_ptr<myC>& x
                               ,Token_New t, std::string* whyNot
                               , const std::string& masterObjective)
     {
@@ -129,7 +253,7 @@ namespace Markov_IO_New {
                               DFA &state,std::size_t &i
                               ,buildTuple& b
                               ,const dataArgumentsTuple& a
-                              ,myC& x
+                              ,std::unique_ptr<myC>& x
                               ,Token_New t, std::string* whyNot
                               , const std::string& masterObjective)
     {
@@ -138,13 +262,13 @@ namespace Markov_IO_New {
       else
         {
           typedef typename std::tuple_element<I,argTuple>::type eType;
-          buildClosureByToken<eType>* eB=std::get<I>(b);
+          buildClosureByToken<eType>* eB=std::get<I>(b).get();
           Implements_Fn_Argument<eType> aT=std::get<I>(a);
           if ((t.tok()==Token_New::EOL)||(aT.isDefaulted()))
             {
-              std::get<I>(x)=aT.defaultValue();
+              std::get<I>(x->getTuple()).reset(aT.defaultValue());
               ++i;
-              if (i==std::tuple_size<myC>::value)
+              if (i==std::tuple_size<std::tuple<Args...>>::value)
                 {
                   state=S_Final;
                   return true;
@@ -162,9 +286,9 @@ namespace Markov_IO_New {
             }
           else if (eB->isFinal())
             {
-              std::get<I>(x)=eB->unloadVar();
+              std::get<I>(x->getTuple()).reset(eB->unloadClosure());
               ++i;
-              if (i==std::tuple_size<myC>::value)
+              if (i==std::tuple_size<std::tuple<Args...>>::value)
                 state=S_Final;
               else if (isMandatory_imp(cm,std::index_sequence_for<Args...>(),i,a))
                 state=S_Element_Final;
@@ -188,10 +312,11 @@ namespace Markov_IO_New {
                               std::index_sequence<Is...>
                               ,DFA &state
                               ,std::size_t &i
-                              ,std::tuple<buildByToken<ABC_R_Closure<Args>*>*...>& b
+                              ,std::tuple<std::unique_ptr<buildClosureByToken<Args>>...>& b
                               ,const dataArgumentsTuple& a
-                              ,myC& x
-                              ,Token_New t, std::string* whyNot
+                              ,std::unique_ptr<myC>& x
+                              ,Token_New t,
+                              std::string* whyNot
                               , const std::string& masterObjective)
     {
 
@@ -224,9 +349,9 @@ namespace Markov_IO_New {
         return isMandatory_imp<D,Is...>(cm,i,arg);
       else
         {
-          typedef typename std::tuple_element<I,dataArgumentsTuple>::type aType;
-          aType a=std::get<I>(arg);
-          if (a.dataType(cm)==nullptr)
+          typedef typename std::tuple_element<I,std::tuple<Args...>>::type eType;
+          const Implements_Fn_Argument<eType>& a=std::get<I>(arg);
+          if (a.isDefaulted())
             return isMandatory_imp<D,Is...>(cm,++i,arg);
           else
             return a.isMandatory();
@@ -245,42 +370,12 @@ namespace Markov_IO_New {
     }
 
 
-
-
-    bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override
-    {
-      const std::string objective=masterObjective+": "+"Token "+t.str()+" was not accepted by ";
-      switch (mystate)
-        {
-        case S_Init:
-        case S_Element_Partial:
-        case S_Element_Final:
-        case S_Mandatory:
-          return pushToken_imp(parent()
-                               ,std::index_sequence_for<Args...>()
-                               ,mystate
-                               ,iArg_
-                               ,buildTupl_
-                               ,varType_->getArguments()
-                               ,xTupl_
-                               ,t
-                               ,whyNot
-                               ,objective);
-        case    S_Final:
-          return false;
-
-        }
-    }
-
-
-
-
     template<std::size_t D>
     static std::pair<std::string,std::set<std::string>> alternativesNext_imp
     (const StructureEnv_New* cm,
      DFA state,std::size_t i
-     ,const std::tuple<buildByToken<ABC_R_Closure<Args>*>*...>& b,
-     const dataArgumentsTuple& arg)
+     ,const buildTuple& b
+     ,const dataArgumentsTuple& arg)
     {
       return {};
     }
@@ -290,9 +385,10 @@ namespace Markov_IO_New {
     template<std::size_t D,std::size_t I, std::size_t... Is>
     static std::pair<std::string,std::set<std::string>> alternativesNext_imp
     (const StructureEnv_New* cm,
-     DFA state,std::size_t i
-     ,const std::tuple<buildByToken<ABC_R_Closure<Args>*>*...>& b,
-     const dataArgumentsTuple& arg)
+     DFA state
+     ,std::size_t i
+     ,const buildTuple& b
+     ,const dataArgumentsTuple& arg)
     {
       if (state==S_Final)
         return {};
@@ -300,10 +396,8 @@ namespace Markov_IO_New {
         return alternativesNext_imp<D,Is...>(cm,state,i,b,arg);
       else
         {
-          typedef typename std::tuple_element<I,myC>::type eType;
-          Implements_Fn_Argument<
-              typename std::remove_pointer<eType>::type::returnType
-              > aT=std::get<I>(arg);
+          typedef typename std::tuple_element<I,std::tuple<Args...>>::type eType;
+          const Implements_Fn_Argument<eType>& aT=std::get<I>(arg);
           if (aT.isDefaulted())
             {
               ++i;
@@ -311,7 +405,7 @@ namespace Markov_IO_New {
             }
           else
             {
-              buildByToken<eType>* eB=std::get<I>(b);
+              buildClosureByToken<eType>* eB=std::get<I>(b).get();
               auto out=eB->alternativesNext();
               std::string id=aT.id();
               return {id,out.second};
@@ -322,9 +416,11 @@ namespace Markov_IO_New {
     template<std::size_t... Is>
     static std::pair<std::string,std::set<std::string>> alternativesNext_imp
     (const StructureEnv_New* cm,
-     std::index_sequence<Is...>,DFA state,std::size_t i
-     ,const std::tuple<buildByToken<ABC_R_Closure<Args>*>*...>& b,
-     const dataArgumentsTuple& arg)
+     std::index_sequence<Is...>
+     ,DFA state
+     ,std::size_t i
+     ,const buildTuple& b
+     ,const dataArgumentsTuple& arg)
     {
       return alternativesNext_imp<0,Is...>(cm,state,i,b,arg);
 
@@ -332,46 +428,14 @@ namespace Markov_IO_New {
 
 
 
-    std::pair<std::string,std::set<std::string>> alternativesNext()const override
-    {
-      return alternativesNext_imp<0>
-          (parent(),std::index_sequence_for<Args...>(),mystate,iArg_
-           ,buildTupl_,
-           varType_->getArguments());
-    }
-
-
-    void clear()override
-    {
-      xTupl_={};
-      mystate=S_Init;
-      iArg_=0;
-    }
-
-    virtual void reset_Type(const Implements_Data_Type_New<myC>* var)
-    {
-      clear();
-      varType_=var;
-      buildTupl_=getBuildTuple(parent(),varType_->getArgumentTypes()
-                               ,std::index_sequence_for<Args...>());
-
-    }
-
-    bool unPop(myC var)
-    {
-      xTupl_=std::move(var);
-      mystate=S_Final;
-      iArg_=std::tuple_size<myC>::value;
-      return true;
-    }
 
     template<std::size_t D>
     static Token_New popBackToken_imp
     (const StructureEnv_New* cm,
      DFA &state,std::size_t &i
-     ,std::tuple<buildByToken<ABC_R_Closure<Args>*>*...>& b
+     , buildTuple& b
      ,const dataArgumentsTuple& a,
-     myC& x)
+     std::unique_ptr<myC>&  x)
     {
 
       return {};
@@ -386,12 +450,12 @@ namespace Markov_IO_New {
                                       ,std::size_t &i
                                       ,buildTuple& b
                                       ,const dataArgumentsTuple& a
-                                      , myC& x)
+                                      ,std::unique_ptr<myC>&  x)
     {
       if (I<i)
         return popBackToken_imp<D,Is...>(cm,state,i,b,a,x);
       else {
-          typedef typename std::tuple_element<I,myC>::type eType;
+          typedef typename std::tuple_element<I,std::tuple<Args...>>::type eType;
           auto aT=std::get<I>(a);
           if (aT.isDefaulted())
             {
@@ -402,11 +466,11 @@ namespace Markov_IO_New {
             }
           else
             {
-              buildClosureByToken<eType>* eB=std::get<I>(b);
+              buildClosureByToken<eType>* eB=std::get<I>(b).get();
               Token_New out;
               if (eB->isInitial())
                 {
-                  eB->unPop(std::get<I>(x));
+                  eB->unPop(std::get<I>(x->getTuple()).get());
                 }
               out=eB->popBackToken();
               if (eB->isInitial())
@@ -432,9 +496,9 @@ namespace Markov_IO_New {
      std::index_sequence<Is...>
      ,DFA &state
      ,std::size_t &i
-     ,std::tuple<buildByToken<ABC_R_Closure<Args>*>*...>& b
+     ,buildTuple& b
      ,const dataArgumentsTuple& a
-     ,myC& x)
+     ,std::unique_ptr<myC>& x)
     {
       return popBackToken_imp<0,Is...>(cm,state,i,b,a,x);
 
@@ -446,56 +510,6 @@ namespace Markov_IO_New {
 
 
 
-    Token_New popBackToken() override
-    {
-      switch (mystate)
-        {
-        case S_Init: return {};
-        case S_Element_Final:
-        case S_Final:
-          --iArg_;
-        case S_Element_Partial:
-          return popBackToken_imps(parent()
-                                   ,std::index_sequence_for<Args...>()
-                                   ,mystate
-                                   ,iArg_
-                                   ,buildTupl_
-                                   ,varType_->getArguments()
-                                   ,xTupl_);
-        }
-    }
-
-    bool isFinal()const override
-    {
-      return mystate==S_Final;
-    }
-
-    bool isInitial()const override
-    {
-      return mystate==S_Init;
-    }
-
-    bool hasMandatory()const
-    {
-      return (mystate==S_Mandatory)
-          &&(mystate==S_Final);
-
-    }
-
-    virtual ABC_Data_New* unloadData()override
-    {
-      return new Implements_Value_New<myC>(varType_,unloadVar());
-    }
-
-    virtual bool unpopData(ABC_Data_New* data) override
-    {
-      return false;
-    }
-
-
-    virtual ~buildClosureByToken(){}
-
-    std::size_t iArg()const {return iArg_;}
 
 
 
@@ -503,8 +517,8 @@ namespace Markov_IO_New {
     DFA mystate;
     std::size_t iArg_;
     const Implements_Closure_Type<std::tuple<Args...>>* varType_;
-    std::tuple<buildClosureByToken<Args>*...>* buildTupl_;
-    std::tuple<ABC_R_Closure<Args>*...> xTupl_;
+    buildTuple    buildTupl_;
+    std::unique_ptr<Implements_Closure_Value<std::tuple<Args...>>> xTupl_;
   };
 
 
@@ -560,10 +574,6 @@ namespace Markov_IO_New {
     {}
 
 
-    virtual bool UnPopClosure(ABC_Closure* cl)override
-    {
-      return false;
-    }
 
     virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
 
@@ -1095,7 +1105,7 @@ namespace Markov_IO_New {
                 if (xB_->isFinal())
                   {
                     mystate=S_Id_Final;
-                    data_.reset(xB_->unloadVar());
+                    data_.reset(xB_->unloadClosure());
                   }
                 else
                   mystate=S_Id_Partial;
@@ -1106,7 +1116,7 @@ namespace Markov_IO_New {
                 if (fnB_->isFinal())
                   {
                     mystate=S_Fn_Final;
-                    data_.reset(fnB_->unloadVar());
+                    data_.reset(fnB_->unloadClosure());
                   }
                 else
                   mystate=S_Fn_Partial;
@@ -1117,7 +1127,7 @@ namespace Markov_IO_New {
                 if (dataB_->isFinal())
                   {
 
-                    data_.reset(dataB_->unloadVar());
+                    data_.reset(dataB_->unloadClosure());
 
                     mystate=S_Data_Final;
                   }
@@ -1134,7 +1144,7 @@ namespace Markov_IO_New {
                 if (xB_->isFinal())
                   {
                     mystate=S_Id_Final;
-                    data_.reset(xB_->unloadVar());
+                    data_.reset(xB_->unloadClosure());
                   }
                 else
                   {
@@ -1151,7 +1161,7 @@ namespace Markov_IO_New {
                 if (fnB_->isFinal())
                   {
                     mystate=S_Fn_Final;
-                    data_.reset(fnB_->unloadVar());
+                    data_.reset(fnB_->unloadClosure());
 
                   }
                 else
@@ -1167,7 +1177,7 @@ namespace Markov_IO_New {
                 if (dataB_->isFinal())
                   {
 
-                    data_.reset(dataB_->unloadVar());
+                    data_.reset(dataB_->unloadClosure());
 
                     mystate=S_Data_Final;
                   }
@@ -1208,7 +1218,7 @@ namespace Markov_IO_New {
 
 
 
-    ABC_R_Closure<R>* unloadVar()
+    ABC_R_Closure<R>* unloadClosure()
     {
       if (isFinal())
         {
@@ -1231,19 +1241,15 @@ namespace Markov_IO_New {
                         const Implements_Closure_Type<R> *varType):
       ABC_BuildClosure(parent),
       mystate(S_Init),cType_(varType),
-      dataB_(varType->getDataType(parent)->getBuildByToken(parent)),
-      xB_(varType->getIdentifierClosure(parent)->getBuildByToken(parent)),
-      fnB_(varType->getFunctionClosure(parent)->getBuildByToken(parent)),
+      dataB_(varType->myConstantType(parent)->getBuildClosureByToken(parent)),
+      xB_(varType->myIdentifierType(parent)->getBuildClosureByToken(parent)),
+      fnB_(varType->myFunctionType(parent)->getBuildClosureByToken(parent)),
       data_(){}
 
     void clear()override
     {}
 
 
-    virtual bool UnPopClosure(ABC_Closure* cl)override
-    {
-      return false;
-    }
 
     virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
     {
@@ -1281,12 +1287,7 @@ namespace Markov_IO_New {
 
 
 
-    virtual ABC_Closure* unloadClosure() override
-    {
-      return unloadVar();
 
-
-    }
 
 
 
@@ -1341,19 +1342,6 @@ namespace Markov_IO_New {
       return hasNoArguments(vecValueB_,nPushedTokens_,nPushedTokensIn_);
     }
 
-    ABC_Closure* unloadVar()
-    {
-      if (isFinal())
-        {
-          ABC_Closure* out;
-          mystate=S_Init;
-          out= data_.release();
-          return out;
-        }
-      else
-        return {};
-    }
-
     bool unPop(ABC_Closure* var)
     {
       data_.reset(var)  ;
@@ -1363,16 +1351,13 @@ namespace Markov_IO_New {
     }
 
     buildClosureByToken(const StructureEnv_New* parent,
-                        const Implements_Data_Type_New<myC *> *varType);
+                        const Implements_Closure_Type<R,void*> *varType);
 
     void clear()override
     {}
 
 
-    virtual bool UnPopClosure(ABC_Closure* cl)override
-    {
-      return false;
-    }
+
 
     virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
 
@@ -1382,11 +1367,11 @@ namespace Markov_IO_New {
 
 
 
-    virtual ABC_Closure* unloadClosure() override
+    virtual ABC_R_function<R>* unloadClosure() override
     {
       if (isFinal())
         {
-          ABC_Closure* out=data_.release();
+          ABC_R_function<R>* out=data_.release();
           mystate=S_Init;
           nPushedTokens_=0;
           return out;
@@ -1409,7 +1394,7 @@ namespace Markov_IO_New {
     std::vector<size_t> nPushedTokensIn_;
     std::size_t nPushedTokens_;
     std::unique_ptr<ABC_BuildClosure> valueB_;
-    std::unique_ptr<ABC_Closure> data_;
+    std::unique_ptr<ABC_R_function<R>> data_;
 
     static bool isFinal(const std::vector<std::unique_ptr<ABC_BuildClosure>>& vecValue, std::size_t nPushedTokens,const std::vector<std::size_t> & nPushedTokensIn)
     {
@@ -1550,16 +1535,14 @@ namespace Markov_IO_New {
                         const Implements_Closure_Type<T, std::string>* typeVar):
       ABC_BuildClosure(parent),
       varType_(typeVar),
-      xB_(typeVar->getBuildByToken(parent)),
-      xC_()
+      xB_(typeVar->getIdentifierType(parent)->getBuildByToken(parent)),
+      xC_(nullptr)
     {
 
     }
-    myC* unloadVar()
+    myC* unloadClosure()
     {
-      auto out=xC_;
-      xC_= {};
-      return out;
+      return xC_.release();
     }
 
     bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override
@@ -1567,7 +1550,7 @@ namespace Markov_IO_New {
       bool out=xB_->pushToken(t,whyNot,masterObjective);
       if (out && (xB_->isFinal()))
         {
-          xC_=new Implements_Closure_Value<T,std::string>(varType_,xB_->unloadVar());
+          xC_.reset(new Implements_Closure_Value<T,std::string>(varType_,xB_->unloadVar()));
         }
       return out;
     }
@@ -1589,7 +1572,7 @@ namespace Markov_IO_New {
       clear();
       varType_=var;
       xC_.reset();
-      xB_->reset_Type(var->getVarIdType(parent()));
+      xB_->reset_Type(var->getIdentifierType(parent()));
     }
 
 
@@ -1612,6 +1595,10 @@ namespace Markov_IO_New {
       return xB_->isInitial();
     }
 
+
+
+    virtual bool hasMandatory()const{}
+    virtual bool hasNoArguments()const{}
 
 
   protected:
@@ -1636,12 +1623,12 @@ namespace Markov_IO_New {
                         const Implements_Closure_Type<T, int>* typeVar):
       ABC_BuildClosure(parent),
       varType_(typeVar),
-      xB_(typeVar->getBuildByToken(parent)),
+      xB_(typeVar->myResultType(parent)->getBuildByToken(parent)),
       xC_()
     {
 
     }
-    myC* unloadVar()
+    myC* unloadClosure() override
     {
       auto out=xC_.release();
       xC_.reset();
@@ -1653,7 +1640,7 @@ namespace Markov_IO_New {
       bool out=xB_->pushToken(t,whyNot,masterObjective);
       if (out && (xB_->isFinal()))
         {
-          xC_=new Implements_Closure_Value<T,int>(varType_,xB_->unloadVar());
+          xC_.reset(new Implements_Closure_Value<T,int>(varType_,xB_->unloadVar()));
         }
       return out;
     }
@@ -1670,13 +1657,13 @@ namespace Markov_IO_New {
       xC_.reset();
     }
 
-    virtual void reset_Type(const Implements_Closure_Type<T,std::string>*  var)
-    {
-      clear();
-      varType_=var;
-      xC_.reset();
-      xB_->reset_Type(var->getVarIdType(parent()));
-    }
+//    virtual void reset_Type(const Implements_Closure_Type<T,int>*  var)
+//    {
+//      clear();
+//      varType_=var;
+//      xC_.reset();
+//      xB_->reset_Type(var->getVarIdType(parent()));
+//    }
 
 
 
@@ -1697,6 +1684,10 @@ namespace Markov_IO_New {
     {
       return xB_->isInitial();
     }
+
+
+    virtual bool hasMandatory()const{}
+    virtual bool hasNoArguments()const{}
 
 
 
@@ -1741,7 +1732,7 @@ namespace Markov_IO_New {
                     mystate =S_Closure_Final;
                   else
                     {
-                      valueCl_.reset(new myC(fnType_,tupleB_->unloadVar()));
+                      valueCl_.reset(new myC(fnType_,tupleB_->unloadClosure()));
                       mystate=S_Final;
                     }
                   return true;
@@ -1768,7 +1759,7 @@ namespace Markov_IO_New {
                     mystate =S_Closure_Final;
                   else
                     {
-                      valueCl_.reset(new myC(fnType_,tupleB_->unloadVar()));
+                      valueCl_.reset(new myC(fnType_,tupleB_->unloadClosure()));
                       mystate=S_Final;
                       return true;
                     }
@@ -1794,7 +1785,7 @@ namespace Markov_IO_New {
             }
           else
             {
-              valueCl_.reset(new myC(fnType_,tupleB_->unloadVar()));
+              valueCl_.reset(new myC(fnType_,tupleB_->unloadClosure()));
               mystate=S_Final;
               return true;
             }
@@ -1844,7 +1835,8 @@ namespace Markov_IO_New {
       ABC_BuildClosure(parent),
       mystate(S_Init)
     ,fnType_(varType), tupleType_(varType->getArgumentsType(parent)),
-      tupleB_(varType->getArgumentsType(parent)->getBuildByToken(parent))
+      tupleB_(varType->getArgumentsType(parent)
+              ->getBuildClosureByToken(parent))
     ,valueCl_(new Implements_Closure_Value<void,Fn,R,Args...>(varType,{})){
 
       if (tupleB_->isFinal())
@@ -1869,10 +1861,6 @@ namespace Markov_IO_New {
     {}
 
 
-    virtual bool UnPopClosure(ABC_Closure* cl)override
-    {
-      return false;
-    }
 
     virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
 
@@ -1961,7 +1949,7 @@ namespace Markov_IO_New {
     DFA mystate;
     const Implements_Closure_Type<void,Fn,R,Args...> * fnType_;
     const Implements_Closure_Type<std::tuple<Args...>> * tupleType_;
-    buildClosureByToken<std::tuple<Args...>> tupleB_;
+    std::unique_ptr<buildClosureByToken<std::tuple<Args...>>> tupleB_;
     std::unique_ptr<Implements_Closure_Value<void,Fn,R,Args...>> valueCl_;
 
   };

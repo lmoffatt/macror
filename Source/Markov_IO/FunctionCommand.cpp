@@ -17,8 +17,9 @@ namespace Markov_IO_New
 
     void pushAllFunctions(Markov_CommandManagerVar *cm)
     {
-      /*
+
       cm->pushFunction<Save>();
+/*
       cm->pushFunction<Load>();
       cm->pushFunction<Who>();
       cm->pushFunction<Exit>();
@@ -29,7 +30,6 @@ namespace Markov_IO_New
 
     }
 
-/*
     void Save::save_cm::save(Markov_CommandManagerVar *cm, const std::__cxx11::string &pathfileName)
     {
       fd::FileOut f(pathfileName);
@@ -41,7 +41,7 @@ namespace Markov_IO_New
     }
 
 
-
+/*
 
 
 
