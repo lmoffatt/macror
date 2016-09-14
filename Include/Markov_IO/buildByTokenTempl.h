@@ -31,7 +31,7 @@ namespace Markov_IO_New {
      buildByToken<Markov_LA::M_Matrix<T> ,true>::buildByToken
      (const StructureEnv_New *parent,
       const _private::Implements_Data_Type_New_M_Matrix<T > *typeVar)
-        :ABC_BuildByToken(parent)
+        :p_(parent)
         ,mystate(S_Init)
         ,dataType_(typeVar)
        ,eleTypeInit_(typeVar->getElementDataType(parent))

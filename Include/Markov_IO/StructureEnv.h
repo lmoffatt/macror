@@ -224,6 +224,7 @@ namespace Markov_IO_New {
       types_(other.types_),
       cmds_(other.cmds_),
       funcs_(other.funcs_),
+      R_funcs_(other.R_funcs_),
       methods_(other.methods_),
       idTipWt_(other.idTipWt_)
     {}
@@ -746,6 +747,10 @@ namespace Markov_IO_New {
 
     const Implements_Closure_Type<void *> *idToFunc(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const;
 
+    template<typename R>
+    const Implements_Closure_Type<R,void *> *idTo_R_Func
+    (const std::__cxx11::string &name,const std::string &typeName
+     ,std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const;
 
 
     bool hasFunction(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const;
@@ -755,7 +760,9 @@ namespace Markov_IO_New {
 
     const std::map<std::__cxx11::string, Implements_Closure_Type<void*> *> &getFunctions() const;
 
-    bool hasFunctionofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const;
+    bool hasFunction_returningType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const;
+
+
     std::set<std::string> getIdsOfFncType(const std::string &fucnType, bool recursive) const;
   private:
 
@@ -773,6 +780,8 @@ namespace Markov_IO_New {
     std::map<std::string,ABC_Type_of_Value*> types_;
     std::map<std::string,ABC_Type_of_Closure*> typeC_;
     std::map<std::string,Implements_Closure_Type<void*>* > funcs_;
+    std::map<std::string,std::map<std::string,ABC_Function_Overload*> > R_funcs_;
+
     std::map<std::string,std::map<std::string,ABC_Type_of_Method*>> methods_;
 
     std::map<std::string,Implements_Command_Type_New*> cmds_;

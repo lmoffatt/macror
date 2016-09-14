@@ -9,12 +9,6 @@
 
 namespace Markov_IO_New {
 
-  const StructureEnv_New* ABC_BuildByToken_::parent() const
-  {
-    return parent_;
-  }
-
-  ABC_BuildByToken_::ABC_BuildByToken_(const StructureEnv_New *p):parent_(p){}
 
 
 
@@ -266,7 +260,7 @@ namespace Markov_IO_New {
   //  template<typename T>
   //  buildByToken<std::vector<T> >::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<std::vector<T> > *vecType)
   //    :
-  //      ABC_BuildByToken(parent),
+  //      p_(parent),
   //      mystate(S_Init),
   //      x_(),
   //      valueBuild_(vecType->getElementDataType(parent)->getBuildByToken(parent)),
@@ -277,7 +271,7 @@ namespace Markov_IO_New {
   buildByToken<ABC_Data_New *>::buildByToken
   (const StructureEnv_New *parent
    , const Implements_Data_Type_New<ABC_Data_New*> *varType):
-    ABC_BuildByToken(parent),
+    p_(parent),
     mystate(S_Init)
   ,dataType_(varType)
   ,idtypeB_(new buildByToken<std::string>(parent,varType->getElementType())),
@@ -712,7 +706,7 @@ namespace Markov_IO_New {
   buildByToken(const StructureEnv_New *parent,
                const Implements_Data_Type_New
                <StructureEnv_New* > *typeVar):
-    ABC_BuildByToken(parent),
+    p_(parent),
     mystate(S_Init)
   ,varMapType_(typeVar)
   ,ivType_(typeVar->getElementType()->clone())
@@ -998,7 +992,7 @@ namespace Markov_IO_New {
    buildByToken<Implements_Closure_Value_R_Fn_Args_Function<Fn, R,Args...> *, true>::buildByToken
   (const StructureEnv_New *parent
    , const Implements_Data_Type_New<Implements_Closure_Value_R_Fn_Args_Function<Fn, R,Args...> *> *varType):
-     ABC_BuildClosure(parent),
+     p_(parent),
      mystate(S_Init)
    ,fnType_(varType), tupleType_(varType->getArgumentsType(parent)),
     tupleB_(varType->getArgumentsType(parent)->getBuildByToken(parent))
@@ -1360,7 +1354,7 @@ namespace Markov_IO_New {
       , const Implements_Data_Type_New<Implements_Var> *varType
       ,const Implements_Data_Type_New<std::string> *idCmd
       , bool convertToClass):
-    ABC_BuildByToken(p),
+    p_(p),
     mystate(S_Init),
     v_(varType->getBuildByToken(p)),
     idCmd_(idCmd->getBuildByToken(p)),
@@ -1589,7 +1583,7 @@ namespace Markov_IO_New {
 
 
   buildByToken<Implements_Var>::buildByToken(const StructureEnv_New *parent, const Implements_Data_Type_New<Implements_Var> *varType):
-    ABC_BuildByToken(parent),
+    p_(parent),
     mystate(S_Init),ivarType_(varType),idType_(varType->getKeyType(parent)->clone()),
     dataTy_(varType->getElementType(parent)->clone()),
     idB_(new buildByToken<std::string>(parent,idType_)),dataB_(new buildByToken<ABC_Data_New*>(parent,dataTy_)),iv_()
@@ -1735,7 +1729,7 @@ namespace Markov_IO_New {
   }
 
   BuildByTokenString_Union::BuildByTokenString_Union(const StructureEnv_New *cm, const Identifier_Union *t)
-    :buildByToken<std::string>(cm,nullptr),
+    :p_(cm),
       uType_(t),vecValue(getBuildByTokenVector(cm,t)),nPushedTokensIn(),nPushedTokens(0){
     nPushedTokensIn=std::vector<std::size_t>(vecValue.size(),0);
   }

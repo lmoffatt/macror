@@ -13,7 +13,7 @@ namespace Markov_IO_New
                                          , const Implements_Data_Type_New<Implements_Var> *varType
                                          , const Implements_Closure_Type<void *> *clType
                                          ):
-    ABC_BuildByToken_(p),
+    p_(p),
     mystate(S_Init),
     v_(varType->getBuildByToken(p)),
     cb_(clType->getBuildClosureByToken(p)),
@@ -79,71 +79,62 @@ inline
 
 
 
-  std::pair<std::__cxx11::string, std::set<std::__cxx11::string> >
-  buildClosureByToken<void *>::alternativesNext() const
+
+
+  bool Markov_IO_New::buildClosureByToken<void *>::pushToken(Token_New tok, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
 
   {
-    std::pair<std::string, std::set<std::string> > out;
+    const std::string objective=masterObjective+":  rejected token "+tok.str();
     switch (mystate)
       {
       case S_Init:
-        return idObjB_->alternativesNext();
+        if (idB_->pushToken(tok,whyNot,objective))
+          {
+            idString_=idB_->unloadVar();
+            rfnType_=parent()->idToFunc(idString_,whyNot,objective);
+            if (rfnType_==nullptr)
+              return false;
+            else
+              {
+                oUB_.reset
+                    (rfnType_->getOverloadsTypes(parent())->getBuildClosureByToken(parent()));
+                if (oUB_->isFinal())
+                  {
+                    data_.reset
+                        (oUB_->unloadClosure());
+                    mystate=S_Final;
+                    return true;
+                  }
+                else
+                  {
+                    mystate=S_Identifier_Final;
+                    return true;
+
+                  }
+              }
+          }
+      case S_Identifier_Final:
       case S_Closure_PARTIAL:
-        return alternativesNext(vecValueB_,nPushedTokens_,nPushedTokensIn_);
-
-      case S_Closure_Mandatory:
-        {
-          auto out= alternativesNext(vecValueB_,nPushedTokens_,nPushedTokensIn_);
-          out.second.insert(alternatives::endOfLine());
-          return out;
-        }
-
-      case S_Closure_Final:
-        return {"ClassNamr()",{alternatives::endOfLine()}};
-
+        if (oUB_->pushToken(tok, whyNot,objective))
+          {
+            if (oUB_->isFinal())
+              {
+                data_.reset(oUB_->unloadClosure());
+                mystate=S_Final;
+                return true;
+              }
+            else
+              {
+                mystate=S_Closure_PARTIAL;
+                return true;
+              }
+          }
       case S_Final:
-        return {};
+        return false;
       }
   }
 
-  buildClosureByToken<void *>::buildClosureByToken(const StructureEnv_New *parent, const Implements_Closure_Type<void *> *varType)
-    :
-      ABC_BuildClosure(parent),
-      mystate(S_Init),
-      fnType_(varType),
-      idtype_(varType->myFunctionIdentifier(parent)),
-      idString_(),
-      idB_(varType->myFunctionIdentifier(parent)->getBuildByToken(parent)),
-      vecValueB_(varType->getOverloadBuild(parent,nullptr)),
-      nPushedTokensIn_(),
-      nPushedTokens_(0),
-      valueB_(),
-      data_(){
-    nPushedTokensIn_=std::vector<std::size_t>(vecValueB_.size(),0);
-
-  }
-
-
-  void buildClosureByToken<void *>::reset_Type(Implements_Closure_Type<void *> *varType)
-  {
-    mystate=S_Init;
-    fnType_=varType;
-    idtype_=varType->myFunctionIdentifier(parent());
-    idString_.clear();
-    idObjB_.reset(varType->myFunctionIdentifier(parent())->getBuildByToken(parent()));
-    vecValueB_=varType->getOverloadBuild(parent(),nullptr);
-    nPushedTokensIn_=std::vector<std::size_t>(vecValueB_.size(),0);
-    nPushedTokens_=0;
-    valueB_.reset();
-    data_.reset();
-
-  }
-
-  std::vector<std::unique_ptr<ABC_BuildClosure> > getOverloadBuilds(const Implements_Closure_Type<void *> *f, const StructureEnv_New *cm)
-  {
-    return f->getOverloadBuild(cm,nullptr);
-
-  }
+  Markov_IO_New::buildClosureByToken<void *>::~buildClosureByToken(){}
 
 
 

@@ -120,6 +120,10 @@ namespace Markov_IO_New {
                               std::string* whyNot=nullptr
                               ,const std::string &masterObjective="")const=0;
 
+    virtual bool includesThisType(const StructureEnv_New* cm
+                                  ,const std::string& childType
+                                  ,std::string *whyNot=nullptr
+                                  , const std::string &masterObjective="")const=0;
 
 
 
@@ -146,10 +150,6 @@ namespace Markov_IO_New {
                                 , std::string *whyNot
                                 , const std::string& masterObjective)const=0;
 
-    virtual bool includesThisType(const StructureEnv_New* cm
-                                  ,const std::string& childType
-                                  ,std::string *whyNot=nullptr
-                                  , const std::string &masterObjective="")const=0;
 
     virtual StructureEnv_New* getComplexVarRep(
         const StructureEnv_New* cm,
@@ -227,6 +227,12 @@ namespace Markov_IO_New {
 
 
     Type_Union()=default;
+    Type_Union(const Type_Union&)=default;
+    Type_Union(Type_Union&&)=default;
+    Type_Union& operator=(const Type_Union&)=default;
+    Type_Union& operator=(Type_Union&&)=default;
+
+
     Type_Union(std::vector<const ABC_Type_of_Value*> v):s_(v){}
     virtual ~Type_Union(){}
     virtual bool putData(const StructureEnv_New* cm
@@ -1046,6 +1052,12 @@ namespace Markov_IO_New {
     Identifier_Union(std::vector<const Implements_Identifier*>&& v):v_(v){}
     
     void push_Identifier(Implements_Identifier* i){v_.push_back(i);}
+
+    Identifier_Union(const Identifier_Union&)=default;
+    Identifier_Union( Identifier_Union&&)=default;
+    Identifier_Union& operator=(const Identifier_Union&)=default;
+    Identifier_Union& operator=( Identifier_Union&&)=default;
+
   protected:
    std::vector<const Implements_Identifier*> v_;
   };

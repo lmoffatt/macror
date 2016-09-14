@@ -5,28 +5,28 @@
 #include "Markov_IO/StructureEnv_templ.h"
 namespace Markov_IO_New {
 
-//  template class Implements_Value_New<double>;
+  //  template class Implements_Value_New<double>;
 
-//  template class Implements_Value_New<int>;
+  //  template class Implements_Value_New<int>;
 
-//  template class Implements_Value_New<std::size_t>;
+  //  template class Implements_Value_New<std::size_t>;
 
 
-//  template class Implements_Value_New<std::vector<double>>;
+  //  template class Implements_Value_New<std::vector<double>>;
 
-//  template class Implements_Value_New<std::set<double>>;
+  //  template class Implements_Value_New<std::set<double>>;
 
-//  template class Implements_Value_New<Markov_LA::M_Matrix<double>>;
+  //  template class Implements_Value_New<Markov_LA::M_Matrix<double>>;
 
-//  template class Implements_Value_New<Markov_LA::M_Matrix<std::size_t>>;
+  //  template class Implements_Value_New<Markov_LA::M_Matrix<std::size_t>>;
 
-//  template class Implements_Value_New<std::vector<int>>;
+  //  template class Implements_Value_New<std::vector<int>>;
 
-//  template class Implements_Value_New<std::map<std::size_t,double>>;
+  //  template class Implements_Value_New<std::map<std::size_t,double>>;
 
-//  template class Implements_Value_New<ABC_Data_New*>;
+  //  template class Implements_Value_New<ABC_Data_New*>;
 
-//  template class Implements_Value_New<Implements_Var>;
+  //  template class Implements_Value_New<Implements_Var>;
 
 
   namespace
@@ -61,7 +61,7 @@ namespace Markov_IO_New {
         if(!recursive||(parent()==nullptr))
           {
             if (whyNot!=nullptr)
-            *whyNot=masterObjective+": "+name+" is not a name in ";
+              *whyNot=masterObjective+": "+name+" is not a name in ";
             return false;
           }
         else return parent()->hasNameofType(name, type,recursive,whyNot,masterObjective);
@@ -137,31 +137,40 @@ namespace Markov_IO_New {
 
   }
 
-
-  bool StructureEnv_New::hasFunctionofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
+  bool StructureEnv_New::hasFunction_returningType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
   {
-    auto it=funcs_.find(name);
-    if (it==funcs_.end())
+    auto it=R_funcs_.find(type);
+    if (it==R_funcs_.end())
       {
         if(!recursive||(parent()==nullptr))
           {
-            *whyNot=masterObjective+": "+name+" is not a type in ";
+            *whyNot=masterObjective+": "+type+" is not returned by any function ";
             return false;
           }
         else
-          return parent()->hasFunctionofType(name, type,whyNot,masterObjective,recursive);
-      }
-    else
-      {
-        auto t=idToFunc(type,whyNot,masterObjective);
-        if (t==nullptr)
-          return false;
-        else
-          {
-            return true;
-          }
+          return parent()->hasFunction_returningType(name, type,whyNot,masterObjective,recursive);
       }
 
+    else
+      {
+        auto it2=it->second.find(name);
+        if (it2==it->second.end())
+          {
+            if(!recursive||(parent()==nullptr))
+              {
+                *whyNot=masterObjective+": "+name+" does not returned a "+type;
+                return false;
+              }
+            else
+              return parent()->hasFunction_returningType
+                  (name, type,whyNot,masterObjective,recursive);
+          }
+        else
+          {
+
+                return true;
+          }
+      }
   }
 
 
@@ -173,14 +182,14 @@ namespace Markov_IO_New {
     std::vector<std::string> o;
     if (varType.empty())
       {
-       o=idVars_;
+        o=idVars_;
       }
     else
       {
         for (const auto &id:idVars_)
-            if (hasNameofType(id,varType,false))
-              o.push_back(id);
-       }
+          if (hasNameofType(id,varType,false))
+            o.push_back(id);
+      }
     if (recursive&& parent()!=nullptr)
       {
         o+=parent()->getIdsOfVarType(varType,recursive);
@@ -229,8 +238,6 @@ namespace Markov_IO_New {
       {
         o=parent()->getIdsOfFncType(fucnType,recursive);
       }
-    std::string whyNot;
-    std::string objective;
     if (fucnType.empty())
       {
         auto s=getMapKeys(funcs_);
@@ -239,16 +246,14 @@ namespace Markov_IO_New {
       }
     else
       {
-        const Implements_Closure_Type<void*>* t=
-            idToFunc(fucnType,&whyNot,objective);
-        std::set<std::string> s;
-        for (const auto &p:funcs_)
+        auto it=R_funcs_.find(fucnType);
+        if (it!=R_funcs_.end())
           {
-            std::string why;
-              s.insert(p.first);
+            auto s=getMapKeys(it->second);
+            s.insert(o.begin(),o.end());
+            return s;
           }
-        s.insert(o.begin(),o.end());
-        return s;
+        else return {};
       }
   }
 

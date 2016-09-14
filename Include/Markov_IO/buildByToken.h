@@ -69,14 +69,8 @@ namespace Markov_IO_New {
     
     virtual void clear()=0;
     
-    const StructureEnv_New* parent()const;
+    virtual const StructureEnv_New* parent()const=0;
 
-  protected:
-    ABC_BuildByToken_(const StructureEnv_New* p);
-    
-  private:
-    
-    const StructureEnv_New* parent_;
   };
   
 
@@ -94,9 +88,6 @@ namespace Markov_IO_New {
 
     virtual bool unpopData(ABC_Data_New* data)=0;
 
-
-  protected:
-    ABC_BuildByToken(const StructureEnv_New* p): ABC_BuildByToken_(p){}
 
   };
 
@@ -227,14 +218,17 @@ namespace Markov_IO_New {
     {
       return false;
     }
-   BuildByToken_Union(const StructureEnv_New* cm,
-                      const Type_Union* t)
-     :ABC_BuildByToken(cm),
-       uType_(t),vecValue(getBuildByTokenVector(cm,t)),nPushedTokensIn(),nPushedTokens(0){
-     nPushedTokensIn=std::vector<std::size_t>(vecValue.size(),0);
-   }
+    BuildByToken_Union(const StructureEnv_New* cm,
+                       const Type_Union* t)
+      :p_(cm),
+        uType_(t),vecValue(getBuildByTokenVector(cm,t)),nPushedTokensIn(),nPushedTokens(0){
+      nPushedTokensIn=std::vector<std::size_t>(vecValue.size(),0);
+    }
 
-  protected:
+    const StructureEnv_New* parent() const override {return p_;}
+
+  private:
+    const StructureEnv_New* p_;
     const Type_Union* uType_;
     std::vector<ABC_BuildByToken*> vecValue;
     std::vector<std::size_t> nPushedTokensIn;
@@ -267,7 +261,7 @@ namespace Markov_IO_New {
     
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<T>* typeVar):
-      ABC_BuildByToken(parent),
+      p_(parent),
       varType_(typeVar),
       x_(),
       isComplete_(false)
@@ -275,7 +269,8 @@ namespace Markov_IO_New {
       
     }
     
-    
+    buildByToken()=default;
+
     T unloadVar()
     {
       auto out=std::move(x_);
@@ -357,7 +352,10 @@ namespace Markov_IO_New {
     
     
     virtual ~buildByToken(){}
-  protected:
+    const StructureEnv_New* parent() const override {return p_;}
+
+  private:
+    const StructureEnv_New* p_;
     const Implements_Data_Type_New<T>* varType_;
     T x_;
     bool isComplete_;
@@ -390,14 +388,17 @@ namespace Markov_IO_New {
     virtual bool unpopData(ABC_Data_New* data);
 
     BuildByTokenString_Union(const StructureEnv_New* cm,
-                      const Identifier_Union* t);
+                             const Identifier_Union* t);
 
-  protected:
+    const StructureEnv_New* parent() const override {return p_;}
+
+  private:
+    const StructureEnv_New* p_;
     const Identifier_Union* uType_;
     std::vector<buildByToken<std::string>*> vecValue;
     std::vector<std::size_t> nPushedTokensIn;
     std::size_t nPushedTokens;
-      };
+  };
 
   
   
@@ -423,7 +424,7 @@ namespace Markov_IO_New {
     
     buildByToken(const StructureEnv_New* paren,
                  const Implements_Data_Type_New<std::tuple<Args...>>* typeVar):
-      ABC_BuildByToken(paren),
+      p_(paren),
       mystate(S_Init),
       varType_(typeVar)
     ,tuVarTypes_(typeVar->getArgumentTypes())
@@ -432,7 +433,7 @@ namespace Markov_IO_New {
     ,xTupl_()
     ,iArg_(0)
     {
-      }
+    }
     
     template<std::size_t ...Is>
     static std::tuple<buildByToken<Args>*...> getBuildTuple
@@ -627,12 +628,12 @@ namespace Markov_IO_New {
         return alternativesNext_imp<D,Is...>(cm,state,i,b,arg);
       else
         {
-             typedef typename std::tuple_element<I,dataArgumentsTuple>::type eType;
-              buildByToken<eType>* eB=std::get<I>(b);
-              const Implements_Data_Type_New<eType>* v=std::get<I>(arg);
-              auto out=eB->alternativesNext();
-              std::string id=v->typeId();
-              return {id,out.second};
+          typedef typename std::tuple_element<I,dataArgumentsTuple>::type eType;
+          buildByToken<eType>* eB=std::get<I>(b);
+          const Implements_Data_Type_New<eType>* v=std::get<I>(arg);
+          auto out=eB->alternativesNext();
+          std::string id=v->typeId();
+          return {id,out.second};
         }
     }
 
@@ -819,8 +820,10 @@ namespace Markov_IO_New {
 
     std::size_t iArg()const {return iArg_;}
 
+    const StructureEnv_New* parent() const override {return p_;}
 
-  protected:
+    private:
+      const StructureEnv_New* p_;
     DFA mystate;
     const Implements_Data_Type_New<std::tuple<Args...>>* varType_;
     std::tuple<const Implements_Data_Type_New<Args>*...> tuVarTypes_;
@@ -892,7 +895,7 @@ namespace Markov_IO_New {
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<std::vector<T>>* vecType)
       :
-        ABC_BuildByToken(parent),
+        p_(parent),
         varType_(vecType),
         elemType_(vecType->getElementDataType(parent)->clone()),
         valueBuild_(new buildByToken<T>(parent,elemType_)),
@@ -1145,7 +1148,10 @@ namespace Markov_IO_New {
     }
 
 
+    const StructureEnv_New* parent() const override {return p_;}
+
   private:
+    const StructureEnv_New* p_;
     const Implements_Data_Type_New<std::vector<T>> * varType_;
     Implements_Data_Type_New<T>* elemType_;
     buildByToken<T> * valueBuild_;
@@ -1207,7 +1213,7 @@ namespace Markov_IO_New {
 
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<std::pair<K,T>>* typeVar):
-      ABC_BuildByToken(parent),
+      p_(parent),
       mystate(S_Init),
       idC_(),
       first_(typeVar->getKeyDataType(parent)->getBuildByToken(parent))
@@ -1373,8 +1379,11 @@ namespace Markov_IO_New {
       else return false;
     }
 
+    const StructureEnv_New* parent() const override {return p_;}
 
   private:
+    const StructureEnv_New* p_;
+
     DAF mystate;
     std::pair<K,T> idC_;
     buildByToken<K>* first_;
@@ -1723,8 +1732,10 @@ namespace Markov_IO_New {
         }
       else return false;
     }
+    const StructureEnv_New* parent() const override {return p_;}
 
-  private:
+    private:
+      const StructureEnv_New* p_;
     DAF mystate;
     const Implements_Data_Type_New<Markov_LA::M_Matrix<T>>* dataType_;
     const Implements_Data_Type_New<T>* eleTypeInit_;
@@ -1792,7 +1803,7 @@ namespace Markov_IO_New {
 
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<std::set<T>>* typeVar):
-      ABC_BuildByToken(parent),
+      p_(parent),
       mystate(S_Header_Final),
       idC_{},
       dataType_(typeVar),
@@ -1993,7 +2004,10 @@ namespace Markov_IO_New {
     }
 
 
+    const StructureEnv_New* parent() const override {return p_;}
+
   private:
+    const StructureEnv_New* p_;
     DAF mystate;
     std::set<T> idC_;
     const Implements_Data_Type_New<std::set<T>>* dataType_;
@@ -2049,7 +2063,7 @@ namespace Markov_IO_New {
 
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<std::map<K,T>>* typeVar):
-      ABC_BuildByToken(parent),
+      p_(parent),
       mystate(S_Header_Final),
       idC_{},
       varType_(typeVar),
@@ -2135,7 +2149,7 @@ namespace Markov_IO_New {
               if(valBuild_->isFinal())
                 {
                   idC_.insert({keyBuild_->unloadVar(),
-                             valBuild_->unloadVar()});
+                               valBuild_->unloadVar()});
                   mystate=S_Second_Final;
                   return true;
                 }
@@ -2170,7 +2184,7 @@ namespace Markov_IO_New {
           break;
 
         case S_First_Final:
-          keyBuild_->unPop(p_.first);
+          keyBuild_->unPop(pair_.first);
         case S_First_Partial:
           {
             auto out= keyBuild_->popBackToken();
@@ -2188,16 +2202,16 @@ namespace Markov_IO_New {
           }
           break;
         case S_Separator_Final:
-          keyBuild_->unPop(p_.first);
+          keyBuild_->unPop(pair_.first);
           return Token_New(Token_New::COLON);
           break;
         case S_Second_Final:
           {
             auto rit=--idC_.end();
-            p_=*rit;
+            pair_=*rit;
             idC_.erase(rit);
           }
-          valBuild_->unPop(p_.second);
+          valBuild_->unPop(pair_.second);
         case S_Second_Partial:
           {
             auto out= valBuild_->popBackToken();
@@ -2276,11 +2290,12 @@ namespace Markov_IO_New {
 
 
 
+    const StructureEnv_New* parent() const override {return p_;}
 
-
-  private:
+    private:
+      const StructureEnv_New* p_;
     DAF mystate;
-    std::pair<K,T> p_;
+    std::pair<K,T> pair_;
     std::map<K,T> idC_;
     const Implements_Data_Type_New<std::map<K,T>>* varType_;
     buildByToken<K>* keyBuild_;
@@ -2361,7 +2376,10 @@ namespace Markov_IO_New {
     virtual void reset_Type(Implements_Data_Type_New<ABC_Data_New*> *dataTy);
 
 
-  protected:
+    const StructureEnv_New* parent() const override {return p_;}
+
+  private:
+    const StructureEnv_New* p_;
     DFA mystate;
     const Implements_Data_Type_New<ABC_Data_New*> * dataType_;
     const Implements_Identifier* idtype_;
@@ -2453,8 +2471,11 @@ namespace Markov_IO_New {
 
 
     virtual void reset_Type(Implements_Data_Type_New<Implements_Var> *ivTy);
+    const StructureEnv_New* parent() const override {return p_;}
 
-  protected:
+    private:
+      const StructureEnv_New* p_;
+
     DFA mystate;
     const Implements_Data_Type_New<Implements_Var> * ivarType_;
     Implements_Identifier* idType_;
@@ -2602,8 +2623,11 @@ namespace Markov_IO_New {
     virtual ABC_Data_New* unloadData()override;
     virtual bool unpopData(ABC_Data_New* data) override;
 
+    const StructureEnv_New* parent() const override {return p_;}
 
-  private:
+    private:
+      const StructureEnv_New* p_;
+
     DAF mystate;
     const Implements_Data_Type_New<StructureEnv_New*>* varMapType_;
     StructureEnv_New*  StEnv_;
@@ -2679,10 +2703,13 @@ namespace Markov_IO_New {
 
     buildByToken(const StructureEnv_New* cm,
                  const Implements_Data_Type_New<Markov_CommandManagerVar*>*  type):
-      ABC_BuildByToken(cm),empty_(false),type_(type){}
+      p_(cm),empty_(false),type_(type){}
 
 
-  private:
+    const StructureEnv_New* parent() const override {return p_;}
+
+    private:
+      const StructureEnv_New* p_;
     bool empty_;
     const Implements_Data_Type_New<Markov_CommandManagerVar*>*  type_;
   };
@@ -2702,7 +2729,7 @@ namespace Markov_IO_New {
 
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<T>* typeVar):
-      ABC_BuildByToken(parent),
+      p_(parent),
       varType_(typeVar),
       bStr_(typeVar->getComplexVarType(parent)->getBuildByToken(parent)),
       idC_(),
@@ -2882,7 +2909,10 @@ namespace Markov_IO_New {
 
 
     virtual ~buildByToken(){}
-  protected:
+    const StructureEnv_New* parent() const override {return p_;}
+
+    private:
+      const StructureEnv_New* p_;
     const Implements_Data_Type_New<T>* varType_;
     buildByToken<StructureEnv_New*>* bStr_;
     T idC_;
@@ -2903,7 +2933,7 @@ namespace Markov_IO_New {
 
     buildByToken(const StructureEnv_New* parent,
                  const Implements_Data_Type_New<T*>* typeVar):
-      ABC_BuildByToken(parent),
+      p_(parent),
       varType_(typeVar),
       bStr_(typeVar->getComplexVarType(parent)->getBuildByToken(parent)),
       bId_(typeVar->getVarIdType(parent)->getBuildByToken(parent)),
@@ -3134,7 +3164,10 @@ namespace Markov_IO_New {
 
 
     virtual ~buildByToken(){}
-  protected:
+    const StructureEnv_New* parent() const override {return p_;}
+
+  private:
+    const StructureEnv_New* p_;
     const Implements_Data_Type_New<T*>* varType_;
     buildByToken<StructureEnv_New*>* bStr_;
     buildByToken<std::string>* bId_;
@@ -3386,7 +3419,10 @@ namespace Markov_IO_New {
 
 
     virtual ~buildByTokenD(){}
-  protected:
+    const StructureEnv_New* parent() const override {return p_;}
+
+    private:
+      const StructureEnv_New* p_;
     const Implements_Data_Type_New<D*>* varType_;
     buildByToken<StructureEnv_New*>* bStr_;
     buildByToken<std::string>* bId_;
@@ -3489,8 +3525,11 @@ namespace Markov_IO_New {
     virtual void reset_Type(const Implements_Command_Type_New* cmdty);
 
 
+    const StructureEnv_New* parent() const override {return p_;}
 
-  private:
+    private:
+      const StructureEnv_New* p_;
+
     DFA mystate;
     const Implements_Command_Type_New* cmdty_;
     Implements_Command_Arguments* cmdArg_;
@@ -3625,8 +3664,11 @@ namespace Markov_IO_New {
 
 
 
+    const StructureEnv_New* parent() const override {return p_;}
 
-  private:
+    private:
+      const StructureEnv_New* p_;
+
     DFA mystate;
     buildByToken<Implements_Var>*   v_;
     buildByToken<std::string>* idCmd_;

@@ -15,12 +15,17 @@ namespace Markov_IO_New {
   class ABC_Type_of_Function;
 
   class ABC_Type_of_Method;
+  class ABC_Function_Overload;
+  class ABC_Type_of_Method;
+
+  template <typename R>
+  class ABC_Type_of_R_Closure;
 
   template<typename R>
   class ABC_R_Closure;
 
-  template<typename R>
-  class ABC_R_function;
+  template<typename R>   class ABC_R_function;
+  template <typename R>   class ABC_Function_R_Overload;
 
   namespace _private
   {

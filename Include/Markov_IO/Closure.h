@@ -197,7 +197,7 @@ namespace Markov_IO_New {
                             ,std::string* error,
                             const std::string& masterObjective)const
       {
-        return closureType(cm)->putClosure(cm,this,ostream,error,masterObjective);
+        return closureType(cm)->putClosureValue(cm,this,ostream,error,masterObjective);
       }
 
 
@@ -308,7 +308,7 @@ namespace Markov_IO_New {
                                 ,std::string* error,
                                 const std::string& masterObjective)const
           {
-            return closureType(cm)->putClosure(cm,this,ostream,error,masterObjective);
+            return closureType(cm)->putClosureValue(cm,this,ostream,error,masterObjective);
           }
         protected:
           std::unique_ptr<Implements_Closure_Type<T,int>> clType_;

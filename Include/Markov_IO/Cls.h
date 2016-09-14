@@ -73,6 +73,25 @@ namespace Markov_IO_New {
 
 
 
+   template <typename... Ts, std::size_t...Is>
+   std::tuple<std::unique_ptr<Ts>...>
+   move_tuple_imp( std::tuple<std::unique_ptr<Ts>...>&& other, std::index_sequence<Is...>)
+   {
+      return  std::tuple<std::unique_ptr<Ts>...>(std::get<Is>(other).release()...);
+   }
+
+
+
+
+   template <typename... Ts>
+   std::tuple<std::unique_ptr<Ts>...>
+   move_tuple(std::tuple<std::unique_ptr<Ts>...>&& other)
+   {
+      return move_tuple_imp(other,std::index_sequence_for<Ts...>());
+   }
+
+
+
 
  namespace Num
 {
