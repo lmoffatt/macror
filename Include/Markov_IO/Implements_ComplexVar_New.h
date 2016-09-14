@@ -1042,6 +1042,10 @@ namespace Markov_IO_New {
 
     const std::vector<const Implements_Identifier*>&
     getAllTypes()const {return v_;}
+    
+    Identifier_Union(std::vector<const Implements_Identifier*>&& v):v_(v){}
+    
+    void push_Identifier(Implements_Identifier* i){v_.push_back(i);}
   protected:
    std::vector<const Implements_Identifier*> v_;
   };
