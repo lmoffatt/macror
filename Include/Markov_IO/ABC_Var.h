@@ -918,7 +918,7 @@ namespace  Markov_IO {
         return true;
     }
 
-    
+
 
     // ABC_Value interface
   public:

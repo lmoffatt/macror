@@ -75,10 +75,6 @@ namespace  Markov_Console {
     virtual CommandHistory& getH(){return *h;}
 
 
-    virtual std::string check(const ExpressionManager& e);
-
-    virtual  std::vector<std::string> complete(const ExpressionManager& e);
-
 
 
 

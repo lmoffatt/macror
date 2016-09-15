@@ -200,7 +200,6 @@ class Markov_CommandManagerVar;
 
 
   private:
-    Markov_IO::build_Statement  bu_;
     Markov_IO::Token_New tok_;
     Markov_IO::Key previous_key={};
     std::string rejectedChars_;
