@@ -786,14 +786,22 @@ namespace Markov_IO_New {
                         const Implements_Closure_Type<void*> *varType);
 
 
+
+
     buildClosureByToken()=default;
 
     void clear()override
     {}
 
-    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
+    {
 
-    virtual Token_New popBackToken() override;
+    }
+
+    virtual Token_New popBackToken() override
+    {
+
+    }
 
 
 
@@ -1339,10 +1347,22 @@ namespace Markov_IO_New {
     }
 
 
-    ~buildClosureByToken();
+    ~buildClosureByToken(){}
 
     buildClosureByToken(const StructureEnv_New* parent,
-                        const Implements_Closure_Type<R,void*> *varType);
+                        const Implements_Closure_Type<R,void*> *varType)
+      :
+        p_(parent)
+        ,mystate(S_Init)
+        ,resultType_(varType->myResultType(parent))
+        ,fnType_(varType)
+        ,idtype_(varType->myFunctionIdentifier(parent))
+        ,idB_(varType->myFunctionIdentifier(parent)->getBuildByToken(parent))
+        ,idString_()
+        ,rfnType_()
+        ,oUB_(varType->getOverloadsTypes(parent)->getBuildClosureByToken(parent))
+        ,data_(){}
+
 
 
     buildClosureByToken()=default;
@@ -1350,9 +1370,10 @@ namespace Markov_IO_New {
     void clear()override
     {}
 
-    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override{}
 
-    virtual Token_New popBackToken() override;
+    virtual Token_New popBackToken() override{}
+
 
 
 
@@ -1382,7 +1403,6 @@ namespace Markov_IO_New {
     std::unique_ptr<buildByToken<std::string>> idB_;
     std::string idString_;
     const Implements_Closure_Type<R,void*> * rfnType_;
-
     std::unique_ptr<BuildClosure_Union<ABC_Function_R_Overload<R>>> oUB_;
     std::unique_ptr<ABC_R_Closure<R>> data_;
 

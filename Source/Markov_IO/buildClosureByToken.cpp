@@ -136,6 +136,18 @@ inline
 
   Markov_IO_New::buildClosureByToken<void *>::~buildClosureByToken(){}
 
+  Markov_IO_New::buildClosureByToken<void *>::buildClosureByToken(const StructureEnv_New *parent, const Implements_Closure_Type<void *> *varType)
+    :
+      p_(parent)
+    ,mystate(S_Init)
+    ,fnType_(varType)
+    ,idtype_(varType->myFunctionIdentifier(parent))
+    ,idB_(varType->myFunctionIdentifier(parent)->getBuildByToken(parent))
+    ,idString_()
+    ,rfnType_()
+    ,oUB_(varType->getOverloadsTypes(parent)->getBuildClosureByToken(parent))
+    ,data_(){}
+
 
 
 

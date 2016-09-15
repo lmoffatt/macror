@@ -264,7 +264,13 @@ namespace Markov_IO_New {
     
     template <typename T>
     Implements_Value_New<T>*
-    idToValued (const std::string &, const std::string &, std::string * = nullptr, const std::string & ="" );
+    idToValued (const std::string& name
+                , const std::string & typeName
+                ,std::string* whyNot=nullptr, const std::string& masterObjective="")
+    {
+      return dynamic_cast<Implements_Value_New<T>*>(idToValue(name,typeName,whyNot,masterObjective));
+    }
+
     
     
     const_Implements_Var idToVar

@@ -19,5 +19,35 @@ namespace Markov_IO_New
   }
 
 
+  template<typename R>
+  const Implements_Closure_Type<R,void *> *StructureEnv_New::idTo_R_Func(const std::__cxx11::string &name,const std::string &typeName,std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+{
+    const std::string objective=masterObjective+": "+name+" is not a type";
+    auto it=R_funcs_.find(typeName);
+    if (it!=R_funcs_.end())
+      {
+        auto it2= it->second.find(name);
+        if (it2!=it->second.end())
+          return dynamic_cast<const Implements_Closure_Type<R,void *> *>(it2->second);
+        else
+          {
+            if (whyNot!=nullptr)
+              *whyNot=objective;
+            return nullptr;
+          }
+      }
+    else
+      {
+        if (whyNot!=nullptr)
+          *whyNot=objective;
+        return nullptr;
+      }
+
+  }
+
+
+
+
+
 }
 #endif // STRUCTUREENV_TEMPL_H

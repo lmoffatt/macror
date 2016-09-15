@@ -1504,7 +1504,10 @@ namespace Markov_IO_New {
 
 
 
-      Implements_Closure_Type_R_function(const Implements_Closure_Type_R_function& other);
+      Implements_Closure_Type_R_function(const Implements_Closure_Type_R_function& other):
+        R_Funct_Identifier_(other.R_Funct_Identifier_),resultType_(other.resultType_)
+        ,functionType_(other.functionType_),overloadTypes_(other.overloadTypes_->clone()){}
+
 
 
       Implements_Closure_Type_R_function( Implements_Closure_Type_R_function&& other)=default;
