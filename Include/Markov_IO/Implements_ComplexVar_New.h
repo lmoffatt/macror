@@ -101,7 +101,7 @@ namespace Markov_IO_New {
   class ABC_Type_of_Value //: public ABC_Data_New
   {
   public:
-
+    typedef ABC_BuildByToken myBuild;
     virtual bool empty()const =0;
 
     virtual void reset()=0;
@@ -160,7 +160,10 @@ namespace Markov_IO_New {
     virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
                                       const StructureEnv_New* cvar,
                                       std::string* whyNot,
-                                      const std::string& masterObjective)const=0;
+                                      const std::string& masterObjective)const
+    {
+      return nullptr;
+    }
 
 
 
@@ -185,7 +188,8 @@ namespace Markov_IO_New {
 
 
 
-  class Type_Union : public ABC_Type_of_Value
+  template <class myType_of_Value>
+  class Type_Union : public myType_of_Value
   {
   public:
 
@@ -197,7 +201,7 @@ namespace Markov_IO_New {
     virtual Type_Union* create()const {return new Type_Union();}
 
 
-    virtual ABC_Type_of_Value const* myType()const{return nullptr;}
+    virtual myType_of_Value const* myType()const{return nullptr;}
 
     virtual std::string myTypeId()const
     {
@@ -215,7 +219,7 @@ namespace Markov_IO_New {
                               std::string* whyNot
                               ,const std::string &masterObjective)const
     {
-      for (const ABC_Type_of_Value* e:s_)
+      for (const myType_of_Value* e:s_)
         {
           if (!e->isOfThisType(cm,generalType,whyNot,masterObjective))
             return false;
@@ -226,14 +230,14 @@ namespace Markov_IO_New {
 
 
 
-    Type_Union()=default;
+    Type_Union(){}
     Type_Union(const Type_Union&)=default;
     Type_Union(Type_Union&&)=default;
     Type_Union& operator=(const Type_Union&)=default;
     Type_Union& operator=(Type_Union&&)=default;
 
 
-    Type_Union(std::vector<const ABC_Type_of_Value*> v):s_(v){}
+    Type_Union(std::vector<const myType_of_Value*> v):s_(v){}
     virtual ~Type_Union(){}
     virtual bool putData(const StructureEnv_New* cm
                          ,const ABC_Data_New* v
@@ -252,7 +256,7 @@ namespace Markov_IO_New {
                          ,std::string* error
                          , const std::string& masterObjective)const
     {
-      for (const ABC_Type_of_Value* t:s_)
+      for (const myType_of_Value* t:s_)
         {
           if (t->getData(cm,v,istream,error,masterObjective))
             return true;
@@ -260,12 +264,12 @@ namespace Markov_IO_New {
       return false;
     }
 
-    typedef BuildByToken_Union myBuild;
+    typedef  BuildByToken_Union<myType_of_Value> myBuild;
 
-    virtual BuildByToken_Union* getBuildByToken(
+    virtual myBuild* getBuildByToken(
         const StructureEnv_New* cm)const
     {
-      return new BuildByToken_Union(cm,this);
+      return new myBuild(cm,this);
     }
 
 
@@ -274,7 +278,7 @@ namespace Markov_IO_New {
                                 , std::string *whyNot
                                 , const std::string& masterObjective)const
     {
-      for (const ABC_Type_of_Value* t:s_)
+      for (const myType_of_Value* t:s_)
         {
           if (t->isDataInDomain(cm,v,whyNot,masterObjective))
             return true;
@@ -288,7 +292,7 @@ namespace Markov_IO_New {
                                   ,std::string *whyNot=nullptr
                                   , const std::string &masterObjective="")const
     {
-      for (const ABC_Type_of_Value* t:s_)
+      for (const myType_of_Value* t:s_)
         {
           if (t->includesThisType(cm,childType,whyNot,masterObjective))
             return true;
@@ -306,20 +310,13 @@ namespace Markov_IO_New {
       return nullptr;
     }
 
-    virtual ABC_Data_New* getClassRep(const StructureEnv_New* cm,
-                                      const StructureEnv_New* cvar,
-                                      std::string* whyNot,
-                                      const std::string& masterObjective)const
-    {
-      return nullptr;
-    }
 
 
 
     virtual std::string typeId()const
     {
       std::string out;
-      for (const ABC_Type_of_Value* t:s_)
+      for (const myType_of_Value* t:s_)
         {
           out+=t->typeId()+"_";
         }
@@ -329,13 +326,13 @@ namespace Markov_IO_New {
     virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const {return nullptr;}
     virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const {return nullptr;}
 
-   const std::vector<const ABC_Type_of_Value*>&
+   const std::vector<const myType_of_Value*>&
      getAllTypes()const
    {
      return s_;
    }
 
-   void push_Type(const ABC_Type_of_Value* t)
+   void push_Type(const myType_of_Value* t)
    {
      if (names_.find(t->typeId())==names_.end())
        {
@@ -346,13 +343,17 @@ namespace Markov_IO_New {
 
   private:
     std::set<std::string> names_;
-    std::vector<const ABC_Type_of_Value*> s_;
+    std::vector<const myType_of_Value*> s_;
   };
 
-  inline std::vector<ABC_BuildByToken*>
-  getBuildByTokenVector(const StructureEnv_New* cm,const Type_Union* t)
+
+
+
+  template <typename myType_of_Value>
+  inline std::vector<typename myType_of_Value::myBuild*>
+  getBuildByTokenVector(const StructureEnv_New* cm,const Type_Union<myType_of_Value>* t)
   {
-      std::vector<ABC_BuildByToken*> out(t->getAllTypes().size());
+      std::vector<typename myType_of_Value::myBuild*> out(t->getAllTypes().size());
      for (std::size_t i=0; i<t->getAllTypes().size(); ++i)
        out[i]=t->getAllTypes()[i]->getBuildByToken(cm);
      return out;
@@ -1537,6 +1538,8 @@ namespace Markov_IO_New {
 
 
       virtual ~Implements_Data_Type_New_vector(){}
+
+      Implements_Data_Type_New_vector(){}
 
       Implements_Data_Type_New_vector
       (const std::string& id, selfType const * typeType,
@@ -2779,7 +2782,7 @@ namespace Markov_IO_New {
         getNumCols_(getNumCols),getNumRows_(getNumRows),
         areColsFixed_(areColsFixed),areRowsFixed_(areRowsFixed){}
 
-
+Implements_Data_Type_New_M_Matrix(){}
 
 
 
@@ -3626,6 +3629,7 @@ namespace Markov_IO_New {
         return nullptr;
       }
 
+      Implements_Data_Type_New_ABC_Data_New(){}
 
 
     private:
@@ -5675,6 +5679,7 @@ typedef buildByToken<myC> myBuild;
 
       virtual ~Implements_Data_Type_class(){}
 
+      Implements_Data_Type_class(){}
       Implements_Data_Type_class(const std::string& idType, selfType* const typeType,
                                  const std::vector<std::pair<Implements_Var,bool>> fields={}
           ,getCV getmyCV=nullptr

@@ -69,14 +69,7 @@ namespace Markov_IO_New {
 
 
 
-  template<typename R>
-  class ABC_R_function: public ABC_R_Closure<R>
-  {
-  public:
-    virtual ~ABC_R_function()
-    {
-    }
-  };
+
 
 
 

@@ -13,6 +13,27 @@
 
 namespace Markov_IO_New {
 
+      struct general_ {};
+      struct special_ : general_ {};
+      template<typename> struct int_ { typedef int type; };
+
+
+  /*
+   *
+   *
+   * template<typename Lhs, typename Rhs,
+             typename int_<decltype(Lhs::normal)>::type = 0>
+    void modifyNormal(Lhs &&lhs, Rhs &&rhs, special_) {
+       lhs.normal = rhs * lhs.normal;
+    }
+
+    template<typename Lhs, typename Rhs>
+    void modifyNormal(Lhs &&lhs, Rhs &&rhs, general_) {
+       // do nothing
+    }
+   *
+   */
+
    inline
    std::set<std::string>& operator+=(std::set<std::string>& one, std::set<std::string> two)
   {

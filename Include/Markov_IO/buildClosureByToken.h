@@ -42,6 +42,13 @@ namespace Markov_IO_New {
 
   };
 
+  template <typename R>
+  class ABC_BuildClosure_R : public ABC_BuildClosure
+  {
+  public:
+  virtual ~ABC_BuildClosure_R(){}
+  ABC_R_Closure<R>* unloadClosure()=0;
+  };
 
   template <class myClosure> class ClosureType_Union;
 
@@ -55,6 +62,7 @@ namespace Markov_IO_New {
   class BuildClosure_Union: public  myClosure::buildClosure
   {
   public:
+    typedef typename myClosure::returnedClosure  myReturn_Closure;
 
     typedef typename myClosure::buildClosure  baseBuild;
     virtual ~BuildClosure_Union(){}
@@ -155,7 +163,7 @@ namespace Markov_IO_New {
     }
 
 
-    ABC_Closure* unloadClosure() override
+    myReturn_Closure* unloadClosure() override
     {
       for (std::size_t i=0; i<vecValue.size(); ++i)
         {
@@ -210,7 +218,7 @@ namespace Markov_IO_New {
 
   template<typename... Args>
   class buildClosureByToken<std::tuple<Args...>>
-      :public ABC_BuildClosure
+      :public ABC_BuildClosure_R<std::tuple<Args...>>
 
   {
   public:
@@ -1031,7 +1039,7 @@ namespace Markov_IO_New {
 
   template<typename R>
   class buildClosureByToken<R>
-      :public ABC_BuildClosure
+      :public ABC_BuildClosure_R<R>
   {
   public:
 
@@ -1248,10 +1256,12 @@ namespace Markov_IO_New {
 
   template<typename R>
   class buildClosureByToken<R, void* >
-      :public ABC_BuildClosure
+      :public ABC_BuildClosure_R<R>
 
   {
   public:
+
+    typedef ABC_R_Closure<R> myC;
 
     enum DFA {
       S_Init, S_Identifier_Final, S_Closure_PARTIAL, S_Final
@@ -1332,7 +1342,7 @@ namespace Markov_IO_New {
     ~buildClosureByToken();
 
     buildClosureByToken(const StructureEnv_New* parent,
-                        const Implements_Closure_Type<void*> *varType);
+                        const Implements_Closure_Type<R,void*> *varType);
 
 
     buildClosureByToken()=default;
@@ -1346,11 +1356,11 @@ namespace Markov_IO_New {
 
 
 
-    virtual ABC_Closure* unloadClosure() override
+    virtual myC* unloadClosure() override
     {
       if (isFinal())
         {
-          ABC_Closure* out=data_.release();
+          ABC_R_Closure<R>* out=data_.release();
           mystate=S_Init;
           return out;
         }
@@ -1384,7 +1394,7 @@ namespace Markov_IO_New {
 
   template<typename R>
   class buildClosureByToken<R,std::string>
-      :public ABC_BuildClosure
+      :public ABC_BuildClosure_R<R>
 
   {
   public:
@@ -1487,7 +1497,7 @@ namespace Markov_IO_New {
 
   template<typename R>
   class buildClosureByToken<R,int >
-      :public ABC_BuildClosure
+      :public ABC_BuildClosure_R<R>
 
   {
   public:
@@ -1594,7 +1604,7 @@ namespace Markov_IO_New {
 
   template<typename R, typename Fn,typename...Args>
   class buildClosureByToken<R,void,Fn,Args...>
-      :public ABC_BuildClosure
+      :public ABC_BuildClosure_R<R>
   {
   public:
 

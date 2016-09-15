@@ -7,7 +7,7 @@ namespace Markov_IO_New
   namespace _private
   {
 
-    const Type_Union *Implements_Closure_Type_Function::myResultType(const StructureEnv_New *cm) const
+    const Type_Union<typename Implements_Closure_Type_Function::myType_of_Value> *Implements_Closure_Type_Function::myResultType(const StructureEnv_New *cm) const
     {
       return overloadTypes_->myResultType(cm);
     }

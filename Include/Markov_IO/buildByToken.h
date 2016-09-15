@@ -92,17 +92,19 @@ namespace Markov_IO_New {
   };
 
 
-  class Type_Union;
+  template<class myType> class Type_Union;
 
 
 
-  std::vector<ABC_BuildByToken*>
-  getBuildByTokenVector(const StructureEnv_New *cm, const Type_Union* t);
+  template <class myTypeOfValue>
+  std::vector<typename myTypeOfValue::myBuild*>
+  getBuildByTokenVector(const StructureEnv_New *cm, const Type_Union<myTypeOfValue>* t);
 
-  class BuildByToken_Union: public ABC_BuildByToken
+  template<class myType_of_Value>
+  class BuildByToken_Union: public myType_of_Value::myBuild
   {
   public:
-
+    typedef typename myType_of_Value::myBuild   closBuild;
 
     virtual bool pushToken(Token_New tok
                            , std::string* whyNot
@@ -219,7 +221,7 @@ namespace Markov_IO_New {
       return false;
     }
     BuildByToken_Union(const StructureEnv_New* cm,
-                       const Type_Union* t)
+                       const Type_Union<myType_of_Value>* t)
       :p_(cm),
         uType_(t),vecValue(getBuildByTokenVector(cm,t)),nPushedTokensIn(),nPushedTokens(0){
       nPushedTokensIn=std::vector<std::size_t>(vecValue.size(),0);
@@ -229,8 +231,8 @@ namespace Markov_IO_New {
 
   private:
     const StructureEnv_New* p_;
-    const Type_Union* uType_;
-    std::vector<ABC_BuildByToken*> vecValue;
+    const Type_Union<myType_of_Value>* uType_;
+    std::vector<closBuild*> vecValue;
     std::vector<std::size_t> nPushedTokensIn;
     std::size_t nPushedTokens;
   };
@@ -350,7 +352,7 @@ namespace Markov_IO_New {
       else return false;
     }
     
-    
+
     virtual ~buildByToken(){}
     const StructureEnv_New* parent() const override {return p_;}
 
@@ -814,6 +816,7 @@ namespace Markov_IO_New {
         }
       else return false;
     }
+    buildByToken(){}
 
 
     virtual ~buildByToken(){}
@@ -904,6 +907,7 @@ namespace Markov_IO_New {
     {}
 
 
+     buildByToken(){}
     ~buildByToken(){
     }
 
@@ -1223,6 +1227,7 @@ namespace Markov_IO_New {
     }
 
 
+    buildByToken(){}
 
     ~buildByToken(){
     }
@@ -1446,7 +1451,7 @@ namespace Markov_IO_New {
     buildByToken(const StructureEnv_New* parent,
                  const _private::Implements_Data_Type_New_M_Matrix<T>* typeVar);
 
-
+    buildByToken(){}
 
     virtual ~buildByToken(){
     }
@@ -1810,6 +1815,7 @@ namespace Markov_IO_New {
       valueBuild_(typeVar->getElementDataType(parent)->getBuildByToken(parent)){}
 
 
+    buildByToken(){}
 
     ~buildByToken(){
     }
@@ -2072,6 +2078,7 @@ namespace Markov_IO_New {
     {}
 
 
+    buildByToken(){}
 
     ~buildByToken(){
     }
@@ -2325,6 +2332,7 @@ namespace Markov_IO_New {
 
     }
 
+    buildByToken(){}
 
     ~buildByToken(){}
 
@@ -2425,6 +2433,7 @@ namespace Markov_IO_New {
 
     }
 
+    buildByToken(){}
 
     ~buildByToken(){}
 
@@ -2597,6 +2606,7 @@ namespace Markov_IO_New {
 
     buildByToken(const StructureEnv_New* parent);
 
+    buildByToken(){}
 
     ~buildByToken(){
     }
@@ -2673,6 +2683,7 @@ namespace Markov_IO_New {
     {
       return empty_;
     }
+    buildByToken(){}
 
     virtual ~buildByToken(){}
 
@@ -2907,6 +2918,7 @@ namespace Markov_IO_New {
       else return false;
     }
 
+    buildByToken(){}
 
     virtual ~buildByToken(){}
     const StructureEnv_New* parent() const override {return p_;}
@@ -2944,6 +2956,7 @@ namespace Markov_IO_New {
 
     }
 
+    buildByToken(){}
 
     T* unloadVar()
     {
@@ -3199,7 +3212,7 @@ namespace Markov_IO_New {
     {
 
     }
-
+buildByTokenD(){}
 
     D* unloadVar()
     {
@@ -3450,6 +3463,8 @@ namespace Markov_IO_New {
   public:
     using
     buildByToken<StructureEnv_New*>::buildByToken;
+    buildByToken(){}
+
     ~buildByToken(){}
   };
 
