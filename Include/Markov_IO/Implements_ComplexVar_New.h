@@ -686,15 +686,9 @@ namespace Markov_IO_New {
 
 
       Implements_Data_Type_New_string(const std::string id,
-                                      selfType const* typeType,
-                                      typePredicate complyPred=nullptr
-          ,getSet alterNext=nullptr):
-        id_(id),
-        typeType_(typeType),
-        comply_(complyPred),
-        alternativeNext_(alterNext)
-
-      {}
+                                      selfType const* typeType
+                                      ,bool isIdentifier=false,typePredicate complyPred=nullptr
+          ,getSet alterNext=nullptr);
       Implements_Data_Type_New_string(const Implements_Data_Type_New_string& other)=default;
 
       Implements_Data_Type_New_string( Implements_Data_Type_New_string&& other)=default;
@@ -742,11 +736,11 @@ namespace Markov_IO_New {
 
       virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
       {
-        return nullptr;
+        return varIdType_;
       }
       virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
       {
-        return nullptr;
+        return typeIdType_;
       }
 
 
@@ -755,6 +749,8 @@ namespace Markov_IO_New {
 
     protected:
       std::string id_;
+      const Implements_Identifier* varIdType_;
+      const Implements_Identifier* typeIdType_;
       selfType const * typeType_;
       typePredicate comply_;
       getSet alternativeNext_;
@@ -865,7 +861,7 @@ namespace Markov_IO_New {
      bool isFixed,bool isVar, bool isType,
      bool isCommand,bool isNew, bool isUsed, bool isFunction=false):
       Implements_Data_Type_New_string
-      (nameId,typeType),
+      ("", nullptr,true),
       typeId_(nameId),typeType_(typeType),
       name_(name),isFixed_(isFixed)
     , isVar_(isVar), isType_(isType),isCommand_(isCommand)
@@ -1242,9 +1238,9 @@ namespace Markov_IO_New {
 
 
         static Implements_Identifier*
-        varType(const std::string& funName="")
+        varType(const std::string& resultName="")
         {
-          return getVarType<selfType>(funName);
+          return getVarType<selfType>(resultName);
         }
 
 
@@ -7162,7 +7158,9 @@ typedef buildByToken<myC> myBuild;
       virtual ~Implements_Data_Type_singleton(){}
 
 
-      Implements_Data_Type_singleton(){}
+      Implements_Data_Type_singleton()
+        :varIdType_(new Implements_Identifier),typeIdType_(new Implements_Identifier)
+      {}
 
       virtual bool empty()const override
       {
@@ -7228,14 +7226,20 @@ typedef buildByToken<myC> myBuild;
 
       virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
       {
-        return nullptr;
+        return varIdType_;
       }
       virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
       {
-        return nullptr;
+        return typeIdType_;
       }
 
 
+
+
+
+    protected:
+      const Implements_Identifier* varIdType_;
+      const Implements_Identifier* typeIdType_;
 
 
     };

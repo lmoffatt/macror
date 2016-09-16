@@ -1497,11 +1497,13 @@ namespace Markov_IO_New {
              std::unique_ptr<ClosureType_Union<ABC_Function_R_Overload<R>>> overloadTypes)
                 :
                   R_Funct_Identifier_(R_Funct_Identifier),resultType_(resultType)
-                ,functionType_(functionType),overloadTypes_(overloadTypes){}
+                ,functionType_(functionType),overloadTypes_(overloadTypes.release()){}
 
             Implements_Closure_Type_R_function
             (const Implements_Data_Type_New<R>* resultType)
-                : Implements_Closure_Type_R_function(){}
+                : Implements_Closure_Type_R_function(
+                    Identifier::types::idFunct::varType(resultType->typeId()),
+                    resultType,nullptr,nullptr){}
 
 
 

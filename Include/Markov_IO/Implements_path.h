@@ -52,14 +52,14 @@ namespace Markov_IO_New {
         varType(const StructureEnv_New* cm)
         {
           return new Implements_Data_Type_New<myC>
-              (myId(),nullptr,&comply
+              (myId(),nullptr,false,&comply
                ,&alternativeNext);
         }
         static Implements_Data_Type_New<myC>*
         varType(const StructureEnv_New* cm, const std::string& ext)
         {
          auto out= new Implements_Data_Type_New<myC>
-              (myId(),nullptr,&comply
+              (myId(),nullptr,false,&comply
                ,&alternativeNext);
          out->getEnv()->pushVar<fields::extension_field>(ext);
          return out;

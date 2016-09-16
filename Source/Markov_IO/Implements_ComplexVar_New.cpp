@@ -205,6 +205,16 @@ namespace Markov_IO_New {
                    ,Cls<void>::name(),"a regular "+Cls<void>::name());
     }
 
+    Implements_Data_Type_New_string::Implements_Data_Type_New_string(const std::__cxx11::string id, const Implements_Data_Type_New_string::selfType *typeType,bool isIdentifier, Implements_Data_Type_New_string::typePredicate complyPred, Implements_Data_Type_New_string::getSet alterNext):
+      id_(id),
+      varIdType_(isIdentifier?nullptr:Identifier::types::idVarUsed::varType(id)),
+      typeIdType_(isIdentifier?nullptr:Identifier::types::idType::varType(id)),
+      typeType_(typeType),
+      comply_(complyPred),
+      alternativeNext_(alterNext)
+
+    {}
+
 
 
 
