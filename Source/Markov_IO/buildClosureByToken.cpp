@@ -145,7 +145,7 @@ inline
     ,idB_(varType->myFunctionIdentifier(parent)->getBuildByToken(parent))
     ,idString_()
     ,rfnType_()
-    ,oUB_(varType->getOverloadsTypes(parent)->getBuildClosureByToken(parent))
+    ,oUB_()
     ,data_(){}
 
 

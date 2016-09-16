@@ -24,7 +24,6 @@ namespace Markov_IO_New {
   template<typename R>
   class ABC_R_Closure;
 
-  template<typename R>   class ABC_R_function;
   template <typename R>   class ABC_Function_R_Overload;
 
   namespace _private
@@ -132,7 +131,7 @@ namespace Markov_IO_New {
     template<typename R>
     struct mp_ClosureType_Imp<R,void*>{
       using type=Implements_Closure_Type_R_function<R>;
-      using value=ABC_R_function<R>;
+      using value=ABC_R_Closure<R>;
     };
 
     template<typename R>

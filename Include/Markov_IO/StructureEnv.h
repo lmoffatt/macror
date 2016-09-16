@@ -212,22 +212,7 @@ namespace Markov_IO_New {
     static std::string ClassName(){return "StructureEnv_New";}
 
     // no me queda claro
-    StructureEnv_New(const StructureEnv_New& other):
-      p_(other.p_),
-      strType_(other.strType_),
-      structType_(other.structType_),
-      idUsed_(other.idUsed_),
-      idVars_(other.idVars_),
-      idTypes_(other.idTypes_),
-      idCmds_(other.idCmds_),
-      vars_(other.vars_),
-      types_(other.types_),
-      cmds_(other.cmds_),
-      funcs_(other.funcs_),
-      R_funcs_(other.R_funcs_),
-      methods_(other.methods_),
-      idTipWt_(other.idTipWt_)
-    {}
+    StructureEnv_New(const StructureEnv_New& other)=default;
 
     virtual bool empty() const override {return idUsed_.empty();}
 
@@ -723,10 +708,7 @@ namespace Markov_IO_New {
     const std::map<std::string,Implements_Command_Type_New*>& getCommands()const;
 
 
-
-    // ABC_Data_New interface
-  public:
-    virtual StructureEnv_New *clone() const override
+  virtual StructureEnv_New *clone() const override
     {
       return new StructureEnv_New(*this);
     }
@@ -770,6 +752,8 @@ namespace Markov_IO_New {
 
 
     std::set<std::string> getIdsOfFncType(const std::string &fucnType, bool recursive) const;
+
+
   private:
 
 

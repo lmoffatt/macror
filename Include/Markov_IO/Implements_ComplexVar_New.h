@@ -320,6 +320,7 @@ namespace Markov_IO_New {
         {
           out+=t->typeId()+"_";
         }
+      return out;
 
     }
 

@@ -1405,9 +1405,6 @@ namespace Markov_IO_New {
     const Implements_Closure_Type<R,void*> * rfnType_;
     std::unique_ptr<BuildClosure_Union<ABC_Function_R_Overload<R>>> oUB_;
     std::unique_ptr<ABC_R_Closure<R>> data_;
-
-
-
   };
 
 
