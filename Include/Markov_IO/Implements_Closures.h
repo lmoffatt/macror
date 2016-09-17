@@ -862,7 +862,7 @@ namespace Markov_IO_New {
             {
                 if (I<iArg)  fill_imp<D,Is...>(v,iArg,arg);
                 else
-                    fill_imp<D,Is...>(v,arg);
+                    fill_imp<D,I,Is...>(v,arg);
             }
 
 
@@ -1072,10 +1072,14 @@ namespace Markov_IO_New {
 
             const Implements_Closure_Value<std::tuple<Args...>>* getArgumentsValue()const
 
-            {return &inputTu_;}
+            {return inputTu_.get();}
 
             Implements_Closure_Value<std::tuple<Args...>>* getArgumentsValue()
-            {return &inputTu_;}
+            {return inputTu_.get();}
+
+
+            Implements_Closure_Value<std::tuple<Args...>>* unload()
+            {return inputTu_.release();}
 
 
             Fn f()
@@ -1092,7 +1096,7 @@ namespace Markov_IO_New {
             virtual void reset() override
             {
                 f_=nullptr;
-                inputTu_.reset();
+                inputTu_->reset();
             }
 
             virtual selfType* create() const override
@@ -1112,12 +1116,12 @@ namespace Markov_IO_New {
 
             Implements_Closure_Value_R_Fn_Args_Function
             (const Implements_Closure_Type_R_Fn_Args_Function<R,Fn,Args...> * idtype,
-             Implements_Closure_Value<std::tuple<Args...>> vars):
+             Implements_Closure_Value<std::tuple<Args...>>* vars):
                 fnType_(idtype),f_(idtype->f()),inputTu_(vars){}
 
 
             Implements_Closure_Value_R_Fn_Args_Function(const selfType& other):
-                fnType_(other.fnType_),f_(other.f_),inputTu_(other.inputTu_){}
+                fnType_(other.fnType_),f_(other.f_),inputTu_(other.inputTu_->clone()){}
 
 
             Implements_Closure_Value_R_Fn_Args_Function(Implements_Closure_Value_R_Fn_Args_Function&& other)=default;
@@ -1147,7 +1151,7 @@ namespace Markov_IO_New {
         protected:
             const Implements_Closure_Type_R_Fn_Args_Function<R,Fn,Args...>  * fnType_;
             Fn f_;
-            Implements_Closure_Value<std::tuple<Args...>> inputTu_;
+            std::unique_ptr<Implements_Closure_Value<std::tuple<Args...>>> inputTu_;
         };
 
 
@@ -1180,6 +1184,8 @@ namespace Markov_IO_New {
 
             argumentTuple* getArgumentsValue() {return inputTu_.get();}
 
+            Implements_Closure_Value<std::tuple<Args...>>* unload()
+            {return inputTu_.release();}
 
 
             Fn f()
@@ -1225,7 +1231,7 @@ namespace Markov_IO_New {
             virtual void reset() override
             {
                 f_=nullptr;
-                inputTu_.reset();
+                inputTu_->reset();
             }
 
             virtual selfType* create() const override

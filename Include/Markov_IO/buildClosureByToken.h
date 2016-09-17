@@ -294,7 +294,7 @@ namespace Markov_IO_New {
         {
           auto out=new Implements_Closure_Value<
               std::tuple<Args...>
-              > (varType_,std::move(xTupl_),iArg_);
+              > (varType_,xTupl_,iArg_);
           xTupl_={};
           mystate=S_Init;
           iArg_=0;
@@ -332,7 +332,12 @@ namespace Markov_IO_New {
         case S_Init:
           if (t.tok()==Token_New::LP)
             {
-              mystate=S_Header_Final;
+              if (hasMandatory_imp(parent()
+                                   ,std::index_sequence_for<Args...>()
+                                   ,iArg_,varType_->getFnArguments(parent())))
+                mystate=S_Mandatory;
+              else
+                mystate=S_Header_Final;
               return true;
             }
           else
@@ -1404,6 +1409,7 @@ namespace Markov_IO_New {
     buildClosureByToken(const StructureEnv_New* parent,
                         const Implements_Closure_Type<R, std::string>* typeVar):
       p_(parent),
+      mystate(S_Init),
       varType_(typeVar),
       xB_(typeVar->getIdentifierType(parent)->getBuildByToken(parent)),
       xC_()
@@ -1412,6 +1418,7 @@ namespace Markov_IO_New {
     }
     buildClosureByToken(const StructureEnv_New* parent):
       p_(parent),
+      mystate(S_Init),
       varType_(),
       xB_(),
       xC_()
@@ -1578,6 +1585,7 @@ namespace Markov_IO_New {
     buildClosureByToken(const StructureEnv_New* parent,
                         const Implements_Closure_Type<R, int>* typeVar):
       p_(parent),
+      mystate(S_Init),
       varType_(typeVar),
       xB_(typeVar->myResultType(parent)->getBuildByToken(parent)),
       xC_()
@@ -1748,8 +1756,6 @@ namespace Markov_IO_New {
             {
               if (tupleB_->isFinal())
                 {
-                  valueCl_.reset(new myC(fnType_,tupleB_->unloadClosure()));
-
                   mystate=S_Final;
                   return true;
                 }
@@ -1788,6 +1794,8 @@ namespace Markov_IO_New {
       if (isFinal())
         {
           mystate=S_Init;
+          valueCl_.reset(new myC(fnType_,tupleB_->unloadClosure()));
+
           Implements_Closure_Value<R,void,Fn,Args...>*out= valueCl_.release();
           tupleB_->clear();
           return out;
@@ -1799,6 +1807,8 @@ namespace Markov_IO_New {
     void unPop(Implements_Closure_Value<R,void,Fn,Args...>* var)
     {
       valueCl_.reset(var);
+      tupleB_->unPop(var->unload());
+
       mystate=S_Final;
     }
 
@@ -2045,6 +2055,8 @@ namespace Markov_IO_New {
               return true;
             }
         case S_Function_Final:
+          if (t.tok()==Token_New::EOL)
+            return true;
         case S_Expression_Final:
           return false;
         }
