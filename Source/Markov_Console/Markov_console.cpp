@@ -3,6 +3,7 @@
 #include "Markov_IO/auxiliarIO.h"
 #include "Markov_Console/Markov_Script.h"
 #include "Markov_Console/ExpressionManager.h"
+#include "Markov_IO/buildClosureByToken_Templ.h"
 
 #ifdef  __linux__
 

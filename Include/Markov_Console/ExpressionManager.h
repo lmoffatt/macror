@@ -4,6 +4,7 @@
 #include "Markov_IO/ABC_IO.h"
 #include "Markov_IO/buildByTokenTempl.h"
 #include "Markov_IO/buildClosureByToken.h"
+#include "Markov_IO/buildClosureByToken_Templ.h"
 
 namespace Markov_IO_New {
 

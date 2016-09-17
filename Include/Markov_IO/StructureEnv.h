@@ -738,7 +738,7 @@ namespace Markov_IO_New {
     template<typename R>
     const Implements_Closure_Type<R,void *> *idTo_R_Func
     (const std::__cxx11::string &name,const std::string &typeName
-     ,std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const;
+     ,std::__cxx11::string *whyNot=nullptr, const std::__cxx11::string &masterObjective="") const;
 
 
     bool hasFunction(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const;

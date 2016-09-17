@@ -3,6 +3,8 @@
 
 #include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_IO/Implements_path.h"
+#include "Markov_IO/buildClosureByToken_Templ.h"
+
 #include "Markov_IO/VarTempl.h"
 
 #include "Markov_IO/buildClosureByToken.h"

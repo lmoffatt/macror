@@ -139,6 +139,13 @@ namespace Markov_IO_New {
         return id_;
       }
 
+      std::string unload()
+      {
+        std::string out=std::move(id_);
+        id_={};
+        return std::move(out);
+
+      }
 
 
       virtual Implements_Closure_Value_Base_T_Identifier<T>* clone()const
@@ -232,7 +239,11 @@ namespace Markov_IO_New {
           }
 
 
+
+
           const returnType getData()const  {return x_;}
+
+          returnType unload(){auto out=std::move(x_); x_={}; return std::move(out);}
 
 
           virtual Implements_Closure_Value_Base_T_Constant<T>* clone()const
@@ -303,6 +314,9 @@ namespace Markov_IO_New {
           {
             return closureType(cm)->putClosureValue(cm,this,ostream,error,masterObjective);
           }
+
+
+
         protected:
           std::unique_ptr<Implements_Closure_Type<T,int>> clType_;
           T x_;

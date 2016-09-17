@@ -1348,8 +1348,6 @@ namespace Markov_IO_New {
             };
 
 
-
-
             virtual buildClosure* getBuildClosureByToken(
                     const StructureEnv_New* cm)const override
             {
@@ -1407,9 +1405,6 @@ namespace Markov_IO_New {
                                     , ABC_Input* istream
                                     ,std::string* error
                                     , const std::string& masterObjective)const override;
-
-
-
 
 
             void push_overload(const StructureEnv_New* cm,

@@ -497,7 +497,8 @@ HEADERS += \
     Include/Markov_IO/buildClosureByToken.h \
     Include/Markov_IO/Implements_Closures.h \
     Include/Markov_IO/StructureEnv_templ.h \
-    Include/Markov_IO/Implements_Closures_templ.h
+    Include/Markov_IO/Implements_Closures_templ.h \
+    Include/Markov_IO/buildClosureByToken_Templ.h
 
 SOURCES += \
     Source/Markov_Console/Autocomplete.cpp \

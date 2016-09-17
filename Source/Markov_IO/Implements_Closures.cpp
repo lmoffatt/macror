@@ -1,6 +1,7 @@
 #include "Markov_IO/Implements_Closures.h"
 #include "Markov_IO/Implements_ComplexVar_New.h"
 #include "Markov_IO/StructureEnv_templ.h"
+#include "Markov_IO/buildClosureByToken_Templ.h"
 
 namespace Markov_IO_New
 {

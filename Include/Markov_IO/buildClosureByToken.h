@@ -36,7 +36,13 @@ namespace Markov_IO_New {
 
 
     virtual ABC_Closure* unloadClosure()=0;
-    virtual bool hasMandatory()const=0;
+    virtual bool unPopClosure(ABC_Closure* cl)=0;
+
+
+    virtual bool hasMandatory()const
+    {
+      return isFinal();
+    }
 
     virtual ~ABC_BuildClosure(){}
 
@@ -46,8 +52,8 @@ namespace Markov_IO_New {
   class ABC_BuildClosure_R : public ABC_BuildClosure
   {
   public:
-  virtual ~ABC_BuildClosure_R(){}
-  ABC_R_Closure<R>* unloadClosure()=0;
+    virtual ~ABC_BuildClosure_R(){}
+    ABC_R_Closure<R>* unloadClosure()=0;
   };
 
   template <class myClosure> class ClosureType_Union;
@@ -177,6 +183,28 @@ namespace Markov_IO_New {
 
 
 
+    bool unPopClosure(ABC_Closure* cl) override
+    {
+      bool out;
+      std::size_t iOv;
+      while((!vecValue[iOv]->unPopClosure(cl)) &&(iOv < vecValue.size())) ++iOv;
+
+      if (iOv>=vecValue.size())
+        return false;
+      else
+        {
+          std::string whyNot;
+
+          std::deque<Token_New> tk;
+          while(!vecValue[iOv]->isInitial())
+            tk.push_back(vecValue[iOv]->popBackToken());
+          for (std::size_t i=tk.size(); i>0; --i)
+            pushToken(tk[i-1],&whyNot,"");
+          return true;
+        }
+    }
+
+
     virtual void clear()
     {
 
@@ -256,10 +284,6 @@ namespace Markov_IO_New {
 
 
 
-    virtual bool hasNoArguments()const
-    {
-
-    }
 
 
 
@@ -279,6 +303,23 @@ namespace Markov_IO_New {
       else return nullptr;
     }
 
+    void unPop(myC* in)
+    {
+      iArg_=in->iArg();
+      xTupl_=in->unloadTuple();
+      mystate=S_Final;
+    }
+
+    bool unPopClosure(ABC_Closure* cl)
+    {
+      auto p=dynamic_cast<myC*>(cl);
+      if (p!=nullptr)
+        {
+          unPop(p);
+          return true;
+        }
+      else return false;
+    }
 
 
 
@@ -373,13 +414,6 @@ namespace Markov_IO_New {
 
     //    }
 
-    bool unPop(myC* var)
-    {
-      iArg_=var->iArg();
-      xTupl_=var->unloadTuple();
-      mystate=S_Final;
-      return true;
-    }
 
     Token_New popBackToken() override
     {
@@ -683,7 +717,7 @@ namespace Markov_IO_New {
               Token_New out;
               if (eB->isInitial())
                 {
-                  eB->unPop(std::get<I>(x).get());
+                  eB->unPopClosure(std::get<I>(x).get());
                 }
               out=eB->popBackToken();
               if (eB->isInitial())
@@ -757,7 +791,7 @@ namespace Markov_IO_New {
   public:
 
     enum DFA {
-      S_Init, S_Identifier_Final, S_Closure_PARTIAL, S_Final
+      S_Init, S_Identifier_Partial,S_Identifier_Final, S_Closure_PARTIAL, S_Final
     } ;
 
     bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
@@ -774,10 +808,6 @@ namespace Markov_IO_New {
 
     }
 
-    virtual bool hasMandatory()const override
-    {
-      return mystate==S_Final;
-    }
 
 
     ~buildClosureByToken();
@@ -793,30 +823,15 @@ namespace Markov_IO_New {
     void clear()override
     {}
 
-    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
-    {
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
 
-    }
-
-    virtual Token_New popBackToken() override
-    {
-
-    }
+    virtual Token_New popBackToken() override;
 
 
 
-    virtual ABC_Closure* unloadClosure() override
-    {
-      if (isFinal())
-        {
-          ABC_Closure* out=data_.release();
-          mystate=S_Init;
-          return out;
-        }
-      else return nullptr;
+    virtual ABC_Closure* unloadClosure() override;
 
-
-    }
+    bool unPopClosure(ABC_Closure* cl) override;
 
 
 
@@ -1071,7 +1086,6 @@ namespace Markov_IO_New {
                 if (xB_->isFinal())
                   {
                     mystate=S_Id_Final;
-                    data_.reset(xB_->unloadClosure());
                   }
                 else
                   mystate=S_Id_Partial;
@@ -1173,12 +1187,6 @@ namespace Markov_IO_New {
 
     }
 
-    virtual bool hasMandatory()const override
-    {
-    }
-
-    virtual bool hasNoArguments()const{}
-
 
     ~buildClosureByToken(){}
 
@@ -1188,6 +1196,12 @@ namespace Markov_IO_New {
     {
       if (isFinal())
         {
+          if(mystate==S_Id_Final)
+            data_.reset(xB_->unloadClosure());
+          else if (mystate==S_Data_Final)
+            data_.reset(dataB_->unloadClosure());
+          else
+            data_.reset(fnB_->unloadClosure());
           ABC_R_Closure<R>* out;
           mystate=S_Init;
           out= data_.release();
@@ -1197,11 +1211,29 @@ namespace Markov_IO_New {
         return {};
     }
 
-    bool unPop(ABC_R_Closure<R>* var)
+    bool unPopClosure(ABC_Closure* cl)
     {
-      return false;
+      if (xB_->unPopClosure(cl))
+        {
+          mystate=S_Id_Final;
+          return true;
+        }
+      else if (dataB_->unPopClosure(cl))
+        {
+          mystate=S_Data_Final;
+          return true;
+        }
+      else if (fnB_->unPopClosure(cl))
+        {
+          mystate=S_Fn_Final;
+          return true;
+        }
+      else return false;
 
     }
+
+
+
 
     buildClosureByToken(const StructureEnv_New* parent,
                         const Implements_Closure_Type<R> *varType):
@@ -1243,10 +1275,42 @@ namespace Markov_IO_New {
 
     virtual Token_New popBackToken() override
     {
+      switch (mystate)
+        {
+        case S_Init: return {};
+        case S_Id_Final:
+        case S_Id_Partial:
+          {
+            auto out=xB_->popBackToken();
+            if (xB_->isInitial())
+              mystate=S_Init;
+            else
+              mystate=S_Id_Partial;
+            return out;
+          }
+        case S_Data_Partial:
+        case S_Data_Final:
+          {
+            auto out=dataB_->popBackToken();
+            if (dataB_->isInitial())
+              mystate=S_Init;
+            else
+              mystate=S_Data_Partial;
+            return out;
+          }
+        case S_Fn_Final:
+        case S_Fn_Partial:
+          {
+            auto out=fnB_->popBackToken();
+            if (fnB_->isInitial())
+              mystate=S_Init;
+            else
+              mystate=S_Fn_Partial;
+            return out;
+          }
 
+        }
     }
-
-
 
     const StructureEnv_New* parent() const override {return p_;}
 
@@ -1275,124 +1339,39 @@ namespace Markov_IO_New {
       S_Init, S_Identifier_Final, S_Closure_PARTIAL, S_Final
     } ;
 
-    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override
-
-    {
-      const std::string objective=masterObjective+":  rejected token "+tok.str();
-      switch (mystate)
-        {
-        case S_Init:
-          if (idB_->pushToken(tok,whyNot,objective))
-            {
-              idString_=idB_->unloadVar();
-              rfnType_=parent()->template idTo_R_Func<R>(idString_,resultType_->typeId()
-                                                         ,whyNot,objective);
-              if (rfnType_==nullptr)
-                return false;
-              else
-                {
-                  oUB_.reset
-                      (rfnType_->getOverloadsTypes(parent())->getBuildClosureByToken(parent()));
-                  if (oUB_->isFinal())
-                    {
-                      data_.reset
-                          (oUB_->unloadClosure());
-                      mystate=S_Final;
-                      return true;
-                    }
-                  else
-                    {
-                      mystate=S_Identifier_Final;
-                      return true;
-
-                    }
-                }
-            }
-        case S_Identifier_Final:
-        case S_Closure_PARTIAL:
-          if (oUB_->pushToken(tok, whyNot,objective))
-            {
-              if (oUB_->isFinal())
-                {
-                  data_.reset(oUB_->unloadClosure());
-                  mystate=S_Final;
-                  return true;
-                }
-              else
-                {
-                  mystate=S_Closure_PARTIAL;
-                  return true;
-                }
-            }
-        case S_Final:
-          return false;
-        }
-    }
+    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
 
 
-    bool isFinal()const override
-    {
-      return mystate==S_Final;
+    bool isFinal()const override;
+    bool isInitial()const override;
 
-    }
-    bool isInitial()const override
-    {
-      return mystate==S_Init;
-
-    }
-
-    virtual bool hasMandatory()const override
-    {
-      return mystate==S_Final;
-    }
+    virtual bool hasMandatory()const override;
 
 
-    ~buildClosureByToken(){}
+    ~buildClosureByToken();
 
     buildClosureByToken(const StructureEnv_New* parent,
-                        const Implements_Closure_Type<R,void*> *varType)
-      :
-        p_(parent)
-        ,mystate(S_Init)
-        ,resultType_(varType->myResultType(parent))
-        ,fnType_(varType)
-        ,idtype_(varType->myFunctionIdentifier(parent))
-        ,idB_(varType->myFunctionIdentifier(parent)->getBuildByToken(parent))
-        ,idString_()
-        ,rfnType_()
-        ,oUB_()
-        ,data_(){}
+                        const Implements_Closure_Type<R,void*> *varType);
 
 
 
     buildClosureByToken()=default;
 
-    void clear()override
-    {}
+    void clear()override;
 
-    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override{}
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override;
 
-    virtual Token_New popBackToken() override{}
-
+    virtual Token_New popBackToken() override;
 
 
 
-    virtual myC* unloadClosure() override
-    {
-      if (isFinal())
-        {
-          ABC_R_Closure<R>* out=data_.release();
-          mystate=S_Init;
-          return out;
-        }
-      else return nullptr;
 
-
-    }
+    virtual myC* unloadClosure() override;
 
 
 
-    const StructureEnv_New* parent() const override {return p_;}
+    virtual bool unPopClosure(ABC_Closure* cl);
+    const StructureEnv_New* parent() const override;
 
   private:
     const StructureEnv_New* p_;
@@ -1409,6 +1388,10 @@ namespace Markov_IO_New {
 
 
 
+
+
+
+
   template<typename R>
   class buildClosureByToken<R,std::string>
       :public ABC_BuildClosure_R<R>
@@ -1416,6 +1399,7 @@ namespace Markov_IO_New {
   {
   public:
     typedef Implements_Closure_Value<R,std::string> myC;
+    enum DFA {S_Init, S_Partial, S_Final};
 
     buildClosureByToken(const StructureEnv_New* parent,
                         const Implements_Closure_Type<R, std::string>* typeVar):
@@ -1438,25 +1422,76 @@ namespace Markov_IO_New {
 
 
 
-    myC* unloadClosure()
+    myC* unloadClosure() override
     {
-      return xC_.release();
+      if (isFinal())
+        {
+          xC_.reset(new Implements_Closure_Value<R,std::string>
+                    (varType_,xB_->unloadVar()));
+
+          auto out=xC_.release();
+          xC_.reset();
+          return out;
+        }
+      else return {};
     }
+
+    void unPop(myC* in)
+    {
+      xC_.reset(in);
+      xB_->unPop(xC_->unload());
+      mystate= S_Final;
+    }
+    bool unPopClosure(ABC_Closure* cl)
+    {
+      auto p=dynamic_cast<myC*>(cl);
+      if (p!=nullptr)
+        {
+          unPop(p);
+          return true;
+        }
+      else return false;
+    }
+
+
 
     bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override
     {
-      bool out=xB_->pushToken(t,whyNot,masterObjective);
-      if (out && (xB_->isFinal()))
+      switch (mystate)
         {
-          xC_.reset(new Implements_Closure_Value<R,std::string>(varType_,xB_->unloadVar()));
+        case S_Init:
+        case S_Partial:
+          if (!xB_->pushToken(t,whyNot,masterObjective))
+            return false;
+          else
+            { if (xB_->isFinal())
+                {
+                  mystate=S_Final;
+                  return true;
+                }
+              else
+                {
+                  mystate=S_Partial;
+                  return true;
+                }
+            }
+        case S_Final:
+          return false;
         }
-      return out;
     }
 
     std::pair<std::string,std::set<std::string>> alternativesNext()const override
     {
-      return xB_->alternativesNext();
+      switch (mystate)
+        {
+        case S_Init:
+        case S_Partial:
+          return xB_->alternativesNext();
+        case S_Final: return{};
+        }
     }
+
+
 
 
     void clear()override
@@ -1480,29 +1515,46 @@ namespace Markov_IO_New {
 
     Token_New popBackToken() override
     {
-      return xB_->popBackToken();
+
+      switch (mystate)
+        {
+        case S_Init: return {};
+        case S_Final:
+        case S_Partial:
+          {
+            Token_New out=xB_->popBackToken();
+            if (xB_->isInitial())
+              {
+                mystate=S_Init;
+                return out;
+              }
+            else
+              {
+                mystate=S_Partial;
+                return out;
+              }
+          }
+        }
     }
 
     bool isFinal()const override
     {
-      return xB_->isFinal();
+      return mystate==S_Final;
     }
 
     bool isInitial()const override
     {
-      return xB_->isInitial();
+      return mystate==S_Init;
     }
 
 
-
-    virtual bool hasMandatory()const{}
-    virtual bool hasNoArguments()const{}
 
 
     const StructureEnv_New* parent() const override {return p_;}
 
   private:
     const StructureEnv_New* p_;
+    DFA mystate;
     const Implements_Closure_Type<R,std::string>*  varType_;
     std::unique_ptr<buildByToken<std::string>> xB_;
     std::unique_ptr<Implements_Closure_Value<R,std::string>> xC_;
@@ -1518,6 +1570,9 @@ namespace Markov_IO_New {
 
   {
   public:
+
+    enum DFA {S_Init, S_Partial, S_Final};
+
     typedef Implements_Closure_Value<R,int> myC;
 
     buildClosureByToken(const StructureEnv_New* parent,
@@ -1531,6 +1586,7 @@ namespace Markov_IO_New {
     }
     buildClosureByToken(const StructureEnv_New* parent):
       p_(parent),
+      mystate(S_Init),
       varType_(),
       xB_(),
       xC_()
@@ -1541,24 +1597,67 @@ namespace Markov_IO_New {
 
     myC* unloadClosure() override
     {
-      auto out=xC_.release();
-      xC_.reset();
-      return out;
+      if (isFinal())
+        {
+          auto out=xC_.release();
+          xC_.reset();
+          return out;
+        }
+      else return {};
     }
+
+    void unPop(myC* in)
+    {
+      xC_.reset(in);
+      mystate= S_Final;
+    }
+    bool unPopClosure(ABC_Closure* cl)
+    {
+      auto p=dynamic_cast<myC*>(cl);
+      if (p!=nullptr)
+        {
+          unPop(p);
+          return true;
+        }
+      else return false;
+    }
+
 
     bool pushToken(Token_New t, std::string* whyNot, const std::string& masterObjective)override
     {
-      bool out=xB_->pushToken(t,whyNot,masterObjective);
-      if (out && (xB_->isFinal()))
+      switch (mystate)
         {
-          xC_.reset(new Implements_Closure_Value<R,int>(varType_,xB_->unloadVar()));
+        case S_Init:
+        case S_Partial:
+          if (!xB_->pushToken(t,whyNot,masterObjective))
+            return false;
+          else
+            { if (xB_->isFinal())
+                {
+                  xC_.reset(new Implements_Closure_Value<R,int>(varType_,xB_->unloadVar()));
+                  mystate=S_Final;
+                  return true;
+                }
+              else
+                {
+                  mystate=S_Partial;
+                  return true;
+                }
+            }
+        case S_Final:
+          return false;
         }
-      return out;
     }
 
     std::pair<std::string,std::set<std::string>> alternativesNext()const override
     {
-      return xB_->alternativesNext();
+      switch (mystate)
+        {
+        case S_Init:
+        case S_Partial:
+          return xB_->alternativesNext();
+        case S_Final: return{};
+        }
     }
 
 
@@ -1568,14 +1667,6 @@ namespace Markov_IO_New {
       xC_.reset();
     }
 
-    //    virtual void reset_Type(const Implements_Closure_Type<T,int>*  var)
-    //    {
-    //      clear();
-    //      varType_=var;
-    //      xC_.reset();
-    //      xB_->reset_Type(var->getVarIdType(parent()));
-    //    }
-
 
 
     virtual ~buildClosureByToken(){}
@@ -1583,29 +1674,43 @@ namespace Markov_IO_New {
 
     Token_New popBackToken() override
     {
-      return xB_->popBackToken();
+
+      switch (mystate)
+        {
+        case S_Init: return {};
+        case S_Final:
+          xB_->unPop(xC_->unload());
+        case S_Partial:
+          {
+            Token_New out=xB_->popBackToken();
+            if (xB_->isInitial())
+              {
+                mystate=S_Init;
+                return out;
+              }
+            else
+              {
+                mystate=S_Partial;
+                return out;
+              }
+          }
+        }
     }
 
     bool isFinal()const override
     {
-      return xB_->isFinal();
+      return mystate==S_Final;
     }
 
     bool isInitial()const override
     {
-      return xB_->isInitial();
+      return mystate==S_Init;
     }
-
-
-    virtual bool hasMandatory()const{}
-    virtual bool hasNoArguments()const{}
-
-
-
     const StructureEnv_New* parent() const override {return p_;}
 
   private:
     const StructureEnv_New* p_;
+    DFA mystate;
     const Implements_Closure_Type<R,int>*  varType_;
     typedef  typename Implements_Data_Type_New<R>::myBuild myBuild;
 
@@ -1691,10 +1796,21 @@ namespace Markov_IO_New {
         return {};
     }
 
-    bool unPop(Implements_Closure_Value<R,void,Fn,Args...>* var)
+    void unPop(Implements_Closure_Value<R,void,Fn,Args...>* var)
     {
       valueCl_.reset(var);
       mystate=S_Final;
+    }
+
+    bool unPopClosure(ABC_Closure* cl)
+    {
+      auto p=dynamic_cast<Implements_Closure_Value<R,void,Fn,Args...>*>(cl);
+      if (p!=nullptr)
+        {
+          unPop(p);
+          return true;
+        }
+      else return false;
     }
 
     buildClosureByToken(const StructureEnv_New* parent,

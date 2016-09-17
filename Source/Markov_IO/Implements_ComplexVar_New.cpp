@@ -5,6 +5,7 @@
 #include "Markov_IO/Implements_Closures.h"
 #include "Markov_LA/matrixSum.h"
 #include "Markov_IO/StructureEnv_templ.h"
+#include "Markov_IO/buildClosureByToken_Templ.h"
 #include <limits>
 
 namespace Markov_IO_New {
