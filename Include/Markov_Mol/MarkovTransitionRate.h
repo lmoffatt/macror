@@ -11,7 +11,7 @@ namespace Markov_Mol_New
 {
 using Markov_LA::M_Matrix;
 
-class Markov_Transition_rate: public Markov_IO::ABC_Put
+class Markov_Transition_rate //: public Markov_IO::ABC_Put
 {
 public:
 

@@ -129,10 +129,6 @@ namespace Markov_IO_New
           return new ClosureType(getReturnType(cm),save,getArgumentTypes(cm));
         }
 
-
-
-
-
         typedef mp_list<> dependsOn;
       };
 
@@ -146,6 +142,87 @@ namespace Markov_IO_New
         auto out= new  Implements_Closure_Type<void*>
             (myId(),Identifier::types::idFunct::varType(myId()));
         out->push_overload(cm,save_cm::closureType(cm));
+        return out;
+
+
+
+      }
+
+
+
+
+
+    };
+
+
+    struct Load {
+      typedef Implements_Closure_Type<void*>  vType;
+
+      static std::string myId(){return "load";}
+      static std::string myTip(){return "load variables";}
+      static std::string myWhatThis(){return "";}
+
+      struct load_cm
+      {
+        static void load(Markov_CommandManagerVar* cm,
+                         const std::string& pathfileName);
+
+        typedef load_cm selfType;
+
+        typedef void returnType;
+        typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
+
+        typedef decltype(&load)  functionType;
+
+        typedef
+        mp_append
+        <
+        Implements_Closure_Type<returnType,void,functionType>,argTypes
+        >
+        ClosureType;
+
+
+        static const Implements_Data_Type_New<returnType>*
+        getReturnType(Markov_CommandManagerVar* cm)
+        {
+          return cm->idToTyped<returnType>(Cls<returnType>::name());
+        }
+
+
+        static Implements_Closure_Type<argTypes>*
+        getArgumentTypes(Markov_CommandManagerVar* cm)
+        {
+          return new Implements_Closure_Type<argTypes>(
+                Implements_Fn_Argument<Markov_CommandManagerVar*>
+                (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
+                Implements_Fn_Argument<std::string>(cm,
+                  "file name",
+                  "macror.txt",
+                  "filename to load the data","")
+                );
+
+        }
+
+
+        static ClosureType*
+        closureType(Markov_CommandManagerVar* cm)
+        {
+          return new ClosureType(getReturnType(cm),load,getArgumentTypes(cm));
+        }
+
+        typedef mp_list<> dependsOn;
+      };
+
+
+
+
+
+      static vType*
+      functionType(Markov_CommandManagerVar* cm)
+      {
+        auto out= new  Implements_Closure_Type<void*>
+            (myId(),Identifier::types::idFunct::varType(myId()));
+        out->push_overload(cm,load_cm::closureType(cm));
         return out;
 
 

@@ -20,9 +20,9 @@ namespace Markov_IO_New
     {
 
       cm->pushFunction<Save>();
-/*
+
       cm->pushFunction<Load>();
-      cm->pushFunction<Who>();
+/*      cm->pushFunction<Who>();
       cm->pushFunction<Exit>();
       cm->pushFunction<Simulate>();
 
@@ -42,7 +42,7 @@ namespace Markov_IO_New
     }
 
 
-/*
+
 
 
 
@@ -64,15 +64,7 @@ namespace Markov_IO_New
       //      getCommandManager()->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
     }
 
-    ABC_Type_of_Function *Load::load_cm::varType(Markov_CommandManagerVar *cm)
-    {
-
-      return new Implements_Closure_Type_R_Fn_Args_Function<
-          functionType,returnType,Markov_CommandManagerVar*,std::string>
-          (cm,&load
-           ,getReturnFnType(cm), getArgumentTypes(cm));
-    }
-
+/*
     void Who::who_cm::who(Markov_CommandManagerVar *cm, const std::__cxx11::string &typeName)
     {
       std::vector<std::string> out=cm->getIdsOfVarType(typeName,false);
