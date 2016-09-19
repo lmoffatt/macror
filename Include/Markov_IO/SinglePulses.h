@@ -5,7 +5,6 @@
 #include "Markov_IO/x_dt.h"
 
 #include "Markov_LA/Matrix.h"
-#include "Markov_IO/ClassDescription.h"
 
 namespace Markov_IO_New
 {

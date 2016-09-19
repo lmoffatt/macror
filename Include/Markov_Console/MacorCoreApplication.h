@@ -1,7 +1,6 @@
 #ifndef MACORCOREAPPLICATION
 #define MACORCOREAPPLICATION
 
-#include "Markov_IO/ABC_Var.h"
 
 #include "Markov_Console/CommandHistory.h"
 #include "Markov_CommandManager.h"

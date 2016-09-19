@@ -12,18 +12,12 @@
 #include "Markov_LA/Matrix.h"
 #include "Markov_LA/matrixIO.h"
 #include "Markov_IO/ABC_Experiment.h"
-#include "Markov_IO/Object.h"
 #include "Markov_Mol/ABC_MarkovModel.h"
 #include "Markov_Mol/ABC_Noise.h"
 #include "Markov_Mol/ABC_PatchModel.h"
-#include "Markov_Mol/PatchModelNormalDistribution.h"
 #include "Markov_IO/PulsesTrace.h"
 #include "Markov_IO/Trace.h"
-#include "Markov_IO/ParametersMoments.h"
-#include "Markov_IO/Parameters.h"
 #include "Markov_Bay/LikelihoodEvaluation.h"
-#include "Markov_Bay/SingleOptimizationResult.h"
-#include "Markov_Bay/OptimizationResult.h"
 
 
 

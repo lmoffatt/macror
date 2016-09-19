@@ -2,7 +2,7 @@
 
 #include <iomanip>
 #include <cmath>
-
+#include <limits>
 
 namespace Markov_IO_New {
   bool Token_New::isNameChar(char ch)

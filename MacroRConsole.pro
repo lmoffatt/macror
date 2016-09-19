@@ -99,12 +99,12 @@ QMAKE_LFLAGS_DEBUG += -fopenmp
 
 
 HEADERS += \
-    Include/Markov_Bay/MarkovOptim.h \
-    Include/Markov_Bay/MarkovLikelihood.h \
-    Include/Markov_Bay/MacroRStep.h \
-    Include/Markov_Bay/MacroNRStep.h \
-    Include/Markov_Bay/MacroDRStep.h \
-    Include/Markov_Bay/ABC_MarkovLikelihoodStep.h \
+#    Include/Markov_Bay/MarkovOptim.h \
+#    Include/Markov_Bay/MarkovLikelihood.h \
+#    Include/Markov_Bay/MacroRStep.h \
+#    Include/Markov_Bay/MacroNRStep.h \
+#    Include/Markov_Bay/MacroDRStep.h \
+#    Include/Markov_Bay/ABC_MarkovLikelihoodStep.h \
     Include/Markov_Console/Markov_console.h \
     Include/Markov_Console/Markov_CommandManager.h \
     Include/Markov_IO/x_step.h \
@@ -173,46 +173,44 @@ HEADERS += \
     Include/Markov_doxygen/A2_TheoryDoxy.h \
     Include/Markov_doxygen/A3_ReferenceManualDoxy.h \
     Include/Markov_doxygen/A4_DevelopersGuideDoxy.h \
-    Include/Markov_doxygen/nnsgs.h \
     Include/Markov_IO/ABC_Options.h \
     Include/Markov_Mol/PatchModel.h \
-    Include/Markov_Bay/ABC_ParametricDistributable.h \
-    Include/Markov_Bay/NormalDistributed.h \
-    Include/Markov_doxygen/ABC_DescriptibleRegular.h \
+ #   Include/Markov_Bay/ABC_ParametricDistributable.h \
+ #   Include/Markov_Bay/NormalDistributed.h \
+ #   Include/Markov_doxygen/ABC_DescriptibleRegular.h \
     Include/Markov_Mol/ABC_PatchModel.h \
     Include/Markov_IO/Experiment.h \
     Include/Markov_IO/Trace.h \
-    Include/Markov_Bay/LikelihoodEvaluation.h \
-    Include/Markov_Bay/PartialLikelihoodEvaluation.h \
-    Include/Markov_Bay/YfitLikelihoodEvaluation.h \
+#    Include/Markov_Bay/LikelihoodEvaluation.h \
+#    Include/Markov_Bay/PartialLikelihoodEvaluation.h \
+#    Include/Markov_Bay/YfitLikelihoodEvaluation.h \
     Include/Markov_Bay/LikelihoodOptions.h \
     Include/Markov_Bay/ABC_Result.h \
     Include/Markov_Console/Help_File.h \
-    Include/Markov_Bay/MarkovOptimization.h \
-    Include/Markov_Bay/OptimizationResult.h \
-    Include/Markov_Bay/MultivariateGaussian.h \
+#    Include/Markov_Bay/MarkovOptimization.h \
+#    Include/Markov_Bay/OptimizationResult.h \
+#    Include/Markov_Bay/MultivariateGaussian.h \
     Include/Markov_LA/matrixCholesky.h \
-    Include/Markov_Bay/SimpleOptimization.h \
-    Include/Markov_Bay/SingleOptimizationResult.h \
-    Include/Markov_Bay/ABC_Optimization_step.h \
-    Include/Markov_Bay/ABC_Optimization_termination.h \
-    Include/Markov_Bay/Optimization_Step_BFGS.h \
-    Include/Markov_Bay/Optimization_Termination.h \
-    Include/Markov_Bay/TerminationByThreshold.h \
-    Include/Markov_Bay/ABC_Distribution.h \
-    Include/Markov_Bay/G_Test.h \
-    Include/Markov_LA/ContinuedFraction.h \
-    Include/Markov_Bay/RandomDistribution_Test.h \
-    Include/Markov_Bay/MacroAproxStep.h \
-    Include/Markov_Bay/MacroscopicGaussianDistribution.h \
+#    Include/Markov_Bay/SimpleOptimization.h \
+#    Include/Markov_Bay/SingleOptimizationResult.h \
+#    Include/Markov_Bay/ABC_Optimization_step.h \
+#    Include/Markov_Bay/ABC_Optimization_termination.h \
+#    Include/Markov_Bay/Optimization_Step_BFGS.h \
+#    Include/Markov_Bay/Optimization_Termination.h \
+#    Include/Markov_Bay/TerminationByThreshold.h \
+#    Include/Markov_Bay/ABC_Distribution.h \
+#    Include/Markov_Bay/G_Test.h \
+#    Include/Markov_LA/ContinuedFraction.h \
+#    Include/Markov_Bay/RandomDistribution_Test.h \
+#    Include/Markov_Bay/MacroAproxStep.h \
+#    Include/Markov_Bay/MacroscopicGaussianDistribution.h \
     Include/Markov_IO/ABC_IO.h \
-    Include/Markov_IO/AverageExperiment.h \
     Include/Markov_IO/ExperimentalData.h \
     Include/Markov_Console/ImportCommand.h \
     Include/Markov_IO/ABFFile.h \
     Include/Markov_IO/ABF1_Headers.h \
     Include/Markov_IO/ABF2_Headers.h \
-    Include/Markov_Bay/OptimizationDistributionResults.h \
+ #   Include/Markov_Bay/OptimizationDistributionResults.h \
     Include/Markov_Console/CommandHistory.h
 
 
@@ -222,14 +220,13 @@ SOURCES += \
     Source/Markov_IO/buildByToken.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/auxiliarIO.cpp \
-    Source/Markov_Bay/MarkovLikelihood.cpp \
-    Source/Markov_Bay/Markov_Bay.cpp \
-    Source/Markov_Bay/MacroRStep.cpp \
-    Source/Markov_Bay/MacroNRStep.cpp \
-    Source/Markov_Bay/MacroDRStep.cpp \
-    Source/Markov_Bay/ABC_MarkovLikelihoodStep.cpp \
-    Source/Markov_Console/Markov_console.cpp \
-    Source/Markov_Console/Markov_Script.cpp \
+#    Source/Markov_Bay/MarkovLikelihood.cpp \
+#    Source/Markov_Bay/Markov_Bay.cpp \
+#    Source/Markov_Bay/MacroRStep.cpp \
+#    Source/Markov_Bay/MacroNRStep.cpp \
+#    Source/Markov_Bay/MacroDRStep.cpp \
+#    Source/Markov_Bay/ABC_MarkovLikelihoodStep.cpp \
+#    Source/Markov_Console/Markov_console.cpp \
     Source/Markov_Console/Markov_CommandManager.cpp \
     Source/Markov_IO/x_step.cpp \
     Source/Markov_IO/x_dt.cpp \
@@ -243,7 +240,6 @@ SOURCES += \
     Source/Markov_IO/ExperimentAverage.cpp \
     Source/Markov_IO/ABC_Trace.cpp \
     Source/Markov_IO/ABC_MeasureStep.cpp \
-    Source/Markov_IO/ABC_MeasurePoint.cpp \
     Source/Markov_IO/ABC_Experiment.cpp \
     Source/Markov_LA/ToleranceComparison.cpp \
     Source/Markov_LA/matrixSum.cpp \
@@ -276,55 +272,32 @@ SOURCES += \
     Source/Markov_Mol/ABC_Noise.cpp \
     Source/Markov_Mol/ABC_MarkovModel.cpp \
     Source/main_MacroConsole.cpp \
-    Source/Markov_Console/Token.cpp \
     Source/Markov_IO/ABC_Options.cpp \
     Source/Markov_Mol/ABC_PatchModel.cpp \
     Source/Markov_IO/Trace.cpp \
     Source/Markov_IO/Experiment.cpp \
-    Source/Markov_Bay/LikelihoodEvaluation.cpp \
-    Source/Markov_Bay/PartialLikelihoodEvaluation.cpp \
-    Source/Markov_Bay/YfitLikelihoodEvaluation.cpp \
-    Source/Markov_Bay/LikelihoodOptions.cpp \
-    Source/Markov_Bay/ABC_Result.cpp \
-    Source/Markov_Console/Help_File.cpp \
-    Source/Markov_Bay/ABC_ParametricDistributable.cpp \
-    Source/Markov_Bay/NormalDistributed.cpp \
+#    Source/Markov_Bay/LikelihoodEvaluation.cpp \
+#    Source/Markov_Bay/PartialLikelihoodEvaluation.cpp \
+#    Source/Markov_Bay/YfitLikelihoodEvaluation.cpp \
+ #   Source/Markov_Bay/LikelihoodOptions.cpp \
+ #   Source/Markov_Bay/ABC_Result.cpp \
+ #   Source/Markov_Bay/ABC_ParametricDistributable.cpp \
+ #   Source/Markov_Bay/NormalDistributed.cpp \
     Source/Markov_LA/matrixCholesky.cpp \
-    Source/Markov_Bay/MultivariateGaussian.cpp \
-    Source/Markov_Bay/OptimizationResult.cpp \
-    Source/Markov_Bay/SingleOptimizationResult.cpp \
-    Source/Markov_Bay/SimpleOptimization.cpp \
-    Source/Markov_Bay/Optimization_Step_BFGS.cpp \
-    Source/Markov_Bay/ABC_Optimization_step.cpp \
-    Source/Markov_Bay/ABC_Optimization_termination.cpp \
-    Source/Markov_Bay/Optimization_Termination.cpp \
-    Source/Markov_Bay/TerminationByThreshold.cpp \
-    Source/Markov_Bay/ABC_Distribution.cpp \
-    Source/Markov_Bay/G_Test.cpp \
+#    Source/Markov_Bay/MultivariateGaussian.cpp \
+#    Source/Markov_Bay/OptimizationResult.cpp \
+#    Source/Markov_Bay/SingleOptimizationResult.cpp \
+#    Source/Markov_Bay/SimpleOptimization.cpp \
+#    Source/Markov_Bay/Optimization_Step_BFGS.cpp \
+#    Source/Markov_Bay/ABC_Optimization_step.cpp \
+#    Source/Markov_Bay/ABC_Optimization_termination.cpp \
+#    Source/Markov_Bay/Optimization_Termination.cpp \
+#    Source/Markov_Bay/TerminationByThreshold.cpp \
+#    Source/Markov_Bay/ABC_Distribution.cpp \
+#    Source/Markov_Bay/G_Test.cpp \
     Source/Markov_LA/ContinuedFraction.cpp \
-    Source/Markov_Bay/MacroAproxStep.cpp \
-    Source/Markov_Bay/MacroscopicGaussianDistribution.cpp \
-    Source/Markov_Console/HelpCommand.cpp \
-    Source/Markov_Console/SimulateCommand.cpp \
-    Source/Markov_Console/LikelihoodCommand.cpp \
-    Source/Markov_Console/OptimizeCommand.cpp \
-    Source/Markov_Console/SaveCommand.cpp \
-    Source/Markov_Console/DirCommand.cpp \
-    Source/Markov_Console/CdCommand.cpp \
-    Source/Markov_Console/LoadCommand.cpp \
-    Source/Markov_Console/ExportCommand.cpp \
-    Source/Markov_Console/MkdirCommand.cpp \
-    Source/Markov_Console/ExitCommand.cpp \
-    Source/Markov_Console/EditCommand.cpp \
-    Source/Markov_Console/WhoCommand.cpp \
-    Source/Markov_Console/ClearCommand.cpp \
-    Source/Markov_Console/CreateCommand.cpp \
-    Source/Markov_Console/Markov_CommandManagerLoadCommands.cpp \
-    Source/Markov_Console/Markov_CommandManagerLoadTypes.cpp \
-    Source/Markov_Console/ShowCommand.cpp \
-    Source/Markov_Console/ModelCommand.cpp \
-    Source/Markov_IO/AverageExperiment.cpp \
-    Source/Markov_Console/Average_Command.cpp \
+#    Source/Markov_Bay/MacroAproxStep.cpp \
+#    Source/Markov_Bay/MacroscopicGaussianDistribution.cpp \
     Source/Markov_IO/ExperimentalData.cpp \
     Source/Markov_IO/ABFFile.cpp \
     Source/Markov_IO/ABF1_Headers.cpp \
@@ -428,11 +401,10 @@ HEADERS += \
     Include/Markov_IO/Implements_Closures.h \
     Include/Markov_IO/StructureEnv_templ.h \
     Include/Markov_IO/Implements_Closures_templ.h \
-    Include/Markov_IO/buildClosureByToken_Templ.h
+    Include/Markov_IO/buildClosureByToken_Templ.h \
+    Include/Markov_Bay/Distributions.h
 
 SOURCES += \
-    Source/Markov_Console/Autocomplete.cpp \
-    Source/Markov_Console/BayesianAutocomplete.cpp \
     Source/Markov_Console/ExpressionManager.cpp \
     Source/Markov_IO/Var.cpp \
     Source/Markov_IO/Implements_ComplexVar_New.cpp \

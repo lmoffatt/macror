@@ -6,7 +6,6 @@
 #include "Markov_Mol/ExperimentSimulation.h"
 #include "Markov_Mol/ABC_MarkovModel.h"
 #include "Markov_Mol/ABC_Noise.h"
-#include "Borrowed/MersenneTwister.h"
 
 #include <random>
 namespace Markov_Mol_New
@@ -71,14 +70,6 @@ public:
 
 bool operator==(const ABC_PatchModel& x,const ABC_PatchModel& y);
 
-
-bool LoadFromDescription( ABC_PatchModel*& x,
-                         const Markov_IO::ClassDescription& classDes);
-//bool LoadFromStringDescription(ABC_PatchModel*& x,
-//			 const Markov_IO::ClassDescription& classDes);
-
-
-std::istream& operator>> (std::istream& stream,ABC_PatchModel*& model);
 
 
 bool  create(ABC_PatchModel*& e,const std::string& childClass);

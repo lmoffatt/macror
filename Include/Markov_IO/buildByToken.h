@@ -7,7 +7,6 @@
 #include "Markov_IO/Token_New.h"
 #include "Markov_LA/Matrix.h"
 #include "Markov_IO/Var.h"
-#include "Markov_IO/Implements_function.h"
 
 #include <string>
 #include <set>

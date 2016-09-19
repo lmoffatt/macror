@@ -12,7 +12,7 @@
 #include "Markov_LA/Matrix.h"
 #include "Markov_LA/auxiliarMath.h"
 
-#include "Borrowed/MersenneTwister.h"
+#include <random>
 
 
 namespace Markov_IO_New
@@ -88,7 +88,7 @@ public:
 		  double fs,
 		  double exchange,
 		  double sub_step_time,
-		  Borrowed::MersenneTwister::MTRand& sto);
+		 std::mt19937_64& sto);
 
 
     Random_Pulses();

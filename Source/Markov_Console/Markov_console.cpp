@@ -1,7 +1,6 @@
 #include "Markov_Console/Markov_console.h"
 #include "Markov_Console/Help_File.h"
 #include "Markov_IO/auxiliarIO.h"
-#include "Markov_Console/Markov_Script.h"
 #include "Markov_Console/ExpressionManager.h"
 #include "Markov_IO/buildClosureByToken_Templ.h"
 

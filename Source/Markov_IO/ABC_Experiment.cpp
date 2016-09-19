@@ -185,6 +185,5 @@ ABC_Experiment_Test::~ABC_Experiment_Test()
 
 
 
-#endif //MACRO_TEST
 
 

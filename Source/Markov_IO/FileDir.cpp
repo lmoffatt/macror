@@ -99,27 +99,28 @@ namespace Markov_IO_New
 
     bool FileDir::cd(const std::string &dirname)
     {
-      std::string tmp;
-      if (dirname=="..")
-        tmp=getDirectory(DirName());
-      else tmp=DirName()+slash()+dirname;
-      if (::Markov_IO::IsDir(tmp))
-        {
-          FileDir d(tmp);
-          swap(*this,d);
-          return true;
-        }
-      else
-        if (::Markov_IO::IsDir(dirname))
-          {
-            FileDir tmp(dirname);
-            swap(*this,tmp);
-            return true;
-          }
-        else
-          {
-            return false;
-          }
+//      std::string tmp;
+//      if (dirname=="..")
+//        tmp=getDirectory(DirName());
+//      else tmp=DirName()+slash()+dirname;
+//      if (::Markov_IO_New::IsDir(tmp))
+//        {
+//          FileDir d(tmp);
+//          swap(*this,d);
+//          return true;
+//        }
+//      else
+//        if (::Markov_IO_New::IsDir(dirname))
+//          {
+//            FileDir tmp(dirname);
+//            swap(*this,tmp);
+//            return true;
+//          }
+//        else
+//          {
+//            return false;
+//          }
+      return false;
     }
 
     char FileDir::slash()

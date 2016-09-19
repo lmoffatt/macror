@@ -201,7 +201,24 @@ namespace Markov_LA
       _data[i]=data[i];
   }
   
-  
+  /**
+     Constructor with initialized values
+     @post (*this)[i]==data[i] for  0<=i< min(size(*this),data.size())
+     @post pad remaining values with zeros
+    */
+  template<typename T>
+  M_Matrix<T>::M_Matrix(std::size_t nrows_,
+                        std::size_t ncols_,
+                        T data):
+    _nrows(nrows_),
+    _ncols(ncols_),
+    _ncells(nrows_*ncols_),
+    //   _data(new T[_ncells])
+    _data(_ncells,data)
+  {
+
+  }
+
   
   
   
@@ -221,9 +238,11 @@ namespace Markov_LA
     _data(0)
   {
     M_Matrix<T> temp;
-    if (Markov_IO::ToValue<M_Matrix<T> >(s,temp))
+    if (Markov_IO_New::ToValue<M_Matrix<T> >(s,temp))
       *this=temp;
   }
+
+
   
   
   

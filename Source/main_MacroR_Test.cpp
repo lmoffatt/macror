@@ -1,12 +1,10 @@
 #include "Markov_GUI/MacrorMainWindow.h"
-#include "Markov_Console/Markov_CommandManagerTest.h"
 
 #include <QApplication>
 #include <qdebug.h>
 
 #include "Markov_IO/ABFFile.h"
 #include "Markov_IO/PulsesProgram.h"
-#include "Markov_IO/ABC_Var.h"
 #include "Markov_IO/Var.h"
 
 #include <clocale>

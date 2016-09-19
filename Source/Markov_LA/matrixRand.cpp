@@ -5,7 +5,6 @@
 
 namespace Markov_LA
 {
-    using Borrowed::MersenneTwister::seedinit;
 
     /**
     *  Custom size Random Matrix using provided Random engine
@@ -16,59 +15,32 @@ namespace Markov_LA
     template<typename T>
     M_Matrix<T>  Rand(std::size_t nrows_,
 		      std::size_t ncols_,
-		      Borrowed::MersenneTwister::MTRand& TR)
+		      std::mt19937_64& sto)
     {
-	M_Matrix<T> A(nrows_,ncols_);
+        auto rand=std::uniform_real_distribution<>(0,1);
+      M_Matrix<T> A(nrows_,ncols_);
 	for (std::size_t i=0; i<size(A); i++)
 	{
-	    A[i]=TR.rand();
+	    A[i]=rand(sto);
 	}
 	return A;
     }
 
-    /**
-    *  Custom size Random Matrix using internal Random engine initialized by a
-    seed number
-    @param seed 0, it uses seedinit() to get the seed
-    @post 0<=Rand(n,m)<=1
-
-    */
-    template<typename T>
-    M_Matrix<T>  Rand(std::size_t nrows_,std::size_t ncols_, long seed)
-    {
-	Borrowed::MersenneTwister::MTRand TR(seedinit(seed));
-	M_Matrix<T> r(nrows_,ncols_);
-	for (std::size_t i=0; i<size(r); i++)
-	    r[i]=TR.rand();
-	return r;
-    }
 
 
 
 
 
 
-    /**
-      Random Matrix with the same size as the input matrix
-     */
-    template<typename T>
-    M_Matrix<T>  Rand(M_Matrix<T> x, long seed)
-    {
-	return Rand<T>(nrows(x),ncols(x),seed);
-    }
+    template class multinomial_distribution<My_vec,std::size_t>;
 
 
+    template class multinomial_distribution<M_Matrix,std::size_t>;
 
 
     template M_Matrix<double>  Rand(std::size_t nrows_,
 				    std::size_t ncols_,
-				    Borrowed::MersenneTwister::MTRand& TR);
-
-    template
-	    M_Matrix<double>  Rand(std::size_t nrows_,std::size_t ncols_, long seed);
-
-    template
-	    M_Matrix<double>  Rand(M_Matrix<double> x, long seed);
+				    std::mt19937_64& TR);
 
 
 } // end of namespace Markov_LA

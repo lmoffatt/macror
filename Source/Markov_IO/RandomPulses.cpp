@@ -156,7 +156,7 @@ Random_Pulses* Random_Pulses::clone() const
 			      double frequency_of_sampling,
 			      double exchange_time,
 			      double sub_step_time,
-			      Borrowed::MersenneTwister::MTRand& sto):
+			      std::mt19937_64& sto):
      name_(name),
      ton_d(time_of_pulse),
      durpul_min_d(minimal_pulse_duration),
@@ -190,8 +190,9 @@ Random_Pulses* Random_Pulses::clone() const
 	 double log_dur_diff=log(durpul_max_d/durpul_min_d);
 	 double log_interval_diff=log(interval_max_d/interval_min_d);
 	 double next_ton=ton_d;
-
-	 double next_toff=next_ton+durpul_min_d*exp(sto.rand(log_dur_diff));
+	 auto rand_log_dur_diff= std::uniform_real_distribution<>(0,log_dur_diff);
+	 auto rand_log_interval_diff= std::uniform_real_distribution<>(0,log_interval_diff);
+	 double next_toff=next_ton+durpul_min_d*exp(rand_log_dur_diff(sto));
 	 if (next_toff>=tracedur_d)
 	 {
 	     std::cout<<"pulse too long for the trace duration \n";
@@ -203,28 +204,30 @@ Random_Pulses* Random_Pulses::clone() const
 	     ton_v.push_back(next_toff);
 	     xon_v.push_back(1);
 	     xon_v.push_back(0);
-	     next_ton=next_toff+interval_min_d*exp(sto.rand(log_interval_diff));
-	     next_toff=next_ton+durpul_min_d*exp(sto.rand(log_dur_diff));
+	     next_ton=next_toff+interval_min_d*exp(rand_log_interval_diff(sto));
+	     next_toff=next_ton+durpul_min_d*exp(rand_log_dur_diff(sto));
 	 }
      }
      else
      {
-	 double next_ton=ton_d;
+         auto rand_1=std::uniform_real_distribution<>(0,1);
+         double next_ton=ton_d;
 	 double next_toff=next_ton+
-		 1./(1./durpul_max_d+sto.rand(1./durpul_min_d-1./durpul_max_d));
+		 1./(1./durpul_max_d+rand_1(sto)*(1./durpul_min_d-1./durpul_max_d));
 
      while (next_toff<tracedur_d-ton_d)
 	 {
+	 auto rand_1=std::uniform_real_distribution<>(0,1);
 	     ton_v.push_back(next_ton);
 	     ton_v.push_back(next_toff);
 	     xon_v.push_back(1);
 	     xon_v.push_back(0);
 	     next_ton=next_toff+1./
 		     (1./interval_max_d+
-		      sto.rand(1./interval_min_d-1./interval_max_d)
+		      rand_1(sto)*(1./interval_min_d-1./interval_max_d)
 		      );
 	     next_toff=next_ton+
-		     1./(1./durpul_max_d+sto.rand(1./durpul_min_d-1./durpul_max_d));
+		     1./(1./durpul_max_d+rand_1(sto)*(1./durpul_min_d-1./durpul_max_d));
 	 }
      }
 

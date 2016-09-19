@@ -44,7 +44,7 @@ bool AverageExperiment::amIAbstract() const
 
 
 
- Experiment AverageExperiment::run(const Markov_IO::ABC_Experiment& x)
+ Experiment AverageExperiment::run(const Markov_IO_New::ABC_Experiment& x)
 {
      std::vector<Trace> tr;
      for (std::size_t i_trace=0; i_trace<x.num_traces();i_trace++)
@@ -103,14 +103,14 @@ bool AverageExperiment::amIAbstract() const
              ty(i,0)=ts[i];
              ty(i,1)=ys[i];
          }
-         std::string name="Avg_"+x.id()+"_"+ToString(i_trace);
+         std::string name="Avg_"+ToString(i_trace);
          double time_interval=x[x.num_measures()].dt();
-         tr.push_back(Trace(name,x.toTx(),ty,time_interval));
+         tr.push_back(Trace(x.toTx(),ty,time_interval));
 
     }
-     std::string name="Avg_"+x.id();
+     std::string name="Avg_";
 
-     Experiment result(name,tr);
+     Experiment result(tr);
      return result;
     }
 

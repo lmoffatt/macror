@@ -80,9 +80,8 @@ gaussian_noise& gaussian_noise::operator=(const gaussian_noise& other)
 */
 double gaussian_noise::sample(double dt, std::mt19937_64 &sto)const
 {
-    double s=sto.randNorm(0.0,1.0);
-	   s*= s_at_1Hz_d/sqrt(dt);
-    return s;
+  auto normal=std::normal_distribution<>(0,s_at_1Hz_d/sqrt(dt));
+    return normal(sto);
 }
 
 /**

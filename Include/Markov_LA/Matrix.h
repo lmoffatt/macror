@@ -189,7 +189,11 @@ namespace Markov_LA
 
 	M_Matrix(std::size_t nrows_,std::size_t ncols_, std::vector<T> data);
 
+	M_Matrix(std::size_t nrows_,std::size_t ncols_,T data);
+
+
 	explicit M_Matrix(const std::string& s);
+
 
 	template <typename S>
 		M_Matrix& operator=(const M_Matrix<S>& sample);

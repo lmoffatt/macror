@@ -13,7 +13,8 @@
 #include "Markov_LA/matrixExp.h"
 #include "Markov_LA/matrixRounding.h"
 #include "Markov_LA/matrixOperators.h"
-
+#include "Markov_LA/matrixAssigmentOp.h"
+#include "Markov_LA/matrixRand.h"
 //#include "Markov_LA/auxiliarRelational.h"
 
 #include "Markov_IO/auxiliarIO.h"
@@ -1370,7 +1371,10 @@ namespace Markov_Mol_New
     double ysum=0;
     for (std::size_t i=0; i<n_steps; i++)
       {
-        N_run.N()=random_P_on_N(Qddt,N_run.N(),sto);
+        auto mult=Markov_LA::multinomial_distribution<Markov_LA::M_Matrix,std::size_t>
+            (N_run.N(),Qddt.P);
+
+        N_run.N()=mult(sto);
 
         ysum+=(N_run.N()*g())[0];
         N_run.P()=N_run.P()*Qddt.P;
@@ -1409,9 +1413,13 @@ namespace Markov_Mol_New
     double ddt=xdt.dt()/n_steps;
     x_dt xddt(ddt,xdt.x());
     Markov_Transition_step Qddt=Q_dt(xddt,false,false);
+    auto mult=Markov_LA::multinomial_distribution<Markov_LA::M_Matrix,std::size_t>
+        (N_run.N,Qddt.P);
+
     for (std::size_t i=0; i<n_steps; i++)
       {
-        N_run.N=random_P_on_N(Qddt,N_run.N,sto);
+        mult.set_N(N_run.N);
+        N_run.N=mult(sto);
         double y=(N_run.N*g())[0];
         N_run.N_mean+=N_run.N;
         N_run.N_sqr+=elemMult(N_run.N,N_run.N);

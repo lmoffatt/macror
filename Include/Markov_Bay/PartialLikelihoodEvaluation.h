@@ -4,7 +4,7 @@
 
 #include "Markov_Bay/LikelihoodEvaluation.h"
 
-namespace Markov_Bay
+namespace Markov_Bay_New
 {
    class PartialLikelihoodEvaluation:
            public LikelihoodEvaluation

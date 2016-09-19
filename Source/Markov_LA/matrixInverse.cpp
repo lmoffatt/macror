@@ -117,14 +117,14 @@ Constructor
     }
     catch (SingularMatrix_error)
     {
-      std::cerr<<" singular matrix\n"<<matrix;
+      std::cerr<<" singular matrix\n";
       M_Matrix<double>
           noise=Rand(matrix)*(1e-7*norm_inf(matrix));
-      std::cerr<<" noise\n"<<noise;
+      std::cerr<<" noise\n";
 
 
       inverse=inv(matrix+noise);
-      std::cerr<<" inverse\n"<<inverse;
+      std::cerr<<" inverse\n";
     }
     return inverse;
   }

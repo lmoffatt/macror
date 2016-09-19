@@ -64,9 +64,9 @@ istream into a Matrix
 		    {
 			std::string expStr=
 				"M_Matrix; Invalid input at the "+
-				Markov_IO::ToString<std::size_t>(j+1)+ "th column";
+				std::to_string(j+1)+ "th column";
 			if (i>0)
-			    expStr+=", "+Markov_IO::ToString(i)+"th row";
+			    expStr+=", "+std::to_string(i)+"th row";
 			expStr+="; the original line is"+line;
 			//throw (input_error(expStr));
 			std::cout<<expStr<<"\n";
@@ -81,9 +81,9 @@ istream into a Matrix
 		{
 		    std::string expStr=
 			    "M_Matrix; Invalid input at the"+
-			    Markov_IO::ToString(i+1)+ "th row";
+			    std::to_string(i+1)+ "th row";
 		    expStr+="; too many values (expected, "+
-			    Markov_IO::ToString(ncols(A))+")";
+			    std::to_string(ncols(A))+")";
 		    expStr+="; the original line is"+line;
 		    //throw (input_error(expStr));
 		    std::cout<<expStr;
@@ -102,7 +102,7 @@ istream into a Matrix
 		std::string expStr=
 			"M_Matrix; Invalid input";
 		expStr+="; Too many rows (expected, "+
-			Markov_IO::ToString(nrows(A))+")";
+			std::to_string(nrows(A))+")";
 		expStr+="; the original line is"+line;
 		//throw (input_error(expStr));
 		std::cout<<expStr;
@@ -151,10 +151,10 @@ istream into a Matrix
 			{
 			    std::string expStr=
 				    "M_Matrix; Invalid input at the"+
-				    Markov_IO::ToString(k+1)+ "th column";
+				    std::to_string(k+1)+ "th column";
 			    if (nrow>1)
 				expStr+=", "+
-					Markov_IO::ToString(nrow)+"th row";
+					std::to_string(nrow)+"th row";
 			    expStr+="; the original line is"+line;
 			    //throw (input_error(expStr));
 			    std::cout<<expStr;
@@ -167,9 +167,9 @@ istream into a Matrix
 		    {
 			std::string expStr=
 				"M_Matrix; Invalid input at the"+
-				Markov_IO::ToString(nrow)+ "th row";
+				std::to_string(nrow)+ "th row";
 			expStr+="; too many values (expected, "+
-				Markov_IO::ToString(ncol)+")";
+				std::to_string(ncol)+")";
 			expStr+="; the original line is"+line;
 			//       throw (input_error(expStr));
 			std::cout<<expStr;
@@ -204,7 +204,7 @@ istream into a Matrix
 		for (std::size_t j=0; j<ncols(A); j++)
 		{
 		    double value;
-		    if (Markov_IO::extract_NaN_safe(ss,value))
+		    if (Markov_IO_New::extract_NaN_safe(ss,value))
 		    {
 			A(i,j)=value;
 		    }
@@ -212,9 +212,9 @@ istream into a Matrix
 		    {
 			std::string expStr=
 				"M_Matrix; Invalid input at the "+
-				Markov_IO::ToString<std::size_t>(j+1)+ "th column";
+				std::to_string(j+1)+ "th column";
 			if (i>0)
-			    expStr+=", "+Markov_IO::ToString(i)+"th row";
+			    expStr+=", "+std::to_string(i)+"th row";
 			expStr+="; the original line is"+line;
 			//throw (input_error(expStr));
 			std::cout<<expStr<<"\n";
@@ -225,13 +225,13 @@ istream into a Matrix
 		    }
 		}
 		double value;
-		if (Markov_IO::extract_NaN_safe(ss,value))
+		if (Markov_IO_New::extract_NaN_safe(ss,value))
 		{
 		    std::string expStr=
 			    "M_Matrix; Invalid input at the"+
-			    Markov_IO::ToString(i+1)+ "th row";
+			    std::to_string(i+1)+ "th row";
 		    expStr+="; too many values (expected, "+
-			    Markov_IO::ToString(ncols(A))+")";
+			    std::to_string(ncols(A))+")";
 		    expStr+="; the original line is"+line;
 		    //throw (input_error(expStr));
 		    std::cout<<expStr;
@@ -245,12 +245,12 @@ istream into a Matrix
 	    getline(s,line);
 	    std::istringstream ss(line);
 	    double value;
-	    if (Markov_IO::extract_NaN_safe(ss,value))
+	    if (Markov_IO_New::extract_NaN_safe(ss,value))
 	    {
 		std::string expStr=
 			"M_Matrix; Invalid input";
 		expStr+="; Too many rows (expected, "+
-			Markov_IO::ToString(nrows(A))+")";
+			std::to_string(nrows(A))+")";
 		expStr+="; the original line is"+line;
 		//throw (input_error(expStr));
 		std::cout<<expStr;
@@ -271,7 +271,7 @@ istream into a Matrix
 	    std::istringstream ss(line);
 	    std::vector<double> v;
 	    double value;
-	    while (Markov_IO::extract_NaN_safe(ss,value))  v.push_back(value);
+	    while (Markov_IO_New::extract_NaN_safe(ss,value))  v.push_back(value);
 	    ncol=v.size();
 	    if (ncol>0)
 	    {
@@ -284,7 +284,7 @@ istream into a Matrix
 		    //     std::cout<<"line"<<line<<"\n";
 		    std::istringstream  ss2(line);
 
-		    if (Markov_IO::extract_NaN_safe(ss2,value))
+		    if (Markov_IO_New::extract_NaN_safe(ss2,value))
 		    {
 			v.push_back(value);
 			//       std::cout<<"pling caja \n";
@@ -294,15 +294,15 @@ istream into a Matrix
 		    nrow++;
 		    for (size_t k=1; k<ncol; k++)
 		    {
-			if (Markov_IO::extract_NaN_safe(ss2,value)) v.push_back(value);
+			if (Markov_IO_New::extract_NaN_safe(ss2,value)) v.push_back(value);
 			else
 			{
 			    std::string expStr=
 				    "M_Matrix; Invalid input at the"+
-				    Markov_IO::ToString(k+1)+ "th column";
+				    std::to_string(k+1)+ "th column";
 			    if (nrow>1)
 				expStr+=", "+
-					Markov_IO::ToString(nrow)+"th row";
+					std::to_string(nrow)+"th row";
 			    expStr+="; the original line is"+line;
 			    //throw (input_error(expStr));
 			    std::cout<<expStr;
@@ -311,13 +311,13 @@ istream into a Matrix
 
 			};
 		    };
-		    if (Markov_IO::extract_NaN_safe(ss2,value))
+		    if (Markov_IO_New::extract_NaN_safe(ss2,value))
 		    {
 			std::string expStr=
 				"M_Matrix; Invalid input at the"+
-				Markov_IO::ToString(nrow)+ "th row";
+				std::to_string(nrow)+ "th row";
 			expStr+="; too many values (expected, "+
-				Markov_IO::ToString(ncol)+")";
+				std::to_string(ncol)+")";
 			expStr+="; the original line is"+line;
 			//       throw (input_error(expStr));
 			std::cout<<expStr;

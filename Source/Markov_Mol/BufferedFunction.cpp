@@ -9,7 +9,6 @@
 
 namespace Markov_Mol_New
 {
-    using Markov_IO_New::operator <<;
 
 template<typename T1, typename T2>
 buffered_function<T1,  T2>* buffered_function<T1,T2>::clone() const

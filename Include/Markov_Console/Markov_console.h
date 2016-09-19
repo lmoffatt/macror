@@ -9,7 +9,7 @@
 #include <string>
 
 
-namespace Markov_Console
+namespace Markov_Console_New
 {
 
 /**
@@ -17,7 +17,7 @@ namespace Markov_Console
     in stdin
 
   */
-class Markov_Console :public Markov_IO::ABC_IO
+class Markov_Console :public Markov_IO_New::ABC_IO
 {
 protected:
     Markov_CommandManagerVar* cmV;
@@ -48,7 +48,7 @@ public:
 
 
 
-    Markov_IO::Key getKey();
+    Markov_IO_New::Key getKey();
 
     virtual void move_cursor(int n);
 
