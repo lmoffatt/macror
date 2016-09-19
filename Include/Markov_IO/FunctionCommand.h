@@ -235,96 +235,6 @@ namespace Markov_IO_New
 
     };
 
-
-/*
-    struct Load {
-      typedef Implements_Closure_Type<void*>  vType;
-
-      static std::string myId(){return "load";}
-      static std::string myTip(){return "load variables";}
-      static std::string myWhatThis(){return "";}
-
-      struct load_cm
-      {
-        static void load(Markov_CommandManagerVar* cm,
-                         const std::string& pathfileName);
-
-        typedef void returnType;
-        typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
-
-        typedef decltype(&load)  functionType;
-
-        typedef mp_append
-        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
-        >                        vType;
-
-        typedef
-        mp_insert
-        <
-        Implements_Fn_Argument<void>,argTypes
-        >
-        argFnTuple;
-
-
-        typedef Implements_Fn_Argument<void>  returnFnType;
-
-
-        static returnFnType
-        getReturnFnType(Markov_CommandManagerVar* cm)
-        {
-          return {};
-        }
-
-
-        static argFnTuple
-        getArgumentTypes(Markov_CommandManagerVar* cm)
-        {
-          return argFnTuple(
-                Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
-                Implements_Fn_Argument<std::string>("macror.txt")
-                );
-
-        }
-
-
-        static ABC_Type_of_Function*
-        varType(Markov_CommandManagerVar* cm);
-
-
-
-
-        typedef mp_list<> dependsOn;
-      };
-
-
-
-
-      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
-      {
-        std::set<ABC_Type_of_Function*> out;
-
-        out.insert(load_cm::varType(cm));
-        return out;
-
-      }
-
-      static vType*
-      functionType(Markov_CommandManagerVar* cm)
-      {
-        return new  Implements_Closure_Type<void*>
-            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
-      }
-
-
-
-
-
-    };
-
-
-
-
     struct Who {
       typedef Implements_Closure_Type<void*>  vType;
 
@@ -335,52 +245,50 @@ namespace Markov_IO_New
       struct who_cm
       {
         static void who(Markov_CommandManagerVar* cm,
-                        const std::string& typeName);
+                         const std::string& pathfileName);
+
+        typedef who_cm selfType;
 
         typedef void returnType;
         typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
 
         typedef decltype(&who)  functionType;
 
-        typedef mp_append
-        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
-        >                        vType;
-
         typedef
-        mp_insert
+        mp_append
         <
-        Implements_Fn_Argument<void>,argTypes
+        Implements_Closure_Type<returnType,void,functionType>,argTypes
         >
-        argFnTuple;
+        ClosureType;
 
 
-        typedef Implements_Fn_Argument<void>  returnFnType;
-
-
-        static returnFnType
-        getReturnFnType(Markov_CommandManagerVar* cm)
+        static const Implements_Data_Type_New<returnType>*
+        getReturnType(Markov_CommandManagerVar* cm)
         {
-          return {};
+          return cm->idToTyped<returnType>(Cls<returnType>::name());
         }
 
 
-        static argFnTuple
+        static Implements_Closure_Type<argTypes>*
         getArgumentTypes(Markov_CommandManagerVar* cm)
         {
-          return argFnTuple(
+          return new Implements_Closure_Type<argTypes>(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
-                Implements_Fn_Argument<std::string>("")
+                (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
+                Implements_Fn_Argument<std::string>(cm,
+                  "variable name",
+                  "",
+                  "variable name or type","")
                 );
 
         }
 
 
-        static ABC_Type_of_Function*
-        varType(Markov_CommandManagerVar* cm);
-
-
-
+        static ClosureType*
+        closureType(Markov_CommandManagerVar* cm)
+        {
+          return new ClosureType(getReturnType(cm),who,getArgumentTypes(cm));
+        }
 
         typedef mp_list<> dependsOn;
       };
@@ -388,91 +296,79 @@ namespace Markov_IO_New
 
 
 
-      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
-      {
-        std::set<ABC_Type_of_Function*> out;
-
-        out.insert(who_cm::varType(cm));
-        return out;
-
-      }
 
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Closure_Type<void*>
-            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
+        auto out= new  Implements_Closure_Type<void*>
+            (myId(),Identifier::types::idFunct::varType(myId()));
+        out->push_overload(cm,who_cm::closureType(cm));
+        return out;
+
+
+
       }
 
+
+
+
+
     };
-
-
-
 
     struct Exit {
       typedef Implements_Closure_Type<void*>  vType;
 
       static std::string myId(){return "exit";}
-      static std::string myTip(){return "Exit Program";}
+      static std::string myTip(){return "exit program";}
       static std::string myWhatThis(){return "";}
 
       struct exit_cm
       {
         static void exitProgram(Markov_CommandManagerVar* cm,
-                                const std::string& pathfileName);
+                         const std::string& pathfileName);
 
         typedef exit_cm selfType;
 
         typedef void returnType;
-        typedef std::tuple<Markov_CommandManagerVar*, std::string> argTypes;
+        typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
 
         typedef decltype(&exitProgram)  functionType;
 
-        typedef mp_append
-        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
-        >                        vType;
-
         typedef
-        mp_insert
+        mp_append
         <
-        Implements_Fn_Argument<void>,argTypes
+        Implements_Closure_Type<returnType,void,functionType>,argTypes
         >
-        argFnTuple;
+        ClosureType;
 
 
-        typedef Implements_Fn_Argument<void>  returnFnType;
-
-
-
-
-
-        static returnFnType
-        getReturnFnType(Markov_CommandManagerVar* cm)
+        static const Implements_Data_Type_New<returnType>*
+        getReturnType(Markov_CommandManagerVar* cm)
         {
-          return {};
+          return cm->idToTyped<returnType>(Cls<returnType>::name());
         }
 
 
-        static argFnTuple
+        static Implements_Closure_Type<argTypes>*
         getArgumentTypes(Markov_CommandManagerVar* cm)
         {
-          return argFnTuple(
+          return new Implements_Closure_Type<argTypes>(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
-                Implements_Fn_Argument<std::string>("")
+                (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
+                Implements_Fn_Argument<std::string>(cm,
+                  "variable name",
+                  "",
+                  "variable name or type","")
                 );
 
         }
 
 
-        static ABC_Type_of_Function*
-        varType(Markov_CommandManagerVar* cm)
+        static ClosureType*
+        closureType(Markov_CommandManagerVar* cm)
         {
-          return varTypeT<selfType>(exitProgram,cm);
+          return new ClosureType(getReturnType(cm),exitProgram,getArgumentTypes(cm));
         }
-
-
-
 
         typedef mp_list<> dependsOn;
       };
@@ -480,20 +376,17 @@ namespace Markov_IO_New
 
 
 
-      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
-      {
-        std::set<ABC_Type_of_Function*> out;
-
-        out.insert(exit_cm::varType(cm));
-        return out;
-
-      }
 
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Closure_Type<void*>
-            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
+        auto out= new  Implements_Closure_Type<void*>
+            (myId(),Identifier::types::idFunct::varType(myId()));
+        out->push_overload(cm,exit_cm::closureType(cm));
+        return out;
+
+
+
       }
 
 
@@ -503,6 +396,7 @@ namespace Markov_IO_New
     };
 
 
+/*
 
 
     struct Simulate {

@@ -8,7 +8,7 @@ namespace Markov_Mol_New
 
 Markov_LA::M_Matrix<size_t> random_N_sample(const Markov_LA::M_Matrix<double>& p,
 				 std::size_t Nchannels,
-				 Borrowed::MersenneTwister::MTRand& sto)
+				 std::mt19937_64 &sto)
 {
     Markov_LA::M_Matrix<size_t> N=sto.Multinomial (p,Nchannels);
  //   std::cout<<"p "<<p<<"N "<<N;
@@ -19,7 +19,7 @@ Markov_LA::M_Matrix<size_t> random_N_sample(const Markov_LA::M_Matrix<double>& p
 /// It does not change the ymean, only the N
 Markov_LA::M_Matrix<size_t>& random_P_on_N(const Markov_Transition_step& Qdt,
 				Markov_LA::M_Matrix<size_t>& N_run,
-				Borrowed::MersenneTwister::MTRand& sto)
+				std::mt19937_64 &sto)
 {
     //std::cout<<"P "<<Qdt.P<<"N_run"<<N_run;
   if (Qdt.P<0.0)

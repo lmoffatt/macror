@@ -1325,7 +1325,7 @@ namespace Markov_Mol_New
 
   Markov_state Q_Markov_Model::start(double equilibrium_concentration,
                                      std::size_t Nchannels,
-                                     Borrowed::MersenneTwister::MTRand& sto)const
+                                     std::mt19937_64 &sto)const
   {
     Markov_state M;
 
@@ -1337,7 +1337,7 @@ namespace Markov_Mol_New
 
   Markov_state_ext Q_Markov_Model::start(double equilibrium_concentration,
                                          std::size_t Nchannels,
-                                         Borrowed::MersenneTwister::MTRand& sto, bool)const
+                                         std::mt19937_64 &sto, bool)const
   {
     Markov_state_ext M(k_u);
     M.N=random_N_sample(this->Peq(equilibrium_concentration), Nchannels,sto);
@@ -1349,7 +1349,7 @@ namespace Markov_Mol_New
   Markov_state& Q_Markov_Model::run(const Markov_IO_New::ABC_measure_point& xdt,
                                     Markov_state& N_run,
                                     std::size_t n_steps,
-                                    Borrowed::MersenneTwister::MTRand& sto
+                                    std::mt19937_64 &sto
                                     )const
   {
     double ddt=xdt.dt()/n_steps;
@@ -1382,7 +1382,7 @@ namespace Markov_Mol_New
   Markov_state& Q_Markov_Model::run(const Markov_IO_New::ABC_measure_step& xdt,
                                     Markov_state& N_run,
                                     std::size_t n_steps,
-                                    Borrowed::MersenneTwister::MTRand& sto)const
+                                    std::mt19937_64 &sto)const
   {
     double ysum=0;
     double tsum=0;
@@ -1400,7 +1400,7 @@ namespace Markov_Mol_New
   Markov_state_ext& Q_Markov_Model::run(const Markov_IO_New::ABC_measure_point& xdt,
                                         Markov_state_ext& N_run,
                                         std::size_t n_steps,
-                                        Borrowed::MersenneTwister::MTRand& sto)const
+                                        std::mt19937_64 &sto)const
   {
     N_run.ymean=0.0;
     N_run.ysqr=0.0;
@@ -1435,7 +1435,7 @@ namespace Markov_Mol_New
   Markov_state_ext& Q_Markov_Model::run(const Markov_IO_New::ABC_measure_step& xdt,
                                         Markov_state_ext& N_run,
                                         std::size_t n_steps,
-                                        Borrowed::MersenneTwister::MTRand& sto)const
+                                        std::mt19937_64 &sto)const
   {
     if (xdt.num_steps()>1)
       {

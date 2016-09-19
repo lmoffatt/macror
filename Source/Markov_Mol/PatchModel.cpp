@@ -90,7 +90,7 @@ namespace Markov_Mol_New
   Experiment_simulation PatchModel::run(const Markov_IO_New::ABC_Experiment& x,
                                         std::size_t n_replicates,
                                         double time_step, std::size_t num_steps,
-                                        Borrowed::MersenneTwister::MTRand& sto)const
+                                        std::mt19937_64 &sto)const
   {
     Experiment_simulation ES(x,
                              *this,

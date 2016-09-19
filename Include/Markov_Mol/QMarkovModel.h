@@ -11,7 +11,7 @@
 
 #include<set>
 #include<map>
-
+#include <random>
 
 
 
@@ -68,32 +68,32 @@ namespace Markov_Mol_New
 
     virtual Markov_state start(double equilibrium_concentration,
                                std::size_t Nchannels,
-                               Borrowed::MersenneTwister::MTRand& sto)const;
+                               std::mt19937_64& sto)const;
 
     virtual Markov_state_ext start(double equilibrium_concentration,
                                    std::size_t Nchannels,
-                                   Borrowed::MersenneTwister::MTRand& sto,
+                                   std::mt19937_64& sto,
                                    bool /*dummy*/)const;
 
     virtual Markov_state& run(const Markov_IO_New::ABC_measure_point& xdt,
                               Markov_state& M,
                               std::size_t n_steps,
-                              Borrowed::MersenneTwister::MTRand& sto)const;
+                              std::mt19937_64& sto)const;
 
     virtual Markov_state& run(const Markov_IO_New::ABC_measure_step& xdt,
                               Markov_state& M,
                               std::size_t n_steps,
-                              Borrowed::MersenneTwister::MTRand& sto)const;
+                              std::mt19937_64& sto)const;
 
     virtual Markov_state_ext& run(const Markov_IO_New::ABC_measure_point& xdt,
                                   Markov_state_ext& M,
                                   std::size_t n_steps,
-                                  Borrowed::MersenneTwister::MTRand& sto)const;
+                                  std::mt19937_64& sto)const;
 
     virtual Markov_state_ext& run(const Markov_IO_New::ABC_measure_step& xdt,
                                   Markov_state_ext& M,
                                   std::size_t n_steps,
-                                  Borrowed::MersenneTwister::MTRand& sto)const;
+                                  std::mt19937_64& sto)const;
 
 
 

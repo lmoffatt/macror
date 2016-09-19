@@ -8,6 +8,7 @@
 #include "Markov_Mol/ABC_Noise.h"
 #include "Borrowed/MersenneTwister.h"
 
+#include <random>
 namespace Markov_Mol_New
 {
 
@@ -30,7 +31,7 @@ public:
 				      std::size_t n_replicates,
 				      double time_step
 				      , std::size_t num_steps,
-			      Borrowed::MersenneTwister::MTRand& mtrand)const =0;
+			     std::mt19937_64& mtrand)const =0;
 
 
 

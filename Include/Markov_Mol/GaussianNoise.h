@@ -34,7 +34,7 @@ public:
     double standard_deviation() const {return std_;}
                        double frequency_of_sampling() const {return fs_;}
 
-    virtual double sample(double dt, Borrowed::MersenneTwister::MTRand &sto)const;
+    virtual double sample(double dt, std::mt19937_64 &sto)const;
     virtual double std(double dt)const;
     virtual double var(double dt) const;
     virtual double P(double x,double dt)const;

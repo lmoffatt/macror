@@ -6,14 +6,9 @@
 
 #include "Markov_IO/ABC_IO.h"
 
+#include <random>
 
-namespace Borrowed
-{
-  namespace MersenneTwister
-     {
-    class MTRand;
-  };
-};
+
 
 
 namespace Markov_IO_New
@@ -132,9 +127,9 @@ namespace Markov_IO_New
                   ,Type::myWhatThis());
     }
 
-   Borrowed::MersenneTwister::MTRand& sto()
+   std::mt19937_64& sto()
    {
-     return *sto_;
+     return sto_;
    }
 
 
@@ -148,7 +143,7 @@ namespace Markov_IO_New
     bool lastCmdRst;
     ProgramVersion program_ver_;
     CommandHistory* h_;
-    Borrowed::MersenneTwister::MTRand* sto_;
+    std::mt19937_64 sto_;
 
   };
 

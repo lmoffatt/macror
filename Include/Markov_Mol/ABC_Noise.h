@@ -1,7 +1,7 @@
 #ifndef ABC_NOISE_H
 #define ABC_NOISE_H
 
-#include "Borrowed/MersenneTwister.h"
+#include <random>
 
 namespace Markov_Mol_New
 {
@@ -19,7 +19,7 @@ public:
 
     virtual ~ABC_noise();
 
-    virtual double sample(double dt,Borrowed::MersenneTwister::MTRand& sto)const=0;
+    virtual double sample(double dt,std::mt19937_64& sto)const=0;
 
     virtual double std(double dt)const =0;
 

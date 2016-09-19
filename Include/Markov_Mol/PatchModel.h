@@ -24,7 +24,7 @@ namespace Markov_Mol_New
      std::size_t n_replicates,
      double time_step
      , std::size_t num_steps,
-     Borrowed::MersenneTwister::MTRand &sto) const override;
+     std::mt19937_64 &sto) const override;
 
 
 

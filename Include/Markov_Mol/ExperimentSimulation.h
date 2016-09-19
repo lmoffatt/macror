@@ -26,28 +26,28 @@ namespace Markov_Mol_New
 public:
 
     virtual std::string myClass()const override {return ClassName();}
-    virtual Experiment_simulation* clone() const;
+    virtual Experiment_simulation* clone() const override;
 
-    virtual Experiment_simulation* create() const;
+    virtual Experiment_simulation* create() const override;
     virtual ~Experiment_simulation();
-    virtual std::size_t total_samples()const;
-    virtual std::size_t num_replicates()const;
-    virtual const Experiment_simulation& replicate(std::size_t i)const;
-    virtual const Experiment_simulation& trace(std::size_t i)const;
-    virtual const Experiment_simulation& trace_interval()const;
-    virtual std::size_t i_trace()const;
-    virtual std::size_t num_traces() const;
-    virtual std::size_t i_sample()const;
-    virtual double t()const;
-    virtual double dt()const;
-    virtual double x()const;
-    virtual std::size_t num_steps()const;
-    virtual const ABC_measure_point&  sub_step(std::size_t i)const;
-    virtual const Experiment_simulation& operator[](std::size_t i)const;
-    virtual const Experiment_simulation& operator++()const;
+    virtual std::size_t total_samples()const override;
+    virtual std::size_t num_replicates()const override;
+    virtual const Experiment_simulation& replicate(std::size_t i)const override;
+    virtual const Experiment_simulation& trace(std::size_t i)const override;
+    virtual const Experiment_simulation& trace_interval()const override;
+    virtual std::size_t i_trace()const override;
+    virtual std::size_t num_traces() const override;
+    virtual std::size_t i_sample()const override;
+    virtual double t()const override;
+    virtual double dt()const override;
+    virtual double x()const override;
+    virtual std::size_t num_steps()const override;
+    virtual const ABC_measure_point&  sub_step(std::size_t i)const override;
+    virtual const Experiment_simulation& operator[](std::size_t i)const override;
+    virtual const Experiment_simulation& operator++()const override;
 
-    virtual std::size_t num_measures()const;
-    virtual double y()const;
+    virtual std::size_t num_measures()const override;
+    virtual double y()const override;
     virtual Experiment_simulation& y(double new_value);
 
     virtual const ABC_Markov_Model& model()const;
