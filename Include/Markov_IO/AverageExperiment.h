@@ -2,13 +2,12 @@
 #define AVERAGEEXPERIMENT_H
 #include "Markov_IO/ExperimentAverage.h"
 #include "Experiment.h"
-#include "Markov_IO/ABC_Operator.h"
 #include "Markov_IO/Options.h"
 
-namespace Markov_IO
+namespace Markov_IO_New
 {
 
-class AverageExperiment: public ABC_Operator
+class AverageExperiment//: public ABC_Operator
 {
     public:
         ///virtual copy constructors

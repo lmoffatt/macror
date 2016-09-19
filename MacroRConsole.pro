@@ -117,15 +117,10 @@ HEADERS += \
     Include/Markov_IO/PulsesProgram.h \
     Include/Markov_IO/Pulse.h \
     Include/Markov_IO/Parameters.h \
-    Include/Markov_IO/Markov_ABC.h \
     Include/Markov_IO/FileDir.h \
     Include/Markov_IO/ExperimentAverage.h \
-    Include/Markov_IO/ClassDescription.h \
     Include/Markov_IO/auxiliarIO.h \
     Include/Markov_IO/ABC_Trace.h \
-    Include/Markov_IO/ABC_Saveable.h \
-    Include/Markov_IO/ABC_Put.h \
-    Include/Markov_IO/ABC_Parametrizable.h \
     Include/Markov_IO/ABC_MeasureStep.h \
     Include/Markov_IO/ABC_MeasurePoint.h \
     Include/Markov_IO/ABC_Experiment.h \
@@ -192,7 +187,6 @@ HEADERS += \
     Include/Markov_Bay/NormalDistributed.h \
     Include/Markov_Console/Token.h \
     Include/Markov_doxygen/ABC_DescriptibleRegular.h \
-    Include/Markov_IO/ABC_Object.h \
     Include/Markov_IO/Object.h \
     Include/Markov_IO/Options.h \
     Include/Markov_Mol/SimulationOptions.h \
@@ -201,7 +195,6 @@ HEADERS += \
     Include/Markov_IO/Trace.h \
     Include/Markov_Bay/LikelihoodEvaluation.h \
     Include/Markov_Bay/PartialLikelihoodEvaluation.h \
-    Include/Markov_IO/ABC_Use_Options.h \
     Include/Markov_Bay/YfitLikelihoodEvaluation.h \
     Include/Markov_Bay/LikelihoodOptions.h \
     Include/Markov_Bay/ABC_Result.h \
@@ -246,17 +239,13 @@ HEADERS += \
     Include/Markov_Console/ModelCommand.h \
     Include/Markov_Console/Average_Command.h \
     Include/Markov_IO/AverageExperiment.h \
-    Include/Markov_IO/ABC_Operator.h \
     Include/Markov_IO/ExperimentalData.h \
     Include/Markov_Console/ImportCommand.h \
-    Include/Markov_IO/getTimems.h \
     Include/Markov_IO/ABFFile.h \
     Include/Markov_IO/ABF1_Headers.h \
     Include/Markov_IO/ABF2_Headers.h \
     Include/Markov_Bay/OptimizationDistributionResults.h \
-    Include/Markov_Console/CommandHistory.h \
-    Include/Borrowed/MersenneTwister.h \
-    Include/Markov_IO/ABC_Y_dt.h
+    Include/Markov_Console/CommandHistory.h
 
 
 SOURCES += \
@@ -269,7 +258,6 @@ SOURCES += \
     Source/Markov_IO/Object.cpp \
     Source/Markov_IO/auxiliarIO.cpp \
     Source/Markov_IO/ClassDescription.cpp \
-    Source/Borrowed/MersenneTwister.cpp \
     Source/Markov_Bay/MarkovLikelihood.cpp \
     Source/Markov_Bay/Markov_Bay.cpp \
     Source/Markov_Bay/MacroRStep.cpp \
@@ -467,8 +455,6 @@ HEADERS += \
     Include/Markov_Console/Autocomplete.h \
     Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
-    Include/Markov_IO/ABC_Environment.h \
-    Include/Markov_IO/ABC_Var.h \
     Include/Markov_Mol/ABC_Q.h \
     Include/Markov_Console/MacorCoreApplication.h \
     Include/Markov_Console/ExpressionManager.h \
