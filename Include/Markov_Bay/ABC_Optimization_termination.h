@@ -2,9 +2,9 @@
 #define ABC_OPTIMIZATION_TERMINATION_H
 #include "Markov_Bay/ABC_Optimization_step.h"
 
-namespace Markov_Bay
+namespace Markov_Bay_New
 {
-class ABC_OptimizationTermination: public Markov_IO::ABC_Put
+class ABC_OptimizationTermination
 {
  public:
 	virtual ABC_OptimizationTermination* clone()const=0;

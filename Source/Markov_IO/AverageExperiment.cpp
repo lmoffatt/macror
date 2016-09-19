@@ -3,7 +3,7 @@
 #include "Markov_IO/auxiliarIO.h"
 #include "Markov_LA/auxiliarMath.h"
 
-namespace Markov_IO
+namespace Markov_IO_New
 {
 
 std::string AverageExperiment::ClassName()

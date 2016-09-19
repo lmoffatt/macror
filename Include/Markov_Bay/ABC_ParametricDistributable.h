@@ -1,12 +1,11 @@
 #ifndef ABC_PARAMETRICDISTRIBUTABLE_H
 #define ABC_PARAMETRICDISTRIBUTABLE_H
 
-#include "Markov_IO/ABC_Parametrizable.h"
-#include "Markov_IO/ParametersMoments.h"
+#include <string>
 
 namespace Markov_Bay
 {
-class ABC_ParametricDistributable: public Markov_IO::ABC_Parametrizable
+class ABC_ParametricDistributable//: public Markov_IO::ABC_Parametrizable
 {
 public:
     ///virtual copy constructors

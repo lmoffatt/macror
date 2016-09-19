@@ -1,14 +1,11 @@
 #ifndef ABC_OPTIMIZATION_STEP_H
 #define ABC_OPTIMIZATION_STEP_H
-#include "Markov_IO/ABC_Put.h"
 #include "Markov_LA/Matrix.h"
-#include "Markov_IO/Parameters.h"
-#include "Markov_IO/ParametersMoments.h"
 #include "Markov_Bay/MarkovLikelihood.h"
 
 
 
-namespace Markov_Bay
+namespace Markov_Bay_New
 {
 class ABC_OptimizationStep
 {

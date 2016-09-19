@@ -12,14 +12,6 @@ double Pulse(double t, double pulse_duration, double exchange_time);
 
 
 
-namespace Markov_IO
-{
-
-double pulse_profile(double x);
-
-double Pulse(double t, double pulse_duration, double exchange_time);
-
-}
 
 
 #endif // PULSE_H

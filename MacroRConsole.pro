@@ -106,7 +106,6 @@ HEADERS += \
     Include/Markov_Bay/MacroDRStep.h \
     Include/Markov_Bay/ABC_MarkovLikelihoodStep.h \
     Include/Markov_Console/Markov_console.h \
-    Include/Markov_Console/Markov_Script.h \
     Include/Markov_Console/Markov_CommandManager.h \
     Include/Markov_IO/x_step.h \
     Include/Markov_IO/x_dt.h \
@@ -116,7 +115,6 @@ HEADERS += \
     Include/Markov_IO/PulsesTrace.h \
     Include/Markov_IO/PulsesProgram.h \
     Include/Markov_IO/Pulse.h \
-    Include/Markov_IO/Parameters.h \
     Include/Markov_IO/FileDir.h \
     Include/Markov_IO/ExperimentAverage.h \
     Include/Markov_IO/auxiliarIO.h \
@@ -149,8 +147,6 @@ HEADERS += \
     Include/Markov_Mol/MarkovTransitionRate.h \
     Include/Markov_Mol/MarkovStateExt.h \
     Include/Markov_Mol/MarkovState.h \
-    Include/Markov_Mol/MarkovSimulator.h \
-    Include/Markov_Mol/Markov_Mol.h \
     Include/Markov_Mol/GaussianNoise.h \
     Include/Markov_Mol/ExperimentSimulation.h \
     Include/Markov_Mol/BufferedFunction.h \
@@ -180,16 +176,9 @@ HEADERS += \
     Include/Markov_doxygen/nnsgs.h \
     Include/Markov_IO/ABC_Options.h \
     Include/Markov_Mol/PatchModel.h \
-    Include/Markov_Mol/ABC_MarkovModelDistribution.h \
-    Include/Markov_Bay/ABC_ParameterDistribution.h \
-    Include/Markov_IO/ParametersMoments.h \
     Include/Markov_Bay/ABC_ParametricDistributable.h \
     Include/Markov_Bay/NormalDistributed.h \
-    Include/Markov_Console/Token.h \
     Include/Markov_doxygen/ABC_DescriptibleRegular.h \
-    Include/Markov_IO/Object.h \
-    Include/Markov_IO/Options.h \
-    Include/Markov_Mol/SimulationOptions.h \
     Include/Markov_Mol/ABC_PatchModel.h \
     Include/Markov_IO/Experiment.h \
     Include/Markov_IO/Trace.h \
@@ -209,7 +198,6 @@ HEADERS += \
     Include/Markov_Bay/ABC_Optimization_termination.h \
     Include/Markov_Bay/Optimization_Step_BFGS.h \
     Include/Markov_Bay/Optimization_Termination.h \
-    Include/Markov_Mol/PatchModelNormalDistribution.h \
     Include/Markov_Bay/TerminationByThreshold.h \
     Include/Markov_Bay/ABC_Distribution.h \
     Include/Markov_Bay/G_Test.h \
@@ -217,27 +205,7 @@ HEADERS += \
     Include/Markov_Bay/RandomDistribution_Test.h \
     Include/Markov_Bay/MacroAproxStep.h \
     Include/Markov_Bay/MacroscopicGaussianDistribution.h \
-    Include/Markov_Console/ABC_Command.h\
-    Include/Markov_Console/HelpCommand.h \
-    Include/Markov_Console/SimulateCommand.h \
-    Include/Markov_Console/LikelihoodCommand.h\
-    Include/Markov_Console/OptimizeCommand.h \
-    Include/Markov_Console/SaveCommand.h \
-    Include/Markov_Console/CdCommand.h \
-    Include/Markov_Console/DirCommand.h \
-    Include/Markov_Console/LoadCommand.h \
-    Include/Markov_Console/ExportCommand.h \
-    Include/Markov_Console/MkdirCommand.h \
     Include/Markov_IO/ABC_IO.h \
-    Include/Markov_Console/ExitCommand.h \
-    Include/Markov_Console/EditCommand.h \
-    Include/Markov_Console/WhoCommand.h \
-    Include/Markov_Console/ClearCommand.h \
-    Include/Markov_Console/CreateCommand.h \
-    Include/Markov_Console/MCM_LoadCommands.h \
-    Include/Markov_Console/ShowCommand.h \
-    Include/Markov_Console/ModelCommand.h \
-    Include/Markov_Console/Average_Command.h \
     Include/Markov_IO/AverageExperiment.h \
     Include/Markov_IO/ExperimentalData.h \
     Include/Markov_Console/ImportCommand.h \
@@ -250,14 +218,10 @@ HEADERS += \
 
 SOURCES += \
     Source/Markov_IO/FunctionCommand.cpp \
-    Source/Markov_IO/ABC_Var.cpp \
     Source/Markov_IO/Token_New.cpp \
     Source/Markov_IO/buildByToken.cpp\
     Source/Markov_Mol/PatchModel.cpp \
-    Source/Markov_IO/ABC_Object.cpp \
-    Source/Markov_IO/Object.cpp \
     Source/Markov_IO/auxiliarIO.cpp \
-    Source/Markov_IO/ClassDescription.cpp \
     Source/Markov_Bay/MarkovLikelihood.cpp \
     Source/Markov_Bay/Markov_Bay.cpp \
     Source/Markov_Bay/MacroRStep.cpp \
@@ -275,12 +239,9 @@ SOURCES += \
     Source/Markov_IO/PulsesTrace.cpp \
     Source/Markov_IO/PulsesProgram.cpp \
     Source/Markov_IO/Pulse.cpp \
-    Source/Markov_IO/Parameters.cpp \
     Source/Markov_IO/FileDir.cpp \
     Source/Markov_IO/ExperimentAverage.cpp \
     Source/Markov_IO/ABC_Trace.cpp \
-    Source/Markov_IO/ABC_Saveable.cpp \
-    Source/Markov_IO/ABC_Put.cpp \
     Source/Markov_IO/ABC_MeasureStep.cpp \
     Source/Markov_IO/ABC_MeasurePoint.cpp \
     Source/Markov_IO/ABC_Experiment.cpp \
@@ -309,8 +270,6 @@ SOURCES += \
     Source/Markov_Mol/MarkovTransitionRate.cpp \
     Source/Markov_Mol/MarkovStateExt.cpp \
     Source/Markov_Mol/MarkovState.cpp \
-    Source/Markov_Mol/MarkovSimulator.cpp \
-    Source/Markov_Mol/Markov_Mol.cpp \
     Source/Markov_Mol/GaussianNoise.cpp \
     Source/Markov_Mol/ExperimentSimulation.cpp \
     Source/Markov_Mol/BufferedFunction.cpp \
@@ -318,8 +277,6 @@ SOURCES += \
     Source/Markov_Mol/ABC_MarkovModel.cpp \
     Source/main_MacroConsole.cpp \
     Source/Markov_Console/Token.cpp \
-    Source/Markov_IO/Options.cpp \
-    Source/Markov_Mol/SimulationOptions.cpp \
     Source/Markov_IO/ABC_Options.cpp \
     Source/Markov_Mol/ABC_PatchModel.cpp \
     Source/Markov_IO/Trace.cpp \
@@ -331,7 +288,6 @@ SOURCES += \
     Source/Markov_Bay/ABC_Result.cpp \
     Source/Markov_Console/Help_File.cpp \
     Source/Markov_Bay/ABC_ParametricDistributable.cpp \
-    Source/Markov_IO/ParametersMoments.cpp \
     Source/Markov_Bay/NormalDistributed.cpp \
     Source/Markov_LA/matrixCholesky.cpp \
     Source/Markov_Bay/MultivariateGaussian.cpp \
@@ -342,7 +298,6 @@ SOURCES += \
     Source/Markov_Bay/ABC_Optimization_step.cpp \
     Source/Markov_Bay/ABC_Optimization_termination.cpp \
     Source/Markov_Bay/Optimization_Termination.cpp \
-    Source/Markov_Mol/PatchModelNormalDistribution.cpp \
     Source/Markov_Bay/TerminationByThreshold.cpp \
     Source/Markov_Bay/ABC_Distribution.cpp \
     Source/Markov_Bay/G_Test.cpp \
@@ -350,7 +305,6 @@ SOURCES += \
     Source/Markov_Bay/MacroAproxStep.cpp \
     Source/Markov_Bay/MacroscopicGaussianDistribution.cpp \
     Source/Markov_Console/HelpCommand.cpp \
-    Source/Markov_Console/ABC_Command.cpp\
     Source/Markov_Console/SimulateCommand.cpp \
     Source/Markov_Console/LikelihoodCommand.cpp \
     Source/Markov_Console/OptimizeCommand.cpp \
@@ -362,7 +316,6 @@ SOURCES += \
     Source/Markov_Console/MkdirCommand.cpp \
     Source/Markov_Console/ExitCommand.cpp \
     Source/Markov_Console/EditCommand.cpp \
-    Source/Markov_IO/ABC_Parametrizable.cpp \
     Source/Markov_Console/WhoCommand.cpp \
     Source/Markov_Console/ClearCommand.cpp \
     Source/Markov_Console/CreateCommand.cpp \
@@ -371,7 +324,6 @@ SOURCES += \
     Source/Markov_Console/ShowCommand.cpp \
     Source/Markov_Console/ModelCommand.cpp \
     Source/Markov_IO/AverageExperiment.cpp \
-    Source/Markov_IO/ABC_Operator.cpp \
     Source/Markov_Console/Average_Command.cpp \
     Source/Markov_IO/ExperimentalData.cpp \
     Source/Markov_IO/ABFFile.cpp \
@@ -452,17 +404,11 @@ message ("MacroRConsole end here")
 }
 
 HEADERS += \
-    Include/Markov_Console/Autocomplete.h \
-    Include/Markov_Console/BayesianAutocomplete.h \
     Include/Markov_IO/ABFExperiment.h \
-    Include/Markov_Mol/ABC_Q.h \
     Include/Markov_Console/MacorCoreApplication.h \
     Include/Markov_Console/ExpressionManager.h \
     Include/Markov_IO/Token_New.h \
     Include/Markov_IO/buildByToken.h \
-    Include/Markov_Console/CoreManager.h \
-    Include/Markov_IO/Validator.h \
-    Include/Markov_IO/Table.h \
     Include/Markov_IO/Var.h \
     Include/Markov_IO/Cls.h \
     Include/Markov_IO/Implements_ComplexVar_New.h \
@@ -471,11 +417,9 @@ HEADERS += \
     Include/Markov_IO/myTypes.h \
     Include/Markov_IO/Implements_path.h \
     Include/Markov_IO/FileLoadSave.h \
-    Include/Markov_IO/myIterator.h \
     Include/Markov_IO/VarTempl.h \
     Include/Markov_IO/myTypesExperiment.h \
     Include/Markov_IO/mp_Function.h \
-    Include/Markov_IO/Implements_function.h \
     Include/Markov_IO/FunctionCommand.h \
     Include/Markov_IO/StructureEnv.h \
     Include/Markov_IO/Closure.h \
@@ -497,7 +441,6 @@ SOURCES += \
     Source/Markov_IO/Implements_path.cpp \
     Source/Markov_IO/FileLoadSave.cpp \
     Source/Markov_IO/myTypesExperiment.cpp \
-    Source/Markov_IO/Implements_function.cpp \
     Source/Markov_IO/StructureEnv.cpp \
     Source/Markov_IO/buildClosureByToken.cpp \
     Source/Markov_IO/Implements_Closures.cpp
