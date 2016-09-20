@@ -16,7 +16,7 @@ DEFINES       = -DGIT_VER_PATH=versionNumber -DUNCOMMITED_PATH=uncommited -DNDEB
 CFLAGS        = -pipe -O2 -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -std=c++14 -O2 -std=c++14 -fopenmp -std=gnu++1y -Wall -W -fPIC $(DEFINES)
 INCPATH       = -I../macror -I. -I../macror/Include -I../macror/Include/Borrowed -I/home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/linux-g++
-QMAKE         = /home/luciano/Qt5.7.0/5.7/gcc_64/bin/qmake
+#QMAKE         = /home/luciano/Qt5.7.0/5.7/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
 MKDIR         = mkdir -p
