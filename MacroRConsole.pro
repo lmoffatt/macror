@@ -226,7 +226,7 @@ SOURCES += \
 #    Source/Markov_Bay/MacroNRStep.cpp \
 #    Source/Markov_Bay/MacroDRStep.cpp \
 #    Source/Markov_Bay/ABC_MarkovLikelihoodStep.cpp \
-#    Source/Markov_Console/Markov_console.cpp \
+    Source/Markov_Console/Markov_console.cpp \
     Source/Markov_Console/Markov_CommandManager.cpp \
     Source/Markov_IO/x_step.cpp \
     Source/Markov_IO/x_dt.cpp \
@@ -419,6 +419,9 @@ SOURCES += \
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt
+
+DISTFILES += \
+    Makefile
 
 
 

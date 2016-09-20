@@ -20,51 +20,79 @@ namespace Markov_Console_New
 class Markov_Console :public Markov_IO_New::ABC_IO
 {
 protected:
-    Markov_CommandManagerVar* cmV;
-
-    Markov_CommandManager* cm;
+    Markov_IO_New::Markov_CommandManagerVar* cm;
+    std::string currentLine_;
 
 
 public:
-    Markov_Console(Markov_CommandManagerVar* c,const std::string& fileCommandName="");
-    Markov_Console(Markov_CommandManager* c,const std::string& fileCommandName="");
+    Markov_Console(Markov_IO_New::Markov_CommandManagerVar* c);
 
       /// put a string to the output source
-    virtual void put(const std::string& s)const;
+    virtual void put(const std::string& s) override;
 
-    void putError(const std::string &s)const;
+    virtual void putNewLine() override;
+
+    void freshLine()override;
+
+    virtual void hideMessage()override;
+
+    virtual bool isLineBegin()const override;
+
+    virtual bool isLineEnd()const override;
+    virtual std::string currentLine()const override;
+    virtual char pop_next_char()override;
+
+    virtual void erase_from_cursor_forward(std::string s) override;
+    virtual void erase_from_cursor_backward(std::string s)override;
+
+
+
+    virtual char backErase()override;
+
+    virtual void move_end()override;
+    virtual void move_home()override;
+
+    virtual void cleanToEndLine()override;
+
+
+    virtual void putTail(const std::string& text)override;
+
+
+    virtual std::string getTail()override;
+
+    virtual std::string spacer()const override;
+
+
+    void putError(const std::string &s) override;
 
     virtual std::string getItemFromList(const std::string &title,
                                         const std::vector<std::string> &list,
                                         bool &ok,
-                                        std::size_t pos) ;
+                                        std::size_t pos) override ;
 
 
     virtual std::string
     getItemFromSeveralLists(const std::string& title,
                             const std::map<std::string,std::vector<std::string> >& list,
                             bool &ok,
-                            std::size_t current);
+                            std::size_t current) override;
 
 
 
     Markov_IO_New::Key getKey();
 
-    virtual void move_cursor(int n);
+    virtual std::string move_cursor(int n) override;
 
     virtual void erase_from_cursor_forward(int n);
 
-    virtual void showMessage(const std::string &m);
+    virtual void showMessage(const std::string &m) override;
 
 
     int exec();
     int exec(const std::string fileCommandName);
 
 
-    // ABC_IO interface
-public:
-    virtual std::string spacer() const override;
-};
+  };
 
 }
 #endif // MARKOV_CONSOLE_H_INCLUDED
