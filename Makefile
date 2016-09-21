@@ -35,7 +35,7 @@ COMPRESS      = gzip -9f
 DISTNAME      = MacroRConsole1.0.0
 DISTDIR = /home/luciano/Data/canales/MacroR/macror/build-MacroRConsole-gcc_6-Release/.tmp/MacroRConsole1.0.0
 LINK          = ~/local/gcc-6.2.0/bin/g++
-LFLAGS        = -Wl,-O1 -fopenmp -rpath=/home/lmoffatt.inquimae/local/gcc-6.2.0/lib/
+LFLAGS        = -Wl,-O1 -fopenmp -Wl,-O1 -Wl,-rpath=/home/lmoffatt.inquimae/local/gcc-6.2.0/lib/
 LIBS          = $(SUBLIBS) -lblas -llapack 
 AR            = ar cqs
 RANLIB        = 
