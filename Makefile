@@ -10,8 +10,8 @@ MAKEFILE      = Makefile
 
 ####### Compiler, tools and options
 
-CC            = gcc
-CXX           = g++
+CC            = ~/local/gcc-6.2.0/bin/gcc
+CXX           = ~/local/gcc-6.2.0/bin/g++
 DEFINES       = -DGIT_VER_PATH=versionNumber -DUNCOMMITED_PATH=uncommited -DNDEBUG -DHELP_PATH=/home/luciano/Data/canales/MacroR/macror/build-MacroRConsole-gcc_6-Release/help_files
 CFLAGS        = -pipe -O2 -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -std=c++14 -O2 -std=c++14 -fopenmp -std=gnu++1y -Wall -W -fPIC $(DEFINES)
@@ -33,7 +33,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = MacroRConsole1.0.0
-DISTDIR = /home/luciano/Data/canales/MacroR/macror/build-MacroRConsole-gcc_6-Release/.tmp/MacroRConsole1.0.0
+DISTDIR = ~/MacroR/macror/release/.tmp/MacroRConsole1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -fopenmp
 LIBS          = $(SUBLIBS) -lblas -llapack 
