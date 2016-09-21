@@ -673,7 +673,7 @@ Makefile: ../macror/MacroRConsole.pro /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/l
                 /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/features/yacc.prf \
                 /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/features/lex.prf \
                 ../macror/MacroRConsole.pro
-        $(QMAKE) -spec linux-g++ -o Makefile ../macror/MacroRConsole.pro
+	$(QMAKE) -spec linux-g++ -o Makefile ../macror/MacroRConsole.pro
 /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/features/spec_pre.prf:
 /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/common/unix.conf:
 /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/common/linux.conf:
