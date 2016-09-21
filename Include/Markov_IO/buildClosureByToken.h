@@ -1955,7 +1955,7 @@ namespace Markov_IO_New {
 
 
 
-    bool isCommand()const
+    bool isFunction()const
     {
       return mystate==S_Function_Final
           || mystate==S_Function_Final

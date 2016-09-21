@@ -152,7 +152,7 @@ namespace Markov_IO_New {
       }
     else  if (bu_.isFinal())
       {
-        if (bu_.isCommand())
+        if (bu_.isFunction())
           {
             auto cmd=bu_.unloadClosure();
             cmd->evalData(cm);

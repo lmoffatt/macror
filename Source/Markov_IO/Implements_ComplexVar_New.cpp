@@ -208,6 +208,7 @@ namespace Markov_IO_New {
 
     Implements_Data_Type_New_string::Implements_Data_Type_New_string(const std::__cxx11::string id, const Implements_Data_Type_New_string::selfType *typeType,bool isIdentifier, Implements_Data_Type_New_string::typePredicate complyPred, Implements_Data_Type_New_string::getSet alterNext):
       id_(id),
+      env_(),
       varIdType_(isIdentifier?nullptr:Identifier::types::idVarUsed::varType(id)),
       typeIdType_(isIdentifier?nullptr:Identifier::types::idType::varType(id)),
       typeType_(typeType),
@@ -321,11 +322,9 @@ namespace Markov_IO_New {
     idUsed_.clear();
     idVars_.clear();
     idTypes_.clear();
-    idCmds_.clear();
     vars_.clear();
     types_.clear();
     typeC_.clear();
-    cmds_.clear();
     funcs_.clear();
     methods_.clear();
   }
@@ -551,19 +550,6 @@ namespace Markov_IO_New {
 
 
 
-  const Implements_Command_Type_New *StructureEnv_New::idToCommand(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterobjective) const
-  {
-    auto it=cmds_.find(name);
-    if (it!=cmds_.end())
-      return it->second;
-    else if (this->parent()!=nullptr)
-      return  parent()->idToCommand(name, whyNot,masterobjective);
-    else
-      {
-        *whyNot=name+" is not a command ";
-        return nullptr;
-      }
-  }
 
   bool StructureEnv_New::hasName(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const
   {
@@ -629,19 +615,6 @@ namespace Markov_IO_New {
 
 
 
-  bool StructureEnv_New::hasCommand(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const
-  {if (cmds_.find(name)!=cmds_.end())
-      {
-        return true;
-      }
-    if (!recursive||(parent()==nullptr))
-      {
-        *whyNot=masterObjective;
-        return false;
-      }
-    else return parent()->hasCommand(name,whyNot,masterObjective,recursive);
-  }
-
   Implements_Var StructureEnv_New::popVar()
   {
     Implements_Var iv;
@@ -687,12 +660,7 @@ namespace Markov_IO_New {
     idTipWt_[id]={tip,whatthis};
   }
 
-  void StructureEnv_New::pushCommand(const std::__cxx11::string &id, Implements_Command_Type_New *cmd, std::__cxx11::string tip, std::__cxx11::string whatthis)
-  {
-    idCmds_.push_back(id);
-    cmds_[id]=cmd;
-    idTipWt_[id]={tip,whatthis};
-  }
+
 
 
 
@@ -700,7 +668,7 @@ namespace Markov_IO_New {
 
 
   StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const Implements_Data_Type_New<StructureEnv_New *> *myType):
-    p_(parent),strType_(myType),idVars_(),idTypes_(),idCmds_(),vars_(),types_(),cmds_(),funcs_(),idTipWt_()
+    p_(parent),strType_(myType),idVars_(),idTypes_(),vars_(),types_(),funcs_(),idTipWt_()
   {
 
   }
@@ -743,15 +711,6 @@ namespace Markov_IO_New {
 
 
 
-  std::map<std::__cxx11::string, Implements_Command_Type_New *> &StructureEnv_New::getCommands()
-  {
-    return cmds_;
-  }
-
-  const std::map<std::__cxx11::string, Implements_Command_Type_New *> &StructureEnv_New::getCommands() const
-  {
-    return cmds_;
-  }
 
   bool StructureEnv_New::isOfThisType(const StructureEnv_New *cm, const std::__cxx11::string &generalType, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
   {
@@ -838,14 +797,7 @@ namespace Markov_IO_New {
               }
 
           }
-        if (isCommand_)
-          {
-            std::string commandType=name_;
-            std::set<std::string> o2= cm->getIdsOfCmdType(commandType,true);
-            o.insert(o2.begin(),o2.end());
-
-          }
-        if (isFunction_)
+       if (isFunction_)
           {
             std::string functionType=name_;
             std::set<std::string> o2= cm->getIdsOfFncType(functionType,true);
@@ -896,11 +848,6 @@ namespace Markov_IO_New {
                 return true;
 
             }
-          if (isCommand_)
-            {
-              if (cm->hasCommand(idCandidate,whyNot,objective,true ))
-                return true;
-            }
           if (isFunction_)
             {
               if (cm->hasFunction(idCandidate,whyNot,objective,true ))
@@ -908,8 +855,6 @@ namespace Markov_IO_New {
             }
           return false;
         }
-      else if (isCommand_)
-        return cm->hasCommand(idCandidate,whyNot,objective,true );
       else if (isFunction_)
         return cm->hasFunction(idCandidate,whyNot,objective,true );
       else
@@ -931,7 +876,7 @@ namespace Markov_IO_New {
   std::string Implements_Identifier::toId
   (const std::string& name,
    bool isFixed,bool isVar, bool isType,
-   bool isCommand,bool isNew, bool isUsed,bool isFunction)
+   bool isNew, bool isUsed,bool isFunction)
   {
     std::string id="_id";
     if (isFixed)
@@ -948,10 +893,6 @@ namespace Markov_IO_New {
         if (isType&!isVar)
           {
             id+="Typ";
-          }
-        if (isCommand)
-          {
-            id+="Cmd";
           }
         if (isFunction)
           {
@@ -1002,11 +943,6 @@ namespace Markov_IO_New {
     cm->pushType<Identifier::types::idCmd>();
   }
 
-  ABC_Type_of_Value::ABC_Type_of_Value():
-    env_(new StructureEnv_New)
-  {
-
-  }
 
   void Data::push_Types(StructureEnv_New *cm)
   {

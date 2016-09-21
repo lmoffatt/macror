@@ -2470,7 +2470,7 @@ namespace Markov_IO_New {
                 return true;
             }
 
-            virtual selfType *clone() const override{return new selfType();}
+            virtual selfType *clone() const override{return new selfType(*this);}
             virtual selfType *create() const override {return new selfType();}
             virtual std::string functionId()const{}
 

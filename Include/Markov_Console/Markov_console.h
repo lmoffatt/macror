@@ -22,6 +22,7 @@ class Markov_Console :public Markov_IO_New::ABC_IO
 protected:
     Markov_IO_New::Markov_CommandManagerVar* cm;
     std::string currentLine_;
+    std::size_t npos_;
 
 
 public:

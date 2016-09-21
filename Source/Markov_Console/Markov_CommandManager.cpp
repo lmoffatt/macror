@@ -33,7 +33,7 @@
 #include "Markov_IO/FileLoadSave.h"
 
 
-#include "Markov_IO/Commands.h"
+//#include "Markov_IO/Commands.h"
 #include "Markov_IO/myTypes.h"
 #include "Markov_IO/myTypesExperiment.h"
 
@@ -75,6 +75,24 @@ namespace Markov_IO_New
     e->KeyEvent(this,getIO(),getH(),k);
   }
 
+  bool Markov_CommandManagerVar::exec(std::__cxx11::string fileName)
+  {
+    fd::FileIn f(fileName.c_str());
+    if(!f.isOpen())
+      return false;
+    else
+      {
+        ABC_Closure* v;
+        std::string error;
+        while (getFnType()->getClosure(this,v,&f,&error,""))
+          {
+             v->evalData(this);
+          }
+        return true;
+      }
+
+  }
+
   Markov_CommandManagerVar::Markov_CommandManagerVar():
     StructureEnv_New(nullptr,nullptr),
     io_(nullptr),
@@ -89,7 +107,6 @@ namespace Markov_IO_New
   {
     pushVar<pathName::vars::workingPath>(Markov_IO_New::fd::getWorkingPath());
 
-    cmd::pushAllCommands(this);
     pushRegularType<Markov_CommandManagerVar*>();
     pushVoidType();
 
@@ -121,12 +138,7 @@ _private::_experiment::push_Types(this);
     return *h_;
   }
 
-  void Markov_CommandManagerVar::run(const Implements_Command_Arguments *arg)
-  {
-    std::string dummyError;
-    const Implements_Command_Type_New* ctp=idToCommand(arg->myTypeId(),&dummyError,"");
-    ctp->run(this,arg,&dummyError,"");
-  }
+
 
   std::__cxx11::string Markov_CommandManagerVar::getDir() const
   {

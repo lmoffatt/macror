@@ -81,32 +81,6 @@ namespace Markov_IO_New {
   }
 
 
-  bool StructureEnv_New::hasCmdofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const
-  {
-    auto it=cmds_.find(name);
-    if (it==cmds_.end())
-      {
-        if(!recursive||(parent()==nullptr))
-          {
-            *whyNot=masterObjective+": "+name+" is not a name in ";
-            return false;
-          }
-        else return parent()->hasCmdofType(name, type,whyNot,masterObjective,recursive);
-      }
-    else
-      {
-        auto t=idToCommand(type,whyNot,masterObjective);
-        if (t==nullptr)
-          return false;
-        else
-          {
-            const Implements_Command_Type_New* v=it->second;
-            return t->includesThisType(this,name,whyNot,masterObjective);
-          }
-      }
-
-  }
-
 
 
 
@@ -198,37 +172,6 @@ namespace Markov_IO_New {
   }
 
 
-  std::set<std::string> StructureEnv_New::getIdsOfCmdType(const std::string &cmdType,bool recursive) const
-  {
-    std::set<std::string> o;
-    if (recursive&& parent()!=nullptr)
-      {
-        o=parent()->getIdsOfCmdType(cmdType,recursive);
-      }
-    std::string whyNot;
-    std::string objective;
-    if (cmdType.empty())
-      {
-        auto s=getMapKeys(cmds_);
-        s.insert(o.begin(),o.end());
-        return s;
-      }
-    else
-      {
-        const Implements_Command_Type_New* t=
-            idToCommand(cmdType,&whyNot,objective);
-        std::set<std::string> s;
-        for (const auto &p:cmds_)
-          {
-            std::string why;
-            if (t->includesThisType(this,p.first,&why,objective))
-              s.insert(p.first);
-          }
-        s.insert(o.begin(),o.end());
-        return s;
-      }
-  }
-
 
 
   std::set<std::string> StructureEnv_New::getIdsOfFncType(const std::string &fucnType,bool recursive) const
@@ -292,39 +235,6 @@ namespace Markov_IO_New {
   }
 
 
-  std::string StructureEnv_New::defaultIdOfCmdType(const std::string &cmdType,bool recursive) const
-  {
-    std::string whyNot;
-    std::string objective;
-    if (cmdType.empty())
-      {
-        if (!cmds_.empty())
-          {
-            return cmds_.begin()->first;
-          }
-        else if (!recursive || parent()==nullptr)
-          return {};
-        else return parent()->defaultIdOfCmdType(cmdType,recursive);
-
-
-      }
-    else
-      {
-        const Implements_Command_Type_New* t=
-            idToCommand(cmdType,&whyNot,objective);
-        for (const auto &p:cmds_)
-          {
-            std::string why;
-            if (t->includesThisType(this,p.first,&why,objective))
-              return p.first;
-          }
-        if (!recursive || parent()==nullptr)
-          return {};
-        else return parent()->defaultIdOfCmdType(cmdType,recursive);
-
-      }
-  }
-
 
 
 
@@ -359,36 +269,6 @@ namespace Markov_IO_New {
   }
 
 
-
-  std::string StructureEnv_New::defaultIdOfCommand(const std::string &idCmd,bool recursive) const
-  {
-    std::string whyNot;
-    std::string objective;
-    if (idCmd.empty())
-      {
-        if (!cmds_.empty())
-          {
-            return cmds_.begin()->first;
-          }
-        else if (!recursive || parent()==nullptr)
-          return {};
-        else return parent()->defaultIdOfCommand(idCmd,recursive);
-      }
-    else
-      {
-        const Implements_Command_Type_New* t=idToCommand(idCmd,&whyNot,objective);
-        for (const auto &p:cmds_)
-          {
-            std::string why;
-            if (t->includesThisType(this,p.first,&why,objective))
-              return p.first;
-          }
-        if (!recursive || parent()==nullptr)
-          return {};
-        else return parent()->defaultIdOfTypeType(idCmd,recursive);
-
-      }
-  }
 
 
   std::set<std::string> StructureEnv_New::getIdsOfTypeType(const std::string &typeType, bool recursive) const

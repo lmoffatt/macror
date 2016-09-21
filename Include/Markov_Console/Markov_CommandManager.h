@@ -71,6 +71,8 @@ namespace Markov_IO_New
 
      void KeyEvent(Key k);
 
+     bool exec(std::string filename);
+
      static std::string ClassName(){return "Markov_CommandManagerVar";}
 
     Markov_CommandManagerVar();
@@ -111,9 +113,7 @@ namespace Markov_IO_New
 
 
 
-    void run(const Implements_Command_Arguments* arg);
-
-    std::string getDir() const;
+   std::string getDir() const;
 
     bool setDir(const std::string &dir);
 

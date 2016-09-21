@@ -235,7 +235,7 @@ namespace Markov_IO_New {
     virtual bool isOfThisType(const StructureEnv_New* cm,
                               const std::string& generalType,
                               std::string* whyNot
-                              ,const std::string &masterObjective)const;
+                              ,const std::string &masterObjective)const override;
 
 
     std::vector<std::string> loadVars(StructureEnv_New other, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool overwrite);
@@ -504,7 +504,6 @@ namespace Markov_IO_New {
 
 
 
-    bool hasCmdofType(const std::string &name, const std::string &type, std::string *whyNot, const std::string &masterObjective, bool recursive) const;
 
 
     bool hasTypeofType(const std::string& name, const std::string& type,
@@ -677,7 +676,7 @@ namespace Markov_IO_New {
     StructureEnv_New(const StructureEnv_New* parent, const std::string& idType);
 
 
-    StructureEnv_New()=default;
+    StructureEnv_New(): StructureEnv_New(nullptr,nullptr){};
 
 
     std::vector<std::__cxx11::string> getIdsOfVarType(const std::string& varType, bool recursive)const;
@@ -724,7 +723,6 @@ namespace Markov_IO_New {
 
     std::size_t numIdVars()const {return idVars_.size();}
     std::size_t numIdTypes()const {return idTypes_.size();}
-    std::size_t numIdCmds()const {return idCmds_.size();}
 
 
 
@@ -764,7 +762,6 @@ namespace Markov_IO_New {
     std::vector<std::string> idVars_;
     std::vector<std::string> idFunctions_;
     std::vector<std::string> idTypes_;
-    std::vector<std::string> idCmds_;
 
     std::map<std::string,ABC_Data_New*> vars_;
     std::map<std::string,ABC_Type_of_Value*> types_;
@@ -774,7 +771,6 @@ namespace Markov_IO_New {
 
     std::map<std::string,std::map<std::string,ABC_Type_of_Method*>> methods_;
 
-    std::map<std::string,Implements_Command_Type_New*> cmds_;
 
     std::map<std::string,std::pair<std::string,std::string>> idTipWt_;
  };

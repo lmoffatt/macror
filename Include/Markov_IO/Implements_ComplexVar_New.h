@@ -16,7 +16,7 @@
 #include <sstream>
 #include <tuple>
 #include <type_traits>
-
+#include <memory>
 
 
 namespace Markov_IO_New {
@@ -127,7 +127,6 @@ namespace Markov_IO_New {
 
 
 
-    ABC_Type_of_Value();
     virtual ~ABC_Type_of_Value(){}
     virtual bool putData(const StructureEnv_New* cm
                          ,const ABC_Data_New* v
@@ -167,8 +166,6 @@ namespace Markov_IO_New {
 
 
 
-    virtual StructureEnv_New* getEnv(){return env_;}
-    virtual const StructureEnv_New* getEnv()const {return env_;}
 
 
     virtual std::string typeId()const =0;
@@ -178,9 +175,7 @@ namespace Markov_IO_New {
 
 
 
-  private:
-    StructureEnv_New* env_;
-
+  
   };
 
 
@@ -376,10 +371,6 @@ namespace Markov_IO_New {
     class Implements_Base_Type_New:public ABC_Type_of_Value
     {
     public:
-
-
-
-
 
 
       virtual bool putValue(const StructureEnv_New* cm
@@ -743,12 +734,16 @@ namespace Markov_IO_New {
         return typeIdType_;
       }
 
+      virtual StructureEnv_New* getEnv() {return &env_;}
+      virtual const StructureEnv_New* getEnv()const  {return &env_;};
+
 
 
 
 
     protected:
       std::string id_;
+      StructureEnv_New  env_;
       const Implements_Identifier* varIdType_;
       const Implements_Identifier* typeIdType_;
       selfType const * typeType_;
@@ -851,20 +846,19 @@ namespace Markov_IO_New {
   private:
     static std::string toId
     (const std::string& name,
-     bool isFixed,bool isVar, bool isType,
-     bool isCommand,bool isNew, bool isUsed, bool isFunction=false);
+     bool isFixed, bool isVar, bool isType, bool isNew, bool isUsed, bool isFunction=false);
 
     Implements_Identifier
     (const std::string& nameId,
      Implements_Data_Type_New<myC>* const typeType
      ,const std::string& name,
      bool isFixed,bool isVar, bool isType,
-     bool isCommand,bool isNew, bool isUsed, bool isFunction=false):
+     bool isNew, bool isUsed, bool isFunction):
       Implements_Data_Type_New_string
       ("", nullptr,true),
       typeId_(nameId),typeType_(typeType),
       name_(name),isFixed_(isFixed)
-    , isVar_(isVar), isType_(isType),isCommand_(isCommand)
+    , isVar_(isVar), isType_(isType)
     ,isNew_(isNew),isUsed_(isUsed),isFunction_(isFunction)
     {}
     std::string typeId_;
@@ -873,7 +867,6 @@ namespace Markov_IO_New {
     bool isFixed_;
     bool isVar_;
     bool isType_;
-    bool isCommand_;
     bool isField_;
     bool isNew_;
     bool isUsed_;
@@ -1079,7 +1072,7 @@ namespace Markov_IO_New {
       {
         return new Implements_Identifier
             (toId<T>(idName),nullptr,idName,T::isFixed,T::isVar
-             ,T::isType,T::isCommand,T::isNew,T::isUsed, T::isFunction);
+             ,T::isType,T::isNew,T::isUsed, T::isFunction);
       }
 
 
@@ -1089,7 +1082,7 @@ namespace Markov_IO_New {
       {
         return Implements_Identifier::toId
             (idName,T::isFixed,T::isVar
-             ,T::isType,T::isCommand,T::isNew,T::isUsed, T::isFunction);
+             ,T::isType,T::isNew,T::isUsed, T::isFunction);
 
       }
 
@@ -1111,7 +1104,6 @@ namespace Markov_IO_New {
         constexpr static  bool isFixed=false;
         constexpr static  bool isVar=true;
         constexpr static  bool isType=false;
-        static constexpr bool isCommand=false;
         static constexpr bool isNew=true;
         static constexpr bool isUsed=true;
         static constexpr bool isFunction=false;
@@ -2096,6 +2088,7 @@ namespace Markov_IO_New {
                                        typePredicate complyPred=nullptr,
                                        getSet alternatives=nullptr)
         :typeId_(id)
+        ,env_(StructureEnv_New(nullptr,nullptr))
         ,varIdType_(Identifier::types::idVarUsed::varType(id))
         ,typeIdType_(Identifier::types::idType::varType(id))
         ,typeType_(typeType),
@@ -2188,8 +2181,13 @@ namespace Markov_IO_New {
         return typeIdType_;
       }
 
+      virtual StructureEnv_New* getEnv() {return &env_;}
+      virtual const StructureEnv_New* getEnv()const  {return &env_;};
+
+
     protected:
       std::string typeId_;
+      StructureEnv_New env_;
       const Implements_Identifier* varIdType_;
       const Implements_Identifier* typeIdType_;
       Implements_Data_Type_New<myC> const * typeType_;
@@ -7253,106 +7251,8 @@ typedef buildByToken<myC> myBuild;
   }
 
 
-  class Implements_Command_Arguments: public StructureEnv_New
-  {
-  public:
-
-    virtual ~Implements_Command_Arguments(){}
-
-    Implements_Command_Arguments(const StructureEnv_New* parent,
-                                 const Implements_Data_Type_New<StructureEnv_New*> *var
-                                 ):
-      StructureEnv_New(parent,var){}
-
-  };
 
 
-
-  class Implements_Command_Type_New:
-      public _private::Implements_Data_Type_New_StructureEnv
-  {
-  public:
-
-
-    using runCommand
-    = bool  (*)
-    (Markov_CommandManagerVar* cm
-    , const StructureEnv_New* arguments
-    ,const Implements_Command_Type_New* self
-    ,std::string* WhyFail, const std::string& masterObjective);
-
-
-
-
-
-    virtual ~Implements_Command_Type_New(){}
-
-
-    Implements_Command_Type_New
-    (const std::string& id,Implements_Command_Type_New const * typeType,
-     std::vector<std::pair<Implements_Var,bool>> argList
-     ,runCommand run_,
-     const Implements_Data_Type_New<Implements_Var>* elemeType,
-     typePredicate comply,
-     typePredicate hasMandatory,
-     typePredicate hasAll,
-     elementType elem):
-      _private::Implements_Data_Type_New_StructureEnv
-      (id,typeType,argList,elemeType,comply,hasMandatory,hasAll,elem)
-    ,idCmd_(id),
-      run_(run_)
-    {
-    }
-
-
-
-
-
-  public:
-
-
-
-
-    virtual bool run(Markov_CommandManagerVar* cm,
-                     const StructureEnv_New* m,
-                     std::string *WhyNot, const std::string& masterObjective)const
-    {
-      return (*run_)(cm,m,this,WhyNot,masterObjective);
-    }
-
-
-
-    // ABC_Type_of_Value interface
-  public:
-    typedef build_Command_Input myBuild;
-    virtual build_Command_Input *getBuildByToken(const StructureEnv_New *cm) const override
-    {
-      return new build_Command_Input(cm,this);
-
-    }
-
-
-  protected:
-    std::string idCmd_;
-    runCommand run_;
-
-
-
-
-    // ABC_Data_New interface
-  public:
-    virtual std::__cxx11::string myTypeId() const override
-    {
-      return "command";
-    }
-
-    std::string typeId() const override
-    {
-      return idCmd_;
-    }
-
-    // Implements_Base_Type_New<T *> interface
-  };
 
 
   ///--------------------------------------------------------------------

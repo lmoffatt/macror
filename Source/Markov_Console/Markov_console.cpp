@@ -87,17 +87,23 @@ namespace Markov_Console_New
   void Markov_Console::put(const std::string& s)
   {
     std::cout<<s;
+    currentLine_=currentLine_.substr(0,npos_)+s;
   }
 
   void Markov_Console::putNewLine()
   {
     std::cout<<"\n";
+    currentLine_.clear();
+    npos_=0;
+
   }
 
   void Markov_Console::freshLine()
   {
     putNewLine();
     put(cm->getProgram().spacer().c_str());
+    currentLine_.clear();
+    npos_=0;
 
   }
 
@@ -108,22 +114,23 @@ namespace Markov_Console_New
 
   bool Markov_Console::isLineBegin() const
   {
-    return false; // provisional
+    return npos_==0; // provisional
   }
 
   bool Markov_Console::isLineEnd() const
   {
-    return false; // provisional
+    return npos_==currentLine_.size(); // provisional
   }
 
   std::__cxx11::string Markov_Console::currentLine() const
   {
-
+     return currentLine_;
   }
 
   char Markov_Console::pop_next_char()
   {
-
+     char out=currentLine_[npos_];
+     currentLine_=currentLine_.substr(0,npos_-1);
   }
 
   void Markov_Console::erase_from_cursor_forward(std::__cxx11::string s)
@@ -139,6 +146,7 @@ namespace Markov_Console_New
   char Markov_Console::backErase()
   {
     std::cout<<"\b";
+
   }
 
   void Markov_Console::move_end()
@@ -163,12 +171,12 @@ namespace Markov_Console_New
 
   std::__cxx11::string Markov_Console::getTail()
   {
-
+     return {};
   }
 
   void Markov_Console::putError(const std::string &s)
   {
-    std::cerr<<s;
+    std::cout<<"\e[31m"<<s<<"\e[31m";
   }
 
   std::string Markov_Console::getItemFromList(const std::string &title, const std::vector<std::string> &list, bool &ok, std::size_t pos)
@@ -391,7 +399,7 @@ namespace Markov_Console_New
 
 
   Markov_Console::Markov_Console(Markov_IO_New::Markov_CommandManagerVar *c):
-    cm(c)
+    cm(c),currentLine_(),npos_(0)
   {
     cm->setIO(this);
   }
