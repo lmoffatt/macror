@@ -524,7 +524,7 @@ first: all
 ####### Build rules
 
 $(TARGET):  $(OBJECTS)
-        $(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
+    $(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: ../macror/MacroRConsole.pro /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/linux-g++/qmake.conf /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/features/spec_pre.prf \
                 /home/luciano/Qt5.7.0/5.7/gcc_64/mkspecs/common/unix.conf \
