@@ -418,8 +418,7 @@ SOURCES += \
 OTHER_FILES += \
     help_files/plan_aheadd.txt
 
-DISTFILES += \
-    Makefile
+DISTFILES +=
 
 
 
