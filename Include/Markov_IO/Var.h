@@ -64,6 +64,7 @@ namespace Markov_IO_New {
   };
   class ABC_Data_New;
   struct Implements_Var;
+  struct Implements_Var_Closure;
   class StructureEnv_New;
   class Markov_CommandManagerVar;
 
@@ -224,6 +225,8 @@ namespace Markov_IO_New {
     class Implements_Data_Type_New_string;
     class Implements_Data_Type_New_ABC_Data_New;
     class Implements_Data_Type_New_Implements_Var;
+    class Implements_Data_Type_New_Implements_Var_Closure;
+
     class Implements_Data_Type_New_StructureEnv;
 
 
@@ -339,6 +342,13 @@ namespace Markov_IO_New {
       using type=Implements_Data_Type_New_Implements_Var;
       using value=Implements_Value_Base_New<Implements_Var>;
     };
+
+
+    template<>
+     struct mp_DataType_Imp<Implements_Var_Closure>{
+       using type=Implements_Data_Type_New_Implements_Var_Closure;
+       using value=Implements_Value_Base_New<Implements_Var_Closure>;
+     };
 
 
     template<>

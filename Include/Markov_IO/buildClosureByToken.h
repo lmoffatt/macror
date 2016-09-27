@@ -2187,6 +2187,161 @@ namespace Markov_IO_New {
 
 
 
+
+  template<>
+  class buildByToken<Implements_Var_Closure>
+      :public ABC_BuildByToken
+  {
+  public:
+
+    enum DFA {
+      S_Init=0, TIP1, TIP2,WT0_ID0,WT2,WT3,ID1,ID2,WT1,ID0,
+      S_DATA_PARTIAL,
+      S_Final
+    } ;
+
+    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
+
+
+
+    bool isFinal()const override
+    {
+      return mystate==S_Final;
+
+    }
+    bool isInitial()const override
+    {
+      return mystate==S_Init;
+
+    }
+
+    buildByToken(){}
+
+    ~buildByToken(){}
+
+
+
+    Implements_Var_Closure unloadVar()
+    {
+      if (isFinal())
+        {
+          Implements_Var_Closure out=std::move(iv_);
+          iv_={};
+          return out;
+        }
+      else
+        return {};
+    }
+
+    virtual ABC_Data_New* unloadData()override
+    {
+      return nullptr;
+    }
+
+    virtual bool unpopData(ABC_Data_New* data) override
+    {
+      return false;
+    }
+
+
+    bool unPop(Implements_Var_Closure var)
+    {
+      iv_=std::move(var);
+      mystate=S_Final;
+      return true;
+
+    }
+
+    buildByToken(const StructureEnv_New* parent,
+                 const Implements_Data_Type_New<Implements_Var_Closure> *varType);
+
+
+
+
+    void clear()override;
+
+
+    const StructureEnv_New* parent() const override {return p_;}
+
+    private:
+      const StructureEnv_New* p_;
+
+    DFA mystate;
+    const Implements_Data_Type_New<Implements_Var_Closure> * ivarType_;
+    Implements_Identifier* idType_;
+    Implements_Closure_Type<void *>* dataTy_;
+    std::unique_ptr<buildByToken<std::string>> idB_;
+    std::unique_ptr<buildClosureByToken<void*>> dataB_;
+    Implements_Var_Closure iv_;
+
+  private:
+    bool pushIdToken(Token_New tok, std::string* whyNot,const std::string& masterObjective);
+
+
+
+  public:
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
+
+    {
+      std::pair<std::string, std::set<std::string> > out;
+      switch (mystate)
+        {
+        case S_Init:
+          out.first="Tip";
+          out.second={"#"};
+          out+=idB_->alternativesNext();
+          return out;
+
+
+        case TIP1:
+          out.first="Write a tip";
+          out.second={"<Tip>"};
+          return out;
+        case TIP2:
+          out.first="Expected end of line";
+          out.second={"\n"};
+          return out;
+        case WT0_ID0:
+          out.first="Whatthis";
+          out.second={"#"};
+          out+=idB_->alternativesNext();
+          return out;
+
+
+        case WT1:
+          out.first="# for Whatthis";
+          out.second={"#"};
+          [[clang::fallthrough]];
+        case WT2:
+          out.first="Write an extended description";
+          out.second={"<WhatThis>"};
+          return out;
+
+        case WT3:
+          out.first="Expected end of line";
+          out.second={"\n"};
+          return out;
+        case ID0:
+          return  idB_->alternativesNext();
+
+        case ID1:
+          out.first=" token \":\"";
+          out.second={":"};
+          return out;
+        case ID2:
+        case S_DATA_PARTIAL:
+          return dataB_->alternativesNext();
+        case S_Final:
+          return {};
+        }
+    }
+
+    virtual Token_New popBackToken() override;
+  };
+
+
+
+
 }
 
 

@@ -39,6 +39,55 @@ namespace Markov_IO_New {
   };
 
 
+
+  struct Implements_Var_Closure
+  {
+    static std::string ClassName(){return "Implements_Var_Closure";}
+    void clear()
+    {
+      id.clear();
+      closure.reset();
+      Tip.clear();
+      WhatThis.clear();
+    }
+
+
+
+    std::string id;
+    std::unique_ptr<ABC_Closure> closure;
+    std::string Tip;
+    std::string WhatThis;
+  };
+
+
+  struct const_Implements_Var_Closure
+  {
+    static std::string ClassName(){return "const_Implements_Var_Closure";}
+    void clear()
+    {
+      id.clear();
+      closure=nullptr;
+      Tip.clear();
+      WhatThis.clear();
+    }
+
+    const_Implements_Var_Closure( std::string _id,
+                          const ABC_Closure* _data,
+                          std::string _Tip,
+                          std::string _WhatThis)
+      :id(_id),closure(_data),Tip(_Tip),WhatThis(_WhatThis){}
+
+    const_Implements_Var_Closure( const Implements_Var_Closure& other)
+      :id(other.id),closure(other.closure.get()),Tip(other.Tip),WhatThis(other.WhatThis){}
+
+    std::string id;
+    const ABC_Closure* closure;
+    std::string Tip;
+    std::string WhatThis;
+  };
+
+
+
   template<typename R>
   class ABC_R_Closure: public ABC_Closure
   {

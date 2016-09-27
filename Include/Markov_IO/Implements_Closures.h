@@ -1368,6 +1368,10 @@ namespace Markov_IO_New {
                 return funIdType_.get();
             }
 
+
+
+
+
             std::string getFunctionId()const
             {
                 return functionName_;
@@ -1424,6 +1428,250 @@ namespace Markov_IO_New {
             // ABC_Data_New interface
         };
 
+
+
+
+
+        class Implements_Data_Type_New_Implements_Var_Closure:
+            public Implements_Base_Type_New<Implements_Var_Closure>
+        {
+
+        public:
+          typedef Implements_Var_Closure myC;
+          typedef Implements_Closure_Type<void*> clType;
+          typedef Implements_Data_Type_New_Implements_Var_Closure selfType;
+
+          using typePredicate=bool (*)
+          (const StructureEnv_New * cm, const const_Implements_Var_Closure& iv,
+          const Implements_Data_Type_New_Implements_Var_Closure* self
+          , std::string * whyNot,const std::string& masterObjective);
+
+          using  keyType= Implements_Identifier* (*)
+          (const StructureEnv_New * cm, const const_Implements_Var_Closure& iv,
+          const Implements_Data_Type_New_Implements_Var* self
+          , std::string * whyNot,const std::string& masterObjective
+          ,Implements_Identifier* source);
+
+          using  elemType= clType* (*)
+          (const StructureEnv_New * cm, const const_Implements_Var_Closure& iv,
+          const selfType* self
+          , std::string * whyNot,const std::string& masterObjective
+          ,clType* source);
+
+
+          virtual bool putValue(const StructureEnv_New* cm
+                                ,const const_Implements_Var_Closure& v
+                                ,ABC_Output* ostream
+                                ,std::string* whyNot=nullptr,
+                                const std::string& masterObjective="")const
+          {
+            if ((whyNot==nullptr)||(this->isValueInDomain(cm,v,whyNot,masterObjective)))
+              {
+                const Implements_Identifier* ktype=this->getKeyType(cm);
+
+                const clType* etype=this->getElementType(cm);
+
+                if (!v.Tip.empty())
+                  {
+                    ostream->put("#");
+                    ostream->put(v.Tip);
+                    ostream->put("\n");
+                    if (!v.WhatThis.empty())
+                      {
+                        ostream->put("##");
+                        ostream->put(v.WhatThis);
+                        ostream->put("\n");
+
+                      }
+                  }
+                if (!ktype->putValue(cm,v.id,ostream,whyNot,masterObjective))
+                  return false;
+                ostream->put(":");
+                if(!v.closure->putMe
+                   (cm,ostream,whyNot,masterObjective))
+                  {
+                    return false;
+                  }
+                return true;
+
+
+              }
+            return false;
+          }
+
+
+          virtual bool putValue(const StructureEnv_New* cm
+                                ,const Implements_Var_Closure& v
+                                ,ABC_Output* ostream
+                                ,std::string* whyNot=nullptr,
+                                const std::string& masterObjective="")const override
+          {
+            const_Implements_Var_Closure cv(v);
+            return putValue(cm,cv,ostream,whyNot,masterObjective);
+          }
+
+
+          virtual bool getValue(const StructureEnv_New* cm
+                                ,Implements_Var_Closure& v, ABC_Input* istream,std::string* whyNot
+                                ,const std::string& masterObjective)const override;
+
+          virtual ~Implements_Data_Type_New_Implements_Var_Closure(){}
+
+
+          virtual const Implements_Identifier* getKeyType(const StructureEnv_New* cm)const
+          {
+            return idType_;
+          }
+
+
+          //      virtual Implements_Identifier* getKeyType
+          //      (const StructureEnv_New* cm
+          //       , const const_Implements_Var& v, std::string* whyNot, const std::string& masterObjective,
+          //       Implements_Identifier* source)const
+          //      {
+          //        if (getKey_==nullptr)
+          //          {
+          //            return source;
+          //          }
+          //        else return (*getKey_)(cm,v,this,whyNot,masterObjective,source);
+          //      }
+
+          virtual const clType* getElementType(const StructureEnv_New* cm)const
+          {
+            return clType_;
+          }
+
+
+          virtual clType* getElementType
+          (const StructureEnv_New* cm, const const_Implements_Var_Closure& v,
+           std::string* whyNot,
+           const std::string& masterObjective,clType* source)const
+          {
+            if (getElement_==nullptr)
+              return source;
+            else return (*getElement_)(cm,v,this,whyNot,masterObjective,source);
+          }
+
+          typedef buildByToken<myC> myBuild;
+          virtual buildByToken<Implements_Var_Closure>* getBuildByToken(const StructureEnv_New* cm)const override
+          {
+            return new buildByToken<Implements_Var_Closure>(cm,this);
+          }
+
+
+
+
+          virtual bool empty()const override
+          {
+            return idType_==nullptr
+                &&clType_==nullptr
+                &&comply_==nullptr
+                &&getKey_==nullptr
+                &&getElement_==nullptr;
+
+          }
+
+          virtual void reset() override
+          {
+            idType_=nullptr;
+            clType_=nullptr;
+            comply_=nullptr;
+            getKey_=nullptr;
+            getElement_=nullptr;
+
+          }
+
+          virtual selfType* clone()const override
+          {
+            return new selfType(*this);
+          }
+          virtual selfType* create()const override
+          {
+            return new selfType();
+          }
+          Implements_Data_Type_New_Implements_Var_Closure():
+            Implements_Data_Type_New_Implements_Var_Closure(Cls<myC>::name(),nullptr,nullptr,nullptr){}
+
+
+          virtual bool getData(const StructureEnv_New* cm
+                               ,ABC_Data_New*& v
+                               , ABC_Input* istream
+                               ,std::string* error
+                               , const std::string& masterObjective)const override
+          {
+              return false;
+           }
+
+
+          virtual ABC_Type_of_Value const* myType()const override {return typeType_;}
+          virtual Implements_Data_Type_New<myC> const * myTypeD()const {return typeType_;}
+
+          std::string typeId()const override {return typeId_;}
+
+          std::string myTypeId()const override  {
+            if (myType()==nullptr)
+              return Cls<myC>::name();
+            else
+              return myType()->typeId();
+          }
+
+
+
+
+          virtual bool isValueInDomain(const StructureEnv_New* cm
+                                       ,const const_Implements_Var_Closure &val
+                                       , std::string *whyNot
+                                       ,const std::string& masterObjective ) const
+          {
+            if (comply_==nullptr)
+              return true;
+            else
+              return (*comply_)(cm,val,this,whyNot,masterObjective);
+          }
+
+          virtual bool isValueInDomain(const StructureEnv_New* cm
+                                       ,const Implements_Var_Closure &val
+                                       , std::string *whyNot
+                                       ,const std::string& masterObjective ) const override
+          {
+            if (comply_==nullptr)
+              return true;
+            else
+              return (*comply_)(cm,val,this,whyNot,masterObjective);
+          }
+
+          virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const override
+          {
+            return nullptr;
+          }
+          virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const override
+          {
+            return nullptr;
+          }
+
+
+
+        private:
+
+
+          Implements_Data_Type_New_Implements_Var_Closure
+          ( const std::string& id, selfType* const typeType,
+            Implements_Identifier* idType,
+            clType* dataType,
+            typePredicate comply=nullptr,
+            elemType getElement=nullptr,
+            keyType getKey=nullptr);
+
+
+          std::string typeId_;
+          selfType const * typeType_;
+          Implements_Identifier* idType_;
+          clType* clType_;
+          typePredicate comply_;
+          elemType getElement_;
+          keyType getKey_;
+
+        };
 
 
 
