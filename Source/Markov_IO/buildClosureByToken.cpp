@@ -10,16 +10,17 @@ namespace Markov_IO_New
 
 
 
-  build_StatementNew::build_StatementNew(const StructureEnv_New *p
-                                         , const Implements_Data_Type_New<Implements_Var> *varType
-                                         , const Implements_Closure_Type<void *> *clType
-                                         ):
+  build_StatementNew::build_StatementNew
+  (const StructureEnv_New *p
+   , const Implements_Data_Type_New<Implements_Var> *varType
+   , const Implements_Data_Type_New<Implements_Var_Closure> *varClosureType
+   , const Implements_Closure_Type<void *> *cmdType
+   ):
     p_(p),
     mystate(S_Init),
     v_(varType->getBuildByToken(p)),
-    cb_(clType->getBuildClosureByToken(p)),
-    cl_(),
-    x_()
+    vc_(varClosureType->getBuildByToken(p)),
+    cb_(cmdType->getBuildClosureByToken(p))
 
   {}
 
@@ -27,7 +28,7 @@ namespace Markov_IO_New
   {
     v_->clear();
     mystate=S_Init;
-    x_.clear();
+    vc_->clear();
     cb_->clear();
 
   }
@@ -37,10 +38,8 @@ namespace Markov_IO_New
     switch (mystate)
       {
       case S_Init: return {};
-      case S_Function_Final:
-        //    cb_->UnPopClosure(cl_.release());
-
-      case S_Function_Partial:
+      case S_Command_Final:
+      case S_Command_Partial:
         {
           Token_New out =cb_->popBackToken();
           if (cb_->isInitial())
@@ -51,8 +50,6 @@ namespace Markov_IO_New
         }
 
       case S_Expression_Final:
-        v_->unPop(x_);
-
       case S_Expression_Partial:
         {
           Token_New out =v_->popBackToken();
@@ -60,6 +57,27 @@ namespace Markov_IO_New
             mystate=S_Init;
           else
             mystate=S_Expression_Partial;
+          return out;
+        }
+
+      case S_Assigment_Final:
+      case S_Assigment_Partial:
+        {
+          Token_New out =vc_->popBackToken();
+          if (vc_->isInitial())
+            mystate=S_Init;
+          else
+            mystate=S_Assigment_Partial;
+          return out;
+        }
+      case S_Assigment_Expression_Partial:
+        {
+          Token_New out =v_->popBackToken();
+          vc_->popBackToken();
+          if (v_->isInitial())
+            mystate=S_Init;
+          else
+            mystate=S_Assigment_Expression_Partial;
           return out;
         }
 
@@ -76,7 +94,11 @@ namespace Markov_IO_New
       {
       case S_Init:
       case S_Identifier_Partial:
-        if (idB_->pushToken(tok,whyNot,objective))
+        if (!idB_->pushToken(tok,whyNot,objective))
+          {
+            return false;
+          }
+        else
           {
             if (idB_->isFinal())
               {
@@ -112,19 +134,21 @@ namespace Markov_IO_New
           }
       case S_Identifier_Final:
       case S_Closure_PARTIAL:
-        if (oUB_->pushToken(tok, whyNot,objective))
+        if (!oUB_->pushToken(tok, whyNot,objective))
           {
-            if (oUB_->isFinal())
-              {
-                mystate=S_Final;
-                return true;
-              }
-            else
-              {
-                mystate=S_Closure_PARTIAL;
-                return true;
-              }
+            return false;
           }
+        else if (oUB_->isFinal())
+          {
+            mystate=S_Final;
+            return true;
+          }
+        else
+          {
+            mystate=S_Closure_PARTIAL;
+            return true;
+          }
+
       case S_Final:
         return false;
       }
@@ -180,19 +204,19 @@ namespace Markov_IO_New
         }
       case S_Identifier_Final:
 
-          idB_->unPop(idString_);
+        idB_->unPop(idString_);
       case S_Identifier_Partial:
-          Token_New out=idB_->popBackToken();
-          if (idB_->isInitial())
-            {
-              mystate=S_Init;
-            }
-          else
-            {
-              mystate=S_Identifier_Partial;
-            }
-          return out;
-        }
+        Token_New out=idB_->popBackToken();
+        if (idB_->isInitial())
+          {
+            mystate=S_Init;
+          }
+        else
+          {
+            mystate=S_Identifier_Partial;
+          }
+        return out;
+      }
 
   }
   ABC_Closure *buildClosureByToken<void *>::unloadClosure()
@@ -225,9 +249,9 @@ namespace Markov_IO_New
                 (rfnType_->getOverloadsTypes(parent())
                  ->getBuildClosureByToken(parent()));
             if(!oUB_->unPopClosure(cl))
-            {
-              return false;
-            }
+              {
+                return false;
+              }
             else
               {
                 mystate=S_Final;

@@ -1101,7 +1101,6 @@ namespace Markov_IO_New {
                 if (fnB_->isFinal())
                   {
                     mystate=S_Fn_Final;
-                    data_.reset(fnB_->unloadClosure());
                   }
                 else
                   mystate=S_Fn_Partial;
@@ -1112,7 +1111,6 @@ namespace Markov_IO_New {
                 if (dataB_->isFinal())
                   {
 
-                    data_.reset(dataB_->unloadClosure());
 
                     mystate=S_Data_Final;
                   }
@@ -1129,8 +1127,7 @@ namespace Markov_IO_New {
                 if (xB_->isFinal())
                   {
                     mystate=S_Id_Final;
-                    data_.reset(xB_->unloadClosure());
-                  }
+                    }
                 else
                   {
                     mystate=S_Id_Partial;
@@ -1146,7 +1143,6 @@ namespace Markov_IO_New {
                 if (fnB_->isFinal())
                   {
                     mystate=S_Fn_Final;
-                    data_.reset(fnB_->unloadClosure());
 
                   }
                 else
@@ -1162,7 +1158,6 @@ namespace Markov_IO_New {
                 if (dataB_->isFinal())
                   {
 
-                    data_.reset(dataB_->unloadClosure());
 
                     mystate=S_Data_Final;
                   }
@@ -1201,15 +1196,14 @@ namespace Markov_IO_New {
     {
       if (isFinal())
         {
-          if(mystate==S_Id_Final)
-            data_.reset(xB_->unloadClosure());
-          else if (mystate==S_Data_Final)
-            data_.reset(dataB_->unloadClosure());
-          else
-            data_.reset(fnB_->unloadClosure());
           ABC_R_Closure<R>* out;
+          if(mystate==S_Id_Final)
+            out=xB_->unloadClosure();
+          else if (mystate==S_Data_Final)
+            out=dataB_->unloadClosure();
+          else
+            out=fnB_->unloadClosure();
           mystate=S_Init;
-          out= data_.release();
           return out;
         }
       else
@@ -1246,8 +1240,7 @@ namespace Markov_IO_New {
       mystate(S_Init),cType_(varType),
       dataB_(varType->myConstantType(parent)->getBuildClosureByToken(parent)),
       xB_(varType->myIdentifierType(parent)->getBuildClosureByToken(parent)),
-      fnB_(varType->myFunctionType(parent)->getBuildClosureByToken(parent)),
-      data_(){}
+      fnB_(varType->myFunctionType(parent)->getBuildClosureByToken(parent)){}
 
     void clear()override
     {}
@@ -1327,7 +1320,6 @@ namespace Markov_IO_New {
     std::unique_ptr<buildClosureByToken<R,int>> dataB_;
     std::unique_ptr<buildClosureByToken<R,std::string>> xB_;
     std::unique_ptr<buildClosureByToken<R,void*>> fnB_;
-    std::unique_ptr<ABC_R_Closure<R>> data_;
   };
 
 
@@ -1902,6 +1894,162 @@ namespace Markov_IO_New {
   };
 
 
+
+  template<>
+  class buildByToken<Implements_Var_Closure>
+      :public ABC_BuildByToken
+  {
+  public:
+
+    enum DFA {
+      S_Init=0, TIP1, TIP2,WT0_ID0,WT2,WT3,ID1,ID2,WT1,ID0,
+      S_DATA_PARTIAL,
+      S_Final
+    } ;
+
+    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
+
+
+
+    bool isFinal()const override
+    {
+      return mystate==S_Final;
+
+    }
+    bool isInitial()const override
+    {
+      return mystate==S_Init;
+
+    }
+
+    buildByToken(){}
+
+    ~buildByToken(){}
+
+
+
+    Implements_Var_Closure unloadVar()
+    {
+      if (isFinal())
+        {
+          Implements_Var_Closure out=std::move(iv_);
+          iv_={};
+          return out;
+        }
+      else
+        return {};
+    }
+
+    virtual ABC_Data_New* unloadData()override
+    {
+      return nullptr;
+    }
+
+    virtual bool unpopData(ABC_Data_New* data) override
+    {
+      return false;
+    }
+
+
+    bool unPop(Implements_Var_Closure var)
+    {
+      iv_=std::move(var);
+      mystate=S_Final;
+      return true;
+
+    }
+
+    buildByToken(const StructureEnv_New* parent,
+                 const Implements_Data_Type_New<Implements_Var_Closure> *varType);
+
+
+
+
+    void clear()override;
+
+
+    const StructureEnv_New* parent() const override {return p_;}
+
+  private:
+    const StructureEnv_New* p_;
+
+    DFA mystate;
+    const Implements_Data_Type_New<Implements_Var_Closure> * ivarType_;
+    Implements_Identifier* idType_;
+    Implements_Closure_Type<void *>* dataTy_;
+    std::unique_ptr<buildByToken<std::string>> idB_;
+    std::unique_ptr<buildClosureByToken<void*>> dataB_;
+    Implements_Var_Closure iv_;
+
+  private:
+    bool pushIdToken(Token_New tok, std::string* whyNot,const std::string& masterObjective);
+
+
+
+  public:
+    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
+
+    {
+      std::pair<std::string, std::set<std::string> > out;
+      switch (mystate)
+        {
+        case S_Init:
+          out.first="Tip";
+          out.second={"#"};
+          out+=idB_->alternativesNext();
+          return out;
+
+
+        case TIP1:
+          out.first="Write a tip";
+          out.second={"<Tip>"};
+          return out;
+        case TIP2:
+          out.first="Expected end of line";
+          out.second={"\n"};
+          return out;
+        case WT0_ID0:
+          out.first="Whatthis";
+          out.second={"#"};
+          out+=idB_->alternativesNext();
+          return out;
+
+
+        case WT1:
+          out.first="# for Whatthis";
+          out.second={"#"};
+          [[clang::fallthrough]];
+        case WT2:
+          out.first="Write an extended description";
+          out.second={"<WhatThis>"};
+          return out;
+
+        case WT3:
+          out.first="Expected end of line";
+          out.second={"\n"};
+          return out;
+        case ID0:
+          return  idB_->alternativesNext();
+
+        case ID1:
+          out.first=" token \":\"";
+          out.second={":"};
+          return out;
+        case ID2:
+        case S_DATA_PARTIAL:
+          return dataB_->alternativesNext();
+        case S_Final:
+          return {};
+        }
+    }
+
+    virtual Token_New popBackToken() override;
+  };
+
+
+
+
+
   /*!
            * \brief The build_Statement class
            * decide if it is either command, variable declaration, initialization or asignation
@@ -1916,8 +2064,11 @@ namespace Markov_IO_New {
   public:
     enum DFA {
       S_Init,
-      S_Function_Partial,
-      S_Function_Final,
+      S_Command_Partial,
+      S_Command_Final,
+      S_Assigment_Expression_Partial,
+      S_Assigment_Partial,
+      S_Assigment_Final,
       S_Expression_Partial,
       S_Expression_Final
 
@@ -1926,7 +2077,8 @@ namespace Markov_IO_New {
 
     build_StatementNew(const StructureEnv_New *p,
                        const Implements_Data_Type_New<Implements_Var> *varType
-                       , const Implements_Closure_Type<void *> *clType);
+                       , const Implements_Data_Type_New<Implements_Var_Closure> *varClosureType
+                       , const Implements_Closure_Type<void *> *cmdType);
 
 
     virtual ~build_StatementNew(){}
@@ -1936,17 +2088,31 @@ namespace Markov_IO_New {
 
     Implements_Var unloadVar()
     {
-      if (mystate!=S_Expression_Final)
+      if (isVar())
         {
 
-          return {};
+          auto out= v_->unloadVar();
+          mystate=S_Init;
+          return std::move(out);
         }
       else
+      {
+          return {};
+
+        }
+    }
+    Implements_Var_Closure unloadClosure()
+    {
+      if (isClosure())
         {
-          auto out=x_;
+
+          auto out= vc_->unloadVar();
           mystate=S_Init;
-          x_.data=nullptr;
-          return out;
+          return std::move(out);
+        }
+      else
+      {
+          return {};
 
         }
     }
@@ -1957,22 +2123,25 @@ namespace Markov_IO_New {
 
     bool isFunction()const
     {
-      return mystate==S_Function_Final
-          || mystate==S_Function_Final
-          || mystate==S_Function_Partial;
+      return mystate==S_Command_Final;
+
     }
     bool isVar()const
     {
-      return mystate==S_Expression_Final
-          || mystate==S_Expression_Partial;
+      return mystate==S_Expression_Final;
+
+    }
+    bool isClosure()const
+    {
+      return mystate==S_Assigment_Final;
 
     }
 
 
-    ABC_Closure* unloadClosure()
+    ABC_Closure* unloadFunction()
     {
-      if (isFinal())
-        return cl_.release();
+      if (isFunction())
+        return cb_->unloadClosure();
       else return nullptr;
     }
 
@@ -1985,7 +2154,8 @@ namespace Markov_IO_New {
     bool isFinal()const override
     {
       return mystate==S_Expression_Final
-          || mystate==S_Function_Final;
+          || mystate==S_Command_Final
+          || mystate==S_Assigment_Final;
 
     }
 
@@ -2004,12 +2174,25 @@ namespace Markov_IO_New {
         case S_Init:
           if (cb_->pushToken(t, whyNot,objective))
             {
-              mystate=S_Function_Partial;
+              mystate=S_Command_Partial;
               return true;
             }
           else if (v_->pushToken(t, whyNot, objective))
             {
-              mystate=S_Expression_Partial;
+              if (vc_->pushToken(t, whyNot, objective))
+                {
+                  mystate=S_Assigment_Expression_Partial;
+                  return true;
+                }
+              else
+                {
+                  mystate=S_Expression_Partial;
+                  return true;
+                }
+            }
+          else if (vc_->pushToken(t, whyNot, objective))
+            {
+              mystate=S_Assigment_Partial;
               return true;
             }
           else
@@ -2022,7 +2205,7 @@ namespace Markov_IO_New {
                   return false;
                 }
             }
-        case S_Function_Partial:
+        case S_Command_Partial:
           if (!cb_->pushToken(t, whyNot,objective))
             {
               return false;
@@ -2031,13 +2214,76 @@ namespace Markov_IO_New {
             {
               if (cb_->isFinal())
                 {
-                  mystate=S_Function_Final;
-                  cl_.reset(cb_->unloadClosure());
+                  mystate=S_Command_Final;
                 }
               else
-                mystate=S_Function_Partial;
+                mystate=S_Command_Partial;
               return true;
             }
+        case S_Assigment_Expression_Partial:
+          if (!v_->pushToken(t, whyNot,objective))
+            {
+              if (!vc_->pushToken(t, whyNot,objective))
+                {
+                  return false;
+                }
+              else
+                {
+                  if (vc_->isFinal())
+                    {
+                      mystate=S_Assigment_Final;
+                    }
+                  else
+                    mystate=S_Assigment_Partial;
+                  return true;
+                }
+            }
+          else
+            {
+              if (!vc_->pushToken(t, whyNot,objective))
+                {
+                  if (v_->isFinal())
+                    {
+                      mystate=S_Expression_Final;
+                    }
+                  else
+                    mystate=S_Expression_Partial;
+                  return true;
+                }
+              else
+                if (v_->isFinal())
+                  {
+                    mystate=S_Expression_Final;
+                    return true;
+                  }
+                else  if (vc_->isFinal())
+                  {
+                    mystate=S_Assigment_Final;
+                    return true;
+                  }
+                 else
+                  {
+                    mystate=S_Assigment_Expression_Partial;
+                    return true;
+                  }
+
+            }
+        case S_Assigment_Partial:
+          if (!vc_->pushToken(t, whyNot,objective))
+            {
+              return false;
+            }
+          else
+            {
+              if (vc_->isFinal())
+                {
+                  mystate=S_Assigment_Final;
+                }
+              else
+                mystate=S_Assigment_Partial;
+              return true;
+            }
+
         case S_Expression_Partial:
           if (!v_->pushToken(t, whyNot,objective))
             {
@@ -2048,13 +2294,14 @@ namespace Markov_IO_New {
               if (v_->isFinal())
                 {
                   mystate=S_Expression_Final;
-                  x_=v_->unloadVar();
                 }
               else
                 mystate=S_Expression_Partial;
               return true;
             }
-        case S_Function_Final:
+
+        case S_Command_Final:
+        case S_Assigment_Final:
           if (t.tok()==Token_New::EOL)
             return true;
         case S_Expression_Final:
@@ -2072,12 +2319,21 @@ namespace Markov_IO_New {
         case S_Init:
           out=cb_->alternativesNext();
           out+=v_->alternativesNext();
+          out+=vc_->alternativesNext();
           return out;
-        case S_Function_Partial:
+        case S_Command_Partial:
           return cb_->alternativesNext();
+        case S_Assigment_Expression_Partial:
+          out=v_->alternativesNext();
+          out+=vc_->alternativesNext();
+          return out;
         case S_Expression_Partial:
           return v_->alternativesNext();
-        case S_Function_Final:
+        case S_Assigment_Partial:
+          return vc_->alternativesNext();
+        case S_Command_Final:
+        case S_Assigment_Final:
+          return {"",{alternatives::endOfLine()}};
         case S_Expression_Final:
           return {};
 
@@ -2092,9 +2348,8 @@ namespace Markov_IO_New {
     const StructureEnv_New* p_;
     DFA mystate;
     std::unique_ptr<buildByToken<Implements_Var>>   v_;
+    std::unique_ptr<buildByToken<Implements_Var_Closure>> vc_;
     std::unique_ptr<buildClosureByToken<void*>> cb_;
-    std::unique_ptr<ABC_Closure> cl_;
-    Implements_Var x_;
 
     // ABC_BuildByToken interface
 
@@ -2188,156 +2443,6 @@ namespace Markov_IO_New {
 
 
 
-  template<>
-  class buildByToken<Implements_Var_Closure>
-      :public ABC_BuildByToken
-  {
-  public:
-
-    enum DFA {
-      S_Init=0, TIP1, TIP2,WT0_ID0,WT2,WT3,ID1,ID2,WT1,ID0,
-      S_DATA_PARTIAL,
-      S_Final
-    } ;
-
-    bool pushToken(Token_New tok, std::string* whyNot,const std::string& masterObjective)override;
-
-
-
-    bool isFinal()const override
-    {
-      return mystate==S_Final;
-
-    }
-    bool isInitial()const override
-    {
-      return mystate==S_Init;
-
-    }
-
-    buildByToken(){}
-
-    ~buildByToken(){}
-
-
-
-    Implements_Var_Closure unloadVar()
-    {
-      if (isFinal())
-        {
-          Implements_Var_Closure out=std::move(iv_);
-          iv_={};
-          return out;
-        }
-      else
-        return {};
-    }
-
-    virtual ABC_Data_New* unloadData()override
-    {
-      return nullptr;
-    }
-
-    virtual bool unpopData(ABC_Data_New* data) override
-    {
-      return false;
-    }
-
-
-    bool unPop(Implements_Var_Closure var)
-    {
-      iv_=std::move(var);
-      mystate=S_Final;
-      return true;
-
-    }
-
-    buildByToken(const StructureEnv_New* parent,
-                 const Implements_Data_Type_New<Implements_Var_Closure> *varType);
-
-
-
-
-    void clear()override;
-
-
-    const StructureEnv_New* parent() const override {return p_;}
-
-    private:
-      const StructureEnv_New* p_;
-
-    DFA mystate;
-    const Implements_Data_Type_New<Implements_Var_Closure> * ivarType_;
-    Implements_Identifier* idType_;
-    Implements_Closure_Type<void *>* dataTy_;
-    std::unique_ptr<buildByToken<std::string>> idB_;
-    std::unique_ptr<buildClosureByToken<void*>> dataB_;
-    Implements_Var_Closure iv_;
-
-  private:
-    bool pushIdToken(Token_New tok, std::string* whyNot,const std::string& masterObjective);
-
-
-
-  public:
-    virtual std::pair<std::string, std::set<std::string> > alternativesNext() const override
-
-    {
-      std::pair<std::string, std::set<std::string> > out;
-      switch (mystate)
-        {
-        case S_Init:
-          out.first="Tip";
-          out.second={"#"};
-          out+=idB_->alternativesNext();
-          return out;
-
-
-        case TIP1:
-          out.first="Write a tip";
-          out.second={"<Tip>"};
-          return out;
-        case TIP2:
-          out.first="Expected end of line";
-          out.second={"\n"};
-          return out;
-        case WT0_ID0:
-          out.first="Whatthis";
-          out.second={"#"};
-          out+=idB_->alternativesNext();
-          return out;
-
-
-        case WT1:
-          out.first="# for Whatthis";
-          out.second={"#"};
-          [[clang::fallthrough]];
-        case WT2:
-          out.first="Write an extended description";
-          out.second={"<WhatThis>"};
-          return out;
-
-        case WT3:
-          out.first="Expected end of line";
-          out.second={"\n"};
-          return out;
-        case ID0:
-          return  idB_->alternativesNext();
-
-        case ID1:
-          out.first=" token \":\"";
-          out.second={":"};
-          return out;
-        case ID2:
-        case S_DATA_PARTIAL:
-          return dataB_->alternativesNext();
-        case S_Final:
-          return {};
-        }
-    }
-
-    virtual Token_New popBackToken() override;
-  };
 
 
 

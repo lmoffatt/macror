@@ -66,14 +66,14 @@ namespace Markov_IO_New {
   }
 
 
-  template<typename Fn,typename R,typename... Args, size_t... I>
+  template<typename R,typename Fn,typename... Args, size_t... I>
   R
   apply_cm_Impl(Markov_CommandManagerVar* cm,Fn f, std::tuple<ABC_R_Closure<Args>*...> args,std::index_sequence<I...>)
   {
-    f(std::get<I>(args)->eval(cm)...);
+    return  f(std::get<I>(args)->eval(cm)...);
   }
 
-  template<typename Fn, typename R, typename...Args>
+  template<typename R, typename Fn, typename...Args>
   R
   mp_apply_cm(Markov_CommandManagerVar* cm,Fn f, std::tuple<ABC_R_Closure<Args>*...> args)
   {

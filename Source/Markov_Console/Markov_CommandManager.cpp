@@ -43,6 +43,7 @@
 #include "Markov_IO/Implements_path.h"
 
 #include "Markov_IO/FunctionCommand.h"
+#include "Markov_IO/Implements_Closures.h"
 
 
 #include <random>
@@ -82,12 +83,6 @@ namespace Markov_IO_New
       return false;
     else
       {
-        ABC_Closure* v;
-        std::string error;
-        while (getFnType()->getClosure(this,v,&f,&error,""))
-          {
-             v->evalData(this);
-          }
         return true;
       }
 
@@ -97,8 +92,12 @@ namespace Markov_IO_New
     StructureEnv_New(nullptr,nullptr),
     io_(nullptr),
     vt_{Variable::types::varNew::varType()},
-    ct_{new Implements_Closure_Type<void*>()},
-    idCmd_(Identifier::types::idCmd::varType()),
+    cmdt_{new Implements_Closure_Type<void*>("",Identifier::types::idCmd::varType())},
+    vct_{new Implements_Data_Type_New<Implements_Var_Closure>(
+           "",nullptr,
+           Identifier::types::idClosureNew::varType("")
+           ,new Implements_Closure_Type<void*>()
+           ,nullptr,nullptr)},
     e(nullptr),
     lastCmdRst{},
     program_ver_(ProgramVersion()),

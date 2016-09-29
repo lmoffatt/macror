@@ -26,6 +26,7 @@ namespace Markov_IO_New {
 
       struct ABC_Experiment_type        {
         typedef ABC_Experiment myB;
+        typedef ABC_Experiment* myC;
 
         typedef mp_list<> dependsOn;
         typedef mp_list<>  fieldList;
@@ -972,7 +973,7 @@ namespace Markov_IO_New {
         typedef Implements_Data_Type_derived_class<myD,myB>  vType;
         typedef Pulses_trace_type selfType;
 
-        typedef mp_list<Implements_Data_Type_New<myB*>> dependsOn;
+        typedef mp_list<Implements_Data_Type_New<myB*>,ABC_Experiment_type> dependsOn;
 
         typedef mp_list<time_of_each_concentration_change_field
         ,concentration_at_each_time_field

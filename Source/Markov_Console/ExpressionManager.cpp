@@ -154,12 +154,18 @@ namespace Markov_IO_New {
       {
         if (bu_.isFunction())
           {
-            auto cmd=bu_.unloadClosure();
+            auto cmd=bu_.unloadFunction();
             cmd->evalData(cm);
           }
-        else
+        else if (bu_.isVar())
           {
             cm->pushVar(bu_.unloadVar());
+          }
+        else if (bu_.isClosure())
+          {
+            auto ic=bu_.unloadClosure();
+            cm->pushVar({ic.id,ic.closure->evalData(cm),ic.Tip,ic.WhatThis});
+
           }
         clear();
         io->freshLine();
@@ -188,7 +194,7 @@ namespace Markov_IO_New {
 
 
   ExpressionManager::ExpressionManager(Markov_CommandManagerVar *cm):
-    bu_(cm,cm->getVarType(),cm->getFnType())
+    bu_(cm,cm->getVarType(),cm->getFnType(),cm->getCmdType())
   ,tok_{},tokVec_{},previous_key(),rejectedChars_(),errorMessage_()
   {}
 

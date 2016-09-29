@@ -118,12 +118,12 @@ namespace Markov_IO_New {
     virtual bool isOfThisType(const StructureEnv_New* cm,
                               const std::string& generalType,
                               std::string* whyNot=nullptr
-                              ,const std::string &masterObjective="")const=0;
+        ,const std::string &masterObjective="")const=0;
 
     virtual bool includesThisType(const StructureEnv_New* cm
                                   ,const std::string& childType
                                   ,std::string *whyNot=nullptr
-                                  , const std::string &masterObjective="")const=0;
+        , const std::string &masterObjective="")const=0;
 
 
 
@@ -175,7 +175,7 @@ namespace Markov_IO_New {
 
 
 
-  
+
   };
 
 
@@ -219,7 +219,7 @@ namespace Markov_IO_New {
           if (!e->isOfThisType(cm,generalType,whyNot,masterObjective))
             return false;
         }
-       return true;
+      return true;
     }
 
 
@@ -241,7 +241,7 @@ namespace Markov_IO_New {
                          const std::string& masterObjective)const
     {
       if (isDataInDomain(cm,v,error,masterObjective))
-       return v->myType()->putData(cm,v,ostream,error,masterObjective);
+        return v->myType()->putData(cm,v,ostream,error,masterObjective);
       else return false;
     }
 
@@ -285,7 +285,7 @@ namespace Markov_IO_New {
     virtual bool includesThisType(const StructureEnv_New* cm
                                   ,const std::string& childType
                                   ,std::string *whyNot=nullptr
-                                  , const std::string &masterObjective="")const
+        , const std::string &masterObjective="")const
     {
       for (const myType_of_Value* t:s_)
         {
@@ -322,20 +322,20 @@ namespace Markov_IO_New {
     virtual const Implements_Identifier* getVarIdType(const StructureEnv_New* cm)const {return nullptr;}
     virtual const Implements_Identifier* getTypeIdType(const StructureEnv_New* cm)const {return nullptr;}
 
-   const std::vector<const myType_of_Value*>&
-     getAllTypes()const
-   {
-     return s_;
-   }
+    const std::vector<const myType_of_Value*>&
+    getAllTypes()const
+    {
+      return s_;
+    }
 
-   void push_Type(const myType_of_Value* t)
-   {
-     if (names_.find(t->typeId())==names_.end())
-       {
-       s_.push_back(t);
-       names_.insert(t->typeId());
-       }
-   }
+    void push_Type(const myType_of_Value* t)
+    {
+      if (names_.find(t->typeId())==names_.end())
+        {
+          s_.push_back(t);
+          names_.insert(t->typeId());
+        }
+    }
 
   private:
     std::set<std::string> names_;
@@ -349,10 +349,10 @@ namespace Markov_IO_New {
   inline std::vector<typename myType_of_Value::myBuild*>
   getBuildByTokenVector(const StructureEnv_New* cm,const Type_Union<myType_of_Value>* t)
   {
-      std::vector<typename myType_of_Value::myBuild*> out(t->getAllTypes().size());
-     for (std::size_t i=0; i<t->getAllTypes().size(); ++i)
-       out[i]=t->getAllTypes()[i]->getBuildByToken(cm);
-     return out;
+    std::vector<typename myType_of_Value::myBuild*> out(t->getAllTypes().size());
+    for (std::size_t i=0; i<t->getAllTypes().size(); ++i)
+      out[i]=t->getAllTypes()[i]->getBuildByToken(cm);
+    return out;
   }
 
 
@@ -615,6 +615,8 @@ namespace Markov_IO_New {
 
       virtual std::set<std::string> alternativeNext(const StructureEnv_New* cm)const
       {
+        if (alternativeNext_== nullptr) return {"<enter string>"};
+        else
         return (*alternativeNext_)(cm,this);
       }
 
@@ -786,23 +788,27 @@ namespace Markov_IO_New {
 
 
     inline
-    std::string nextId(const std::string &id_typeTemplate)
+    std::string nextId(const StructureEnv_New * cm, std::string idT)
     {
-      auto p=getId_Type(id_typeTemplate);
-      auto idT=p.first;
 
-      auto n=getVersionNumber(idT);
 
-      if (n!=std::string::npos)
-        {
-          ++n;
-          idT= idT.substr(0,idT.find_last_of('_')+1)+std::to_string(n);
-        }
+      std::string w;
+      if (cm->isNameUnOcuppied(idT,&w,"",false))
+        return idT;
       else
-        idT= idT+"_0";
-      if (!p.second.empty())
-        return idT+" : "+p.second;
-      else return idT;
+        {
+          auto n=getVersionNumber(idT);
+
+          if (n!=std::string::npos)
+            {
+              ++n;
+              idT= idT.substr(0,idT.find_last_of('_')+1)+std::to_string(n);
+            }
+          else
+            idT= idT+"_0";
+
+          return nextId(cm,idT);
+        }
     }
 
 
@@ -841,25 +847,27 @@ namespace Markov_IO_New {
       return new Implements_Identifier();
     }
 
-    Implements_Identifier():Implements_Identifier("empty",nullptr,"",false,false,false,false,false,false){}
+    Implements_Identifier():Implements_Identifier("empty",nullptr,"",false,false,false,false,false,false,false){}
 
   private:
     static std::string toId
     (const std::string& name,
-     bool isFixed, bool isVar, bool isType, bool isNew, bool isUsed, bool isFunction=false);
+     bool isFixed, bool isVar, bool isType, bool isNew, bool isUsed, bool isFunction
+        ,bool isCommand);
 
     Implements_Identifier
     (const std::string& nameId,
      Implements_Data_Type_New<myC>* const typeType
      ,const std::string& name,
      bool isFixed,bool isVar, bool isType,
-     bool isNew, bool isUsed, bool isFunction):
+     bool isNew, bool isUsed, bool isFunction, bool isCommand):
       Implements_Data_Type_New_string
       ("", nullptr,true),
       typeId_(nameId),typeType_(typeType),
       name_(name),isFixed_(isFixed)
     , isVar_(isVar), isType_(isType)
     ,isNew_(isNew),isUsed_(isUsed),isFunction_(isFunction)
+    ,isCommand_(isCommand)
     {}
     std::string typeId_;
     Implements_Data_Type_New<myC> const *typeType_;
@@ -867,10 +875,10 @@ namespace Markov_IO_New {
     bool isFixed_;
     bool isVar_;
     bool isType_;
-    bool isField_;
     bool isNew_;
     bool isUsed_;
     bool isFunction_;
+    bool isCommand_;
 
   };
 
@@ -959,7 +967,7 @@ namespace Markov_IO_New {
     virtual BuildByTokenString_Union* getBuildByToken(
         const StructureEnv_New* cm)const override
     {
-       return new BuildByTokenString_Union(cm,this);
+      return new BuildByTokenString_Union(cm,this);
     }
 
 
@@ -1007,7 +1015,7 @@ namespace Markov_IO_New {
         {
 
           if (t->getValue(cm,v,istream,whyNot,masterObjective))
-                 return true;
+            return true;
 
         }
       return false;
@@ -1050,16 +1058,16 @@ namespace Markov_IO_New {
     Identifier_Union& operator=( Identifier_Union&&)=default;
 
   protected:
-   std::vector<const Implements_Identifier*> v_;
+    std::vector<const Implements_Identifier*> v_;
   };
 
   inline std::vector<buildByToken<std::string>*>
   getBuildByTokenVector(const StructureEnv_New* cm,const Identifier_Union* t)
   {
-      std::vector<buildByToken<std::string>*> out(t->getAllTypes().size());
-     for (std::size_t i=0; i<t->getAllTypes().size(); ++i)
-       out[i]=t->getAllTypes()[i]->getBuildByToken(cm);
-     return out;
+    std::vector<buildByToken<std::string>*> out(t->getAllTypes().size());
+    for (std::size_t i=0; i<t->getAllTypes().size(); ++i)
+      out[i]=t->getAllTypes()[i]->getBuildByToken(cm);
+    return out;
   }
 
 
@@ -1072,7 +1080,7 @@ namespace Markov_IO_New {
       {
         return new Implements_Identifier
             (toId<T>(idName),nullptr,idName,T::isFixed,T::isVar
-             ,T::isType,T::isNew,T::isUsed, T::isFunction);
+             ,T::isType,T::isNew,T::isUsed, T::isFunction,T::isCommand);
       }
 
 
@@ -1082,7 +1090,7 @@ namespace Markov_IO_New {
       {
         return Implements_Identifier::toId
             (idName,T::isFixed,T::isVar
-             ,T::isType,T::isNew,T::isUsed, T::isFunction);
+             ,T::isType,T::isNew,T::isUsed, T::isFunction, T::isCommand);
 
       }
 
@@ -1107,6 +1115,8 @@ namespace Markov_IO_New {
         static constexpr bool isNew=true;
         static constexpr bool isUsed=true;
         static constexpr bool isFunction=false;
+        static constexpr bool isCommand=false;
+
 
 
       };
@@ -1136,6 +1146,31 @@ namespace Markov_IO_New {
 
       };
 
+
+      struct idClosureNew{
+        typedef  std::string myC;
+        typedef idClosureNew selfType;
+
+        static std::string myId(const std::string& varTypeName=""){return toId<selfType>(varTypeName );}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "New Variable indentifer";}
+        static std::string myWhatThis(){return "an unused identifier to a Variable";}
+
+
+        static Implements_Identifier*
+        varType(const std::string& varTypeName="")
+        {return getVarType<selfType>(varTypeName);}
+
+
+        static constexpr bool isFixed=false;
+        constexpr static  bool isVar=true;
+        constexpr static  bool isType=false;
+        static constexpr bool isCommand=false;
+        static constexpr bool isNew=true;
+        static constexpr bool isUsed=false;
+        static constexpr bool isFunction=true;
+
+      };
 
 
 
@@ -2138,8 +2173,8 @@ namespace Markov_IO_New {
       static void push_Types(StructureEnv_New *cm)
       {
         cm->pushType<T>(Cls<T>::name()
-                     ,new Implements_Data_Type_New_regular<T>()
-                     ,Cls<T>::name(),"a regular "+Cls<T>::name());
+                        ,new Implements_Data_Type_New_regular<T>()
+                        ,Cls<T>::name(),"a regular "+Cls<T>::name());
       }
 
       friend class Real::types;
@@ -2228,7 +2263,9 @@ namespace Markov_IO_New {
                                   , std::string *whyNot
                                   , const std::string& masterObjective)const override
       {
+        if ((v!=nullptr)&&(v->myType()!=nullptr))
         return v->myType()->typeId()==typeId();
+        else return true;
       }
 
 
@@ -2777,7 +2814,7 @@ namespace Markov_IO_New {
         getNumCols_(getNumCols),getNumRows_(getNumRows),
         areColsFixed_(areColsFixed),areRowsFixed_(areRowsFixed){}
 
-Implements_Data_Type_New_M_Matrix(){}
+      Implements_Data_Type_New_M_Matrix(){}
 
 
 
@@ -3962,7 +3999,7 @@ Implements_Data_Type_New_M_Matrix(){}
         auto s=dynamic_cast<const StructureEnv_New*>(val);
         if (s==nullptr)
           {
-            *whyNot=masterObjective+": is not a structureEnv_New";
+            if(whyNot!=nullptr) *whyNot=masterObjective+": is not a structureEnv_New";
             return false;
           }
         else return isValueInDomain(cm,s,whyNot,masterObjective);
@@ -4138,7 +4175,7 @@ Implements_Data_Type_New_M_Matrix(){}
 
 
 
-typedef buildByToken<myC> myBuild;
+      typedef buildByToken<myC> myBuild;
 
       virtual buildByToken<StructureEnv_New*>* getBuildByToken(
           const StructureEnv_New* cm)const override
@@ -6378,7 +6415,7 @@ typedef buildByToken<myC> myBuild;
       }
 
 
-       typedef buildByTokenD<D,B> myBuild;
+      typedef buildByTokenD<D,B> myBuild;
 
       virtual buildByTokenD<D,B>* getBuildByToken(const StructureEnv_New* cm)const
       {
@@ -7139,12 +7176,12 @@ typedef buildByToken<myC> myBuild;
       }
 
 
-     bool getValue(const StructureEnv_New* cm
-                   ,Markov_CommandManagerVar*& c
-                   ,ABC_Input* istream
-                   ,std::string* whyNot
-                   , const std::string& masterObjective) const
-     {
+      bool getValue(const StructureEnv_New* cm
+                    ,Markov_CommandManagerVar*& c
+                    ,ABC_Input* istream
+                    ,std::string* whyNot
+                    , const std::string& masterObjective) const
+      {
         return false;
       }
       virtual const ABC_Type_of_Value* getComplexVarType(const StructureEnv_New* cm) const {return nullptr;}

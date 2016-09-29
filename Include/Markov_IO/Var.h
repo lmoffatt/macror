@@ -167,18 +167,18 @@ namespace Markov_IO_New {
 
 
 
-  template<typename Fn, typename R,typename... Args, size_t... I>
+  template<typename R, typename Fn,typename... Args, size_t... I>
   R
   apply_Impl(Fn f, std::tuple<Args...> args,std::index_sequence<I...>)
   {
     return f(std::get<I>(args)...);
   }
 
-  template<typename Fn, typename R,typename...Args>
+  template<typename R, typename Fn,typename...Args>
   R
   mp_apply(Fn f, std::tuple<Args...> args)
   {
-    return apply_Impl(f, args,
+    return apply_Impl<R,Fn,Args...>(f, args,
                       std::index_sequence_for<Args...>());
   }
 

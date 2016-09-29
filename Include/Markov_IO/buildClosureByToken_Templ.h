@@ -53,8 +53,12 @@ namespace Markov_IO_New
     switch (mystate)
       {
       case S_Init:
-        if (idB_->pushToken(tok,whyNot,objective))
+        if (!idB_->pushToken(tok,whyNot,objective))
           {
+            return false;
+          }
+
+          else{
             idString_=idB_->unloadVar();
             rfnType_=parent()->template idTo_R_Func<R>
                 (idString_,resultType_->typeId(),whyNot,objective);
@@ -80,8 +84,9 @@ namespace Markov_IO_New
           }
       case S_Identifier_Final:
       case S_Closure_PARTIAL:
-        if (oUB_->pushToken(tok, whyNot,objective))
-          {
+        if (!oUB_->pushToken(tok, whyNot,objective))
+          { return false;}
+          else{
             if (oUB_->isFinal())
               {
                 mystate=S_Final;

@@ -22,9 +22,9 @@ namespace Markov_IO_New {
 
   template <>
   void StructureEnv_New::pushType<void>(const std::string& id
-                ,Implements_Data_Type_New<void>* tvar
-                , std::string tip
-                , std::string whatthis)
+                                        ,Implements_Data_Type_New<void>* tvar
+                                        , std::string tip
+                                        , std::string whatthis)
   {
     idTypes_.push_back(id);
     types_[id]=tvar;
@@ -94,7 +94,7 @@ namespace Markov_IO_New {
 
     bool Implements_Data_Type_New_Implements_Var::getValue(const StructureEnv_New *cm, Implements_Var&v, ABC_Input *istream, std::string *whyNot, const std::string &masterObjective) const
     {
-        std::string tip;
+      std::string tip;
       std::string whatthis;
       char c;
 
@@ -202,8 +202,8 @@ namespace Markov_IO_New {
     void Implements_Data_Type_New_regular<void>::push_Types(StructureEnv_New *cm)
     {
       cm->pushType<void>(Cls<void>::name()
-                   ,new Implements_Data_Type_New_regular<void>()
-                   ,Cls<void>::name(),"a regular "+Cls<void>::name());
+                         ,new Implements_Data_Type_New_regular<void>()
+                         ,Cls<void>::name(),"a regular "+Cls<void>::name());
     }
 
     Implements_Data_Type_New_string::Implements_Data_Type_New_string(const std::__cxx11::string id, const Implements_Data_Type_New_string::selfType *typeType,bool isIdentifier, Implements_Data_Type_New_string::typePredicate complyPred, Implements_Data_Type_New_string::getSet alterNext):
@@ -325,6 +325,7 @@ namespace Markov_IO_New {
     vars_.clear();
     types_.clear();
     typeC_.clear();
+    cmds_.clear();
     funcs_.clear();
     methods_.clear();
   }
@@ -520,11 +521,16 @@ namespace Markov_IO_New {
       return it->second;
     else
       {
-        if (whyNot!=nullptr)
-          *whyNot=objective;
-        return nullptr;
+        auto it2=cmds_.find(name);
+        if (it2!=cmds_.end())
+          return it2->second;
+        else
+          {
+            if (whyNot!=nullptr)
+              *whyNot=objective;
+            return nullptr;
+          }
       }
-
   }
 
 
@@ -546,7 +552,36 @@ namespace Markov_IO_New {
 
   }
 
+  Implements_Closure_Type<void *> *StructureEnv_New::idToCmd(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)
+  {
+    const std::string objective=masterObjective+": "+name+" is not a type";
+    auto it=cmds_.find(name);
+    if (it!=cmds_.end())
+      return it->second;
+    else
+      {
+        if (whyNot!=nullptr)
+          *whyNot=objective;
+        return nullptr;
+      }
 
+  }
+
+
+  const Implements_Closure_Type<void *> *StructureEnv_New::idToCmd(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective)const
+  {
+    const std::string objective=masterObjective+": "+name+" is not a type";
+    auto it=cmds_.find(name);
+    if (it!=cmds_.end())
+      return it->second;
+    else
+      {
+        if (whyNot!=nullptr)
+          *whyNot=objective;
+        return nullptr;
+      }
+
+  }
 
 
 
@@ -560,7 +595,7 @@ namespace Markov_IO_New {
       }
     else if ((!recursive)|| (parent()==nullptr))
       {
-        *whyNot=objective;
+        if (whyNot!=nullptr) *whyNot=objective;
         return false;
       }
     else return parent()->hasName(name, whyNot,objective,recursive);
@@ -610,9 +645,25 @@ namespace Markov_IO_New {
           *whyNot=objective;
         return false;
       }
-    else return parent()->hasType(name, whyNot,objective,recursive);
+    else return parent()->hasFunction(name, whyNot,objective,recursive);
   }
 
+
+  bool StructureEnv_New::hasCommand(const std::__cxx11::string &name, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective, bool recursive) const
+  {
+    const std::string objective=masterObjective+ ": "+name+"is not present ";
+    if (cmds_.find(name)!=cmds_.end())
+      {
+        return true;
+      }
+    if (!recursive||(parent()==nullptr))
+      {
+        if (whyNot!=nullptr)
+          *whyNot=objective;
+        return false;
+      }
+    else return parent()->hasCommand(name, whyNot,objective,recursive);
+  }
 
 
   Implements_Var StructureEnv_New::popVar()
@@ -659,6 +710,16 @@ namespace Markov_IO_New {
     funcs_[id]=f;
     idTipWt_[id]={tip,whatthis};
   }
+  void StructureEnv_New::pushCommand(const std::__cxx11::string &id, Implements_Closure_Type<void *> *f, std::__cxx11::string tip, std::__cxx11::string whatthis)
+  {
+    idCommands_.push_back(id);
+    cmds_[id]=f;
+    idTipWt_[id]={tip,whatthis};
+  }
+
+
+
+
 
 
 
@@ -668,7 +729,7 @@ namespace Markov_IO_New {
 
 
   StructureEnv_New::StructureEnv_New(const StructureEnv_New *parent, const Implements_Data_Type_New<StructureEnv_New *> *myType):
-    p_(parent),strType_(myType),idVars_(),idTypes_(),vars_(),types_(),funcs_(),idTipWt_()
+    p_(parent),strType_(myType),idVars_(),idTypes_(),vars_(),types_(),cmds_(),funcs_(),idTipWt_()
   {
 
   }
@@ -696,18 +757,6 @@ namespace Markov_IO_New {
     return types_;
   }
 
-  std::map<std::__cxx11::string, Implements_Closure_Type<void*> *> &StructureEnv_New::getFunctions()
-  {
-    return funcs_;
-  }
-
-
-
-
-  const std::map<std::__cxx11::string, Implements_Closure_Type<void *> *> &StructureEnv_New::getFunctions()const
-  {
-    return funcs_;
-  }
 
 
 
@@ -732,80 +781,75 @@ namespace Markov_IO_New {
   {
     std::set<std::string> o;
     if (isFixed_)
-      o.insert(name_);
+      {
+        o.insert(name_);
+        return o;
+      }
     else
       {
-        if (isVar_)
+        if (isNew_&&isVar_&&!isFunction_)
           {
-            if (isNew_)
+            o.insert(alternatives::newIdentifier());
+            auto st=cm->getIdsOfTypeType(name_,true);
+            for (auto& e:st)
               {
-                o.insert(alternatives::newIdentifier());
-                std::string varType="";
-                if (!name_.empty())
-                  varType=name_;
-                auto sv= cm->getIdsOfVarType(varType,false);
-                auto st=cm->getIdsOfTypeType(varType,true);
-                for (auto& e:sv)
+                std::string s=Identifier::nextId(cm,"my"+e);
+                alternatives::insert(o,s,e);
+                auto sv=cm->getIdsOfVarType(e,false);
+                for (auto& v:sv)
                   {
-                    o.insert(Identifier::nextId(e));
+                    alternatives::insert(o,Identifier::nextId(cm,v),e);
                   }
-                for (auto& e:st)
-                  {
-                    std::string s="my"+e;
-                    std::string w;
-                    if (cm->isNameUnOcuppied(s,&w,"",true))
-                      alternatives::insert(o,s,e);
-                  }
-              }
-            if (isUsed_)
-              {
 
-                std::string varType="";
-                if (!name_.empty())
-                  varType=name_;
-
-                auto o2=
-                    cm->getIdsOfVarType(varType,true);
-                o.insert(o2.begin(),o2.end());
               }
-          }
-
-        if (isType_)
-          {
-            if (isNew_)
-              {
-                o.insert("<an unoccupied identifier>");
-                std::string varType=name_;
-                auto st=cm->getIdsOfTypeType(varType,true);
-                for (auto& e:st)
-                  {
-                    o.insert(Identifier::nextId(e));
-                  }
-                for (auto& e:st)
-                  {
-                    std::string s="my"+e;
-                    std::string w;
-                    if (cm->isNameUnOcuppied(s,&w,"",true))
-                      o.insert(s);
-                  }
-              }
-            if (isUsed_)
-              {
-                std::string varType=name_;
-                std::set<std::string> o2= cm->getIdsOfTypeType(varType,true);
-                o.insert(o2.begin(),o2.end());
-              }
+            return o;
 
           }
-       if (isFunction_)
+        else  if (isNew_&&isFunction_)
           {
-            std::string functionType=name_;
-            std::set<std::string> o2= cm->getIdsOfFncType(functionType,true);
+            o.insert(alternatives::newIdentifier());
+            auto st=cm->getIdsOfFncType(name_,true);  // functions returning name_
+            for (auto& e:st)
+              {
+                std::string s=Identifier::nextId(cm,"my"+e);
+                o.insert(s+" = "+e);
+              }
+            return o;
+
+          }
+        else if (isVar_&& isUsed_)
+          {
+
+            std::string varType=name_;
+
+            auto o2=
+                cm->getIdsOfVarType(varType,true);
+            o.insert(o2.begin(),o2.end());
+          }
+
+        if (isType_ && isUsed_)
+          {
+            std::string typeType=name_;
+            std::set<std::string> o2= cm->getIdsOfTypeType(typeType,true);
             o.insert(o2.begin(),o2.end());
 
           }
+        if (isFunction_&&isUsed_)
+          {
+            std::string resultType=name_;
+            std::set<std::string> o2= cm->getIdsOfFncType(resultType,true);
+            o.insert(o2.begin(),o2.end());
+            return o;
+          }
+        if (isCommand_&&isUsed_)
+          {
+            std::set<std::string> o2= cm->getIdsOfCmds(true);
+            o.insert(o2.begin(),o2.end());
+            return o;
+          }
+        else return o;
       }
-    return o;
+
   }
 
 
@@ -829,7 +873,7 @@ namespace Markov_IO_New {
         {
           if (Token_New::toKeyword(idCandidate)!=Token_New::IDENTIFIER)
             {
-              *whyNot=objective+": "+idCandidate+" is not an identifier";
+              if (whyNot!=nullptr) *whyNot=objective+": "+idCandidate+" is not an identifier";
               return false;
             }
           else
@@ -851,6 +895,11 @@ namespace Markov_IO_New {
           if (isFunction_)
             {
               if (cm->hasFunction(idCandidate,whyNot,objective,true ))
+                return true;
+            }
+          if (isCommand_)
+            {
+              if (cm->hasCommand(idCandidate,whyNot,objective,true ))
                 return true;
             }
           return false;
@@ -876,7 +925,7 @@ namespace Markov_IO_New {
   std::string Implements_Identifier::toId
   (const std::string& name,
    bool isFixed,bool isVar, bool isType,
-   bool isNew, bool isUsed,bool isFunction)
+   bool isNew, bool isUsed,bool isFunction,bool isCommand)
   {
     std::string id="_id";
     if (isFixed)
@@ -898,6 +947,11 @@ namespace Markov_IO_New {
           {
             id+="Funct";
           }
+        if (isCommand)
+          {
+            id+="Cmd";
+          }
+
         if (isNew&&!isUsed)
           {
             id+="New";

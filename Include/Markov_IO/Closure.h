@@ -53,6 +53,7 @@ namespace Markov_IO_New {
 
 
 
+
     std::string id;
     std::unique_ptr<ABC_Closure> closure;
     std::string Tip;
@@ -71,6 +72,8 @@ namespace Markov_IO_New {
       WhatThis.clear();
     }
 
+
+
     const_Implements_Var_Closure( std::string _id,
                           const ABC_Closure* _data,
                           std::string _Tip,
@@ -85,6 +88,7 @@ namespace Markov_IO_New {
     std::string Tip;
     std::string WhatThis;
   };
+
 
 
 

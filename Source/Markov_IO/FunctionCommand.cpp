@@ -19,14 +19,13 @@ namespace Markov_IO_New
     void pushAllFunctions(Markov_CommandManagerVar *cm)
     {
 
-      cm->pushFunction<Save>();
+      cm->pushCommand<Save>();
 
-      cm->pushFunction<Load>();
-      cm->pushFunction<Who>();
-      cm->pushFunction<Exit>();
-/*      cm->pushFunction<Simulate>();
+      cm->pushCommand<Load>();
+      cm->pushCommand<Who>();
+      cm->pushCommand<Exit>();
+      cm->pushFunction<Simulate>();
 
-*/
 
 
     }
@@ -81,18 +80,20 @@ namespace Markov_IO_New
     {
       exit(0);
     }
-/*
-    void Simulate::simulate_cm::simulate(Markov_CommandManagerVar *cm, Markov_Mol_New::ABC_PatchModel *p, ABC_Experiment *e, std::__cxx11::string experiment_out, double time_step, std::size_t num_steps, std::size_t n_replicates, std::size_t seed)
+
+    Experiment* Simulate::simulate_cm::simulate
+    (Markov_CommandManagerVar *cm
+     , Markov_Mol_New::ABC_PatchModel *p
+     , ABC_Experiment *e
+     , double time_step
+     , std::size_t num_steps
+     , std::size_t n_replicates)
     {
-
-
-      Experiment* sim =new
+     return new
          Experiment(p->run(*e,n_replicates,time_step,num_steps, cm->sto()));
+     }
 
-      cm->pushData(experiment_out,sim,"simulation");
-
-    }
-*///    void Likelihood::likelihood_cm::likelihood(Markov_CommandManagerVar *cm
+    //    void Likelihood::likelihood_cm::likelihood(Markov_CommandManagerVar *cm
 //                                               , Markov_Mol_New::ABC_PatchModel *patch, ABC_Experiment *experiment, const std::__cxx11::string algorithm, bool isaveraging, bool zeroGuard, double dxForScore, bool showPartialLikelihood, bool showPredictedValue, bool runApproximation, std::size_t numSteps, std::size_t numSamples)
 
 //    {

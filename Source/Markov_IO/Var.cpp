@@ -172,6 +172,19 @@ namespace Markov_IO_New {
   }
 
 
+  std::set<std::string> StructureEnv_New::getIdsOfCmds(bool recursive) const
+  {
+    std::set<std::string> o;
+    if (recursive&& parent()!=nullptr)
+      {
+        o=parent()->getIdsOfCmds(recursive);
+      }
+        auto s=getMapKeys(cmds_);
+        s.insert(o.begin(),o.end());
+        return s;
+    }
+
+
 
 
   std::set<std::string> StructureEnv_New::getIdsOfFncType(const std::string &fucnType,bool recursive) const

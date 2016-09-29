@@ -380,6 +380,7 @@ namespace Markov_IO_New {
 
       struct ABC_Markov_Model_type {
         typedef Markov_Mol_New::ABC_Markov_Model myB;
+        typedef ABC_Markov_Model_type selfType;
         typedef mp_list<> dependsOn;
         typedef mp_list<>  fieldList;
 
@@ -400,6 +401,13 @@ namespace Markov_IO_New {
           return new  Implements_Data_Type_class<myB*>
               ();
         }
+        static void push_Types(StructureEnv_New *cm)
+        {
+
+          cm->pushType<selfType>();
+
+        }
+
 
       };
 
@@ -514,6 +522,7 @@ namespace Markov_IO_New {
           agonist_vector_type::push_Types(cm);
           conductance_vector_Type::push_Types(cm);
           Q_matrix_Type::push_Types(cm);
+          ABC_Markov_Model_type::push_Types(cm);
           cm->pushType<myC*>(myId(),varType(cm),myTip(),myWhatThis());
 
 
@@ -799,6 +808,8 @@ namespace Markov_IO_New {
       };
 
 
+      struct ABC_PatchModel_type;
+
       struct PatchModel_type {
         typedef Markov_Mol_New::ABC_PatchModel myB;
         typedef Markov_Mol_New::PatchModel myD;
@@ -820,7 +831,7 @@ namespace Markov_IO_New {
 
 
 
-        typedef mp_list<> dependsOn;
+        typedef mp_list<ABC_PatchModel_type> dependsOn;
 
 
         static std::string myId(){return Cls<myD*>::name();}
@@ -979,6 +990,7 @@ namespace Markov_IO_New {
 
       struct ABC_PatchModel_type        {
         typedef Markov_Mol_New::ABC_PatchModel myB;
+        typedef myB* myC;
 
         typedef mp_list<> dependsOn;
         typedef mp_list<>  fieldList;

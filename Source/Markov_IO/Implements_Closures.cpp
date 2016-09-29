@@ -29,7 +29,7 @@ namespace Markov_IO_New
 
     Implements_Closure_Type_Function::Implements_Closure_Type_Function(const Implements_Closure_Type_Function &other)
       :functionName_(other.functionName_),funIdType_(other.funIdType_->clone()),
-        overloadTypes_(other.overloadTypes_->clone()){}
+        overloadTypes_(other.overloadTypes_?other.overloadTypes_->clone():nullptr){}
 
     void Implements_Closure_Type_Function::push_overload(const StructureEnv_New *cm, ABC_Function_Overload *g)
     {
@@ -39,6 +39,16 @@ namespace Markov_IO_New
       g->setFunction(this);
       overloadTypes_->push_Closure(cm,g);
     }
+
+    Implements_Data_Type_New_Implements_Var_Closure::Implements_Data_Type_New_Implements_Var_Closure(const std::__cxx11::string &id, Implements_Data_Type_New_Implements_Var_Closure::selfType * const typeType, Implements_Identifier *idType, Implements_Data_Type_New_Implements_Var_Closure::clType *clType, Implements_Data_Type_New_Implements_Var_Closure::typePredicate comply, Implements_Data_Type_New_Implements_Var_Closure::elemType getElement, Implements_Data_Type_New_Implements_Var_Closure::keyType getKey):
+
+      typeId_(id),
+      typeType_(typeType),
+      idType_(idType),
+      clType_(clType),
+      comply_(comply),
+      getElement_(getElement),
+      getKey_(getKey){}
 
 
   }

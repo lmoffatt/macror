@@ -91,12 +91,12 @@ namespace Markov_IO_New
         typedef void returnType;
         typedef std::tuple<Markov_CommandManagerVar*,std::string> argTypes;
 
-        typedef decltype(&save)  functionType;
+        typedef decltype(&save)  funType;
 
         typedef
         mp_append
         <
-        Implements_Closure_Type<returnType,void,functionType>,argTypes
+        Implements_Closure_Type<returnType,void,funType>,argTypes
         >
         ClosureType;
 
@@ -396,126 +396,102 @@ namespace Markov_IO_New
     };
 
 
-/*
+
+
+
 
 
     struct Simulate {
       typedef Implements_Closure_Type<void*>  vType;
 
       static std::string myId(){return "simulate";}
-      static std::string myTip(){return "simulate experiment";}
+      static std::string myTip(){return "use model to simulate experiment";}
       static std::string myWhatThis(){return "";}
 
       struct simulate_cm
       {
-        static void
+        static Experiment*
         simulate(Markov_CommandManagerVar* cm,
                  Markov_Mol_New::ABC_PatchModel* p,
                  ABC_Experiment* experiment_in,
-                 std::string experiment_out,
                  double time_step
                  , std::size_t num_steps,
-                 std::size_t n_replicates,
-                 std::size_t seed);
+                 std::size_t n_replicates);
+
 
         typedef simulate_cm selfType;
 
-        typedef void returnType;
-
-        typedef std::tuple<
-        Markov_CommandManagerVar*,
-        Markov_Mol_New::ABC_PatchModel*,
-        ABC_Experiment* ,
-        std::string ,
+        typedef std::tuple<Markov_CommandManagerVar*,
+         Markov_Mol_New::ABC_PatchModel*,
+        ABC_Experiment*,
         double
         , std::size_t ,
-        std::size_t ,
-        std::size_t
-        > argTypes;
+        std::size_t > argTypes;
 
-        typedef decltype(&simulate)  functionType;
+        typedef Experiment* returnType;
 
-        typedef mp_append
-        <Implements_Closure_Type_R_Fn_Args_Function<functionType,void>,argTypes
-        >                        vType;
+        typedef decltype(&simulate)  funType;
 
         typedef
-        mp_insert
+        mp_append
         <
-        Implements_Fn_Argument<void>,argTypes
+        Implements_Closure_Type<returnType,void,funType>,argTypes
         >
-        argFnTuple;
+        ClosureType;
 
 
-        typedef Implements_Fn_Argument<void>  returnFnType;
-
-
-
-
-
-        static returnFnType
-        getReturnFnType(Markov_CommandManagerVar* cm)
+        static const Implements_Data_Type_New<returnType>*
+        getReturnType(Markov_CommandManagerVar* cm)
         {
-          return {};
+          return cm->idToTyped<returnType>(Cls<returnType>::name());
         }
 
 
-
-        static argFnTuple
+        static Implements_Closure_Type<argTypes>*
         getArgumentTypes(Markov_CommandManagerVar* cm)
         {
-          return argFnTuple(
+          return new Implements_Closure_Type<argTypes>(
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
-                (new Implements_Closure_Value_Markov_CommandManagerVar_Self),
+                (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
+
                 Implements_Fn_Argument<Markov_Mol_New::ABC_PatchModel*>
-                (cm,"patchModel",_private::_model::patch::ABC_PatchModel_type(),"simulated model",""),
+                (cm,"patchModel","simulated model",""),
                 Implements_Fn_Argument<ABC_Experiment*>
-                (cm,"experiment",_private::_experiment::ABC_Experiment_type()
-                 ,"simulated experiment", ""),
-                Implements_Fn_Argument<std::string>
-                (cm,"simulation_id",Identifier::types::idVarNew(),"mySimulation",false,"id for simulated experiment", "identifier to recover the simulated experiment"),
-                Implements_Fn_Argument<double>
-                (cm,"time_step",Real::types::positive(),"step time of simulation","")
+                (cm,"experiment","simulated experiment", ""),
+                Implements_Fn_Argument<double>(Real::types::positive()
+                ,cm,"time_step","step time of simulation","")
                 , Implements_Fn_Argument<std::size_t>
                 (cm,"num_steps","number of substeps",""),
                 Implements_Fn_Argument<std::size_t>
-                (cm,"number_of_replicates",1,false,"number of times the simulation is run",""),
-                Implements_Fn_Argument<std::size_t>
-                (cm,"seed",0,false,"seed for the random generator","")
-                );
+                (cm,"number_of_replicates",1,"number of times the simulation is run","")
+               );
 
         }
 
 
-        static ABC_Type_of_Function*
-        varType(Markov_CommandManagerVar* cm)
+        static ClosureType*
+        closureType(Markov_CommandManagerVar* cm)
         {
-          return varTypeT<selfType>(simulate,cm);
+          return new ClosureType(getReturnType(cm),simulate,getArgumentTypes(cm));
         }
 
-
-
-
-        typedef mp_list<> dependsOn;
+        typedef mp_list<Experiment*> dependsOn;
       };
 
 
 
 
-      static  std::set<ABC_Type_of_Function*> getOverrides(Markov_CommandManagerVar* cm)
-      {
-        std::set<ABC_Type_of_Function*> out;
-
-        out.insert(simulate_cm::varType(cm));
-        return out;
-
-      }
 
       static vType*
       functionType(Markov_CommandManagerVar* cm)
       {
-        return new  Implements_Closure_Type<void*>
-            (myId(),nullptr,Identifier::types::idFunct::varType(myId()),getOverrides(cm));
+        auto out= new  Implements_Closure_Type<void*>
+            (myId(),Identifier::types::idFunct::varType(myId()));
+        out->push_overload(cm,simulate_cm::closureType(cm));
+        return out;
+
+
+
       }
 
 
@@ -525,7 +501,6 @@ namespace Markov_IO_New
     };
 
 
-    */
 /*
     struct Likelihood {
       typedef Implements_Data_Type_Function  vType;

@@ -91,15 +91,15 @@ namespace Markov_IO_New
       return vt_;
     }
 
-    const Implements_Closure_Type<void*>* getFnType()
+    const Implements_Data_Type_New<Implements_Var_Closure>* getFnType()
     {
-      return ct_;
+      return vct_;
     }
 
 
-    const Implements_Data_Type_New<std::string>* getIdCmd()
+    const Implements_Closure_Type<void*>* getCmdType()
     {
-      return idCmd_;
+      return cmdt_;
     }
 
     ProgramVersion &getProgram()
@@ -121,11 +121,22 @@ namespace Markov_IO_New
     template<class Type>
     void pushFunction()
     {
+
       StructureEnv_New::pushFunction(Type::myId()
                   ,Type::functionType(this)
                   ,Type::myTip()
                   ,Type::myWhatThis());
     }
+    template<class Type>
+    void pushCommand()
+    {
+
+      StructureEnv_New::pushCommand(Type::myId()
+                  ,Type::functionType(this)
+                  ,Type::myTip()
+                  ,Type::myWhatThis());
+    }
+
 
    std::mt19937_64& sto()
    {
@@ -136,9 +147,8 @@ namespace Markov_IO_New
   protected:
     ABC_IO* io_;
     Implements_Data_Type_New<Implements_Var>* vt_;
-    Implements_Closure_Type<void*>* ct_;
-
-    Implements_Identifier* idCmd_;
+    Implements_Data_Type_New<Implements_Var_Closure>* vct_;
+    Implements_Closure_Type<void*>* cmdt_;
     ExpressionManager* e;
     bool lastCmdRst;
     ProgramVersion program_ver_;
