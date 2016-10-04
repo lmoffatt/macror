@@ -19,10 +19,6 @@ namespace Markov_Bay_New
     static std::string ClassName();
 
 
-    virtual std::string experimentName()const
-    {
-      return experimentName_;
-    }
 
     virtual std::string myClass()const;
 
@@ -43,9 +39,7 @@ namespace Markov_Bay_New
 
 
     LikelihoodEvaluation();
-    LikelihoodEvaluation(const std::string& name,
-                         std::string  experimentName,
-                         double logL,
+    LikelihoodEvaluation(double logL,
                          double elogL,
                          std::size_t ns,
                          double s2logL);
@@ -56,8 +50,6 @@ namespace Markov_Bay_New
 
 
   protected:
-    std::string name_;
-    std::string  experimentName_;
 
     double logL_;
     double elogL_;

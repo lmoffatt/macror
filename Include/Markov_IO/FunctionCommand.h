@@ -13,6 +13,13 @@
 
 #include "Markov_IO/myTypes.h"
 #include "Markov_IO/myTypesExperiment.h"
+#include "Markov_Bay/myTypes_Bayesian.h"
+
+namespace Markov_Bay_New
+{
+  class LikelihoodEvaluation;
+}
+
 
 namespace Markov_IO_New
 {
@@ -45,6 +52,8 @@ namespace Markov_IO_New
 
 
   }
+
+
 
 
   namespace funct {
@@ -115,9 +124,9 @@ namespace Markov_IO_New
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
                 (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
                 Implements_Fn_Argument<std::string>(cm,
-                  "file name",
-                  "macror.txt",
-                  "filename where to save the data","")
+                                                    "file name",
+                                                    "macror.txt",
+                                                    "filename where to save the data","")
                 );
 
         }
@@ -196,9 +205,9 @@ namespace Markov_IO_New
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
                 (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
                 Implements_Fn_Argument<std::string>(cm,
-                  "file name",
-                  "macror.txt",
-                  "filename to load the data","")
+                                                    "file name",
+                                                    "macror.txt",
+                                                    "filename to load the data","")
                 );
 
         }
@@ -246,8 +255,8 @@ namespace Markov_IO_New
       struct run_cm
       {
         static void run(Markov_CommandManagerVar* cm,
-                         const std::string& pathfileNameIn,
-                         const std::string& pathfileLog
+                        const std::string& pathfileNameIn,
+                        const std::string& pathfileLog
                         , bool withError);
 
         typedef run_cm selfType;
@@ -279,17 +288,17 @@ namespace Markov_IO_New
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
                 (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
                 Implements_Fn_Argument<std::string>(cm,
-                  "script file name",
-                  "macror_script.txt",
-                  "filename where the script is","")
+                                                    "script file name",
+                                                    "macror_script.txt",
+                                                    "filename where the script is","")
                 ,Implements_Fn_Argument<std::string>(cm,
-                  "log file name",
-                  "macror_script_log.txt",
-                  "filename to log the read script","")
+                                                     "log file name",
+                                                     "macror_script_log.txt",
+                                                     "filename to log the read script","")
                 ,Implements_Fn_Argument<bool>(cm,
-                  "check error?",
-                  true,
-                  "if true it checks consistency","")
+                                              "check error?",
+                                              true,
+                                              "if true it checks consistency","")
 
                 );
 
@@ -338,7 +347,7 @@ namespace Markov_IO_New
       struct who_cm
       {
         static void who(Markov_CommandManagerVar* cm,
-                         const std::string& pathfileName);
+                        const std::string& pathfileName);
 
         typedef who_cm selfType;
 
@@ -369,9 +378,9 @@ namespace Markov_IO_New
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
                 (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
                 Implements_Fn_Argument<std::string>(cm,
-                  "variable name",
-                  "",
-                  "variable name or type","")
+                                                    "variable name",
+                                                    "",
+                                                    "variable name or type","")
                 );
 
         }
@@ -418,7 +427,7 @@ namespace Markov_IO_New
       struct exit_cm
       {
         static void exitProgram(Markov_CommandManagerVar* cm,
-                         const std::string& pathfileName);
+                                const std::string& pathfileName);
 
         typedef exit_cm selfType;
 
@@ -449,9 +458,9 @@ namespace Markov_IO_New
                 Implements_Fn_Argument<Markov_CommandManagerVar*>
                 (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
                 Implements_Fn_Argument<std::string>(cm,
-                  "variable name",
-                  "",
-                  "variable name or type","")
+                                                    "variable name",
+                                                    "",
+                                                    "variable name or type","")
                 );
 
         }
@@ -515,7 +524,7 @@ namespace Markov_IO_New
         typedef simulate_cm selfType;
 
         typedef std::tuple<Markov_CommandManagerVar*,
-         Markov_Mol_New::ABC_PatchModel*,
+        Markov_Mol_New::ABC_PatchModel*,
         ABC_Experiment*,
         double
         , std::size_t ,
@@ -552,12 +561,12 @@ namespace Markov_IO_New
                 Implements_Fn_Argument<ABC_Experiment*>
                 (cm,"experiment","simulated experiment", ""),
                 Implements_Fn_Argument<double>(Real::types::positive()
-                ,cm,"time_step","step time of simulation","")
+                                               ,cm,"time_step","step time of simulation","")
                 , Implements_Fn_Argument<std::size_t>
                 (cm,"num_steps","number of substeps",""),
                 Implements_Fn_Argument<std::size_t>
                 (cm,"number_of_replicates",1,"number of times the simulation is run","")
-               );
+                );
 
         }
 
@@ -594,7 +603,107 @@ namespace Markov_IO_New
     };
 
 
-/*
+
+
+
+    struct Likelihood {
+      typedef Implements_Closure_Type<void*>  vType;
+
+      static std::string myId(){return "likelihood";}
+      static std::string myTip(){return "calculates likelihood of a model to generate an experiment outcome";}
+      static std::string myWhatThis(){return "";}
+
+      struct likelihood_
+      {
+
+        static
+        Markov_Bay_New::LikelihoodEvaluation*
+        likelihood(const Markov_Mol_New::ABC_PatchModel *patch,
+                   const ABC_Experiment *experiment,
+                   const std::__cxx11::string &algorithm,
+                   bool isaveraging,
+                   bool zeroGuard);
+
+
+
+        typedef likelihood_ selfType;
+
+        typedef std::tuple<
+        Markov_Mol_New::ABC_PatchModel*,
+        ABC_Experiment*,
+        std::string, bool, bool> argTypes;
+
+        typedef   Markov_Bay_New::LikelihoodEvaluation*
+        returnType;
+
+        typedef decltype(&likelihood)  funType;
+
+        typedef
+        mp_append
+        <
+        Implements_Closure_Type<returnType,void,funType>,argTypes
+        >
+        ClosureType;
+
+
+        static const Implements_Data_Type_New<returnType>*
+        getReturnType(Markov_CommandManagerVar* cm)
+        {
+          return cm->idToTyped<returnType>(Cls<returnType>::name());
+        }
+
+
+        static Implements_Closure_Type<argTypes>*
+        getArgumentTypes(Markov_CommandManagerVar* cm)
+        {
+          return new Implements_Closure_Type<argTypes>(
+                Implements_Fn_Argument<Markov_Mol_New::ABC_PatchModel*>
+                (cm,"patchModel","simulated model",""),
+                Implements_Fn_Argument<ABC_Experiment*>
+                (cm,"experiment","simulated experiment", ""),
+                 Implements_Fn_Argument<std::string>
+                (cm,"likelihood_algorithm","MacroDR","applied algorithm",""),
+                Implements_Fn_Argument<bool>
+                (cm,"isAveraging",true,"number of times the simulation is run",""),
+                Implements_Fn_Argument<bool>
+                (cm,"zero_guard",true,"number of times the simulation is run","")
+                );
+
+        }
+
+
+        static ClosureType*
+        closureType(Markov_CommandManagerVar* cm)
+        {
+          return new ClosureType(getReturnType(cm),likelihood,getArgumentTypes(cm));
+        }
+
+        typedef mp_list<Markov_Bay_New::LikelihoodEvaluation*> dependsOn;
+      };
+
+
+
+
+
+      static vType*
+      functionType(Markov_CommandManagerVar* cm)
+      {
+        auto out= new  Implements_Closure_Type<void*>
+            (myId(),Identifier::types::idFunGiven::varType(myId()));
+        out->push_overload(cm,likelihood_::closureType(cm));
+        return out;
+
+
+
+      }
+
+
+
+
+
+    };
+
+    /*
     struct Likelihood {
       typedef Implements_Data_Type_Function  vType;
 

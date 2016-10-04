@@ -100,11 +100,11 @@ QMAKE_LFLAGS_DEBUG += -fopenmp
 
 HEADERS += \
 #    Include/Markov_Bay/MarkovOptim.h \
-#    Include/Markov_Bay/MarkovLikelihood.h \
-#    Include/Markov_Bay/MacroRStep.h \
-#    Include/Markov_Bay/MacroNRStep.h \
-#    Include/Markov_Bay/MacroDRStep.h \
-#    Include/Markov_Bay/ABC_MarkovLikelihoodStep.h \
+    Include/Markov_Bay/MarkovLikelihood.h \
+    Include/Markov_Bay/MacroRStep.h \
+    Include/Markov_Bay/MacroNRStep.h \
+    Include/Markov_Bay/MacroDRStep.h \
+    Include/Markov_Bay/ABC_MarkovLikelihoodStep.h \
     Include/Markov_Console/Markov_console.h \
     Include/Markov_Console/Markov_CommandManager.h \
     Include/Markov_IO/x_step.h \
@@ -181,7 +181,7 @@ HEADERS += \
     Include/Markov_Mol/ABC_PatchModel.h \
     Include/Markov_IO/Experiment.h \
     Include/Markov_IO/Trace.h \
-#    Include/Markov_Bay/LikelihoodEvaluation.h \
+    Include/Markov_Bay/LikelihoodEvaluation.h \
 #    Include/Markov_Bay/PartialLikelihoodEvaluation.h \
 #    Include/Markov_Bay/YfitLikelihoodEvaluation.h \
     Include/Markov_Bay/LikelihoodOptions.h \
@@ -220,12 +220,12 @@ SOURCES += \
     Source/Markov_IO/buildByToken.cpp\
     Source/Markov_Mol/PatchModel.cpp \
     Source/Markov_IO/auxiliarIO.cpp \
-#    Source/Markov_Bay/MarkovLikelihood.cpp \
+    Source/Markov_Bay/MarkovLikelihood.cpp \
 #    Source/Markov_Bay/Markov_Bay.cpp \
-#    Source/Markov_Bay/MacroRStep.cpp \
-#    Source/Markov_Bay/MacroNRStep.cpp \
-#    Source/Markov_Bay/MacroDRStep.cpp \
-#    Source/Markov_Bay/ABC_MarkovLikelihoodStep.cpp \
+    Source/Markov_Bay/MacroRStep.cpp \
+    Source/Markov_Bay/MacroNRStep.cpp \
+    Source/Markov_Bay/MacroDRStep.cpp \
+    Source/Markov_Bay/ABC_MarkovLikelihoodStep.cpp \
     Source/Markov_Console/Markov_console.cpp \
     Source/Markov_Console/Markov_CommandManager.cpp \
     Source/Markov_IO/x_step.cpp \
@@ -276,7 +276,7 @@ SOURCES += \
     Source/Markov_Mol/ABC_PatchModel.cpp \
     Source/Markov_IO/Trace.cpp \
     Source/Markov_IO/Experiment.cpp \
-#    Source/Markov_Bay/LikelihoodEvaluation.cpp \
+    Source/Markov_Bay/LikelihoodEvaluation.cpp \
 #    Source/Markov_Bay/PartialLikelihoodEvaluation.cpp \
 #    Source/Markov_Bay/YfitLikelihoodEvaluation.cpp \
  #   Source/Markov_Bay/LikelihoodOptions.cpp \
@@ -402,7 +402,8 @@ HEADERS += \
     Include/Markov_IO/Implements_Closures_templ.h \
     Include/Markov_IO/buildClosureByToken_Templ.h \
     Include/Markov_Bay/Distributions.h \
-    Include/Markov_Console/ScriptManager.h
+    Include/Markov_Console/ScriptManager.h \
+    Include/Markov_Bay/myTypes_Bayesian.h
 
 SOURCES += \
     Source/Markov_Console/ExpressionManager.cpp \

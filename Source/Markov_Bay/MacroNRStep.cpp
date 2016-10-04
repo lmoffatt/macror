@@ -10,7 +10,7 @@
 
 #include "Markov_LA/auxiliarMath.h"
 
-namespace Markov_Bay
+namespace Markov_Bay_New
 {
 
 Macro_NR_step* Macro_NR_step::clone()const
@@ -96,39 +96,27 @@ double Macro_NR_step::N_channels()const
 {
     return model_A->AverageNumberOfChannels();
 }
-const Markov_Mol::ABC_PatchModel& Macro_NR_step::patch()const
+const Markov_Mol_New::ABC_PatchModel& Macro_NR_step::patch()const
 {
     return *model_A;
 }
 
-const Markov_Mol::ABC_Markov_Model& Macro_NR_step::model()const
+const Markov_Mol_New::ABC_Markov_Model& Macro_NR_step::model()const
 {
     return model_A->Model();
 }
 
-const Markov_Mol::ABC_noise& Macro_NR_step::noise()const
+const Markov_Mol_New::ABC_noise& Macro_NR_step::noise()const
 {
     return model_A->Noise();
 }
-void Macro_NR_step::apply_parameters(const Markov_IO::Parameters& beta)
-{
-    model_A->apply_parameters(beta);
- }
-const Markov_IO::Parameters& Macro_NR_step::get_parameters()const
-{
-    return model_A->get_parameters();
-}
 
-Macro_NR_step::Macro_NR_step(const std::string& id,
-                             const Markov_Mol::ABC_PatchModel& P,
-                             bool is_averaging,
-                             const std::string& tip,
-                             const std::string& whatthis):
-  ABC_Markov_Likelihood_step(id,ClassName(),tip,whatthis),
-    model_A(P.clone()),
+Macro_NR_step::Macro_NR_step(const Markov_Mol_New::ABC_PatchModel* P,
+                             bool is_averaging):
+    model_A(P),
     Q_dt(),
-    P_mean_M(Markov_LA::M_Matrix<double>(1,P.Model().k())),
-    P_cov_M(Markov_LA::M_Matrix<double>(P.Model().k(),P.Model().k())),
+    P_mean_M(Markov_LA::M_Matrix<double>(1,P->Model().k())),
+    P_cov_M(Markov_LA::M_Matrix<double>(P->Model().k(),P->Model().k())),
     y_d(Markov_LA::NaN()),
     y_mean_d(Markov_LA::NaN()),
     y_var_d(Markov_LA::NaN()),
@@ -162,7 +150,7 @@ Macro_NR_step& Macro_NR_step::start(double x)
     return *this;
 }
 
-Macro_NR_step& Macro_NR_step::run(const Markov_IO::ABC_measure_step& Y)
+Macro_NR_step& Macro_NR_step::run(const Markov_IO_New::ABC_measure_step& Y)
 {
     Q_dt=this->model().Q_step(Y,isaveraging_b);
     Markov_LA::M_Matrix<double> gS(TranspMult(Q_dt.gmean_i,P_cov_M));// product of S and g, used several places

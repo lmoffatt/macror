@@ -617,7 +617,7 @@ namespace Markov_IO_New {
       {
         if (alternativeNext_== nullptr) return {"<enter string>"};
         else
-        return (*alternativeNext_)(cm,this);
+          return (*alternativeNext_)(cm,this);
       }
 
       virtual ~Implements_Data_Type_New_string(){}
@@ -858,7 +858,7 @@ namespace Markov_IO_New {
     static std::string toId
     (const std::string& name,
      bool isFixed, bool isVar, bool isType, bool isNew, bool isUsed, bool isFunction
-        ,bool isCommand);
+     ,bool isCommand);
 
     Implements_Identifier
     (const std::string& nameId,
@@ -2325,7 +2325,7 @@ namespace Markov_IO_New {
                                   , const std::string& masterObjective)const override
       {
         if ((v!=nullptr)&&(v->myType()!=nullptr))
-        return v->myType()->typeId()==typeId();
+          return v->myType()->typeId()==typeId();
         else return true;
       }
 
@@ -6130,11 +6130,12 @@ namespace Markov_IO_New {
       virtual ~Implements_Data_Type_class(){}
 
 
-      Implements_Data_Type_class(const std::string& idType,selfType* const typeType,
-                                 const std::vector<std::pair<Implements_Var,bool>> fields
-                                 ,getClass_type getClass
-                                 ,getCV getmyCV
-                                 ,typePredicate complyPred=nullptr):
+      Implements_Data_Type_class
+      (const std::string& idType,selfType* const typeType,
+       const std::vector<std::pair<Implements_Var,bool>> fields
+       ,getCV getmyCV
+       ,getClass_type getClass
+       ,typePredicate complyPred=nullptr):
         typeId_(idType)
       ,varIdType_(Identifier::types::idVarUsed::varType(idType))
       ,typeIdType_(Identifier::types::idType::varType(idType))
@@ -6497,7 +6498,7 @@ namespace Markov_IO_New {
           ,typename baseType::getCV getBaseCV=nullptr
           ,typename baseType::getClass_type getBClass=nullptr
           ,typename baseType::typePredicate baseComply=nullptr):
-        baseType(idType,typeType,fields,getBClass,getBaseCV,baseComply)
+        baseType(idType,typeType,fields,getBaseCV,getBClass,baseComply)
       ,typeId_(idType)
       ,typeType_(typeType)
       ,getDClass_(getDerClass),getDCV_(getDerivedCV),

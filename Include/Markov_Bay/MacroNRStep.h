@@ -8,7 +8,7 @@
 
 #include "Markov_Bay/ABC_MarkovLikelihoodStep.h"
 
-namespace Markov_Bay
+namespace Markov_Bay_New
 {
 
   class Macro_NR_step: public ABC_Markov_Likelihood_step
@@ -39,25 +39,19 @@ namespace Markov_Bay
 
     virtual  double N_channels()const;
 
-    virtual const Markov_Mol::ABC_PatchModel& patch()const;
+    virtual const Markov_Mol_New::ABC_PatchModel& patch()const;
 
-    virtual const Markov_Mol::ABC_Markov_Model& model()const;
+    virtual const Markov_Mol_New::ABC_Markov_Model& model()const;
 
-    virtual const Markov_Mol::ABC_noise& noise()const;
+    virtual const Markov_Mol_New::ABC_noise& noise()const;
 
-    virtual void apply_parameters(const Markov_IO::Parameters& beta);
-
-    virtual const Markov_IO::Parameters& get_parameters()const;
 
     virtual Macro_NR_step& start(double x);
 
-    virtual Macro_NR_step& run(const Markov_IO::ABC_measure_step& Y);
+    virtual Macro_NR_step& run(const Markov_IO_New::ABC_measure_step& Y);
 
-    Macro_NR_step(const std::string &id,
-                  const Markov_Mol::ABC_PatchModel& M,
-                  bool is_averaging,
-                  const std::string &tip="",
-                  const std::string &whatthis="");
+    Macro_NR_step(const Markov_Mol_New::ABC_PatchModel* M,
+                  bool is_averaging);
 
     Macro_NR_step(const Macro_NR_step& other);
     Macro_NR_step();
@@ -65,9 +59,9 @@ namespace Markov_Bay
     ~Macro_NR_step();
 
   private:
-    Markov_Mol::ABC_PatchModel* model_A;
+    const Markov_Mol_New::ABC_PatchModel* model_A;
 
-    Markov_Mol::Markov_Transition_step Q_dt;
+    Markov_Mol_New::Markov_Transition_step Q_dt;
 
     Markov_LA::M_Matrix<double> P_mean_M;
     Markov_LA::M_Matrix<double> P_cov_M;

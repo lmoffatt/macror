@@ -6,10 +6,11 @@
 #include "Markov_LA/matrixAritmetic.h"
 #include "Markov_LA/matrixRelational.h"
 #include "Markov_LA/matrixOperators.h"
+#include "Markov_LA/matrixAssigmentOp.h"
 
 #include "Markov_LA/auxiliarMath.h"
 
-namespace Markov_Bay
+namespace Markov_Bay_New
 {
 
 
@@ -74,45 +75,31 @@ namespace Markov_Bay
   {
     return model_A->AverageNumberOfChannels();
   }
-  const Markov_Mol::ABC_PatchModel& Macro_R_step::patch()const
+  const Markov_Mol_New::ABC_PatchModel& Macro_R_step::patch()const
   {
     return *model_A;
   }
 
 
 
-  const Markov_Mol::ABC_Markov_Model& Macro_R_step::model()const
+  const Markov_Mol_New::ABC_Markov_Model& Macro_R_step::model()const
   {
     return model_A->Model();
   }
-  const Markov_Mol::ABC_noise& Macro_R_step::noise()const
+  const Markov_Mol_New::ABC_noise& Macro_R_step::noise()const
   {
     return model_A->Noise();
   }
-  void Macro_R_step::apply_parameters(const Markov_IO::Parameters& beta)
-  {
-    model_A->apply_parameters(beta);
-
-  }
-
-  const Markov_IO::Parameters& Macro_R_step::get_parameters()const
-  {
-    return model_A->get_parameters();
-  }
 
 
 
-  Macro_R_step::Macro_R_step(const std::string& id,
-                             const Markov_Mol::ABC_PatchModel& P,
+  Macro_R_step::Macro_R_step(const Markov_Mol_New::ABC_PatchModel* P,
                              bool is_averaging,
-                             bool p_zero_guard,
-                             const std::string &tip,
-                             const std::string &whatthis):
-    ABC_Markov_Likelihood_step(id,ClassName(),tip,whatthis),
-    model_A(P.clone()),
+                             bool p_zero_guard):
+    model_A(P),
     Q_dt(),
-    P_mean_M(Markov_LA::M_Matrix<double>(1,P.Model().k())),
-    P_cov_M(Markov_LA::M_Matrix<double>(P.Model().k(),P.Model().k())),
+    P_mean_M(Markov_LA::M_Matrix<double>(1,P->Model().k())),
+    P_cov_M(Markov_LA::M_Matrix<double>(P->Model().k(),P->Model().k())),
     y_d(Markov_LA::NaN()),
     y_mean_d(Markov_LA::NaN()),
     y_var_d(Markov_LA::NaN()),
@@ -127,9 +114,7 @@ namespace Markov_Bay
   {}
 
   Macro_R_step::Macro_R_step(const Macro_R_step& other):
-    //Implements_ValueId(other),
-    ABC_Markov_Likelihood_step(other),
-    model_A(other.model_A->clone()),
+    model_A(other.model_A),
     Q_dt(other.Q_dt),
     P_mean_M(other.P_mean_M),
     P_cov_M(other.P_cov_M),
@@ -149,8 +134,7 @@ namespace Markov_Bay
   Macro_R_step::Macro_R_step() {}
   Macro_R_step::~Macro_R_step()
   {
-    delete model_A;
-  }
+   }
 
   Macro_R_step& Macro_R_step::start(double x)
   {
@@ -159,7 +143,7 @@ namespace Markov_Bay
     return *this;
   }
 
-  Macro_R_step& Macro_R_step::run(const Markov_IO::ABC_measure_step& Y)
+  Macro_R_step& Macro_R_step::run(const Markov_IO_New::ABC_measure_step& Y)
   {
     Q_dt=this->model().Q_step(Y,isaveraging_b,false);
     Markov_LA::M_Matrix<double> gS(TranspMult(Q_dt.gmean_i,P_cov_M));// product of S and g, used several places

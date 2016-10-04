@@ -2,7 +2,7 @@
 #define MACRODRSTEP_H
 
 #include "Markov_Bay/ABC_MarkovLikelihoodStep.h"
-namespace Markov_Bay
+namespace Markov_Bay_New
 {
 
 
@@ -34,22 +34,13 @@ public:
 
     virtual  double N_channels()const override;
 
-    virtual const Markov_Mol::ABC_Markov_Model& model()const override;
-
-    virtual const Markov_Mol::ABC_PatchModel& patch()const override;
-
-    virtual const Markov_Mol::ABC_noise& noise()const override;
-
-    virtual void apply_parameters(const Markov_IO::Parameters& beta) override;
-
-    virtual const Markov_IO::Parameters& get_parameters()const override;
 
     virtual Macro_DR_step& start(double x) override;
 
-    virtual Macro_DR_step& run(const Markov_IO::ABC_measure_step& Y) override;
+    virtual Macro_DR_step& run(const Markov_IO_New::ABC_measure_step& Y) override;
 
 
-    Macro_DR_step(const Markov_Mol::ABC_PatchModel& P,
+    Macro_DR_step(const Markov_Mol_New::ABC_PatchModel* P,
                   bool p_zero_guard);
 
     Macro_DR_step(const Macro_DR_step& other);
@@ -59,12 +50,12 @@ public:
 
     ~Macro_DR_step();
 
-protected:
-    Markov_IO::Parameters& buildParameters() ;
-
+      const Markov_Mol_New::ABC_Markov_Model &model() const;
+      const Markov_Mol_New::ABC_PatchModel &patch() const;
+      const Markov_Mol_New::ABC_noise &noise() const;
 private:
-    Markov_Mol::ABC_PatchModel* model_A;
-    Markov_Mol::Markov_Transition_step Q_dt;
+    const Markov_Mol_New::ABC_PatchModel* model_A;
+    Markov_Mol_New::Markov_Transition_step Q_dt;
 
     Markov_LA::M_Matrix<double> P_mean_M;
     Markov_LA::M_Matrix<double> P_cov_M;

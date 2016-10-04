@@ -100,8 +100,6 @@ namespace Markov_Bay_New
 
   void swap(LikelihoodEvaluation& one, LikelihoodEvaluation& other)
   {
-    std::swap(one.name_,other.name_);
-    std::swap(one.experimentName_,other.experimentName_);
     std::swap(one.logL_,other.logL_);
     std::swap(one.elogL_,other.elogL_);
     std::swap(one.nsamples_,other.nsamples_);
@@ -112,8 +110,6 @@ namespace Markov_Bay_New
 
 
   LikelihoodEvaluation::LikelihoodEvaluation():
-    name_(),
-    experimentName_(),
     logL_(0),
     elogL_(0),
     nsamples_(0),
@@ -122,14 +118,10 @@ namespace Markov_Bay_New
   }
 
 
-  LikelihoodEvaluation::LikelihoodEvaluation(const std::string &name,
-                                             std::string experimentName,
-                                             double logL,
+  LikelihoodEvaluation::LikelihoodEvaluation(double logL,
                                              double elogL,
                                              std::size_t ns,
                                              double s2logL):
-    name_(name),
-    experimentName_(experimentName),
     logL_(logL),
     elogL_(elogL),
     nsamples_(ns),

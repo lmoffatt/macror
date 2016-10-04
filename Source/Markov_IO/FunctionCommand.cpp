@@ -27,6 +27,7 @@ namespace Markov_IO_New
       cm->pushCommand<Who>();
       cm->pushCommand<Exit>();
       cm->pushFunction<Simulate>();
+      cm->pushFunction<Likelihood>();
 
 
 
@@ -38,7 +39,7 @@ namespace Markov_IO_New
       std::string whyNot;
       auto eType=cm->idToTyped<StructureEnv_New*>(ComplexVar::types::Var::myId());
       if (!eType->putValue(cm,cm,&f,&whyNot,""))
-          cm->getIO()->put(whyNot);
+        cm->getIO()->put(whyNot);
 
     }
 
@@ -103,56 +104,23 @@ namespace Markov_IO_New
      , std::size_t num_steps
      , std::size_t n_replicates)
     {
-     return new
-         Experiment(p->run(*e,n_replicates,time_step,num_steps, cm->sto()));
+      return new
+          Experiment(p->run(*e,n_replicates,time_step,num_steps, cm->sto()));
     }
 
+    Markov_Bay_New::LikelihoodEvaluation
+    *Likelihood::likelihood_::likelihood(
+        const Markov_Mol_New::ABC_PatchModel *patch,
+        const ABC_Experiment *experiment,
+        const std::__cxx11::string& algorithm
+        , bool isaveraging
+        , bool zeroGuard)
+    {
+      return Markov_Bay_New::Markov_Likelihood::run
+          (patch,experiment,algorithm
+           ,isaveraging, zeroGuard);
 
-    //    void Likelihood::likelihood_cm::likelihood(Markov_CommandManagerVar *cm
-//                                               , Markov_Mol_New::ABC_PatchModel *patch, ABC_Experiment *experiment, const std::__cxx11::string algorithm, bool isaveraging, bool zeroGuard, double dxForScore, bool showPartialLikelihood, bool showPredictedValue, bool runApproximation, std::size_t numSteps, std::size_t numSamples)
-
-//    {
-
-
-//      Markov_Bay_New::Markov_Likelihood ml(patch,experiment,algorithm, isaveraging,  zeroGuard,  dxForScore,  showPartialLikelihood,  showPredictedValue,  runApproximation,  numSteps, numSamples);
-
-
-//      if (!showPartialLikelihood)
-//        {
-//          Markov_Bay_New::LikelihoodEvaluation* lik =new
-//              Markov_Bay_New::LikelihoodEvaluation(ml.run());
-
-//        }
-//      else
-//        if (!showPredictedValue)
-//          {                 Markov_Bay_New::PartialLikelihoodEvaluation* lik =new
-//                Markov_Bay_New::PartialLikelihoodEvaluation(ml.run(std::string("")));
-
-////            cm_->add_var(algorithm,lik);
-////            std::stringstream ss;
-////            ss<<*lik;
-////            output_=ss.str();
-////            errorMessage_.clear();
-////            return true;
-
-
-//          }
-//        else
-//          {
-//            Markov_Bay_New::YfitLikelihoodEvaluation* lik =new
-//                Markov_Bay_New::YfitLikelihoodEvaluation(ml.run(std::string("dummy"),
-//                                                            std::string("dummy")));
-
-////            cm_->add_var(algorithm,lik);
-////            std::stringstream ss;
-////            ss<<*lik;
-////            output_=ss.str();
-////            errorMessage_.clear();
-////            return true;
-//          }
-
-
-//    }
+    }
 
 
 

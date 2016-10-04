@@ -8,8 +8,9 @@
 #include "Markov_LA/matrixOperators.h"
 
 #include "Markov_LA/auxiliarMath.h"
+#include "Markov_LA/matrixAssigmentOp.h"
 
-namespace Markov_Bay
+namespace Markov_Bay_New
 {
 
 Macro_DR_step* Macro_DR_step::clone()const
@@ -74,32 +75,23 @@ double Macro_DR_step::N_channels()const
     return model_A->AverageNumberOfChannels();
 };
 
-const Markov_Mol::ABC_Markov_Model& Macro_DR_step::model()const
+const Markov_Mol_New::ABC_Markov_Model& Macro_DR_step::model()const
 {
     return model_A->Model();
 };
 
 
-const Markov_Mol::ABC_PatchModel& Macro_DR_step::patch()const
+const Markov_Mol_New::ABC_PatchModel& Macro_DR_step::patch()const
 {
     return *model_A;
 }
 
 
-const Markov_Mol::ABC_noise& Macro_DR_step::noise()const
+const Markov_Mol_New::ABC_noise& Macro_DR_step::noise()const
 {
     return model_A->Noise();
 }
 
-void Macro_DR_step::apply_parameters(const Markov_IO::Parameters& beta)
-{
-    model_A->apply_parameters(beta);
- }
-
-const Markov_IO::Parameters& Macro_DR_step::get_parameters()const
-{
-    return model_A->get_parameters();
-}
 
 
 Macro_DR_step& Macro_DR_step::start(double x)
@@ -111,7 +103,7 @@ Macro_DR_step& Macro_DR_step::start(double x)
 
 
 
-Macro_DR_step& Macro_DR_step::run(const Markov_IO::ABC_measure_step& Y)
+Macro_DR_step& Macro_DR_step::run(const Markov_IO_New::ABC_measure_step& Y)
 {
   //double dt=Y.dt();
 //  double x=Y.x();
@@ -152,15 +144,15 @@ Macro_DR_step& Macro_DR_step::run(const Markov_IO::ABC_measure_step& Y)
 
     if (y_var_d<0)
     {
-        std::cerr<<" \n******** y_var_d negative!!!!!***********\n";
-        std::cerr<<"\n sA2+N*gSg+(N*N*sSg*sSg)/sB4 \n";
-        std::cerr<<"\n sA2=  "<<sA2;
-        std::cerr<<"\n gSg ="<<gSg;
-        std::cerr<<"\n sB4=2*sA2*sA2-N*sSs  sB4 = "<<sB4<<"\n";
+//        std::cerr<<" \n******** y_var_d negative!!!!!***********\n";
+//        std::cerr<<"\n sA2+N*gSg+(N*N*sSg*sSg)/sB4 \n";
+//        std::cerr<<"\n sA2=  "<<sA2;
+//        std::cerr<<"\n gSg ="<<gSg;
+//        std::cerr<<"\n sB4=2*sA2*sA2-N*sSs  sB4 = "<<sB4<<"\n";
 
-        std::cerr<<*this;
-        std::cerr<<this->model();
-        //press_any_key_to_continue();
+//        std::cerr<<*this;
+//        std::cerr<<this->model();
+//        //press_any_key_to_continue();
     }
 
     y_std_d=std::sqrt(y_var_d);
@@ -230,12 +222,12 @@ Macro_DR_step& Macro_DR_step::run(const Markov_IO::ABC_measure_step& Y)
 
 }
 
-Macro_DR_step::Macro_DR_step(const Markov_Mol::ABC_PatchModel& P,
+Macro_DR_step::Macro_DR_step(const Markov_Mol_New::ABC_PatchModel *P,
                              bool p_zero_guard):
-    model_A(P.clone()),
+    model_A(P),
     Q_dt(),
-    P_mean_M(Markov_LA::M_Matrix<double>(1,P.Model().k())),
-    P_cov_M(Markov_LA::M_Matrix<double>(P.Model().k(),P.Model().k())),
+    P_mean_M(Markov_LA::M_Matrix<double>(1,P->Model().k())),
+    P_cov_M(Markov_LA::M_Matrix<double>(P->Model().k(),P->Model().k())),
 
     y_d(Markov_LA::NaN()),
     y_mean_d(Markov_LA::NaN()),
@@ -254,7 +246,7 @@ Macro_DR_step::Macro_DR_step(const Markov_Mol::ABC_PatchModel& P,
 Macro_DR_step::Macro_DR_step(const Macro_DR_step& other):
   //Implements_ValueId(other),
   ABC_Markov_Likelihood_step(other) ,
-        model_A(other.model_A->clone()),
+        model_A(other.model_A),
 	Q_dt(other.Q_dt),
 	P_mean_M(other.P_mean_M),
 	P_cov_M(other.P_cov_M),
@@ -274,6 +266,5 @@ Macro_DR_step::Macro_DR_step() {}
 
 Macro_DR_step::~Macro_DR_step()
 {
-    delete model_A;
-}
+ }
 }

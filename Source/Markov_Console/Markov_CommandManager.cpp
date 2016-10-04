@@ -49,6 +49,8 @@
 #include <random>
 #include "Markov_IO/StructureEnv_templ.h"
 
+#include "Markov_Bay/myTypes_Bayesian.h"
+
 #include <random>
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
@@ -148,6 +150,7 @@ namespace Markov_IO_New
     ComplexVar::push_Types(this);
     _private::_model::push_Types(this);
 _private::_experiment::push_Types(this);
+_private::_bayesian::push_Types(this);
     funct::pushAllFunctions(this);
 
     e=new ExpressionManager(this);

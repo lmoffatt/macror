@@ -35,16 +35,6 @@ public:
     virtual ABC_Markov_Likelihood_step& run(const Markov_IO_New::ABC_measure_step& Y)=0;
 
 
-
-
-
-
-
-  ABC_Markov_Likelihood_step(const ABC_Markov_Likelihood_step& other){}
-
-
- ABC_Markov_Likelihood_step()=default;
-
 };
 
 
