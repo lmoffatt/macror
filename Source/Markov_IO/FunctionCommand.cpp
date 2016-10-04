@@ -22,6 +22,8 @@ namespace Markov_IO_New
       cm->pushCommand<Save>();
 
       cm->pushCommand<Load>();
+      cm->pushCommand<Run>();
+
       cm->pushCommand<Who>();
       cm->pushCommand<Exit>();
       cm->pushFunction<Simulate>();
@@ -61,7 +63,19 @@ namespace Markov_IO_New
         }
       delete loadedEnv;
       //      getCommandManager()->putOut(Markov_IO::ToString(numVar)+" variables loaded from file "+ path+"\n");
+
+
     }
+
+
+    void Run::run_cm::run(Markov_CommandManagerVar *cm, const std::__cxx11::string &pathfileNameIn, const std::__cxx11::string &pathfileLog,bool withError)
+    {
+      fd::FileIn f_in(pathfileNameIn);
+      fd::FileOut f_out(pathfileLog);
+      cm->run(&f_in,&f_out,withError);
+
+    }
+
 
 
     void Who::who_cm::who(Markov_CommandManagerVar *cm, const std::__cxx11::string &typeName)
@@ -91,7 +105,8 @@ namespace Markov_IO_New
     {
      return new
          Experiment(p->run(*e,n_replicates,time_step,num_steps, cm->sto()));
-     }
+    }
+
 
     //    void Likelihood::likelihood_cm::likelihood(Markov_CommandManagerVar *cm
 //                                               , Markov_Mol_New::ABC_PatchModel *patch, ABC_Experiment *experiment, const std::__cxx11::string algorithm, bool isaveraging, bool zeroGuard, double dxForScore, bool showPartialLikelihood, bool showPredictedValue, bool runApproximation, std::size_t numSteps, std::size_t numSamples)

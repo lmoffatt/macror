@@ -76,17 +76,48 @@ namespace Markov_IO_New
     e->KeyEvent(this,getIO(),getH(),k);
   }
 
-  bool Markov_CommandManagerVar::exec(std::__cxx11::string fileName)
-  {
-    fd::FileIn f(fileName.c_str());
-    if(!f.isOpen())
-      return false;
-    else
-      {
-        return true;
-      }
 
+  void Markov_CommandManagerVar::run(ABC_Input *istream,ABC_Output * ostream,bool checkErrors)
+  {
+    std::string* whyNot=nullptr;
+    if (checkErrors)
+      whyNot=new std::string;
+    bool s=true;
+     while (s)
+       {
+
+         Implements_Var v;
+          Implements_Var_Closure ic;
+          ABC_Closure* c;
+          while (istream->nextCharIs('\n',false)){}
+
+          if (getCmdType()->getClosure(this,c,istream,whyNot,""))
+            {
+              if (ostream!=nullptr)
+                 c->putMe(this,ostream,whyNot,"");
+              c->evalData(this);
+
+              }
+          else if(getFnType()->getValue(this,ic,istream,whyNot,""))
+            {
+              if (ostream!=nullptr)
+                 getFnType()->putValue(this,ic,ostream,whyNot,"");
+              this->pushVar({ic.id,ic.closure->evalData(this),ic.Tip,ic.WhatThis});
+
+            }
+          else if (getVarType()->getValue(this,v,istream,whyNot,""))
+            {
+              if (ostream!=nullptr)
+                 getVarType()->putValue(this,v,ostream,whyNot,"");
+              this->pushVar(v);
+            }
+          else
+            s=false;
+
+    }
   }
+
+
 
   Markov_CommandManagerVar::Markov_CommandManagerVar():
     StructureEnv_New(nullptr,nullptr),
@@ -108,6 +139,7 @@ namespace Markov_IO_New
 
     pushRegularType<Markov_CommandManagerVar*>();
     pushVoidType();
+    pushRegularType<bool>();
 
     Real::push_Types(this);
     Identifier::push_Types(this);

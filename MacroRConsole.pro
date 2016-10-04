@@ -401,7 +401,8 @@ HEADERS += \
     Include/Markov_IO/StructureEnv_templ.h \
     Include/Markov_IO/Implements_Closures_templ.h \
     Include/Markov_IO/buildClosureByToken_Templ.h \
-    Include/Markov_Bay/Distributions.h
+    Include/Markov_Bay/Distributions.h \
+    Include/Markov_Console/ScriptManager.h
 
 SOURCES += \
     Source/Markov_Console/ExpressionManager.cpp \
@@ -413,7 +414,8 @@ SOURCES += \
     Source/Markov_IO/myTypesExperiment.cpp \
     Source/Markov_IO/StructureEnv.cpp \
     Source/Markov_IO/buildClosureByToken.cpp \
-    Source/Markov_IO/Implements_Closures.cpp
+    Source/Markov_IO/Implements_Closures.cpp \
+    Source/Markov_Console/ScriptManager.cpp
 
 OTHER_FILES += \
     help_files/plan_aheadd.txt

@@ -663,7 +663,12 @@ namespace Markov_IO_New {
 
         if (!istream->get(v,whyNot,masterObjective))
           return false;
-        else return (whyNot==nullptr)||isValueInDomain(cm,v,whyNot,masterObjective);
+        else if  (!isValueInDomain(cm,v,whyNot,masterObjective))
+          {
+            istream->put_back(v);
+            return false;
+          }
+        else return true;
       }
 
 
@@ -1308,6 +1313,62 @@ namespace Markov_IO_New {
         static constexpr bool isUsed=true;
         static constexpr bool isFunction=false;
       };
+
+
+      struct idCmdGiven{
+        typedef  std::string myC;
+        typedef idVarGiven selfType;
+
+        static std::string myId(const std::string& idName){return toId<selfType>(idName );}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "defined Variable indentifer";}
+
+        static std::string myWhatThis(){return "an identifier to a Variable";}
+
+
+
+
+        static Implements_Identifier*
+        varType(const std::string& varTypeName="")
+        {return getVarType<selfType>(varTypeName);}
+
+
+        static constexpr bool isFixed=true;
+        constexpr static  bool isVar=true;
+        constexpr static  bool isType=false;
+        static constexpr bool isCommand=true;
+        static constexpr bool isNew=false;
+        static constexpr bool isUsed=true;
+        static constexpr bool isFunction=false;
+      };
+
+      struct idFunGiven{
+        typedef  std::string myC;
+        typedef idVarGiven selfType;
+
+        static std::string myId(const std::string& idName){return toId<selfType>(idName );}
+        static std::string myIdType(){return Cls<myC>::name();}
+        static std::string myTip(){return "defined Variable indentifer";}
+
+        static std::string myWhatThis(){return "an identifier to a Variable";}
+
+
+
+
+        static Implements_Identifier*
+        varType(const std::string& varTypeName="")
+        {return getVarType<selfType>(varTypeName);}
+
+
+        static constexpr bool isFixed=true;
+        constexpr static  bool isVar=true;
+        constexpr static  bool isType=false;
+        static constexpr bool isCommand=false;
+        static constexpr bool isNew=false;
+        static constexpr bool isUsed=true;
+        static constexpr bool isFunction=true;
+      };
+
 
 
     };

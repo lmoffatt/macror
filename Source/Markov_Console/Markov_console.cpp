@@ -420,12 +420,12 @@ namespace Markov_Console_New
 
 
 
-  int Markov_Console::exec(const std::string fileCommandName)
+  int Markov_Console::exec(const std::string line)
   {
-   // Markov_Script ms(cm,fileCommandName);
-    std::string commandLine="exit";
-   //cm->add_tokens(commandLine);
-   // cm->next_instruction();
+   Markov_IO_New::StringInput s(line);
+   Markov_IO_New::StdOStream o(std::cout);
+
+   cm->run(&s,&o,true);
     return 0;
 
   }

@@ -13,6 +13,7 @@
 #include <sstream>
 #include <tuple>
 #include <type_traits>
+#include <sstream>
 
 namespace Markov_IO_New {
 
@@ -50,8 +51,12 @@ namespace Markov_IO_New {
     virtual bool getLine(std::string& line,std::string* whyNot,const std::string& masterObjective)=0;
 
     virtual  bool get( std::string& s,std::string* whyNot,const std::string& masterObjective)=0;
+    virtual void put_back(const std::string & s)=0;
+
     virtual  bool get(double& x,std::string* whyNot,const std::string& masterObjective)=0;
     virtual  bool get(int& n,std::string* whyNot,const std::string& masterObjective)=0;
+    virtual  bool get(bool& n,std::string* whyNot,const std::string& masterObjective)=0;
+
     virtual  bool get(std::size_t& n,std::string* whyNot,const std::string& masterObjective)=0;
     virtual  bool get(char& c,std::string* whyNot,const std::string& masterObjective)=0;
     virtual  bool get(char& c)=0;
@@ -60,6 +65,7 @@ namespace Markov_IO_New {
     virtual bool nextCharIs(char c,bool advanceInFailure)=0;
 
     virtual bool testIfNextCharIs(char c)=0;
+
 
     virtual bool eof()const=0;
     virtual ~ABC_Input(){}
@@ -70,79 +76,32 @@ namespace Markov_IO_New {
   class StringInput: public ABC_Input
   {
   public:
-    virtual bool getLine(std::string& line,std::string* whyNot,const std::string& masterObjective) override
-    {
-      std::getline(ss_,line);
-      return ss_.good();
-    }
+    virtual bool getLine(std::string& line,std::string* whyNot,const std::string& masterObjective) override;
 
-    virtual  bool get( std::string& s,std::string* whyNot,const std::string& masterObjective) override {
-      ss_>>s;
-      return ss_.good();
-    }
-    virtual  bool get(double& x,std::string* whyNot,const std::string& masterObjective) override {
-      ss_>>x;
-      return ss_.good();
-    }
-    virtual  bool get(int& n,std::string* whyNot,const std::string& masterObjective) override {
-      ss_>>n;
-      return ss_.good();
-    }
-    virtual  bool get(std::size_t& n,std::string* whyNot,const std::string& masterObjective) override {
-      ss_>>n;
-      return ss_.good();
-    }
-    virtual bool get(char &c, std::string *whyNot, const std::string &masterObjective) override
-    {
-      ss_.get(c);
-      return ss_.good();
-    }
-    virtual bool get(char &c) override
-    {
-      ss_.get(c);
-      return ss_.good();
+    virtual  bool get( std::string& s,std::string* whyNot,const std::string& masterObjective) override;
+    virtual void put_back(const std::string & s)override;
 
-    }
+    virtual  bool get(double& x,std::string* whyNot,const std::string& masterObjective) override;
+    virtual  bool get(int& n,std::string* whyNot,const std::string& masterObjective) override;
+    virtual  bool get(bool& n,std::string* ,const std::string& ) override;
+    virtual  bool get(std::size_t& n,std::string* whyNot,const std::string& masterObjective) override;
+    virtual bool get(char &c, std::string *whyNot, const std::string &masterObjective) override;
+    virtual bool get(char &c) override;
 
-    virtual bool nextCharIs(char c, char &found) override
-    {
-
-      ss_.get(found);
-      while (found==' ') {ss_.get(found);}
-      return found==c;
-    }
-    virtual bool nextCharIs(char c, bool advanceInFailure) override
-    {
-      char d;
-      ss_.get(d);
-      while (d==' ') {ss_.get(d);}
-      if (d==c)
-        return true;
-      else if (!advanceInFailure)
-        ss_.putback(d);
-      return false;
-    }
-    virtual bool testIfNextCharIs(char c) override
-    {
-      char d;
-      ss_.get(d);
-      while (d==' ') {ss_.get(d);}
-      ss_.putback(d);
-      return  d==c;
-    }
+    virtual bool nextCharIs(char c, char &found) override;
+    virtual bool nextCharIs(char c, bool advanceInFailure) override;
+    virtual bool testIfNextCharIs(char c) override;
 
 
-    virtual bool eof()const override
-    {
-      return ss_.eof();
-    }
-    virtual ~StringInput(){}
 
 
-    StringInput(const std::string & s, char spacer=' ')
-      : spacer_(spacer),ss_(s){}
-    void setSpacer(char c)override{spacer_=c;}
-    char  getSpacer()const override {return spacer_;}
+    virtual bool eof()const override;
+    virtual ~StringInput();
+
+
+    StringInput(const std::string & s, char spacer=' ');
+    void setSpacer(char c)override;
+    char  getSpacer()const override;
 
   private:
     char spacer_;
@@ -199,6 +158,171 @@ namespace Markov_IO_New {
     char spacer_;
     std::ostringstream ss_;
   };
+
+
+  class StdIStream: public ABC_Input
+  {
+  public:
+    virtual bool getLine(std::string& line,std::string* whyNot,const std::string& masterObjective) override
+    {
+      std::getline(is_,line);
+      return is_.good();
+    }
+
+    virtual  bool get( std::string& s,std::string* whyNot,const std::string& masterObjective) override {
+      is_>>s;
+      return is_.good();
+    }
+    virtual  bool get(double& x,std::string* whyNot,const std::string& masterObjective) override {
+      is_>>x;
+      return is_.good();
+    }
+    virtual  bool get(int& n,std::string* whyNot,const std::string& masterObjective) override {
+      is_>>n;
+      return is_.good();
+    }
+    virtual  bool get(bool& n,std::string* ,const std::string& ) override {
+      is_>>n;
+      return is_.good();
+    }
+
+    virtual  bool get(std::size_t& n,std::string* whyNot,const std::string& masterObjective) override {
+      is_>>n;
+      return is_.good();
+    }
+    virtual bool get(char &c, std::string *whyNot, const std::string &masterObjective) override
+    {
+      is_.get(c);
+      return is_.good();
+    }
+    virtual bool get(char &c) override
+    {
+      is_.get(c);
+      return is_.good();
+
+    }
+
+    virtual bool nextCharIs(char c, char &found) override
+    {
+
+      is_.get(found);
+      while (found==' ') {is_.get(found);}
+      return found==c;
+    }
+    virtual bool nextCharIs(char c, bool advanceInFailure) override
+    {
+      char d;
+      is_.get(d);
+      while (d==' ') {is_.get(d);}
+      if (d==c)
+        return true;
+      else if (!advanceInFailure)
+        is_.putback(d);
+      return false;
+    }
+    virtual bool testIfNextCharIs(char c) override
+    {
+      if (ss_.eof())
+        {
+      char d;
+      is_.get(d);
+      while (is_.get(d)&&(d==' ')){}
+      is_.putback(d);
+      return  d==c;
+        }
+      else
+        {
+          char d;
+          ss_.get(d);
+          while (ss_.get(d)&&(d==' ')){}
+          is_.putback(d);
+          return  d==c;
+
+        }
+    }
+
+
+
+
+    virtual bool eof()const override
+    {
+      return (ss_.eof()&&is_.eof());
+    }
+    virtual ~StdIStream(){}
+
+
+    StdIStream(std::istream & s,const std::string str,char spacer=' ')
+      : spacer_(spacer),is_(s),ss_(str){}
+    void setSpacer(char c)override{spacer_=c;}
+    char  getSpacer()const override {return spacer_;}
+
+  private:
+    char spacer_;
+    std::istream& is_;
+    std::stringstream ss_;
+
+    static void feedLine(std::istream& is,std::stringstream& lineStream)
+    {
+      if (!lineStream.good())
+        {
+          std::string newline;
+          std::getline(is,newline);
+          std::stringstream(newline).swap(lineStream);
+         }
+
+    }
+
+
+  };
+
+
+  class StdOStream:public ABC_Output  {
+  public:
+    template<typename T>
+    void put(const T& x, std::string* error)
+    {
+      *error=Cls<T>::name()+ "is not supported";
+    }
+
+    virtual void put(const std::string& s) override
+    {
+      os_<<s<<getSpacer();
+    }
+
+    virtual void put(double x) override
+    {
+      os_<<x<<getSpacer();
+    }
+
+    virtual void put(int n)override
+    {
+      os_<<n<<getSpacer();
+    }
+
+    virtual void put(std::size_t n)override
+    {
+      os_<<n<<getSpacer();
+    }
+
+    virtual void put(char c) override
+    {
+      os_.put(c);
+    }
+
+
+
+    virtual ~StdOStream(){}
+    StdOStream(std::ostream& os=std::cout,char spacer=' ')
+      : spacer_(spacer),os_(os){}
+
+    void setSpacer(char c)override{spacer_=c;}
+    char  getSpacer()const override {return spacer_;}
+
+  private:
+    char spacer_;
+    std::ostream& os_;
+  };
+
 
 
   class Implements_Command_Type_New;

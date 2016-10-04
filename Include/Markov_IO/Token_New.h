@@ -25,6 +25,8 @@ namespace Markov_IO_New {
     static std::string toString(double number);
     static std::string toString(int number);
     static std::string toString(std::size_t number);
+    static std::string toString(bool  boolean);
+
     enum  Value {
       EMPTY,
       ANY,
@@ -67,6 +69,8 @@ namespace Markov_IO_New {
       NEQ, //~=
       GEQ, // >=
 
+      TRUE,  //true
+      FALSE, //false
       WHILE, //while
       DO,  //do
       IF, //if
@@ -105,6 +109,7 @@ namespace Markov_IO_New {
     bool isInteger(std::string *whyNot, const std::string& masterObjective)const;
     bool isCount(std::string *whyNot, const std::string& masterObjective)const;
 
+    bool isBoolean(std::string *whyNot, const std::string& masterObjective)const;
 
 
     ///
@@ -233,6 +238,17 @@ namespace Markov_IO_New {
         return true;
       }
   }
+
+
+  template<>
+  inline
+  bool Token_New::toValue(bool& val, std::string *whyNot,const std::string &masterObjective)const
+  {
+    if (tok()==TRUE) { val=true; return true;}
+    else if (tok()==FALSE) {val=false; return true;}
+    else {return false;}
+  }
+
 
   template<>
   inline

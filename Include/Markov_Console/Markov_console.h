@@ -90,7 +90,7 @@ public:
 
 
     int exec();
-    int exec(const std::string fileCommandName);
+    int exec(const std::string line);
 
 
   };

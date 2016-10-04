@@ -48,11 +48,20 @@ namespace Markov_IO_New {
     return ss.str();
   }
 
+  std::__cxx11::string Token_New::toString(bool boolean)
+  {
+     if (!boolean) return "false";
+     else return "true";
+  }
+
   bool Token_New::oneCharIsEnough(Token_New::Value v)
   {
     switch (v) {
       case EOL:
       case PLUS:
+      case MINUS:
+      case DOT:
+
       case MUL:
       case DIV:
       case EXPONENT:
@@ -68,7 +77,11 @@ namespace Markov_IO_New {
       case OR:
       case HASH:
         return true;
-        break;
+      case COLON:
+      case LSS:
+      case ASSIGN:
+      case GTR:
+      case NOT:
       case EMPTY:
       case ANY:
       case IDENTIFIER:
@@ -76,6 +89,9 @@ namespace Markov_IO_New {
       case INTEGER:
       case UNSIGNED:
       case REAL:
+
+      case TRUE:
+      case FALSE:
       case INVALID:
       case DCOLON://::
       case  LEQ:// <=
@@ -92,9 +108,7 @@ namespace Markov_IO_New {
       case  SWITCH: //switch
       case  CASE:// case
 
-      default:
         return false;
-        break;
       }
   }
 
@@ -141,6 +155,8 @@ namespace Markov_IO_New {
       case STRING:
       case IDENTIFIER:
       case INVALID:
+      case TRUE:
+      case FALSE:
       case  WHILE:
       case  DO:
       case  IF:
@@ -675,6 +691,12 @@ namespace Markov_IO_New {
 
   }
 
+  bool Token_New::isBoolean(std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
+  {
+    return (tok()==TRUE)||(tok()==FALSE);
+
+  }
+
 
   Token_New::Value Token_New::toKeyword(std::string identifier)
   {
@@ -689,6 +711,18 @@ namespace Markov_IO_New {
         if(identifier=="do")
           {
             return DO;
+          }
+        else if(identifier=="true")
+          {
+            return TRUE;
+          }
+        else if(identifier=="false")
+          {
+            return FALSE;
+          }
+        else if(identifier=="then")
+          {
+            return THEN;
           }
         else if(identifier=="then")
           {
@@ -862,6 +896,9 @@ namespace Markov_IO_New {
       case GEQ:   return  ">=";
 
       case WHILE:   return  "while ";
+      case TRUE:   return "true ";
+      case FALSE:   return "false ";
+
       case DO:   return  "do ";
       case IF:   return  "if ";
       case THEN:   return  "then ";

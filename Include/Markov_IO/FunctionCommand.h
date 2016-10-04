@@ -140,7 +140,7 @@ namespace Markov_IO_New
       functionType(Markov_CommandManagerVar* cm)
       {
         auto out= new  Implements_Closure_Type<void*>
-            (myId(),Identifier::types::idFunct::varType(myId()));
+            (myId(),Identifier::types::idCmdGiven::varType(myId()));
         out->push_overload(cm,save_cm::closureType(cm));
         return out;
 
@@ -221,7 +221,7 @@ namespace Markov_IO_New
       functionType(Markov_CommandManagerVar* cm)
       {
         auto out= new  Implements_Closure_Type<void*>
-            (myId(),Identifier::types::idFunct::varType(myId()));
+            (myId(),Identifier::types::idCmdGiven::varType(myId()));
         out->push_overload(cm,load_cm::closureType(cm));
         return out;
 
@@ -234,6 +234,99 @@ namespace Markov_IO_New
 
 
     };
+
+
+    struct Run {
+      typedef Implements_Closure_Type<void*>  vType;
+
+      static std::string myId(){return "run";}
+      static std::string myTip(){return "run script file";}
+      static std::string myWhatThis(){return "";}
+
+      struct run_cm
+      {
+        static void run(Markov_CommandManagerVar* cm,
+                         const std::string& pathfileNameIn,
+                         const std::string& pathfileLog
+                        , bool withError);
+
+        typedef run_cm selfType;
+
+        typedef void returnType;
+        typedef std::tuple<Markov_CommandManagerVar*,std::string,std::string,bool> argTypes;
+
+        typedef decltype(&run)  funType;
+
+        typedef
+        mp_append
+        <
+        Implements_Closure_Type<returnType,void,funType>,argTypes
+        >
+        ClosureType;
+
+
+        static const Implements_Data_Type_New<returnType>*
+        getReturnType(Markov_CommandManagerVar* cm)
+        {
+          return cm->idToTyped<returnType>(Cls<returnType>::name());
+        }
+
+
+        static Implements_Closure_Type<argTypes>*
+        getArgumentTypes(Markov_CommandManagerVar* cm)
+        {
+          return new Implements_Closure_Type<argTypes>(
+                Implements_Fn_Argument<Markov_CommandManagerVar*>
+                (new _private::Implements_Closure_Value_Markov_CommandManagerVar_Self()),
+                Implements_Fn_Argument<std::string>(cm,
+                  "script file name",
+                  "macror_script.txt",
+                  "filename where the script is","")
+                ,Implements_Fn_Argument<std::string>(cm,
+                  "log file name",
+                  "macror_script_log.txt",
+                  "filename to log the read script","")
+                ,Implements_Fn_Argument<bool>(cm,
+                  "check error?",
+                  true,
+                  "if true it checks consistency","")
+
+                );
+
+        }
+
+
+        static ClosureType*
+        closureType(Markov_CommandManagerVar* cm)
+        {
+          return new ClosureType(getReturnType(cm),run,getArgumentTypes(cm));
+        }
+
+        typedef mp_list<> dependsOn;
+      };
+
+
+
+
+
+      static vType*
+      functionType(Markov_CommandManagerVar* cm)
+      {
+        auto out= new  Implements_Closure_Type<void*>
+            (myId(),Identifier::types::idCmdGiven::varType(myId()));
+        out->push_overload(cm,run_cm::closureType(cm));
+        return out;
+
+
+
+      }
+
+
+
+
+
+    };
+
 
     struct Who {
       typedef Implements_Closure_Type<void*>  vType;
@@ -301,7 +394,7 @@ namespace Markov_IO_New
       functionType(Markov_CommandManagerVar* cm)
       {
         auto out= new  Implements_Closure_Type<void*>
-            (myId(),Identifier::types::idFunct::varType(myId()));
+            (myId(),Identifier::types::idCmdGiven::varType(myId()));
         out->push_overload(cm,who_cm::closureType(cm));
         return out;
 
@@ -381,7 +474,7 @@ namespace Markov_IO_New
       functionType(Markov_CommandManagerVar* cm)
       {
         auto out= new  Implements_Closure_Type<void*>
-            (myId(),Identifier::types::idFunct::varType(myId()));
+            (myId(),Identifier::types::idCmdGiven::varType(myId()));
         out->push_overload(cm,exit_cm::closureType(cm));
         return out;
 
@@ -486,7 +579,7 @@ namespace Markov_IO_New
       functionType(Markov_CommandManagerVar* cm)
       {
         auto out= new  Implements_Closure_Type<void*>
-            (myId(),Identifier::types::idFunct::varType(myId()));
+            (myId(),Identifier::types::idFunGiven::varType(myId()));
         out->push_overload(cm,simulate_cm::closureType(cm));
         return out;
 

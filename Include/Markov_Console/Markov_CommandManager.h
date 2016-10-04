@@ -71,7 +71,10 @@ namespace Markov_IO_New
 
      void KeyEvent(Key k);
 
-     bool exec(std::string filename);
+     void run(ABC_Input *istream, ABC_Output *ostream, bool checkErrors);
+
+
+
 
      static std::string ClassName(){return "Markov_CommandManagerVar";}
 
@@ -144,12 +147,13 @@ namespace Markov_IO_New
    }
 
 
-  protected:
+   protected:
     ABC_IO* io_;
     Implements_Data_Type_New<Implements_Var>* vt_;
     Implements_Data_Type_New<Implements_Var_Closure>* vct_;
     Implements_Closure_Type<void*>* cmdt_;
     ExpressionManager* e;
+
     bool lastCmdRst;
     ProgramVersion program_ver_;
     CommandHistory* h_;

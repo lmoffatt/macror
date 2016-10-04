@@ -697,9 +697,11 @@ namespace Markov_IO_New {
         : clType_(clType),clData_(clone_tuple(clData)),iArg_(iArg){}
 
 
+      Implements_Closure_Value_tuple(const Implements_Closure_Type<myC> * clType)
+        : clType_(clType),clData_(),iArg_(0){}
+
       Implements_Closure_Value_tuple()
         : clType_(),clData_(),iArg_(0){}
-
 
       Implements_Closure_Value_tuple(const Implements_Closure_Value_tuple& other)
         : clType_(other.clType_),clData_(clone_tuple(other.clData_)),iArg_(other.iArg_){}
@@ -798,7 +800,8 @@ namespace Markov_IO_New {
 
         if (! e->putMe(cm,ostream,whyNot,masterObjective))
           return false;
-        else return putClosureValue_imp<D,Is...>(cm,v,arg,ostream,whyNot,masterObjective);
+        else
+          return putClosureValue_imp<D,Is...>(cm,v,arg,ostream,whyNot,masterObjective);
 
       }
 
@@ -895,7 +898,9 @@ namespace Markov_IO_New {
                                       ,ABC_Input* istream,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")
       {
-        return true;
+
+        return (istream->nextCharIs(')',false)||istream->testIfNextCharIs('\n')
+                ||istream->eof());
 
       }
 
@@ -910,25 +915,38 @@ namespace Markov_IO_New {
       {
         typedef typename std::tuple_element<I,std::tuple<Args...>>::type eType;
         const Implements_Closure_Type<eType>* clType=std::get<I>(arg).closureType(cm);
-        bool mandatory=std::get<I>(arg).isMandatory();
-        if (clType==nullptr)
-          clType=cm->idToTypeC<eType>(Cls<eType>::name());
-        ABC_R_Closure<eType>* x;
 
-        if (!mandatory
-            &&  (istream->testIfNextCharIs(')')||istream->testIfNextCharIs('\n')
-                 ||istream->eof()))
+        Implements_Fn_Argument<eType> aT=std::get<I>(arg);
+
+        if (aT.isDefaulted())
           {
-            fill_imp<0,Is...>(v->getTuple(),arg);
-            return true;
-          }
-        else if (! clType->getClosure_R(cm,x,istream,whyNot,masterObjective))
-          return false;
-        else
-          {
-            std::get<I>(v->getTuple()).reset(x);
+            std::get<I>(v->getTuple()).reset(aT.defaultValue());
             return getClosureValue_imp<0,Is...>
                 (cm,v,arg,istream,whyNot,masterObjective);
+
+          }
+        else
+          {
+            bool mandatory=std::get<I>(arg).isMandatory();
+            if (clType==nullptr)
+              clType=cm->idToTypeC<eType>(Cls<eType>::name());
+            ABC_R_Closure<eType>* x;
+
+            if (!mandatory
+                &&  (istream->nextCharIs(')',false)||istream->testIfNextCharIs('\n')
+                     ||istream->eof()))
+              {
+                fill_imp<0,I,Is...>(v->getTuple(),arg);
+                return true;
+              }
+            else if (! clType->getClosure_R(cm,x,istream,whyNot,masterObjective))
+              return false;
+            else
+              {
+                std::get<I>(v->getTuple()).reset(x);
+                return getClosureValue_imp<0,Is...>
+                    (cm,v,arg,istream,whyNot,masterObjective);
+              }
           }
       }
 
@@ -952,7 +970,14 @@ namespace Markov_IO_New {
                                    ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")const
       {
-
+        char c;
+        if (!istream->nextCharIs('(',c))
+          {
+            if (whyNot!=nullptr)
+              *whyNot=masterObjective+": expected ( found: "+c;
+            return false;
+          }
+        else
         return getClosureValue_imp
             (std::index_sequence_for<Args...>(),cm,v,getFnArguments(cm)
              ,istream,whyNot,masterObjective);
@@ -980,7 +1005,7 @@ namespace Markov_IO_New {
                                 ,std::string* whyNot=nullptr
           ,const std::string& masterObjective="")const override
       {
-        myC* v;
+        myC* v=new myC;
         if (getClosureValue(cm,v,istream,whyNot,masterObjective))
           {
             cl=v;
@@ -1562,18 +1587,31 @@ namespace Markov_IO_New {
             ABC_Closure* cl;
             eType=getElementType(cm,v,whyNot,masterObjective,eType);
             if (eType==nullptr)
-              return false;
+              {
+                istream->put_back(v.id);
+                return false;
+              }
             else if (!istream->nextCharIs('=',c))
               {
+                istream->put_back(v.id);
                 *whyNot=masterObjective+": assign (=) missing, found "+c;
                 return false;
               }
             else if(! eType->getClosure(cm,cl,istream,whyNot,masterObjective))
-              return false;
+              {
+                istream->put_back(v.id+" =");
+
+                return false;
+              }
             else
               {
                 v.closure.reset(cl);
-                return (whyNot==nullptr)||isValueInDomain(cm,v,whyNot,masterObjective);
+                if ((whyNot==nullptr)||isValueInDomain(cm,v,whyNot,masterObjective))
+                  return true;
+                else
+                  {
+                    return false;
+                  }
 
               }
 
@@ -2191,7 +2229,7 @@ namespace Markov_IO_New {
                                    ,std::string* whyNot
                                    ,const std::string& masterObjective )const
       {
-        Implements_Closure_Value<std::tuple<Args...>>* args;
+        Implements_Closure_Value<std::tuple<Args...>>* args=new Implements_Closure_Value<std::tuple<Args...>>(getArgumentsType(cm));
         if (!getArgumentsType(cm)->getClosureValue
             (cm,args,istream,whyNot,masterObjective))
           {
@@ -2229,10 +2267,10 @@ namespace Markov_IO_New {
                                 ,const std::string& masterObjective )const override
       {
         std::string id;
-        if (!myFunctionIdentifier(cm)->getValue(cm,id,istream,whyNot,masterObjective))
-          return false;
-        else
-          return fillArguments_R(cm,cl,istream,whyNot,masterObjective);
+        // if (!myFunctionIdentifier(cm)->getValue(cm,id,istream,whyNot,masterObjective))
+        //   return false;
+        // else
+        return fillArguments_R(cm,cl,istream,whyNot,masterObjective);
 
       }
 
@@ -3309,23 +3347,25 @@ namespace Markov_IO_New {
   namespace _private
   {
     inline
-    bool Implements_Closure_Type_Function::getClosure(const StructureEnv_New *cm, ABC_Closure *&v, ABC_Input *istream, std::__cxx11::string *error, const std::__cxx11::string &masterObjective) const
+    bool Implements_Closure_Type_Function::getClosure(const StructureEnv_New *cm, ABC_Closure *&v, ABC_Input *istream, std::__cxx11::string *whyNot, const std::__cxx11::string &masterObjective) const
     {
 
       std::string id;
-      if (myFunctionIdentifier(cm)->getValue(cm,id,istream,error,masterObjective))
+      const Implements_Closure_Type<void*>* ct;
+      if (myFunctionIdentifier(cm)->getValue(cm,id,istream,whyNot,masterObjective))
         {
-          for (const std::unique_ptr<ABC_Function_Overload>& e:getOverloadsTypes(cm)->getAllClosures())
+          ct=cm->idToCmd(id,whyNot,masterObjective);
+          if ((ct!=nullptr)&& (ct->getOverloadsTypes(cm)->getClosure(cm,v,istream,whyNot,masterObjective)))
+            return true;
+          else
             {
-              if (e->getClosure(cm,v,istream,error,masterObjective))
-                return true;
+              istream->put_back(id);
+              return false;
             }
-          return false;
         }
-      else
-        return false;
-    }
+      else  return false;
 
+    }
   }
 
 };

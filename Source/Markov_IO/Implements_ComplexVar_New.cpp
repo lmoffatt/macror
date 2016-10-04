@@ -120,16 +120,26 @@ namespace Markov_IO_New {
           char c;
           eType=getElementType(cm,v,whyNot,masterObjective,eType);
           if (eType==nullptr)
+            {
+              istream->put_back(v.id);
             return false;
+            }
           else if (!istream->nextCharIs(':',c))
             {
+              istream->put_back(v.id);
               *whyNot=masterObjective+": colon (:) missing, found "+c;
               return false;
             }
           else if(! eType->getValue(cm,v.data,istream,whyNot,masterObjective))
-            return false;
+            {
+              istream->put_back(v.id+" :");
+              return false;
+            }
           else
-            return (whyNot==nullptr)||isValueInDomain(cm,v,whyNot,masterObjective);
+            if ((whyNot==nullptr)||isValueInDomain(cm,v,whyNot,masterObjective))
+              return true;
+          else
+              return false;
         }
 
     }
