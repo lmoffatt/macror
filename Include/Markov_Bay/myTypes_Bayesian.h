@@ -92,8 +92,8 @@ namespace Markov_IO_New {
         typedef mp_list<> dependsOn;
 
 
-        static std::string myId(){return Cls<myD>::name();}
-        static std::string myIdType(){return Cls<myD>::name();}
+        static std::string myId(){return Cls<myD*>::name();}
+        static std::string myIdType(){return Cls<myD*>::name();}
         static std::string myTip(){return "Likelihood evaluation values";}
         static std::string myWhatThis(){return "";}
 

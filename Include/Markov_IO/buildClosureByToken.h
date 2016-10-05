@@ -267,9 +267,10 @@ namespace Markov_IO_New {
       p_(paren),
       mystate(S_Init),
       varType_(typeVar)
+    ,xTupl_()
+    ,iArg_(0)
     ,buildTupl_(getBuildTuple(paren,typeVar->getFnArguments(paren)
                               ,std::index_sequence_for<Args...>()))
-    ,xTupl_()
     {
     }
 

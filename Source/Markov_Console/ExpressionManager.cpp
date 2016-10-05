@@ -226,7 +226,7 @@ namespace Markov_IO_New {
         break;
 
       case Key_Tab:
-        if (previous_key!=Key_Tab)
+          if (previous_key!=Key_Tab)
           suggestCompletion(cm,io);
         else
           suggestAlternatives(cm,io);
