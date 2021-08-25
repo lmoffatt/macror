@@ -1,5 +1,0 @@
->>help who
-who
-       List all the variables in memory
-
->>

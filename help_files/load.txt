@@ -1,9 +1,0 @@
->>help load
-load
-      Loads all the variables from the default file macror.txt
-
-load a_file_name
-      Loads all the variables form the file a_file_name.txt
-
->>
-

@@ -1,5 +1,0 @@
->>help dir
-dir
-      Displays the contents of the current directory.
-
->>

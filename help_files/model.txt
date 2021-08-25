@@ -1,9 +1,0 @@
->>help model
-enter
-
-help model channel
-or
-help model patch
-
->>
-

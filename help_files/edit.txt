@@ -1,7 +1,0 @@
->>help edit
-edit variable-alias
-    Interactive editing of variable
-
-
->>
-
